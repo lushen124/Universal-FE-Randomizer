@@ -6,12 +6,12 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
-public class OpenFileFlow implements Listener {
-	
+public class SaveFileFlow implements Listener {
+
 	Shell parent;
 	FileFlowDelegate delegate;
 
-	public OpenFileFlow(Shell parent, FileFlowDelegate delegate) {
+	public SaveFileFlow(Shell parent, FileFlowDelegate delegate) {
 		super();
 		this.parent = parent;
 		this.delegate = delegate;
@@ -23,5 +23,4 @@ public class OpenFileFlow implements Listener {
 		FileDialog openDialog = new FileDialog(parent, SWT.OPEN);
 		delegate.onSelectedFile(openDialog.open());
 	}
-
 }

@@ -29,9 +29,15 @@ public class FileHandler {
 		}
 		
 		crc32 = checksum.getValue();
+		
+		inputStream.close();
 	}
 	
 	public byte[] readBytesAtOffset(long offset, int numBytes) {
+		long remainingBytes = fileLength - offset;
+		if (numBytes > remainingBytes) {
+			numBytes = (int)remainingBytes;
+		}
 		byte[] outputBytes = new byte[numBytes];
 		
 		try {
@@ -56,4 +62,12 @@ public class FileHandler {
 		return fileLength;
 	}
 	
+	@Override
+	protected void finalize() throws Throwable {
+		try {
+			inputFile.close();
+		} finally {
+			super.finalize();
+		}
+	}
 }

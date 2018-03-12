@@ -1,5 +1,5 @@
 package ui;
 
-public interface OpenFileFlowDelegate {
+public interface FileFlowDelegate {
 	void onSelectedFile(String pathToFile);
 }

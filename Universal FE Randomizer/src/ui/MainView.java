@@ -13,6 +13,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
@@ -21,9 +22,16 @@ import org.eclipse.swt.widgets.Text;
 
 import application.Main;
 import fedata.FE7Data;
+import fedata.FEBase;
+import fedata.FECharacter;
+import io.DiffApplicator;
 import io.FileHandler;
+import random.CharacterDataLoader;
+import random.GrowthsRandomizer;
+import util.DiffCompiler;
+import util.TextHelper;
 
-public class MainView implements OpenFileFlowDelegate {
+public class MainView implements FileFlowDelegate {
 	
 	public Shell mainShell;
 	
@@ -200,6 +208,18 @@ public class MainView implements OpenFileFlowDelegate {
 				baseView.setVisible(true);
 				classView.setVisible(true);
 				miscView.setVisible(true);
+				
+				//TextHelper textHelper = new TextHelper(FEBase.GameType.FE7, handler);
+				
+				CharacterDataLoader characterData = new CharacterDataLoader(FEBase.GameType.FE7, handler);
+				GrowthsRandomizer.randomizeGrowthsByRedistribution(0, characterData);
+				DiffCompiler compiler = new DiffCompiler();
+				compiler.addDiffsFromFile("tutorialSlayer");
+				characterData.compileDiffs(compiler);
+				
+				FileDialog openDialog = new FileDialog(mainShell, SWT.OPEN);
+				DiffApplicator.applyDiffs(compiler, handler, openDialog.open());
+
 			}
 			
 			romInfoGroup.setVisible(true);
