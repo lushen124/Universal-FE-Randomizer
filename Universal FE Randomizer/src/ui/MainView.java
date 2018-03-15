@@ -61,6 +61,8 @@ public class MainView implements FileFlowDelegate {
 		 mainShell = shell;
 		 
 		 setupMainShell();
+		 int requiredY = miscView.getBounds().y + miscView.getBounds().height;
+		 shell.setSize(1024, requiredY);
 	}
 
 	public void setupMainShell() {		  
@@ -217,7 +219,7 @@ public class MainView implements FileFlowDelegate {
 				compiler.addDiffsFromFile("tutorialSlayer");
 				characterData.compileDiffs(compiler);
 				
-				FileDialog openDialog = new FileDialog(mainShell, SWT.OPEN);
+				FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
 				DiffApplicator.applyDiffs(compiler, handler, openDialog.open());
 
 			}
