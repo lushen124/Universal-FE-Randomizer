@@ -15,14 +15,14 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
+import ui.model.GrowthOptions;
+import ui.model.MinMaxOption;
+import ui.model.VarOption;
+
 public class GrowthsView extends Composite {
 	
-	public enum Mode {
-		REDISTRIBUTE, DELTA, FULL
-	}
-	
 	private Boolean isEnabled = false;
-	private Mode currentMode = Mode.REDISTRIBUTE;
+	private GrowthOptions.Mode currentMode = GrowthOptions.Mode.REDISTRIBUTE;
 	
 	private Group container;
 	
@@ -74,7 +74,7 @@ public class GrowthsView extends Composite {
 		redistributeOption.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				setMode(Mode.REDISTRIBUTE);				
+				setMode(GrowthOptions.Mode.REDISTRIBUTE);				
 			}
 		});
 		
@@ -125,7 +125,7 @@ public class GrowthsView extends Composite {
 		byDeltaOption.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				setMode(Mode.DELTA);				
+				setMode(GrowthOptions.Mode.DELTA);				
 			}
 		});
 		
@@ -175,7 +175,7 @@ public class GrowthsView extends Composite {
 		fullRandomOption.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				setMode(Mode.FULL);
+				setMode(GrowthOptions.Mode.FULL);
 			}
 		});
 		
@@ -200,14 +200,14 @@ public class GrowthsView extends Composite {
 		redistributeOption.setEnabled(enabled);
 		byDeltaOption.setEnabled(enabled);
 		fullRandomOption.setEnabled(enabled);
-		varianceSpinner.setEnabled(enabled && currentMode == Mode.REDISTRIBUTE);
-		deltaSpinner.setEnabled(enabled && currentMode == Mode.DELTA);
-		growthRangeControl.setEnabled(enabled && currentMode == Mode.FULL);
+		varianceSpinner.setEnabled(enabled && currentMode == GrowthOptions.Mode.REDISTRIBUTE);
+		deltaSpinner.setEnabled(enabled && currentMode == GrowthOptions.Mode.DELTA);
+		growthRangeControl.setEnabled(enabled && currentMode == GrowthOptions.Mode.FULL);
 		
 		isEnabled = enabled;
 	}
 
-	private void setMode(Mode newMode) {
+	private void setMode(GrowthOptions.Mode newMode) {
 		currentMode = newMode;
 		if (isEnabled) {
 			switch (newMode) {
@@ -230,27 +230,25 @@ public class GrowthsView extends Composite {
 		}
 	}
 	
-	public Boolean isGrowthEnabled() {
-		return isEnabled;
-	}
-	
-	public Mode randomizationType() {
-		return currentMode;
-	}
-	
-	public int getDeltaParameter() {
-		return deltaSpinner.getSelection();
-	}
-	
-	public int getAbsoluteMinimum() {
-		return growthRangeControl.getMinSpinner().getSelection();
-	}
-	
-	public int getAbsoluteMaximum() {
-		return growthRangeControl.getMaxSpinner().getSelection();
-	}
-	
-	public int getRedistributionVariance() {
-		return varianceSpinner.getSelection();
+	public GrowthOptions getGrowthOptions() {
+		if (!isEnabled) { return null; }
+		
+		VarOption redistributionOption = null;
+		VarOption deltaOption = null;
+		MinMaxOption fullOption = null;
+		
+		switch (currentMode) {
+		case REDISTRIBUTE:
+			redistributionOption = new VarOption(varianceSpinner.getSelection());
+			break;
+		case DELTA:
+			deltaOption = new VarOption(deltaSpinner.getSelection());
+			break;
+		case FULL:
+			fullOption = growthRangeControl.getMinMaxOption();
+			break;
+		}
+		
+		return new GrowthOptions(currentMode, redistributionOption, deltaOption, fullOption);
 	}
 }

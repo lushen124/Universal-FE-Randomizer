@@ -13,6 +13,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
+import ui.model.MinMaxOption;
+import ui.model.MinVarOption;
+import ui.model.OtherCharacterOptions;
+
 public class MOVCONAffinityView extends Composite {
 	
 	private Group container;
@@ -34,7 +38,7 @@ public class MOVCONAffinityView extends Composite {
 		
 		container = new Group(this, SWT.NONE);
 		
-		container.setText("Miscellaneous");
+		container.setText("Other Character Settings");
 		
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.marginLeft = 5;
@@ -153,31 +157,17 @@ public class MOVCONAffinityView extends Composite {
 		randomizeAffinityButton.setLayoutData(affinityData);
 	}
 	
-	public Boolean shouldRandomizeMOV() {
-		return randomizeMOVButton.getSelection();
-	}
-
-	public int minimumMOV() {
-		return movLimitControl.getMinSpinner().getSelection();
-	}
-	
-	public int maximumMOV() {
-		return movLimitControl.getMaxSpinner().getSelection();
-	}
-	
-	public Boolean shouldRandomizeCON() {
-		return randomizeCONButton.getSelection();
-	}
-	
-	public int conVariance() {
-		return varianceSpinner.getSelection();
-	}
-	
-	public int minimumCON() {
-		return minCONSpinner.getSelection();
-	}
-	
-	public Boolean shouldRandomizeAffinity() {
-		return randomizeAffinityButton.getSelection();
+	public OtherCharacterOptions getOtherCharacterOptions() {
+		MinMaxOption movementOptions = null;
+		MinVarOption constitutionOptions = null;
+		
+		if (randomizeMOVButton.getSelection()) {
+			movementOptions = movLimitControl.getMinMaxOption();
+		}
+		if (randomizeCONButton.getSelection()) {
+			constitutionOptions = new MinVarOption(minCONSpinner.getSelection(), varianceSpinner.getSelection());
+		}
+		
+		return new OtherCharacterOptions(movementOptions, constitutionOptions, randomizeAffinityButton.getSelection());
 	}
 }

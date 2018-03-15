@@ -13,14 +13,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
+import ui.model.BaseOptions;
+import ui.model.VarOption;
+
 public class BasesView extends Composite {
 	
-	public enum Mode {
-		REDISTRIBUTE, DELTA
-	}
-	
 	private Boolean isEnabled = false;
-	private Mode currentMode = Mode.REDISTRIBUTE;
+	private BaseOptions.Mode currentMode = BaseOptions.Mode.REDISTRIBUTE;
 	
 	private Group container;
 	
@@ -69,7 +68,7 @@ public class BasesView extends Composite {
 		redistributeOption.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				setMode(Mode.REDISTRIBUTE);				
+				setMode(BaseOptions.Mode.REDISTRIBUTE);				
 			}
 		});
 		
@@ -120,7 +119,7 @@ public class BasesView extends Composite {
 		byDeltaOption.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				setMode(Mode.DELTA);				
+				setMode(BaseOptions.Mode.DELTA);				
 			}
 		});
 		
@@ -165,13 +164,13 @@ public class BasesView extends Composite {
 	private void setEnableBases(Boolean enabled) {
 		redistributeOption.setEnabled(enabled);
 		byDeltaOption.setEnabled(enabled);
-		varianceSpinner.setEnabled(enabled && currentMode == Mode.REDISTRIBUTE);
-		deltaSpinner.setEnabled(enabled && currentMode == Mode.DELTA);
+		varianceSpinner.setEnabled(enabled && currentMode == BaseOptions.Mode.REDISTRIBUTE);
+		deltaSpinner.setEnabled(enabled && currentMode == BaseOptions.Mode.DELTA);
 		
 		isEnabled = enabled;
 	}
 
-	private void setMode(Mode newMode) {
+	private void setMode(BaseOptions.Mode newMode) {
 		currentMode = newMode;
 		if (isEnabled) {
 			switch (newMode) {
@@ -187,20 +186,22 @@ public class BasesView extends Composite {
 		}
 	}
 	
-	public Boolean isGrowthEnabled() {
-		return isEnabled;
-	}
-	
-	public Mode randomizationType() {
-		return currentMode;
-	}
-	
-	public int getDeltaParameter() {
-		return deltaSpinner.getSelection();
-	}
-	
-	public int getRedistributionVariance() {
-		return varianceSpinner.getSelection();
+	public BaseOptions getBaseOptions() {
+		if (!isEnabled) { return null; }
+		
+		VarOption redistributionOption = null;
+		VarOption deltaOption = null;
+		
+		switch (currentMode) {
+		case REDISTRIBUTE:
+			redistributionOption = new VarOption(varianceSpinner.getSelection());
+			break;
+		case DELTA:
+			deltaOption = new VarOption(deltaSpinner.getSelection());
+			break;
+		}
+		
+		return new BaseOptions(currentMode, redistributionOption, deltaOption);
 	}
 
 }

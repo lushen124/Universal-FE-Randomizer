@@ -10,6 +10,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
+import ui.model.MinMaxOption;
+
 public class MinMaxControl extends Composite {
 	
 	private Spinner minSpinner;
@@ -96,6 +98,8 @@ public class MinMaxControl extends Composite {
 		maxSpinner.setEnabled(enabled);
 	}
 	
-	
+	public MinMaxOption getMinMaxOption() {
+		return new MinMaxOption(minSpinner.getSelection(), maxSpinner.getSelection());
+	}
 
 }
