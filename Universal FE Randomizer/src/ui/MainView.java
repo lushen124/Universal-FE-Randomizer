@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -59,14 +60,17 @@ public class MainView implements FileFlowDelegate {
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.RESIZE & ~SWT.MAX); 
 		 shell.setText("Universal FE Randomizer");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("icon.png")));
-		 shell.setSize(1024, 768);
 		 
 		 mainShell = shell;
 		 
 		 setupMainShell();
-		 int requiredX = classView.getBounds().x + classView.getBounds().width + 10;
-		 int requiredY = Math.max(otherCharOptionView.getBounds().y + otherCharOptionView.getBounds().height, weaponView.getBounds().y + weaponView.getBounds().height) + 40;
-		 shell.setSize(requiredX, requiredY);
+		 
+		 mainShell.layout();
+		 final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		 mainShell.setSize(newSize);
+		 
+		 /* Open shell window */
+		  mainShell.open();
 	}
 
 	public void setupMainShell() {		  
@@ -178,6 +182,7 @@ public class MainView implements FileFlowDelegate {
 		  FormData classData = new FormData();
 		  classData.top = new FormAttachment(weaponView, 0, SWT.TOP);
 		  classData.left = new FormAttachment(weaponView, 5);
+		  classData.right = new FormAttachment(100, -5);
 		  classView.setLayoutData(classData);
 		  
 		  enemyView = new EnemyBuffsView(mainShell, SWT.NONE);
@@ -210,9 +215,6 @@ public class MainView implements FileFlowDelegate {
 		  randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
 		  randomizeData.bottom = new FormAttachment(100, -10);
 		  randomizeButton.setLayoutData(randomizeData);
-
-		  /* Open shell window */
-		  mainShell.open();
 	}
 
 	@Override

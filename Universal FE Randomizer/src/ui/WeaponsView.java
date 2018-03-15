@@ -393,6 +393,7 @@ public class WeaponsView extends Composite {
 		FormData devilData = new FormData();
 		devilData.left = new FormAttachment(enableRandomEffectsButton, 10, SWT.LEFT);
 		devilData.top = new FormAttachment(enableRandomEffectsButton, 5);
+		devilData.bottom = new FormAttachment(100, -5);
 		allowDevilEffectButton.setLayoutData(devilData);
 		
 		enableRandomEffectsButton.addListener(SWT.Selection, new Listener() {
