@@ -9,6 +9,11 @@ public class GrowthsRandomizer {
 	public static void randomizeGrowthsByRedistribution(int variance, CharacterDataLoader charactersData) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		for (FECharacter character : allPlayableCharacters) {
+			
+			if (character.wasModified()) {
+				continue;
+			}
+			
 			int growthTotal = character.getHPGrowth() + character.getSTRGrowth() + character.getSKLGrowth() + character.getSPDGrowth() + 
 					character.getLCKGrowth() + character.getDEFGrowth() + character.getRESGrowth();
 			
@@ -59,19 +64,27 @@ public class GrowthsRandomizer {
 				}
 			}
 			
-			character.setHPGrowth(newHPGrowth);
-			character.setSTRGrowth(newSTRGrowth);
-			character.setSKLGrowth(newSKLGrowth);
-			character.setSPDGrowth(newSPDGrowth);
-			character.setLCKGrowth(newLCKGrowth);
-			character.setDEFGrowth(newDEFGrowth);
-			character.setRESGrowth(newRESGrowth);
+			for (FECharacter thisCharacter : charactersData.linkedCharactersForCharacter(character)) {
+				thisCharacter.setHPGrowth(newHPGrowth);
+				thisCharacter.setSTRGrowth(newSTRGrowth);
+				thisCharacter.setSKLGrowth(newSKLGrowth);
+				thisCharacter.setSPDGrowth(newSPDGrowth);
+				thisCharacter.setLCKGrowth(newLCKGrowth);
+				thisCharacter.setDEFGrowth(newDEFGrowth);
+				thisCharacter.setRESGrowth(newRESGrowth);
+			}
 		}
+		
+		charactersData.commit();
 	}
 	
 	public static void randomizeGrowthsByRandomDelta(int maxDelta, CharacterDataLoader charactersData) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		for (FECharacter character : allPlayableCharacters) {
+			
+			if (character.wasModified()) {
+				continue;
+			}
 			
 			int newHPGrowth = character.getHPGrowth();
 			int newSTRGrowth = character.getSTRGrowth();
@@ -124,27 +137,48 @@ public class GrowthsRandomizer {
 				newRESGrowth -= ThreadLocalRandom.current().nextInt(maxDelta + 1);
 			}
 			
-			character.setHPGrowth(newHPGrowth);
-			character.setSTRGrowth(newSTRGrowth);
-			character.setSKLGrowth(newSKLGrowth);
-			character.setSPDGrowth(newSPDGrowth);
-			character.setLCKGrowth(newLCKGrowth);
-			character.setDEFGrowth(newDEFGrowth);
-			character.setRESGrowth(newRESGrowth);
+			for (FECharacter thisCharacter : charactersData.linkedCharactersForCharacter(character)) {
+				thisCharacter.setHPGrowth(newHPGrowth);
+				thisCharacter.setSTRGrowth(newSTRGrowth);
+				thisCharacter.setSKLGrowth(newSKLGrowth);
+				thisCharacter.setSPDGrowth(newSPDGrowth);
+				thisCharacter.setLCKGrowth(newLCKGrowth);
+				thisCharacter.setDEFGrowth(newDEFGrowth);
+				thisCharacter.setRESGrowth(newRESGrowth);
+			}
 		}
+		
+		charactersData.commit();
 	}
 	
 	public static void fullyRandomizeGrowthsWithRange(int minGrowth, int maxGrowth, CharacterDataLoader charactersData) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		for (FECharacter character : allPlayableCharacters) {
-			character.setHPGrowth(ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1));
-			character.setSTRGrowth(ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1));
-			character.setSKLGrowth(ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1));
-			character.setSPDGrowth(ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1));
-			character.setLCKGrowth(ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1));
-			character.setDEFGrowth(ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1));
-			character.setRESGrowth(ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1));
+			
+			if (character.wasModified()) {
+				continue;
+			}
+			
+			int newHPGrowth = ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1);
+			int newSTRGrowth = ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1);
+			int newSKLGrowth = ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1);
+			int newSPDGrowth = ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1);
+			int newLCKGrowth = ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1);
+			int newDEFGrowth = ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1);
+			int newRESGrowth = ThreadLocalRandom.current().nextInt(minGrowth, maxGrowth + 1);
+			
+			for (FECharacter thisCharacter : charactersData.linkedCharactersForCharacter(character)) {
+				thisCharacter.setHPGrowth(newHPGrowth);
+				thisCharacter.setSTRGrowth(newSTRGrowth);
+				thisCharacter.setSKLGrowth(newSKLGrowth);
+				thisCharacter.setSPDGrowth(newSPDGrowth);
+				thisCharacter.setLCKGrowth(newLCKGrowth);
+				thisCharacter.setDEFGrowth(newDEFGrowth);
+				thisCharacter.setRESGrowth(newRESGrowth);
+			}
 		}
+		
+		charactersData.commit();
 	}
 
 }

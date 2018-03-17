@@ -5,11 +5,11 @@ import java.util.Map;
 
 import fedata.FEBase;
 import fedata.FECharacter;
+import fedata.fe7.FE7Character;
+import fedata.fe7.FE7Data;
 import io.FileHandler;
 import util.Diff;
 import util.DiffCompiler;
-import fedata.FE7Character;
-import fedata.FE7Data;
 
 public class CharacterDataLoader {
 	
@@ -37,25 +37,46 @@ public class CharacterDataLoader {
 	public FECharacter[] playableCharacters() {
 		switch (gameType) {
 			case FE7:
-				int charCount = FE7Data.Character.allPlayableCharacters.length;
-				FECharacter[] charArray = new FECharacter[charCount];
-				for (int i = 0; i < charCount; i++) {
-					FECharacter character = characterMap.get(FE7Data.Character.allPlayableCharacters[i].ID);
-					charArray[i] = character;
-				}
-				
-				return charArray;
+				return charactersFromList(FE7Data.Character.allPlayableCharacters);
 			default:
 				return new FECharacter[] {};
 		}
 	}
 	
+	public FECharacter[] linkedCharactersForCharacter(FECharacter character) {
+		switch (gameType) {
+		case FE7:
+			FE7Data.Character characters[] = FE7Data.Character.allLinkedCharactersFor(FE7Data.Character.valueOf(character.getID()));
+			return charactersFromList(characters);
+		default:
+			return new FECharacter[] {character};
+		}
+	}
+	
+	public void commit() {
+		for (FECharacter character : characterMap.values()) {
+			character.commitChanges();
+		}
+	}
+	
 	public void compileDiffs(DiffCompiler compiler) {
 		for (FECharacter character : characterMap.values()) {
-			if (character.wasModified()) {
+			character.commitChanges();
+			if (character.hasCommittedChanges()) {
 				Diff charDiff = new Diff(character.getAddressOffset(), character.getCharacterData().length, character.getCharacterData(), null);
 				compiler.addDiff(charDiff);
 			}
 		}
+	}
+	
+	private FECharacter[] charactersFromList(FE7Data.Character[] characters) {
+		int charCount = characters.length;
+		FECharacter[] result = new FECharacter[charCount];
+		for (int i = 0; i < charCount; i++) {
+			FECharacter character = characterMap.get(characters[i].ID);
+			result[i] = character;
+		}
+		
+		return result;
 	}
 }

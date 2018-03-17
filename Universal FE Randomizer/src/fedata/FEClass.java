@@ -1,6 +1,6 @@
 package fedata;
 
-public interface FECharacter {
+public interface FEClass {
 	
 	// Info
 	
@@ -8,9 +8,6 @@ public interface FECharacter {
 	public int getDescriptionIndex();
 	
 	public int getID();
-	
-	public int getClassID();
-	public void setClassID(int classID);
 	
 	// Growths
 	
@@ -38,31 +35,28 @@ public interface FECharacter {
 	// Bases
 	
 	public int getBaseHP();
-	public void setBaseHP(int baseHP);
-	
 	public int getBaseSTR();
-	public void setBaseSTR(int baseSTR);
-	
 	public int getBaseSKL();
-	public void setBaseSKL(int baseSKL);
-	
 	public int getBaseSPD();
-	public void setBaseSPD(int baseSPD);
-	
 	public int getBaseDEF();
-	public void setBaseDEF(int baseDEF);
-	
 	public int getBaseRES();
-	public void setBaseRES(int baseRES);
-	
 	public int getBaseLCK();
-	public void setBaseLCK(int baseLCK);
+	
+	// Caps
+	
+	public int getMaxHP();
+	public int getMaxSTR();
+	public int getMaxSKL();
+	public int getMaxSPD();
+	public int getMaxDEF();
+	public int getMaxRES();
+	public int getMaxLCK();
 	
 	// Read/Write
 	
 	public void resetData();
 	public void commitChanges();
-	public byte[] getCharacterData();
+	public byte[] getClassData();
 	public Boolean hasCommittedChanges();
 	
 	public Boolean wasModified();

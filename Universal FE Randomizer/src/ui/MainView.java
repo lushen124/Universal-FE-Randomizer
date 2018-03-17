@@ -14,20 +14,23 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import application.Main;
-import fedata.FE7Data;
 import fedata.FEBase;
+import fedata.fe7.FE7Data;
 import io.DiffApplicator;
 import io.FileHandler;
 import random.CharacterDataLoader;
 import random.GrowthsRandomizer;
+import random.Randomizer;
 import util.DiffCompiler;
 
 public class MainView implements FileFlowDelegate {
@@ -219,8 +222,10 @@ public class MainView implements FileFlowDelegate {
 
 	@Override
 	public void onSelectedFile(String pathToFile) {
-		if (filenameField != null) {
+		if (pathToFile != null) {
 			filenameField.setText(pathToFile);
+		} else {
+			return;
 		}
 		
 		try {
@@ -266,20 +271,46 @@ public class MainView implements FileFlowDelegate {
 				miscView.setVisible(true);
 				randomizeButton.setVisible(true);
 				
-				//TextHelper textHelper = new TextHelper(FEBase.GameType.FE7, handler);
-				
-				CharacterDataLoader characterData = new CharacterDataLoader(FEBase.GameType.FE7, handler);
-				GrowthsRandomizer.randomizeGrowthsByRedistribution(0, characterData);
-				DiffCompiler compiler = new DiffCompiler();
-				compiler.addDiffsFromFile("tutorialSlayer");
-				characterData.compileDiffs(compiler);
-				
-				FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
-				String writePath = openDialog.open();
-				if (writePath != null) {
-					DiffApplicator.applyDiffs(compiler, handler, writePath);
-				}
-
+				randomizeButton.addListener(SWT.Selection, new Listener() {
+					@Override
+					public void handleEvent(Event event) {
+						//TextHelper textHelper = new TextHelper(FEBase.GameType.FE7, handler);
+						
+						FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
+						openDialog.setFilterExtensions(new String[] {"*.gba"});
+						String writePath = openDialog.open();
+						
+						DiffCompiler compiler = new DiffCompiler();
+						
+						try {
+							compiler.addDiffsFromFile("tutorialSlayer");
+						} catch (IOException e) {
+							MessageBox tutorialSlayerFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK | SWT.CANCEL);
+							tutorialSlayerFail.setText("Error");
+							tutorialSlayerFail.setMessage("Failed to patch the tutorial slayer.\n\nThe randomizer can continue, but it is recommended that Lyn Normal mode not be used.");
+							int selectedButton = tutorialSlayerFail.open();
+							if (selectedButton == SWT.CANCEL) {
+								return;
+							}
+						}
+						
+						Randomizer randomizer = new Randomizer(pathToFile, writePath, FEBase.GameType.FE7, compiler, 
+								growthView.getGrowthOptions(),
+								baseView.getBaseOptions());
+						try {
+							randomizer.randomize();
+							MessageBox randomSuccess = new MessageBox(mainShell, SWT.ICON_INFORMATION | SWT.OK);
+							randomSuccess.setText("Success");
+							randomSuccess.setMessage("Finished Randomizing!");
+							randomSuccess.open();
+						} catch (Exception e) {
+							MessageBox randomFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK);
+							randomFail.setText("Randomization Error");
+							randomFail.setMessage("Randomization failed with error:\n\n" + e.getMessage());
+							randomFail.open();
+						}
+					}
+				  });
 			}
 			
 			romInfoGroup.setVisible(true);

@@ -2,8 +2,8 @@ package util;
 
 import java.util.Hashtable;
 
-import fedata.FE7Data;
 import fedata.FEBase;
+import fedata.fe7.FE7Data;
 import io.FileHandler;
 
 public class TextHelper {
