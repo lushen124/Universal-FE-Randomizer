@@ -63,7 +63,7 @@ public class CharacterDataLoader {
 		for (FECharacter character : characterMap.values()) {
 			character.commitChanges();
 			if (character.hasCommittedChanges()) {
-				Diff charDiff = new Diff(character.getAddressOffset(), character.getCharacterData().length, character.getCharacterData(), null);
+				Diff charDiff = new Diff(character.getAddressOffset(), character.getData().length, character.getData(), null);
 				compiler.addDiff(charDiff);
 			}
 		}

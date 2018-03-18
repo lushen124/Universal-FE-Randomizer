@@ -1,6 +1,6 @@
 package fedata;
 
-public interface FECharacter {
+public interface FECharacter extends FEModifiableObject {
 	
 	// Info
 	
@@ -57,14 +57,4 @@ public interface FECharacter {
 	
 	public int getBaseLCK();
 	public void setBaseLCK(int baseLCK);
-	
-	// Read/Write
-	
-	public void resetData();
-	public void commitChanges();
-	public byte[] getCharacterData();
-	public Boolean hasCommittedChanges();
-	
-	public Boolean wasModified();
-	public long getAddressOffset();
 }

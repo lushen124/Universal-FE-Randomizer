@@ -53,7 +53,7 @@ private FEBase.GameType gameType;
 		for (FEClass charClass : classMap.values()) {
 			charClass.commitChanges();
 			if (charClass.hasCommittedChanges()) {
-				Diff charDiff = new Diff(charClass.getAddressOffset(), charClass.getClassData().length, charClass.getClassData(), null);
+				Diff charDiff = new Diff(charClass.getAddressOffset(), charClass.getData().length, charClass.getData(), null);
 				compiler.addDiff(charDiff);
 			}
 		}

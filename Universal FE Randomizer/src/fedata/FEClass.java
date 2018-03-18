@@ -1,6 +1,6 @@
 package fedata;
 
-public interface FEClass {
+public interface FEClass extends FEModifiableObject {
 	
 	// Info
 	
@@ -51,14 +51,4 @@ public interface FEClass {
 	public int getMaxDEF();
 	public int getMaxRES();
 	public int getMaxLCK();
-	
-	// Read/Write
-	
-	public void resetData();
-	public void commitChanges();
-	public byte[] getClassData();
-	public Boolean hasCommittedChanges();
-	
-	public Boolean wasModified();
-	public long getAddressOffset();
 }

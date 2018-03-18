@@ -11,6 +11,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
+import ui.model.ClassOptions;
+
 public class ClassesView extends Composite {
 	
 	private Group container;
@@ -96,24 +98,20 @@ public class ClassesView extends Composite {
 		bossFormData.top = new FormAttachment(randomizeEnemiesButton, 10);
 		randomizeBossesButton.setLayoutData(bossFormData);
 	}
-
-	public Boolean shouldRandomizePlayableCharacters() {
-		return randomizePCButton.getSelection();
-	}
 	
-	public Boolean shouldRandomizeLords() {
-		return randomizePCLordsButton.getEnabled() && randomizePCLordsButton.getSelection();
-	}
-	
-	public Boolean shouldRandomizeThieves() {
-		return randomizePCThievesButton.getEnabled() && randomizePCThievesButton.getSelection();
-	}
-	
-	public Boolean shouldRandomizeEnemies() {
-		return randomizeEnemiesButton.getSelection();
-	}
-	
-	public Boolean shouldRandomizeBosses() {
-		return randomizeBossesButton.getSelection();
+	public ClassOptions getClassOptions() {
+		if (!randomizePCButton.getSelection() && !randomizeEnemiesButton.getSelection() && !randomizeBossesButton.getSelection()) {
+			return null;
+		}
+		
+		Boolean pcsEnabled = randomizePCButton.getSelection();
+		Boolean lordsEnabled = false;
+		Boolean thievesEnabled = false;
+		if (pcsEnabled) {
+			lordsEnabled = randomizePCLordsButton.getSelection();
+			thievesEnabled = randomizePCThievesButton.getSelection();
+		}
+		
+		return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection());
 	}
 }

@@ -24,6 +24,8 @@ public class FE7Data {
 	public static final int DefaultTextArrayOffset = 0xB808AC;
 	public static final int NumberOfTextStrings = 0x133E;
 	
+	public static final int BytesPerChapterUnit = 16;
+	
 	public enum Character {
 		NONE(0x00),
 		
@@ -219,6 +221,27 @@ public class FE7Data {
 				CAVALIER, NOMAD, WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER};
 		public static CharacterClass[] allPromotedClasses = new CharacterClass[] {LORD_KNIGHT, BLADE_LORD, GREAT_LORD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID,
 				PALADIN, NOMADTROOPER, WYVERNLORD, BERSERKER, ASSASSIN, SWORDMASTER_F, SNIPER_F, BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F};
+		
+		public static CharacterClass[] limitedClassesForRandomization(CharacterClass sourceClass) {
+			switch(sourceClass) {
+			case WYVERNKNIGHT:
+			case PEGASUSKNIGHT:
+				return new CharacterClass[] {WYVERNKNIGHT, PEGASUSKNIGHT};
+			case WYVERNLORD:
+			case WYVERNLORD_F:
+			case FALCONKNIGHT:
+				return new CharacterClass[] {WYVERNLORD, WYVERNLORD_F, FALCONKNIGHT};
+			case PIRATE:
+			case CORSAIR:
+				return new CharacterClass[] {PIRATE, CORSAIR, WYVERNKNIGHT, PEGASUSKNIGHT};
+			case BRIGAND:
+				return new CharacterClass[] {BRIGAND, WYVERNKNIGHT, PEGASUSKNIGHT};
+			case BERSERKER:
+				return new CharacterClass[] {BERSERKER, WYVERNLORD, WYVERNLORD_F, FALCONKNIGHT};
+			default:
+				return null;
+			}
+		}
 	}
 	
 	public enum Item {
@@ -325,5 +348,38 @@ public class FE7Data {
 		public static Item[] allARank = {SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, TOMAHAWK, SILVER_AXE, SILVER_BOW, FIMBULVETR, AURA, FENRIR, FORTIFY, WARP};
 		public static Item[] allSRank = {REGAL_BLADE, REX_HASTA, BASILIKOS, RIENFLECHE, EXCALIBUR, LUCE, GESPENST};
 		public static Item[] allPrfRank = {MANI_KATTI, RAPIER, DURANDAL, SOL_KATTI, WOLF_BEIL, ARMADS, FORBLAZE};
+	}
+	
+	public enum Chapter {
+		PROLOGUE(0xCC5B50, 4), CHAPTER_1(0xCC5BD0, 12), CHAPTER_2(0xCC5CE8, 18), CHAPTER_3(0xCC5E88, 21), CHAPTER_4(0xCC6058, 32), CHAPTER_5(0xCC6300, 22), CHAPTER_6(0xCC64E0, 57),
+		CHAPTER_7(0xCC6940, 47), CHAPTER_7X(0xCC6CD8, 54), CHAPTER_8(0xC70F4, 49), CHAPTER_9(0xCC7484, 48), CHAPTER_10(0xCC7840, 51),
+		
+		CHAPTER_11_E(0xCC7BDC, 47), CHAPTER_11_H(0xCC803C, 20), CHAPTER_12(0xCC820C, 61), CHAPTER_13(0xCC86D4, 71), CHAPTER_13X(0xCC8C64, 67), CHAPTER_14(0xCC9164, 150),
+		CHAPTER_15(0xCC9C34, 72), CHAPTER_16(0xCCA198, 144), CHAPTER_17(0xCCABE0, 184), CHAPTER_17X(0xCCB970, 117), CHAPTER_18(0xCCC1CC, 176), CHAPTER_19(0xCCCEB4, 162),
+		CHAPTER_19X(0xCCDA30, 148), CHAPTER_19XX(0xCCE490, 117), CHAPTER_20(0xCCECEC, 227), CHAPTER_21(0xCCFDCC, 146), CHAPTER_22(0xCD0884, 229), CHAPTER_23(0xCD19FC, 186),
+		CHAPTER_23X(0xCD2734, 116), CHAPTER_24_LINUS(0xCD3B74, 210), CHAPTER_24_LLOYD(0xCD2F58, 167), CHAPTER_25_CUTSCENE(0xCD5234, 4), CHAPTER_25(0xCD4A54, 130), CHAPTER_26(0xCD53BC, 219),
+		CHAPTER_27_JERME(0xCD6354, 248), CHAPTER_27_KENNETH(0xCD7444, 222), CHAPTER_28(0xCD8498, 230), CHAPTER_28X(0xCD9500, 251), CHAPTER_29(0xCDA738, 308), CHAPTER_30_E(0xCDBD3C, 88),
+		CHAPTER_30_H(0xCDC3B4, 66), CHAPTER_31(0xCDC87C, 274), CHAPTER_31X(0xCDDC9C, 26), CHAPTER_32(0xCDDED0, 347), CHAPTER_32X(0xCDF7E4, 86), CHAPTER_FINAL_BOSS(0xCE0898, 56),
+		CHAPTER_FINAL(0xCDFE84, 132);
+		
+		public int offset;
+		public int numberOfUnits;
+		
+		private static Map<Integer, Chapter> map = new HashMap<Integer, Chapter>();
+		
+		static {
+			for (Chapter chapter : Chapter.values()) {
+				map.put(chapter.offset, chapter);
+			}
+		}
+		
+		private Chapter(final int offset, final int unitCount) { 
+			this.offset = offset;
+			numberOfUnits = unitCount;
+		}
+		
+		public static Chapter valueOf(int chapterOffset) {
+			return map.get(chapterOffset);
+		}
 	}
 }

@@ -235,7 +235,7 @@ public class FE7Class implements FEClass {
 		return hasChanges;
 	}
 	
-	public byte[] getClassData() {
+	public byte[] getData() {
 		return data;
 	}
 	

@@ -225,7 +225,7 @@ public class FE7Character implements FECharacter {
 		return hasChanges;
 	}
 	
-	public byte[] getCharacterData() {
+	public byte[] getData() {
 		return data;
 	}
 	
