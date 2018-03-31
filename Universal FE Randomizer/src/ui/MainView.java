@@ -296,7 +296,8 @@ public class MainView implements FileFlowDelegate {
 						
 						Randomizer randomizer = new Randomizer(pathToFile, writePath, FEBase.GameType.FE7, compiler, 
 								growthView.getGrowthOptions(),
-								baseView.getBaseOptions());
+								baseView.getBaseOptions(),
+								classView.getClassOptions());
 						try {
 							randomizer.randomize();
 							MessageBox randomSuccess = new MessageBox(mainShell, SWT.ICON_INFORMATION | SWT.OK);
@@ -304,6 +305,7 @@ public class MainView implements FileFlowDelegate {
 							randomSuccess.setMessage("Finished Randomizing!");
 							randomSuccess.open();
 						} catch (Exception e) {
+							e.printStackTrace();
 							MessageBox randomFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK);
 							randomFail.setText("Randomization Error");
 							randomFail.setMessage("Randomization failed with error:\n\n" + e.getMessage());

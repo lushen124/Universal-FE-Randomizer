@@ -51,4 +51,17 @@ public interface FEClass extends FEModifiableObject {
 	public int getMaxDEF();
 	public int getMaxRES();
 	public int getMaxLCK();
+	
+	// Weapon Ranks
+	
+	public int getSwordRank();
+	public int getLanceRank();
+	public int getAxeRank();
+	public int getBowRank();
+	public int getAnimaRank();
+	public int getLightRank();
+	public int getDarkRank();
+	public int getStaffRank();
+	
+	public int getBaseRankValue();
 }

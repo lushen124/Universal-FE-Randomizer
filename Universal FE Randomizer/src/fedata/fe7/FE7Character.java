@@ -209,6 +209,78 @@ public class FE7Character implements FECharacter {
 		wasModified = true;
 	}
 	
+	public int getSwordRank() {
+		return data[20] & 0xFF;
+	}
+	
+	public void setSwordRank(int rank) {
+		data[20] = (byte)(rank & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getLanceRank() {
+		return data[21] & 0xFF;
+	}
+	
+	public void setLanceRank(int rank) {
+		data[21] = (byte)(rank & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getAxeRank() {
+		return data[22] & 0xFF;
+	}
+	
+	public void setAxeRank(int rank) {
+		data[22] = (byte)(rank & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getBowRank() {
+		return data[23] & 0xFF;
+	}
+	
+	public void setBowRank(int rank) {
+		data[23] = (byte)(rank & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getAnimaRank() {
+		return data[25] & 0xFF;
+	}
+	
+	public void setAnimaRank(int rank) {
+		data[25] = (byte)(rank & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getDarkRank() {
+		return data[27] & 0xFF;
+	}
+	
+	public void setDarkRank(int rank) {
+		data[27] = (byte)(rank & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getLightRank() {
+		return data[26] & 0xFF;
+	}
+	
+	public void setLightRank(int rank) {
+		data[26] = (byte)(rank & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getStaffRank() {
+		return data[24] & 0xFF;
+	}
+	
+	public void setStaffRank(int rank) {
+		data[24] = (byte)(rank & 0xFF);
+		wasModified = true;
+	}
+	
 	public void resetData() {
 		data = originalData;
 		wasModified = false;

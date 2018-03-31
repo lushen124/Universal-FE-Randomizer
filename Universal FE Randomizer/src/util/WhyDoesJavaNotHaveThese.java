@@ -19,7 +19,11 @@ public class WhyDoesJavaNotHaveThese {
 		
 		if (bytes != null) {
 			for (int i = 0; i < bytes.length; i++) {
-				sb.append(Integer.toHexString((bytes[i] & 0xFF)) + " ");
+				String hexComponent = Integer.toHexString((bytes[i] & 0xFF));
+				if (hexComponent.length() == 1) {
+					sb.append('0');
+				}
+				sb.append(hexComponent + " ");
 			}
 		}
 		

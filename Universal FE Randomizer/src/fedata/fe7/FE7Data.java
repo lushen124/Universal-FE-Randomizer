@@ -1,7 +1,14 @@
 package fedata.fe7;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+
+import fedata.general.WeaponRank;
+import fedata.general.WeaponType;
 
 public class FE7Data {
 
@@ -18,6 +25,10 @@ public class FE7Data {
 	public static final int NumberOfClasses = 99;
 	public static final int BytesPerClass = 84;
 	public static final int DefaultClassTableAddress = 0xBE015C;
+	
+	public static final int NumberOfItems = 159;
+	public static final int BytesPerItem = 36;
+	public static final int DefaultItemTableAddress = 0xBE222C;
 	
 	public static final int HuffmanTreeStart = 0x6BC;
 	public static final int HuffmanTreeEnd = 0x6B8;
@@ -210,19 +221,57 @@ public class FE7Data {
 			return idArray;
 		}
 		
-		public static CharacterClass[] allMaleClasses = new CharacterClass[] {LORD_ELIWOOD, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN, CAVALIER, NOMAD,
+		public static Set<CharacterClass> allMaleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN, CAVALIER, NOMAD,
 				WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMADTROOPER, WYVERNLORD,
-				BERSERKER, ASSASSIN};
-		public static CharacterClass[] allFemaleClasses = new CharacterClass[] {LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
-				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F};
-		public static CharacterClass[] allLordClasses = new CharacterClass[] {LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, LORD_KNIGHT, BLADE_LORD, GREAT_LORD};
-		public static CharacterClass[] allThiefClasses = new CharacterClass[] {THIEF, ASSASSIN};
-		public static CharacterClass[] allUnpromotedClasses = new CharacterClass[] {LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN,
-				CAVALIER, NOMAD, WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER};
-		public static CharacterClass[] allPromotedClasses = new CharacterClass[] {LORD_KNIGHT, BLADE_LORD, GREAT_LORD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID,
-				PALADIN, NOMADTROOPER, WYVERNLORD, BERSERKER, ASSASSIN, SWORDMASTER_F, SNIPER_F, BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F};
+				BERSERKER, ASSASSIN));
+		public static Set<CharacterClass> allFemaleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
+				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F));
+		public static Set<CharacterClass> allLordClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, LORD_KNIGHT, BLADE_LORD, GREAT_LORD));
+		public static Set<CharacterClass> allThiefClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, ASSASSIN));
+		public static Set<CharacterClass> allUnpromotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN,
+				CAVALIER, NOMAD, WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER));
+		public static Set<CharacterClass> allPromotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, BLADE_LORD, GREAT_LORD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID,
+				PALADIN, NOMADTROOPER, WYVERNLORD, BERSERKER, ASSASSIN, SWORDMASTER_F, SNIPER_F, BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F));
 		
-		public static CharacterClass[] limitedClassesForRandomization(CharacterClass sourceClass) {
+		private static Boolean isClassPromoted(CharacterClass sourceClass) {
+			return allPromotedClasses.contains(sourceClass);
+		}
+		
+		public static CharacterClass[] targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves) {
+			CharacterClass[] limited = limitedClassesForRandomization(sourceClass);
+			if (limited != null) {
+				return limited;
+			}
+			
+			Set<CharacterClass> classList;
+			
+			if (isClassPromoted(sourceClass)) {
+				Set<CharacterClass> promoted = new HashSet<CharacterClass>(allPromotedClasses);
+				if (excludeSource) {
+					promoted.remove(sourceClass);
+				}
+				classList = promoted;
+				
+			} else {
+				Set<CharacterClass> unpromoted = new HashSet<CharacterClass>(allUnpromotedClasses);
+				if (excludeSource) {
+					unpromoted.remove(sourceClass);
+				}
+				classList = unpromoted;
+			}
+			
+			if (excludeLords) {
+				classList.removeAll(allLordClasses);
+			}
+			
+			if (excludeThieves) {
+				classList.removeAll(allThiefClasses);
+			}
+			
+			return classList.toArray(new CharacterClass[classList.size()]);
+		}
+		
+		private static CharacterClass[] limitedClassesForRandomization(CharacterClass sourceClass) {
 			switch(sourceClass) {
 			case WYVERNKNIGHT:
 			case PEGASUSKNIGHT:
@@ -310,44 +359,349 @@ public class FE7Data {
 			return idArray;
 		}
 		
-		public static Item[] allSwords = new Item[] {IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, POISON_SWORD, RAPIER, MANI_KATTI, BRAVE_SWORD,
-				WO_DAO, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, LONGSWORD, EMBLEM_SWORD, DURANDAL, SOL_KATTI, REGAL_BLADE, WIND_SWORD};
-		public static Item[] allLances = new Item[] {IRON_LANCE, SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, POISON_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN, SPEAR, AXEREAVER,
-				EMBLEM_LANCE, REX_HASTA, HEAVY_SPEAR, SHORT_SPEAR, UBER_SPEAR};
-		public static Item[] allAxes = new Item[] {IRON_AXE, STEEL_AXE, SILVER_AXE, POISON_AXE, BRAVE_AXE, KILLER_AXE, HALBERD, HAMMER, DEVIL_AXE, HAND_AXE, TOMAHAWK, SWORDREAVER,
-				SWORDSLAYER, DRAGON_AXE, EMBLEM_AXE, ARMADS, WOLF_BEIL, BASILIKOS};
-		public static Item[] allBows = new Item[] {IRON_BOW, STEEL_BOW, SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, EMBLEM_BOW, RIENFLECHE};
-		public static Item[] allAnima = new Item[] {FIRE, THUNDER, ELFIRE, BOLTING, FIMBULVETR, FORBLAZE, EXCALIBUR};
-		public static Item[] allLight = new Item[] {LIGHTNING, SHINE, DIVINE, PURGE, AURA, LUCE, AUREOLA};
-		public static Item[] allDark = new Item[] {FLUX, LUNA, NOSFERATU, ECLIPSE, FENRIR, GESPENST};
-		public static Item[] allHealingStaves = new Item[] {HEAL, MEND, RECOVER, PHYSIC, FORTIFY};
-		public static Item[] allSupportStaves = new Item[] {RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER};
-		public static Item[] allStatusStaves = new Item[] {SILENCE, SLEEP, BERSERK};
-		public static Item[] allStatBoosters = new Item[] {ANGELIC_ROBE, ENERGY_RING, SECRET_BOOK, SPEEDWINGS, GODDESS_ICON, DRAGONSHIELD, TALISMAN, BOOTS, BODY_RING, AFA_DROPS};
-		public static Item[] allPromotionItems = new Item[] {HERO_CREST, KNIGHT_CREST, ORION_BOLT, ELYSIAN_WHIP, GUIDING_RING, EARTH_SEAL, HEAVEN_SEAL, EMBLEM_SEAL, FELL_CONTRACT, OCEAN_SEAL};
-		public static Item[] allDancingRings = new Item[] {FILLA_MIGHT, NINI_GRACE, THOR_IRE, SET_LITANY};
-		public static Item[] allSpecialItems = new Item[] {DELPHI_SHIELD, MEMBER_CARD, IRON_RUNE, SILVER_CARD};
-		public static Item[] allMoneyItems = new Item[] {WHITE_GEM, BLUE_GEM, RED_GEM, GOLD_3000, GOLD_5000};
-		public static Item[] chestOnlyItems = new Item[] {GOLD_3000, GOLD_5000};
-		public static Item[] usableItems = new Item[] {CHEST_KEY, CHEST_KEY_5, DOOR_KEY, LOCKPICK, VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH, MINE, LIGHT_RUNE};
+		public static long dataOffsetForItem(Item item) {
+			return DefaultItemTableAddress + (item.ID * BytesPerItem);
+		}
 		
-		public static Item[] allWeapons = {IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, POISON_SWORD, RAPIER, MANI_KATTI, BRAVE_SWORD,
+		public enum FE7WeaponRank {
+			E(0x01), D(0x1F), C(0x47), B(0x79), A(0x0B5), S(0x0FB);
+			
+			public int value;
+			
+			private static Map<Integer, FE7WeaponRank> map = new HashMap<Integer, FE7WeaponRank>();
+			
+			static {
+				for (FE7WeaponRank rank : FE7WeaponRank.values()) {
+					map.put(rank.value, rank);
+				}
+			}
+			
+			private FE7WeaponRank(final int value) { this.value = value; }
+			
+			public static FE7WeaponRank valueOf(int rankVal) {
+				return map.get(rankVal);
+			}
+			
+			public static FE7WeaponRank rankFromGeneralRank(WeaponRank generalRank) {
+				switch (generalRank) {
+				case A:
+					return A;
+				case B:
+					return B;
+				case C:
+					return C;
+				case D:
+					return D;
+				case E:
+					return E;
+				case NONE:
+					return null;
+				case S:
+					return S;
+				default:
+					return null;
+				}
+			}
+			
+			public WeaponRank toGeneralRank() {
+				switch (this) {
+				case A:
+					return WeaponRank.A;
+				case B:
+					return WeaponRank.B;
+				case C:
+					return WeaponRank.C;
+				case D:
+					return WeaponRank.D;
+				case E:
+					return WeaponRank.E;
+				case S:
+					return WeaponRank.S;
+				default:
+					return WeaponRank.NONE;
+				}
+			}
+			
+			public Boolean isHigherThanRank(FE7WeaponRank otherRank) {
+				return value > otherRank.value;
+			}
+			
+			public Boolean isLowerThanRank(FE7WeaponRank otherRank) {
+				return value < otherRank.value;
+			}
+			
+			public Boolean isSameRank(FE7WeaponRank otherRank) {
+				return value == otherRank.value;
+			}
+		}
+		
+		public enum FE7WeaponType {
+			SWORD(0x00), LANCE(0x01), AXE(0x02), BOW(0x03), STAFF(0x04), ANIMA(0x05), LIGHT(0x06), DARK(0x07), 
+			
+			ITEM(0x09), 
+			
+			DRAGONSTONE(0x0B), 
+			
+			DANCINGRING(0x0C);
+			
+			public int ID;
+			
+			private static Map<Integer, FE7WeaponType> map = new HashMap<Integer, FE7WeaponType>();
+			
+			static {
+				for (FE7WeaponType type : FE7WeaponType.values()) {
+					map.put(type.ID, type);
+				}
+			}
+			
+			private FE7WeaponType(final int id) { ID = id; }
+			
+			public static FE7WeaponType valueOf(int typeVal) {
+				return map.get(typeVal);
+			}
+			
+			public WeaponType toGeneralType() {
+				switch (this) {
+				case SWORD:
+					return WeaponType.SWORD;
+				case LANCE:
+					return WeaponType.LANCE;
+				case AXE:
+					return WeaponType.AXE;
+				case BOW:
+					return WeaponType.BOW;
+				case ANIMA:
+					return WeaponType.ANIMA;
+				case LIGHT:
+					return WeaponType.LIGHT;
+				case DARK:
+					return WeaponType.DARK;
+				case STAFF:
+					return WeaponType.STAFF;
+				default:
+					return WeaponType.NOT_A_WEAPON;
+				}
+			}
+		}
+		
+		public enum Ability1Mask {
+			NONE(0x00), WEAPON(0x01), MAGIC(0x02), STAFF(0x04), UNBREAKABLE(0x08), 
+			UNSELLABLE(0x10), BRAVE(0x20), MAGICDAMAGE(0x40), UNCOUNTERABLE(0x80);
+			
+			public int ID;
+			
+			private static Map<Integer, Ability1Mask> map = new HashMap<Integer, Ability1Mask>();
+			
+			static {
+				for (Ability1Mask ability : Ability1Mask.values()) {
+					map.put(ability.ID, ability);
+				}
+			}
+			
+			private Ability1Mask(final int id) { ID = id; }
+			
+			public static Ability1Mask valueOf(int val) {
+				return map.get(val);
+			}
+		}
+		
+		public enum Ability2Mask {
+			NONE(0x00), REVERSEWEAPONTRIANGLE(0x01), DRAGONSTONELOCK(0x04), 
+			MYRMLOCK(0x10), IOTESHIELD(0x40), IRONRUNE(0x80);
+			public int ID;
+			
+			private static Map<Integer, Ability2Mask> map = new HashMap<Integer, Ability2Mask>();
+			
+			static {
+				for (Ability2Mask ability : Ability2Mask.values()) {
+					map.put(ability.ID, ability);
+				}
+			}
+			
+			private Ability2Mask(final int id) { ID = id; }
+			
+			public static Ability2Mask valueOf(int val) {
+				return map.get(val);
+			}
+		}
+		
+		public enum Ability3Mask {
+			NONE(0x00), NEGATEDEFENSE(0x02), ELIWOODLOCK(0x04), HECTORLOCK(0x08),
+			LYNLOCK(0x10), ATHOSLOCK(0x20);
+			
+			public int ID;
+			
+			private static Map<Integer, Ability3Mask> map = new HashMap<Integer, Ability3Mask>();
+			
+			static {
+				for (Ability3Mask ability : Ability3Mask.values()) {
+					map.put(ability.ID, ability);
+				}
+			}
+			
+			private Ability3Mask(final int id) { ID = id; }
+			
+			public static Ability3Mask valueOf(int val) {
+				return map.get(val);
+			}
+		}
+		
+		public enum WeaponEffect {
+			NONE(0x00), POISON(0x01), STEALHP(0x02), HALFHP(0x03), DEVIL(0x04);
+			
+			public int ID;
+			
+			private static Map<Integer, WeaponEffect> map = new HashMap<Integer, WeaponEffect>();
+			
+			static {
+				for (WeaponEffect effect : WeaponEffect.values()) {
+					map.put(effect.ID, effect);
+				}
+			}
+			
+			private WeaponEffect(final int id) { ID = id; }
+			
+			public static WeaponEffect valueOf(int val) {
+				return map.get(val);
+			}
+		}
+		
+		public static Set<Item> allSwords = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, POISON_SWORD, RAPIER, MANI_KATTI, BRAVE_SWORD,
+				WO_DAO, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, LONGSWORD, EMBLEM_SWORD, DURANDAL, SOL_KATTI, REGAL_BLADE, WIND_SWORD));
+		public static Set<Item> allLances = new HashSet<Item>(Arrays.asList(IRON_LANCE, SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, POISON_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN, SPEAR, AXEREAVER,
+				EMBLEM_LANCE, REX_HASTA, HEAVY_SPEAR, SHORT_SPEAR, UBER_SPEAR));
+		public static Set<Item> allAxes = new HashSet<Item>(Arrays.asList(IRON_AXE, STEEL_AXE, SILVER_AXE, POISON_AXE, BRAVE_AXE, KILLER_AXE, HALBERD, HAMMER, DEVIL_AXE, HAND_AXE, TOMAHAWK, SWORDREAVER,
+				SWORDSLAYER, DRAGON_AXE, EMBLEM_AXE, ARMADS, WOLF_BEIL, BASILIKOS));
+		public static Set<Item> allBows = new HashSet<Item>(Arrays.asList(IRON_BOW, STEEL_BOW, SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, EMBLEM_BOW, RIENFLECHE));
+		public static Set<Item> allAnima = new HashSet<Item>(Arrays.asList(FIRE, THUNDER, ELFIRE, BOLTING, FIMBULVETR, FORBLAZE, EXCALIBUR));
+		public static Set<Item> allLight = new HashSet<Item>(Arrays.asList(LIGHTNING, SHINE, DIVINE, PURGE, AURA, LUCE, AUREOLA));
+		public static Set<Item> allDark = new HashSet<Item>(Arrays.asList(FLUX, LUNA, NOSFERATU, ECLIPSE, FENRIR, GESPENST));
+		public static Set<Item> allHealingStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY));
+		public static Set<Item> allSupportStaves = new HashSet<Item>(Arrays.asList(RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER));
+		public static Set<Item> allStatusStaves = new HashSet<Item>(Arrays.asList(SILENCE, SLEEP, BERSERK));
+		public static Set<Item> allStatBoosters = new HashSet<Item>(Arrays.asList(ANGELIC_ROBE, ENERGY_RING, SECRET_BOOK, SPEEDWINGS, GODDESS_ICON, DRAGONSHIELD, TALISMAN, BOOTS, BODY_RING, AFA_DROPS));
+		public static Set<Item> allPromotionItems = new HashSet<Item>(Arrays.asList(HERO_CREST, KNIGHT_CREST, ORION_BOLT, ELYSIAN_WHIP, GUIDING_RING, EARTH_SEAL, HEAVEN_SEAL, EMBLEM_SEAL, FELL_CONTRACT, OCEAN_SEAL));
+		public static Set<Item> allDancingRings = new HashSet<Item>(Arrays.asList(FILLA_MIGHT, NINI_GRACE, THOR_IRE, SET_LITANY));
+		public static Set<Item> allSpecialItems = new HashSet<Item>(Arrays.asList(DELPHI_SHIELD, MEMBER_CARD, IRON_RUNE, SILVER_CARD));
+		public static Set<Item> allMoneyItems = new HashSet<Item>(Arrays.asList(WHITE_GEM, BLUE_GEM, RED_GEM, GOLD_3000, GOLD_5000));
+		public static Set<Item> chestOnlyItems = new HashSet<Item>(Arrays.asList(GOLD_3000, GOLD_5000));
+		public static Set<Item> usableItems = new HashSet<Item>(Arrays.asList(CHEST_KEY, CHEST_KEY_5, DOOR_KEY, LOCKPICK, VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH, MINE, LIGHT_RUNE));
+		
+		public static Set<Item> allWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, POISON_SWORD, RAPIER, MANI_KATTI, BRAVE_SWORD,
 				WO_DAO, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, LONGSWORD, EMBLEM_SWORD, DURANDAL, SOL_KATTI, REGAL_BLADE, WIND_SWORD, IRON_LANCE, 
 				SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, POISON_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN, SPEAR, AXEREAVER, EMBLEM_LANCE, REX_HASTA, HEAVY_SPEAR, SHORT_SPEAR, 
 				IRON_AXE, STEEL_AXE, SILVER_AXE, POISON_AXE, BRAVE_AXE, KILLER_AXE, HALBERD, HAMMER, DEVIL_AXE, HAND_AXE, TOMAHAWK, SWORDREAVER, SWORDSLAYER, DRAGON_AXE, EMBLEM_AXE, ARMADS, 
 				WOLF_BEIL, BASILIKOS, IRON_BOW, STEEL_BOW, SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, EMBLEM_BOW, RIENFLECHE, FIRE, THUNDER, ELFIRE, BOLTING, 
-				FIMBULVETR, FORBLAZE, EXCALIBUR, LIGHTNING, SHINE, DIVINE, PURGE, AURA, LUCE, AUREOLA, FLUX, LUNA, NOSFERATU, ECLIPSE, FENRIR, GESPENST};
-		public static Item[] allStaves = {HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER, SILENCE, SLEEP, BERSERK};
-		public static Item[] allERank = {IRON_SWORD, SLIM_SWORD, EMBLEM_SWORD, IRON_LANCE, SLIM_LANCE, JAVELIN, EMBLEM_LANCE, POISON_LANCE, HAND_AXE, IRON_AXE, EMBLEM_AXE, STEEL_AXE,
-				DEVIL_AXE, IRON_BOW, EMBLEM_BOW, FIRE, LIGHTNING, HEAL};
-		public static Item[] allDRank = {POISON_SWORD, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, WO_DAO, STEEL_LANCE, HEAVY_SPEAR, HORSESLAYER, POISON_AXE, HALBERD, HAMMER, POISON_BOW,
-				SHORT_BOW, LONGBOW, STEEL_BOW, THUNDER, SHINE, FLUX, MEND, TORCH_STAFF, UNLOCK};
-		public static Item[] allCRank = {STEEL_BLADE, KILLING_EDGE, WYRMSLAYER, LIGHT_BRAND, LANCEREAVER, SHORT_SPEAR, KILLER_LANCE, AXEREAVER, DRAGON_AXE, KILLER_AXE, SWORDREAVER, 
-				SWORDSLAYER, KILLER_BOW, ELFIRE, DIVINE, NOSFERATU, RECOVER, RESTORE, HAMMERNE, BARRIER};
-		public static Item[] allBRank = {BRAVE_SWORD, WIND_SWORD, BRAVE_LANCE, SPEAR, UBER_SPEAR, BRAVE_AXE, BRAVE_BOW, BOLTING, PURGE, ECLIPSE, PHYSIC, SILENCE, SLEEP, BERSERK, RESCUE};
-		public static Item[] allARank = {SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, TOMAHAWK, SILVER_AXE, SILVER_BOW, FIMBULVETR, AURA, FENRIR, FORTIFY, WARP};
-		public static Item[] allSRank = {REGAL_BLADE, REX_HASTA, BASILIKOS, RIENFLECHE, EXCALIBUR, LUCE, GESPENST};
-		public static Item[] allPrfRank = {MANI_KATTI, RAPIER, DURANDAL, SOL_KATTI, WOLF_BEIL, ARMADS, FORBLAZE};
+				FIMBULVETR, FORBLAZE, EXCALIBUR, LIGHTNING, SHINE, DIVINE, PURGE, AURA, LUCE, AUREOLA, FLUX, LUNA, NOSFERATU, ECLIPSE, FENRIR, GESPENST));
+		public static Set<Item> allStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER, SILENCE, SLEEP, BERSERK));
+		public static Set<Item> allERank = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, EMBLEM_SWORD, IRON_LANCE, SLIM_LANCE, JAVELIN, EMBLEM_LANCE, POISON_LANCE, HAND_AXE, IRON_AXE, EMBLEM_AXE, STEEL_AXE,
+				DEVIL_AXE, IRON_BOW, EMBLEM_BOW, FIRE, LIGHTNING, HEAL));
+		public static Set<Item> allDRank = new HashSet<Item>(Arrays.asList(POISON_SWORD, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, WO_DAO, STEEL_LANCE, HEAVY_SPEAR, HORSESLAYER, POISON_AXE, HALBERD, HAMMER, POISON_BOW,
+				SHORT_BOW, LONGBOW, STEEL_BOW, THUNDER, SHINE, FLUX, MEND, TORCH_STAFF, UNLOCK));
+		public static Set<Item> allCRank = new HashSet<Item>(Arrays.asList(STEEL_BLADE, KILLING_EDGE, WYRMSLAYER, LIGHT_BRAND, LANCEREAVER, SHORT_SPEAR, KILLER_LANCE, AXEREAVER, DRAGON_AXE, KILLER_AXE, SWORDREAVER, 
+				SWORDSLAYER, KILLER_BOW, ELFIRE, DIVINE, NOSFERATU, RECOVER, RESTORE, HAMMERNE, BARRIER));
+		public static Set<Item> allBRank = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, WIND_SWORD, BRAVE_LANCE, SPEAR, UBER_SPEAR, BRAVE_AXE, BRAVE_BOW, BOLTING, PURGE, ECLIPSE, PHYSIC, SILENCE, SLEEP, BERSERK, RESCUE));
+		public static Set<Item> allARank = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, TOMAHAWK, SILVER_AXE, SILVER_BOW, FIMBULVETR, AURA, FENRIR, FORTIFY, WARP));
+		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(REGAL_BLADE, REX_HASTA, BASILIKOS, RIENFLECHE, EXCALIBUR, LUCE, GESPENST));
+		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(MANI_KATTI, RAPIER, DURANDAL, SOL_KATTI, WOLF_BEIL, ARMADS, FORBLAZE));
+		
+		public static Item[] formerThiefKit() {
+			return new Item[] {CHEST_KEY_5, DOOR_KEY};
+		}
+		
+		public static Item[] specialClassKit(int classID) {
+			if (classID == FE7Data.CharacterClass.DANCER.ID) {
+				int randomIndex = ThreadLocalRandom.current().nextInt(allDancingRings.size());
+				Item[] rings = allDancingRings.toArray(new Item[allDancingRings.size()]);
+				return new Item[] { rings[randomIndex] };
+			} else if (classID == FE7Data.CharacterClass.THIEF.ID) {
+				return new Item[] {LOCKPICK};
+			}
+			
+			return null;
+		}
+		
+		public static Item[] weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max) {
+			FE7WeaponRank minRank = FE7WeaponRank.E;
+			if (min != null) {
+				minRank = FE7WeaponRank.rankFromGeneralRank(min);
+			}
+			
+			FE7WeaponRank maxRank = FE7WeaponRank.S;
+			if (max != null) {
+				maxRank = FE7WeaponRank.rankFromGeneralRank(max);
+			}
+			
+			if (minRank.isHigherThanRank(maxRank)) {
+				return null;
+			}
+			Set<Item> list = new HashSet<Item>();
+			
+			switch (type) {
+			case SWORD:
+				list.addAll(allSwords);
+				break;
+			case LANCE:
+				list.addAll(allLances);
+				break;
+			case AXE:
+				list.addAll(allAxes);
+				break;
+			case BOW:
+				list.addAll(allBows);
+				break;
+			case ANIMA:
+				list.addAll(allAnima);
+				break;
+			case LIGHT:
+				list.addAll(allLight);
+				break;
+			case DARK:
+				list.addAll(allDark);
+				break;
+			case STAFF:
+				list.addAll(allStaves);
+				break;
+			default:
+				break;
+			}
+			
+			if (FE7WeaponRank.E.isLowerThanRank(minRank)) {
+				list.removeAll(allERank);
+			}
+			if (FE7WeaponRank.D.isLowerThanRank(minRank)) {
+				list.removeAll(allDRank);
+			}
+			if (FE7WeaponRank.C.isLowerThanRank(minRank)) {
+				list.removeAll(allCRank);
+			}
+			if (FE7WeaponRank.B.isLowerThanRank(minRank)) {
+				list.removeAll(allBRank);
+			}
+			if (FE7WeaponRank.A.isLowerThanRank(minRank)) {
+				list.removeAll(allARank);
+			}
+			
+			list.removeAll(allPrfRank);
+			
+			if (FE7WeaponRank.S.isHigherThanRank(maxRank)) {
+				list.removeAll(allSRank);
+			}
+			if (FE7WeaponRank.A.isHigherThanRank(maxRank)) {
+				list.removeAll(allARank);
+			}
+			if (FE7WeaponRank.B.isHigherThanRank(maxRank)) {
+				list.removeAll(allBRank);
+			}
+			if (FE7WeaponRank.C.isHigherThanRank(maxRank)) {
+				list.removeAll(allCRank);
+			}
+			if (FE7WeaponRank.D.isHigherThanRank(maxRank)) {
+				list.removeAll(allDRank);
+			}
+			
+			return list.toArray(new Item[list.size()]);
+		}
 	}
 	
 	public enum Chapter {

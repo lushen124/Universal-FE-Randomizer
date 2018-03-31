@@ -57,4 +57,30 @@ public interface FECharacter extends FEModifiableObject {
 	
 	public int getBaseLCK();
 	public void setBaseLCK(int baseLCK);
+	
+	// Weapon Ranks
+	
+	public int getSwordRank();
+	public void setSwordRank(int rank);
+	
+	public int getLanceRank();
+	public void setLanceRank(int rank);
+	
+	public int getAxeRank();
+	public void setAxeRank(int rank);
+	
+	public int getBowRank();
+	public void setBowRank(int rank);
+	
+	public int getAnimaRank();
+	public void setAnimaRank(int rank);
+	
+	public int getDarkRank();
+	public void setDarkRank(int rank);
+	
+	public int getLightRank();
+	public void setLightRank(int rank);
+	
+	public int getStaffRank();
+	public void setStaffRank(int rank);
 }

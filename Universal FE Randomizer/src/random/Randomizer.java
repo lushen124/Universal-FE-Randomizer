@@ -8,6 +8,7 @@ import io.FileHandler;
 import random.exc.FileOpenException;
 import random.exc.UnsupportedGameException;
 import ui.model.BaseOptions;
+import ui.model.ClassOptions;
 import ui.model.GrowthOptions;
 import util.DiffCompiler;
 
@@ -24,13 +25,16 @@ public class Randomizer {
 	
 	private GrowthOptions growths;
 	private BaseOptions bases;
+	private ClassOptions classes;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
+	private ChapterLoader chapterData;
+	private ItemDataLoader itemData;
 	
 	private FileHandler handler;
 
-	public Randomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, GrowthOptions growths, BaseOptions bases) {
+	public Randomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, GrowthOptions growths, BaseOptions bases, ClassOptions classes) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -39,6 +43,7 @@ public class Randomizer {
 		
 		this.growths = growths;
 		this.bases = bases;
+		this.classes = classes;
 		
 		this.gameType = gameType;
 	}
@@ -60,8 +65,10 @@ public class Randomizer {
 		
 		randomizeGrowthsIfNecessary();
 		randomizeBasesIfNecessary();
+		randomizeClassesIfNecessary();
 		
 		charData.compileDiffs(diffCompiler);
+		chapterData.compileDiffs(diffCompiler);
 		
 		if (targetPath != null) {
 			DiffApplicator.applyDiffs(diffCompiler, handler, targetPath);
@@ -71,6 +78,8 @@ public class Randomizer {
 	private void generateFE7DataLoaders() {
 		charData = new CharacterDataLoader(FEBase.GameType.FE7, handler);
 		classData = new ClassDataLoader(FEBase.GameType.FE7, handler);
+		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
+		itemData = new ItemDataLoader(FEBase.GameType.FE7, handler);
 	}
 	
 	private void randomizeGrowthsIfNecessary() {
@@ -97,6 +106,14 @@ public class Randomizer {
 				break;
 			case DELTA:
 				BasesRandomizer.randomizeBasesByRandomDelta(bases.deltaOption.variance, charData, classData);
+			}
+		}
+	}
+	
+	private void randomizeClassesIfNecessary() {
+		if (classes != null) {
+			if (classes.randomizePCs) {
+				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData);
 			}
 		}
 	}

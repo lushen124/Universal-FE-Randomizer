@@ -218,6 +218,41 @@ public class FE7Class implements FEClass {
 	public int getMaxLCK() {
 		return 30;
 	}
+	
+	public int getSwordRank() {
+		return data[44] & 0xFF;
+	}
+	
+	public int getLanceRank() {
+		return data[45] & 0xFF;
+	}
+	
+	public int getAxeRank() {
+		return data[46] & 0xFF;
+	}
+	
+	public int getBowRank() {
+		return data[47] & 0xFF;
+	}
+	public int getAnimaRank() {
+		return data[49] & 0xFF;
+	}
+	
+	public int getLightRank() {
+		return data[50] & 0xFF;
+	}
+	
+	public int getDarkRank() {
+		return data[51] & 0xFF;	
+	}
+	
+	public int getStaffRank() {
+		return data[48] & 0xFF;
+	}
+	
+	public int getBaseRankValue() {
+		return 1;
+	}
 
 	public void resetData() {
 		data = originalData;

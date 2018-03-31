@@ -16,6 +16,9 @@ public class ClassDataLoader {
 private FEBase.GameType gameType;
 	
 	private Map<Integer, FEClass> classMap = new HashMap<Integer, FEClass>();
+	
+	private Map<Integer, FEClass> lordMap = new HashMap<Integer, FEClass>();
+	private Map<Integer, FEClass> thiefMap = new HashMap<Integer, FEClass>();
 
 	public ClassDataLoader(FEBase.GameType gameType, FileHandler handler) {
 		super();
@@ -26,7 +29,15 @@ private FEBase.GameType gameType;
 				for (FE7Data.CharacterClass charClass : FE7Data.CharacterClass.values()) {
 					long offset = FE7Data.CharacterClass.dataOffsetForClass(charClass);
 					byte[] classData = handler.readBytesAtOffset(offset, FE7Data.BytesPerClass);
-					classMap.put(charClass.ID, new FE7Class(classData, offset));
+					FE7Class classObject = new FE7Class(classData, offset);
+					classMap.put(charClass.ID, classObject);
+					
+					if (FE7Data.CharacterClass.allLordClasses.contains(charClass)) {
+						lordMap.put(charClass.ID, classObject);
+					}
+					if (FE7Data.CharacterClass.allThiefClasses.contains(charClass)) {
+						thiefMap.put(charClass.ID, classObject);
+					}
 				}
 				break;
 			default:
@@ -59,4 +70,27 @@ private FEBase.GameType gameType;
 		}
 	}
 	
+	public Boolean isLordClass(int classID) {
+		return lordMap.containsKey(classID);
+	}
+	
+	public Boolean isThief(int classID) {
+		return thiefMap.containsKey(classID);
+	}
+	
+	public FEClass[] potentialClasses(FEClass sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSource) {
+		switch (gameType) {
+		case FE7:
+			FE7Data.CharacterClass sourceCharClass = FE7Data.CharacterClass.valueOf(sourceClass.getID());
+			FE7Data.CharacterClass[] targetClasses = FE7Data.CharacterClass.targetClassesForRandomization(sourceCharClass, excludeSource, excludeLords, excludeThieves);
+			FEClass[] result = new FEClass[targetClasses.length];
+			for (int i = 0; i < targetClasses.length; i++) {
+				result[i] = classMap.get(targetClasses[i].ID);
+			}
+			
+			return result;
+		default:
+			return new FEClass[] {};
+		}
+	}
 }
