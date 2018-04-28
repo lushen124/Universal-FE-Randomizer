@@ -91,17 +91,39 @@ public class FE7Data {
 			return idArray;
 		}
 		
-		public static Character[] allPlayableCharacters = new Character[] {ELIWOOD, HECTOR, RAVEN, GEITZ, GUY, KAREL,  DORCAS, BARTRE, OSWIN, REBECCA, LOUISE, LUCIUS, SERRA, RENAULT, 
+		public static Set<Character> allPlayableCharacters = new HashSet<Character>(Arrays.asList(ELIWOOD, HECTOR, RAVEN, GEITZ, GUY, KAREL,  DORCAS, BARTRE, OSWIN, REBECCA, LOUISE, LUCIUS, SERRA, RENAULT, 
 				ERK, NINO, PENT, CANAS, LOWEN, MARCUS, PRISCILLA, FIORA, FARINA, HEATH, VAIDA, HAWKEYE, MATTHEW, JAFFAR, NINIAN, NILS, WALLACE, LYN, WIL, KENT, SAIN, FLORINA, 
-				RATH, DART, ISADORA, LEGAULT, KARLA, HARKEN, LYN_TUTORIAL, WIL_TUTORIAL, KENT_TUTORIAL, SAIN_TUTORIAL, RATH_TUTORIAL, FLORINA_TUTORIAL, NILS_FINALCHAPTER};
+				RATH, DART, ISADORA, LEGAULT, KARLA, HARKEN, LYN_TUTORIAL, WIL_TUTORIAL, KENT_TUTORIAL, SAIN_TUTORIAL, RATH_TUTORIAL, FLORINA_TUTORIAL, NILS_FINALCHAPTER));
 		
-		public static Character[] allBossCharacters = new Character[] {GROZNYI, WIRE, ZAGAN, BOIES, PUZON, SANTALS, ERIK, SEALEN, BAUKER, BERNARD, DAMIAN, ZOLDAM, UHAI,
+		public static Set<Character> allBossCharacters = new HashSet<Character>(Arrays.asList(GROZNYI, WIRE, ZAGAN, BOIES, PUZON, SANTALS, ERIK, SEALEN, BAUKER, BERNARD, DAMIAN, ZOLDAM, UHAI,
 				AION, DARIN, CAMERON, OLEG, EUBANS, URSULA, PAUL, JASMINE, PASCAL, KENNETH, JERME, MAXIME, SONIA, TEODOR, GEORG, KAIM, DENNING, LIMSTELLA, BATTA, ZUGU, GLASS, MIGAL, CARJIGA,
 				BUG, BOOL, HEINTZ, BEYARD, YOGI, EAGLER, LUNDGREN, LLOYD_FFO, LINUS_FFO, LLOYD_COD, LINUS_COD, JERME_MORPH, LLOYD_MORPH, LINUS_MORPH, BRENDAN_MORPH, UHAI_MORPH, URSULA_MORPH,
-				KENNETH_MORPH, DARIN_MORPH};
+				KENNETH_MORPH, DARIN_MORPH));
 		
-		public static Character[] allLords = new Character[] {ELIWOOD, HECTOR, LYN, LYN_TUTORIAL};
-		public static Character[] allThieves = new Character[] {MATTHEW, LEGAULT, JAFFAR};
+		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(ELIWOOD, HECTOR, LYN, LYN_TUTORIAL));
+		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(MATTHEW, LEGAULT, JAFFAR));
+		
+		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList(ERK));
+		
+		public Boolean isLord() {
+			return allLords.contains(this);
+		}
+		
+		public Boolean isThief() {
+			return allThieves.contains(this);
+		}
+		
+		public Boolean isBoss() {
+			return allBossCharacters.contains(this);
+		}
+		
+		public Boolean isPlayableCharacter() {
+			return allPlayableCharacters.contains(this);
+		}
+		
+		public Boolean requiresRange() {
+			return charactersThatRequireRange.contains(this);
+		}
 		
 		public static Character[] allLinkedCharactersFor(Character character) {
 			switch (character) {
@@ -232,12 +254,14 @@ public class FE7Data {
 				CAVALIER, NOMAD, WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER));
 		public static Set<CharacterClass> allPromotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, BLADE_LORD, GREAT_LORD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID,
 				PALADIN, NOMADTROOPER, WYVERNLORD, BERSERKER, ASSASSIN, SWORDMASTER_F, SNIPER_F, BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F));
+		public static Set<CharacterClass> allPacifistClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, BARD, CLERIC, TROUBADOUR));
+		public static Set<CharacterClass> allMeleeLockedClasses = new HashSet<CharacterClass>(Arrays.asList(MYRMIDON, MERCENARY, LORD_LYN, LORD_ELIWOOD, THIEF));
 		
 		private static Boolean isClassPromoted(CharacterClass sourceClass) {
 			return allPromotedClasses.contains(sourceClass);
 		}
 		
-		public static CharacterClass[] targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves) {
+		public static CharacterClass[] targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean requireAttack, Boolean requiresRange) {
 			CharacterClass[] limited = limitedClassesForRandomization(sourceClass);
 			if (limited != null) {
 				return limited;
@@ -266,6 +290,14 @@ public class FE7Data {
 			
 			if (excludeThieves) {
 				classList.removeAll(allThiefClasses);
+			}
+			
+			if (requireAttack) {
+				classList.removeAll(allPacifistClasses);
+			}
+			if (requiresRange) {
+				classList.removeAll(allPacifistClasses);
+				classList.removeAll(allMeleeLockedClasses);
 			}
 			
 			return classList.toArray(new CharacterClass[classList.size()]);
@@ -593,6 +625,9 @@ public class FE7Data {
 				IRON_AXE, STEEL_AXE, SILVER_AXE, POISON_AXE, BRAVE_AXE, KILLER_AXE, HALBERD, HAMMER, DEVIL_AXE, HAND_AXE, TOMAHAWK, SWORDREAVER, SWORDSLAYER, DRAGON_AXE, EMBLEM_AXE, ARMADS, 
 				WOLF_BEIL, BASILIKOS, IRON_BOW, STEEL_BOW, SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, EMBLEM_BOW, RIENFLECHE, FIRE, THUNDER, ELFIRE, BOLTING, 
 				FIMBULVETR, FORBLAZE, EXCALIBUR, LIGHTNING, SHINE, DIVINE, PURGE, AURA, LUCE, AUREOLA, FLUX, LUNA, NOSFERATU, ECLIPSE, FENRIR, GESPENST));
+		public static Set<Item> allRangedWeapons = new HashSet<Item>(Arrays.asList(LIGHT_BRAND, RUNE_SWORD, WIND_SWORD, JAVELIN, SPEAR, SHORT_SPEAR, HAND_AXE, TOMAHAWK, IRON_BOW, STEEL_BOW,
+				SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, EMBLEM_BOW, RIENFLECHE, FIRE, THUNDER, ELFIRE, FIMBULVETR, FORBLAZE, EXCALIBUR, LIGHTNING, SHINE, DIVINE, 
+				AURA, LUCE, AUREOLA, FLUX, LUNA, NOSFERATU, FENRIR, GESPENST));
 		public static Set<Item> allStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER, SILENCE, SLEEP, BERSERK));
 		public static Set<Item> allERank = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, EMBLEM_SWORD, IRON_LANCE, SLIM_LANCE, JAVELIN, EMBLEM_LANCE, POISON_LANCE, HAND_AXE, IRON_AXE, EMBLEM_AXE, STEEL_AXE,
 				DEVIL_AXE, IRON_BOW, EMBLEM_BOW, FIRE, LIGHTNING, HEAL));
@@ -621,7 +656,23 @@ public class FE7Data {
 			return null;
 		}
 		
-		public static Item[] weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max) {
+		public static Item[] prfWeaponsForClassID(int classID) {
+			if (classID == FE7Data.CharacterClass.LORD_LYN.ID || classID == FE7Data.CharacterClass.BLADE_LORD.ID) {
+				return new Item[] {MANI_KATTI};
+			} else if (classID == FE7Data.CharacterClass.LORD_ELIWOOD.ID || classID == FE7Data.CharacterClass.LORD_KNIGHT.ID) {
+				return new Item[] {RAPIER};
+			} else if (classID == FE7Data.CharacterClass.LORD_HECTOR.ID || classID == FE7Data.CharacterClass.GREAT_LORD.ID) {
+				return new Item[] {WOLF_BEIL};
+			}
+			
+			return null;
+		}
+		
+		public static Item[] weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange) {
+			if (min == WeaponRank.PRF || max == WeaponRank.PRF) {
+				return null;
+			}
+			
 			FE7WeaponRank minRank = FE7WeaponRank.E;
 			if (min != null) {
 				minRank = FE7WeaponRank.rankFromGeneralRank(min);
@@ -700,6 +751,10 @@ public class FE7Data {
 				list.removeAll(allDRank);
 			}
 			
+			if (requiresRange) {
+				list.retainAll(allRangedWeapons);
+			}
+			
 			return list.toArray(new Item[list.size()]);
 		}
 	}
@@ -734,6 +789,15 @@ public class FE7Data {
 		
 		public static Chapter valueOf(int chapterOffset) {
 			return map.get(chapterOffset);
+		}
+		
+		public Set<Integer> doNotChangeIndexes() {
+			switch (this) {
+			case CHAPTER_5:
+				return new HashSet<Integer>(Arrays.asList(13));
+			default:
+				return new HashSet<Integer>();
+			}
 		}
 	}
 }

@@ -64,8 +64,8 @@ public class Randomizer {
 		}
 		
 		randomizeGrowthsIfNecessary();
-		randomizeBasesIfNecessary();
 		randomizeClassesIfNecessary();
+		randomizeBasesIfNecessary();
 		
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
@@ -114,6 +114,9 @@ public class Randomizer {
 		if (classes != null) {
 			if (classes.randomizePCs) {
 				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData);
+			}
+			if (classes.randomizeEnemies) {
+				ClassRandomizer.randomizeMinionClasses(charData, classData, chapterData, itemData);
 			}
 		}
 	}

@@ -1,5 +1,7 @@
 package fedata.fe7;
 
+import java.util.Set;
+
 import fedata.FEChapter;
 import fedata.FEChapterUnit;
 
@@ -11,7 +13,7 @@ public class FE7Chapter implements FEChapter {
 	
 	private FEChapterUnit[] allUnits;
 	
-	public FE7Chapter(byte[] data, long originalOffset, int unitCount) {
+	public FE7Chapter(byte[] data, long originalOffset, int unitCount, Set<Integer> doNotTouchIndices) {
 		super();
 		this.originalOffset = originalOffset;
 		
@@ -25,7 +27,7 @@ public class FE7Chapter implements FEChapter {
 			byte[] unitData = new byte[bytesPerUnit];
 			System.arraycopy(data, currentBaseIndex, unitData, 0, bytesPerUnit);
 			
-			allUnits[i] = new FE7ChapterUnit(unitData, currentOffset);
+			allUnits[i] = new FE7ChapterUnit(unitData, currentOffset, !doNotTouchIndices.contains(i));
 			currentOffset += bytesPerUnit;
 			currentBaseIndex += bytesPerUnit;
 		}

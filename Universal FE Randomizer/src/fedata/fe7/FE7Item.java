@@ -99,12 +99,32 @@ public class FE7Item implements FEItem {
 	public WeaponRank getWeaponRank() {
 		int rank = data[28] & 0xFF;
 		FE7WeaponRank weaponRank = FE7Data.Item.FE7WeaponRank.valueOf(rank);
-		return weaponRank.toGeneralRank();
+		if (weaponRank != null) {
+			return weaponRank.toGeneralRank();
+		} else {
+			FE7Data.Item weapon = FE7Data.Item.valueOf(getID());
+			if (weapon != null && FE7Data.Item.allPrfRank.contains(weapon)) {
+				return WeaponRank.PRF;
+			} else {
+				return WeaponRank.NONE;
+			}
+		}
 	}
 
 	public int getWeaponEffect() {
 		return data[31];
 	}
+	
+	public void setDurability(int durability) {}
+	public void setMight(int might) {}
+	public void setHit(int hit) {}
+	public void setWeight(int weight) {}
+	public void setCritical(int critical) {}
+	
+	public void setMinRange(int range) {}
+	public void setMaxRange(int range) {}
+	
+	public void applyRandomEffect() {}
 	
 	public void resetData() {
 		data = originalData;

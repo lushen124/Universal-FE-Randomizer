@@ -33,5 +33,16 @@ public interface FEItem extends FEModifiableObject {
 	
 	public WeaponRank getWeaponRank();
 	public int getWeaponEffect();
+	
+	public void setDurability(int durability);
+	public void setMight(int might);
+	public void setHit(int hit);
+	public void setWeight(int weight);
+	public void setCritical(int critical);
+	
+	public void setMinRange(int range);
+	public void setMaxRange(int range);
+	
+	public void applyRandomEffect();
 
 }

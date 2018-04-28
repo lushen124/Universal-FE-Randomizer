@@ -2,6 +2,7 @@ package random;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import fedata.FEBase;
 import fedata.FECharacter;
@@ -37,9 +38,81 @@ public class CharacterDataLoader {
 	public FECharacter[] playableCharacters() {
 		switch (gameType) {
 			case FE7:
-				return charactersFromList(FE7Data.Character.allPlayableCharacters);
+				Set<FE7Data.Character> characters = FE7Data.Character.allPlayableCharacters;
+				return charactersFromList(characters.toArray(new FE7Data.Character[characters.size()]));
 			default:
 				return new FECharacter[] {};
+		}
+	}
+	
+	public Boolean isPlayableCharacterID(int characterID) {
+		switch (gameType) {
+		case FE7:
+			FE7Data.Character character = FE7Data.Character.valueOf(characterID);
+			if (character != null) {
+				return character.isPlayableCharacter();	
+			} else {
+				return false;
+			}
+			
+		default:
+			return false;
+		}
+	}
+	
+	public Boolean isBossCharacterID(int characterID) {
+		switch (gameType) {
+		case FE7:
+			FE7Data.Character character = FE7Data.Character.valueOf(characterID);
+			if (character != null) {
+				return character.isBoss();
+			} else {
+				return false;
+			}
+		default:
+			return false;
+		}
+	}
+	
+	public Boolean isLordCharacterID(int characterID) {
+		switch (gameType) {
+		case FE7:
+			FE7Data.Character character = FE7Data.Character.valueOf(characterID);
+			if (character != null) {
+				return character.isLord();
+			} else {
+				return false;
+			}
+		default:
+			return false;
+		}
+	}
+	
+	public Boolean isThiefCharacterID(int characterID) {
+		switch (gameType) {
+		case FE7:
+			FE7Data.Character character = FE7Data.Character.valueOf(characterID);
+			if (character != null) {
+				return character.isThief();
+			} else {
+				return false;
+			}
+		default:
+			return false;
+		}
+	}
+	
+	public Boolean characterIDRequiresRange(int characterID) {
+		switch (gameType) {
+		case FE7:
+			FE7Data.Character character = FE7Data.Character.valueOf(characterID);
+			if (character != null) {
+				return character.requiresRange();
+			} else {
+				return false;
+			}
+		default:
+			return false;
 		}
 	}
 	

@@ -1,5 +1,7 @@
 package random;
 
+import java.util.Set;
+
 import fedata.FEBase;
 import fedata.FEChapter;
 import fedata.fe7.FE7Chapter;
@@ -27,7 +29,8 @@ private FEBase.GameType gameType;
 					long offset = chapter.offset;
 					int numberOfUnits = chapter.numberOfUnits;
 					byte[] chapterData = handler.readBytesAtOffset(offset, FE7Data.BytesPerChapterUnit * numberOfUnits);
-					chapters[i++] = new FE7Chapter(chapterData, offset, numberOfUnits);
+					Set<Integer> doNotTouchIndices = chapter.doNotChangeIndexes();
+					chapters[i++] = new FE7Chapter(chapterData, offset, numberOfUnits, doNotTouchIndices);
 				}
 				break;
 			default:

@@ -14,11 +14,14 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
-	public FE7ChapterUnit(byte[] data, long originalOffset) {
+	private Boolean modifiable = true;
+	
+	public FE7ChapterUnit(byte[] data, long originalOffset, Boolean modifiable) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
+		this.modifiable = modifiable;
 	}
 
 	public int getCharacterNumber() {
@@ -30,8 +33,16 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setStartingClass(int classID) {
+		if (!modifiable) {
+			return;
+		}
+		
 		data[1] = (byte)(classID & 0xFF);
 		wasModified = true;
+	}
+	
+	public int getLeaderID() {
+		return data[2] & 0xFF;
 	}
 
 	public int getLoadingX() {
@@ -55,6 +66,10 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setItem1(int itemID) {
+		if (!modifiable) {
+			return;
+		}
+		
 		data[8] = (byte)(itemID & 0xFF);
 		wasModified = true;
 	}
@@ -64,6 +79,10 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setItem2(int itemID) {
+		if (!modifiable) {
+			return;
+		}
+		
 		data[9] = (byte)(itemID & 0xFF);
 		wasModified = true;
 	}
@@ -73,6 +92,10 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setItem3(int itemID) {
+		if (!modifiable) {
+			return;
+		}
+		
 		data[10] = (byte)(itemID & 0xFF);
 		wasModified = true;
 	}
@@ -82,11 +105,19 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setItem4(int itemID) {
+		if (!modifiable) {
+			return;
+		}
+		
 		data[11] = (byte)(itemID & 0xFF);
 		wasModified = true;
 	}
 	
 	public void giveItems(int[] itemIDs) {
+		if (!modifiable) {
+			return;
+		}
+		
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
 		for (int i = 0; i < itemIDs.length; i++) {
 			workingIDs.add(itemIDs[i]);
@@ -107,12 +138,15 @@ public class FE7ChapterUnit implements FEChapterUnit {
 		
 		if (getItem3() == 0) {
 			setItem3(getItem4());
+			setItem4(0);
 		}
 		if (getItem2() == 0) {
 			setItem2(getItem3());
+			setItem3(0);
 		}
 		if (getItem1() == 0) {
 			setItem1(getItem2());
+			setItem2(0);
 		}
 	}
 	
@@ -122,6 +156,10 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 	
 	public void commitChanges() {
+		if (!modifiable) {
+			return;
+		}
+		
 		if (wasModified) {
 			hasChanges = true;
 		}
@@ -142,5 +180,9 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	
 	public long getAddressOffset() {
 		return originalOffset;
+	}
+	
+	public Boolean isModifiable() {
+		return modifiable;
 	}
 }

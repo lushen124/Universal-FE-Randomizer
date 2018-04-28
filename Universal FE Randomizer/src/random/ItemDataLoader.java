@@ -43,27 +43,64 @@ private FEBase.GameType gameType;
 		return itemMap.get(itemID);
 	}
 	
-	public FEItem[] itemsOfTypeAndBelowRankValue(WeaponType type, int rankValue) {
+	public FEItem[] itemsOfTypeAndBelowRankValue(WeaponType type, int rankValue, Boolean rangedOnly) {
 		switch (gameType) {
 		case FE7:
-			return itemsOfTypeAndBelowRank(type, FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank());
+			return itemsOfTypeAndBelowRank(type, FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly);
 		default:
 			break;
 		}
 		
-		return null;
+		return new FEItem[] {};
 	}
 	
-	public FEItem[] itemsOfTypeAndBelowRank(WeaponType type, WeaponRank rank) {
+	public FEItem[] itemsOfTypeAndBelowRank(WeaponType type, WeaponRank rank, Boolean rangedOnly) {
 		switch (gameType) {
 		case FE7:
-			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, null, rank);
+			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
 			return itemsFromFE7Items(weapons);
 		default:
 			break;
 		}
 		
-		return null;
+		return new FEItem[] {};
+	}
+	
+	public FEItem[] itemsOfTypeAndEqualRankValue(WeaponType type, int rankValue, Boolean rangedOnly, Boolean allowLower) {
+		switch (gameType) {
+		case FE7:
+			return itemsOfTypeAndEqualRank(type, FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, allowLower);
+		default:
+			break;
+		}
+		
+		return new FEItem[] {};
+	}
+	
+	public FEItem[] itemsOfTypeAndEqualRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean allowLower) {
+		switch (gameType) {
+		case FE7:
+			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, rank, rank, rangedOnly);
+			if ((weapons == null || weapons.length == 0) && allowLower) {
+				weapons = FE7Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
+			}
+			return itemsFromFE7Items(weapons);
+		default:
+			break;
+		}
+		
+		return new FEItem[] {};
+	}
+	
+	public FEItem[] prfWeaponsForClass(int classID) {
+		switch (gameType) {
+		case FE7:
+			return itemsFromFE7Items(FE7Data.Item.prfWeaponsForClassID(classID));
+		default:
+			break;
+		}
+		
+		return new FEItem[] {};
 	}
 	
 	public FEItem[] formerThiefInventory() {
@@ -71,7 +108,7 @@ private FEBase.GameType gameType;
 		case FE7:
 			return itemsFromFE7Items(FE7Data.Item.formerThiefKit());
 		default:
-			return null;
+			return new FEItem[] {};
 		}
 	}
 	
@@ -87,7 +124,7 @@ private FEBase.GameType gameType;
 			break;
 		}
 		
-		return null;
+		return new FEItem[] {};
 	}
 	
 	public void commit() {
@@ -107,6 +144,10 @@ private FEBase.GameType gameType;
 	}
 	
 	private FEItem[] itemsFromFE7Items(FE7Data.Item[] fe7Items) {
+		if (fe7Items == null) {
+			return new FEItem[] {};
+		}
+		
 		FEItem[] result = new FEItem[fe7Items.length];
 		for (int i = 0; i < fe7Items.length; i++) {
 			result[i] = itemMap.get(fe7Items[i].ID);
