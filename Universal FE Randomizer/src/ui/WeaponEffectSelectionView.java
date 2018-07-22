@@ -15,6 +15,7 @@ public class WeaponEffectSelectionView extends Composite {
 		public void onSelectionChanged();
 	}
 	
+	private Button noneCheckBox;
 	private Button statBoostsCheckBox;
 	private Button effectivenessCheckBox;
 	private Button unbreakableCheckBox;
@@ -27,6 +28,7 @@ public class WeaponEffectSelectionView extends Composite {
 	private Button eclipseCheckBox;
 	private Button devilCheckBox;
 	
+	public Boolean noneEnabled;
 	public Boolean statBoostsEnabled;
 	public Boolean effectivenessEnabled;
 	public Boolean unbreakableEnabled;
@@ -53,6 +55,16 @@ public class WeaponEffectSelectionView extends Composite {
 	}
 	
 	protected void buildView() {
+		noneCheckBox = new Button(this, SWT.CHECK);
+		noneCheckBox.setText("None");
+		noneCheckBox.setToolTipText("Allows random weapons to remain as they were and not receive a random effect.");
+		noneCheckBox.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				notifySelectionChange();
+			}
+		});
+		
 		statBoostsCheckBox = new Button(this, SWT.CHECK);
 		statBoostsCheckBox.setText("Stat Boosts");
 		statBoostsCheckBox.setToolTipText("Allows random weapons to grant minor stat boosts. (+5 to a random stat).");
@@ -115,7 +127,7 @@ public class WeaponEffectSelectionView extends Composite {
 		
 		highCriticalCheckBox = new Button(this, SWT.CHECK);
 		highCriticalCheckBox.setText("Critical");
-		highCriticalCheckBox.setToolTipText("Allows random weapons gain a large critical bonus (between 20% and 50%)");
+		highCriticalCheckBox.setToolTipText("Allows random weapons to gain a large critical bonus (between 20% and 50%)");
 		highCriticalCheckBox.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -125,7 +137,7 @@ public class WeaponEffectSelectionView extends Composite {
 		
 		magicDamageCheckBox = new Button(this, SWT.CHECK);
 		magicDamageCheckBox.setText("Magic Damage");
-		magicDamageCheckBox.setToolTipText("Allows random physical weapons gain a magic attack. Melee weapons gain range if they were not already ranged. Weapons get assigned a random magic animation. Tomes are unaffected.");
+		magicDamageCheckBox.setToolTipText("Allows random physical weapons to gain a magic attack. Melee weapons gain range if they were not already ranged. Weapons get assigned a random magic animation. Tomes are unaffected.");
 		magicDamageCheckBox.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -168,6 +180,7 @@ public class WeaponEffectSelectionView extends Composite {
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		
+		noneCheckBox.setEnabled(enabled);
 		statBoostsCheckBox.setEnabled(enabled);
 		effectivenessCheckBox.setEnabled(enabled);
 		unbreakableCheckBox.setEnabled(enabled);
@@ -187,6 +200,7 @@ public class WeaponEffectSelectionView extends Composite {
 	
 	public void selectAll() {
 		squelchCallbacks = true;
+		noneCheckBox.setSelection(true);
 		statBoostsCheckBox.setSelection(true);
 		effectivenessCheckBox.setSelection(true);
 		unbreakableCheckBox.setSelection(true);
@@ -205,6 +219,7 @@ public class WeaponEffectSelectionView extends Composite {
 	
 	public void deselectAll() {
 		squelchCallbacks = true;
+		noneCheckBox.setSelection(false);
 		statBoostsCheckBox.setSelection(false);
 		effectivenessCheckBox.setSelection(false);
 		unbreakableCheckBox.setSelection(false);
@@ -226,10 +241,11 @@ public class WeaponEffectSelectionView extends Composite {
 	}
 	
 	public WeaponEffectOptions getOptions() {
-		return new WeaponEffectOptions(statBoostsEnabled, effectivenessEnabled, unbreakableEnabled, braveEnabled, reverseEnabled, rangeEnabled, criticalEnabled, magicEnabled, poisonEnabled, eclipseEnabled, devilEnabled);
+		return new WeaponEffectOptions(noneEnabled, statBoostsEnabled, effectivenessEnabled, unbreakableEnabled, braveEnabled, reverseEnabled, rangeEnabled, criticalEnabled, magicEnabled, poisonEnabled, eclipseEnabled, devilEnabled);
 	}
 	
 	public void notifySelectionChange() {
+		noneEnabled = noneCheckBox.getSelection();
 		statBoostsEnabled = statBoostsCheckBox.getSelection();
 		effectivenessEnabled = effectivenessCheckBox.getSelection();
 		unbreakableEnabled = unbreakableCheckBox.getSelection();

@@ -2,6 +2,7 @@ package ui.model;
 
 public class WeaponEffectOptions {
 
+	public final Boolean none;
 	public final Boolean statBoosts;
 	public final Boolean effectiveness;
 	public final Boolean unbreakable;
@@ -14,10 +15,11 @@ public class WeaponEffectOptions {
 	public final Boolean eclipse;
 	public final Boolean devil;
 	
-	public WeaponEffectOptions(Boolean statBoosts, Boolean effectiveness, Boolean unbreakable, Boolean brave,
+	public WeaponEffectOptions(Boolean none, Boolean statBoosts, Boolean effectiveness, Boolean unbreakable, Boolean brave,
 			Boolean reverseTriangle, Boolean extendedRange, Boolean highCritical, Boolean magicDamage, Boolean poison,
 			Boolean eclipse, Boolean devil) {
 		super();
+		this.none = none;
 		this.statBoosts = statBoosts;
 		this.effectiveness = effectiveness;
 		this.unbreakable = unbreakable;

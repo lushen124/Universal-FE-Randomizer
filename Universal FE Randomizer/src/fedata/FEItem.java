@@ -1,5 +1,8 @@
 package fedata;
 
+import java.util.Set;
+
+import fedata.general.WeaponEffects;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
 
@@ -38,11 +41,7 @@ public interface FEItem extends FEModifiableObject {
 	public void setMight(int might);
 	public void setHit(int hit);
 	public void setWeight(int weight);
-	public void setCritical(int critical);
 	
-	public void setMinRange(int range);
-	public void setMaxRange(int range);
-	
-	public void applyRandomEffect();
+	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, FESpellAnimationCollection spellAnimations);
 
 }

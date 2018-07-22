@@ -297,7 +297,8 @@ public class MainView implements FileFlowDelegate {
 						Randomizer randomizer = new Randomizer(pathToFile, writePath, FEBase.GameType.FE7, compiler, 
 								growthView.getGrowthOptions(),
 								baseView.getBaseOptions(),
-								classView.getClassOptions());
+								classView.getClassOptions(),
+								weaponView.getWeaponOptions());
 						try {
 							randomizer.randomize();
 							MessageBox randomSuccess = new MessageBox(mainShell, SWT.ICON_INFORMATION | SWT.OK);

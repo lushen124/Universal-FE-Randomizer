@@ -30,6 +30,10 @@ public class FE7Data {
 	public static final int BytesPerItem = 36;
 	public static final int DefaultItemTableAddress = 0xBE222C;
 	
+	public static final int NumberOfSpellAnimations = 127;
+	public static final int BytesPerSpellAnimation = 16;
+	public static final int DefaultSpellAnimationTableOffset = 0xC999C0;
+	
 	public static final int HuffmanTreeStart = 0x6BC;
 	public static final int HuffmanTreeEnd = 0x6B8;
 	public static final int DefaultTextArrayOffset = 0xB808AC;
@@ -799,5 +803,31 @@ public class FE7Data {
 				return new HashSet<Integer>();
 			}
 		}
+	}
+	
+	public static Map<Long, byte[]> auxiliaryData() {
+		HashMap<Long, byte[]> map = new HashMap<>();
+		
+		// Extra Space for Stat Boosts.
+		
+		// STR/MAG Boost =	 0x00 05 00 00 00 00 00
+		map.put((long)0x1000000, new byte[] { 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+		
+		// SKL Boost = 		 0x00 00 05 00 00 00 00
+		map.put((long)0x1000008, new byte[] { 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00 });
+		
+		// SPD Boost = 		 0x00 00 00 05 00 00 00
+		map.put((long)0x1000010, new byte[] { 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00 });
+		
+		// DEF Boost = 		 0x00 00 00 00 05 00 00
+		map.put((long)0x1000018, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00 });
+		
+		// RES Boost = 		 0x00 00 00 00 00 05 00
+		map.put((long)0x1000020, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00 });
+		
+		// LCK Boost = 		 0x00 00 00 00 00 00 0A // I think? And make it a +10.
+		map.put((long)0x1000028, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x00 });
+		
+		return map;
 	}
 }

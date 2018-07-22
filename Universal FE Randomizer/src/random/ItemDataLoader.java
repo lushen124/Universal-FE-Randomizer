@@ -1,12 +1,19 @@
 package random;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import fedata.FEBase;
 import fedata.FEItem;
+import fedata.FESpellAnimationCollection;
 import fedata.fe7.FE7Data;
 import fedata.fe7.FE7Item;
+import fedata.fe7.FE7SpellAnimationCollection;
+import fedata.fe7.FE7Data.Item;
+import fedata.fe7.FE7Data.Item.WeaponEffect;
+import fedata.general.WeaponEffects;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
 import io.FileHandler;
@@ -17,6 +24,9 @@ public class ItemDataLoader {
 private FEBase.GameType gameType;
 	
 	private Map<Integer, FEItem> itemMap = new HashMap<Integer, FEItem>();
+	
+	// TODO: Put this somewhere else.
+	public FESpellAnimationCollection spellAnimations;
 
 	public ItemDataLoader(FEBase.GameType gameType, FileHandler handler) {
 		super();
@@ -33,6 +43,9 @@ private FEBase.GameType gameType;
 					byte[] itemData = handler.readBytesAtOffset(offset, FE7Data.BytesPerItem);
 					itemMap.put(item.ID, new FE7Item(itemData, offset));
 				}
+				
+				spellAnimations = new FE7SpellAnimationCollection(handler.readBytesAtOffset(FE7Data.DefaultSpellAnimationTableOffset, 
+						FE7Data.NumberOfSpellAnimations * FE7Data.BytesPerSpellAnimation), FE7Data.DefaultSpellAnimationTableOffset);
 				break;
 			default:
 				break;
@@ -41,6 +54,18 @@ private FEBase.GameType gameType;
 	
 	public FEItem itemWithID(int itemID) {
 		return itemMap.get(itemID);
+	}
+	
+	public FEItem[] getAllWeapons() {
+		switch (gameType) {
+		case FE7:
+			int arraySize = FE7Data.Item.allWeapons.size();
+			return itemsFromFE7Items(FE7Data.Item.allWeapons.toArray(new FE7Data.Item[arraySize]));
+		default:
+			break;
+		}
+		
+		return new FEItem[] {};
 	}
 	
 	public FEItem[] itemsOfTypeAndBelowRankValue(WeaponType type, int rankValue, Boolean rangedOnly) {
@@ -131,6 +156,8 @@ private FEBase.GameType gameType;
 		for (FEItem item : itemMap.values()) {
 			item.commitChanges();
 		}
+		
+		spellAnimations.commit();
 	}
 	
 	public void compileDiffs(DiffCompiler compiler) {
@@ -140,6 +167,20 @@ private FEBase.GameType gameType;
 				Diff charDiff = new Diff(item.getAddressOffset(), item.getData().length, item.getData(), null);
 				compiler.addDiff(charDiff);
 			}
+		}
+		
+		spellAnimations.compileDiffs(compiler);
+		
+		switch (gameType) {
+		case FE7:
+			Map<Long, byte[]> aux = FE7Data.auxiliaryData();
+			for (long offset : aux.keySet()) {
+				Diff auxDiff = new Diff(offset, aux.get(offset).length, aux.get(offset), null);
+				compiler.addDiff(auxDiff);
+			}
+			break;
+		default:
+			break;
 		}
 	}
 	

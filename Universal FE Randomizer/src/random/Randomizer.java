@@ -10,6 +10,8 @@ import random.exc.UnsupportedGameException;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
 import ui.model.GrowthOptions;
+import ui.model.WeaponEffectOptions;
+import ui.model.WeaponOptions;
 import util.DiffCompiler;
 
 
@@ -26,6 +28,7 @@ public class Randomizer {
 	private GrowthOptions growths;
 	private BaseOptions bases;
 	private ClassOptions classes;
+	private WeaponOptions weapons;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -34,7 +37,8 @@ public class Randomizer {
 	
 	private FileHandler handler;
 
-	public Randomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, GrowthOptions growths, BaseOptions bases, ClassOptions classes) {
+	public Randomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
+			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -44,6 +48,7 @@ public class Randomizer {
 		this.growths = growths;
 		this.bases = bases;
 		this.classes = classes;
+		this.weapons = weapons;
 		
 		this.gameType = gameType;
 	}
@@ -66,9 +71,11 @@ public class Randomizer {
 		randomizeGrowthsIfNecessary();
 		randomizeClassesIfNecessary();
 		randomizeBasesIfNecessary();
+		randomizeWeaponsIfNecessary();
 		
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
+		itemData.compileDiffs(diffCompiler);
 		
 		if (targetPath != null) {
 			DiffApplicator.applyDiffs(diffCompiler, handler, targetPath);
@@ -117,6 +124,27 @@ public class Randomizer {
 			}
 			if (classes.randomizeEnemies) {
 				ClassRandomizer.randomizeMinionClasses(charData, classData, chapterData, itemData);
+			}
+		}
+	}
+	
+	private void randomizeWeaponsIfNecessary() {
+		if (weapons != null) {
+			if (weapons.mightOptions != null) {
+				WeaponsRandomizer.randomizeMights(weapons.mightOptions.minValue, weapons.mightOptions.maxValue, weapons.mightOptions.variance, itemData);
+			}
+			if (weapons.hitOptions != null) {
+				WeaponsRandomizer.randomizeHit(weapons.hitOptions.minValue, weapons.hitOptions.maxValue, weapons.hitOptions.variance, itemData);
+			}
+			if (weapons.weightOptions != null) {
+				WeaponsRandomizer.randomizeWeight(weapons.weightOptions.minValue, weapons.weightOptions.maxValue, weapons.weightOptions.variance, itemData);
+			}
+			if (weapons.durabilityOptions != null) {
+				WeaponsRandomizer.randomizeDurability(weapons.durabilityOptions.minValue, weapons.durabilityOptions.maxValue, weapons.durabilityOptions.variance, itemData);
+			}
+			
+			if (weapons.shouldAddEffects && weapons.effectsList != null) {
+				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData);
 			}
 		}
 	}
