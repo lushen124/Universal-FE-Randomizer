@@ -83,4 +83,9 @@ public interface FECharacter extends FEModifiableObject {
 	
 	public int getStaffRank();
 	public void setStaffRank(int rank);
+	
+	// Miscellaneous
+	
+	public int getAffinityValue();
+	public void setAffinityValue(int newAffinity);
 }

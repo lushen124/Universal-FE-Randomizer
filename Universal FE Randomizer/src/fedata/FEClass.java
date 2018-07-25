@@ -64,4 +64,11 @@ public interface FEClass extends FEModifiableObject {
 	public int getStaffRank();
 	
 	public int getBaseRankValue();
+	
+	// Miscellaneous
+	
+	public int getMOV();
+	public void setMOV(int newMOV);
+	public int getCON();
+	public void setCON(int newCON);
 }

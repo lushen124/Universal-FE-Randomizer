@@ -253,6 +253,26 @@ public class FE7Class implements FEClass {
 	public int getBaseRankValue() {
 		return 1;
 	}
+	
+	public int getMOV() {
+		return data[18] & 0xFF;
+	}
+	
+	public void setMOV(int newMOV) {
+		newMOV = WhyDoesJavaNotHaveThese.clamp(newMOV, 0, 15);
+		data[18] = (byte)(newMOV & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getCON() {
+		return data[17] & 0xFF;
+	}
+	
+	public void setCON(int newCON) {
+		newCON = WhyDoesJavaNotHaveThese.clamp(newCON, 0, 20);
+		data[17] = (byte)(newCON & 0xFF);
+		wasModified = true;
+	}
 
 	public void resetData() {
 		data = originalData;

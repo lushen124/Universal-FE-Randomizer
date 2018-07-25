@@ -9,12 +9,12 @@ import random.exc.FileOpenException;
 import random.exc.UnsupportedGameException;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
+import ui.model.EnemyOptions;
 import ui.model.GrowthOptions;
+import ui.model.OtherCharacterOptions;
 import ui.model.WeaponEffectOptions;
 import ui.model.WeaponOptions;
 import util.DiffCompiler;
-
-
 
 public class Randomizer {
 	
@@ -29,6 +29,8 @@ public class Randomizer {
 	private BaseOptions bases;
 	private ClassOptions classes;
 	private WeaponOptions weapons;
+	private OtherCharacterOptions otherCharacterOptions;
+	private EnemyOptions enemies;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -38,7 +40,8 @@ public class Randomizer {
 	private FileHandler handler;
 
 	public Randomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
-			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons) {
+			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
+			OtherCharacterOptions other, EnemyOptions enemies) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -49,6 +52,8 @@ public class Randomizer {
 		this.bases = bases;
 		this.classes = classes;
 		this.weapons = weapons;
+		otherCharacterOptions = other;
+		this.enemies = enemies;
 		
 		this.gameType = gameType;
 	}
@@ -72,6 +77,8 @@ public class Randomizer {
 		randomizeClassesIfNecessary();
 		randomizeBasesIfNecessary();
 		randomizeWeaponsIfNecessary();
+		randomizeOtherCharacterTraitsIfNecessary();
+		buffEnemiesIfNecessary();
 		
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
@@ -125,6 +132,9 @@ public class Randomizer {
 			if (classes.randomizeEnemies) {
 				ClassRandomizer.randomizeMinionClasses(charData, classData, chapterData, itemData);
 			}
+			if (classes.randomizeBosses) {
+				ClassRandomizer.randomizeBossCharacterClasses(charData, classData, chapterData, itemData);
+			}
 		}
 	}
 	
@@ -145,6 +155,34 @@ public class Randomizer {
 			
 			if (weapons.shouldAddEffects && weapons.effectsList != null) {
 				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData);
+			}
+		}
+	}
+	
+	private void randomizeOtherCharacterTraitsIfNecessary() {
+		if (otherCharacterOptions != null) {
+			if (otherCharacterOptions.movementOptions != null) {
+				ClassRandomizer.randomizeClassMovement(otherCharacterOptions.movementOptions.minValue, otherCharacterOptions.movementOptions.maxValue, classData);
+			}
+			if (otherCharacterOptions.constitutionOptions != null) {
+				ClassRandomizer.randomizeClassConstitution(otherCharacterOptions.constitutionOptions.minValue, otherCharacterOptions.constitutionOptions.variance, classData);
+			}
+			if (otherCharacterOptions.randomizeAffinity) {
+				CharacterRandomizer.randomizeAffinity(charData);
+			}
+		}
+	}
+	
+	private void buffEnemiesIfNecessary() {
+		if (enemies != null) {
+			if (enemies.mode == EnemyOptions.BuffMode.FLAT) {
+				EnemyBuffer.buffEnemyGrowthRates(enemies.buffAmount, classData);
+			} else if (enemies.mode == EnemyOptions.BuffMode.SCALING) {
+				EnemyBuffer.scaleEnemyGrowthRates(enemies.buffAmount, classData);
+			}
+			
+			if (enemies.improveWeapons) {
+				EnemyBuffer.improveWeapons(25, charData, classData, chapterData, itemData);
 			}
 		}
 	}

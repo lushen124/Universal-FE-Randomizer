@@ -298,7 +298,9 @@ public class MainView implements FileFlowDelegate {
 								growthView.getGrowthOptions(),
 								baseView.getBaseOptions(),
 								classView.getClassOptions(),
-								weaponView.getWeaponOptions());
+								weaponView.getWeaponOptions(),
+								otherCharOptionView.getOtherCharacterOptions(),
+								enemyView.getEnemyOptions());
 						try {
 							randomizer.randomize();
 							MessageBox randomSuccess = new MessageBox(mainShell, SWT.ICON_INFORMATION | SWT.OK);

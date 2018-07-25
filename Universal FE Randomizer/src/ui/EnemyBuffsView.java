@@ -13,6 +13,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
+import ui.model.EnemyOptions;
+
 public class EnemyBuffsView extends Composite {
 	
 	private Group container;
@@ -132,10 +134,27 @@ public class EnemyBuffsView extends Composite {
 		nudgeStartingLocationsButton = new Button(container, SWT.CHECK);
 		nudgeStartingLocationsButton.setText("Nudge Enemy Starting Location");
 		nudgeStartingLocationsButton.setToolTipText("Randomly moves enemies up to 3 spaces away from their usual starting location.");
-
+		nudgeStartingLocationsButton.setEnabled(false);
+		
 		FormData nudgeLocationData = new FormData();
 		nudgeLocationData.left = new FormAttachment(0, 5);
 		nudgeLocationData.top = new FormAttachment(improveEnemyWeaponsButton, 5);
 		nudgeStartingLocationsButton.setLayoutData(nudgeLocationData);		
+	}
+	
+	public EnemyOptions getEnemyOptions() {
+
+		Boolean buffWeapons = improveEnemyWeaponsButton.getSelection();
+		Boolean nudgePositions = false;
+		
+		if (buffEnemyGrowthsButton.getSelection() == false) {
+			return new EnemyOptions(EnemyOptions.BuffMode.NONE, 0, buffWeapons, nudgePositions);
+		} else {
+			if (flatBonusButton.getSelection()) {
+				return new EnemyOptions(EnemyOptions.BuffMode.FLAT, buffSpinner.getSelection(), buffWeapons, nudgePositions);
+			} else {
+				return new EnemyOptions(EnemyOptions.BuffMode.SCALING, buffSpinner.getSelection(), buffWeapons, nudgePositions);
+			}
+		}
 	}
 }

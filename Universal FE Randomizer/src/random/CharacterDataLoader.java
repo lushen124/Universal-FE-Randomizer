@@ -1,6 +1,7 @@
 package random;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +43,16 @@ public class CharacterDataLoader {
 				return charactersFromList(characters.toArray(new FE7Data.Character[characters.size()]));
 			default:
 				return new FECharacter[] {};
+		}
+	}
+	
+	public FECharacter[] bossCharacters() {
+		switch (gameType) {
+		case FE7:
+			Set<FE7Data.Character> characters = FE7Data.Character.allBossCharacters;
+			return charactersFromList(characters.toArray(new FE7Data.Character[characters.size()]));
+		default:
+			return new FECharacter[] {};
 		}
 	}
 	
@@ -99,6 +110,21 @@ public class CharacterDataLoader {
 			}
 		default:
 			return false;
+		}
+	}
+	
+	public int[] validAffinityValues() {
+		switch (gameType) {
+		case FE7:
+			FE7Character.Affinity[] affinities = FE7Character.Affinity.values();
+			int[] validValues = new int[affinities.length];
+			for (int i = 0; i < affinities.length; i++) {
+				validValues[i] = affinities[i].value;
+			}
+			
+			return validValues;
+		default:
+			return new int[] {};
 		}
 	}
 	

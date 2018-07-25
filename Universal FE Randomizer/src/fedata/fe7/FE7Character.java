@@ -1,9 +1,32 @@
 package fedata.fe7;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import fedata.FECharacter;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE7Character implements FECharacter {
+	
+	public enum Affinity {
+		NONE(0x00), FIRE(0x01), THUNDER(0x02), WIND(0x03), WATER(0x04), DARK(0x05), LIGHT(0x06), ANIMA(0x07);
+		
+		public int value;
+		
+		private static Map<Integer, Affinity> map = new HashMap<Integer, Affinity>();
+		
+		static {
+			for (Affinity affinity : Affinity.values()) {
+				map.put(affinity.value, affinity);
+			}
+		}
+		
+		private Affinity(final int value) { this.value = value; }
+		
+		public static Affinity affinityWithID(int value) {
+			return map.get(value);
+		}
+	}
 
 	private byte[] originalData;
 	private byte[] data;
@@ -278,6 +301,15 @@ public class FE7Character implements FECharacter {
 	
 	public void setStaffRank(int rank) {
 		data[24] = (byte)(rank & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getAffinityValue() {
+		return data[9] & 0xFF;
+	}
+	
+	public void setAffinityValue(int newAffinity) {
+		data[9] = (byte)(newAffinity & 0xFF);
 		wasModified = true;
 	}
 	

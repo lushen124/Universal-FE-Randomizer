@@ -13,14 +13,79 @@ import fedata.FECharacter;
 import fedata.FEClass;
 import fedata.FEItem;
 import fedata.general.WeaponType;
+import util.WhyDoesJavaNotHaveThese;
 
 public class ClassRandomizer {
+	
+	public static void randomizeClassMovement(int minMOV, int maxMOV, ClassDataLoader classData) {
+		FEClass[] allClasses = classData.allClasses();
+		for (FEClass currentClass : allClasses) {
+			if (currentClass.getMOV() > 0) {
+				int randomMOV = ThreadLocalRandom.current().nextInt(maxMOV - minMOV) + minMOV;
+				currentClass.setMOV(randomMOV);
+			}
+		}
+	}
+	
+	public static void randomizeClassConstitution(int minCON, int variance, ClassDataLoader classData) {
+		FEClass[] allClasses = classData.allClasses();
+		for (FEClass currentClass : allClasses) {
+			int currentCON = currentClass.getCON();
+			int newCON = currentCON;
+			int direction = ThreadLocalRandom.current().nextInt(2);
+			if (direction == 0) {
+				newCON += ThreadLocalRandom.current().nextInt(variance);
+			} else {
+				newCON -= ThreadLocalRandom.current().nextInt(variance);
+			}
+			
+			currentClass.setCON(WhyDoesJavaNotHaveThese.clamp(newCON, minCON, 20));
+		}
+	}
 	
 	public static void randomizePlayableCharacterClasses(Boolean includeLords, Boolean includeThieves, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		Map<Integer, FEClass> determinedClasses = new HashMap<Integer, FEClass>();
 		
 		for (FECharacter character : allPlayableCharacters) {
+			
+			Boolean characterRequiresRange = charactersData.characterIDRequiresRange(character.getID());
+			
+			int originalClassID = character.getClassID();
+			FEClass originalClass = classData.classForID(originalClassID);
+			
+			FEClass targetClass = null;
+			
+			if (determinedClasses.containsKey(character.getID())) {
+				targetClass = determinedClasses.get(character.getID());
+			}
+			
+			FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, charactersData.isLordCharacterID(character.getID()), characterRequiresRange);
+			if (possibleClasses.length == 0) {
+				continue;
+			}
+			
+			if (targetClass == null) {
+				int randomIndex = ThreadLocalRandom.current().nextInt(possibleClasses.length);
+				targetClass = possibleClasses[randomIndex];
+			}
+			
+			if (targetClass == null) {
+				continue;
+			}
+			
+			updateCharacterToClass(character, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData);
+		}
+	}
+	
+	public static void randomizeBossCharacterClasses(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
+		FECharacter[] allBossCharacters = charactersData.bossCharacters();
+		
+		Boolean includeLords = true;
+		Boolean includeThieves = true;
+		Map<Integer, FEClass> determinedClasses = new HashMap<Integer, FEClass>();
+		
+		for (FECharacter character : allBossCharacters) {
 			
 			Boolean characterRequiresRange = charactersData.characterIDRequiresRange(character.getID());
 			

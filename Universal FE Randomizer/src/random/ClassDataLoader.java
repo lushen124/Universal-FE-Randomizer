@@ -1,6 +1,8 @@
 package random;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import fedata.FEBase;
@@ -42,6 +44,19 @@ private FEBase.GameType gameType;
 				break;
 			default:
 				break;
+		}
+	}
+	
+	public FEClass[] allClasses() {
+		switch (gameType) {
+		case FE7:
+			List<FEClass> classes = new ArrayList<FEClass>();
+			for (FE7Data.CharacterClass charClass : FE7Data.CharacterClass.allValidClasses) {
+				classes.add(classMap.get(charClass.ID));
+			}
+			return classes.toArray(new FEClass[classes.size()]);
+		default:
+			return new FEClass[] {};
 		}
 	}
 	
