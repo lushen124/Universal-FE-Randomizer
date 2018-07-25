@@ -381,6 +381,11 @@ public class ClassRandomizer {
 			items.addAll(Arrays.asList(prfWeapons));
 		}
 		
+		FEItem[] classWeapons = itemData.lockedWeaponsToClass(characterClass.getID());
+		if (classWeapons != null) {
+			items.addAll(Arrays.asList(classWeapons));
+		}
+		
 		return items.toArray(new FEItem[items.size()]);
 	}
 	

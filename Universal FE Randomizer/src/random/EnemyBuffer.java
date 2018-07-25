@@ -1,5 +1,9 @@
 package random;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import fedata.FEChapter;
@@ -58,48 +62,79 @@ public class EnemyBuffer {
 					}
 					
 					if (ThreadLocalRandom.current().nextInt(100) < probability) {
-						upgradeWeapons(chapterUnit, 1, itemData);
+						upgradeWeapons(chapterUnit, classData, itemData);
 					}
 				}
 			}
 		}
 	}
 	
-	private static void upgradeWeapons(FEChapterUnit unit, int rankIncrease, ItemDataLoader itemData) {
+	private static void upgradeWeapons(FEChapterUnit unit, ClassDataLoader classData, ItemDataLoader itemData) {
+		FEClass unitClass = classData.classForID(unit.getStartingClass());
 		int item1ID = unit.getItem1();
 		FEItem item1 = itemData.itemWithID(item1ID);
 		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
-			FEItem[] improvedItems = itemData.itemsOfTypeAndEqualRank(item1.getType(), 
-					WeaponRank.nextRankHigherThanRank(item1.getWeaponRank()), false, true);
-			FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
-			unit.setItem1(replacementItem.getID());
+			FEItem[] improvedItems = availableItems(unitClass, 
+					WeaponRank.nextRankHigherThanRank(item1.getWeaponRank()), item1.getType(), itemData);
+			if (improvedItems.length > 0) {
+				FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
+				unit.setItem1(replacementItem.getID());
+			}
 		}
 		
 		int item2ID = unit.getItem2();
 		FEItem item2 = itemData.itemWithID(item2ID);
 		if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
-			FEItem[] improvedItems = itemData.itemsOfTypeAndEqualRank(item2.getType(), 
-					WeaponRank.nextRankHigherThanRank(item2.getWeaponRank()), false, true);
-			FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
-			unit.setItem2(replacementItem.getID());
+			FEItem[] improvedItems = availableItems(unitClass, 
+					WeaponRank.nextRankHigherThanRank(item2.getWeaponRank()), item2.getType(), itemData);
+			if (improvedItems.length > 0) {
+				FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
+				unit.setItem2(replacementItem.getID());
+			}
 		}
 		
 		int item3ID = unit.getItem3();
 		FEItem item3 = itemData.itemWithID(item3ID);
 		if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
-			FEItem[] improvedItems = itemData.itemsOfTypeAndEqualRank(item3.getType(), 
-					WeaponRank.nextRankHigherThanRank(item3.getWeaponRank()), false, true);
-			FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
-			unit.setItem3(replacementItem.getID());
+			FEItem[] improvedItems = availableItems(unitClass, 
+					WeaponRank.nextRankHigherThanRank(item3.getWeaponRank()), item3.getType(), itemData);
+			if (improvedItems.length > 0) {
+				FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
+				unit.setItem3(replacementItem.getID());
+			}
 		}
 		
 		int item4ID = unit.getItem4();
 		FEItem item4 = itemData.itemWithID(item4ID);
 		if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
-			FEItem[] improvedItems = itemData.itemsOfTypeAndEqualRank(item4.getType(), 
-					WeaponRank.nextRankHigherThanRank(item4.getWeaponRank()), false, true);
-			FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
-			unit.setItem4(replacementItem.getID());
+			FEItem[] improvedItems = availableItems(unitClass, 
+					WeaponRank.nextRankHigherThanRank(item4.getWeaponRank()), item4.getType(), itemData);
+			if (improvedItems.length > 0) {
+				FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
+				unit.setItem4(replacementItem.getID());
+			}
 		}
+	}
+	
+	private static FEItem[] availableItems(FEClass characterClass, WeaponRank rank, WeaponType type, ItemDataLoader itemData) {
+		if (rank == WeaponRank.NONE) {
+			return new FEItem[] {};
+		}
+		
+		ArrayList<FEItem> items = new ArrayList<FEItem>();
+		
+		FEItem[] improvedItems = itemData.itemsOfTypeAndEqualRank(type, rank, false, true);
+		items.addAll(Arrays.asList(improvedItems));
+		
+		FEItem[] prfWeapons = itemData.prfWeaponsForClass(characterClass.getID());
+		if (prfWeapons != null) {
+			items.addAll(Arrays.asList(prfWeapons));
+		}
+		FEItem[] classWeapons = itemData.lockedWeaponsToClass(characterClass.getID());
+		if (classWeapons != null) {
+			items.addAll(Arrays.asList(classWeapons));
+		}
+		
+		return items.toArray(new FEItem[items.size()]);
 	}
 }

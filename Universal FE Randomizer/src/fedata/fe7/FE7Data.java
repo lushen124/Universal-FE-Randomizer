@@ -677,6 +677,16 @@ public class FE7Data {
 			return null;
 		}
 		
+		public static Item[] lockedWeaponsToClassID(int classID) {
+			if (classID == FE7Data.CharacterClass.MYRMIDON.ID || classID == FE7Data.CharacterClass.MYRMIDON_F.ID ||
+					classID == FE7Data.CharacterClass.SWORDMASTER.ID || classID == FE7Data.CharacterClass.SWORDMASTER_F.ID ||
+					classID == FE7Data.CharacterClass.LORD_LYN.ID || classID == FE7Data.CharacterClass.BLADE_LORD.ID) {
+				return new Item[] {WO_DAO};
+			}
+			
+			return null;
+		}
+		
 		public static Item[] weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange) {
 			if (min == WeaponRank.PRF || max == WeaponRank.PRF) {
 				return null;
@@ -743,6 +753,7 @@ public class FE7Data {
 			}
 			
 			list.removeAll(allPrfRank);
+			list.remove(WO_DAO); // This one is special. It must be added in only if we're certain the class asking for the item can use it.
 			
 			if (FE7WeaponRank.S.isHigherThanRank(maxRank)) {
 				list.removeAll(allSRank);

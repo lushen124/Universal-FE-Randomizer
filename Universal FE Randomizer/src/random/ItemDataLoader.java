@@ -128,6 +128,17 @@ private FEBase.GameType gameType;
 		return new FEItem[] {};
 	}
 	
+	public FEItem[] lockedWeaponsToClass(int classID) {
+		switch (gameType) {
+		case FE7:
+			return itemsFromFE7Items(FE7Data.Item.lockedWeaponsToClassID(classID));
+		default:
+			break;
+		}
+		
+		return new FEItem[] {};
+	}
+	
 	public FEItem[] formerThiefInventory() {
 		switch (gameType) {
 		case FE7:
