@@ -400,7 +400,7 @@ public class WeaponsView extends Composite {
 		effectData.left = new FormAttachment(enableRandomEffectsButton, 10, SWT.LEFT);
 		effectData.top = new FormAttachment(enableRandomEffectsButton, 5);
 		effectData.bottom = new FormAttachment(100, -5);
-		effectData.width = 220;
+		effectData.width = 260;
 		effectsSelectionView.setLayoutData(effectData);
 		
 		effectsSelectionView.setSelectionListener(new WeaponEffectSelectionViewListener() {
