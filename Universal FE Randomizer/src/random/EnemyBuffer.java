@@ -67,6 +67,18 @@ public class EnemyBuffer {
 				}
 			}
 		}
+		
+		FEClass[] allClasses = classData.allClasses();
+		for (FEClass currentClass : allClasses) {
+			if (currentClass.getSwordRank() > 0) { currentClass.setSwordRank(WeaponRank.S); }
+			if (currentClass.getLanceRank() > 0) { currentClass.setLanceRank(WeaponRank.S); }
+			if (currentClass.getAxeRank() > 0) { currentClass.setAxeRank(WeaponRank.S); }
+			if (currentClass.getBowRank() > 0) { currentClass.setBowRank(WeaponRank.S); }
+			if (currentClass.getAnimaRank() > 0) { currentClass.setAnimaRank(WeaponRank.S); }
+			if (currentClass.getDarkRank() > 0) { currentClass.setDarkRank(WeaponRank.S); }
+			if (currentClass.getLightRank() > 0) { currentClass.setLightRank(WeaponRank.S); }
+			if (currentClass.getStaffRank() > 0) { currentClass.setStaffRank(WeaponRank.S); }
+		}
 	}
 	
 	private static void upgradeWeapons(FEChapterUnit unit, ClassDataLoader classData, ItemDataLoader itemData) {

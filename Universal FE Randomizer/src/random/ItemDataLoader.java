@@ -1,5 +1,6 @@
 package random;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -54,6 +55,15 @@ private FEBase.GameType gameType;
 	
 	public FEItem itemWithID(int itemID) {
 		return itemMap.get(itemID);
+	}
+	
+	public int getHighestWeaponRank() {
+		switch (gameType) {
+		case FE7:
+			return FE7Data.Item.FE7WeaponRank.S.value;
+		}
+		
+		return 0;
 	}
 	
 	public FEItem[] getAllWeapons() {
@@ -121,6 +131,50 @@ private FEBase.GameType gameType;
 		switch (gameType) {
 		case FE7:
 			return itemsFromFE7Items(FE7Data.Item.prfWeaponsForClassID(classID));
+		default:
+			break;
+		}
+		
+		return new FEItem[] {};
+	}
+	
+	public FEItem[] getChestRewards() {
+		switch (gameType) {
+		case FE7:
+			Set<FE7Data.Item> items = new HashSet<FE7Data.Item>();
+			items.addAll(FE7Data.Item.allPotentialRewards);
+			return itemsFromFE7Items(items.toArray(new FE7Data.Item[items.size()]));
+		default:
+			break;
+		}
+		
+		return new FEItem[] {};
+	}
+	
+	public FEItem[] relatedItems(int itemID) {
+		switch (gameType) {
+		case FE7:
+			Set<FE7Data.Item> items = new HashSet<FE7Data.Item>();
+			FEItem item = itemWithID(itemID);
+			if (item == null) {
+				System.out.println("Invalid Item " + Integer.toHexString(itemID));
+				break;
+			}
+			if (item.getType() == WeaponType.NOT_A_WEAPON) {
+				if (FE7Data.Item.isStatBooster(item.getID())) {
+					items.addAll(FE7Data.Item.allStatBoosters);
+				}
+				if (FE7Data.Item.isPromotionItem(item.getID())) {
+					items.addAll(FE7Data.Item.allPromotionItems);
+				}
+			} else {
+				items.addAll(Arrays.asList(FE7Data.Item.weaponsOfRank(item.getWeaponRank())));
+				items.addAll(Arrays.asList(FE7Data.Item.weaponsOfType(item.getType())));
+			}
+			
+			items.removeIf(i-> i.ID == itemID);
+			
+			return itemsFromFE7Items(items.toArray(new FE7Data.Item[items.size()]));
 		default:
 			break;
 		}

@@ -1,8 +1,8 @@
 package util;
 
 public class AddressRange {
-	int start;
-	int end;
+	public final int start;
+	public final int end;
 	
 	public AddressRange(int startAddress, int endAddress) {
 		start = startAddress;

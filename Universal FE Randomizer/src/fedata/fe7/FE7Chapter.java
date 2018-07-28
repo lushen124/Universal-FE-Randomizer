@@ -3,6 +3,7 @@ package fedata.fe7;
 import java.util.Set;
 
 import fedata.FEChapter;
+import fedata.FEChapterItem;
 import fedata.FEChapterUnit;
 
 public class FE7Chapter implements FEChapter {
@@ -31,6 +32,8 @@ public class FE7Chapter implements FEChapter {
 			currentOffset += bytesPerUnit;
 			currentBaseIndex += bytesPerUnit;
 		}
+		
+		
 	}
 
 	@Override

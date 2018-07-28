@@ -1,5 +1,7 @@
 package fedata;
 
+import fedata.general.WeaponRank;
+
 public interface FEClass extends FEModifiableObject {
 	
 	// Info
@@ -55,13 +57,21 @@ public interface FEClass extends FEModifiableObject {
 	// Weapon Ranks
 	
 	public int getSwordRank();
+	public void setSwordRank(WeaponRank rank);
 	public int getLanceRank();
+	public void setLanceRank(WeaponRank rank);
 	public int getAxeRank();
+	public void setAxeRank(WeaponRank rank);
 	public int getBowRank();
+	public void setBowRank(WeaponRank rank);
 	public int getAnimaRank();
+	public void setAnimaRank(WeaponRank rank);
 	public int getLightRank();
+	public void setLightRank(WeaponRank rank);
 	public int getDarkRank();
+	public void setDarkRank(WeaponRank rank);
 	public int getStaffRank();
+	public void setStaffRank(WeaponRank rank);
 	
 	public int getBaseRankValue();
 	

@@ -185,4 +185,14 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	public Boolean isModifiable() {
 		return modifiable;
 	}
+
+	public void setAIToHeal(Boolean allowAttack) {
+		data[12] = (byte) (allowAttack ? 0x0F : 0x0E);
+		wasModified = true;
+	}
+
+	public void setAIToOnlyAttack(Boolean allowMove) {
+		data[12] = (byte) (allowMove ? 0x00 : 0x03);
+		wasModified = true;
+	}
 }

@@ -629,6 +629,17 @@ public class FE7Data {
 		public static Set<Item> chestOnlyItems = new HashSet<Item>(Arrays.asList(GOLD_3000, GOLD_5000));
 		public static Set<Item> usableItems = new HashSet<Item>(Arrays.asList(CHEST_KEY, CHEST_KEY_5, DOOR_KEY, LOCKPICK, VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH, MINE, LIGHT_RUNE));
 		
+		public static Set<Item> allPotentialRewards = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, EMBLEM_SWORD, IRON_LANCE, SLIM_LANCE, JAVELIN, EMBLEM_LANCE, POISON_LANCE, HAND_AXE, IRON_AXE, EMBLEM_AXE, STEEL_AXE,
+				DEVIL_AXE, IRON_BOW, EMBLEM_BOW, FIRE, LIGHTNING, HEAL, POISON_SWORD, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, WO_DAO, STEEL_LANCE, HEAVY_SPEAR, HORSESLAYER, POISON_AXE, HALBERD, HAMMER, POISON_BOW,
+				SHORT_BOW, LONGBOW, STEEL_BOW, THUNDER, SHINE, FLUX, MEND, TORCH_STAFF, UNLOCK, STEEL_BLADE, KILLING_EDGE, WYRMSLAYER, LIGHT_BRAND, LANCEREAVER, SHORT_SPEAR, KILLER_LANCE, AXEREAVER, DRAGON_AXE, KILLER_AXE, SWORDREAVER, 
+				SWORDSLAYER, KILLER_BOW, ELFIRE, DIVINE, NOSFERATU, RECOVER, RESTORE, HAMMERNE, BARRIER, BRAVE_SWORD, WIND_SWORD, BRAVE_LANCE, SPEAR, BRAVE_AXE, BRAVE_BOW, BOLTING, PURGE, ECLIPSE, PHYSIC, SILENCE, SLEEP, BERSERK, 
+				RESCUE, SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, TOMAHAWK, SILVER_AXE, SILVER_BOW, FIMBULVETR, AURA, FENRIR, FORTIFY, WARP,
+				ANGELIC_ROBE, ENERGY_RING, SECRET_BOOK, SPEEDWINGS, GODDESS_ICON, DRAGONSHIELD, TALISMAN, BOOTS, BODY_RING, AFA_DROPS,
+				HERO_CREST, KNIGHT_CREST, ORION_BOLT, ELYSIAN_WHIP, GUIDING_RING, EARTH_SEAL, HEAVEN_SEAL, EMBLEM_SEAL, FELL_CONTRACT, OCEAN_SEAL,
+				FILLA_MIGHT, NINI_GRACE, THOR_IRE, SET_LITANY,
+				DELPHI_SHIELD, MEMBER_CARD, IRON_RUNE, SILVER_CARD,
+				WHITE_GEM, BLUE_GEM, RED_GEM));
+		
 		public static Set<Item> allWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, POISON_SWORD, RAPIER, MANI_KATTI, BRAVE_SWORD,
 				WO_DAO, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, LONGSWORD, EMBLEM_SWORD, DURANDAL, SOL_KATTI, REGAL_BLADE, WIND_SWORD, IRON_LANCE, 
 				SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, POISON_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN, SPEAR, AXEREAVER, EMBLEM_LANCE, REX_HASTA, HEAVY_SPEAR, SHORT_SPEAR, 
@@ -686,6 +697,80 @@ public class FE7Data {
 			}
 			
 			return null;
+		}
+		
+		public static Item[] weaponsOfType(WeaponType type) {
+			Set<Item> list = new HashSet<Item>();
+			
+			switch (type) {
+			case SWORD:
+				list.addAll(allSwords);
+				break;
+			case LANCE:
+				list.addAll(allLances);
+				break;
+			case AXE:
+				list.addAll(allAxes);
+				break;
+			case BOW:
+				list.addAll(allBows);
+				break;
+			case ANIMA:
+				list.addAll(allAnima);
+				break;
+			case LIGHT:
+				list.addAll(allLight);
+				break;
+			case DARK:
+				list.addAll(allDark);
+				break;
+			case STAFF:
+				list.addAll(allStaves);
+				break;
+			default:
+				break;
+			}
+			
+			return list.toArray(new Item[list.size()]);
+		}
+		
+		public static Item[] weaponsOfRank(WeaponRank rank) {
+			Set<Item> list = new HashSet<Item>();
+			
+			switch (rank) {
+			case E:
+				list.addAll(allERank);
+				break;
+			case D:
+				list.addAll(allDRank);
+				break;
+			case C:
+				list.addAll(allCRank);
+				break;
+			case B:
+				list.addAll(allBRank);
+				break;
+			case A:
+				list.addAll(allARank);
+				break;
+			case S:
+				list.addAll(allSRank);
+				break;
+			default:
+				break;
+			}
+			
+			return list.toArray(new Item[list.size()]);
+		}
+		
+		public static Boolean isStatBooster(int itemID) {
+			if (valueOf(itemID) == null) { return false; }
+			return allStatBoosters.contains(valueOf(itemID));
+		}
+		
+		public static Boolean isPromotionItem(int itemID) {
+			if (valueOf(itemID) == null) { return false; }
+			return allPromotionItems.contains(valueOf(itemID));
 		}
 		
 		public static Item[] weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange) {

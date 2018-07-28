@@ -19,6 +19,10 @@ public class FileReadHelper {
 		return result;
 	}
 	
+	public static byte[] readBytesInRange(AddressRange range, FileHandler handler) {
+		return handler.readBytesAtOffset(range.start, range.end - range.start);
+	}
+	
 	public static int readSignedHalfWord(FileHandler handler, long offset) {
 		byte[] halfword = handler.readBytesAtOffset(offset, 2);
 		int result = 0;

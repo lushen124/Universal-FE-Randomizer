@@ -27,4 +27,7 @@ public interface FEChapterUnit extends FEModifiableObject {
 	public void setItem4(int itemID);
 	
 	public void giveItems(int[] itemIDs);
+	
+	public void setAIToHeal(Boolean allowAttack);
+	public void setAIToOnlyAttack(Boolean allowMove);
 }

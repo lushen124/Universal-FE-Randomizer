@@ -192,6 +192,10 @@ public class Randomizer {
 	}
 	
 	private void randomizeOtherThingsIfNecessary() {
-		
+		if (miscOptions != null) {
+			if (miscOptions.randomizeRewards) {
+				RandomRandomizer.randomizeRewards(itemData, chapterData);
+			}
+		}
 	}
 }
