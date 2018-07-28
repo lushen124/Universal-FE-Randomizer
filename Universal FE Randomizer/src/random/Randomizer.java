@@ -11,6 +11,7 @@ import ui.model.BaseOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
 import ui.model.GrowthOptions;
+import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
 import ui.model.WeaponEffectOptions;
 import ui.model.WeaponOptions;
@@ -31,6 +32,7 @@ public class Randomizer {
 	private WeaponOptions weapons;
 	private OtherCharacterOptions otherCharacterOptions;
 	private EnemyOptions enemies;
+	private MiscellaneousOptions miscOptions;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -41,7 +43,7 @@ public class Randomizer {
 
 	public Randomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies) {
+			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -54,6 +56,7 @@ public class Randomizer {
 		this.weapons = weapons;
 		otherCharacterOptions = other;
 		this.enemies = enemies;
+		miscOptions = otherOptions;
 		
 		this.gameType = gameType;
 	}
@@ -74,11 +77,12 @@ public class Randomizer {
 		}
 		
 		randomizeGrowthsIfNecessary();
-		randomizeClassesIfNecessary();
+		randomizeClassesIfNecessary(); // This MUST come before bases.
 		randomizeBasesIfNecessary();
 		randomizeWeaponsIfNecessary();
 		randomizeOtherCharacterTraitsIfNecessary();
 		buffEnemiesIfNecessary();
+		randomizeOtherThingsIfNecessary(); // i.e. Miscellaneous options.
 		
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
@@ -185,5 +189,9 @@ public class Randomizer {
 				EnemyBuffer.improveWeapons(25, charData, classData, chapterData, itemData);
 			}
 		}
+	}
+	
+	private void randomizeOtherThingsIfNecessary() {
+		
 	}
 }

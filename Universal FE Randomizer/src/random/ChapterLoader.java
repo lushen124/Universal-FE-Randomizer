@@ -26,7 +26,7 @@ private FEBase.GameType gameType;
 				chapters = new FEChapter[numberOfChapters];
 				int i = 0;
 				for (FE7Data.Chapter chapter : FE7Data.Chapter.values()) {
-					long offset = chapter.offset;
+					long offset = chapter.charactersOffset;
 					int numberOfUnits = chapter.numberOfUnits;
 					byte[] chapterData = handler.readBytesAtOffset(offset, FE7Data.BytesPerChapterUnit * numberOfUnits);
 					Set<Integer> doNotTouchIndices = chapter.doNotChangeIndexes();

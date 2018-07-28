@@ -9,6 +9,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
+import ui.model.MiscellaneousOptions;
+
 public class MiscellaneousView extends Composite {
 	
 	private Group container;
@@ -38,7 +40,6 @@ public class MiscellaneousView extends Composite {
 		randomizeChestVillageRewards = new Button(container, SWT.CHECK);
 		randomizeChestVillageRewards.setText("Randomize Rewards");
 		randomizeChestVillageRewards.setToolTipText("Rewards from chests, villages, and story events will now give out random rewards. Plot-important promotion items are excluded.");
-		randomizeChestVillageRewards.setEnabled(false);
 		
 		FormData chestVillageData = new FormData();
 		chestVillageData.left = new FormAttachment(0, 5);
@@ -58,4 +59,7 @@ public class MiscellaneousView extends Composite {
 		randomizeRecruitmentOrder.setLayoutData(randomRecruitData);
 	}
 
+	public MiscellaneousOptions getMiscellaneousOptions() {
+		return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), false);
+	}
 }
