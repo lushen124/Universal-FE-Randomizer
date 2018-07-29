@@ -311,6 +311,15 @@ public class FE7Character implements FECharacter {
 		wasModified = true;
 	}
 	
+	public int getConstitution() {
+		return data[19] & 0xFF;
+	}
+	
+	public void setConstitution(int newCON) {
+		data[19] = (byte)(newCON & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getAffinityValue() {
 		return data[9] & 0xFF;
 	}

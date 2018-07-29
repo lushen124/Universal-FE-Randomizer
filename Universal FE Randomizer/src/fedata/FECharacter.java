@@ -88,6 +88,8 @@ public interface FECharacter extends FEModifiableObject {
 	
 	// Miscellaneous
 	
+	public int getConstitution();
+	public void setConstitution(int newCON);
 	public int getAffinityValue();
 	public void setAffinityValue(int newAffinity);
 }

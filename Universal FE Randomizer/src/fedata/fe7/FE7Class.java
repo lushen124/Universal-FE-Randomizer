@@ -325,12 +325,6 @@ public class FE7Class implements FEClass {
 	public int getCON() {
 		return data[17] & 0xFF;
 	}
-	
-	public void setCON(int newCON) {
-		newCON = WhyDoesJavaNotHaveThese.clamp(newCON, 0, 20);
-		data[17] = (byte)(newCON & 0xFF);
-		wasModified = true;
-	}
 
 	public void resetData() {
 		data = originalData;

@@ -27,22 +27,6 @@ public class ClassRandomizer {
 		}
 	}
 	
-	public static void randomizeClassConstitution(int minCON, int variance, ClassDataLoader classData) {
-		FEClass[] allClasses = classData.allClasses();
-		for (FEClass currentClass : allClasses) {
-			int currentCON = currentClass.getCON();
-			int newCON = currentCON;
-			int direction = ThreadLocalRandom.current().nextInt(2);
-			if (direction == 0) {
-				newCON += ThreadLocalRandom.current().nextInt(variance);
-			} else {
-				newCON -= ThreadLocalRandom.current().nextInt(variance);
-			}
-			
-			currentClass.setCON(WhyDoesJavaNotHaveThese.clamp(newCON, minCON, 20));
-		}
-	}
-	
 	public static void randomizePlayableCharacterClasses(Boolean includeLords, Boolean includeThieves, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		Map<Integer, FEClass> determinedClasses = new HashMap<Integer, FEClass>();

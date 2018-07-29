@@ -169,7 +169,7 @@ public class Randomizer {
 				ClassRandomizer.randomizeClassMovement(otherCharacterOptions.movementOptions.minValue, otherCharacterOptions.movementOptions.maxValue, classData);
 			}
 			if (otherCharacterOptions.constitutionOptions != null) {
-				ClassRandomizer.randomizeClassConstitution(otherCharacterOptions.constitutionOptions.minValue, otherCharacterOptions.constitutionOptions.variance, classData);
+				CharacterRandomizer.randomizeConstitution(otherCharacterOptions.constitutionOptions.minValue, otherCharacterOptions.constitutionOptions.variance, charData, classData);
 			}
 			if (otherCharacterOptions.randomizeAffinity) {
 				CharacterRandomizer.randomizeAffinity(charData);
