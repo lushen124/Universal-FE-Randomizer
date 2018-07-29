@@ -1,8 +1,10 @@
 package random;
 
 import java.io.IOException;
+import java.util.Map;
 
 import fedata.FEBase;
+import fedata.fe7.FE7Data;
 import io.DiffApplicator;
 import io.FileHandler;
 import random.exc.FileOpenException;
@@ -15,6 +17,7 @@ import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
 import ui.model.WeaponEffectOptions;
 import ui.model.WeaponOptions;
+import util.Diff;
 import util.DiffCompiler;
 
 public class Randomizer {
@@ -88,6 +91,18 @@ public class Randomizer {
 		chapterData.compileDiffs(diffCompiler);
 		classData.compileDiffs(diffCompiler);
 		itemData.compileDiffs(diffCompiler);
+		
+		switch (gameType) {
+		case FE7:
+			Map<Long, byte[]> aux = FE7Data.auxiliaryData(classes.randomizePCs && classes.includeLords);
+			for (long offset : aux.keySet()) {
+				Diff auxDiff = new Diff(offset, aux.get(offset).length, aux.get(offset), null);
+				diffCompiler.addDiff(auxDiff);
+			}
+			break;
+		default:
+			break;
+		}
 		
 		if (targetPath != null) {
 			DiffApplicator.applyDiffs(diffCompiler, handler, targetPath);

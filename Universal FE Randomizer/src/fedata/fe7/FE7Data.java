@@ -1,8 +1,10 @@
 package fedata.fe7;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -41,6 +43,24 @@ public class FE7Data {
 	public static final int NumberOfTextStrings = 0x133E;
 	
 	public static final int BytesPerChapterUnit = 16;
+	
+	public static final int HeroCrestAddressPointer = 0x27500;
+	public static final int KnightCrestAddressPointer = 0x27508;
+	public static final int OrionBoltAddressPointer = 0x27510;
+	public static final int ElysianWhipAddressPointer = 0x27518;
+	public static final int GuidingRingAddressPointer = 0x27520;
+	public static final int MasterSealAddressPointer = 0x27528;
+	public static final int FallenContractAddressPointer = 0x2754C;
+	public static final int OceanSealAddressPointer = 0x27574;
+	
+	public static final int HeroCrestDefaultAddress = 0xC97EDD;
+	public static final int KnightCrestDefaultAddress = 0xC97EE3;
+	public static final int OrionBoltDefaultAddress = 0xC97EE8;
+	public static final int ElysianWhipDefaultAddress = 0xC97EED;
+	public static final int GuidingRingDefaultAddress = 0xC97EF1;
+	public static final int MasterSealDefaultAddress = 0xC97EFD;
+	public static final int FallenContractDefaultAddress = 0xC97F29;
+	public static final int OceanSealDefaultAddress = 0xC97F24;
 	
 	public enum Character {
 		NONE(0x00),
@@ -663,7 +683,7 @@ public class FE7Data {
 				SWORDSLAYER, KILLER_BOW, ELFIRE, DIVINE, NOSFERATU, RECOVER, RESTORE, HAMMERNE, BARRIER));
 		public static Set<Item> allBRank = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, WIND_SWORD, BRAVE_LANCE, SPEAR, UBER_SPEAR, BRAVE_AXE, BRAVE_BOW, BOLTING, PURGE, ECLIPSE, PHYSIC, SILENCE, SLEEP, BERSERK, RESCUE));
 		public static Set<Item> allARank = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, TOMAHAWK, SILVER_AXE, SILVER_BOW, FIMBULVETR, AURA, FENRIR, FORTIFY, WARP));
-		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(REGAL_BLADE, REX_HASTA, BASILIKOS, RIENFLECHE, EXCALIBUR, LUCE, GESPENST));
+		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(REGAL_BLADE, REX_HASTA, BASILIKOS, RIENFLECHE, EXCALIBUR, LUCE, GESPENST, AUREOLA));
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(MANI_KATTI, RAPIER, DURANDAL, SOL_KATTI, WOLF_BEIL, ARMADS, FORBLAZE));
 		
 		public static Item[] formerThiefKit() {
@@ -990,7 +1010,7 @@ public class FE7Data {
 		}
 	}
 	
-	public static Map<Long, byte[]> auxiliaryData() {
+	public static Map<Long, byte[]> auxiliaryData(Boolean didRandomizeLordClasses) {
 		HashMap<Long, byte[]> map = new HashMap<>();
 		
 		// Extra Space for Stat Boosts.
@@ -1012,6 +1032,55 @@ public class FE7Data {
 		
 		// LCK Boost = 		 0x00 00 00 00 00 00 0A // I think? And make it a +10.
 		map.put((long)0x1000028, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x00 });
+		
+		// Extra Space for Promotion Item Changes.
+		
+		List<CharacterClass> knightsCrestClasses = new ArrayList<CharacterClass>();
+		knightsCrestClasses.add(CharacterClass.KNIGHT);
+		knightsCrestClasses.add(CharacterClass.KNIGHT_F);
+		knightsCrestClasses.add(CharacterClass.CAVALIER);
+		knightsCrestClasses.add(CharacterClass.CAVALIER_F);
+		// Knight Crest now supports Soldiers.
+		knightsCrestClasses.add(CharacterClass.SOLDIER);
+		
+		if (didRandomizeLordClasses) {
+			knightsCrestClasses.add(CharacterClass.LORD_ELIWOOD);
+			knightsCrestClasses.add(CharacterClass.LORD_HECTOR);
+		}
+		
+		byte[] knightsCrestRaw = new byte[knightsCrestClasses.size() + 1];
+		for (int i = 0; i < knightsCrestClasses.size(); i++) {
+			knightsCrestRaw[i] = (byte)(knightsCrestClasses.get(i).ID & 0xFF);
+		}
+		knightsCrestRaw[knightsCrestClasses.size()] = 0x00;
+		
+		List<CharacterClass> heroesCrestClasses = new ArrayList<CharacterClass>();
+		heroesCrestClasses.add(CharacterClass.MERCENARY);
+		heroesCrestClasses.add(CharacterClass.MERCENARY_F);
+		heroesCrestClasses.add(CharacterClass.MYRMIDON);
+		heroesCrestClasses.add(CharacterClass.MYRMIDON_F);
+		heroesCrestClasses.add(CharacterClass.FIGHTER);
+		
+		if (didRandomizeLordClasses) {
+			heroesCrestClasses.add(CharacterClass.LORD_LYN);
+		}
+		
+		byte[] heroesCrestRaw = new byte[heroesCrestClasses.size() + 1];
+		for (int i = 0; i < heroesCrestClasses.size(); i++) {
+			heroesCrestRaw[i] = (byte)(heroesCrestClasses.get(i).ID & 0xFF);
+		}
+		heroesCrestRaw[heroesCrestClasses.size()] = 0x00;
+		
+		long baseAddress = 0x1000030;
+		map.put(baseAddress, knightsCrestRaw);
+		map.put((long)KnightCrestAddressPointer, new byte[] {(byte)(baseAddress & 0xFF), (byte)((baseAddress >> 8) & 0xFF),
+			(byte)((baseAddress >> 16) & 0xFF), (byte)(((baseAddress >> 24) & 0xFF) + 0x08)});
+		
+		baseAddress += knightsCrestRaw.length;
+		
+		map.put(baseAddress, heroesCrestRaw);
+		map.put((long)HeroCrestAddressPointer, new byte[] {(byte)(baseAddress & 0xFF), (byte)((baseAddress >> 8) & 0xFF),
+				(byte)((baseAddress >> 16) & 0xFF), (byte)(((baseAddress >> 24) & 0xFF) + 0x08)});
 		
 		return map;
 	}

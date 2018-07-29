@@ -237,18 +237,6 @@ private FEBase.GameType gameType;
 		}
 		
 		spellAnimations.compileDiffs(compiler);
-		
-		switch (gameType) {
-		case FE7:
-			Map<Long, byte[]> aux = FE7Data.auxiliaryData();
-			for (long offset : aux.keySet()) {
-				Diff auxDiff = new Diff(offset, aux.get(offset).length, aux.get(offset), null);
-				compiler.addDiff(auxDiff);
-			}
-			break;
-		default:
-			break;
-		}
 	}
 	
 	private FEItem[] itemsFromFE7Items(FE7Data.Item[] fe7Items) {
