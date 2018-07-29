@@ -185,7 +185,7 @@ public class ClassRandomizer {
 	
 	private static void validateSpecialClassInventory(FECharacter character, FEChapterUnit chapterUnit, ItemDataLoader itemData) {
 		FEItem[] requiredItems = itemData.specialInventoryForClass(chapterUnit.getStartingClass());
-		if (requiredItems != null) {
+		if (requiredItems != null && requiredItems.length > 0) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);
 		}
 	}

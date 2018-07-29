@@ -61,6 +61,8 @@ private FEBase.GameType gameType;
 		switch (gameType) {
 		case FE7:
 			return FE7Data.Item.FE7WeaponRank.S.value;
+		default:
+			break;
 		}
 		
 		return 0;
