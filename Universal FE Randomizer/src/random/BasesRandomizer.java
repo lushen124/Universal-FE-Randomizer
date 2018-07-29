@@ -74,9 +74,6 @@ public class BasesRandomizer {
 				case 5:
 				case 8:
 				case 9:
-					if (negate) {
-						amount *= -1;
-					}
 					if (!WhyDoesJavaNotHaveThese.isValueBetween(newLCKBase + amount, -1 * charClass.getBaseLCK(), charClass.getMaxLCK() - charClass.getBaseLCK())) {
 						continue;
 					}
