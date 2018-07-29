@@ -86,6 +86,7 @@ public class Randomizer {
 		
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
+		classData.compileDiffs(diffCompiler);
 		itemData.compileDiffs(diffCompiler);
 		
 		if (targetPath != null) {
