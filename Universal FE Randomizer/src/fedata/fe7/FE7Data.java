@@ -1082,6 +1082,11 @@ public class FE7Data {
 		map.put((long)HeroCrestAddressPointer, new byte[] {(byte)(baseAddress & 0xFF), (byte)((baseAddress >> 8) & 0xFF),
 				(byte)((baseAddress >> 16) & 0xFF), (byte)(((baseAddress >> 24) & 0xFF) + 0x08)});
 		
+		// Soldiers need to have their promotion defined.
+		long soldierDataAddress = DefaultClassTableAddress + BytesPerClass * CharacterClass.SOLDIER.ID;
+		// FE7 Promotions are defined on the 5th byte of a class's structure.
+		map.put(soldierDataAddress + 5, new byte[] {(byte)(CharacterClass.GENERAL.ID & 0xFF)});
+		
 		return map;
 	}
 }
