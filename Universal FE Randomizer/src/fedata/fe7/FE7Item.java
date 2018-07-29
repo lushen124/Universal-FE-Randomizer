@@ -126,7 +126,7 @@ public class FE7Item implements FEItem {
 	}
 
 	public int getMinRange() {
-		return data[25] & 0xF0 >> 4;
+		return (data[25] >> 4) & 0x0F;
 	}
 
 	public int getMaxRange() {
@@ -326,6 +326,8 @@ public class FE7Item implements FEItem {
 				int random = ThreadLocalRandom.current().nextInt(2);
 				if (random == 0 || maxRange == 3) { minRange = 1; } // Longbows always gain melee range.
 				else { maxRange = 3; }
+			} else if (maxRange == 2) { // Hand Axes, Javelins, and Magic
+				maxRange = 3;
 			} else { // Melee weapons.
 				maxRange = 2;
 				if (getType() == WeaponType.LANCE) {
