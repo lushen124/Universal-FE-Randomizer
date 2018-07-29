@@ -104,6 +104,7 @@ public class FE7Data {
 				AION, DARIN, CAMERON, OLEG, EUBANS, URSULA, PAUL, JASMINE, PASCAL, KENNETH, JERME, MAXIME, SONIA, TEODOR, GEORG, KAIM, DENNING, LIMSTELLA, BATTA, ZUGU, GLASS, MIGAL, CARJIGA,
 				BUG, BOOL, HEINTZ, BEYARD, YOGI, EAGLER, LUNDGREN, LLOYD_FFO, LINUS_FFO, LLOYD_COD, LINUS_COD, JERME_MORPH, LLOYD_MORPH, LINUS_MORPH, BRENDAN_MORPH, UHAI_MORPH, URSULA_MORPH,
 				KENNETH_MORPH, DARIN_MORPH));
+		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(FIORA, FARINA, VAIDA));
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(ELIWOOD, HECTOR, LYN, LYN_TUTORIAL));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(MATTHEW, LEGAULT, JAFFAR));
@@ -128,6 +129,10 @@ public class FE7Data {
 		
 		public Boolean requiresRange() {
 			return charactersThatRequireRange.contains(this);
+		}
+		
+		public Boolean hasLimitedClasses() {
+			return restrictedClassCharacters.contains(this);
 		}
 		
 		public static Character[] allLinkedCharactersFor(Character character) {
@@ -271,9 +276,9 @@ public class FE7Data {
 			return allPromotedClasses.contains(sourceClass);
 		}
 		
-		public static CharacterClass[] targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean requireAttack, Boolean requiresRange) {
+		public static CharacterClass[] targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
 			CharacterClass[] limited = limitedClassesForRandomization(sourceClass);
-			if (limited != null) {
+			if (limited != null && applyRestrictions) {
 				return limited;
 			}
 			
@@ -960,6 +965,27 @@ public class FE7Data {
 				return new HashSet<Integer>(Arrays.asList(13));
 			default:
 				return new HashSet<Integer>();
+			}
+		}
+		
+		public Boolean isClassSafe() {
+			switch (this) {
+			case PROLOGUE:
+			case CHAPTER_1:
+			case CHAPTER_2:
+			case CHAPTER_3:
+			case CHAPTER_4:
+			case CHAPTER_5:
+			case CHAPTER_6:
+			case CHAPTER_7:
+			case CHAPTER_7X:
+			case CHAPTER_8:
+			case CHAPTER_11_E:
+			case CHAPTER_17X:
+			case CHAPTER_29:
+				return true;
+			default:
+				return false;
 			}
 		}
 	}

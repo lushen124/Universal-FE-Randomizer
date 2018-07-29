@@ -93,11 +93,11 @@ private FEBase.GameType gameType;
 		return thiefMap.containsKey(classID);
 	}
 	
-	public FEClass[] potentialClasses(FEClass sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSource, Boolean requireAttack, Boolean requireRange) {
+	public FEClass[] potentialClasses(FEClass sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean applyRestrictions) {
 		switch (gameType) {
 		case FE7:
 			FE7Data.CharacterClass sourceCharClass = FE7Data.CharacterClass.valueOf(sourceClass.getID());
-			FE7Data.CharacterClass[] targetClasses = FE7Data.CharacterClass.targetClassesForRandomization(sourceCharClass, excludeSource, excludeLords, excludeThieves, requireAttack, requireRange);
+			FE7Data.CharacterClass[] targetClasses = FE7Data.CharacterClass.targetClassesForRandomization(sourceCharClass, excludeSource, excludeLords, excludeThieves, requireAttack, requireRange, applyRestrictions);
 			FEClass[] result = new FEClass[targetClasses.length];
 			for (int i = 0; i < targetClasses.length; i++) {
 				result[i] = classMap.get(targetClasses[i].ID);

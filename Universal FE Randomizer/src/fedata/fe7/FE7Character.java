@@ -36,11 +36,18 @@ public class FE7Character implements FECharacter {
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
-	public FE7Character(byte[] data, long originalOffset) {
+	private Boolean isClassRestricted = false;
+	
+	public FE7Character(byte[] data, long originalOffset, Boolean isClassRestricted) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
+		this.isClassRestricted = isClassRestricted;
+	}
+	
+	public Boolean isClassRestricted() {
+		return isClassRestricted;
 	}
 	
 	public int getNameIndex() {

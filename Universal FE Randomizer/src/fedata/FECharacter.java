@@ -2,6 +2,8 @@ package fedata;
 
 public interface FECharacter extends FEModifiableObject {
 	
+	public Boolean isClassRestricted();
+	
 	// Info
 	
 	public int getNameIndex();

@@ -13,8 +13,9 @@ public class FE7Chapter implements FEChapter {
 	private Boolean hasChanges = false;
 	
 	private FEChapterUnit[] allUnits;
+	private Boolean isClassSafe;
 	
-	public FE7Chapter(byte[] data, long originalOffset, int unitCount, Set<Integer> doNotTouchIndices) {
+	public FE7Chapter(byte[] data, long originalOffset, int unitCount, Set<Integer> doNotTouchIndices, Boolean isClassSafe) {
 		super();
 		this.originalOffset = originalOffset;
 		
@@ -33,12 +34,16 @@ public class FE7Chapter implements FEChapter {
 			currentBaseIndex += bytesPerUnit;
 		}
 		
-		
+		this.isClassSafe = isClassSafe;
 	}
 
 	@Override
 	public FEChapterUnit[] allUnits() {
 		return allUnits;
+	}
+	
+	public Boolean isClassSafe() {
+		return isClassSafe;
 	}
 
 	public void resetData() {

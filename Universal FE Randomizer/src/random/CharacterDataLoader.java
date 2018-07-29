@@ -28,7 +28,7 @@ public class CharacterDataLoader {
 				for (FE7Data.Character character : FE7Data.Character.values()) {
 					long offset = FE7Data.Character.dataOffsetForCharacter(character);
 					byte[] charData = handler.readBytesAtOffset(offset, FE7Data.BytesPerCharacter);
-					characterMap.put(character.ID, new FE7Character(charData, offset));
+					characterMap.put(character.ID, new FE7Character(charData, offset, character.hasLimitedClasses()));
 				}
 				break;
 			default:

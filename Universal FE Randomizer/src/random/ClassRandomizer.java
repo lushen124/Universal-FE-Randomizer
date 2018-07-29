@@ -58,14 +58,12 @@ public class ClassRandomizer {
 			
 			if (determinedClasses.containsKey(character.getID())) {
 				targetClass = determinedClasses.get(character.getID());
-			}
+			} else {
+				FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, charactersData.isLordCharacterID(character.getID()), characterRequiresRange, character.isClassRestricted());
+				if (possibleClasses.length == 0) {
+					continue;
+				}
 			
-			FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, charactersData.isLordCharacterID(character.getID()), characterRequiresRange);
-			if (possibleClasses.length == 0) {
-				continue;
-			}
-			
-			if (targetClass == null) {
 				int randomIndex = ThreadLocalRandom.current().nextInt(possibleClasses.length);
 				targetClass = possibleClasses[randomIndex];
 			}
@@ -91,19 +89,21 @@ public class ClassRandomizer {
 			
 			int originalClassID = character.getClassID();
 			FEClass originalClass = classData.classForID(originalClassID);
+			if (originalClass == null) {
+				System.err.println("Invalid Class found: Class ID = " + Integer.toHexString(originalClassID));
+				continue;
+			}
 			
 			FEClass targetClass = null;
 			
 			if (determinedClasses.containsKey(character.getID())) {
 				targetClass = determinedClasses.get(character.getID());
-			}
+			} else {			
+				FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, true, characterRequiresRange, false);
+				if (possibleClasses.length == 0) {
+					continue;
+				}
 			
-			FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, charactersData.isLordCharacterID(character.getID()), characterRequiresRange);
-			if (possibleClasses.length == 0) {
-				continue;
-			}
-			
-			if (targetClass == null) {
 				int randomIndex = ThreadLocalRandom.current().nextInt(possibleClasses.length);
 				targetClass = possibleClasses[randomIndex];
 			}
@@ -134,7 +134,8 @@ public class ClassRandomizer {
 						continue;
 					}
 					
-					FEClass[] possibleClasses = classData.potentialClasses(originalClass, false, false, false, true, false);
+					Boolean shouldRestrictToSafeClasses = !chapter.isClassSafe();
+					FEClass[] possibleClasses = classData.potentialClasses(originalClass, false, false, false, true, false, shouldRestrictToSafeClasses);
 					if (possibleClasses.length == 0) {
 						continue;
 					}

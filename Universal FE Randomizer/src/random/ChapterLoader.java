@@ -39,7 +39,7 @@ private FEBase.GameType gameType;
 					int numberOfUnits = chapter.numberOfUnits;
 					byte[] chapterData = handler.readBytesAtOffset(offset, FE7Data.BytesPerChapterUnit * numberOfUnits);
 					Set<Integer> doNotTouchIndices = chapter.doNotChangeIndexes();
-					chapters[i++] = new FE7Chapter(chapterData, offset, numberOfUnits, doNotTouchIndices);
+					chapters[i++] = new FE7Chapter(chapterData, offset, numberOfUnits, doNotTouchIndices, chapter.isClassSafe());
 					
 					AddressRange locationEventRange = chapter.locationEventRange;
 					if (locationEventRange != null) {
