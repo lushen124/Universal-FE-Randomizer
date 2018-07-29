@@ -62,7 +62,12 @@ public class WeaponsRandomizer {
 				newDurability -= ThreadLocalRandom.current().nextInt(variance + 1);
 			}
 			
-			weapon.setDurability(WhyDoesJavaNotHaveThese.clamp(newDurability, minDurability, maxDurability));
+			if (weapon.getMaxRange() == 10) {
+				// Siege Tomes get a minimum of 1 since they're normally low use.
+				weapon.setDurability(WhyDoesJavaNotHaveThese.clamp(newDurability, 1, maxDurability));
+			} else {
+				weapon.setDurability(WhyDoesJavaNotHaveThese.clamp(newDurability, minDurability, maxDurability));
+			}
 		}
 		
 		itemsData.commit();

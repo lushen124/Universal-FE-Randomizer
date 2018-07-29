@@ -318,7 +318,7 @@ public class WeaponsView extends Composite {
 		
 		enableDurabilityButton = new Button(container, SWT.CHECK);
 		enableDurabilityButton.setText("Randomize Durability");
-		enableDurabilityButton.setToolTipText("Applies a random delta +/- Variance to all weapons' durability. All weapons are then clamped to the min and max specified.");
+		enableDurabilityButton.setToolTipText("Applies a random delta +/- Variance to all weapons' durability. All weapons are then clamped to the min and max specified. Siege tomes are limited to a 1-use minimum.");
 
 		FormData durabilityData = new FormData();
 		durabilityData.left = new FormAttachment(0, 5);
