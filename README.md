@@ -7,6 +7,8 @@ And hey, name change! It's actually perfect in a lot of ways because it encapsul
 Executables are found in the above executables folder and are separated by platform. The raw JAR file is available if you want to run it directly, but MacOS and Windows users also have the option of using an executable that generally makes things easier to launch.
 
 ### Windows
+![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows.png) ![Sample Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows-Game.png)
+
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune-Windows.jar
 
@@ -16,6 +18,8 @@ https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Win
 **Requirements**: JRE >= 1.8.0. I was thinking about bundling this into the executable, but that's just a massive waste of space, and most of you probably can get JRE relatively easily. And if you can't, here you to: http://www.oracle.com/technetwork/java/javase/downloads/index.html. I've only tested this with Windows 10, but I don't see why older versions of Windows would be excluded so long as you have JRE.
 
 ### MacOS
+![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS.png) ![Sample Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS-Game.png)
+
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune-MacOS.jar
 
@@ -25,6 +29,8 @@ https://github.com/lushen124/Universal-FE-Randomizer/tree/master/Executables/Mac
 **Requirements**: Like Windows, you need a JRE to run it, though most versions of MacOS have one included that should be sufficient. If it doesn't work, go ahead and grab the newest one at http://www.oracle.com/technetwork/java/javase/downloads/index.html. Tested with OS X 10.12 (Sierra).
 
 ### GTK
+![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux.png) ![Sample Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux-Game.png)
+
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20GTK(x86_64).jar
 
