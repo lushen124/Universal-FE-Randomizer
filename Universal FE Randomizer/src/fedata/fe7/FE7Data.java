@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
+import fedata.general.PaletteInfo;
 import util.AddressRange;
 
 public class FE7Data {
@@ -1006,6 +1007,151 @@ public class FE7Data {
 				return true;
 			default:
 				return false;
+			}
+		}
+	}
+	
+	public enum Palette {
+		
+		ARCHER_WIL(Character.WIL.ID, CharacterClass.ARCHER.ID, 0xFD90B4),
+		ARCHER_REBECCA(Character.REBECCA.ID, CharacterClass.ARCHER_F.ID, 0xFD9050),
+		
+		ASSASSIN_MATTHEW(Character.MATTHEW.ID, CharacterClass.ASSASSIN.ID, 0xFD95B8),
+		ASSASSIN_JAFFAR(Character.JAFFAR.ID, CharacterClass.ASSASSIN.ID, 0xFD94B4),
+		
+		BRIGAND_BATTA(Character.BATTA.ID, CharacterClass.BRIGAND.ID, 0xFD9610),
+		BRIGAND_BUG(Character.BUG.ID, CharacterClass.BRIGAND.ID, 0xFD9664),
+		BRIGAND_CARJIGA(Character.CARJIGA.ID, CharacterClass.BRIGAND.ID, 0xFD96B4),
+		BRIGAND_MIGAL(Character.MIGAL.ID, CharacterClass.BRIGAND.ID, 0xFD9704),
+		BRIGAND_ZUGU(Character.ZUGU.ID, CharacterClass.BRIGAND.ID, 0xFD97A8),
+		BRIGAND_GROZNYI(Character.GROZNYI.ID, CharacterClass.BRIGAND.ID, 0xFDBF64),
+		
+		BARD_NILS(Character.NILS.ID, CharacterClass.BARD.ID, 0xFD9B7C),
+		
+		BERSERKER_DART(Character.DART.ID, CharacterClass.BERSERKER.ID, 0xFD9BDC),
+		BERSERKER_GEORG(Character.GEORG.ID, CharacterClass.BERSERKER.ID, 0xFD9C84),
+		
+		BISHOP_RENAULT(Character.RENAULT.ID, CharacterClass.BISHOP.ID, 0xFD9908),
+		BISHOP_KENNETH(Character.KENNETH.ID, CharacterClass.BISHOP.ID, 0xFD98A8),
+		BISHOP_SERRA(Character.SERRA.ID, CharacterClass.BISHOP_F.ID, 0xFD9848),
+		
+		CAVALIER_KENT(Character.KENT.ID, CharacterClass.CAVALIER.ID, 0xFDB720),
+		CAVALIER_LOWEN(Character.LOWEN.ID, CharacterClass.CAVALIER.ID, 0xFDB798),
+		CAVALIER_SAIN(Character.SAIN.ID, CharacterClass.CAVALIER.ID, 0xFDB810),
+		CAVALIER_ERIK(Character.ERIK.ID, CharacterClass.CAVALIER.ID, 0xFDB6A4),
+		
+		CLERIC_SERRA(Character.SERRA.ID, CharacterClass.CLERIC.ID, 0xFDB134),
+		
+		DANCER_NINIAN(Character.NINIAN.ID, CharacterClass.DANCER.ID, 0xFD9CD4),
+		
+		DRUID_CANAS(Character.CANAS.ID, CharacterClass.DRUID.ID, 0xFD9F08),
+		DRUID_TEODOR(Character.TEODOR.ID, CharacterClass.DRUID.ID, 0xFD9F5C),
+		
+		FALCONKNIGHT_FARINA(Character.FARINA.ID, CharacterClass.FALCONKNIGHT.ID, 0xFDA00C),
+		FALCONKNIGHT_FIORA(Character.FIORA.ID, CharacterClass.FALCONKNIGHT.ID, 0xFDA07C),
+		FALCONKNIGHT_FLORINA(Character.FLORINA.ID, CharacterClass.FALCONKNIGHT.ID, 0xFDA0EC),
+		
+		FIGHTER_BARTRE(Character.BARTRE.ID, CharacterClass.FIGHTER.ID, 0xFDA15C),
+		FIGHTER_DORCAS(Character.DORCAS.ID, CharacterClass.FIGHTER.ID, 0xFDA1B4),
+		FIGHTER_ZAGAN(Character.ZAGAN.ID, CharacterClass.FIGHTER.ID, 0xFD9754),
+		
+		GENERAL_OSWIN(Character.OSWIN.ID, CharacterClass.GENERAL.ID, 0xFDA2EC),
+		GENERAL_WALLACE(Character.WALLACE.ID, CharacterClass.GENERAL.ID, 0xFDA374),
+		GENERAL_LUNDGREN(Character.LUNDGREN.ID, CharacterClass.GENERAL.ID, 0xFDA3FC),
+		GENERAL_DARIN(Character.DARIN.ID, CharacterClass.GENERAL.ID, 0xFDA27C), 
+		GENERAL_BERNARD(Character.BERNARD.ID, CharacterClass.GENERAL.ID, 0xFDA20C),
+		
+		HERO_HARKEN(Character.HARKEN.ID, CharacterClass.HERO.ID, 0xFD9A2C),
+		HERO_KAIM(Character.KAIM.ID, CharacterClass.HERO.ID, 0xFD9A84),
+		
+		PALADIN_KENT(Character.KENT.ID, CharacterClass.PALADIN.ID, 0xFDAC6C),
+		PALADIN_LOWEN(Character.LOWEN.ID, CharacterClass.PALADIN.ID, 0xFDACF8),
+		PALADIN_MARCUS(Character.MARCUS.ID, CharacterClass.PALADIN.ID, 0xFDAD84),
+		PALADIN_SAIN(Character.SAIN.ID, CharacterClass.PALADIN.ID, 0xFDAF00),
+		PALADIN_EAGLER(Character.EAGLER.ID, CharacterClass.PALADIN.ID, 0xFD9258),
+		PALADIN_CAMERON(Character.CAMERON.ID, CharacterClass.PALADIN.ID, 0xFDAB04),
+		PALADIN_DAMIAN(Character.DAMIAN.ID, CharacterClass.PALADIN.ID, 0xFDAB7C),
+		PALADIN_EUBANS(Character.EUBANS.ID, CharacterClass.PALADIN.ID, 0xFDABF4),
+		PALADIN_MAXIME(Character.MAXIME.ID, CharacterClass.PALADIN.ID, 0xFDAE10),
+		PALADIN_PASCAL(Character.PASCAL.ID, CharacterClass.PALADIN.ID, 0xFDAE88),
+		
+		PALADIN_ISADORA(Character.ISADORA.ID, CharacterClass.PALADIN_F.ID, 0xFDAA8C),
+		
+		SAGE_AION(Character.AION.ID, CharacterClass.SAGE.ID, 0xFDB2D4),
+		SAGE_PENT(Character.PENT.ID, CharacterClass.SAGE.ID, 0xFDB3B8),
+		SAGE_ERK(Character.ERK.ID, CharacterClass.SAGE.ID, 0xFDB340),
+		SAGE_NINO(Character.NINO.ID, CharacterClass.SAGE_F.ID, 0xFDB1FC),
+		SAGE_SONIA(Character.SONIA.ID, CharacterClass.SAGE_F.ID, 0xFDB26C),
+		SAGE_LIMSTELLA(Character.LIMSTELLA.ID, CharacterClass.SAGE_F.ID, 0xFDB194);
+		
+		int characterID;
+		int classID;
+		
+		PaletteInfo info;
+		
+		Map<Integer, Map<Integer, PaletteInfo>> map = new HashMap<Integer, Map<Integer, PaletteInfo>>();
+		
+		private Palette(int charID, int classID, long offset) {
+			this.characterID = charID;
+			this.classID = classID;
+			CharacterClass charClass = CharacterClass.valueOf(classID);
+			if (charClass != null) {
+				switch (charClass) {
+				case ARCHER:
+				case ARCHER_F:
+				case DANCER:
+					this.info = new PaletteInfo(offset, 16, 3, 32, 3);
+					break;
+				case ASSASSIN:
+					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {16, 27, 14}, new int[] {32, 34});
+					break;
+				case BRIGAND:
+				case FIGHTER:
+					this.info = new PaletteInfo(offset, 18, 2, 32, 3);
+					break;
+				case BARD:
+					this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {23, 25, 27});
+					break;
+				case BERSERKER:
+					this.info = new PaletteInfo(offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					break;
+				case BISHOP:
+					this.info = new PaletteInfo(offset, new int[] {16, 18}, new int[] {23, 34, 36}, new int[] {29, 32});
+					break;
+				case BISHOP_F:
+					this.info = new PaletteInfo(offset, new int[] {23, 16, 18}, new int[] {29, 32, 34, 36}, new int[] {});
+					break;
+				case CAVALIER:
+					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {23, 25, 27}, new int[] {11, 16});
+					break;
+				case CLERIC:
+					this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
+					break;
+				case DRUID:
+					this.info = new PaletteInfo(offset, new int[] {23, 25, 27}, new int[] {29, 32, 34}, new int[] {16, 18, 20});
+					break;
+				case FALCONKNIGHT:
+					this.info = new PaletteInfo(offset, new int[] {20, 18}, new int[] {25, 27, 36}, new int[] {16, 11, 9});
+					break;
+				case GENERAL:
+					this.info = new PaletteInfo(offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					break;
+				case HERO:
+					this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {});
+					break;
+				case PALADIN:
+					this.info = new PaletteInfo(offset, new int[] {}, new int[] {23, 25, 27}, new int[] {16, 11, 14}, new int[] {18, 20}); // No hair. Armor primary, mane/insignia secondary, shield tertiary.
+					break;
+				case PALADIN_F:
+					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {25, 27, 29}, new int[] {16, 11, 14}); // Hair matches shield in the female.
+					break;
+				case SAGE:
+				case SAGE_F:
+					this.info = new PaletteInfo(offset, 16, 3, 23, 3, 32, 3);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}
