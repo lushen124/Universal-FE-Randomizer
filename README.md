@@ -3,7 +3,12 @@ Properly universal this time. Those of you that used the original may recall tha
 
 And hey, name change! It's actually perfect in a lot of ways because it encapsulates several of my favorites. Alongside Fire Emblem, I'm also a fan of Love Live! with my favorite girls being Minami Kotori in μ's and Takami Chika in Aqours. Kotori's symbol reflects her name: Little Bird. Chika's associated color is Orange, alongside her symbol, a Mikan (tangerine). Combine these two to get an Orange Little Bird, which leads me to my favorite Fire Emblem character, which, if you couldn't tell already, was Micaiah from Radiant Dawn. Yune is the name of the orange little bird she has with her in most of her art. And without wishing to spoil those who haven't played Radiant Dawn, there is another way Yune is fitting for the name of a randomizer, but I'll leave that to you, because if you haven't played Radiant Dawn, you really should.
 
-![That's Yune](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Universal%20FE%20Randomizer/res/YuneIcon.png)
+<p align="center">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Universal%20FE%20Randomizer/res/YuneIcon.png">
+</p>
+<p align="center">
+  <i>That's Yune!</i>
+</p>
 
 ## Installation
 Executables are found in the above executables folder and are separated by platform. The raw JAR file is available if you want to run it directly, but MacOS and Windows users also have the option of using an executable that generally makes things easier to launch.
@@ -106,12 +111,10 @@ Thought the game was too easy?
 
 **Improve Enemy Weapons** - This option selects some enemies and upgrades their weapons to the next level. For example, if an enemy was using an Iron Sword (an E rank weapon), he/she might now be using a Steel Sword (a D rank weapon) or a Longsword (a D rank weapon effective against cavalry), or if he's a myrmidon, a Wo Dao is a possibility (D rank weapon locked to myrmidons and has a high critical rate). The chance of this happening is set to 20%, though I may make this user configurable later.
 
-**Nudge Enemy Starting Location (WIP)** - The idea is to move enemies a few spaces from their normal locations. Might make it easier, might make it harder. Haven't been able to do this safely yet, since it requires map knowledge which I haven't deciphered yet.
-
 ### Miscellaneous Options
 Random stuff that may be funny.
 
-**Randomize Rewards (WIP)** - Rewards include chests and village items. The idea is to randomize these to make things more surprising. May include scripted rewards, but I haven't decided yet.
+**Randomize Rewards** - Rewards include chests and village items. The idea is to randomize these to make things more surprising. May include scripted rewards, but I haven't decided yet.
 
 **Randomize Recruitment Order (WIP)** - A weird option from the original randomizer which more or less replaces character data completely with another, simulating a randomized recruitment order. Not sure if I'll make any changes to this or not.
 
