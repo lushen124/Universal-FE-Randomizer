@@ -356,4 +356,10 @@ public class FE7Character implements FECharacter {
 	public long getAddressOffset() {
 		return originalOffset;
 	}
+	
+	public void prepareForClassRandomization() {
+		// null out custom battle animations.
+		data[37] = 0;
+		data[38] = 0;
+	}
 }

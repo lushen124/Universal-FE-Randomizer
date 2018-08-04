@@ -59,7 +59,7 @@ public class PaletteColor {
 		
 		list.sort(new Comparator<PaletteColor>() {
 			public int compare(PaletteColor lhs, PaletteColor rhs) {
-				return lhs.hue > rhs.hue ? -1 : (lhs.hue < rhs.hue ? 1 : 0);
+				return lhs.hue > rhs.hue ? 1 : (lhs.hue < rhs.hue ? -1 : 0);
 			}
 		});
 		
@@ -68,6 +68,7 @@ public class PaletteColor {
 			minHue = list.get(0).hue;
 			lowestHue.setHue(lowestHue.hue + 1);
 			list.add(lowestHue);
+			maxHue = lowestHue.hue;
 		}
 		
 		double hueSum = 0;

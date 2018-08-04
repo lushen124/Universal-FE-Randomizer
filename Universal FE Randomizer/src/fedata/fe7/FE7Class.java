@@ -33,6 +33,14 @@ public class FE7Class implements FEClass {
 	public int getID() {
 		return data[4] & 0xFF;
 	}
+	
+	public int getTargetPromotionID() {
+		return data[5] & 0xFF;
+	}
+	public void setTargetPromotionID(int promotionTargetClassID) {
+		data[5] = (byte)(promotionTargetClassID & 0xFF);
+		wasModified = true;
+	}
 
 	public int getHPGrowth() {
 		return data[27] & 0xFF;

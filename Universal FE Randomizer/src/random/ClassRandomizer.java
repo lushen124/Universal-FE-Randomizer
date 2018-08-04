@@ -60,8 +60,27 @@ public class ClassRandomizer {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData);
 			}
+				
+			Boolean hasOriginalPromotionData = false;
+			int originalPromoClassID = 0;
+			if (!classData.isPromotedClass(originalClass.getID())) {
+				int promotedClassID = originalClass.getTargetPromotionID();
+				if (classData.isValidClass(promotedClassID)) {
+					hasOriginalPromotionData = true;
+					originalPromoClassID = promotedClassID;
+				}
+			}
 			
-			paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), targetClass.getID());
+			Boolean hasTargetPromotionData = false;
+			int targetPromoClassID = 0;
+			if (!classData.isPromotedClass(targetClass.getID())) {
+				int promotedClassID = targetClass.getTargetPromotionID();
+				if (classData.isValidClass(promotedClassID)) {
+					hasTargetPromotionData = true;
+					targetPromoClassID = promotedClassID;
+				}
+			}
+			paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), hasOriginalPromotionData ? originalPromoClassID : 0, targetClass.getID(), hasTargetPromotionData ? targetPromoClassID : 0);
 		}
 	}
 	
@@ -106,7 +125,7 @@ public class ClassRandomizer {
 				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData);
 			}
 			
-			paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), targetClass.getID());
+			paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), 0, targetClass.getID(), 0);
 		}
 	}
 	
@@ -145,6 +164,7 @@ public class ClassRandomizer {
 
 	private static void updateCharacterToClass(FECharacter character, FEClass sourceClass, FEClass targetClass, Boolean ranged, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
 		
+		character.prepareForClassRandomization();
 		character.setClassID(targetClass.getID());
 		transferWeaponLevels(character, sourceClass, targetClass);
 		applyBaseCorrectionForCharacter(character, sourceClass, targetClass);

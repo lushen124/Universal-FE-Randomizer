@@ -73,26 +73,47 @@ public class PaletteLoader {
 		}
 	}
 	
-	public void adaptCharacterToClass(int characterID, int originalClassID, int newClassID) {
+	public void adaptCharacterToClass(int characterID, int originalClassID, int originalPromotedClassID, int newClassID, int newPromotedClassID) {
 		int charID = canonicalCharacterID(characterID);
 		FE7Data.Character character = FE7Data.Character.valueOf(charID);
 		FE7Data.CharacterClass oldClass = FE7Data.CharacterClass.valueOf(originalClassID);
 		FE7Data.CharacterClass newClass = FE7Data.CharacterClass.valueOf(newClassID);
 		System.out.println("Adapting character 0x" + Integer.toHexString(charID) + " (" + character.toString() + ") " + 
 		" from class 0x" + Integer.toHexString(originalClassID) + "(" + oldClass.toString() + ")" + " to 0x" + Integer.toHexString(newClassID) + " (" + newClass.toString() + ")");
+		
 		Palette originalPalette = getPalette(charID, originalClassID);
+		Palette originalPromotedPalette = getPalette(charID, originalPromotedClassID);
 		Palette template = getTemplatePalette(newClassID);
+		Palette promotedTemplate = getTemplatePalette(newPromotedClassID);
 		
 		System.out.println("Original palette offset: " + Long.toHexString(originalPalette.getInfo().getOffset()));
+		if (originalPromotedPalette != null) {
+			System.out.println("Original promoted palette offset: " + Long.toHexString(originalPromotedPalette.getInfo().getOffset()));
+		} else {
+			System.out.println("No Promoted Palette.");
+		}
 		System.out.println("Template palette offset: " + Long.toHexString(template.getInfo().getOffset()));
+		if (promotedTemplate != null) {
+			System.out.println("Promoted Template palette offset: " + Long.toHexString(promotedTemplate.getInfo().getOffset()));
+		} else {
+			System.out.println("No promoted template.");
+		}
 		
-		Palette adaptedPalette = new Palette(template, originalPalette);
+		
+		Palette adaptedPalette = new Palette(template, originalPalette, originalPromotedPalette);
 		Map<Integer, Palette> paletteMap = characterPalettes.get(charID);
 		
 		System.out.println("Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
 		
 		paletteMap.put(newClassID, adaptedPalette);
 		paletteMap.remove(originalClassID);
+		
+		if (originalPromotedPalette != null && promotedTemplate != null) {
+			Palette adaptedPromotedPalette = new Palette(promotedTemplate, originalPromotedPalette, originalPalette);
+			System.out.println("Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
+			paletteMap.put(newPromotedClassID, adaptedPromotedPalette);
+			paletteMap.remove(originalPromotedClassID);
+		}
 	}
 	
 	public void compileDiffs(DiffCompiler compiler) {

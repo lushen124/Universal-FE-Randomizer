@@ -11,6 +11,9 @@ public interface FEClass extends FEModifiableObject {
 	
 	public int getID();
 	
+	public int getTargetPromotionID();
+	public void setTargetPromotionID(int promotionTargetClassID);
+	
 	// Growths
 	
 	public int getHPGrowth();

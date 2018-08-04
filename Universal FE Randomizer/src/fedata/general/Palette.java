@@ -52,7 +52,7 @@ public class Palette {
 		}
 	}
 	
-	public Palette(Palette template, Palette originalPalette) {
+	public Palette(Palette template, Palette originalPalette, Palette alternatePalette) {
 		info = new PaletteInfo(template.info);
 		info.paletteOffset = originalPalette.info.paletteOffset;
 		rawData = template.rawData.clone();
@@ -80,8 +80,18 @@ public class Palette {
 		
 		PaletteColor[] originalHairColors = originalPalette.getHairColors();
 		if (originalHairColors.length == 0) {
-			// Use armor color for now if hair color isn't available.
-			originalHairColors = originalPalette.getPrimaryColors();
+			if (alternatePalette != null) {
+				originalHairColors = alternatePalette.getHairColors();
+			}
+			
+			if (originalHairColors.length == 0) {
+				// Use armor color for now if hair color isn't available.
+				originalHairColors = originalPalette.getPrimaryColors();
+			}
+			
+			if (originalHairColors.length == 0) {
+				originalHairColors = alternatePalette.getPrimaryColors();
+			}
 		}
 		
 		setHairColors(originalHairColors);

@@ -108,4 +108,22 @@ private FEBase.GameType gameType;
 			return new FEClass[] {};
 		}
 	}
+	
+	public Boolean isPromotedClass(int classID) {
+		switch (gameType) {
+		case FE7:
+			return FE7Data.CharacterClass.allPromotedClasses.contains(FE7Data.CharacterClass.valueOf(classID));
+		default:
+			return false;
+		}
+	}
+	
+	public Boolean isValidClass(int classID) {
+		switch (gameType) {
+		case FE7:
+			return FE7Data.CharacterClass.allValidClasses.contains(FE7Data.CharacterClass.valueOf(classID));
+		default:
+			return false;
+		}
+	}
 }
