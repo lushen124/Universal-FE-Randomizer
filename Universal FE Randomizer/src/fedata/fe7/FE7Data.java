@@ -1018,6 +1018,8 @@ public class FE7Data {
 		
 		ASSASSIN_MATTHEW(Character.MATTHEW.ID, CharacterClass.ASSASSIN.ID, 0xFD95B8),
 		ASSASSIN_JAFFAR(Character.JAFFAR.ID, CharacterClass.ASSASSIN.ID, 0xFD94B4),
+		ASSASSIN_LEGAULT(Character.LEGAULT.ID, CharacterClass.ASSASSIN.ID, 0xFD955C),
+		ASSASSIN_JERME(Character.JERME.ID, CharacterClass.ASSASSIN.ID, 0xFD9508), // Needs hair override
 		
 		BRIGAND_BATTA(Character.BATTA.ID, CharacterClass.BRIGAND.ID, 0xFD9610),
 		BRIGAND_BUG(Character.BUG.ID, CharacterClass.BRIGAND.ID, 0xFD9664),
@@ -1028,12 +1030,16 @@ public class FE7Data {
 		
 		BARD_NILS(Character.NILS.ID, CharacterClass.BARD.ID, 0xFD9B7C),
 		
-		BERSERKER_DART(Character.DART.ID, CharacterClass.BERSERKER.ID, 0xFD9BDC),
+		BERSERKER_DART(Character.DART.ID, CharacterClass.BERSERKER.ID, 0xFD9BDC), // Needs hair override
 		BERSERKER_GEORG(Character.GEORG.ID, CharacterClass.BERSERKER.ID, 0xFD9C84),
+		BERSERKER_HAWKEYE(Character.HAWKEYE.ID, CharacterClass.BERSERKER.ID, 0xFD97F8),
 		
 		BISHOP_RENAULT(Character.RENAULT.ID, CharacterClass.BISHOP.ID, 0xFD9908),
 		BISHOP_KENNETH(Character.KENNETH.ID, CharacterClass.BISHOP.ID, 0xFD98A8),
 		BISHOP_SERRA(Character.SERRA.ID, CharacterClass.BISHOP_F.ID, 0xFD9848),
+		BISHOP_LUCIUS(Character.LUCIUS.ID, CharacterClass.BISHOP.ID, 0xFD9970),
+		
+		BLADE_LORD_LYN(Character.LYN.ID, CharacterClass.BLADE_LORD.ID, 0xFD99DC),
 		
 		CAVALIER_KENT(Character.KENT.ID, CharacterClass.CAVALIER.ID, 0xFDB720),
 		CAVALIER_LOWEN(Character.LOWEN.ID, CharacterClass.CAVALIER.ID, 0xFDB798),
@@ -1055,34 +1061,111 @@ public class FE7Data {
 		FIGHTER_DORCAS(Character.DORCAS.ID, CharacterClass.FIGHTER.ID, 0xFDA1B4),
 		FIGHTER_ZAGAN(Character.ZAGAN.ID, CharacterClass.FIGHTER.ID, 0xFD9754),
 		
-		GENERAL_OSWIN(Character.OSWIN.ID, CharacterClass.GENERAL.ID, 0xFDA2EC),
-		GENERAL_WALLACE(Character.WALLACE.ID, CharacterClass.GENERAL.ID, 0xFDA374),
-		GENERAL_LUNDGREN(Character.LUNDGREN.ID, CharacterClass.GENERAL.ID, 0xFDA3FC),
-		GENERAL_DARIN(Character.DARIN.ID, CharacterClass.GENERAL.ID, 0xFDA27C), 
-		GENERAL_BERNARD(Character.BERNARD.ID, CharacterClass.GENERAL.ID, 0xFDA20C),
+		GENERAL_OSWIN(Character.OSWIN.ID, CharacterClass.GENERAL.ID, 0xFDA2EC), // Needs hair override
+		GENERAL_WALLACE(Character.WALLACE.ID, CharacterClass.GENERAL.ID, 0xFDA374), // RIP
+		GENERAL_LUNDGREN(Character.LUNDGREN.ID, CharacterClass.GENERAL.ID, 0xFDA3FC), // Hair override
+		GENERAL_DARIN(Character.DARIN.ID, CharacterClass.GENERAL.ID, 0xFDA27C), // Hair override
+		GENERAL_BERNARD(Character.BERNARD.ID, CharacterClass.GENERAL.ID, 0xFDA20C), // Hair override
+		
+		GREAT_LORD_HECTOR(Character.HECTOR.ID, CharacterClass.GREAT_LORD.ID, 0xFDA46C),
 		
 		HERO_HARKEN(Character.HARKEN.ID, CharacterClass.HERO.ID, 0xFD9A2C),
 		HERO_KAIM(Character.KAIM.ID, CharacterClass.HERO.ID, 0xFD9A84),
+		HERO_RAVEN(Character.RAVEN.ID, CharacterClass.HERO.ID, 0xFD9AD4),
+		HERO_LINUS(Character.LINUS_FFO.ID, CharacterClass.HERO.ID, 0xFD9B2C),
+		
+		// All knights need hair overrides.
+		KNIGHT_OSWIN(Character.OSWIN.ID, CharacterClass.KNIGHT.ID, 0xFD92D8),
+		KNIGHT_WALLACE(Character.WALLACE.ID, CharacterClass.KNIGHT.ID, 0xFD935C),
+		KNIGHT_BOIES(Character.BOIES.ID, CharacterClass.KNIGHT.ID, 0xFD9114),
+		KNIGHT_BOOL(Character.BOOL.ID, CharacterClass.KNIGHT.ID, 0xFD9180),
+		KNIGHT_BAUKER(Character.BAUKER.ID, CharacterClass.KNIGHT.ID, 0xFD91EC),
+		KNIGHT_WIRE(Character.WIRE.ID, CharacterClass.KNIGHT.ID, 0xFD93DC),
+		KNIGHT_YOGI(Character.YOGI.ID, CharacterClass.KNIGHT.ID, 0xFD9448),
+		
+		LORD_LYN(Character.LYN.ID, CharacterClass.LORD_LYN.ID, 0xFD9000),
+		LORD_ELIWOOD(Character.ELIWOOD.ID, CharacterClass.LORD_ELIWOOD.ID, 0xFD9FAC),
+		LORD_HECTOR(Character.HECTOR.ID, CharacterClass.LORD_HECTOR.ID, 0xFDA4C8),
+		LORD_KNIGHT_ELIWOOD(Character.ELIWOOD.ID, CharacterClass.LORD_KNIGHT.ID, 0xFDA524),
+		
+		MAGE_ERK(Character.ERK.ID, CharacterClass.MAGE.ID, 0xFDA5E8),
+		MAGE_NINO(Character.NINO.ID, CharacterClass.MAGE_F.ID, 0xFDA57C),
+		
+		MERCENARY_RAVEN(Character.RAVEN.ID, CharacterClass.MERCENARY.ID, 0xFDA714),
+		MERCENARY_BEYARD(Character.BEYARD.ID, CharacterClass.MERCENARY.ID, 0xFDA65C),
+		MERCENARY_GLASS(Character.GLASS.ID, CharacterClass.MERCENARY.ID, 0xFDA6B8),
+		MERCENARY_PUZON(Character.PUZON.ID, CharacterClass.MERCENARY.ID, 0xFDA780),
+		
+		MONK_LUCIUS(Character.LUCIUS.ID, CharacterClass.MONK.ID, 0xFDA7DC),
+		
+		MYRMIDON_GUY(Character.GUY.ID, CharacterClass.MYRMIDON.ID, 0xFDA83C),
+		
+		NOMAD_RATH(Character.RATH.ID, CharacterClass.NOMAD.ID, 0xFDA89C),
+		NOMAD_SEALEN(Character.SEALEN.ID, CharacterClass.NOMAD.ID, 0xFDA910),
+		
+		NOMADTROOPER_RATH(Character.RATH.ID, CharacterClass.NOMADTROOPER.ID, 0xFDA984),
+		NOMADTROOPER_UHAI(Character.UHAI.ID, CharacterClass.NOMADTROOPER.ID, 0xFDAA14),
 		
 		PALADIN_KENT(Character.KENT.ID, CharacterClass.PALADIN.ID, 0xFDAC6C),
 		PALADIN_LOWEN(Character.LOWEN.ID, CharacterClass.PALADIN.ID, 0xFDACF8),
-		PALADIN_MARCUS(Character.MARCUS.ID, CharacterClass.PALADIN.ID, 0xFDAD84),
+		PALADIN_MARCUS(Character.MARCUS.ID, CharacterClass.PALADIN.ID, 0xFDAD84), // Hair override
 		PALADIN_SAIN(Character.SAIN.ID, CharacterClass.PALADIN.ID, 0xFDAF00),
-		PALADIN_EAGLER(Character.EAGLER.ID, CharacterClass.PALADIN.ID, 0xFD9258),
+		PALADIN_EAGLER(Character.EAGLER.ID, CharacterClass.PALADIN.ID, 0xFD9258), // Hair override
 		PALADIN_CAMERON(Character.CAMERON.ID, CharacterClass.PALADIN.ID, 0xFDAB04),
 		PALADIN_DAMIAN(Character.DAMIAN.ID, CharacterClass.PALADIN.ID, 0xFDAB7C),
-		PALADIN_EUBANS(Character.EUBANS.ID, CharacterClass.PALADIN.ID, 0xFDABF4),
+		PALADIN_EUBANS(Character.EUBANS.ID, CharacterClass.PALADIN.ID, 0xFDABF4), // Hair override
 		PALADIN_MAXIME(Character.MAXIME.ID, CharacterClass.PALADIN.ID, 0xFDAE10),
-		PALADIN_PASCAL(Character.PASCAL.ID, CharacterClass.PALADIN.ID, 0xFDAE88),
+		PALADIN_PASCAL(Character.PASCAL.ID, CharacterClass.PALADIN.ID, 0xFDAE88), // Hair override
 		
 		PALADIN_ISADORA(Character.ISADORA.ID, CharacterClass.PALADIN_F.ID, 0xFDAA8C),
+		
+		PEGASUSKNIGHT_FARINA(Character.FARINA.ID, CharacterClass.PEGASUSKNIGHT.ID, 0xFDAF8C),
+		PEGASUSKNIGHT_FIORA(Character.FIORA.ID, CharacterClass.PEGASUSKNIGHT.ID, 0xFDAFF8),
+		PEGASUSKNIGHT_FLORINA(Character.FLORINA.ID, CharacterClass.PEGASUSKNIGHT.ID, 0xFDB064),
+		
+		PIRATE_DART(Character.DART.ID, CharacterClass.PIRATE.ID, 0xFDB0D4), // Needs hair override
 		
 		SAGE_AION(Character.AION.ID, CharacterClass.SAGE.ID, 0xFDB2D4),
 		SAGE_PENT(Character.PENT.ID, CharacterClass.SAGE.ID, 0xFDB3B8),
 		SAGE_ERK(Character.ERK.ID, CharacterClass.SAGE.ID, 0xFDB340),
 		SAGE_NINO(Character.NINO.ID, CharacterClass.SAGE_F.ID, 0xFDB1FC),
 		SAGE_SONIA(Character.SONIA.ID, CharacterClass.SAGE_F.ID, 0xFDB26C),
-		SAGE_LIMSTELLA(Character.LIMSTELLA.ID, CharacterClass.SAGE_F.ID, 0xFDB194);
+		SAGE_LIMSTELLA(Character.LIMSTELLA.ID, CharacterClass.SAGE_F.ID, 0xFDB194),
+		
+		SHAMAN_CANAS(Character.CANAS.ID, CharacterClass.SHAMAN.ID, 0xFDB430),
+		SHAMAN_HEINTZ(Character.HEINTZ.ID, CharacterClass.SHAMAN.ID, 0xFDB484),
+		SHAMAN_ZOLDAM(Character.ZOLDAM.ID, CharacterClass.SHAMAN.ID, 0xFDB4D4),
+		
+		SNIPER_WIL(Character.WIL.ID, CharacterClass.SNIPER.ID, 0xFDB644),
+		SNIPER_DENNING(Character.DENNING.ID, CharacterClass.SNIPER.ID, 0xFDB5EC),
+		SNIPER_LOUISE(Character.LOUISE.ID, CharacterClass.SNIPER_F.ID, 0xFDB524),
+		SNIPER_REBECCA(Character.REBECCA.ID, CharacterClass.SNIPER_F.ID, 0xFDB588),
+		
+		SWORDMASTER_KARLA(Character.KARLA.ID, CharacterClass.SWORDMASTER_F.ID, 0xFDB8E4),
+		SWORDMASTER_KAREL(Character.KAREL.ID, CharacterClass.SWORDMASTER.ID, 0xFDB9A8),
+		SWORDMASTER_GUY(Character.GUY.ID, CharacterClass.SWORDMASTER.ID, 0xFDB944),
+		SWORDMASTER_LLOYD(Character.LLOYD_FFO.ID, CharacterClass.SWORDMASTER.ID, 0xFDBA08),
+		
+		THIEF_MATTHEW(Character.MATTHEW.ID, CharacterClass.THIEF.ID, 0xFDBB0C),
+		THIEF_LEGAULT(Character.LEGAULT.ID, CharacterClass.THIEF.ID, 0xFDBAA8),
+		
+		TROUBADOUR_PRISCILLA(Character.PRISCILLA.ID, CharacterClass.TROUBADOUR.ID, 0xFDBB74),
+		
+		VALKYRIE_PRISCILLA(Character.PRISCILLA.ID, CharacterClass.VALKYRIE.ID, 0xFDBBD0),
+		VALKYRIE_URSULA(Character.URSULA.ID, CharacterClass.VALKYRIE.ID, 0xFDBC3C),
+		
+		WARRIOR_BARTRE(Character.BARTRE.ID, CharacterClass.WARRIOR.ID, 0xFDBCA0),
+		WARRIOR_DORCAS(Character.DORCAS.ID, CharacterClass.WARRIOR.ID, 0xFDBD58),
+		WARRIOR_GEITZ(Character.GEITZ.ID, CharacterClass.WARRIOR.ID, 0xFDBDB4), // Hair Override
+		WARRIOR_BRENDAN(Character.BRENDAN.ID, CharacterClass.WARRIOR.ID, 0xFDBCFC), // Hair override
+		WARRIOR_JASMINE(Character.JASMINE.ID, CharacterClass.WARRIOR.ID, 0xFDBE14),
+		WARRIOR_OLEG(Character.OLEG.ID, CharacterClass.WARRIOR.ID, 0xFDBE70), // Hair override
+		WARRIOR_PAUL(Character.PAUL.ID, CharacterClass.WARRIOR.ID, 0xFDBECC),
+		
+		WYVERNKNIGHT_HEATH(Character.HEATH.ID, CharacterClass.WYVERNKNIGHT.ID, 0xFD9D44), // May need hair override.
+		
+		WYVERNLORD_HEATH(Character.HEATH.ID, CharacterClass.WYVERNLORD.ID, 0xFD9DB4),
+		WYVERNLORD_VAIDA(Character.VAIDA.ID, CharacterClass.WYVERNLORD_F.ID, 0xFD9E34); // Hair override
 		
 		int characterID;
 		int classID;
@@ -1099,24 +1182,42 @@ public class FE7Data {
 				switch (charClass) {
 				case ARCHER:
 				case ARCHER_F:
+				case BLADE_LORD:
 				case DANCER:
+				case LORD_LYN:
 					this.info = new PaletteInfo(offset, 16, 3, 32, 3);
 					break;
 				case ASSASSIN:
-					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {16, 27, 14}, new int[] {32, 34});
+					if (charID == Character.LEGAULT.ID) { // Legault's unique animation ties hair and cape together with 6 colors.
+						this.info = new PaletteInfo(offset, new int[] {18, 20, 16, 27, 29, 14}, new int[] {32, 34, 36}, new int[] {}); 
+					} else if (charID == Character.JERME.ID) {
+						this.info = new PaletteInfo(offset, new int[] {}, new int[] {16, 27, 14}, new int[] {32, 34, 36});
+					} else {
+						this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {16, 27, 14}, new int[] {32, 34});
+					}
 					break;
 				case BRIGAND:
 				case FIGHTER:
 					this.info = new PaletteInfo(offset, 18, 2, 32, 3);
 					break;
 				case BARD:
+				case SNIPER:
+				case SNIPER_F:
 					this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {23, 25, 27});
 					break;
 				case BERSERKER:
-					this.info = new PaletteInfo(offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					if (charID == Character.HAWKEYE.ID) {
+						this.info = new PaletteInfo(offset, 14, 3, 32, 3);
+					} else {
+						this.info = new PaletteInfo(offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					}
 					break;
 				case BISHOP:
-					this.info = new PaletteInfo(offset, new int[] {16, 18}, new int[] {23, 34, 36}, new int[] {29, 32});
+					if (charID == Character.LUCIUS.ID) {
+						this.info = new PaletteInfo(offset, new int[] {20, 16, 18}, new int[] {23, 34, 36}, new int[] {29, 32});
+					} else {
+						this.info = new PaletteInfo(offset, new int[] {16, 18}, new int[] {23, 34, 36}, new int[] {29, 32});
+					}
 					break;
 				case BISHOP_F:
 					this.info = new PaletteInfo(offset, new int[] {23, 16, 18}, new int[] {29, 32, 34, 36}, new int[] {});
@@ -1125,6 +1226,8 @@ public class FE7Data {
 					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {23, 25, 27}, new int[] {11, 16});
 					break;
 				case CLERIC:
+				case MONK: // May need to split out Lucius as a special case. This is assuming a Lucius sprite, which is unique from other monks.
+				case MYRMIDON: // May need to split out Guy as a special case. This is assuming a Guy sprite, which is unique from other myrmidons.
 					this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
 					break;
 				case DRUID:
@@ -1137,7 +1240,43 @@ public class FE7Data {
 					this.info = new PaletteInfo(offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
 					break;
 				case HERO:
-					this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {});
+				case GREAT_LORD:
+				case SWORDMASTER:
+				case SWORDMASTER_F:
+					if (charID == Character.GUY.ID) {
+						this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
+					} else if (charID == Character.LLOYD_FFO.ID) {
+						this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {});
+					} else {
+						this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {});
+					}
+					break;
+				case KNIGHT:
+					this.info = new PaletteInfo(offset, new int[] {}, new int[] {14, 16, 9, 11, 7}, new int[] {});
+					break;
+				case LORD_ELIWOOD:
+				case LORD_KNIGHT:
+					this.info = new PaletteInfo(offset, new int[] {18, 16, 20}, new int[] {29, 32, 34, 36}, new int[] {});
+					break;
+				case LORD_HECTOR:
+					this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {36, 14});
+					break;
+				case MAGE:
+					this.info = new PaletteInfo(offset, 18, 2, 32, 3, 23, 3);
+					break;
+				case MAGE_F:
+				case SAGE:
+				case SAGE_F:
+					this.info = new PaletteInfo(offset, 16, 3, 32, 3, 23, 3);
+					break;
+				case MERCENARY:
+					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {25, 11, 36}, new int[] {});
+					break;
+				case NOMAD:
+					this.info = new PaletteInfo(offset, new int[] {18, 20, 36}, new int[] {14, 16}, new int[] {23, 25, 27, 29}); // Secondary is Mount/Bow
+					break;
+				case NOMADTROOPER:
+					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {9, 16}, new int[] {23, 25, 27, 29});
 					break;
 				case PALADIN:
 					this.info = new PaletteInfo(offset, new int[] {}, new int[] {23, 25, 27}, new int[] {16, 11, 14}, new int[] {18, 20}); // No hair. Armor primary, mane/insignia secondary, shield tertiary.
@@ -1145,9 +1284,33 @@ public class FE7Data {
 				case PALADIN_F:
 					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {25, 27, 29}, new int[] {16, 11, 14}); // Hair matches shield in the female.
 					break;
-				case SAGE:
-				case SAGE_F:
-					this.info = new PaletteInfo(offset, 16, 3, 23, 3, 32, 3);
+				case PEGASUSKNIGHT:
+					this.info = new PaletteInfo(offset, new int[] {20, 18}, new int[] {25, 27, 36}, new int[] {29, 32, 34}, new int[] {16, 11}); // Armor Primary, Wing Secondary, Mane tertiary
+					break;
+				case PIRATE:
+					this.info = new PaletteInfo(offset, new int[] {}, new int[] {32, 34, 36}, new int[] {}); // Outfit/Bandana is the only color.
+					break;
+				case SHAMAN:
+					this.info = new PaletteInfo(offset, new int[] {23, 25, 27}, new int[] {29, 32, 34}, new int[] {9, 16, 18}); // Not really hair, but it matches up in the only one that matters (Canas)
+					break;
+				case THIEF:
+					this.info = new PaletteInfo(offset, new int[] {16, 18, 20}, new int[] {32, 29, 14}, new int[] {34, 36});
+					break;
+				case TROUBADOUR:
+					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {23, 16}, new int[] {25, 27, 29});
+					break;
+				case VALKYRIE:
+					this.info = new PaletteInfo(offset, new int[] {18, 20}, new int[] {23, 25, 27, 36, 29}, new int[] {});
+					break;
+				case WARRIOR:
+					this.info = new PaletteInfo(offset, new int[] {}, new int[] {32, 34, 36}, new int[] {20, 29}); // No Hair. Primary is pants/helmet color. Secondary is breastplate.
+					break;
+				case WYVERNKNIGHT:
+					this.info = new PaletteInfo(offset, new int[] {}, new int[] {27, 29, 32, 34}, new int[] {16, 14, 18}, new int[] {25}); // Primary is Wyvern Body, Secondary is Mount, Tertiary is Wyvern's Wingspan
+					break;
+				case WYVERNLORD:
+				case WYVERNLORD_F:
+					this.info = new PaletteInfo(offset, new int[] {}, new int[] {27, 29, 32, 34}, new int[] {7, 25}, new int[] {25});
 					break;
 				default:
 					break;
