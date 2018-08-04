@@ -27,7 +27,7 @@ public class ClassRandomizer {
 		}
 	}
 	
-	public static void randomizePlayableCharacterClasses(Boolean includeLords, Boolean includeThieves, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
+	public static void randomizePlayableCharacterClasses(Boolean includeLords, Boolean includeThieves, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		Map<Integer, FEClass> determinedClasses = new HashMap<Integer, FEClass>();
 		
@@ -56,11 +56,11 @@ public class ClassRandomizer {
 				continue;
 			}
 			
-			updateCharacterToClass(character, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData);
+			updateCharacterToClass(character, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData, paletteData);
 		}
 	}
 	
-	public static void randomizeBossCharacterClasses(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
+	public static void randomizeBossCharacterClasses(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData) {
 		FECharacter[] allBossCharacters = charactersData.bossCharacters();
 		
 		Boolean includeLords = true;
@@ -96,7 +96,7 @@ public class ClassRandomizer {
 				continue;
 			}
 			
-			updateCharacterToClass(character, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData);
+			updateCharacterToClass(character, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData, paletteData);
 		}
 	}
 	
@@ -133,7 +133,7 @@ public class ClassRandomizer {
 		}
 	}
 
-	private static void updateCharacterToClass(FECharacter character, FEClass sourceClass, FEClass targetClass, Boolean ranged, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
+	private static void updateCharacterToClass(FECharacter character, FEClass sourceClass, FEClass targetClass, Boolean ranged, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData) {
 		
 		character.setClassID(targetClass.getID());
 		transferWeaponLevels(character, sourceClass, targetClass);
@@ -154,6 +154,8 @@ public class ClassRandomizer {
 				}
 			}
 		}
+		
+		paletteData.adaptCharacterToClass(character.getID(), sourceClass.getID(), targetClass.getID());
 	}
 	
 	private static void applyBaseCorrectionForCharacter(FECharacter character, FEClass sourceClass, FEClass targetClass) {

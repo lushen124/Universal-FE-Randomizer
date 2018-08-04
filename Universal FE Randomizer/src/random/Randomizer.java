@@ -41,6 +41,7 @@ public class Randomizer {
 	private ClassDataLoader classData;
 	private ChapterLoader chapterData;
 	private ItemDataLoader itemData;
+	private PaletteLoader paletteData;
 	
 	private FileHandler handler;
 
@@ -91,6 +92,7 @@ public class Randomizer {
 		chapterData.compileDiffs(diffCompiler);
 		classData.compileDiffs(diffCompiler);
 		itemData.compileDiffs(diffCompiler);
+		paletteData.compileDiffs(diffCompiler);
 		
 		switch (gameType) {
 		case FE7:
@@ -114,6 +116,7 @@ public class Randomizer {
 		classData = new ClassDataLoader(FEBase.GameType.FE7, handler);
 		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
 		itemData = new ItemDataLoader(FEBase.GameType.FE7, handler);
+		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
 	}
 	
 	private void randomizeGrowthsIfNecessary() {
@@ -147,13 +150,13 @@ public class Randomizer {
 	private void randomizeClassesIfNecessary() {
 		if (classes != null) {
 			if (classes.randomizePCs) {
-				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData);
+				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData, paletteData);
 			}
 			if (classes.randomizeEnemies) {
 				ClassRandomizer.randomizeMinionClasses(charData, classData, chapterData, itemData);
 			}
 			if (classes.randomizeBosses) {
-				ClassRandomizer.randomizeBossCharacterClasses(charData, classData, chapterData, itemData);
+				ClassRandomizer.randomizeBossCharacterClasses(charData, classData, chapterData, itemData, paletteData);
 			}
 		}
 	}

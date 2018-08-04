@@ -1,6 +1,10 @@
 package fedata.general;
 
 public class PaletteInfo {
+	
+	int classID;
+	int characterID;
+	
 	long paletteOffset;
 
 	int[] hairColorOffsets; // Lightest to Darkest
@@ -8,8 +12,11 @@ public class PaletteInfo {
 	int[] secondaryColorOffsets; // Lightest to Darkest
 	int[] tertiaryColorOffsets; // Lightest to Darkest
 	
-	public PaletteInfo(long offset, int hairStart, int hairCount, int primaryStart, int primaryCount) {
+	public PaletteInfo(int classID, int characterID, long offset, int hairStart, int hairCount, int primaryStart, int primaryCount) {
 		this.paletteOffset = offset;
+		
+		this.classID = classID;
+		this.characterID = characterID;
 		
 		hairColorOffsets = new int[hairCount];
 		int hairPointer = hairStart;
@@ -29,8 +36,11 @@ public class PaletteInfo {
 		tertiaryColorOffsets = new int[] {};
 	}
 	
-	public PaletteInfo(long offset, int hairStart, int hairCount, int primaryStart, int primaryCount, int secondaryStart, int secondaryCount) {
+	public PaletteInfo(int classID, int characterID, long offset, int hairStart, int hairCount, int primaryStart, int primaryCount, int secondaryStart, int secondaryCount) {
 		this.paletteOffset = offset;
+		
+		this.classID = classID;
+		this.characterID = characterID;
 		
 		hairColorOffsets = new int[hairCount];
 		int hairPointer = hairStart;
@@ -56,8 +66,11 @@ public class PaletteInfo {
 		tertiaryColorOffsets = new int[] {};
 	}
 	
-	public PaletteInfo(long offset, int[] hairColors, int[] primaryColors, int[] secondaryColors) {
+	public PaletteInfo(int classID, int characterID, long offset, int[] hairColors, int[] primaryColors, int[] secondaryColors) {
 		this.paletteOffset = offset;
+		
+		this.classID = classID;
+		this.characterID = characterID;
 		
 		this.hairColorOffsets = hairColors;
 		this.primaryColorOffsets = primaryColors;
@@ -65,12 +78,27 @@ public class PaletteInfo {
 		this.tertiaryColorOffsets = new int[] {};
 	}
 	
-	public PaletteInfo(long offset, int[] hairColors, int[] primaryColors, int[] secondaryColors, int[] tertiaryColors) {
+	public PaletteInfo(int classID, int characterID, long offset, int[] hairColors, int[] primaryColors, int[] secondaryColors, int[] tertiaryColors) {
 		this.paletteOffset = offset;
+		
+		this.classID = classID;
+		this.characterID = characterID;
 		
 		this.hairColorOffsets = hairColors;
 		this.primaryColorOffsets = primaryColors;
 		this.secondaryColorOffsets = secondaryColors;
 		this.tertiaryColorOffsets = tertiaryColors;
+	}
+	
+	public int getClassID() {
+		return classID;
+	}
+	
+	public int getCharacterID() {
+		return characterID;
+	}
+	
+	public long getOffset() {
+		return paletteOffset;
 	}
 }

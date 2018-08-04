@@ -19,7 +19,7 @@ import util.FileReadHelper;
 
 public class ChapterLoader {
 	
-private FEBase.GameType gameType;
+	private FEBase.GameType gameType;
 	
 	private FEChapter[] chapters;
 	private FEChapterItem[] rewards;
