@@ -152,6 +152,15 @@ public class CharacterDataLoader {
 		}
 	}
 	
+	public int getCanonicalIDForCharacter(FECharacter character) {
+		switch (gameType) {
+		case FE7:
+			return FE7Data.Character.canonicalIDForCharacterID(character.getID());
+		default:
+			return character.getID();
+		}
+	}
+	
 	public void commit() {
 		for (FECharacter character : characterMap.values()) {
 			character.commitChanges();

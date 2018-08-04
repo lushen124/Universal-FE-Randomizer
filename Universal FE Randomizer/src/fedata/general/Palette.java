@@ -53,9 +53,9 @@ public class Palette {
 	}
 	
 	public Palette(Palette template, Palette originalPalette) {
-		info = template.info;
+		info = new PaletteInfo(template.info);
 		info.paletteOffset = originalPalette.info.paletteOffset;
-		rawData = template.rawData;
+		rawData = template.rawData.clone();
 		fullUpdate = true;
 		
 		hair = new ArrayList<PaletteColor>();
@@ -95,6 +95,10 @@ public class Palette {
 		}
 	}
 	
+	public PaletteInfo getInfo() {
+		return info;
+	}
+	
 	public PaletteColor[] getHairColors() {
 		return hair.toArray(new PaletteColor[hair.size()]);
 	}
@@ -112,30 +116,100 @@ public class Palette {
 	}
 	
 	public void setHairColors(PaletteColor[] newHairColors) {
+		System.out.println("Replacing old hair colors");
+		for(int i = 0; i < hair.size(); i++) {
+			System.out.println("\t" + hair.get(i).toRGBString());
+			System.out.println("\t\t" + hair.get(i).toHSBString());
+		}
+		System.out.println("With new colors");
+		for (int i = 0; i < newHairColors.length; i++) {
+			System.out.println("\t" + newHairColors[i].toRGBString());
+			System.out.println("\t\t" + newHairColors[i].toHSBString());
+		}
 		Boolean success = setColorsToArea(newHairColors, hair);
 		if (success) {
 			hairModified = true;
+			System.out.println("Successfully wrote hair colors");
+			for(int i = 0; i < hair.size(); i++) {
+				System.out.println("\t" + hair.get(i).toRGBString());
+				System.out.println("\t\t" + hair.get(i).toHSBString());
+			}
+		} else {
+			System.err.println("Failed to write hair colors.");
 		}
 	}
 	
 	public void setPrimaryColors(PaletteColor[] newPrimaryColors) {
+		System.out.println("Replacing old primary colors");
+		for(int i = 0; i < primary.size(); i++) {
+			System.out.println("\t" + primary.get(i).toRGBString());
+			System.out.println("\t\t" + primary.get(i).toHSBString());
+		}
+		System.out.println("With new colors");
+		for (int i = 0; i < newPrimaryColors.length; i++) {
+			System.out.println("\t" + newPrimaryColors[i].toRGBString());
+			System.out.println("\t\t" + newPrimaryColors[i].toHSBString());
+		}
 		Boolean success = setColorsToArea(newPrimaryColors, primary);
 		if (success) {
 			primaryModified = true;
+			System.out.println("Successfully wrote primary colors");
+			for(int i = 0; i < primary.size(); i++) {
+				System.out.println("\t" + primary.get(i).toRGBString());
+				System.out.println("\t\t" + primary.get(i).toHSBString());
+			}
+		} else {
+			System.err.println("Failed to write primary colors.");
 		}
 	}
 	
 	public void setSecondaryColors(PaletteColor[] newSecondaryColors) {
+		System.out.println("Replacing old secondary colors");
+		for(int i = 0; i < secondary.size(); i++) {
+			System.out.println("\t" + secondary.get(i).toRGBString());
+			System.out.println("\t\t" + secondary.get(i).toHSBString());
+		}
+		System.out.println("With new colors");
+		for (int i = 0; i < newSecondaryColors.length; i++) {
+			System.out.println("\t" + newSecondaryColors[i].toRGBString());
+			System.out.println("\t\t" + newSecondaryColors[i].toHSBString());
+		}
+		
 		Boolean success = setColorsToArea(newSecondaryColors, secondary);
 		if (success) {
 			secondaryModified = true;
+			System.out.println("Successfully wrote secondary colors");
+			for(int i = 0; i < secondary.size(); i++) {
+				System.out.println("\t" + secondary.get(i).toRGBString());
+				System.out.println("\t\t" + secondary.get(i).toHSBString());
+			}
+		} else {
+			System.err.println("Failed to write secondary colors.");
 		}
 	}
 	
 	public void setTertiaryColors(PaletteColor[] newTertiaryColors) {
+		System.out.println("Replacing old tertiary colors");
+		for(int i = 0; i < tertiary.size(); i++) {
+			System.out.println("\t" + tertiary.get(i).toRGBString());
+			System.out.println("\t\t" + tertiary.get(i).toHSBString());
+		}
+		System.out.println("With new colors");
+		for (int i = 0; i < newTertiaryColors.length; i++) {
+			System.out.println("\t" + newTertiaryColors[i].toRGBString());
+			System.out.println("\t\t" + newTertiaryColors[i].toHSBString());
+		}
+		
 		Boolean success = setColorsToArea(newTertiaryColors, tertiary);
 		if (success) {
 			tertiaryModified = true;
+			System.out.println("Successfully wrote tertiary colors");
+			for(int i = 0; i < tertiary.size(); i++) {
+				System.out.println("\t" + tertiary.get(i).toRGBString());
+				System.out.println("\t\t" + tertiary.get(i).toHSBString());
+			}
+		} else {
+			System.err.print("Failed to write tertiary colors.");
 		}
 	}
 	
@@ -208,7 +282,13 @@ public class Palette {
 			if (newSaturation < 0) { newSaturation = 0; }
 			if (newSaturation > 1) { newSaturation = 1; }
 			
-			newList.add(new PaletteColor(newHue, newSaturation > 0 ? newSaturation : 0, oldColor.getBrightness()));
+			if (newHue < 0) { newHue = newHue + 1; }
+			
+			PaletteColor newColor = new PaletteColor(newHue, newSaturation > 0 ? newSaturation : 0, oldColor.getBrightness());
+			newList.add(newColor);
+			
+			System.out.println("Replacing Color " + oldColor.toRGBString() + " with new color " + newColor.toRGBString());
+			System.out.println("In HSB: Color " + oldColor.toHSBString() + " with new color " + newColor.toHSBString());
 		}
 		
 		targetArea.clear();

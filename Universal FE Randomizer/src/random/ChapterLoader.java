@@ -56,7 +56,6 @@ public class ChapterLoader {
 										byte[] relevantData = Arrays.copyOfRange(locationEventRaw, locationOffset, locationOffset + 12);
 										int itemOffset = locationEventRange.start + locationOffset;
 										FE7ChapterItem item = new FE7ChapterItem(relevantData, itemOffset);
-										System.out.println("Found CHES Item with ID 0x" + Integer.toHexString(item.getItemID()));
 										locationOffset += 8;
 										items.add(item);
 									}
@@ -81,7 +80,6 @@ public class ChapterLoader {
 										byte[] relevantData = Arrays.copyOfRange(eventScriptRaw, scriptOffset, scriptOffset + 8);
 										long itemOffset = scriptRange.start + scriptOffset;
 										FE7ChapterItem item = new FE7ChapterItem(relevantData, itemOffset);
-										System.out.println("Found ITGV Item with ID 0x" + Integer.toHexString(item.getItemID()));
 										scriptOffset += 4;
 										items.add(item);
 									}

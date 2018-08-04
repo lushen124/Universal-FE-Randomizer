@@ -14,7 +14,7 @@ public class PaletteColor {
 	private double brightness;
 	
 	public PaletteColor(byte[] colorTuple) {
-		int colorValue = (colorTuple[1] << 8) | colorTuple[0];
+		int colorValue = ((colorTuple[1] << 8) & 0xFF00) | (colorTuple[0] & 0xFF);
 		
 		int redComponent = ((colorValue & 0x1F)) & 0xFF;
 		int greenComponent = ((colorValue & 0x3E0) >> 5) & 0xFF;
@@ -94,7 +94,15 @@ public class PaletteColor {
 		int blueComponent = (blueValue / 8) & 0x1F;
 		
 		int colorValue = (blueComponent << 10) | (greenComponent << 5) | redComponent;
-		return new byte[] { (byte)((colorValue & 0xFF00) >> 8), (byte)(colorValue & 0xFF) };
+		return new byte[] { (byte)(colorValue & 0xFF), (byte)((colorValue & 0xFF00) >> 8) };
+	}
+	
+	public String toRGBString() {
+		return "R: " + getRedValue() + " G: " + getGreenValue() + " B: " + getBlueValue();
+	}
+	
+	public String toHSBString() {
+		return "H: " + (getHue() * 360) + " S: " + (getSaturation() * 100) + " B: " + (getBrightness() * 100);
 	}
 	
 	public int getRedValue() {
@@ -211,7 +219,7 @@ public class PaletteColor {
 			double mul = normalizedHue * 6;
 			
 			if (mul == 0) { 		red = brightness; 				green = dim; 					blue = dim; }
-			else if (mul < 1) { 	red = brightness; 				green = dim + pro * (mul - 1); 	blue = dim; }
+			else if (mul < 1) { 	red = brightness; 				green = dim + pro * (mul - 0); 	blue = dim; }
 			else if (mul == 1) { 	red = brightness; 				green = brightness; 			blue = dim; }
 			else if (mul < 2) { 	red = dim + pro * (2 - mul); 	green = brightness; 			blue = dim; }
 			else if (mul == 2) {	red = dim;						green = brightness;				blue = dim; }

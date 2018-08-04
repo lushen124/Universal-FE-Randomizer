@@ -12,6 +12,26 @@ public class PaletteInfo {
 	int[] secondaryColorOffsets; // Lightest to Darkest
 	int[] tertiaryColorOffsets; // Lightest to Darkest
 	
+	public PaletteInfo(PaletteInfo otherInfo) {
+		classID = otherInfo.classID;
+		characterID = otherInfo.characterID;
+		
+		paletteOffset = otherInfo.paletteOffset;
+		
+		if (otherInfo.hairColorOffsets != null) {
+			hairColorOffsets = otherInfo.hairColorOffsets.clone();
+		}
+		if (otherInfo.primaryColorOffsets != null) {
+			primaryColorOffsets = otherInfo.primaryColorOffsets.clone();
+		}
+		if (otherInfo.secondaryColorOffsets != null) {
+			secondaryColorOffsets = otherInfo.secondaryColorOffsets.clone();
+		}
+		if (otherInfo.tertiaryColorOffsets != null) {
+			tertiaryColorOffsets = otherInfo.tertiaryColorOffsets.clone();
+		}
+	}
+	
 	public PaletteInfo(int classID, int characterID, long offset, int hairStart, int hairCount, int primaryStart, int primaryCount) {
 		this.paletteOffset = offset;
 		
