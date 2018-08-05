@@ -518,11 +518,11 @@ public class FE7Data {
 			}
 			
 			public Boolean isHigherThanRank(FE7WeaponRank otherRank) {
-				return value > otherRank.value;
+				return (value & 0xFF) > (otherRank.value & 0xFF);
 			}
 			
 			public Boolean isLowerThanRank(FE7WeaponRank otherRank) {
-				return value < otherRank.value;
+				return (value & 0xFF) < (otherRank.value & 0xFF);
 			}
 			
 			public Boolean isSameRank(FE7WeaponRank otherRank) {

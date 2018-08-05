@@ -34,71 +34,71 @@ public class BasesRandomizer {
 			int newDEFBase = 0;
 			int newRESBase = 0;
 			
-			do {
-				randomNum = rng.nextInt(10);
-				int amount = rng.nextInt(3) + 1;
-				Boolean negate = rng.nextInt(4) == 0;
-				if (baseTotal < -3) {
-					negate = true;
-				} else if (baseTotal > 5) {
-					negate = false;
-				}
-				if (negate) {
-					amount *= -1;
-				}
-				
-				switch (randomNum) {
-				case 1:
-					if (!WhyDoesJavaNotHaveThese.isValueBetween(newHPBase + amount, -1 * charClass.getBaseHP(), charClass.getMaxHP() - charClass.getBaseHP())) {
-						continue;
+			int initialLuck = rng.nextInt(Math.max(1, baseTotal / 7)) + 2;
+			newLCKBase += initialLuck;
+			baseTotal -= initialLuck;
+			if (baseTotal < 0) {
+				baseTotal = 0;
+			}
+			
+			if (baseTotal > 0) {	
+				do {
+					randomNum = rng.nextInt(10);
+					int amount = rng.nextInt(3) + 1;
+					
+					switch (randomNum) {
+					case 0:
+					case 5:
+					case 1:
+						if (!WhyDoesJavaNotHaveThese.isValueBetween(newHPBase + amount, -1 * charClass.getBaseHP(), charClass.getMaxHP() - charClass.getBaseHP())) {
+							continue;
+						}
+						newHPBase += amount;
+						break;
+					case 2:
+						if (!WhyDoesJavaNotHaveThese.isValueBetween(newSTRBase + amount, -1 * charClass.getBaseSTR(), charClass.getMaxSTR() - charClass.getBaseSTR())) {
+							continue;
+						}
+						newSTRBase += amount;
+						break;
+					case 3:
+						if (!WhyDoesJavaNotHaveThese.isValueBetween(newSKLBase + amount, -1 * charClass.getBaseSKL(), charClass.getMaxSKL() - charClass.getBaseSKL())) {
+							continue;
+						}
+						newSKLBase += amount;
+						break;
+					case 4:
+						if (!WhyDoesJavaNotHaveThese.isValueBetween(newSPDBase + amount, -1 * charClass.getBaseSPD(), charClass.getMaxSPD() - charClass.getBaseSPD())) {
+							continue;
+						}
+						newSPDBase += amount;
+						break;
+					case 8:
+					case 9:
+						if (!WhyDoesJavaNotHaveThese.isValueBetween(newLCKBase + amount, -1 * charClass.getBaseLCK(), charClass.getMaxLCK() - charClass.getBaseLCK())) {
+							continue;
+						}
+						newLCKBase += amount;
+						break;
+					case 6: 
+						if (!WhyDoesJavaNotHaveThese.isValueBetween(newDEFBase + amount, -1 * charClass.getBaseDEF(), charClass.getMaxDEF() - charClass.getBaseDEF())) {
+							continue;
+						}
+						newDEFBase += amount;
+						break;
+					case 7:
+						if (!WhyDoesJavaNotHaveThese.isValueBetween(newRESBase + amount, -1 * charClass.getBaseRES(), charClass.getMaxRES() - charClass.getBaseRES())) {
+							continue;
+						}
+						newRESBase += amount;
+						break;
+					default:
+						break;
 					}
-					newHPBase += amount;
-					break;
-				case 2:
-					if (!WhyDoesJavaNotHaveThese.isValueBetween(newSTRBase + amount, -1 * charClass.getBaseSTR(), charClass.getMaxSTR() - charClass.getBaseSTR())) {
-						continue;
-					}
-					newSTRBase += amount;
-					break;
-				case 3:
-					if (!WhyDoesJavaNotHaveThese.isValueBetween(newSKLBase + amount, -1 * charClass.getBaseSKL(), charClass.getMaxSKL() - charClass.getBaseSKL())) {
-						continue;
-					}
-					newSKLBase += amount;
-					break;
-				case 4:
-					if (!WhyDoesJavaNotHaveThese.isValueBetween(newSPDBase + amount, -1 * charClass.getBaseSPD(), charClass.getMaxSPD() - charClass.getBaseSPD())) {
-						continue;
-					}
-					newSPDBase += amount;
-					break;
-				case 0:
-				case 5:
-				case 8:
-				case 9:
-					if (!WhyDoesJavaNotHaveThese.isValueBetween(newLCKBase + amount, -1 * charClass.getBaseLCK(), charClass.getMaxLCK() - charClass.getBaseLCK())) {
-						continue;
-					}
-					newLCKBase += amount;
-					break;
-				case 6: 
-					if (!WhyDoesJavaNotHaveThese.isValueBetween(newDEFBase + amount, -1 * charClass.getBaseDEF(), charClass.getMaxDEF() - charClass.getBaseDEF())) {
-						continue;
-					}
-					newDEFBase += amount;
-					break;
-				case 7:
-					if (!WhyDoesJavaNotHaveThese.isValueBetween(newRESBase + amount, -1 * charClass.getBaseRES(), charClass.getMaxRES() - charClass.getBaseRES())) {
-						continue;
-					}
-					newRESBase += amount;
-					break;
-				default:
-					break;
-				}
-				
-				baseTotal -= amount;
-			} while (baseTotal != 0);
+					
+					baseTotal -= amount;
+				} while (baseTotal > 0);
+			}
 			
 			character.setBaseHP(newHPBase);
 			character.setBaseSTR(newSTRBase);

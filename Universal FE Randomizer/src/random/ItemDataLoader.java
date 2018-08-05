@@ -118,6 +118,7 @@ private FEBase.GameType gameType;
 	public FEItem[] itemsOfTypeAndEqualRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean allowLower) {
 		switch (gameType) {
 		case FE7:
+			if (type == WeaponType.DARK && rank == WeaponRank.E) { rank = WeaponRank.D; } // There is no E rank dark tome, so we need to set a floor of D.
 			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, rank, rank, rangedOnly);
 			if ((weapons == null || weapons.length == 0) && allowLower) {
 				weapons = FE7Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);

@@ -139,7 +139,8 @@ public class ClassRandomizer {
 				}
 				
 				int leaderID = chapterUnit.getLeaderID();
-				if (charactersData.isBossCharacterID(leaderID)) {
+				int characterID = chapterUnit.getCharacterNumber();
+				if (charactersData.isBossCharacterID(leaderID) && !charactersData.isPlayableCharacterID(characterID)) {
 					FEClass originalClass = classData.classForID(chapterUnit.getStartingClass());
 					if (originalClass == null) {
 						continue;
@@ -178,7 +179,7 @@ public class ClassRandomizer {
 						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass() + " in chapter with offset " + Long.toHexString(chapter.getAddressOffset()));
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
-					valideCharacterInventory(character, chapterUnit, ranged, itemData, rng);
+					validateCharacterInventory(character, chapterUnit, ranged, itemData, rng);
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
@@ -288,7 +289,7 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void valideCharacterInventory(FECharacter character, FEChapterUnit chapterUnit, Boolean ranged, ItemDataLoader itemData, Random rng) {
+	private static void validateCharacterInventory(FECharacter character, FEChapterUnit chapterUnit, Boolean ranged, ItemDataLoader itemData, Random rng) {
 		int item1ID = chapterUnit.getItem1();
 		FEItem item1 = itemData.itemWithID(item1ID);
 		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {

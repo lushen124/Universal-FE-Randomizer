@@ -336,40 +336,42 @@ public class MainView implements FileFlowDelegate {
 						openDialog.setFilterExtensions(new String[] {"*.gba"});
 						String writePath = openDialog.open();
 						
-						DiffCompiler compiler = new DiffCompiler();
-						
-						try {
-							compiler.addDiffsFromFile("tutorialSlayer");
-						} catch (IOException e) {
-							MessageBox tutorialSlayerFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK | SWT.CANCEL);
-							tutorialSlayerFail.setText("Error");
-							tutorialSlayerFail.setMessage("Failed to patch the tutorial slayer.\n\nThe randomizer can continue, but it is recommended that Lyn Normal mode not be used.");
-							int selectedButton = tutorialSlayerFail.open();
-							if (selectedButton == SWT.CANCEL) {
-								return;
+						if (writePath != null && writePath.length() > 0) {
+							DiffCompiler compiler = new DiffCompiler();
+							
+							try {
+								compiler.addDiffsFromFile("tutorialSlayer");
+							} catch (IOException e) {
+								MessageBox tutorialSlayerFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK | SWT.CANCEL);
+								tutorialSlayerFail.setText("Error");
+								tutorialSlayerFail.setMessage("Failed to patch the tutorial slayer.\n\nThe randomizer can continue, but it is recommended that Lyn Normal mode not be used.");
+								int selectedButton = tutorialSlayerFail.open();
+								if (selectedButton == SWT.CANCEL) {
+									return;
+								}
 							}
-						}
-						
-						Randomizer randomizer = new Randomizer(pathToFile, writePath, FEBase.GameType.FE7, compiler, 
-								growthView.getGrowthOptions(),
-								baseView.getBaseOptions(),
-								classView.getClassOptions(),
-								weaponView.getWeaponOptions(),
-								otherCharOptionView.getOtherCharacterOptions(),
-								enemyView.getEnemyOptions(),
-								miscView.getMiscellaneousOptions());
-						try {
-							randomizer.randomize(seedField.getText());
-							MessageBox randomSuccess = new MessageBox(mainShell, SWT.ICON_INFORMATION | SWT.OK);
-							randomSuccess.setText("Success");
-							randomSuccess.setMessage("Finished Randomizing!");
-							randomSuccess.open();
-						} catch (Exception e) {
-							e.printStackTrace();
-							MessageBox randomFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK);
-							randomFail.setText("Randomization Error");
-							randomFail.setMessage("Randomization failed with error:\n\n" + e.getMessage());
-							randomFail.open();
+							
+							Randomizer randomizer = new Randomizer(pathToFile, writePath, FEBase.GameType.FE7, compiler, 
+									growthView.getGrowthOptions(),
+									baseView.getBaseOptions(),
+									classView.getClassOptions(),
+									weaponView.getWeaponOptions(),
+									otherCharOptionView.getOtherCharacterOptions(),
+									enemyView.getEnemyOptions(),
+									miscView.getMiscellaneousOptions());
+							try {
+								randomizer.randomize(seedField.getText());
+								MessageBox randomSuccess = new MessageBox(mainShell, SWT.ICON_INFORMATION | SWT.OK);
+								randomSuccess.setText("Success");
+								randomSuccess.setMessage("Finished Randomizing!");
+								randomSuccess.open();
+							} catch (Exception e) {
+								e.printStackTrace();
+								MessageBox randomFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK);
+								randomFail.setText("Randomization Error");
+								randomFail.setMessage("Randomization failed with error:\n\n" + e.getMessage());
+								randomFail.open();
+							}
 						}
 					}
 				  });
