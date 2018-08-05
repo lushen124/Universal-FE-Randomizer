@@ -15,7 +15,6 @@ import fedata.general.PaletteInfo;
 import util.AddressRange;
 
 public class FE7Data {
-
 	public static final String FriendlyName = "Fire Emblem: Blazing Sword";
 	public static final String GameCode = "AE7E";
 
@@ -54,14 +53,30 @@ public class FE7Data {
 	public static final int FallenContractAddressPointer = 0x2754C;
 	public static final int OceanSealAddressPointer = 0x27574;
 	
-	public static final int HeroCrestDefaultAddress = 0xC97EDD;
-	public static final int KnightCrestDefaultAddress = 0xC97EE3;
-	public static final int OrionBoltDefaultAddress = 0xC97EE8;
-	public static final int ElysianWhipDefaultAddress = 0xC97EED;
-	public static final int GuidingRingDefaultAddress = 0xC97EF1;
-	public static final int MasterSealDefaultAddress = 0xC97EFD;
-	public static final int FallenContractDefaultAddress = 0xC97F29;
-	public static final int OceanSealDefaultAddress = 0xC97F24;
+	public static final String FriendlyName_JP = "ファイアーエムブレム 烈火の剣";
+	public static final String GameCode_JP = "AE7J";
+
+	public static final long CleanCRC32_JP = 0xF0C10E72;
+	public static final long CleanSize_JP = 16777216;
+
+	public static final int DefaultCharacterTableAddress_JP = 0xC4C124; // To align with EN's 1 dummy entry, we subtracted 0x34 (52) from the pointer value.
+	public static final int DefaultClassTableAddress_JP = 0xC4F468;
+	public static final int DefaultItemTableAddress_JP = 0xC51538;
+	public static final int DefaultSpellAnimationTableOffset_JP = 0xD61678;
+	
+	public static final int HuffmanTreeStart_JP = 0x6E0;
+	public static final int HuffmanTreeEnd_JP = 0x6DC;
+	public static final int DefaultTextArrayOffset_JP = 0xBBB370;
+//	public static final int NumberOfTextStrings = 0x133E; // No idea how many are in JP, so it's hard to guess.
+	
+	public static final int HeroCrestAddressPointer_JP = 0x2798C;
+	public static final int KnightCrestAddressPointer_JP = 0x27994;
+	public static final int OrionBoltAddressPointer_JP = 0x2799C;
+	public static final int ElysianWhipAddressPointer_JP = 0x279A4;
+	public static final int GuidingRingAddressPointer_JP = 0x279AC;
+	public static final int MasterSealAddressPointer_JP = 0x279B4;
+	public static final int FallenContractAddressPointer_JP = 0x27A00;
+	public static final int OceanSealAddressPointer_JP = 0x279D8;
 	
 	public enum Character {
 		NONE(0x00),
