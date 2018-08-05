@@ -54,7 +54,7 @@ public class ChapterLoader {
 										locationEventRaw[locationOffset + 6] == 0 &&
 										locationEventRaw[locationOffset + 7] == 0) {
 										byte[] relevantData = Arrays.copyOfRange(locationEventRaw, locationOffset, locationOffset + 12);
-										int itemOffset = locationEventRange.start + locationOffset;
+										long itemOffset = locationEventRange.start + locationOffset;
 										FE7ChapterItem item = new FE7ChapterItem(relevantData, itemOffset);
 										locationOffset += 8;
 										items.add(item);

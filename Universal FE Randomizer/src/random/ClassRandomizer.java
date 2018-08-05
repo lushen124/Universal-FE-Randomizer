@@ -214,6 +214,11 @@ public class ClassRandomizer {
 		if (requiredItems != null) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);
 		}
+		
+		FEItem[] thiefItemsToRemove = itemData.thiefItemsToRemove();
+		for (FEItem item : thiefItemsToRemove) {
+			chapterUnit.removeItem(item.getID());
+		}
 	}
 	
 	private static void validateSpecialClassInventory(FECharacter character, FEChapterUnit chapterUnit, ItemDataLoader itemData, Random rng) {

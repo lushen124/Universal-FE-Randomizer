@@ -290,11 +290,20 @@ public class Palette {
 		
 		List<PaletteColor> newList = new ArrayList<PaletteColor>();
 		for (PaletteColor oldColor : targetArea) {
-			double hueDelta = oldColor.getHue() - originalAverage.getHue();
-			if (Math.abs(hueDelta) > 20.0/360.0) { // Limit colors within a range. A delta too extreme is going to clash.
-				double clampedDelta = 20.0/360.0;
-				if (hueDelta < 0) { clampedDelta *= -1; }
-				hueDelta = clampedDelta;
+			double oldHue = oldColor.getHue();
+			double averageHue = originalAverage.getHue();
+			
+			// We need to normalize the hues back to between 0 and 1.
+			while (oldHue > 1) { oldHue = oldHue - 1; }
+			while (averageHue > 1) { averageHue = averageHue - 1; }
+			double hueDelta = oldHue - averageHue;
+			
+			if (Math.abs(hueDelta) > 0.5) { // We need to deal with the cyclic nature of hue. 0.1 and 0.9 are supposed to be 0.2 apart, not 0.8.
+				if (Math.min(oldHue, averageHue) == oldHue) {
+					hueDelta = (oldHue + 1) - averageHue;
+				} else {
+					hueDelta = oldHue - (averageHue + 1);
+				}
 			}
 			double saturationDelta = oldColor.getSaturation() - originalAverage.getSaturation();
 			

@@ -918,7 +918,7 @@ public class FE7Data {
 		}
 	}
 	
-	public enum Chapter {
+	public enum Chapter { // All values are after tutorial slayer.
 		PROLOGUE(0xCC5B50, 4), 
 		CHAPTER_1(0xCC5BD0, 12), 
 		CHAPTER_2(0xCC5CE8, 18), 
@@ -926,7 +926,7 @@ public class FE7Data {
 		CHAPTER_4(0xCC6058, 32), 
 		CHAPTER_5(0xCC6300, 22), 
 		CHAPTER_6(0xCC64E0, 57, new AddressRange(0xCA10B8, 0xCA1170), 2, new AddressRange(0xCAC06C, 0xCAC200), 1),
-		CHAPTER_7(0xCC6940, 47, null, 0, new AddressRange(0xCACA04, 0xCACE04), 1), 
+		CHAPTER_7(0xCC6940, 47, null, 0, new AddressRange(0xCACA04, 0xCACDA8), 1), 
 		CHAPTER_7X(0xCC6CD8, 54, new AddressRange(0xCA1418, 0xCA1444), 1, null, 0),
 		CHAPTER_8(0xC70F4, 49, null, 0, new AddressRange(0xCAD500, 0xCAD75C), 1), 
 		CHAPTER_9(0xCC7484, 48, null, 0, new AddressRange(0xCAD770, 0xCADA50), 1), 
@@ -970,14 +970,14 @@ public class FE7Data {
 		CHAPTER_FINAL_BOSS(0xCE0898, 56),
 		CHAPTER_FINAL(0xCDFE84, 132);
 		
-		public int charactersOffset;
+		public long charactersOffset;
 		public int numberOfUnits;
 		public AddressRange locationEventRange;
 		public int chestCount;
 		public AddressRange scriptRange;
 		public int itgvCount;
 		
-		private static Map<Integer, Chapter> map = new HashMap<Integer, Chapter>();
+		private static Map<Long, Chapter> map = new HashMap<Long, Chapter>();
 		
 		static {
 			for (Chapter chapter : Chapter.values()) {
@@ -985,7 +985,7 @@ public class FE7Data {
 			}
 		}
 		
-		private Chapter(final int offset, final int unitCount) { 
+		private Chapter(final long offset, final int unitCount) { 
 			this.charactersOffset = offset;
 			numberOfUnits = unitCount;
 			locationEventRange = null;
@@ -994,7 +994,7 @@ public class FE7Data {
 			this.itgvCount = 0;
 		}
 		
-		private Chapter(final int offset, final int unitCount, final AddressRange location, final int chestCount, final AddressRange script, final int itgvCount) { 
+		private Chapter(final long offset, final int unitCount, final AddressRange location, final int chestCount, final AddressRange script, final int itgvCount) { 
 			this.charactersOffset = offset;
 			numberOfUnits = unitCount;
 			locationEventRange = location;

@@ -206,6 +206,15 @@ private FEBase.GameType gameType;
 		}
 	}
 	
+	public FEItem[] thiefItemsToRemove() {
+		switch (gameType) {
+		case FE7:
+			return itemsFromFE7Items(new FE7Data.Item[] {FE7Data.Item.LOCKPICK});
+		default:
+			return new FEItem[] {};
+		}
+	}
+	
 	public FEItem[] specialInventoryForClass(int classID, Random rng) {
 		switch (gameType) {
 		case FE7:

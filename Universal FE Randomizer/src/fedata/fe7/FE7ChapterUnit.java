@@ -136,18 +136,55 @@ public class FE7ChapterUnit implements FEChapterUnit {
 			}
 		}
 		
-		if (getItem3() == 0) {
-			setItem3(getItem4());
-			setItem4(0);
+		collapseItems();
+	}
+	
+	public void removeItem(int itemID) {
+		if (!modifiable) {
+			return;
 		}
-		if (getItem2() == 0) {
-			setItem2(getItem3());
-			setItem3(0);
+		
+		if (getItem1() == itemID) {
+			setItem1(0);
 		}
-		if (getItem1() == 0) {
-			setItem1(getItem2());
+		if (getItem2() == itemID) {
 			setItem2(0);
 		}
+		if (getItem3() == itemID) {
+			setItem3(0);
+		}
+		if (getItem4() == itemID) {
+			setItem4(0);
+		}
+		
+		collapseItems();
+	}
+	
+	private void collapseItems() {
+		int[] items = new int[4];
+		int counter = 0;
+		
+		if (getItem1() != 0) {
+			items[counter] = getItem1();
+			counter++;
+		}
+		if (getItem2() != 0) {
+			items[counter] = getItem2();
+			counter++;
+		}
+		if (getItem3() != 0) {
+			items[counter] = getItem3();
+			counter++;
+		}
+		if (getItem4() != 0) {
+			items[counter] = getItem4();
+			counter++;
+		}
+		
+		setItem1(items[0]);
+		setItem2(items[1]);
+		setItem3(items[2]);
+		setItem4(items[3]);
 	}
 	
 	public void resetData() {

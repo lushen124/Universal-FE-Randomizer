@@ -41,4 +41,23 @@ public class DiffCompiler {
 	public void addDiff(Diff newDiff) {
 		diffArray.add(newDiff);
 	}
+	
+	public byte[] byteArrayWithDiffs(byte[] byteArray, long startingOffset) {
+		byte[] resultByteArray = byteArray.clone();
+		AddressRange range = new AddressRange(startingOffset, startingOffset + byteArray.length);
+		
+		for (Diff diff : diffArray) {
+			if (range.contains(diff.address)) {
+				int offset = (int)(diff.address - startingOffset);
+				for (int i = 0; i < diff.length; i++) {
+					if (offset + i >= resultByteArray.length) {
+						break;
+					}
+					resultByteArray[offset + i] = diff.changes[i];
+				}
+			}
+		}
+		
+		return resultByteArray;
+	}
 }

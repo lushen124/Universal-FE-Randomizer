@@ -6,12 +6,16 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.zip.CRC32;
 
+import util.DiffCompiler;
+
 public class FileHandler {
 	public String pathToFile;
 	
 	private RandomAccessFile inputFile;
 	private long crc32;
 	private long fileLength;
+	
+	private DiffCompiler appliedDiffs;
 
 	public FileHandler(String pathToFile) throws IOException {
 		super();
@@ -33,6 +37,14 @@ public class FileHandler {
 		inputStream.close();
 	}
 	
+	public void setAppliedDiffs(DiffCompiler diffs) {
+		appliedDiffs = diffs;
+	}
+	
+	public void clearAppliedDiffs() {
+		appliedDiffs = null;
+	}
+	
 	public byte[] readBytesAtOffset(long offset, int numBytes) {
 		long remainingBytes = fileLength - offset;
 		if (numBytes > remainingBytes) {
@@ -51,6 +63,9 @@ public class FileHandler {
 			return null;
 		}
 		
+		if (appliedDiffs != null) {
+			return appliedDiffs.byteArrayWithDiffs(outputBytes, offset);
+		}
 		return outputBytes;
 	}
 	
