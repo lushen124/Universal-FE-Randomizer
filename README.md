@@ -17,7 +17,7 @@ Executables are found in the above executables folder and are separated by platf
 ![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows.png) ![Sample Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows-Game.png)
 
 Raw JAR:
-https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune-Windows.jar
+https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20Windows.jar
 
 Executable:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Windows/Yune.exe
@@ -28,7 +28,7 @@ https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Win
 ![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS.png) ![Sample Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS-Game.png)
 
 Raw JAR:
-https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune-MacOS.jar
+https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20MacOS.jar
 
 App Bundle:
 https://github.com/lushen124/Universal-FE-Randomizer/tree/master/Executables/MacOS - The ZIP file will extract an actual bundle that can be double clicked and run like usual (after any security settings that may try to stop you). If you don't know, MacOS apps are actually a folder in disguise, which is why Github shows it like one. 
@@ -109,21 +109,21 @@ Thought the game was too easy?
 
 **Buff Enemy Growths** - Random Enemies and their stats are dictated by class growth rates. Normally these growths would be overridden by a character's personal growths, but enemies don't have that quality, so they will scale based on these rates. Normally, they're pretty low, but this option will increase the growth rates so that, as the game progresses, the enemies will become tougher, due to the autoleveling routine. There are two options: **Flat** and **Scaling**. Flat buffs apply a constant to all of the growth rates. This generally makes up for weak points of enemies (less tanky myrmidons and faster knights, etc.) A little boost will go a long way, especially for hard mode, so don't go too crazy with Flat buffs (10 - 20 is a pretty noticeable buff, especially later in the game). Scaling buffs apply a fraction based off of their original class growths. This generally emphasizes a class's strong points (myrmidons that are actually fast and knights that are actually tanky). As it's a fraction, the values is a percentage, where a value of 100% is a doubling of growth rates.
 
-**Improve Enemy Weapons** - This option selects some enemies and upgrades their weapons to the next level. For example, if an enemy was using an Iron Sword (an E rank weapon), he/she might now be using a Steel Sword (a D rank weapon) or a Longsword (a D rank weapon effective against cavalry), or if he's a myrmidon, a Wo Dao is a possibility (D rank weapon locked to myrmidons and has a high critical rate). The chance of this happening is set to 20%, though I may make this user configurable later.
+**Improve Enemy Weapons** - This option selects some enemies and upgrades their weapons to the next level. For example, if an enemy was using an Iron Sword (an E rank weapon), he/she might now be using a Steel Sword (a D rank weapon) or a Longsword (a D rank weapon effective against cavalry), or if he's a myrmidon, a Wo Dao is a possibility (D rank weapon locked to myrmidons and has a high critical rate). You can set how often this happens, anywhere between 1% and 100% of minions. Note that this does not affect boss weaponry.
 
 ### Miscellaneous Options
 Random stuff that may be funny.
 
-**Randomize Rewards** - Rewards include chests and village items. The idea is to randomize these to make things more surprising. May include scripted rewards, but I haven't decided yet.
+**Randomize Rewards** - Rewards include chests and village items. This encapsultes any item you can get from villages and chests, but does not include villages that grant you gold. Also does not affect any items that are given specifically to a character (e.g. Mani Katti). 50% of the time, the item will be replaced with a related item, and the other 50% of the time will be a completely random item. Possible items include weapons, stat boosters, promotion items, and any other consumable items. Related items for non-weapons are those that fit into the same category (i.e. stat boosters or promotion item). Related items for weapons are those weapons with either the same rank or the same type.
 
 **Randomize Recruitment Order (WIP)** - A weird option from the original randomizer which more or less replaces character data completely with another, simulating a randomized recruitment order. Not sure if I'll make any changes to this or not.
 
 ## Nice-to-have Features
-* Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.
+* ~~Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.~~ This is actually done now. It mostly works, though it occasionally gives an odd color.
 * Fixing text to match items. Makes random weapon effects less infuriating to play.
 * Fixing world map sequences to be somewhat more accurate to a unit's class.
 * Allowing melee axes to gain range.
-* Remove limitations on class randomization.
+* ~~Remove limitations on class randomization.~~ This is mostly resolved using a blacklist of characters and chapters which continue to limit class choices. All other characters and chapters are allowed to fully randomize classes.
 * Add random fun ASM changes (Ranging from streamlining changes like removing the need to stand adjacent to a unit for support, to infurating, like 1RN, or Thracia-style 1-99 HIT.)
 
 ## Next Steps (Kind of in order)
