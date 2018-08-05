@@ -279,12 +279,23 @@ public class Palette {
 	private Boolean setColorsToArea(PaletteColor[] newColors, List<PaletteColor> targetArea) {
 		if (targetArea.size() == 0) { return false; }
 		
+		if (targetArea.size() == newColors.length) {
+			targetArea.clear();
+			targetArea.addAll(Arrays.asList(newColors));
+			return true;
+		}
+		
 		PaletteColor originalAverage = PaletteColor.averageColorFromColors(targetArea.toArray(new PaletteColor[targetArea.size()]));
 		PaletteColor newAverage = PaletteColor.averageColorFromColors(newColors);
 		
 		List<PaletteColor> newList = new ArrayList<PaletteColor>();
 		for (PaletteColor oldColor : targetArea) {
 			double hueDelta = oldColor.getHue() - originalAverage.getHue();
+			if (Math.abs(hueDelta) > 20.0/360.0) { // Limit colors within a range. A delta too extreme is going to clash.
+				double clampedDelta = 20.0/360.0;
+				if (hueDelta < 0) { clampedDelta *= -1; }
+				hueDelta = clampedDelta;
+			}
 			double saturationDelta = oldColor.getSaturation() - originalAverage.getSaturation();
 			
 			double newHue = hueDelta + newAverage.getHue();
