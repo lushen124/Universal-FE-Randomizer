@@ -32,12 +32,17 @@ import random.CharacterDataLoader;
 import random.GrowthsRandomizer;
 import random.Randomizer;
 import util.DiffCompiler;
+import util.SeedGenerator;
 
 public class MainView implements FileFlowDelegate {
 	
 	public Shell mainShell;
 	
 	private Text filenameField;
+	
+	private Label seedLabel;
+	private Text seedField;
+	private Button generateButton;
 	
 	private Group romInfoGroup;
 	private Label romName;
@@ -136,14 +141,55 @@ public class MainView implements FileFlowDelegate {
 		  friendlyName = new Label(topInfo, SWT.LEFT);
 		  length = new Label(bottomInfo, SWT.LEFT);
 		  checksum = new Label(bottomInfo, SWT.LEFT);
-		  new Label(bottomInfo, SWT.LEFT);
+		  
+		  seedField = new Text(mainShell, SWT.BORDER);
+		  seedField.addListener(SWT.CHANGED, new Listener() {
+			  @Override
+			  public void handleEvent(Event event) {
+				  randomizeButton.setEnabled(seedField.getText().length() > 0);
+			  }
+		  });
+		  button = new Button(mainShell, SWT.PUSH);
+		  button.setText("Generate");
+		  button.addListener(SWT.Selection, new Listener() {
+			  @Override
+				public void handleEvent(Event event) {
+					seedField.setText(SeedGenerator.generateRandomSeed());
+					randomizeButton.setEnabled(seedField.getText().length() > 0);
+				}
+		  });
+		  generateButton = button;
+		  
+		  seedLabel = new Label(mainShell, SWT.NONE);
+		  seedLabel.setText("Randomizer Seed Phrase: ");
+		  
+		  seedField.setVisible(false);
+		  generateButton.setVisible(false);
+		  seedLabel.setVisible(false);
+		  
+		  FormData seedFieldData = new FormData();
+		  seedFieldData.top = new FormAttachment(romInfoGroup, 10);
+		  seedFieldData.right = new FormAttachment(button, -5);
+		  seedFieldData.left = new FormAttachment(seedLabel, 5);
+		  seedField.setLayoutData(seedFieldData);
+		  
+		  FormData seedLabelData = new FormData();
+		  seedLabelData.top = new FormAttachment(seedField, 0, SWT.CENTER);
+		  seedLabelData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
+		  seedLabel.setLayoutData(seedLabelData);
+		  
+		  FormData generateData = new FormData();
+		  generateData.top = new FormAttachment(seedField, 0, SWT.CENTER);
+		  generateData.right = new FormAttachment(100, -5);
+		  generateData.width = 100;
+		  button.setLayoutData(generateData);
 		  
 		  growthView = new GrowthsView(mainShell, SWT.NONE);
 		  growthView.setSize(200, 200);
 		  growthView.setVisible(false);
 		  
 		  FormData growthData = new FormData();
-		  growthData.top = new FormAttachment(romInfoGroup, 5);
+		  growthData.top = new FormAttachment(seedField, 10);
 		  growthData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
 		  growthView.setLayoutData(growthData);
 		  
@@ -261,6 +307,10 @@ public class MainView implements FileFlowDelegate {
 				enemyView.setVisible(false);
 				miscView.setVisible(false);
 				randomizeButton.setVisible(false);
+				
+				seedField.setVisible(false);
+				generateButton.setVisible(false);
+				seedLabel.setVisible(false);
 			} else {
 				growthView.setVisible(true);
 				baseView.setVisible(true);
@@ -270,6 +320,12 @@ public class MainView implements FileFlowDelegate {
 				enemyView.setVisible(true);
 				miscView.setVisible(true);
 				randomizeButton.setVisible(true);
+				
+				seedField.setVisible(true);
+				generateButton.setVisible(true);
+				seedLabel.setVisible(true);
+				
+				seedField.setText(SeedGenerator.generateRandomSeed());
 				
 				randomizeButton.addListener(SWT.Selection, new Listener() {
 					@Override
@@ -303,7 +359,7 @@ public class MainView implements FileFlowDelegate {
 								enemyView.getEnemyOptions(),
 								miscView.getMiscellaneousOptions());
 						try {
-							randomizer.randomize();
+							randomizer.randomize(seedField.getText());
 							MessageBox randomSuccess = new MessageBox(mainShell, SWT.ICON_INFORMATION | SWT.OK);
 							randomSuccess.setText("Success");
 							randomSuccess.setMessage("Finished Randomizing!");

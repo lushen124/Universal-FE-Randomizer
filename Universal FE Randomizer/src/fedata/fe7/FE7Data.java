@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
@@ -718,9 +718,9 @@ public class FE7Data {
 			return new Item[] {CHEST_KEY_5, DOOR_KEY};
 		}
 		
-		public static Item[] specialClassKit(int classID) {
+		public static Item[] specialClassKit(int classID, Random rng) {
 			if (classID == FE7Data.CharacterClass.DANCER.ID) {
-				int randomIndex = ThreadLocalRandom.current().nextInt(allDancingRings.size());
+				int randomIndex = rng.nextInt(allDancingRings.size());
 				Item[] rings = allDancingRings.toArray(new Item[allDancingRings.size()]);
 				return new Item[] { rings[randomIndex] };
 			} else if (classID == FE7Data.CharacterClass.THIEF.ID) {

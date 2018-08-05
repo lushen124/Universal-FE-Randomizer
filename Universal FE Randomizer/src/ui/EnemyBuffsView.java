@@ -26,7 +26,7 @@ public class EnemyBuffsView extends Composite {
 	private Button scalingBonusButton;
 	
 	private Button improveEnemyWeaponsButton;
-	private Button nudgeStartingLocationsButton;
+	private Spinner weaponSpinner;
 	
 	public EnemyBuffsView(Composite parent, int style) {
 		super(parent, style);
@@ -123,37 +123,51 @@ public class EnemyBuffsView extends Composite {
 		improveEnemyWeaponsButton = new Button(container, SWT.CHECK);
 		improveEnemyWeaponsButton.setText("Improve Enemy Weapons");
 		improveEnemyWeaponsButton.setToolTipText("Adds a high chance of enemies spawning with a higher tier weapon than usual.");
-
+		improveEnemyWeaponsButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				weaponSpinner.setEnabled(improveEnemyWeaponsButton.getSelection());
+			}
+		});
+		
 		FormData improveWeaponsData = new FormData();
 		improveWeaponsData.left = new FormAttachment(0, 5);
 		improveWeaponsData.top = new FormAttachment(buffParamContainer, 5);
 		improveEnemyWeaponsButton.setLayoutData(improveWeaponsData);
 		
-		//////////////////////////////////////////////////////////////////
+		Label chanceLabel = new Label(container, SWT.RIGHT);
+		chanceLabel.setText("Chance:");
 		
-		nudgeStartingLocationsButton = new Button(container, SWT.CHECK);
-		nudgeStartingLocationsButton.setText("Nudge Enemy Starting Location");
-		nudgeStartingLocationsButton.setToolTipText("Randomly moves enemies up to 3 spaces away from their usual starting location.");
-		nudgeStartingLocationsButton.setEnabled(false);
+		weaponSpinner = new Spinner(container, SWT.NONE);
+		weaponSpinner.setValues(20, 0, 100, 0, 1, 1);
+		weaponSpinner.setEnabled(false);
 		
-		FormData nudgeLocationData = new FormData();
-		nudgeLocationData.left = new FormAttachment(0, 5);
-		nudgeLocationData.top = new FormAttachment(improveEnemyWeaponsButton, 5);
-		nudgeStartingLocationsButton.setLayoutData(nudgeLocationData);		
+		FormData chanceLabelData = new FormData();
+		chanceLabelData.left = new FormAttachment(0, 5);
+		chanceLabelData.right = new FormAttachment(weaponSpinner, -5);
+		chanceLabelData.top = new FormAttachment(weaponSpinner, 0, SWT.CENTER);
+		chanceLabel.setLayoutData(chanceLabelData);
+		
+		FormData chanceSpinnerData = new FormData();
+		chanceSpinnerData.right = new FormAttachment(100, -10);
+		chanceSpinnerData.top = new FormAttachment(improveEnemyWeaponsButton, 5);
+		weaponSpinner.setLayoutData(chanceSpinnerData);
+		
+		//////////////////////////////////////////////////////////////////		
 	}
 	
 	public EnemyOptions getEnemyOptions() {
 
 		Boolean buffWeapons = improveEnemyWeaponsButton.getSelection();
-		Boolean nudgePositions = false;
+		int buffChance = weaponSpinner.getSelection();
 		
 		if (buffEnemyGrowthsButton.getSelection() == false) {
-			return new EnemyOptions(EnemyOptions.BuffMode.NONE, 0, buffWeapons, nudgePositions);
+			return new EnemyOptions(EnemyOptions.BuffMode.NONE, 0, buffWeapons, buffChance);
 		} else {
 			if (flatBonusButton.getSelection()) {
-				return new EnemyOptions(EnemyOptions.BuffMode.FLAT, buffSpinner.getSelection(), buffWeapons, nudgePositions);
+				return new EnemyOptions(EnemyOptions.BuffMode.FLAT, buffSpinner.getSelection(), buffWeapons, buffChance);
 			} else {
-				return new EnemyOptions(EnemyOptions.BuffMode.SCALING, buffSpinner.getSelection(), buffWeapons, nudgePositions);
+				return new EnemyOptions(EnemyOptions.BuffMode.SCALING, buffSpinner.getSelection(), buffWeapons, buffChance);
 			}
 		}
 	}

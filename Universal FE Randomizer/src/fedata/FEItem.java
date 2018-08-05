@@ -1,5 +1,6 @@
 package fedata;
 
+import java.util.Random;
 import java.util.Set;
 
 import fedata.general.WeaponEffects;
@@ -42,6 +43,6 @@ public interface FEItem extends FEModifiableObject {
 	public void setHit(int hit);
 	public void setWeight(int weight);
 	
-	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, FESpellAnimationCollection spellAnimations);
+	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, FESpellAnimationCollection spellAnimations, Random rng);
 
 }

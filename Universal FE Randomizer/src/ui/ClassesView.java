@@ -100,10 +100,6 @@ public class ClassesView extends Composite {
 	}
 	
 	public ClassOptions getClassOptions() {
-		if (!randomizePCButton.getSelection() && !randomizeEnemiesButton.getSelection() && !randomizeBossesButton.getSelection()) {
-			return null;
-		}
-		
 		Boolean pcsEnabled = randomizePCButton.getSelection();
 		Boolean lordsEnabled = false;
 		Boolean thievesEnabled = false;

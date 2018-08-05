@@ -3,8 +3,8 @@ package random;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 import fedata.FEChapter;
 import fedata.FEChapterUnit;
@@ -14,6 +14,8 @@ import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
 
 public class EnemyBuffer {
+	
+	static final int rngSalt = 252521;
 
 	public static void buffEnemyGrowthRates(int buffAmount, ClassDataLoader classData) {
 		FEClass[] allClasses = classData.allClasses();
@@ -43,7 +45,7 @@ public class EnemyBuffer {
 	}
 	
 	public static void improveWeapons(int probability, CharacterDataLoader charactersData, 
-			ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
+			ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		for (FEChapter chapter : chapterData.allChapters()) {
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
 				if (!chapterUnit.isModifiable()) {
@@ -61,8 +63,8 @@ public class EnemyBuffer {
 						continue;
 					}
 					
-					if (ThreadLocalRandom.current().nextInt(100) < probability) {
-						upgradeWeapons(chapterUnit, classData, itemData);
+					if (rng.nextInt(100) < probability) {
+						upgradeWeapons(chapterUnit, classData, itemData, rng);
 					}
 				}
 			}
@@ -81,7 +83,7 @@ public class EnemyBuffer {
 		}
 	}
 	
-	private static void upgradeWeapons(FEChapterUnit unit, ClassDataLoader classData, ItemDataLoader itemData) {
+	private static void upgradeWeapons(FEChapterUnit unit, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
 		FEClass unitClass = classData.classForID(unit.getStartingClass());
 		int item1ID = unit.getItem1();
 		FEItem item1 = itemData.itemWithID(item1ID);
@@ -89,7 +91,7 @@ public class EnemyBuffer {
 			FEItem[] improvedItems = availableItems(unitClass, 
 					WeaponRank.nextRankHigherThanRank(item1.getWeaponRank()), item1.getType(), itemData);
 			if (improvedItems.length > 0) {
-				FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
+				FEItem replacementItem = improvedItems[rng.nextInt(improvedItems.length)];
 				unit.setItem1(replacementItem.getID());
 			}
 		}
@@ -100,7 +102,7 @@ public class EnemyBuffer {
 			FEItem[] improvedItems = availableItems(unitClass, 
 					WeaponRank.nextRankHigherThanRank(item2.getWeaponRank()), item2.getType(), itemData);
 			if (improvedItems.length > 0) {
-				FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
+				FEItem replacementItem = improvedItems[rng.nextInt(improvedItems.length)];
 				unit.setItem2(replacementItem.getID());
 			}
 		}
@@ -111,7 +113,7 @@ public class EnemyBuffer {
 			FEItem[] improvedItems = availableItems(unitClass, 
 					WeaponRank.nextRankHigherThanRank(item3.getWeaponRank()), item3.getType(), itemData);
 			if (improvedItems.length > 0) {
-				FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
+				FEItem replacementItem = improvedItems[rng.nextInt(improvedItems.length)];
 				unit.setItem3(replacementItem.getID());
 			}
 		}
@@ -122,7 +124,7 @@ public class EnemyBuffer {
 			FEItem[] improvedItems = availableItems(unitClass, 
 					WeaponRank.nextRankHigherThanRank(item4.getWeaponRank()), item4.getType(), itemData);
 			if (improvedItems.length > 0) {
-				FEItem replacementItem = improvedItems[ThreadLocalRandom.current().nextInt(improvedItems.length)];
+				FEItem replacementItem = improvedItems[rng.nextInt(improvedItems.length)];
 				unit.setItem4(replacementItem.getID());
 			}
 		}

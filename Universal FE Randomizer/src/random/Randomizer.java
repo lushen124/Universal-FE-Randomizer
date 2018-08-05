@@ -2,6 +2,7 @@ package random;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Random;
 
 import fedata.FEBase;
 import fedata.fe7.FE7Data;
@@ -19,6 +20,7 @@ import ui.model.WeaponEffectOptions;
 import ui.model.WeaponOptions;
 import util.Diff;
 import util.DiffCompiler;
+import util.SeedGenerator;
 
 public class Randomizer {
 	
@@ -65,7 +67,7 @@ public class Randomizer {
 		this.gameType = gameType;
 	}
 	
-	public void randomize() throws Exception {
+	public void randomize(String seed) throws Exception {
 		try {
 			handler = new FileHandler(sourcePath);
 		} catch (IOException e) {
@@ -80,13 +82,13 @@ public class Randomizer {
 			throw new UnsupportedGameException();
 		}
 		
-		randomizeGrowthsIfNecessary();
-		randomizeClassesIfNecessary(); // This MUST come before bases.
-		randomizeBasesIfNecessary();
-		randomizeWeaponsIfNecessary();
-		randomizeOtherCharacterTraitsIfNecessary();
-		buffEnemiesIfNecessary();
-		randomizeOtherThingsIfNecessary(); // i.e. Miscellaneous options.
+		randomizeGrowthsIfNecessary(seed);
+		randomizeClassesIfNecessary(seed); // This MUST come before bases.
+		randomizeBasesIfNecessary(seed);
+		randomizeWeaponsIfNecessary(seed);
+		randomizeOtherCharacterTraitsIfNecessary(seed);
+		buffEnemiesIfNecessary(seed);
+		randomizeOtherThingsIfNecessary(seed); // i.e. Miscellaneous options.
 		
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
@@ -119,84 +121,97 @@ public class Randomizer {
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
 	}
 	
-	private void randomizeGrowthsIfNecessary() {
+	private void randomizeGrowthsIfNecessary(String seed) {
 		if (growths != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));
 			switch (growths.mode) {
 			case REDISTRIBUTE:
-				GrowthsRandomizer.randomizeGrowthsByRedistribution(growths.redistributionOption.variance, charData);
+				GrowthsRandomizer.randomizeGrowthsByRedistribution(growths.redistributionOption.variance, charData, rng);
 				break;
 			case DELTA:
-				GrowthsRandomizer.randomizeGrowthsByRandomDelta(growths.deltaOption.variance, charData);
+				GrowthsRandomizer.randomizeGrowthsByRandomDelta(growths.deltaOption.variance, charData, rng);
 				break;
 			case FULL:
-				GrowthsRandomizer.fullyRandomizeGrowthsWithRange(growths.fullOption.minValue, growths.fullOption.maxValue, charData);
+				GrowthsRandomizer.fullyRandomizeGrowthsWithRange(growths.fullOption.minValue, growths.fullOption.maxValue, charData, rng);
 				break;
 			}
 		}
 	}
 	
-	private void randomizeBasesIfNecessary() {
+	private void randomizeBasesIfNecessary(String seed) {
 		if (bases != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, BasesRandomizer.rngSalt));
 			switch (bases.mode) {
 			case REDISTRIBUTE:
-				BasesRandomizer.randomizeBasesByRedistribution(bases.redistributionOption.variance, charData, classData);
+				BasesRandomizer.randomizeBasesByRedistribution(bases.redistributionOption.variance, charData, classData, rng);
 				break;
 			case DELTA:
-				BasesRandomizer.randomizeBasesByRandomDelta(bases.deltaOption.variance, charData, classData);
+				BasesRandomizer.randomizeBasesByRandomDelta(bases.deltaOption.variance, charData, classData, rng);
 			}
 		}
 	}
 	
-	private void randomizeClassesIfNecessary() {
+	private void randomizeClassesIfNecessary(String seed) {
 		if (classes != null) {
 			if (classes.randomizePCs) {
-				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData, paletteData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 1));
+				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData, paletteData, rng);
 			}
 			if (classes.randomizeEnemies) {
-				ClassRandomizer.randomizeMinionClasses(charData, classData, chapterData, itemData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 2));
+				ClassRandomizer.randomizeMinionClasses(charData, classData, chapterData, itemData, rng);
 			}
 			if (classes.randomizeBosses) {
-				ClassRandomizer.randomizeBossCharacterClasses(charData, classData, chapterData, itemData, paletteData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 3));
+				ClassRandomizer.randomizeBossCharacterClasses(charData, classData, chapterData, itemData, paletteData, rng);
 			}
 		}
 	}
 	
-	private void randomizeWeaponsIfNecessary() {
+	private void randomizeWeaponsIfNecessary(String seed) {
 		if (weapons != null) {
 			if (weapons.mightOptions != null) {
-				WeaponsRandomizer.randomizeMights(weapons.mightOptions.minValue, weapons.mightOptions.maxValue, weapons.mightOptions.variance, itemData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt));
+				WeaponsRandomizer.randomizeMights(weapons.mightOptions.minValue, weapons.mightOptions.maxValue, weapons.mightOptions.variance, itemData, rng);
 			}
 			if (weapons.hitOptions != null) {
-				WeaponsRandomizer.randomizeHit(weapons.hitOptions.minValue, weapons.hitOptions.maxValue, weapons.hitOptions.variance, itemData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 1));
+				WeaponsRandomizer.randomizeHit(weapons.hitOptions.minValue, weapons.hitOptions.maxValue, weapons.hitOptions.variance, itemData, rng);
 			}
 			if (weapons.weightOptions != null) {
-				WeaponsRandomizer.randomizeWeight(weapons.weightOptions.minValue, weapons.weightOptions.maxValue, weapons.weightOptions.variance, itemData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 2));
+				WeaponsRandomizer.randomizeWeight(weapons.weightOptions.minValue, weapons.weightOptions.maxValue, weapons.weightOptions.variance, itemData, rng);
 			}
 			if (weapons.durabilityOptions != null) {
-				WeaponsRandomizer.randomizeDurability(weapons.durabilityOptions.minValue, weapons.durabilityOptions.maxValue, weapons.durabilityOptions.variance, itemData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 3));
+				WeaponsRandomizer.randomizeDurability(weapons.durabilityOptions.minValue, weapons.durabilityOptions.maxValue, weapons.durabilityOptions.variance, itemData, rng);
 			}
 			
 			if (weapons.shouldAddEffects && weapons.effectsList != null) {
-				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 4));
+				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, rng);
 			}
 		}
 	}
 	
-	private void randomizeOtherCharacterTraitsIfNecessary() {
+	private void randomizeOtherCharacterTraitsIfNecessary(String seed) {
 		if (otherCharacterOptions != null) {
 			if (otherCharacterOptions.movementOptions != null) {
-				ClassRandomizer.randomizeClassMovement(otherCharacterOptions.movementOptions.minValue, otherCharacterOptions.movementOptions.maxValue, classData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 4));
+				ClassRandomizer.randomizeClassMovement(otherCharacterOptions.movementOptions.minValue, otherCharacterOptions.movementOptions.maxValue, classData, rng);
 			}
 			if (otherCharacterOptions.constitutionOptions != null) {
-				CharacterRandomizer.randomizeConstitution(otherCharacterOptions.constitutionOptions.minValue, otherCharacterOptions.constitutionOptions.variance, charData, classData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 5));
+				CharacterRandomizer.randomizeConstitution(otherCharacterOptions.constitutionOptions.minValue, otherCharacterOptions.constitutionOptions.variance, charData, classData, rng);
 			}
 			if (otherCharacterOptions.randomizeAffinity) {
-				CharacterRandomizer.randomizeAffinity(charData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 6));
+				CharacterRandomizer.randomizeAffinity(charData, rng);
 			}
 		}
 	}
 	
-	private void buffEnemiesIfNecessary() {
+	private void buffEnemiesIfNecessary(String seed) {
 		if (enemies != null) {
 			if (enemies.mode == EnemyOptions.BuffMode.FLAT) {
 				EnemyBuffer.buffEnemyGrowthRates(enemies.buffAmount, classData);
@@ -205,15 +220,17 @@ public class Randomizer {
 			}
 			
 			if (enemies.improveWeapons) {
-				EnemyBuffer.improveWeapons(25, charData, classData, chapterData, itemData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt));
+				EnemyBuffer.improveWeapons(enemies.improvementChance, charData, classData, chapterData, itemData, rng);
 			}
 		}
 	}
 	
-	private void randomizeOtherThingsIfNecessary() {
+	private void randomizeOtherThingsIfNecessary(String seed) {
 		if (miscOptions != null) {
 			if (miscOptions.randomizeRewards) {
-				RandomRandomizer.randomizeRewards(itemData, chapterData);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt));
+				RandomRandomizer.randomizeRewards(itemData, chapterData, rng);
 			}
 		}
 	}

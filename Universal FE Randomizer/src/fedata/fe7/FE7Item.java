@@ -3,8 +3,8 @@ package fedata.fe7;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 import fedata.FEItem;
 import fedata.FESpellAnimationCollection;
@@ -197,7 +197,7 @@ public class FE7Item implements FEItem {
 		wasModified = true;
 	}
 	
-	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, FESpellAnimationCollection spellAnimations) {
+	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, FESpellAnimationCollection spellAnimations, Random rng) {
 		if (getType() == WeaponType.NOT_A_WEAPON) {
 			System.out.println("Item " + getID() + " is not a weapon.");
 			return;
@@ -211,9 +211,9 @@ public class FE7Item implements FEItem {
 			return;
 		}
 		
-		int randomEffect = ThreadLocalRandom.current().nextInt(effectPool.size());
+		int randomEffect = rng.nextInt(effectPool.size());
 		WeaponEffects[] effectList = effectPool.toArray(new WeaponEffects[effectPool.size()]);
-		applyEffect(effectList[randomEffect], spellAnimations);
+		applyEffect(effectList[randomEffect], spellAnimations, rng);
 	}
 	
 	public void resetData() {
@@ -290,11 +290,11 @@ public class FE7Item implements FEItem {
 		return effects;
 	}
 	
-	private void applyEffect(WeaponEffects effect, FESpellAnimationCollection spellAnimations) {
+	private void applyEffect(WeaponEffects effect, FESpellAnimationCollection spellAnimations, Random rng) {
 		switch (effect) {
 		case STAT_BOOSTS:
 			StatBoost[] boosts = StatBoost.values();
-			int randomIndex = ThreadLocalRandom.current().nextInt(boosts.length);
+			int randomIndex = rng.nextInt(boosts.length);
 			StatBoost selectedBoost = boosts[randomIndex];
 			byte[] pointer = selectedBoost.toPointer();
 			data[12] = pointer[0];
@@ -305,7 +305,7 @@ public class FE7Item implements FEItem {
 			break;
 		case EFFECTIVENESS:
 			Effectiveness[] effects = Effectiveness.values();
-			randomIndex = ThreadLocalRandom.current().nextInt(effects.length);
+			randomIndex = rng.nextInt(effects.length);
 			Effectiveness selectedEffect = effects[randomIndex];
 			pointer = selectedEffect.toPointer();
 			data[16] = pointer[0];
@@ -316,14 +316,14 @@ public class FE7Item implements FEItem {
 			break;
 		case HIGH_CRITICAL:
 			int currentCritical = getCritical();
-			int newCritical = currentCritical + 5 * (4 + ThreadLocalRandom.current().nextInt(7));
+			int newCritical = currentCritical + 5 * (4 + rng.nextInt(7));
 			setCritical(newCritical);
 			break;
 		case EXTEND_RANGE:
 			int minRange = getMinRange();
 			int maxRange = getMaxRange();
 			if (minRange == 2) { // 2-range locked bows. 50/50 of being melee or longbow.
-				int random = ThreadLocalRandom.current().nextInt(2);
+				int random = rng.nextInt(2);
 				if (random == 0 || maxRange == 3) { minRange = 1; } // Longbows always gain melee range.
 				else { maxRange = 3; }
 			} else if (maxRange == 2) { // Hand Axes, Javelins, and Magic
@@ -368,7 +368,7 @@ public class FE7Item implements FEItem {
 				spellAnimations.setAnimationValueForID(getID(), FE7SpellAnimationCollection.Animation.THROWN_AXE.value);
 			} else {
 				// Everything else is fine though.
-				spellAnimations.setAnimationValueForID(getID(), FE7SpellAnimationCollection.Animation.randomMagicAnimation().value);
+				spellAnimations.setAnimationValueForID(getID(), FE7SpellAnimationCollection.Animation.randomMagicAnimation(rng).value);
 			}
 			break;
 		case REVERSE_TRIANGLE:

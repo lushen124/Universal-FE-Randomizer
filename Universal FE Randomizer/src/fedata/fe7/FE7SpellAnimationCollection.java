@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 import fedata.FEItem;
 import fedata.FEModifiableObject;
@@ -38,9 +38,9 @@ public class FE7SpellAnimationCollection implements FESpellAnimationCollection {
 			return map.get(value);
 		}
 		
-		public static Animation randomMagicAnimation() {
+		public static Animation randomMagicAnimation(Random rng) {
 			Animation[] magicAnimations = {FIRE, ELFIRE, THUNDER, BOLTING, FIMBULVETR, FLUX, LIGHTNING, PURGE, DIVINE, SHINE};
-			return magicAnimations[ThreadLocalRandom.current().nextInt(magicAnimations.length)];
+			return magicAnimations[rng.nextInt(magicAnimations.length)];
 		}
 	}
 	

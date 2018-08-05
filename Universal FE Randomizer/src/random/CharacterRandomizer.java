@@ -1,21 +1,24 @@
 package random;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 import fedata.FECharacter;
 import fedata.FEClass;
 
 public class CharacterRandomizer {
-	public static void randomizeAffinity(CharacterDataLoader charactersData) {
+	
+	public static int rngSalt = 9002;
+	
+	public static void randomizeAffinity(CharacterDataLoader charactersData, Random rng) {
 		FECharacter[] playableCharacters = charactersData.playableCharacters();
 		int[] values = charactersData.validAffinityValues();
 		for (FECharacter character : playableCharacters) {
-			int affinity = values[ThreadLocalRandom.current().nextInt(values.length)];
+			int affinity = values[rng.nextInt(values.length)];
 			character.setAffinityValue(affinity);
 		}
 	}
 	
-	public static void randomizeConstitution(int minCON, int variance, CharacterDataLoader characterData, ClassDataLoader classData) {
+	public static void randomizeConstitution(int minCON, int variance, CharacterDataLoader characterData, ClassDataLoader classData, Random rng) {
 		FECharacter[] allPlayableCharacters = characterData.playableCharacters();
 		for (FECharacter character : allPlayableCharacters) {
 			FEClass currentClass = classData.classForID(character.getClassID());
@@ -25,11 +28,11 @@ public class CharacterRandomizer {
 			
 			int newCON = totalCON;
 			
-			int direction = ThreadLocalRandom.current().nextInt(2);
+			int direction = rng.nextInt(2);
 			if (direction == 0) {
-				newCON += ThreadLocalRandom.current().nextInt(variance);
+				newCON += rng.nextInt(variance);
 			} else {
-				newCON -= ThreadLocalRandom.current().nextInt(variance);
+				newCON -= rng.nextInt(variance);
 			}
 			
 			int newPersonalCON = newCON - classCON;

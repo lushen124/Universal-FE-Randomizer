@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 import fedata.FEChapter;
 import fedata.FEChapterUnit;
@@ -17,17 +17,19 @@ import util.WhyDoesJavaNotHaveThese;
 
 public class ClassRandomizer {
 	
-	public static void randomizeClassMovement(int minMOV, int maxMOV, ClassDataLoader classData) {
+	static final int rngSalt = 874;
+	
+	public static void randomizeClassMovement(int minMOV, int maxMOV, ClassDataLoader classData, Random rng) {
 		FEClass[] allClasses = classData.allClasses();
 		for (FEClass currentClass : allClasses) {
 			if (currentClass.getMOV() > 0) {
-				int randomMOV = ThreadLocalRandom.current().nextInt(maxMOV - minMOV) + minMOV;
+				int randomMOV = rng.nextInt(maxMOV - minMOV) + minMOV;
 				currentClass.setMOV(randomMOV);
 			}
 		}
 	}
 	
-	public static void randomizePlayableCharacterClasses(Boolean includeLords, Boolean includeThieves, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData) {
+	public static void randomizePlayableCharacterClasses(Boolean includeLords, Boolean includeThieves, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData, Random rng) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		Map<Integer, FEClass> determinedClasses = new HashMap<Integer, FEClass>();
 		
@@ -48,7 +50,7 @@ public class ClassRandomizer {
 					continue;
 				}
 			
-				int randomIndex = ThreadLocalRandom.current().nextInt(possibleClasses.length);
+				int randomIndex = rng.nextInt(possibleClasses.length);
 				targetClass = possibleClasses[randomIndex];
 			}
 			
@@ -58,7 +60,7 @@ public class ClassRandomizer {
 			
 			for (FECharacter linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData);
+				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData, rng);
 			}
 				
 			Boolean hasOriginalPromotionData = false;
@@ -84,7 +86,7 @@ public class ClassRandomizer {
 		}
 	}
 	
-	public static void randomizeBossCharacterClasses(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData) {
+	public static void randomizeBossCharacterClasses(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData, Random rng) {
 		FECharacter[] allBossCharacters = charactersData.bossCharacters();
 		
 		Boolean includeLords = true;
@@ -112,7 +114,7 @@ public class ClassRandomizer {
 					continue;
 				}
 			
-				int randomIndex = ThreadLocalRandom.current().nextInt(possibleClasses.length);
+				int randomIndex = rng.nextInt(possibleClasses.length);
 				targetClass = possibleClasses[randomIndex];
 			}
 			
@@ -122,14 +124,14 @@ public class ClassRandomizer {
 			
 			for (FECharacter linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData);
+				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData, rng);
 			}
 			
 			paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), 0, targetClass.getID(), 0);
 		}
 	}
 	
-	public static void randomizeMinionClasses(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
+	public static void randomizeMinionClasses(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		for (FEChapter chapter : chapterData.allChapters()) {
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
 				if (!chapterUnit.isModifiable()) {
@@ -153,20 +155,20 @@ public class ClassRandomizer {
 						continue;
 					}
 					
-					int randomIndex = ThreadLocalRandom.current().nextInt(possibleClasses.length);
+					int randomIndex = rng.nextInt(possibleClasses.length);
 					FEClass targetClass = possibleClasses[randomIndex];
 					
-					updateMinionToClass(chapterUnit, targetClass, classData, itemData);
+					updateMinionToClass(chapterUnit, targetClass, classData, itemData, rng);
 				}
 			}
 		}
 	}
 
-	private static void updateCharacterToClass(FECharacter character, FEClass sourceClass, FEClass targetClass, Boolean ranged, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData) {
+	private static void updateCharacterToClass(FECharacter character, FEClass sourceClass, FEClass targetClass, Boolean ranged, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		
 		character.prepareForClassRandomization();
 		character.setClassID(targetClass.getID());
-		transferWeaponLevels(character, sourceClass, targetClass);
+		transferWeaponLevels(character, sourceClass, targetClass, rng);
 		applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
 		
 		for (FEChapter chapter : chapterData.allChapters()) {
@@ -176,11 +178,11 @@ public class ClassRandomizer {
 						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass() + " in chapter with offset " + Long.toHexString(chapter.getAddressOffset()));
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
-					valideCharacterInventory(character, chapterUnit, ranged, itemData);
+					valideCharacterInventory(character, chapterUnit, ranged, itemData, rng);
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
-					validateSpecialClassInventory(character, chapterUnit, itemData);
+					validateSpecialClassInventory(character, chapterUnit, itemData, rng);
 				}
 			}
 		}
@@ -201,9 +203,9 @@ public class ClassRandomizer {
 		character.setBaseRES(character.getBaseRES() + resDelta);
 	}
 	
-	private static void updateMinionToClass(FEChapterUnit chapterUnit, FEClass targetClass, ClassDataLoader classData, ItemDataLoader itemData) {
+	private static void updateMinionToClass(FEChapterUnit chapterUnit, FEClass targetClass, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
 		chapterUnit.setStartingClass(targetClass.getID());
-		validateMinionInventory(chapterUnit, classData, itemData);
+		validateMinionInventory(chapterUnit, classData, itemData, rng);
 	}
 	
 	private static void validateFormerThiefInventory(FEChapterUnit chapterUnit, ItemDataLoader itemData) {
@@ -213,8 +215,8 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void validateSpecialClassInventory(FECharacter character, FEChapterUnit chapterUnit, ItemDataLoader itemData) {
-		FEItem[] requiredItems = itemData.specialInventoryForClass(chapterUnit.getStartingClass());
+	private static void validateSpecialClassInventory(FECharacter character, FEChapterUnit chapterUnit, ItemDataLoader itemData, Random rng) {
+		FEItem[] requiredItems = itemData.specialInventoryForClass(chapterUnit.getStartingClass(), rng);
 		if (requiredItems != null && requiredItems.length > 0) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);
 		}
@@ -228,7 +230,7 @@ public class ClassRandomizer {
 		chapterUnit.giveItems(requiredItemIDs);
 	}
 	
-	private static void validateMinionInventory(FEChapterUnit chapterUnit, ClassDataLoader classData, ItemDataLoader itemData) {
+	private static void validateMinionInventory(FEChapterUnit chapterUnit, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
 		int classID = chapterUnit.getStartingClass();
 		FEClass unitClass = classData.classForID(classID);
 		if (unitClass != null) {
@@ -236,7 +238,7 @@ public class ClassRandomizer {
 			FEItem item1 = itemData.itemWithID(item1ID);
 			if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
 				if (!canClassUseItem(unitClass, item1)) {
-					FEItem replacementItem = getSidegradeWeapon(unitClass, item1, itemData);
+					FEItem replacementItem = getSidegradeWeapon(unitClass, item1, itemData, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem1(replacementItem.getID());
 					} else {
@@ -249,7 +251,7 @@ public class ClassRandomizer {
 			FEItem item2 = itemData.itemWithID(item2ID);
 			if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
 				if (!canClassUseItem(unitClass, item2)) {
-					FEItem replacementItem = getSidegradeWeapon(unitClass, item2, itemData);
+					FEItem replacementItem = getSidegradeWeapon(unitClass, item2, itemData, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem2(replacementItem.getID());
 					} else {
@@ -262,7 +264,7 @@ public class ClassRandomizer {
 			FEItem item3 = itemData.itemWithID(item3ID);
 			if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
 				if (!canClassUseItem(unitClass, item3)) {
-					FEItem replacementItem = getSidegradeWeapon(unitClass, item3, itemData);
+					FEItem replacementItem = getSidegradeWeapon(unitClass, item3, itemData, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem3(replacementItem.getID());
 					} else {
@@ -275,7 +277,7 @@ public class ClassRandomizer {
 			FEItem item4 = itemData.itemWithID(item4ID);
 			if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
 				if (!canClassUseItem(unitClass, item4)) {
-					FEItem replacementItem = getSidegradeWeapon(unitClass, item4, itemData);
+					FEItem replacementItem = getSidegradeWeapon(unitClass, item4, itemData, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem4(replacementItem.getID());
 					} else {
@@ -286,12 +288,12 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void valideCharacterInventory(FECharacter character, FEChapterUnit chapterUnit, Boolean ranged, ItemDataLoader itemData) {
+	private static void valideCharacterInventory(FECharacter character, FEChapterUnit chapterUnit, Boolean ranged, ItemDataLoader itemData, Random rng) {
 		int item1ID = chapterUnit.getItem1();
 		FEItem item1 = itemData.itemWithID(item1ID);
 		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item1)) {
-				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData);
+				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
 					chapterUnit.setItem1(replacementItem.getID());
 				} else {
@@ -304,7 +306,7 @@ public class ClassRandomizer {
 		FEItem item2 = itemData.itemWithID(item2ID);
 		if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item2)) {
-				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData);
+				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
 					chapterUnit.setItem2(replacementItem.getID());
 				} else {
@@ -317,7 +319,7 @@ public class ClassRandomizer {
 		FEItem item3 = itemData.itemWithID(item3ID);
 		if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item3)) {
-				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData);
+				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
 					chapterUnit.setItem3(replacementItem.getID());
 				} else {
@@ -330,7 +332,7 @@ public class ClassRandomizer {
 		FEItem item4 = itemData.itemWithID(item4ID);
 		if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item4)) {
-				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData);
+				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
 					chapterUnit.setItem4(replacementItem.getID());
 				} else {
@@ -340,17 +342,17 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static FEItem getRandomWeaponForCharacter(FECharacter character, Boolean ranged, ItemDataLoader itemData) {
+	private static FEItem getRandomWeaponForCharacter(FECharacter character, Boolean ranged, ItemDataLoader itemData, Random rng) {
 		FEItem[] potentialItems = usableWeaponsForCharacter(character, ranged, itemData);
 		if (potentialItems == null || potentialItems.length < 1) {
 			return null;
 		}
 		
-		int index = ThreadLocalRandom.current().nextInt(potentialItems.length);
+		int index = rng.nextInt(potentialItems.length);
 		return potentialItems[index];
 	}
 	
-	private static FEItem getSidegradeWeapon(FEClass targetClass, FEItem originalWeapon, ItemDataLoader itemData) {
+	private static FEItem getSidegradeWeapon(FEClass targetClass, FEItem originalWeapon, ItemDataLoader itemData, Random rng) {
 		if (originalWeapon.getType() == WeaponType.NOT_A_WEAPON) {
 			return null;
 		}
@@ -360,7 +362,7 @@ public class ClassRandomizer {
 			return null;
 		}
 		
-		int index = ThreadLocalRandom.current().nextInt(potentialItems.length);
+		int index = rng.nextInt(potentialItems.length);
 		return potentialItems[index];
 	}
 	
@@ -434,7 +436,7 @@ public class ClassRandomizer {
 		return false;
 	}
 	
-	private static void transferWeaponLevels(FECharacter character, FEClass sourceClass, FEClass targetClass) {
+	private static void transferWeaponLevels(FECharacter character, FEClass sourceClass, FEClass targetClass, Random rng) {
 		ArrayList<Integer> ranks = new ArrayList<Integer>();
 		
 		if (character.getSwordRank() > 0) { ranks.add(character.getSwordRank()); }
@@ -462,9 +464,9 @@ public class ClassRandomizer {
 		if (applySwordRank) {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
-				int rankIndex = ThreadLocalRandom.current().nextInt(ranks.size());
+				int rankIndex = rng.nextInt(ranks.size());
 				rankToApply = ranks.get(rankIndex);
-				if (ThreadLocalRandom.current().nextInt(2) == 0) {
+				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
 			}
@@ -473,9 +475,9 @@ public class ClassRandomizer {
 		if (applyLanceRank) {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
-				int rankIndex = ThreadLocalRandom.current().nextInt(ranks.size());
+				int rankIndex = rng.nextInt(ranks.size());
 				rankToApply = ranks.get(rankIndex);
-				if (ThreadLocalRandom.current().nextInt(2) == 0) {
+				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
 			}
@@ -484,9 +486,9 @@ public class ClassRandomizer {
 		if (applyAxeRank) {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
-				int rankIndex = ThreadLocalRandom.current().nextInt(ranks.size());
+				int rankIndex = rng.nextInt(ranks.size());
 				rankToApply = ranks.get(rankIndex);
-				if (ThreadLocalRandom.current().nextInt(2) == 0) {
+				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
 			}
@@ -495,9 +497,9 @@ public class ClassRandomizer {
 		if (applyBowRank) {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
-				int rankIndex = ThreadLocalRandom.current().nextInt(ranks.size());
+				int rankIndex = rng.nextInt(ranks.size());
 				rankToApply = ranks.get(rankIndex);
-				if (ThreadLocalRandom.current().nextInt(2) == 0) {
+				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
 			}
@@ -506,9 +508,9 @@ public class ClassRandomizer {
 		if (applyAnimaRank) {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
-				int rankIndex = ThreadLocalRandom.current().nextInt(ranks.size());
+				int rankIndex = rng.nextInt(ranks.size());
 				rankToApply = ranks.get(rankIndex);
-				if (ThreadLocalRandom.current().nextInt(2) == 0) {
+				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
 			}
@@ -517,9 +519,9 @@ public class ClassRandomizer {
 		if (applyLightRank) {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
-				int rankIndex = ThreadLocalRandom.current().nextInt(ranks.size());
+				int rankIndex = rng.nextInt(ranks.size());
 				rankToApply = ranks.get(rankIndex);
-				if (ThreadLocalRandom.current().nextInt(2) == 0) {
+				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
 			}
@@ -528,9 +530,9 @@ public class ClassRandomizer {
 		if (applyDarkRank) {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
-				int rankIndex = ThreadLocalRandom.current().nextInt(ranks.size());
+				int rankIndex = rng.nextInt(ranks.size());
 				rankToApply = ranks.get(rankIndex);
-				if (ThreadLocalRandom.current().nextInt(2) == 0) {
+				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
 			}
@@ -539,9 +541,9 @@ public class ClassRandomizer {
 		if (applyStaffRank) {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
-				int rankIndex = ThreadLocalRandom.current().nextInt(ranks.size());
+				int rankIndex = rng.nextInt(ranks.size());
 				rankToApply = ranks.get(rankIndex);
-				if (ThreadLocalRandom.current().nextInt(2) == 0) {
+				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
 			}

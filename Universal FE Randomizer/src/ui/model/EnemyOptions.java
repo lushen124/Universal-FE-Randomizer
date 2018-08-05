@@ -10,13 +10,13 @@ public class EnemyOptions {
 	public final int buffAmount;
 	
 	public final Boolean improveWeapons;
-	public final Boolean nudgeUnits;
+	public final int improvementChance;
 	
-	public EnemyOptions(BuffMode mode, int buffAmount, Boolean improveWeapons, Boolean nudgeUnits) {
+	public EnemyOptions(BuffMode mode, int buffAmount, Boolean improveWeapons, int improvementChance) {
 		super();
 		this.mode = mode;
 		this.buffAmount = buffAmount;
 		this.improveWeapons = improveWeapons;
-		this.nudgeUnits = nudgeUnits;
+		this.improvementChance = improvementChance;
 	}
 }

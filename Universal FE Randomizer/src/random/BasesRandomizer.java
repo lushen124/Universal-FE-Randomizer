@@ -1,6 +1,6 @@
 package random;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 import fedata.FECharacter;
 import fedata.FEClass;
@@ -8,7 +8,9 @@ import util.WhyDoesJavaNotHaveThese;
 
 public class BasesRandomizer {
 	
-	public static void randomizeBasesByRedistribution(int variance, CharacterDataLoader charactersData, ClassDataLoader classData) {
+	public static int rngSalt = 9001;
+	
+	public static void randomizeBasesByRedistribution(int variance, CharacterDataLoader charactersData, ClassDataLoader classData, Random rng) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		for (FECharacter character : allPlayableCharacters) {
 			int baseTotal = character.getBaseHP() + character.getBaseSTR() + character.getBaseSKL() + character.getBaseSPD() + character.getBaseDEF() +
@@ -17,11 +19,11 @@ public class BasesRandomizer {
 			int classID = character.getClassID();
 			FEClass charClass = classData.classForID(classID);
 			
-			int randomNum = ThreadLocalRandom.current().nextInt(2);
+			int randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
-				baseTotal += ThreadLocalRandom.current().nextInt(variance + 1);
+				baseTotal += rng.nextInt(variance + 1);
 			} else {
-				baseTotal -= ThreadLocalRandom.current().nextInt(variance + 1);
+				baseTotal -= rng.nextInt(variance + 1);
 			}
 			
 			int newHPBase = 0;
@@ -33,9 +35,9 @@ public class BasesRandomizer {
 			int newRESBase = 0;
 			
 			do {
-				randomNum = ThreadLocalRandom.current().nextInt(10);
-				int amount = ThreadLocalRandom.current().nextInt(1, 3);
-				Boolean negate = ThreadLocalRandom.current().nextInt(4) == 0;
+				randomNum = rng.nextInt(10);
+				int amount = rng.nextInt(3) + 1;
+				Boolean negate = rng.nextInt(4) == 0;
 				if (baseTotal < -3) {
 					negate = true;
 				} else if (baseTotal > 5) {
@@ -110,7 +112,7 @@ public class BasesRandomizer {
 		charactersData.commit();
 	}
 	
-	public static void randomizeBasesByRandomDelta(int maxDelta, CharacterDataLoader charactersData, ClassDataLoader classData) {
+	public static void randomizeBasesByRandomDelta(int maxDelta, CharacterDataLoader charactersData, ClassDataLoader classData, Random rng) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		for (FECharacter character : allPlayableCharacters) {
 			
@@ -125,66 +127,66 @@ public class BasesRandomizer {
 			int newDEFBase = character.getBaseDEF();
 			int newRESBase = character.getBaseRES();
 			
-			int randomNum = ThreadLocalRandom.current().nextInt(2);
+			int randomNum = rng.nextInt(2);
 			int multiplier = 1;
 			if (randomNum == 0) {
 				multiplier = -1;
 			}
-			newHPBase = WhyDoesJavaNotHaveThese.clamp(ThreadLocalRandom.current().nextInt(maxDelta + 1) * multiplier + newHPBase, 
+			newHPBase = WhyDoesJavaNotHaveThese.clamp(rng.nextInt(maxDelta + 1) * multiplier + newHPBase, 
 					-1 * charClass.getBaseHP(), charClass.getMaxHP() - charClass.getBaseHP());
 			
-			randomNum = ThreadLocalRandom.current().nextInt(2);
+			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
 				multiplier = 1;
 			} else {
 				multiplier = -1;
 			}
-			newSTRBase = WhyDoesJavaNotHaveThese.clamp(ThreadLocalRandom.current().nextInt(maxDelta + 1) * multiplier + newSTRBase, 
+			newSTRBase = WhyDoesJavaNotHaveThese.clamp(rng.nextInt(maxDelta + 1) * multiplier + newSTRBase, 
 					-1 * charClass.getBaseSTR(), charClass.getMaxSTR() - charClass.getBaseSTR());
 			
-			randomNum = ThreadLocalRandom.current().nextInt(2);
+			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
 				multiplier = 1;
 			} else {
 				multiplier = -1;
 			}
-			newSKLBase = WhyDoesJavaNotHaveThese.clamp(ThreadLocalRandom.current().nextInt(maxDelta + 1) * multiplier + newSKLBase, 
+			newSKLBase = WhyDoesJavaNotHaveThese.clamp(rng.nextInt(maxDelta + 1) * multiplier + newSKLBase, 
 					-1 * charClass.getBaseSKL(), charClass.getMaxSKL() - charClass.getBaseSKL());
 			
-			randomNum = ThreadLocalRandom.current().nextInt(2);
+			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
 				multiplier = 1;
 			} else {
 				multiplier = -1;
 			}
-			newSPDBase = WhyDoesJavaNotHaveThese.clamp(ThreadLocalRandom.current().nextInt(maxDelta + 1) * multiplier + newSPDBase, 
+			newSPDBase = WhyDoesJavaNotHaveThese.clamp(rng.nextInt(maxDelta + 1) * multiplier + newSPDBase, 
 					-1 * charClass.getBaseSPD(), charClass.getMaxSPD() - charClass.getBaseSPD());
 			
-			randomNum = ThreadLocalRandom.current().nextInt(2);
+			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
 				multiplier = 1;
 			} else {
 				multiplier = -1;
 			}
-			newLCKBase = WhyDoesJavaNotHaveThese.clamp(ThreadLocalRandom.current().nextInt(maxDelta + 1) * multiplier + newLCKBase, 
+			newLCKBase = WhyDoesJavaNotHaveThese.clamp(rng.nextInt(maxDelta + 1) * multiplier + newLCKBase, 
 					-1 * charClass.getBaseLCK(), charClass.getMaxLCK() - charClass.getBaseLCK());
 			
-			randomNum = ThreadLocalRandom.current().nextInt(2);
+			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
 				multiplier = 1;
 			} else {
 				multiplier = -1;
 			}
-			newDEFBase = WhyDoesJavaNotHaveThese.clamp(ThreadLocalRandom.current().nextInt(maxDelta + 1) * multiplier + newDEFBase, 
+			newDEFBase = WhyDoesJavaNotHaveThese.clamp(rng.nextInt(maxDelta + 1) * multiplier + newDEFBase, 
 					-1 * charClass.getBaseDEF(), charClass.getMaxDEF() - charClass.getBaseDEF());
 			
-			randomNum = ThreadLocalRandom.current().nextInt(2);
+			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
 				multiplier = 1;
 			} else {
 				multiplier = -1;
 			}
-			newRESBase = WhyDoesJavaNotHaveThese.clamp(ThreadLocalRandom.current().nextInt(maxDelta + 1) * multiplier + newRESBase, 
+			newRESBase = WhyDoesJavaNotHaveThese.clamp(rng.nextInt(maxDelta + 1) * multiplier + newRESBase, 
 					-1 * charClass.getBaseRES(), charClass.getMaxRES() - charClass.getBaseRES());
 			
 			character.setBaseHP(newHPBase);

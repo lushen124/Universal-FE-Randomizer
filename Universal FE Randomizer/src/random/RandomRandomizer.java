@@ -1,12 +1,14 @@
 package random;
 
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 import fedata.FEChapterItem;
 import fedata.FEItem;
 
 public class RandomRandomizer {
-	public static void randomizeRewards(ItemDataLoader itemData, ChapterLoader chapterData) {
+	static final int rngSalt = 27682;
+	
+	public static void randomizeRewards(ItemDataLoader itemData, ChapterLoader chapterData, Random rng) {
 		FEChapterItem[] allRewards = chapterData.allRewards();
 		for (FEChapterItem chapterItem : allRewards) {
 			int itemID = chapterItem.getItemID();
@@ -22,12 +24,12 @@ public class RandomRandomizer {
 				chanceOfRelatedItem = 0;
 			}
 			
-			int random = ThreadLocalRandom.current().nextInt(100);
+			int random = rng.nextInt(100);
 			if (random < chanceOfRelatedItem) {
-				int randomIndex = ThreadLocalRandom.current().nextInt(relatedItems.length);
+				int randomIndex = rng.nextInt(relatedItems.length);
 				chapterItem.setItemID(relatedItems[randomIndex].getID());
 			} else {
-				int randomIndex = ThreadLocalRandom.current().nextInt(allPossibleItems.length);
+				int randomIndex = rng.nextInt(allPossibleItems.length);
 				chapterItem.setItemID(allPossibleItems[randomIndex].getID());
 			}
 		}

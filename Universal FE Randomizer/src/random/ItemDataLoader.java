@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import fedata.FEBase;
@@ -204,10 +205,10 @@ private FEBase.GameType gameType;
 		}
 	}
 	
-	public FEItem[] specialInventoryForClass(int classID) {
+	public FEItem[] specialInventoryForClass(int classID, Random rng) {
 		switch (gameType) {
 		case FE7:
-			FE7Data.Item[] items = FE7Data.Item.specialClassKit(classID);
+			FE7Data.Item[] items = FE7Data.Item.specialClassKit(classID, rng);
 			if (items != null) {
 				return itemsFromFE7Items(items);
 			}
