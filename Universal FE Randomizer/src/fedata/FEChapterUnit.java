@@ -1,9 +1,6 @@
 package fedata;
 
 public interface FEChapterUnit extends FEModifiableObject {
-	
-	public Boolean isModifiable();
-	
 	public int getCharacterNumber();
 	
 	public int getStartingClass();
@@ -27,6 +24,7 @@ public interface FEChapterUnit extends FEModifiableObject {
 	public void setItem4(int itemID);
 	
 	public void giveItems(int[] itemIDs);
+	public void removeItem(int itemID);
 	
 	public void setAIToHeal(Boolean allowAttack);
 	public void setAIToOnlyAttack(Boolean allowMove);

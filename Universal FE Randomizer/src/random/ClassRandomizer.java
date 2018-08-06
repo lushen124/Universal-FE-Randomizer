@@ -134,10 +134,6 @@ public class ClassRandomizer {
 	public static void randomizeMinionClasses(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		for (FEChapter chapter : chapterData.allChapters()) {
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
-				if (!chapterUnit.isModifiable()) {
-					continue;
-				}
-				
 				int leaderID = chapterUnit.getLeaderID();
 				int characterID = chapterUnit.getCharacterNumber();
 				if (charactersData.isBossCharacterID(leaderID) && !charactersData.isPlayableCharacterID(characterID)) {
@@ -176,7 +172,7 @@ public class ClassRandomizer {
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
 				if (chapterUnit.getCharacterNumber() == character.getID()) {
 					if (chapterUnit.getStartingClass() != sourceClass.getID()) {
-						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass() + " in chapter with offset " + Long.toHexString(chapter.getAddressOffset()));
+						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass());
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
 					validateCharacterInventory(character, chapterUnit, ranged, itemData, rng);
@@ -213,6 +209,11 @@ public class ClassRandomizer {
 		FEItem[] requiredItems = itemData.formerThiefInventory();
 		if (requiredItems != null) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);
+		}
+		
+		FEItem[] thiefItemsToRemove = itemData.thiefItemsToRemove();
+		for (FEItem item : thiefItemsToRemove) {
+			chapterUnit.removeItem(item.getID());
 		}
 	}
 	

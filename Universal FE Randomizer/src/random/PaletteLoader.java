@@ -9,6 +9,7 @@ import fedata.fe7.FE7Data;
 import fedata.general.Palette;
 import fedata.general.PaletteInfo;
 import io.FileHandler;
+import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 
@@ -32,7 +33,7 @@ public class PaletteLoader {
 					map.put(classID, new Palette(handler, palette, 40));
 					FE7Data.CharacterClass fe7class = FE7Data.CharacterClass.valueOf(classID);
 					FE7Data.Character fe7char = FE7Data.Character.valueOf(charID);
-					System.out.println("Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(palette.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe7class.toString() + "))");
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(palette.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe7class.toString() + "))");
 				}
 			}
 			for (FE7Data.Character boss : FE7Data.Character.allBossCharacters) {
@@ -42,7 +43,7 @@ public class PaletteLoader {
 				for (PaletteInfo palette : FE7Data.Palette.palettesForCharacter(charID)) {
 					map.put(palette.getClassID(), new Palette(handler, palette, 40));
 					FE7Data.Character fe7char = FE7Data.Character.valueOf(charID);
-					System.out.println("Initializing Boss 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(palette.getOffset()));
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Boss 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(palette.getOffset()));
 				}
 			}
 			
@@ -78,39 +79,43 @@ public class PaletteLoader {
 		FE7Data.Character character = FE7Data.Character.valueOf(charID);
 		FE7Data.CharacterClass oldClass = FE7Data.CharacterClass.valueOf(originalClassID);
 		FE7Data.CharacterClass newClass = FE7Data.CharacterClass.valueOf(newClassID);
-		System.out.println("Adapting character 0x" + Integer.toHexString(charID) + " (" + character.toString() + ") " + 
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting character 0x" + Integer.toHexString(charID) + " (" + character.toString() + ") " + 
 		" from class 0x" + Integer.toHexString(originalClassID) + "(" + oldClass.toString() + ")" + " to 0x" + Integer.toHexString(newClassID) + " (" + newClass.toString() + ")");
+		
+		if (newClass.ID == FE7Data.CharacterClass.BARD.ID || newClass.ID == FE7Data.CharacterClass.DANCER.ID) {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Debugging dancer/bard palettes");
+		}
 		
 		Palette originalPalette = getPalette(charID, originalClassID);
 		Palette originalPromotedPalette = getPalette(charID, originalPromotedClassID);
 		Palette template = getTemplatePalette(newClassID);
 		Palette promotedTemplate = getTemplatePalette(newPromotedClassID);
 		
-		System.out.println("Original palette offset: " + Long.toHexString(originalPalette.getInfo().getOffset()));
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Original palette offset: " + Long.toHexString(originalPalette.getInfo().getOffset()));
 		if (originalPromotedPalette != null) {
-			System.out.println("Original promoted palette offset: " + Long.toHexString(originalPromotedPalette.getInfo().getOffset()));
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Original promoted palette offset: " + Long.toHexString(originalPromotedPalette.getInfo().getOffset()));
 		} else {
-			System.out.println("No Promoted Palette.");
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No Promoted Palette.");
 		}
-		System.out.println("Template palette offset: " + Long.toHexString(template.getInfo().getOffset()));
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Template palette offset: " + Long.toHexString(template.getInfo().getOffset()));
 		if (promotedTemplate != null) {
-			System.out.println("Promoted Template palette offset: " + Long.toHexString(promotedTemplate.getInfo().getOffset()));
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Promoted Template palette offset: " + Long.toHexString(promotedTemplate.getInfo().getOffset()));
 		} else {
-			System.out.println("No promoted template.");
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No promoted template.");
 		}
 		
 		
 		Palette adaptedPalette = new Palette(template, originalPalette, originalPromotedPalette);
 		Map<Integer, Palette> paletteMap = characterPalettes.get(charID);
 		
-		System.out.println("Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
 		
 		paletteMap.put(newClassID, adaptedPalette);
 		paletteMap.remove(originalClassID);
 		
 		if (originalPromotedPalette != null && promotedTemplate != null) {
 			Palette adaptedPromotedPalette = new Palette(promotedTemplate, originalPromotedPalette, originalPalette);
-			System.out.println("Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
 			paletteMap.put(newPromotedClassID, adaptedPromotedPalette);
 			paletteMap.remove(originalPromotedClassID);
 		}

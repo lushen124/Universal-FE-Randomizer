@@ -15,6 +15,7 @@ import fedata.fe7.FE7SpellAnimationCollection.Animation;
 import fedata.general.WeaponEffects;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
+import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE7Item implements FEItem {
@@ -199,7 +200,6 @@ public class FE7Item implements FEItem {
 	
 	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, FESpellAnimationCollection spellAnimations, Random rng) {
 		if (getType() == WeaponType.NOT_A_WEAPON) {
-			System.out.println("Item " + getID() + " is not a weapon.");
 			return;
 		}
 		
@@ -207,7 +207,6 @@ public class FE7Item implements FEItem {
 		effectPool.retainAll(allowedEffects);
 		
 		if (effectPool.isEmpty()) {
-			System.out.println("No allowed effects for " + getID() + "!");
 			return;
 		}
 		

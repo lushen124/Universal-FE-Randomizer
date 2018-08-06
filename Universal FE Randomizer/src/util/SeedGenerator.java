@@ -38,7 +38,7 @@ public class SeedGenerator {
 	public static long generateSeedValue(String seedString, int seedSalt) {
 		Boolean isOdd = seedSalt % 2 == 1;
 		StringBuilder sb = new StringBuilder(seedString);
-		while (sb.length() < 30) {
+		while (sb.length() < 2) {
 			sb.append(seedString);
 		}
 		

@@ -4,23 +4,27 @@ import io.FileHandler;
 
 public class FileReadHelper {
 
-	public static int readWord(FileHandler handler, long offset, Boolean isPointer) {
+	public static long readWord(FileHandler handler, long offset, Boolean isPointer) {
 		byte[] word = handler.readBytesAtOffset(offset, 4);
-		int result = 0;
+		long result = 0;
 		result |= (word[0] & 0xFF);
-		result |= (((word[1] & 0xFF) << 8));
-		result |= (((word[2] & 0xFF) << 16));
-		result |= (((word[3] & 0xFF) << 24));
+		result |= ((word[1] << 8) & 0xFF00);
+		result |= ((word[2] << 16) & 0xFF0000);
+		result |= ((word[3] << 24) & 0xFF000000);
 		
-		if (isPointer && result > 0x8000000) {
-			result -= 0x8000000;
+		if (isPointer) {
+			if (result > 0x8000000) {
+				result -= 0x8000000;
+			} else {
+				return -1;
+			}
 		}
 		
 		return result;
 	}
 	
 	public static byte[] readBytesInRange(AddressRange range, FileHandler handler) {
-		return handler.readBytesAtOffset(range.start, range.end - range.start);
+		return handler.readBytesAtOffset(range.start, (int)(range.end - range.start));
 	}
 	
 	public static int readSignedHalfWord(FileHandler handler, long offset) {
@@ -33,5 +37,14 @@ public class FileReadHelper {
 		}
 		
 		return result;
+	}
+	
+	public static long readAddress(FileHandler handler, long offset) {
+		long address = readWord(handler, offset, true);
+		if (address >= 0x1000 && address <= 0x1FFFFFF) {
+			return address;
+		} else {
+			return -1;
+		}
 	}
 }

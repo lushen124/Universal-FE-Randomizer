@@ -42,6 +42,7 @@ public class FE7Data {
 	public static final int DefaultTextArrayOffset = 0xB808AC;
 	public static final int NumberOfTextStrings = 0x133E;
 	
+	public static final int DefaultChapterArrayOffset = 0xC9C9C8;
 	public static final int BytesPerChapterUnit = 16;
 	
 	public static final int HeroCrestAddressPointer = 0x27500;
@@ -933,101 +934,33 @@ public class FE7Data {
 		}
 	}
 	
-	public enum Chapter {
-		PROLOGUE(0xCC5B50, 4), 
-		CHAPTER_1(0xCC5BD0, 12), 
-		CHAPTER_2(0xCC5CE8, 18), 
-		CHAPTER_3(0xCC5E88, 21), // There's villages here, but they only give gold and units. 
-		CHAPTER_4(0xCC6058, 32), 
-		CHAPTER_5(0xCC6300, 22), 
-		CHAPTER_6(0xCC64E0, 57, new AddressRange(0xCA10B8, 0xCA1170), 2, new AddressRange(0xCAC06C, 0xCAC200), 1),
-		CHAPTER_7(0xCC6940, 47, null, 0, new AddressRange(0xCACA04, 0xCACE04), 1), 
-		CHAPTER_7X(0xCC6CD8, 54, new AddressRange(0xCA1418, 0xCA1444), 1, null, 0),
-		CHAPTER_8(0xC70F4, 49, null, 0, new AddressRange(0xCAD500, 0xCAD75C), 1), 
-		CHAPTER_9(0xCC7484, 48, null, 0, new AddressRange(0xCAD770, 0xCADA50), 1), 
-		CHAPTER_10(0xCC7840, 51, null, 0, new AddressRange(0xCADC54, 0xCAE020), 1),
+	public enum ChapterPointer {
+		PROLOGUE(0x06), CHAPTER_1(0x09), CHAPTER_2(0x0F), CHAPTER_3(0x15), CHAPTER_4(0x1B), CHAPTER_5(0x21), CHAPTER_6(0x25), CHAPTER_7(0x28),
+		CHAPTER_7X(0x2C), CHAPTER_8(0x2F), CHAPTER_9(0x32), CHAPTER_10(0x36),
 		
-		CHAPTER_11_E(0xCC7BDC, 47, null, 0, new AddressRange(0xCAE034, 0xCAE5E8), 1), 
-		CHAPTER_11_H(0xCC803C, 20, new AddressRange(0xCA19B4, 0xCA1A74), 1, null, 0), 
-		CHAPTER_12(0xCC820C, 61, null, 0, new AddressRange(0xCAE9E0, 0xCAF300), 1), 
-		CHAPTER_13(0xCC86D4, 71, null, 0, new AddressRange(0xCAF750, 0xCAF970), 2), 
-		CHAPTER_13X(0xCC8C64, 67), // There's a village here, but it's just gold. 
-		CHAPTER_14(0xCC9164, 150, null, 0, new AddressRange(0xCB0284, 0xCB04C4), 1), // There's two villages, but one is Priscilla.
-		CHAPTER_15(0xCC9C34, 72, new AddressRange(0xCA2200, 0xCA2344), 2, null, 0), 
-		CHAPTER_16(0xCCA198, 144, null, 0, new AddressRange(0xCB0CD4, 0xCB100C), 2), 
-		CHAPTER_17(0xCCABE0, 184, new AddressRange(0xCA2644, 0xCA2948), 4, null, 0), 
-		CHAPTER_17X(0xCCB970, 117, null, 0, new AddressRange(0xCA74F0, 0xCB2144), 4), // 5 villages, but one is Canas. 
-		CHAPTER_18(0xCCC1CC, 176), 
-		CHAPTER_19(0xCCCEB4, 162),
-		CHAPTER_19X(0xCCDA30, 148, null, 0, new AddressRange(0xCB345C, 0xCB3584), 1), 
-		CHAPTER_19XX(0xCCE490, 117, new AddressRange(0xCA2F38, 0xCA3010), 3, null, 0), 
-		CHAPTER_20(0xCCECEC, 227, new AddressRange(0xCA3010, 0xCA352C), 5, null, 0), 
-		CHAPTER_21(0xCCFDCC, 146, null, 0, new AddressRange(0xCB4A3C, 0xCB4F48), 4), 
-		CHAPTER_22(0xCD0884, 229, new AddressRange(0xCA37D8, 0xCA3B60), 1, null, 0), // One of them is 10,000G 
-		CHAPTER_23(0xCD19FC, 186, null, 0, new AddressRange(0xCB5C68, 0xCB6204), 6), // Desert map treasures are using ITGV like villages are.
-		CHAPTER_23X(0xCD2734, 116, new AddressRange(0xCA3DBC, 0xCA3ED8), 3, null, 0), 
-		CHAPTER_24_LINUS(0xCD3B74, 210, null, 0, new AddressRange(0xCB711C, 0xCB7AF4), 3), 
-		CHAPTER_24_LLOYD(0xCD2F58, 167, null, 0, new AddressRange(0xCB6734, 0xCB70C8), 2), 
-		CHAPTER_25_CUTSCENE(0xCD5234, 4), 
-		CHAPTER_25(0xCD4A54, 130, null, 0, new AddressRange(0xCB7FCC, 0xCB837C), 1), 
-		CHAPTER_26(0xCD53BC, 219, null, 0, new AddressRange(0xCB88D8, 0xCB8984), 1),
-		CHAPTER_27_JERME(0xCD6354, 248, new AddressRange(0xCA4D6C, 0xCA5120), 4, null, 0), 
-		CHAPTER_27_KENNETH(0xCD7444, 222, new AddressRange(0xCA4990, 0xCA4D6C), 3, null, 0), 
-		CHAPTER_28(0xCD8498, 230, new AddressRange(0xCA5120, 0xCA54E4), 4, null, 0),
-		CHAPTER_28_E(0xCDBD3C, 88),
-		CHAPTER_28X(0xCD9500, 251, new AddressRange(0xCA54E4, 0xCA597C), 4, null, 0), 
-		CHAPTER_29(0xCDA738, 308, null, 0, new AddressRange(0xCBB4E8, 0xCBC844), 1), 
-		CHAPTER_30_H(0xCDC3B4, 66, new AddressRange(0xCA5B68, 0xCA5C14), 3, null, 0), 
-		CHAPTER_31(0xCDC87C, 274, new AddressRange(0xCA5C14, 0xCA5F50), 3, null, 0), 
-		CHAPTER_31X(0xCDDC9C, 26), 
-		CHAPTER_32(0xCDDED0, 347, null, 0, new AddressRange(0xCBE53C, 0xCBEEE8), 2), 
-		CHAPTER_32X(0xCDF7E4, 86, new AddressRange(0xCA6444, 0xCA65B4), 2, null, 0), 
-		CHAPTER_FINAL_BOSS(0xCE0898, 56),
-		CHAPTER_FINAL(0xCDFE84, 132);
+		CHAPTER_11_E(0x39), CHAPTER_11_H(0x3D), CHAPTER_12(0x40), CHAPTER_13(0x43), CHAPTER_13X(0x47), CHAPTER_14(0x4B), CHAPTER_15(0x4E),
+		CHAPTER_16(0x51), CHAPTER_17(0x55), CHAPTER_17X(0x5A), CHAPTER_18(0x61), CHAPTER_19(0x65), CHAPTER_19X(0x69), CHAPTER_19XX(0x6F),
+		CHAPTER_20(0x72), CHAPTER_21(0x76), CHAPTER_22(0x7A), CHAPTER_23(0x7F), CHAPTER_23X(0x83), CHAPTER_24_LLOYD(0x86), CHAPTER_24_LINUS(0x89),
+		CHAPTER_25(0x8D), CHAPTER_26(0x90), CHAPTER_27_KENNETH(0x96), CHAPTER_27_JERME(0x9A), CHAPTER_28(0x9E), CHAPTER_28X(0xA3), CHAPTER_29(0xA6),
+		CHAPTER_28_E(0xAD), CHAPTER_30_H(0xB3), CHAPTER_31(0xB6), CHAPTER_31X(0xB9), CHAPTER_32(0xBC), CHAPTER_32X(0xC0), CHAPTER_FINAL(0xC7),
+		CHAPTER_FINAL_2(0xCA);
 		
-		public int charactersOffset;
-		public int numberOfUnits;
-		public AddressRange locationEventRange;
-		public int chestCount;
-		public AddressRange scriptRange;
-		public int itgvCount;
+		public int chapterID;
 		
-		private static Map<Integer, Chapter> map = new HashMap<Integer, Chapter>();
-		
-		static {
-			for (Chapter chapter : Chapter.values()) {
-				map.put(chapter.charactersOffset, chapter);
-			}
+		private ChapterPointer(int chapterID) {
+			this.chapterID = chapterID;
 		}
 		
-		private Chapter(final int offset, final int unitCount) { 
-			this.charactersOffset = offset;
-			numberOfUnits = unitCount;
-			locationEventRange = null;
-			scriptRange = null;
-			this.chestCount = 0;
-			this.itgvCount = 0;
+		public long chapterOffset() {
+			return chapterID * 4 + DefaultChapterArrayOffset;
 		}
 		
-		private Chapter(final int offset, final int unitCount, final AddressRange location, final int chestCount, final AddressRange script, final int itgvCount) { 
-			this.charactersOffset = offset;
-			numberOfUnits = unitCount;
-			locationEventRange = location;
-			scriptRange = script;
-			this.chestCount = chestCount;
-			this.itgvCount = itgvCount;
-		}
-		
-		public static Chapter valueOf(int chapterOffset) {
-			return map.get(chapterOffset);
-		}
-		
-		public Set<Integer> doNotChangeIndexes() {
-			switch (this) {
+		public FE7Data.CharacterClass[] blacklistedClasses() {
+			switch(this) {
 			case CHAPTER_5:
-				return new HashSet<Integer>(Arrays.asList(13));
+				return new FE7Data.CharacterClass[] {CharacterClass.ARCHER};
 			default:
-				return new HashSet<Integer>();
+				return new FE7Data.CharacterClass[] {};
 			}
 		}
 		
@@ -1402,7 +1335,7 @@ public class FE7Data {
 					break;
 				case CORSAIR:
 				case PIRATE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {}); // Outfit/Bandana is the only color.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {}); // Outfit/Bandana is the only color.
 					break;
 				case SHAMAN:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32, 34}, new int[] {9, 16, 18}); // Not really hair, but it matches up in the only one that matters (Canas)

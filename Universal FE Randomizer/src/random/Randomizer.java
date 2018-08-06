@@ -114,11 +114,13 @@ public class Randomizer {
 	}
 	
 	private void generateFE7DataLoaders() {
+		handler.setAppliedDiffs(diffCompiler);
 		charData = new CharacterDataLoader(FEBase.GameType.FE7, handler);
 		classData = new ClassDataLoader(FEBase.GameType.FE7, handler);
 		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
 		itemData = new ItemDataLoader(FEBase.GameType.FE7, handler);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
+		handler.clearAppliedDiffs();
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {

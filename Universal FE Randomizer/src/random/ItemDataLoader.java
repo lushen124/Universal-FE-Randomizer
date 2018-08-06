@@ -161,7 +161,7 @@ private FEBase.GameType gameType;
 			Set<FE7Data.Item> items = new HashSet<FE7Data.Item>();
 			FEItem item = itemWithID(itemID);
 			if (item == null) {
-				System.out.println("Invalid Item " + Integer.toHexString(itemID));
+				System.err.println("Invalid Item " + Integer.toHexString(itemID));
 				break;
 			}
 			if (item.getType() == WeaponType.NOT_A_WEAPON) {
@@ -201,6 +201,15 @@ private FEBase.GameType gameType;
 		switch (gameType) {
 		case FE7:
 			return itemsFromFE7Items(FE7Data.Item.formerThiefKit());
+		default:
+			return new FEItem[] {};
+		}
+	}
+	
+	public FEItem[] thiefItemsToRemove() {
+		switch (gameType) {
+		case FE7:
+			return itemsFromFE7Items(new FE7Data.Item[] {FE7Data.Item.LOCKPICK});
 		default:
 			return new FEItem[] {};
 		}
