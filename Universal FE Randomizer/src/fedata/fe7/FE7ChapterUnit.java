@@ -14,14 +14,11 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
-	private Boolean modifiable = true;
-	
-	public FE7ChapterUnit(byte[] data, long originalOffset, Boolean modifiable) {
+	public FE7ChapterUnit(byte[] data, long originalOffset) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
-		this.modifiable = modifiable;
 	}
 
 	public int getCharacterNumber() {
@@ -33,10 +30,6 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setStartingClass(int classID) {
-		if (!modifiable) {
-			return;
-		}
-		
 		data[1] = (byte)(classID & 0xFF);
 		wasModified = true;
 	}
@@ -66,10 +59,6 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setItem1(int itemID) {
-		if (!modifiable) {
-			return;
-		}
-		
 		data[8] = (byte)(itemID & 0xFF);
 		wasModified = true;
 	}
@@ -79,10 +68,6 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setItem2(int itemID) {
-		if (!modifiable) {
-			return;
-		}
-		
 		data[9] = (byte)(itemID & 0xFF);
 		wasModified = true;
 	}
@@ -92,10 +77,6 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setItem3(int itemID) {
-		if (!modifiable) {
-			return;
-		}
-		
 		data[10] = (byte)(itemID & 0xFF);
 		wasModified = true;
 	}
@@ -105,19 +86,11 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 
 	public void setItem4(int itemID) {
-		if (!modifiable) {
-			return;
-		}
-		
 		data[11] = (byte)(itemID & 0xFF);
 		wasModified = true;
 	}
 	
 	public void giveItems(int[] itemIDs) {
-		if (!modifiable) {
-			return;
-		}
-		
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
 		for (int i = 0; i < itemIDs.length; i++) {
 			workingIDs.add(itemIDs[i]);
@@ -140,10 +113,6 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 	
 	public void removeItem(int itemID) {
-		if (!modifiable) {
-			return;
-		}
-		
 		if (getItem1() == itemID) {
 			setItem1(0);
 		}
@@ -193,10 +162,6 @@ public class FE7ChapterUnit implements FEChapterUnit {
 	}
 	
 	public void commitChanges() {
-		if (!modifiable) {
-			return;
-		}
-		
 		if (wasModified) {
 			hasChanges = true;
 		}
@@ -219,10 +184,6 @@ public class FE7ChapterUnit implements FEChapterUnit {
 		return originalOffset;
 	}
 	
-	public Boolean isModifiable() {
-		return modifiable;
-	}
-
 	public void setAIToHeal(Boolean allowAttack) {
 		data[12] = (byte) (allowAttack ? 0x0F : 0x0E);
 		wasModified = true;

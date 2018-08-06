@@ -10,6 +10,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.WhyDoesJavaNotHaveThese;
@@ -58,7 +59,7 @@ public class DiffApplicator {
 			byte[] oldValue = currentDiff.requiredOldValues;
 			byte[] newValue = currentDiff.changes;
 			
-			System.out.println("Address: 0x" + Long.toHexString(nextAddress).toUpperCase() + " - Length: " + length + ", Old Value: " + 
+			DebugPrinter.log(DebugPrinter.Key.DIFF, "Address: 0x" + Long.toHexString(nextAddress).toUpperCase() + " - Length: " + length + ", Old Value: " + 
 					WhyDoesJavaNotHaveThese.displayStringForBytes(oldValue) + ", New Value: " + WhyDoesJavaNotHaveThese.displayStringForBytes(newValue));
 			
 			try {

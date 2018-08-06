@@ -161,7 +161,7 @@ private FEBase.GameType gameType;
 			Set<FE7Data.Item> items = new HashSet<FE7Data.Item>();
 			FEItem item = itemWithID(itemID);
 			if (item == null) {
-				System.out.println("Invalid Item " + Integer.toHexString(itemID));
+				System.err.println("Invalid Item " + Integer.toHexString(itemID));
 				break;
 			}
 			if (item.getType() == WeaponType.NOT_A_WEAPON) {

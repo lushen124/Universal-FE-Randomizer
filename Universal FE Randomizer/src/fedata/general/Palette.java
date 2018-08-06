@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.FileHandler;
+import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 
@@ -126,23 +127,23 @@ public class Palette {
 	}
 	
 	public void setHairColors(PaletteColor[] newHairColors) {
-		System.out.println("Replacing old hair colors");
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Replacing old hair colors");
 		for(int i = 0; i < hair.size(); i++) {
-			System.out.println("\t" + hair.get(i).toRGBString());
-			System.out.println("\t\t" + hair.get(i).toHSBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + hair.get(i).toRGBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + hair.get(i).toHSBString());
 		}
-		System.out.println("With new colors");
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "With new colors");
 		for (int i = 0; i < newHairColors.length; i++) {
-			System.out.println("\t" + newHairColors[i].toRGBString());
-			System.out.println("\t\t" + newHairColors[i].toHSBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + newHairColors[i].toRGBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + newHairColors[i].toHSBString());
 		}
 		Boolean success = setColorsToArea(newHairColors, hair);
 		if (success) {
 			hairModified = true;
-			System.out.println("Successfully wrote hair colors");
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Successfully wrote hair colors");
 			for(int i = 0; i < hair.size(); i++) {
-				System.out.println("\t" + hair.get(i).toRGBString());
-				System.out.println("\t\t" + hair.get(i).toHSBString());
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + hair.get(i).toRGBString());
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + hair.get(i).toHSBString());
 			}
 		} else {
 			System.err.println("Failed to write hair colors.");
@@ -150,23 +151,23 @@ public class Palette {
 	}
 	
 	public void setPrimaryColors(PaletteColor[] newPrimaryColors) {
-		System.out.println("Replacing old primary colors");
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Replacing old primary colors");
 		for(int i = 0; i < primary.size(); i++) {
-			System.out.println("\t" + primary.get(i).toRGBString());
-			System.out.println("\t\t" + primary.get(i).toHSBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + primary.get(i).toRGBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + primary.get(i).toHSBString());
 		}
-		System.out.println("With new colors");
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "With new colors");
 		for (int i = 0; i < newPrimaryColors.length; i++) {
-			System.out.println("\t" + newPrimaryColors[i].toRGBString());
-			System.out.println("\t\t" + newPrimaryColors[i].toHSBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + newPrimaryColors[i].toRGBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + newPrimaryColors[i].toHSBString());
 		}
 		Boolean success = setColorsToArea(newPrimaryColors, primary);
 		if (success) {
 			primaryModified = true;
-			System.out.println("Successfully wrote primary colors");
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Successfully wrote primary colors");
 			for(int i = 0; i < primary.size(); i++) {
-				System.out.println("\t" + primary.get(i).toRGBString());
-				System.out.println("\t\t" + primary.get(i).toHSBString());
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + primary.get(i).toRGBString());
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + primary.get(i).toHSBString());
 			}
 		} else {
 			System.err.println("Failed to write primary colors.");
@@ -174,24 +175,24 @@ public class Palette {
 	}
 	
 	public void setSecondaryColors(PaletteColor[] newSecondaryColors) {
-		System.out.println("Replacing old secondary colors");
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Replacing old secondary colors");
 		for(int i = 0; i < secondary.size(); i++) {
-			System.out.println("\t" + secondary.get(i).toRGBString());
-			System.out.println("\t\t" + secondary.get(i).toHSBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + secondary.get(i).toRGBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + secondary.get(i).toHSBString());
 		}
-		System.out.println("With new colors");
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "With new colors");
 		for (int i = 0; i < newSecondaryColors.length; i++) {
-			System.out.println("\t" + newSecondaryColors[i].toRGBString());
-			System.out.println("\t\t" + newSecondaryColors[i].toHSBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + newSecondaryColors[i].toRGBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + newSecondaryColors[i].toHSBString());
 		}
 		
 		Boolean success = setColorsToArea(newSecondaryColors, secondary);
 		if (success) {
 			secondaryModified = true;
-			System.out.println("Successfully wrote secondary colors");
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Successfully wrote secondary colors");
 			for(int i = 0; i < secondary.size(); i++) {
-				System.out.println("\t" + secondary.get(i).toRGBString());
-				System.out.println("\t\t" + secondary.get(i).toHSBString());
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + secondary.get(i).toRGBString());
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + secondary.get(i).toHSBString());
 			}
 		} else {
 			System.err.println("Failed to write secondary colors.");
@@ -199,24 +200,24 @@ public class Palette {
 	}
 	
 	public void setTertiaryColors(PaletteColor[] newTertiaryColors) {
-		System.out.println("Replacing old tertiary colors");
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Replacing old tertiary colors");
 		for(int i = 0; i < tertiary.size(); i++) {
-			System.out.println("\t" + tertiary.get(i).toRGBString());
-			System.out.println("\t\t" + tertiary.get(i).toHSBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + tertiary.get(i).toRGBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + tertiary.get(i).toHSBString());
 		}
-		System.out.println("With new colors");
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "With new colors");
 		for (int i = 0; i < newTertiaryColors.length; i++) {
-			System.out.println("\t" + newTertiaryColors[i].toRGBString());
-			System.out.println("\t\t" + newTertiaryColors[i].toHSBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + newTertiaryColors[i].toRGBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + newTertiaryColors[i].toHSBString());
 		}
 		
 		Boolean success = setColorsToArea(newTertiaryColors, tertiary);
 		if (success) {
 			tertiaryModified = true;
-			System.out.println("Successfully wrote tertiary colors");
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Successfully wrote tertiary colors");
 			for(int i = 0; i < tertiary.size(); i++) {
-				System.out.println("\t" + tertiary.get(i).toRGBString());
-				System.out.println("\t\t" + tertiary.get(i).toHSBString());
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t" + tertiary.get(i).toRGBString());
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "\t\t" + tertiary.get(i).toHSBString());
 			}
 		} else {
 			System.err.print("Failed to write tertiary colors.");
@@ -317,8 +318,8 @@ public class Palette {
 			PaletteColor newColor = new PaletteColor(newHue, newSaturation > 0 ? newSaturation : 0, oldColor.getBrightness());
 			newList.add(newColor);
 			
-			System.out.println("Replacing Color " + oldColor.toRGBString() + " with new color " + newColor.toRGBString());
-			System.out.println("In HSB: Color " + oldColor.toHSBString() + " with new color " + newColor.toHSBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Replacing Color " + oldColor.toRGBString() + " with new color " + newColor.toRGBString());
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "In HSB: Color " + oldColor.toHSBString() + " with new color " + newColor.toHSBString());
 		}
 		
 		targetArea.clear();

@@ -1,9 +1,6 @@
 package fedata;
 
 public interface FEChapterUnit extends FEModifiableObject {
-	
-	public Boolean isModifiable();
-	
 	public int getCharacterNumber();
 	
 	public int getStartingClass();

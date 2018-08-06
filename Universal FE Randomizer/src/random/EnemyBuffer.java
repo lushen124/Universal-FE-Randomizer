@@ -48,10 +48,6 @@ public class EnemyBuffer {
 			ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		for (FEChapter chapter : chapterData.allChapters()) {
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
-				if (!chapterUnit.isModifiable()) {
-					continue;
-				}
-				
 				int leaderID = chapterUnit.getLeaderID();
 				if (charactersData.isBossCharacterID(leaderID)) {
 					FEClass originalClass = classData.classForID(chapterUnit.getStartingClass());
