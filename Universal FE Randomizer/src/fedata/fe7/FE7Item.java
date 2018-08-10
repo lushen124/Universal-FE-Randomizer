@@ -247,7 +247,7 @@ public class FE7Item implements FEItem {
 			effects.add(WeaponEffects.MAGIC_DAMAGE);
 		}
 		
-		if ((getAbility2() & FE7Data.Item.Ability2Mask.REVERSEWEAPONTRIANGLE.ID) == 0) {
+		if ((getAbility2() & FE7Data.Item.Ability2Mask.REVERSEWEAPONTRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
 			effects.add(WeaponEffects.REVERSE_TRIANGLE);
 		}
 		
