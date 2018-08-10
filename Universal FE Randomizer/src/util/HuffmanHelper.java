@@ -1,11 +1,222 @@
 package util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import fedata.FEBase;
 import io.FileHandler;
 
 public class HuffmanHelper {
+	
+	private class Bitstream {
+		private List<Integer> stream;
+		
+		public Bitstream() {
+			stream = new ArrayList<Integer>();
+		}
+		
+		public Bitstream(Bitstream previousStream) {
+			stream = new ArrayList<Integer>(previousStream.stream);
+		}
+		
+		public void pushZero() {
+			stream.add(0);
+		}
+		
+		public void pushOne() {
+			stream.add(1);
+		}
+		
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < stream.size(); i++) {
+				sb.append(stream.get(i) == 0 ? '0' : '1');
+			}
+			
+			return sb.toString();
+		}
+		
+		public void appendStream(Bitstream otherStream) {
+			stream.addAll(otherStream.stream);
+		}
+		
+		public byte[] toByteArray() {
+			byte[] byteArray = new byte[stream.size() / 8 + 1];
+			byte currentByte = 0;
+			int bit = 0;
+			int arrayCounter = 0;
+			for (int i = 0; i < stream.size(); i++) {
+				if (bit == 8) {
+					bit = 0;
+					byteArray[arrayCounter++] = currentByte;
+					currentByte = 0;
+				}
+				
+				currentByte |= stream.get(i);
+				currentByte <<= 1;
+				bit++;
+			}
+			byteArray[arrayCounter] = currentByte;
+			
+			return byteArray;
+		}
+		
+		public Boolean hasSuffix(Bitstream suffix) {
+			int streamBase = stream.size() - suffix.stream.size();
+			if (streamBase < 0) { return false; }
+			for (int i = 0; i < suffix.stream.size(); i++) {
+				int index = streamBase + i;
+				if (suffix.stream.get(i) != stream.get(index)) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
+	}
+	
+	private class CacheEntry {
+		public Bitstream stream;
+		public Boolean hasValue1;
+		public Boolean hasValue2;
+		public byte value1;
+		public byte value2;
+		public Boolean isTerminal;
+		public long nodeValue;
+		
+		public CacheEntry parent;
+		public CacheEntry left;
+		public CacheEntry right;
+		
+		public CacheEntry(CacheEntry previousEntry) {
+			stream = new Bitstream(previousEntry.stream);
+			hasValue1 = false;
+			hasValue2 = false;
+			value1 = 0;
+			value2 = 0;
+			nodeValue = 0;
+			isTerminal = false;
+			
+			parent = previousEntry;
+			left = null;
+			right = null;
+		}
+		
+		public CacheEntry() {
+			stream = new Bitstream();
+			hasValue1 = false;
+			hasValue2 = false;
+			value1 = 0;
+			value2 = 0;
+			nodeValue = 0;
+			isTerminal = false;
+			
+			parent = null;
+			left = null;
+			right = null;
+		}
+		
+		public String getValueString() {
+			if (!hasValue1 && !hasValue2) { return null; }
+			StringBuilder sb = new StringBuilder();
+			if (hasValue1) {
+				if (value1 >= 0x20 && value1 <= 0x7E) { sb.append((char)value1); }
+				else { sb.append("0x" + Integer.toHexString(value1 & 0xFF)); }
+			}
+			if (hasValue2) {
+				sb.append(" ");
+				if (value2 >= 0x20 && value2 <= 0x7E) { sb.append((char)value2); }
+				else { sb.append("0x" + Integer.toHexString(value2 & 0xFF)); }
+			}
+			return sb.toString();
+		}
+	}
+	
+	private class EncoderEntry {
+		public char character;
+		public Bitstream stream;
+		
+		public Map<Character, EncoderEntry> followups;
+		
+		public EncoderEntry(char character, Bitstream stream) {
+			this.character = character;
+			if (stream != null) {
+				this.stream = new Bitstream(stream);
+			}
+			
+			followups = new HashMap<Character, EncoderEntry>();
+		}
+	}
+	
+	private FileHandler handler;
+	private CacheEntry cacheRoot;
+	
+	private EncoderEntry[] encoder;
+	private Boolean staleEncoder = true;
+	private Bitstream terminatorBitstream;
+	
+	public HuffmanHelper(FileHandler handler) {
+		this.handler = handler;
+		cacheRoot = new CacheEntry();
+	}
+	
+	public void buildEncoder() {
+		if (!staleEncoder) { return; }
+		encoder = new EncoderEntry[0x7F - 0x20];
+		buildEncoderHelper(cacheRoot);
+	}
+	
+	private void buildEncoderHelper(CacheEntry root) {
+		if (root == null) { return; }
+		buildEncoderHelper(root.left);
+		if (root.hasValue1) {
+			if (root.value1 >= 0x20 && root.value1 <= 0x7E) {
+				int index = root.value1 - 0x20;
+				EncoderEntry entry = encoder[index];
+				if (entry == null) {
+					if (root.hasValue2 && root.value2 >= 0x20 && root.value2 <= 0x7E) {
+						entry = new EncoderEntry((char)root.value1, null);
+						encoder[index] = entry;
+						entry.followups.put((char)root.value2, new EncoderEntry((char)root.value2, root.stream));
+					} else {
+						entry = new EncoderEntry((char)root.value1, root.stream);
+						encoder[index] = entry;
+					}
+				} else {
+					if (root.hasValue2 && root.value2 >= 0x20 && root.value2 <= 0x7E) {
+						entry.followups.put((char)root.value2, new EncoderEntry((char)root.value2, root.stream));
+					} else {
+						if (entry.stream == null) {
+							entry.stream = new Bitstream(root.stream);
+						}
+					}
+				}
+			} else if (root.value1 == 0x0) {
+				terminatorBitstream = root.stream;
+			}
+		}
+		buildEncoderHelper(root.right);
+	}
+	
+	public void printCache() {
+		DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Printing Bitstream Cache:");
+		printCacheHelper(cacheRoot);
+	}
+	
+	private void printCacheHelper(CacheEntry root) {
+		if (root == null) { return; }
+		printCacheHelper(root.left);
+		if (root.getValueString() != null) {
+			DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Bitstream: " + root.stream.toString() + "\t\tValue: " + root.getValueString());
+		}
+		printCacheHelper(root.right);
+	}
 
-	public static byte[] decodeTextAddressWithHuffmanTree(FileHandler handler, long textAddress, long treeAddress, long rootAddress) {
+	public byte[] decodeTextAddressWithHuffmanTree(long textAddress, long treeAddress, long rootAddress) {
 		byte[] result = new byte[0x1000];
 		int i = 0;
 		
@@ -24,47 +235,101 @@ public class HuffmanHelper {
 			
 			return result;
 		} else {
+			staleEncoder = true;
 			int bit = 0;
 			long node = rootAddress;
 			currentByte = handler.readBytesAtOffset(maskedAddress, 1)[0];
 			long textDataPosition = maskedAddress + 1;
+			CacheEntry currentEntry = cacheRoot;
 			while (i < 0x1000) {
-				long currentTreeAddress = node;
-				int left = FileReadHelper.readSignedHalfWord(handler, currentTreeAddress);
-				currentTreeAddress += 2;
-				int right = FileReadHelper.readSignedHalfWord(handler, currentTreeAddress);
+				CacheEntry leftEntry = currentEntry.left;
+				CacheEntry rightEntry = currentEntry.right;
 				
-				Boolean rightReachedLeafMask = right < 0;
-				if (rightReachedLeafMask) {
-					node = rootAddress;
-					result[i] = (byte) (left & 0xFF);
-					i += 1;
-					if ((left & 0xFF00) != 0) {
-						if (i != 0x1000) {
-							result[i] = (byte) ((left & 0xFF00) >> 8);
-							i += 1;
+				if (bit == 8) {
+					bit = 0;
+					currentByte = handler.readBytesAtOffset(textDataPosition, 1)[0];
+					textDataPosition += 1;
+				}
+				Boolean nextBitIsZero = (currentByte & 0x1) == 0;
+				if (nextBitIsZero && leftEntry != null) {
+					if (leftEntry.hasValue1) {
+						result[i++] = leftEntry.value1;
+						if (leftEntry.hasValue2) {
+							result[i++] = leftEntry.value2;
+						} else if (leftEntry.isTerminal) {
+							break;
 						}
-					} else if (left == 0) {
-						break;
+						node = rootAddress;
+						currentEntry = cacheRoot;
+					} else {
+						currentEntry = leftEntry;
+						node = leftEntry.nodeValue;
+						currentByte >>= 1;
+						bit += 1;
+					}
+				} else if (!nextBitIsZero && rightEntry != null) {
+					if (rightEntry.hasValue1) {
+						result[i++] = rightEntry.value1;
+						if (rightEntry.hasValue2) {
+							result[i++] = rightEntry.value2;
+						} else if (rightEntry.isTerminal) {
+							break;
+						}
+						node = rootAddress;
+						currentEntry = cacheRoot;
+					} else {
+						currentEntry = rightEntry;
+						node = rightEntry.nodeValue;
+						currentByte >>= 1;
+						bit += 1;
 					}
 				} else {
-					if (bit == 8) {
-						bit = 0;
-						currentByte = handler.readBytesAtOffset(textDataPosition, 1)[0];
-						textDataPosition += 1;
-					}
+					long currentTreeAddress = node;
+					int left = FileReadHelper.readSignedHalfWord(handler, currentTreeAddress);
+					currentTreeAddress += 2;
+					int right = FileReadHelper.readSignedHalfWord(handler, currentTreeAddress);
 					
-					int offset;
-					if ((currentByte & 0x1) == 0) {
-						offset = left;
-					}
-					else {
-						offset = right;
-					}
-					
-					node = treeAddress + (4 * offset);
-					currentByte >>= 1;
+					Boolean rightReachedLeafMask = right < 0;
+					if (!rightReachedLeafMask) {
+						int offset;
+						if (nextBitIsZero) {
+							offset = left;
+							CacheEntry previousEntry = currentEntry;
+							currentEntry = new CacheEntry(previousEntry);
+							previousEntry.left = currentEntry;
+							currentEntry.stream.pushZero();
+						}
+						else {
+							offset = right;
+							CacheEntry previousEntry = currentEntry;
+							currentEntry = new CacheEntry(previousEntry);
+							previousEntry.right = currentEntry;
+							currentEntry.stream.pushOne();
+						}
+						
+						node = treeAddress + (4 * offset);
+						currentEntry.nodeValue = node;
+						currentByte >>= 1;
 						bit += 1;
+					} else {
+						node = rootAddress;
+						result[i] = (byte) (left & 0xFF);
+						currentEntry.hasValue1 = true;
+						currentEntry.value1 = (byte) (left & 0xFF);
+						i += 1;
+						if ((left & 0xFF00) != 0) {
+							if (i != 0x1000) {
+								result[i] = (byte) ((left & 0xFF00) >> 8);
+								currentEntry.hasValue2 = true;
+								currentEntry.value2 = (byte) ((left & 0xFF00) >> 8);
+								i += 1;
+							}
+						} else if (left == 0) {
+							currentEntry.isTerminal = true;
+							break;
+						}
+						currentEntry = cacheRoot;
+					}
 				}
 			}
 		}
@@ -72,7 +337,7 @@ public class HuffmanHelper {
 		return result;
 	}
 	
-	public static String sanitizeByteArrayIntoTextString(byte[] byteArray, Boolean squelchCodes, FEBase.GameType gameType) {
+	public String sanitizeByteArrayIntoTextString(byte[] byteArray, Boolean squelchCodes, FEBase.GameType gameType) {
 		StringBuilder sb = new StringBuilder();
 		
 		for (int i = 0; i < byteArray.length; i++) {
@@ -130,5 +395,36 @@ public class HuffmanHelper {
 		}
 		
 		return sb.toString();
+	}
+	
+	public byte[] encodeString(String string) {
+		buildEncoder();
+		Bitstream result = new Bitstream();
+		
+		for (int i = 0; i < string.length(); i++) {
+			char character = string.charAt(i);
+			int encoderIndex = character - 0x20;
+			if (encoderIndex < encoder.length) {
+				EncoderEntry entry = encoder[encoderIndex];
+				if (i + 1 < string.length()) {
+					char nextChar = string.charAt(i + 1);
+					EncoderEntry followup = entry.followups.get(nextChar);
+					if (followup != null) {
+						result.appendStream(followup.stream);
+						i += 1;
+					} else {
+						result.appendStream(entry.stream);
+					}
+				} else {
+					result.appendStream(entry.stream);
+				}
+			}
+		}
+		
+		if (!result.hasSuffix(terminatorBitstream)) {
+			result.appendStream(terminatorBitstream);
+		}
+		
+		return result.toByteArray();
 	}
 }

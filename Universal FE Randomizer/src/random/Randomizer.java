@@ -18,9 +18,12 @@ import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
 import ui.model.WeaponEffectOptions;
 import ui.model.WeaponOptions;
+import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
+import util.FileReadHelper;
 import util.FreeSpaceManager;
+import util.HuffmanHelper;
 import util.SeedGenerator;
 
 public class Randomizer {
@@ -45,6 +48,7 @@ public class Randomizer {
 	private ChapterLoader chapterData;
 	private ItemDataLoader itemData;
 	private PaletteLoader paletteData;
+	private TextLoader textData;
 	
 	private FreeSpaceManager freeSpace;
 	
@@ -115,11 +119,15 @@ public class Randomizer {
 		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
 		itemData = new ItemDataLoader(FEBase.GameType.FE7, handler, freeSpace);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
+		textData = new TextLoader(FEBase.GameType.FE7, handler);
+		
 		handler.clearAppliedDiffs();
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
 		if (growths != null) {
+			
+			
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));
 			switch (growths.mode) {
 			case REDISTRIBUTE:
