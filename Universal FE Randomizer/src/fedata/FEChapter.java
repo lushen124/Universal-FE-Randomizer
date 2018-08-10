@@ -7,5 +7,8 @@ public interface FEChapter {
 	
 	public FEChapterItem[] allRewards();
 	
+	public long[] getFightAddresses();
+	public int fightCommandLength();
+	
 	public String getFriendlyName();
 }
