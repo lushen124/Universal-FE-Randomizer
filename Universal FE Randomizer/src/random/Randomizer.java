@@ -20,6 +20,7 @@ import ui.model.WeaponEffectOptions;
 import ui.model.WeaponOptions;
 import util.Diff;
 import util.DiffCompiler;
+import util.FreeSpaceManager;
 import util.SeedGenerator;
 
 public class Randomizer {
