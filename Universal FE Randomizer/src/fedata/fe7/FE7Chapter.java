@@ -18,6 +18,8 @@ public class FE7Chapter implements FEChapter {
 	
 	private String friendlyName;
 	
+	private Boolean removeFightScenes;
+	
 	private Boolean isClassSafe;
 	
 	private long turnBasedEventsOffset = 0;
@@ -41,14 +43,16 @@ public class FE7Chapter implements FEChapter {
 	private List<FE7ChapterItem> allChapterRewards;
 	
 	private Set<Integer> blacklistedClassIDs;
+	private Set<Long> fightEventOffsets;
 
-	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, int[] blacklistedClassIDs, String friendlyName) {
+	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName) {
 		
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
 		for (int classID : blacklistedClassIDs) {
 			this.blacklistedClassIDs.add(classID);
 		}
+		this.removeFightScenes = removeFightScenes;
 				
 		// We need one jump.
 		long pointerTableOffset = FileReadHelper.readAddress(handler, pointer);
@@ -90,6 +94,9 @@ public class FE7Chapter implements FEChapter {
 		
 		allChapterUnits = new ArrayList<FE7ChapterUnit>();
 		allChapterRewards = new ArrayList<FE7ChapterItem>();
+		
+		fightEventOffsets = new HashSet<Long>();
+		
 		loadUnits(handler);
 		loadRewards(handler);
 	}
@@ -105,6 +112,20 @@ public class FE7Chapter implements FEChapter {
 	
 	public FEChapterItem[] allRewards() {
 		return allChapterRewards.toArray(new FEChapterItem[allChapterRewards.size()]);
+	}
+	
+	public long[] getFightAddresses() {
+		long[] offsets = new long[fightEventOffsets.size()];
+		int i = 0;
+		for (long offset : fightEventOffsets) {
+			offsets[i++] = offset;
+		}
+		
+		return offsets;
+	}
+	
+	public int fightCommandLength() {
+		return 20; // Put this elsewhere?
 	}
 	
 	public Boolean isClassSafe() {
@@ -267,6 +288,44 @@ public class FE7Chapter implements FEChapter {
 		}
 		
 		return eventAddresses;
+	}
+	
+	private void recordFightAddressesFromEventBlob(FileHandler handler, long eventAddress) {
+		if (eventAddress >= 0x1000000) { return; }
+		
+		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Searching for fights beginning at 0x" + Long.toHexString(eventAddress));
+		
+		byte[] commandWord;
+		long currentAddress = eventAddress;
+		commandWord = handler.readBytesAtOffset(currentAddress, 4);
+		while (!(commandWord[0] == 0x0A && commandWord[1] == 0x00 && commandWord[2] == 0x00 && commandWord[3] == 0x00) && 
+				!(commandWord[0] == 0x0B && commandWord[1] == 0x00 && commandWord[2] == 0x00 && commandWord[3] == 0x00)) {
+			if (commandWord[1] == 0 && commandWord[2] == 0 && commandWord[3] == 0) {
+				if (commandWord[0] == 0x97) {
+					// FIGH - Always has command byte 0x97, and is always 20 length. The second word always contains attacker and defender IDs.
+					// They vary after that, but those aren't important.
+					long address = FileReadHelper.readAddress(handler, currentAddress + 4);
+					if (address != -1) {
+						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found FIGH at 0x" + Long.toHexString(currentAddress));
+						fightEventOffsets.add(address);
+					}
+					currentAddress += 16;
+				}
+
+				// Since we don't know how long each command is, we accidentally include what should be an argument for
+				// another event as a command code. Below is a whitelist of codes that cause issues and how many bytes we need to skip.
+				if (commandWord[0] == 0x44) { // 0x44 is apparently LABEL, which I have no idea what it does. It takes 1 word as an argument.
+					currentAddress += 4;
+				} else if (commandWord[0] == 0x27) { // MOVE has several variants, but only the ones that use character ID are dangerous for us.
+					currentAddress += 12;
+				} else if (commandWord[0] == 0x26 || commandWord[0] == 0x28) { 
+					currentAddress += 8;
+				}
+			}
+			
+			currentAddress += 4;
+			commandWord = handler.readBytesAtOffset(currentAddress, 4);
+		}
 	}
 	
 	private Set<Long> unitAddressesFromEventBlob(FileHandler handler, long eventAddress) {
