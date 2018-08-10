@@ -25,6 +25,7 @@ import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
 import util.FreeSpaceManager;
+import util.HuffmanHelper;
 import util.WhyDoesJavaNotHaveThese;
 
 public class ItemDataLoader {
@@ -49,8 +50,6 @@ private FEBase.GameType gameType;
 	// TODO: Put this somewhere else.
 	public FESpellAnimationCollection spellAnimations;
 	
-	public int ironSwordDescriptionIndex;
-	
 	private FreeSpaceManager freeSpace;
 	private Map<AdditionalData, Long> offsetsForAdditionalData;
 	private Map<AdditionalData, Long> promotionItemAddressPointers;
@@ -70,9 +69,6 @@ private FEBase.GameType gameType;
 					long offset = baseAddress + (FE7Data.BytesPerItem * item.ID);
 					byte[] itemData = handler.readBytesAtOffset(offset, FE7Data.BytesPerItem);
 					itemMap.put(item.ID, new FE7Item(itemData, offset));
-					
-					FEItem ironSword = itemMap.get(FE7Data.Item.IRON_SWORD.ID);
-					ironSwordDescriptionIndex = ironSword.getDescriptionIndex();
 				}
 				
 				long spellAnimationBaseAddress = FileReadHelper.readAddress(handler, FE7Data.SpellAnimationTablePointer);
@@ -285,6 +281,24 @@ private FEBase.GameType gameType;
 				offsetsForAdditionalData.get(AdditionalData.DEF_BOOST),
 				offsetsForAdditionalData.get(AdditionalData.RES_BOOST),
 				offsetsForAdditionalData.get(AdditionalData.LCK_BOOST)};
+	}
+	
+	public String descriptionStringForAddress(long address, Boolean isMagic) {
+		if (offsetsForAdditionalData.get(AdditionalData.STR_MAG_BOOST) == address) { return isMagic ? "+5 MAG" : "+5 STR"; }
+		if (offsetsForAdditionalData.get(AdditionalData.SKL_BOOST) == address) { return "+5 SKL"; }
+		if (offsetsForAdditionalData.get(AdditionalData.SPD_BOOST) == address) { return "+5 SPD"; }
+		if (offsetsForAdditionalData.get(AdditionalData.LCK_BOOST) == address) { return "+5 LCK"; }
+		if (offsetsForAdditionalData.get(AdditionalData.DEF_BOOST) == address) { return "+5 DEF"; }
+		if (offsetsForAdditionalData.get(AdditionalData.RES_BOOST) == address) { return "+5 RES"; }
+		
+		if (offsetsForAdditionalData.get(AdditionalData.KNIGHT_EFFECT) == address) { return "Eff. Armor"; }
+		if (offsetsForAdditionalData.get(AdditionalData.KNIGHTCAV_EFFECT) == address) { return "Eff. Armor and Horseback"; }
+		if (offsetsForAdditionalData.get(AdditionalData.CAVALRY_EFFECT) == address) { return "Eff. Horseback"; }
+		if (offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT) == address) { return "Eff. Fliers"; }
+		if (offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT) == address) { return "Eff. Swordfighters"; }
+		if (offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT) == address) { return "Eff. Dragons"; }
+		
+		return null;
 	}
 	
 	public long[] possibleEffectivenessAddresses() {

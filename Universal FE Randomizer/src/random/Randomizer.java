@@ -102,6 +102,8 @@ public class Randomizer {
 		classData.compileDiffs(diffCompiler);
 		itemData.compileDiffs(diffCompiler);
 		paletteData.compileDiffs(diffCompiler);
+		textData.commitChanges(freeSpace, diffCompiler);
+		
 		freeSpace.commitChanges(diffCompiler);
 		
 		if (targetPath != null) {
@@ -113,13 +115,13 @@ public class Randomizer {
 		handler.setAppliedDiffs(diffCompiler);
 		
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7);
+		textData = new TextLoader(FEBase.GameType.FE7, handler);
 		
 		charData = new CharacterDataLoader(FEBase.GameType.FE7, handler);
 		classData = new ClassDataLoader(FEBase.GameType.FE7, handler);
 		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
 		itemData = new ItemDataLoader(FEBase.GameType.FE7, handler, freeSpace);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
-		textData = new TextLoader(FEBase.GameType.FE7, handler);
 		
 		handler.clearAppliedDiffs();
 	}
@@ -194,7 +196,7 @@ public class Randomizer {
 			
 			if (weapons.shouldAddEffects && weapons.effectsList != null) {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 4));
-				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, rng);
+				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, rng);
 			}
 		}
 	}

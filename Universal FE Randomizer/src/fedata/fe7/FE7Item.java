@@ -1,13 +1,17 @@
 package fedata.fe7;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
 import fedata.FEItem;
 import fedata.FESpellAnimationCollection;
+import fedata.fe7.FE7Data.Item.Ability1Mask;
+import fedata.fe7.FE7Data.Item.Ability2Mask;
 import fedata.fe7.FE7Data.Item.FE7WeaponRank;
 import fedata.fe7.FE7Data.Item.FE7WeaponType;
 import fedata.fe7.FE7Data.Item.WeaponEffect;
@@ -16,6 +20,7 @@ import fedata.general.WeaponEffects;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
 import random.ItemDataLoader;
+import random.TextLoader;
 import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -37,15 +42,15 @@ public class FE7Item implements FEItem {
 	}
 
 	public int getNameIndex() {
-		return (data[0] & 0xFF) | ((data[1] & 0xFF) << 8);
+		return (data[0] & 0xFF) | ((data[1] << 8) & 0xFF00);
 	}
 
 	public int getDescriptionIndex() {
-		return (data[2] & 0xFF) | ((data[3] & 0xFF) << 8);
+		return (data[2] & 0xFF) | ((data[3] << 8) & 0xFF00);
 	}
 
 	public int getUseDescriptionIndex() {
-		return (data[4] & 0xFF) | ((data[5] & 0xFF) << 8);
+		return (data[4] & 0xFF) | ((data[5] << 8) & 0xFF00);
 	}
 
 	public int getID() {
@@ -74,11 +79,11 @@ public class FE7Item implements FEItem {
 	}
 
 	public long getStatBonusPointer() {
-		return (data[12] & 0xFF) | ((data[13] & 0xFF) << 8) | ((data[14] & 0xFF) << 16) | ((data[15] & 0xFF) << 24) ;
+		return (data[12] & 0xFF) | ((data[13] << 8) & 0xFF00) | ((data[14] << 16) & 0xFF0000) | ((data[15] << 24) & 0xFF000000) ;
 	}
 
 	public long getEffectivenessPointer() {
-		return (data[16] & 0xFF) | ((data[17] & 0xFF) << 8) | ((data[18] & 0xFF) << 16) | ((data[19] & 0xFF) << 24) ;
+		return (data[16] & 0xFF) | ((data[17] << 8) & 0xFF00) | ((data[18] << 16) & 0xFF0000) | ((data[19] << 24) & 0xFF000000) ;
 	}
 
 	public int getDurability() {
@@ -173,7 +178,7 @@ public class FE7Item implements FEItem {
 		wasModified = true;
 	}
 	
-	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, ItemDataLoader itemData, FESpellAnimationCollection spellAnimations, Random rng) {
+	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, ItemDataLoader itemData, TextLoader textData, FESpellAnimationCollection spellAnimations, Random rng) {
 		if (getType() == WeaponType.NOT_A_WEAPON) {
 			return;
 		}
@@ -187,7 +192,17 @@ public class FE7Item implements FEItem {
 		
 		int randomEffect = rng.nextInt(effectPool.size());
 		WeaponEffects[] effectList = effectPool.toArray(new WeaponEffects[effectPool.size()]);
-		applyEffect(effectList[randomEffect], itemData, spellAnimations, rng);
+		WeaponEffects selectedEffect = effectList[randomEffect];
+		applyEffect(selectedEffect, itemData, spellAnimations, rng);
+		if (selectedEffect != WeaponEffects.NONE) {
+			String updatedDescription = ingameDescriptionString(itemData);
+			if (updatedDescription != null) {
+				textData.setStringAtIndex(getDescriptionIndex(), updatedDescription);
+				DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex()) + " is now " + updatedDescription);
+			} else {
+				DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex()) + " has no effect.");
+			}
+		}
 	}
 	
 	public void resetData() {
@@ -363,10 +378,63 @@ public class FE7Item implements FEItem {
 			break;
 		case DEVIL:
 			effectValue = FE7Data.Item.WeaponEffect.DEVIL.ID;
+			int currentMight = getMight();
+			setMight(Math.max((int)(currentMight * 1.5), currentMight + 5));
 			wasModified = true;
 			break;
 		default:
 			// Do nothing.
 		}
+	}
+	
+	private String ingameDescriptionString(ItemDataLoader itemData) {
+		List<String> traitStrings = new ArrayList<String>();
+		
+		Boolean isMagic = getType() == WeaponType.ANIMA || getType() == WeaponType.LIGHT || getType() == WeaponType.DARK;
+		Boolean isNormallyMelee = getType() == WeaponType.SWORD || getType() == WeaponType.LANCE || getType() == WeaponType.AXE;
+		Boolean isOnlyRanged = getType() == WeaponType.BOW;
+		
+		if (getStatBonusPointer() != 0) {
+			String statBonus = itemData.descriptionStringForAddress(getStatBonusPointer() - 0x8000000, isMagic);
+			if (statBonus != null) { traitStrings.add(statBonus); }
+		}
+		if (getEffectivenessPointer() != 0) {
+			String effectiveness = itemData.descriptionStringForAddress(getEffectivenessPointer(), isMagic);
+			if (effectiveness != null) { traitStrings.add(effectiveness); }
+		}
+		if (getCritical() > 20) { traitStrings.add("High Critical Rate"); }
+		if (isNormallyMelee && getMaxRange() > 1) { traitStrings.add("Ranged"); }
+		else if (getMaxRange() > 2) { traitStrings.add("Extended Range"); }
+		if (isOnlyRanged && getMinRange() < 2) { traitStrings.add("Melee"); }
+		
+		if ((getAbility1() & Ability1Mask.BRAVE.ID) != 0) { traitStrings.add("Strikes twice"); }
+		if ((getAbility1() & Ability1Mask.MAGICDAMAGE.ID) != 0) { traitStrings.add("Targets RES"); }
+		
+		if ((getAbility2() & Ability2Mask.REVERSEWEAPONTRIANGLE.ID) != 0) {
+			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs. Lances"); }
+			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs. Axes"); }
+			else if (getType() == WeaponType.AXE) { traitStrings.add("String vs. Swords"); }
+			else if (getType() == WeaponType.ANIMA) { traitStrings.add("Strong vs. Dark Magic"); }
+			else if (getType() == WeaponType.LIGHT) { traitStrings.add("Strong vs. Anima Magic"); }
+			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong vs. Light Magic"); }
+		}
+		
+		if (getWeaponEffect() == FE7Data.Item.WeaponEffect.POISON.ID) { traitStrings.add("Poisons on Hit"); }
+		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.HALFHP.ID) { traitStrings.add("Halves HP"); }
+		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.DEVIL.ID) { traitStrings.add("May Damage User"); }
+		
+		if (traitStrings.isEmpty()) { return null; }
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(traitStrings.get(0));
+		traitStrings.remove(0);
+		while (!traitStrings.isEmpty()) {
+			sb.append(", " + traitStrings.get(0));
+			traitStrings.remove(0);
+		}
+		
+		sb.append(".");
+		
+		return sb.toString();
 	}
 }

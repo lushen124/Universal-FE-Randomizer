@@ -56,8 +56,7 @@ public class HuffmanHelper {
 					currentByte = 0;
 				}
 				
-				currentByte |= stream.get(i);
-				currentByte <<= 1;
+				currentByte |= (stream.get(i) << bit);
 				bit++;
 			}
 			byteArray[arrayCounter] = currentByte;
@@ -91,6 +90,7 @@ public class HuffmanHelper {
 		public CacheEntry parent;
 		public CacheEntry left;
 		public CacheEntry right;
+		public CacheEntry value;
 		
 		public CacheEntry(CacheEntry previousEntry) {
 			stream = new Bitstream(previousEntry.stream);
@@ -104,6 +104,7 @@ public class HuffmanHelper {
 			parent = previousEntry;
 			left = null;
 			right = null;
+			value = null;
 		}
 		
 		public CacheEntry() {
@@ -118,6 +119,7 @@ public class HuffmanHelper {
 			parent = null;
 			left = null;
 			right = null;
+			value = null;
 		}
 		
 		public String getValueString() {
@@ -173,30 +175,30 @@ public class HuffmanHelper {
 	private void buildEncoderHelper(CacheEntry root) {
 		if (root == null) { return; }
 		buildEncoderHelper(root.left);
-		if (root.hasValue1) {
-			if (root.value1 >= 0x20 && root.value1 <= 0x7E) {
-				int index = root.value1 - 0x20;
+		if (root.value != null) {
+			if (root.value.value1 >= 0x20 && root.value.value1 <= 0x7E) {
+				int index = root.value.value1 - 0x20;
 				EncoderEntry entry = encoder[index];
 				if (entry == null) {
-					if (root.hasValue2 && root.value2 >= 0x20 && root.value2 <= 0x7E) {
-						entry = new EncoderEntry((char)root.value1, null);
+					if (root.value.hasValue2 && root.value.value2 >= 0x20 && root.value.value2 <= 0x7E) {
+						entry = new EncoderEntry((char)root.value.value1, null);
 						encoder[index] = entry;
-						entry.followups.put((char)root.value2, new EncoderEntry((char)root.value2, root.stream));
+						entry.followups.put((char)root.value.value2, new EncoderEntry((char)root.value.value2, root.value.stream));
 					} else {
-						entry = new EncoderEntry((char)root.value1, root.stream);
+						entry = new EncoderEntry((char)root.value.value1, root.value.stream);
 						encoder[index] = entry;
 					}
 				} else {
-					if (root.hasValue2 && root.value2 >= 0x20 && root.value2 <= 0x7E) {
-						entry.followups.put((char)root.value2, new EncoderEntry((char)root.value2, root.stream));
+					if (root.value.hasValue2 && root.value.value2 >= 0x20 && root.value.value2 <= 0x7E) {
+						entry.followups.put((char)root.value.value2, new EncoderEntry((char)root.value.value2, root.value.stream));
 					} else {
 						if (entry.stream == null) {
-							entry.stream = new Bitstream(root.stream);
+							entry.stream = new Bitstream(root.value.stream);
 						}
 					}
 				}
-			} else if (root.value1 == 0x0) {
-				terminatorBitstream = root.stream;
+			} else if (root.value.value1 == 0x0) {
+				terminatorBitstream = root.value.stream;
 			}
 		}
 		buildEncoderHelper(root.right);
@@ -210,8 +212,8 @@ public class HuffmanHelper {
 	private void printCacheHelper(CacheEntry root) {
 		if (root == null) { return; }
 		printCacheHelper(root.left);
-		if (root.getValueString() != null) {
-			DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Bitstream: " + root.stream.toString() + "\t\tValue: " + root.getValueString());
+		if (root.value != null && root.value.getValueString() != null) {
+			DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Bitstream: " + root.stream.toString() + "\t\tValue: " + root.value.getValueString());
 		}
 		printCacheHelper(root.right);
 	}
@@ -241,6 +243,7 @@ public class HuffmanHelper {
 			currentByte = handler.readBytesAtOffset(maskedAddress, 1)[0];
 			long textDataPosition = maskedAddress + 1;
 			CacheEntry currentEntry = cacheRoot;
+			currentEntry.nodeValue = node;
 			while (i < 0x1000) {
 				CacheEntry leftEntry = currentEntry.left;
 				CacheEntry rightEntry = currentEntry.right;
@@ -251,38 +254,35 @@ public class HuffmanHelper {
 					textDataPosition += 1;
 				}
 				Boolean nextBitIsZero = (currentByte & 0x1) == 0;
+				if (currentEntry.value != null) {
+					result[i++] = currentEntry.value.value1;
+					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value1));
+					if (currentEntry.value.hasValue2) {
+						result[i++] = currentEntry.value.value2;
+						DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value2));
+					} else if (currentEntry.value.isTerminal) {
+						DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Terminal");
+						break;
+					}
+					node = rootAddress;
+					currentEntry = cacheRoot;
+					continue;
+				}
+				
 				if (nextBitIsZero && leftEntry != null) {
-					if (leftEntry.hasValue1) {
-						result[i++] = leftEntry.value1;
-						if (leftEntry.hasValue2) {
-							result[i++] = leftEntry.value2;
-						} else if (leftEntry.isTerminal) {
-							break;
-						}
-						node = rootAddress;
-						currentEntry = cacheRoot;
-					} else {
-						currentEntry = leftEntry;
-						node = leftEntry.nodeValue;
-						currentByte >>= 1;
-						bit += 1;
-					}
+					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] 0 - left");
+					currentEntry = leftEntry;
+					node = leftEntry.nodeValue;
+					currentByte >>= 1;
+					bit += 1;
+					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] node = 0x" + Long.toHexString(node));
 				} else if (!nextBitIsZero && rightEntry != null) {
-					if (rightEntry.hasValue1) {
-						result[i++] = rightEntry.value1;
-						if (rightEntry.hasValue2) {
-							result[i++] = rightEntry.value2;
-						} else if (rightEntry.isTerminal) {
-							break;
-						}
-						node = rootAddress;
-						currentEntry = cacheRoot;
-					} else {
-						currentEntry = rightEntry;
-						node = rightEntry.nodeValue;
-						currentByte >>= 1;
-						bit += 1;
-					}
+					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] 1 - right");
+					currentEntry = rightEntry;
+					node = rightEntry.nodeValue;
+					currentByte >>= 1;
+					bit += 1;
+					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] node = 0x" + Long.toHexString(node));
 				} else {
 					long currentTreeAddress = node;
 					int left = FileReadHelper.readSignedHalfWord(handler, currentTreeAddress);
@@ -298,6 +298,7 @@ public class HuffmanHelper {
 							currentEntry = new CacheEntry(previousEntry);
 							previousEntry.left = currentEntry;
 							currentEntry.stream.pushZero();
+							DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "0 - left");
 						}
 						else {
 							offset = right;
@@ -305,27 +306,36 @@ public class HuffmanHelper {
 							currentEntry = new CacheEntry(previousEntry);
 							previousEntry.right = currentEntry;
 							currentEntry.stream.pushOne();
+							DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "1 - right");
 						}
 						
 						node = treeAddress + (4 * offset);
+						DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "node = 0x" + Long.toHexString(node));
 						currentEntry.nodeValue = node;
 						currentByte >>= 1;
 						bit += 1;
 					} else {
 						node = rootAddress;
 						result[i] = (byte) (left & 0xFF);
-						currentEntry.hasValue1 = true;
-						currentEntry.value1 = (byte) (left & 0xFF);
+						
+						CacheEntry valueEntry = new CacheEntry(currentEntry);
+						currentEntry.value = valueEntry;
+						
+						valueEntry.hasValue1 = true;
+						valueEntry.value1 = (byte) (left & 0xFF);
+						DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value1));
 						i += 1;
 						if ((left & 0xFF00) != 0) {
 							if (i != 0x1000) {
-								result[i] = (byte) ((left & 0xFF00) >> 8);
-								currentEntry.hasValue2 = true;
-								currentEntry.value2 = (byte) ((left & 0xFF00) >> 8);
+								result[i] = (byte) ((left >> 8) & 0xFF);
+								valueEntry.hasValue2 = true;
+								valueEntry.value2 = (byte) ((left >> 8) & 0xFF);
+								DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value2));
 								i += 1;
 							}
 						} else if (left == 0) {
-							currentEntry.isTerminal = true;
+							valueEntry.isTerminal = true;
+							DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Terminal");
 							break;
 						}
 						currentEntry = cacheRoot;

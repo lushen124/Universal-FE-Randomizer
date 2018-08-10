@@ -7,6 +7,7 @@ import fedata.general.WeaponEffects;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
 import random.ItemDataLoader;
+import random.TextLoader;
 
 public interface FEItem extends FEModifiableObject {
 	
@@ -44,6 +45,6 @@ public interface FEItem extends FEModifiableObject {
 	public void setHit(int hit);
 	public void setWeight(int weight);
 	
-	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, ItemDataLoader itemData, FESpellAnimationCollection spellAnimations, Random rng);
+	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, ItemDataLoader itemData, TextLoader textData, FESpellAnimationCollection spellAnimations, Random rng);
 
 }
