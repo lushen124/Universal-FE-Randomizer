@@ -34,13 +34,15 @@ public class ChapterLoader {
 				int numberOfChapters = FE7Data.ChapterPointer.values().length;
 				chapters = new FEChapter[numberOfChapters];
 				int i = 0;
+				long baseAddress = FileReadHelper.readAddress(handler, FE7Data.ChapterTablePointer);
 				for (FE7Data.ChapterPointer chapter : FE7Data.ChapterPointer.values()) {
 					int[] classBlacklist = new int[chapter.blacklistedClasses().length];
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {
 						classBlacklist[index] = chapter.blacklistedClasses()[index].ID;
 					}
+					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE7Chapter fe7Chapter = new FE7Chapter(handler, chapter.chapterOffset(), chapter.isClassSafe(), classBlacklist, chapter.toString()); 
+					FE7Chapter fe7Chapter = new FE7Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString()); 
 					chapters[i++] = fe7Chapter;
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe7Chapter.allUnits().length + " characters and " + fe7Chapter.allRewards().length + " rewards");
 				}

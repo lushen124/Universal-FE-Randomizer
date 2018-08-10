@@ -45,6 +45,8 @@ public class Randomizer {
 	private ItemDataLoader itemData;
 	private PaletteLoader paletteData;
 	
+	private FreeSpaceManager freeSpace;
+	
 	private FileHandler handler;
 
 	public Randomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
@@ -95,18 +97,7 @@ public class Randomizer {
 		classData.compileDiffs(diffCompiler);
 		itemData.compileDiffs(diffCompiler);
 		paletteData.compileDiffs(diffCompiler);
-		
-		switch (gameType) {
-		case FE7:
-			Map<Long, byte[]> aux = FE7Data.auxiliaryData(classes.randomizePCs && classes.includeLords);
-			for (long offset : aux.keySet()) {
-				Diff auxDiff = new Diff(offset, aux.get(offset).length, aux.get(offset), null);
-				diffCompiler.addDiff(auxDiff);
-			}
-			break;
-		default:
-			break;
-		}
+		freeSpace.commitChanges(diffCompiler);
 		
 		if (targetPath != null) {
 			DiffApplicator.applyDiffs(diffCompiler, handler, targetPath);
@@ -115,10 +106,13 @@ public class Randomizer {
 	
 	private void generateFE7DataLoaders() {
 		handler.setAppliedDiffs(diffCompiler);
+		
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7);
+		
 		charData = new CharacterDataLoader(FEBase.GameType.FE7, handler);
 		classData = new ClassDataLoader(FEBase.GameType.FE7, handler);
 		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
-		itemData = new ItemDataLoader(FEBase.GameType.FE7, handler);
+		itemData = new ItemDataLoader(FEBase.GameType.FE7, handler, freeSpace);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
 		handler.clearAppliedDiffs();
 	}

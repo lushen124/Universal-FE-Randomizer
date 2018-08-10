@@ -113,7 +113,7 @@ public class WeaponsRandomizer {
 		if (effectOptions.devil) { enabledEffects.add(WeaponEffects.DEVIL); }
 		
 		for (FEItem weapon : allWeapons) {
-			weapon.applyRandomEffect(enabledEffects, itemsData.spellAnimations, rng);
+			weapon.applyRandomEffect(enabledEffects, itemsData, itemsData.spellAnimations, rng);
 		}
 		
 		itemsData.commit();

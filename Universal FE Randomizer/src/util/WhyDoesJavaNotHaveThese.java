@@ -43,4 +43,12 @@ public class WhyDoesJavaNotHaveThese {
 		
 		return true;
 	}
+	
+	public static byte[] bytesFromAddress(long address) {
+		if (address <= 0x8000000) {
+			address += 0x8000000;
+		}
+		
+		return new byte[] {(byte)(address & 0xFF), (byte)((address & 0xFF00) >> 8), (byte)((address & 0xFF0000) >> 16), (byte)((address & 0xFF000000) >> 24)};
+	}
 }

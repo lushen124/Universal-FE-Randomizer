@@ -12,7 +12,6 @@ import java.util.Set;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
 import fedata.general.PaletteInfo;
-import util.AddressRange;
 
 public class FE7Data {
 
@@ -24,44 +23,37 @@ public class FE7Data {
 	
 	public static final int NumberOfCharacters = 254;
 	public static final int BytesPerCharacter = 52;
-	public static final int DefaultCharacterTableAddress = 0xBDCE18;
+	public static final long CharacterTablePointer = 0x17890;
+	//public static final long DefaultCharacterTableAddress = 0xBDCE18; 
 	
 	public static final int NumberOfClasses = 99;
 	public static final int BytesPerClass = 84;
-	public static final int DefaultClassTableAddress = 0xBE015C;
+	public static final long ClassTablePointer = 0x178F0;
+	//public static final long DefaultClassTableAddress = 0xBE015C;
 	
 	public static final int NumberOfItems = 159;
 	public static final int BytesPerItem = 36;
-	public static final int DefaultItemTableAddress = 0xBE222C;
+	public static final long ItemTablePointer = 0x16060;
+	//public static final long DefaultItemTableAddress = 0xBE222C;
 	
 	public static final int NumberOfSpellAnimations = 127;
 	public static final int BytesPerSpellAnimation = 16;
-	public static final int DefaultSpellAnimationTableOffset = 0xC999C0;
+	public static final long SpellAnimationTablePointer = 0x52B24;
+	//public static final long DefaultSpellAnimationTableOffset = 0xC999C0;
 	
-	public static final int HuffmanTreeStart = 0x6BC;
-	public static final int HuffmanTreeEnd = 0x6B8;
-	public static final int DefaultTextArrayOffset = 0xB808AC;
+	public static final int HuffmanTreeStart = 0x6BC; // Resolved once
+	public static final int HuffmanTreeEnd = 0x6B8; // Resolved twice
+	public static final long TextTablePointer = 0x12CB8;
+	//public static final long DefaultTextArrayOffset = 0xB808AC;
 	public static final int NumberOfTextStrings = 0x133E;
 	
-	public static final int DefaultChapterArrayOffset = 0xC9C9C8;
+	public static final long ChapterTablePointer = 0x191C8;
+	//public static final long DefaultChapterArrayOffset = 0xC9C9C8;
 	public static final int BytesPerChapterUnit = 16;
 	
-	public static final int HeroCrestAddressPointer = 0x27500;
-	public static final int KnightCrestAddressPointer = 0x27508;
-	public static final int OrionBoltAddressPointer = 0x27510;
-	public static final int ElysianWhipAddressPointer = 0x27518;
-	public static final int GuidingRingAddressPointer = 0x27520;
-	public static final int MasterSealAddressPointer = 0x27528;
-	public static final int FallenContractAddressPointer = 0x2754C;
-	public static final int OceanSealAddressPointer = 0x27574;
+	public static final long PromotionItemTablePointer = 0x27428; // Accounts for most of them, except for ocean seal.
 	
-	public static final int HeroCrestDefaultAddress = 0xC97EDD;
-	public static final int KnightCrestDefaultAddress = 0xC97EE3;
-	public static final int OrionBoltDefaultAddress = 0xC97EE8;
-	public static final int ElysianWhipDefaultAddress = 0xC97EED;
-	public static final int GuidingRingDefaultAddress = 0xC97EF1;
-	public static final int MasterSealDefaultAddress = 0xC97EFD;
-	public static final int FallenContractDefaultAddress = 0xC97F29;
+	public static final int OceanSealAddressPointer = 0x27574; // ???
 	public static final int OceanSealDefaultAddress = 0xC97F24;
 	
 	public enum Character {
@@ -103,10 +95,6 @@ public class FE7Data {
 		
 		public static Character valueOf(int characterId) {
 			return map.get(characterId);
-		}
-		
-		public static long dataOffsetForCharacter(Character character) {
-			return DefaultCharacterTableAddress + (character.ID * BytesPerCharacter);
 		}
 		
 		public static int[] characterIDsForCharacters(Character[] charArray) {
@@ -271,7 +259,9 @@ public class FE7Data {
 		HERO_F(0x0D), // Doesn't exist naturally. May not work.
 		GENERAL_F(0x17), // Doesn't exist naturally. May not work.
 		DRUID_F(0x27), // Doesn't exist naturally. May not work.
-		NOMADTROOPER_F(0x31); // Doesn't exist naturally. May not work.
+		NOMADTROOPER_F(0x31), // Doesn't exist naturally. May not work.
+		
+		FIRE_DRAGON(0x46); // For dragon effectiveness.
 		
 		public int ID;
 		
@@ -287,10 +277,6 @@ public class FE7Data {
 		
 		public static CharacterClass valueOf(int classId) {
 			return map.get(classId);
-		}
-		
-		public static long dataOffsetForClass(CharacterClass charClass) {
-			return DefaultClassTableAddress + (charClass.ID * BytesPerClass);
 		}
 		
 		public static int[] classIDsForClassArray(CharacterClass[] classArray) {
@@ -453,10 +439,6 @@ public class FE7Data {
 			}
 			
 			return idArray;
-		}
-		
-		public static long dataOffsetForItem(Item item) {
-			return DefaultItemTableAddress + (item.ID * BytesPerItem);
 		}
 		
 		public enum FE7WeaponRank {
@@ -936,16 +918,21 @@ public class FE7Data {
 			this.chapterID = chapterID;
 		}
 		
-		public long chapterOffset() {
-			return chapterID * 4 + DefaultChapterArrayOffset;
-		}
-		
 		public FE7Data.CharacterClass[] blacklistedClasses() {
 			switch(this) {
 			case CHAPTER_5:
 				return new FE7Data.CharacterClass[] {CharacterClass.ARCHER};
 			default:
 				return new FE7Data.CharacterClass[] {};
+			}
+		}
+		
+		public Boolean shouldRemoveFightScenes() {
+			switch (this) {
+			case CHAPTER_21:
+				return true;
+			default:
+				return false;
 			}
 		}
 		
@@ -968,6 +955,24 @@ public class FE7Data {
 			default:
 				return false;
 			}
+		}
+	}
+	
+	public enum PromotionItem {
+		// Ocean Seal is missing, but I can't find it in this table.
+		// It's pointer can be found at 0x27574.
+		// Remember that the actual address of the class IDs starts at byte 4 after the jump.
+		// The class IDs are 00 terminated.
+		HERO_CREST(0x01), KNIGHT_CREST(0x02), ORION_BOLT(0x03), ELYSIAN_WHIP(0x04), GUIDING_RING(0x05), MASTER_SEAL(0x25), FALLEN_CONTRACT(0x29);
+		
+		int offset;
+		
+		private PromotionItem(final int offset) {
+			this.offset = offset;
+		}
+		
+		public long getPointerAddress() {
+			return (offset * 4) + PromotionItemTablePointer;
 		}
 	}
 	
@@ -1364,85 +1369,5 @@ public class FE7Data {
 		public static PaletteInfo defaultPaletteForClass(int classID) {
 			return defaultPaletteForClass.get(classID);
 		}
-	}
-	
-	public static Map<Long, byte[]> auxiliaryData(Boolean didRandomizeLordClasses) {
-		HashMap<Long, byte[]> map = new HashMap<>();
-		
-		// Extra Space for Stat Boosts.
-		
-		// STR/MAG Boost =	 0x00 05 00 00 00 00 00
-		map.put((long)0x1000000, new byte[] { 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
-		
-		// SKL Boost = 		 0x00 00 05 00 00 00 00
-		map.put((long)0x1000008, new byte[] { 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00 });
-		
-		// SPD Boost = 		 0x00 00 00 05 00 00 00
-		map.put((long)0x1000010, new byte[] { 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00 });
-		
-		// DEF Boost = 		 0x00 00 00 00 05 00 00
-		map.put((long)0x1000018, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00 });
-		
-		// RES Boost = 		 0x00 00 00 00 00 05 00
-		map.put((long)0x1000020, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00 });
-		
-		// LCK Boost = 		 0x00 00 00 00 00 00 0A // I think? And make it a +10.
-		map.put((long)0x1000028, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x00 });
-		
-		// Extra Space for Promotion Item Changes.
-		
-		List<CharacterClass> knightsCrestClasses = new ArrayList<CharacterClass>();
-		knightsCrestClasses.add(CharacterClass.KNIGHT);
-		knightsCrestClasses.add(CharacterClass.KNIGHT_F);
-		knightsCrestClasses.add(CharacterClass.CAVALIER);
-		knightsCrestClasses.add(CharacterClass.CAVALIER_F);
-		// Knight Crest now supports Soldiers.
-		knightsCrestClasses.add(CharacterClass.SOLDIER);
-		
-		if (didRandomizeLordClasses) {
-			knightsCrestClasses.add(CharacterClass.LORD_ELIWOOD);
-			knightsCrestClasses.add(CharacterClass.LORD_HECTOR);
-		}
-		
-		byte[] knightsCrestRaw = new byte[knightsCrestClasses.size() + 1];
-		for (int i = 0; i < knightsCrestClasses.size(); i++) {
-			knightsCrestRaw[i] = (byte)(knightsCrestClasses.get(i).ID & 0xFF);
-		}
-		knightsCrestRaw[knightsCrestClasses.size()] = 0x00;
-		
-		List<CharacterClass> heroesCrestClasses = new ArrayList<CharacterClass>();
-		heroesCrestClasses.add(CharacterClass.MERCENARY);
-		heroesCrestClasses.add(CharacterClass.MERCENARY_F);
-		heroesCrestClasses.add(CharacterClass.MYRMIDON);
-		heroesCrestClasses.add(CharacterClass.MYRMIDON_F);
-		heroesCrestClasses.add(CharacterClass.FIGHTER);
-		
-		if (didRandomizeLordClasses) {
-			heroesCrestClasses.add(CharacterClass.LORD_LYN);
-		}
-		
-		byte[] heroesCrestRaw = new byte[heroesCrestClasses.size() + 1];
-		for (int i = 0; i < heroesCrestClasses.size(); i++) {
-			heroesCrestRaw[i] = (byte)(heroesCrestClasses.get(i).ID & 0xFF);
-		}
-		heroesCrestRaw[heroesCrestClasses.size()] = 0x00;
-		
-		long baseAddress = 0x1000030;
-		map.put(baseAddress, knightsCrestRaw);
-		map.put((long)KnightCrestAddressPointer, new byte[] {(byte)(baseAddress & 0xFF), (byte)((baseAddress >> 8) & 0xFF),
-			(byte)((baseAddress >> 16) & 0xFF), (byte)(((baseAddress >> 24) & 0xFF) + 0x08)});
-		
-		baseAddress += knightsCrestRaw.length;
-		
-		map.put(baseAddress, heroesCrestRaw);
-		map.put((long)HeroCrestAddressPointer, new byte[] {(byte)(baseAddress & 0xFF), (byte)((baseAddress >> 8) & 0xFF),
-				(byte)((baseAddress >> 16) & 0xFF), (byte)(((baseAddress >> 24) & 0xFF) + 0x08)});
-		
-		// Soldiers need to have their promotion defined.
-		long soldierDataAddress = DefaultClassTableAddress + BytesPerClass * CharacterClass.SOLDIER.ID;
-		// FE7 Promotions are defined on the 5th byte of a class's structure.
-		map.put(soldierDataAddress + 5, new byte[] {(byte)(CharacterClass.GENERAL.ID & 0xFF)});
-		
-		return map;
 	}
 }

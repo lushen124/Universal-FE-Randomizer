@@ -12,6 +12,7 @@ import fedata.fe7.FE7Data;
 import io.FileHandler;
 import util.Diff;
 import util.DiffCompiler;
+import util.FileReadHelper;
 
 public class ClassDataLoader {
 
@@ -28,11 +29,16 @@ private FEBase.GameType gameType;
 		
 		switch (gameType) {
 			case FE7:
+				long baseAddress = FileReadHelper.readAddress(handler, FE7Data.ClassTablePointer);
 				for (FE7Data.CharacterClass charClass : FE7Data.CharacterClass.values()) {
-					long offset = FE7Data.CharacterClass.dataOffsetForClass(charClass);
+					long offset = baseAddress + (charClass.ID * FE7Data.BytesPerClass);
 					byte[] classData = handler.readBytesAtOffset(offset, FE7Data.BytesPerClass);
 					FE7Class classObject = new FE7Class(classData, offset);
 					classMap.put(charClass.ID, classObject);
+					
+					if (charClass.ID == FE7Data.CharacterClass.SOLDIER.ID) {
+						classObject.setTargetPromotionID(FE7Data.CharacterClass.GENERAL.ID);
+					}
 					
 					if (FE7Data.CharacterClass.allLordClasses.contains(charClass)) {
 						lordMap.put(charClass.ID, classObject);

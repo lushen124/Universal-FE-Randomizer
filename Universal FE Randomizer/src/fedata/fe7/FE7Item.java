@@ -15,6 +15,7 @@ import fedata.fe7.FE7SpellAnimationCollection.Animation;
 import fedata.general.WeaponEffects;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
+import random.ItemDataLoader;
 import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -24,32 +25,6 @@ public class FE7Item implements FEItem {
 	private byte[] data;
 	
 	private long originalOffset;
-	
-	private enum StatBoost {
-		STRMAG(0x1000000), SKL(0x1000008), SPD(0x1000010), DEF(0x1000018), RES(0x1000020), LCK(0x1000028);
-		
-		public long address;
-		
-		private StatBoost(final long address) { this.address = address; }
-		
-		public byte[] toPointer() {
-			long referenceAddress = 0x08000000 + address;
-			return new byte[] { (byte)(referenceAddress & 0xFF), (byte)((referenceAddress >> 8) & 0xFF), (byte)((referenceAddress >> 16) & 0xFF), (byte)((referenceAddress >> 24) & 0xFF) };
-		}
-	}
-	
-	private enum Effectiveness {
-		KNIGHTCAV(0xC97E9C), KNIGHT(0xC97E96), DRAGON(0xC97EC5), CAVALRY(0xC97EB7), MYRMIDON(0xC97EAD), FLIERS(0xC97ED2), DRAGON2(0xC97EC5);
-		
-		public long address;
-		
-		private Effectiveness(final long address) { this.address = address; }
-		
-		public byte[] toPointer() {
-			long referenceAddress = 0x08000000 + address;
-			return new byte[] { (byte)(referenceAddress & 0xFF), (byte)((referenceAddress >> 8) & 0xFF), (byte)((referenceAddress >> 16) & 0xFF), (byte)((referenceAddress >> 24) & 0xFF) };
-		}
-	}
 	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
@@ -198,7 +173,7 @@ public class FE7Item implements FEItem {
 		wasModified = true;
 	}
 	
-	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, FESpellAnimationCollection spellAnimations, Random rng) {
+	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, ItemDataLoader itemData, FESpellAnimationCollection spellAnimations, Random rng) {
 		if (getType() == WeaponType.NOT_A_WEAPON) {
 			return;
 		}
@@ -212,7 +187,7 @@ public class FE7Item implements FEItem {
 		
 		int randomEffect = rng.nextInt(effectPool.size());
 		WeaponEffects[] effectList = effectPool.toArray(new WeaponEffects[effectPool.size()]);
-		applyEffect(effectList[randomEffect], spellAnimations, rng);
+		applyEffect(effectList[randomEffect], itemData, spellAnimations, rng);
 	}
 	
 	public void resetData() {
@@ -289,13 +264,13 @@ public class FE7Item implements FEItem {
 		return effects;
 	}
 	
-	private void applyEffect(WeaponEffects effect, FESpellAnimationCollection spellAnimations, Random rng) {
+	private void applyEffect(WeaponEffects effect, ItemDataLoader itemData, FESpellAnimationCollection spellAnimations, Random rng) {
 		switch (effect) {
 		case STAT_BOOSTS:
-			StatBoost[] boosts = StatBoost.values();
+			long[] boosts = itemData.possibleStatBoostAddresses();
 			int randomIndex = rng.nextInt(boosts.length);
-			StatBoost selectedBoost = boosts[randomIndex];
-			byte[] pointer = selectedBoost.toPointer();
+			long selectedBoostAddress = boosts[randomIndex];
+			byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(selectedBoostAddress);
 			data[12] = pointer[0];
 			data[13] = pointer[1];
 			data[14] = pointer[2];
@@ -303,10 +278,10 @@ public class FE7Item implements FEItem {
 			wasModified = true;
 			break;
 		case EFFECTIVENESS:
-			Effectiveness[] effects = Effectiveness.values();
+			long[] effects = itemData.possibleEffectivenessAddresses();
 			randomIndex = rng.nextInt(effects.length);
-			Effectiveness selectedEffect = effects[randomIndex];
-			pointer = selectedEffect.toPointer();
+			long selectedEffectivenessAddress = effects[randomIndex];
+			pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(selectedEffectivenessAddress);
 			data[16] = pointer[0];
 			data[17] = pointer[1];
 			data[18] = pointer[2];

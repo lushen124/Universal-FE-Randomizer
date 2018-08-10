@@ -12,6 +12,7 @@ import fedata.fe7.FE7Data;
 import io.FileHandler;
 import util.Diff;
 import util.DiffCompiler;
+import util.FileReadHelper;
 
 public class CharacterDataLoader {
 	
@@ -25,8 +26,9 @@ public class CharacterDataLoader {
 		
 		switch (gameType) {
 			case FE7:
+				long baseAddress = FileReadHelper.readAddress(handler, FE7Data.CharacterTablePointer);
 				for (FE7Data.Character character : FE7Data.Character.values()) {
-					long offset = FE7Data.Character.dataOffsetForCharacter(character);
+					long offset = baseAddress + (FE7Data.BytesPerCharacter * character.ID);
 					byte[] charData = handler.readBytesAtOffset(offset, FE7Data.BytesPerCharacter);
 					characterMap.put(character.ID, new FE7Character(charData, offset, character.hasLimitedClasses()));
 				}
