@@ -283,7 +283,7 @@ private FEBase.GameType gameType;
 				offsetsForAdditionalData.get(AdditionalData.LCK_BOOST)};
 	}
 	
-	public String descriptionStringForAddress(long address, Boolean isMagic) {
+	public String descriptionStringForAddress(long address, Boolean isMagic, Boolean shortForm) {
 		if (offsetsForAdditionalData.get(AdditionalData.STR_MAG_BOOST) == address) { return isMagic ? "+5 Magic" : "+5 Strength"; }
 		if (offsetsForAdditionalData.get(AdditionalData.SKL_BOOST) == address) { return "+5 Skill"; }
 		if (offsetsForAdditionalData.get(AdditionalData.SPD_BOOST) == address) { return "+5 Speed"; }
@@ -291,12 +291,12 @@ private FEBase.GameType gameType;
 		if (offsetsForAdditionalData.get(AdditionalData.DEF_BOOST) == address) { return "+5 Defense"; }
 		if (offsetsForAdditionalData.get(AdditionalData.RES_BOOST) == address) { return "+5 Resistance"; }
 		
-		if (offsetsForAdditionalData.get(AdditionalData.KNIGHT_EFFECT) == address) { return "Eff. Armor"; }
-		if (offsetsForAdditionalData.get(AdditionalData.KNIGHTCAV_EFFECT) == address) { return "Eff. Armor and Horseback"; }
-		if (offsetsForAdditionalData.get(AdditionalData.CAVALRY_EFFECT) == address) { return "Eff. Horseback"; }
-		if (offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT) == address) { return "Eff. Fliers"; }
-		if (offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT) == address) { return "Eff. Swordfighters"; }
-		if (offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT) == address) { return "Eff. Dragons"; }
+		if (offsetsForAdditionalData.get(AdditionalData.KNIGHT_EFFECT) == address) { return shortForm ? "Eff. Knights" : "Effective against knights"; }
+		if (offsetsForAdditionalData.get(AdditionalData.KNIGHTCAV_EFFECT) == address) { return shortForm ? "Eff. Infantry" : "Effective against infantry"; }
+		if (offsetsForAdditionalData.get(AdditionalData.CAVALRY_EFFECT) == address) { return shortForm ? "Eff. Cavalry" : "Effective against cavalry"; }
+		if (offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT) == address) { return shortForm ? "Eff. Fliers" : "Effective against fliers"; }
+		if (offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT) == address) { return shortForm ? "Eff. Swordfighters" : "Effective against swordfighters"; }
+		if (offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT) == address) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
 		
 		return null;
 	}
