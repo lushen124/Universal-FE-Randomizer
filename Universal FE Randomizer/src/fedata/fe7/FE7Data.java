@@ -172,6 +172,12 @@ public class FE7Data {
 			return restrictedClassCharacters.contains(this);
 		}
 		
+		public static Map<Integer, Character> getCharacterCounters() {
+			Map<Integer, Character> counterMap = new HashMap<Integer, Character>();
+			counterMap.put(BATTA.ID, LYN_TUTORIAL);
+			return counterMap;
+		}
+		
 		public static Character[] allLinkedCharactersFor(Character character) {
 			switch (character) {
 			case LYN:
@@ -309,6 +315,49 @@ public class FE7Data {
 		
 		private static Boolean isClassPromoted(CharacterClass sourceClass) {
 			return allPromotedClasses.contains(sourceClass);
+		}
+		
+		public static CharacterClass[] classesThatLoseToClass(CharacterClass originalClass, CharacterClass winningClass, Boolean excludeLords, Boolean excludeThieves) {
+			Set<CharacterClass> classList = new HashSet<CharacterClass>();
+			switch (winningClass) {
+			case LORD_ELIWOOD:
+			case LORD_LYN:
+			case MERCENARY:
+			case MYRMIDON: {
+				classList.add(FIGHTER);
+				classList.add(BRIGAND);
+				classList.add(PIRATE);
+				classList.add(CORSAIR);
+				break;
+			}
+			case LORD_HECTOR:
+			case FIGHTER:
+			case BRIGAND:
+			case PIRATE:
+			case CORSAIR: {
+				classList.add(KNIGHT);
+				classList.add(SOLDIER);
+				break;
+			}
+			case KNIGHT:
+			case SOLDIER:
+			case PEGASUSKNIGHT: {
+				classList.add(MYRMIDON);
+				classList.add(MERCENARY);
+				if (!excludeLords) {
+					classList.add(LORD_ELIWOOD);
+					classList.add(LORD_LYN);
+				}
+				if (!excludeThieves) {
+					classList.add(THIEF);
+				}
+				break;
+			}
+			default:
+				break;
+			}
+			
+			return classList.toArray(new CharacterClass[classList.size()]);
 		}
 		
 		public static CharacterClass[] targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {

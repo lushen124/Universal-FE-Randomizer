@@ -45,7 +45,7 @@ public class ClassRandomizer {
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {
-				FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, charactersData.isLordCharacterID(character.getID()), characterRequiresRange, character.isClassRestricted());
+				FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, charactersData.isLordCharacterID(character.getID()), characterRequiresRange, character.isClassRestricted(), null);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -60,7 +60,7 @@ public class ClassRandomizer {
 			
 			for (FECharacter linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData, rng);
+				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData, false, rng);
 			}
 				
 			Boolean hasOriginalPromotionData = false;
@@ -106,10 +106,19 @@ public class ClassRandomizer {
 			
 			FEClass targetClass = null;
 			
+			Boolean forceBasicWeaponry = false;
+			
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {			
-				FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, true, characterRequiresRange, false);
+				FECharacter mustLoseToCharacter = charactersData.characterRequiresCounterToCharacter(character);
+				FEClass mustLoseToClass = null;
+				if (mustLoseToCharacter != null) {
+					mustLoseToClass = classData.classForID(mustLoseToCharacter.getClassID());
+					forceBasicWeaponry = true;
+				}
+				
+				FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, true, characterRequiresRange, character.isClassRestricted(), mustLoseToClass);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -124,7 +133,7 @@ public class ClassRandomizer {
 			
 			for (FECharacter linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData, rng);
+				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
 			}
 			
 			paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), 0, targetClass.getID(), 0);
@@ -147,7 +156,7 @@ public class ClassRandomizer {
 					}
 					
 					Boolean shouldRestrictToSafeClasses = !chapter.isClassSafe();
-					FEClass[] possibleClasses = classData.potentialClasses(originalClass, false, false, false, true, false, shouldRestrictToSafeClasses);
+					FEClass[] possibleClasses = classData.potentialClasses(originalClass, false, false, false, true, false, shouldRestrictToSafeClasses, null);
 					if (possibleClasses.length == 0) {
 						continue;
 					}
@@ -161,7 +170,7 @@ public class ClassRandomizer {
 		}
 	}
 
-	private static void updateCharacterToClass(FECharacter character, FEClass sourceClass, FEClass targetClass, Boolean ranged, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
+	private static void updateCharacterToClass(FECharacter character, FEClass sourceClass, FEClass targetClass, Boolean ranged, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Boolean forceBasicWeapons, Random rng) {
 		
 		character.prepareForClassRandomization();
 		character.setClassID(targetClass.getID());
@@ -175,7 +184,7 @@ public class ClassRandomizer {
 						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass());
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
-					validateCharacterInventory(character, chapterUnit, ranged, itemData, rng);
+					validateCharacterInventory(character, chapterUnit, ranged, itemData, forceBasicWeapons, rng);
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
@@ -290,12 +299,12 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void validateCharacterInventory(FECharacter character, FEChapterUnit chapterUnit, Boolean ranged, ItemDataLoader itemData, Random rng) {
+	private static void validateCharacterInventory(FECharacter character, FEChapterUnit chapterUnit, Boolean ranged, ItemDataLoader itemData, Boolean forceBasic, Random rng) {
 		int item1ID = chapterUnit.getItem1();
 		FEItem item1 = itemData.itemWithID(item1ID);
 		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item1)) {
-				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData, rng);
+				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
 					chapterUnit.setItem1(replacementItem.getID());
 				} else {
@@ -308,7 +317,7 @@ public class ClassRandomizer {
 		FEItem item2 = itemData.itemWithID(item2ID);
 		if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item2)) {
-				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData, rng);
+				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
 					chapterUnit.setItem2(replacementItem.getID());
 				} else {
@@ -321,7 +330,7 @@ public class ClassRandomizer {
 		FEItem item3 = itemData.itemWithID(item3ID);
 		if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item3)) {
-				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData, rng);
+				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
 					chapterUnit.setItem3(replacementItem.getID());
 				} else {
@@ -334,7 +343,7 @@ public class ClassRandomizer {
 		FEItem item4 = itemData.itemWithID(item4ID);
 		if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item4)) {
-				FEItem replacementItem = getRandomWeaponForCharacter(character, ranged, itemData, rng);
+				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
 					chapterUnit.setItem4(replacementItem.getID());
 				} else {
@@ -352,6 +361,19 @@ public class ClassRandomizer {
 		
 		int index = rng.nextInt(potentialItems.length);
 		return potentialItems[index];
+	}
+	
+	private static FEItem getBasicWeaponForCharacter(FECharacter character, Boolean ranged, ItemDataLoader itemData, Random rng) {
+		if (character.getSwordRank() > 0) { return itemData.basicItemOfType(WeaponType.SWORD); }
+		if (character.getLanceRank() > 0) { return itemData.basicItemOfType(WeaponType.LANCE); }
+		if (character.getAxeRank() > 0) { return itemData.basicItemOfType(WeaponType.AXE); }
+		if (character.getBowRank() > 0) { return itemData.basicItemOfType(WeaponType.BOW); }
+		if (character.getAnimaRank() > 0) { return itemData.basicItemOfType(WeaponType.ANIMA); }
+		if (character.getLightRank() > 0) { return itemData.basicItemOfType(WeaponType.LIGHT); }
+		if (character.getDarkRank() > 0) { return itemData.basicItemOfType(WeaponType.DARK); }
+		if (character.getStaffRank() > 0) { return itemData.basicItemOfType(WeaponType.STAFF); }
+		
+		return null;
 	}
 	
 	private static FEItem getSidegradeWeapon(FEClass targetClass, FEItem originalWeapon, ItemDataLoader itemData, Random rng) {

@@ -310,6 +310,27 @@ private FEBase.GameType gameType;
 				offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT)};
 	}
 	
+	public FEItem basicItemOfType(WeaponType type) {
+		switch (gameType) {
+		case FE7:
+			switch (type) {
+			case SWORD: return itemMap.get(FE7Data.Item.IRON_SWORD.ID);
+			case LANCE: return itemMap.get(FE7Data.Item.IRON_LANCE.ID);
+			case AXE: return itemMap.get(FE7Data.Item.IRON_AXE.ID);
+			case BOW: return itemMap.get(FE7Data.Item.IRON_BOW.ID);
+			case ANIMA: return itemMap.get(FE7Data.Item.FIRE.ID);
+			case LIGHT: return itemMap.get(FE7Data.Item.LIGHTNING.ID);
+			case DARK: return itemMap.get(FE7Data.Item.FLUX.ID);
+			case STAFF: return itemMap.get(FE7Data.Item.HEAL.ID);
+			default: return null;
+			}
+		default:
+			break;
+		}
+		
+		return null;
+	}
+	
 	public FEItem[] itemsOfTypeAndBelowRankValue(WeaponType type, int rankValue, Boolean rangedOnly) {
 		switch (gameType) {
 		case FE7:

@@ -19,6 +19,7 @@ public class CharacterDataLoader {
 	private FEBase.GameType gameType;
 	
 	private Map<Integer, FECharacter> characterMap = new HashMap<Integer, FECharacter>();
+	private Map<Integer, FECharacter> counterMap = new HashMap<Integer, FECharacter>();
 
 	public CharacterDataLoader(FEBase.GameType gameType, FileHandler handler) {
 		super();
@@ -31,6 +32,10 @@ public class CharacterDataLoader {
 					long offset = baseAddress + (FE7Data.BytesPerCharacter * character.ID);
 					byte[] charData = handler.readBytesAtOffset(offset, FE7Data.BytesPerCharacter);
 					characterMap.put(character.ID, new FE7Character(charData, offset, character.hasLimitedClasses()));
+				}
+				Map<Integer, FE7Data.Character> fe7Counters = FE7Data.Character.getCharacterCounters(); 
+				for (int characterID : fe7Counters.keySet()) {
+					counterMap.put(characterID, characterMap.get(fe7Counters.get(characterID).ID));
 				}
 				break;
 			default:
@@ -142,6 +147,10 @@ public class CharacterDataLoader {
 		default:
 			return false;
 		}
+	}
+	
+	public FECharacter characterRequiresCounterToCharacter(FECharacter character) {
+		return counterMap.get(character.getID());
 	}
 	
 	public FECharacter[] linkedCharactersForCharacter(FECharacter character) {
