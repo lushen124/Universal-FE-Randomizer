@@ -120,7 +120,7 @@ Random stuff that may be funny.
 
 ## Nice-to-have Features
 * ~~Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.~~ This is actually done now. It mostly works, though it occasionally gives an odd color.
-* Fixing text to match items. Makes random weapon effects less infuriating to play.
+* ~~Fixing text to match items. Makes random weapon effects less infuriating to play.~~ Done!
 * Fixing world map sequences to be somewhat more accurate to a unit's class.
 * Allowing melee axes to gain range.
 * ~~Remove limitations on class randomization.~~ This is mostly resolved using a blacklist of characters and chapters which continue to limit class choices. All other characters and chapters are allowed to fully randomize classes.
