@@ -119,10 +119,10 @@ Random stuff that may be funny.
 **Randomize Recruitment Order (WIP)** - A weird option from the original randomizer which more or less replaces character data completely with another, simulating a randomized recruitment order. Not sure if I'll make any changes to this or not.
 
 ## Sample Screenshots
-[](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/FixedPalettes.png)
-[](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/RandomMinions.png)
-[](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MorePalettes.png)
-[](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MoreText.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/FixedPalettes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/RandomMinions.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MorePalettes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MoreText.png)
 
 ## Nice-to-have Features
 * ~~Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.~~ This is actually done now. It mostly works, though it occasionally gives an odd color.
