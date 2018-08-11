@@ -146,7 +146,7 @@ public class FE7Data {
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(ELIWOOD, HECTOR, LYN, LYN_TUTORIAL));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(MATTHEW, LEGAULT, JAFFAR));
 		
-		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList(ERK));
+		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList(ERK, RATH_TUTORIAL));
 		
 		public Boolean isLord() {
 			return allLords.contains(this);

@@ -461,13 +461,13 @@ public class ClassRandomizer {
 		Boolean applyDarkRank = targetClass.getDarkRank() > 0;
 		Boolean applyStaffRank = targetClass.getStaffRank() > 0;
 		
-		int[] targetRanks = new int[] { 0, 0, 0, 0, 0, 0, 0, 0};
+		int[] targetRanks = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
 		
 		if (applySwordRank) {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
 				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = ranks.get(rankIndex);
+				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
 				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
@@ -478,7 +478,7 @@ public class ClassRandomizer {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
 				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = ranks.get(rankIndex);
+				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
 				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
@@ -489,7 +489,7 @@ public class ClassRandomizer {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
 				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = ranks.get(rankIndex);
+				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
 				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
@@ -500,7 +500,7 @@ public class ClassRandomizer {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
 				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = ranks.get(rankIndex);
+				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
 				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
@@ -511,7 +511,7 @@ public class ClassRandomizer {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
 				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = ranks.get(rankIndex);
+				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
 				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
@@ -522,7 +522,7 @@ public class ClassRandomizer {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
 				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = ranks.get(rankIndex);
+				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
 				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
@@ -533,7 +533,7 @@ public class ClassRandomizer {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
 				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = ranks.get(rankIndex);
+				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
 				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
@@ -544,7 +544,7 @@ public class ClassRandomizer {
 			int rankToApply = targetClass.getBaseRankValue();
 			if (ranks.size() > 0) {
 				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = ranks.get(rankIndex);
+				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
 				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
