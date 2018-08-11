@@ -399,7 +399,7 @@ public class FE7Item implements FEItem {
 			if (statBonus != null) { traitStrings.add(statBonus); }
 		}
 		if (getEffectivenessPointer() != 0) {
-			String effectiveness = itemData.descriptionStringForAddress(getEffectivenessPointer(), isMagic);
+			String effectiveness = itemData.descriptionStringForAddress(getEffectivenessPointer() - 0x8000000, isMagic);
 			if (effectiveness != null) { traitStrings.add(effectiveness); }
 		}
 		if (getCritical() > 20) { traitStrings.add("High Critical Rate"); }
