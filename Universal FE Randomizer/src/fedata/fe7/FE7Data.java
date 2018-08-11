@@ -698,7 +698,7 @@ public class FE7Data {
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(MANI_KATTI, RAPIER, DURANDAL, SOL_KATTI, WOLF_BEIL, ARMADS, FORBLAZE));
 		
 		public static Item[] formerThiefKit() {
-			return new Item[] {CHEST_KEY_5, DOOR_KEY};
+			return new Item[] {CHEST_KEY_5, DOOR_KEY, DOOR_KEY};
 		}
 		
 		public static Item[] specialClassKit(int classID, Random rng) {

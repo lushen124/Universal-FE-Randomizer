@@ -389,43 +389,66 @@ public class FE7Item implements FEItem {
 	
 	private String ingameDescriptionString(ItemDataLoader itemData) {
 		List<String> traitStrings = new ArrayList<String>();
+		Map<String, String> shortStrings = new HashMap<String, String>();
 		
 		Boolean isMagic = getType() == WeaponType.ANIMA || getType() == WeaponType.LIGHT || getType() == WeaponType.DARK;
 		Boolean isNormallyMelee = getType() == WeaponType.SWORD || getType() == WeaponType.LANCE || getType() == WeaponType.AXE;
 		Boolean isOnlyRanged = getType() == WeaponType.BOW;
 		
 		if (getStatBonusPointer() != 0) {
-			String statBonus = itemData.descriptionStringForAddress(getStatBonusPointer() - 0x8000000, isMagic);
+			String statBonus = itemData.descriptionStringForAddress(getStatBonusPointer() - 0x8000000, isMagic, false);
 			if (statBonus != null) { traitStrings.add(statBonus); }
+			String statBonusShort = itemData.descriptionStringForAddress(getStatBonusPointer() - 0x8000000, isMagic, true);
+			if (statBonus != null) { shortStrings.put(statBonus, statBonusShort); }
 		}
-		if (getEffectivenessPointer() != 0) {
-			String effectiveness = itemData.descriptionStringForAddress(getEffectivenessPointer() - 0x8000000, isMagic);
-			if (effectiveness != null) { traitStrings.add(effectiveness); }
-		}
-		if (getCritical() >= 20) { traitStrings.add("High Critical Rate"); }
 		
-		if (getMaxRange() > 3) { traitStrings.add("Strikes from afar"); }
+		if (getMaxRange() > 3) { traitStrings.add("Strikes from afar"); shortStrings.put("Strikes from afar", "Siege"); }
 		else if (isNormallyMelee && getMaxRange() > 1) { traitStrings.add("Ranged"); }
-		else if (getMaxRange() > 2) { traitStrings.add("Extended Range"); }
-		else if (isOnlyRanged && getMinRange() < 2) { traitStrings.add("Usable at close range"); }
+		else if (getMaxRange() > 2) { traitStrings.add("Extended range"); shortStrings.put("Extended range", "Long range"); }
+		else if (isOnlyRanged && getMinRange() < 2) { traitStrings.add("Usable at close range"); shortStrings.put("Usable at close range", "Melee"); }
 		
-		if ((getAbility1() & Ability1Mask.BRAVE.ID) != 0) { traitStrings.add("Strikes twice"); }
-		if ((getAbility1() & Ability1Mask.MAGICDAMAGE.ID) != 0) { traitStrings.add("Targets RES"); }
+		if ((getAbility1() & Ability1Mask.BRAVE.ID) != 0) { traitStrings.add("Strikes twice"); shortStrings.put("Strikes twice", "Brave"); }
+		if ((getAbility1() & Ability1Mask.MAGICDAMAGE.ID) != 0) { traitStrings.add("Targets RES"); shortStrings.put("Targets RES", "Magic"); }
 		
 		if ((getAbility2() & Ability2Mask.REVERSEWEAPONTRIANGLE.ID) != 0) {
-			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs. Lances"); }
-			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs. Axes"); }
-			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong vs. Swords"); }
-			else if (getType() == WeaponType.ANIMA) { traitStrings.add("Strong vs. Dark Magic"); }
-			else if (getType() == WeaponType.LIGHT) { traitStrings.add("Strong vs. Anima Magic"); }
-			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong vs. Light Magic"); }
+			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs. Lances"); shortStrings.put("Strong vs. Lances", "Bests lances"); }
+			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs. Axes"); shortStrings.put("Strong vs. Axes", "Bests axes"); }
+			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong vs. Swords"); shortStrings.put("Strong vs. Swords", "Bests Swords"); }
+			else if (getType() == WeaponType.ANIMA) { traitStrings.add("Strong vs. Dark Magic"); shortStrings.put("Strong vs. Dark Magic", "Bests Dark"); }
+			else if (getType() == WeaponType.LIGHT) { traitStrings.add("Strong vs. Anima Magic"); shortStrings.put("Strong vs. Anima Magic", "Bests Anima"); }
+			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong vs. Light Magic"); shortStrings.put("Strong vs. Light Magic", "Bests Light"); }
 		}
 		
-		if (getWeaponEffect() == FE7Data.Item.WeaponEffect.POISON.ID) { traitStrings.add("Poisons on hit"); }
-		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.HALFHP.ID) { traitStrings.add("Halves HP"); }
-		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.DEVIL.ID) { traitStrings.add("May damage user"); }
+		if (getWeaponEffect() == FE7Data.Item.WeaponEffect.POISON.ID) { traitStrings.add("Poisons on hit"); shortStrings.put("Poisons on hit", "Poison"); }
+		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.HALFHP.ID) { traitStrings.add("Halves HP"); shortStrings.put("Halves HP", "Eclipse"); }
+		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.DEVIL.ID) { traitStrings.add("May damage user"); shortStrings.put("May damage user", "Devil"); }
+		
+		if (getCritical() >= 20) { traitStrings.add("High Critical Rate"); shortStrings.put("High Critical Rate", "Critical"); }
+		
+		if (getEffectivenessPointer() != 0) {
+			String effectiveness = itemData.descriptionStringForAddress(getEffectivenessPointer() - 0x8000000, isMagic, false);
+			if (effectiveness != null) { traitStrings.add(effectiveness); }
+			String effectivenessShort = itemData.descriptionStringForAddress(getEffectivenessPointer() - 0x8000000, isMagic, true);
+			if (effectivenessShort != null) { shortStrings.put(effectiveness, effectivenessShort); }
+		}
 		
 		if (traitStrings.isEmpty()) { return null; }
+		
+		int length = 0;
+		for (String current : traitStrings) { length += current.length(); }
+		List<String> shortenedStrings = new ArrayList<String>();
+		while(length > 30 && traitStrings.size() > 0) {
+			String lastString = traitStrings.get(traitStrings.size() - 1);
+			traitStrings.remove(traitStrings.size() - 1);
+			String shorterString = shortStrings.get(lastString);
+			shortenedStrings.add(0, shorterString != null ? shorterString : lastString);
+			
+			length = 0;
+			for (String current : traitStrings) { length += current.length(); }
+			for (String current : shortenedStrings) { length += current.length(); }
+		}
+		
+		traitStrings.addAll(shortenedStrings);
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append(traitStrings.get(0));
