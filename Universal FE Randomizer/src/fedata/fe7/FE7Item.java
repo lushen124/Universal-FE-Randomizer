@@ -378,6 +378,7 @@ public class FE7Item implements FEItem {
 			break;
 		case DEVIL:
 			effectValue = FE7Data.Item.WeaponEffect.DEVIL.ID;
+			data[31] = (byte)(effectValue & 0xFF);
 			int currentMight = getMight();
 			setMight(Math.max((int)(currentMight * 1.5), currentMight + 5));
 			wasModified = true;

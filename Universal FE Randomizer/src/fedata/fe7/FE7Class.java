@@ -317,7 +317,34 @@ public class FE7Class implements FEClass {
 	}
 	
 	public int getBaseRankValue() {
-		return 1;
+		int rankValue = 255;
+		
+		if (getSwordRank() > 0 && getSwordRank() < rankValue) {
+			rankValue = getSwordRank();
+		}
+		if (getLanceRank() > 0 && getLanceRank() < rankValue) {
+			rankValue = getLanceRank();
+		}
+		if (getAxeRank() > 0 && getAxeRank() < rankValue) {
+			rankValue = getAxeRank();
+		}
+		if (getBowRank() > 0 && getBowRank() < rankValue) {
+			rankValue = getBowRank();
+		}
+		if (getAnimaRank() > 0 && getAnimaRank() < rankValue) {
+			rankValue = getAnimaRank();
+		}
+		if (getDarkRank() > 0 && getDarkRank() < rankValue) {
+			rankValue = getDarkRank();
+		}
+		if (getLightRank() > 0 && getLightRank() < rankValue) {
+			rankValue = getLightRank();
+		}
+		if (getStaffRank() > 0 && getStaffRank() < rankValue) {
+			rankValue = getStaffRank();
+		}
+		
+		return rankValue;
 	}
 	
 	public int getMOV() {
