@@ -14,7 +14,7 @@ And hey, name change! It's actually perfect in a lot of ways because it encapsul
 Executables are found in the above executables folder and are separated by platform. The raw JAR file is available if you want to run it directly, but MacOS and Windows users also have the option of using an executable that generally makes things easier to launch.
 
 ### Windows
-![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows.png) ![Sample Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows-Game.png)
+![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows.png)
 
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20Windows.jar
@@ -25,7 +25,7 @@ https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Win
 **Requirements**: JRE >= 1.8.0. I was thinking about bundling this into the executable, but that's just a massive waste of space, and most of you probably can get JRE relatively easily. And if you can't, here you to: http://www.oracle.com/technetwork/java/javase/downloads/index.html. I've only tested this with Windows 10, but I don't see why older versions of Windows would be excluded so long as you have JRE.
 
 ### MacOS
-![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS.png) ![Sample Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS-Game.png)
+![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS.png)
 
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20MacOS.jar
@@ -36,7 +36,7 @@ https://github.com/lushen124/Universal-FE-Randomizer/tree/master/Executables/Mac
 **Requirements**: Like Windows, you need a JRE to run it, though most versions of MacOS have one included that should be sufficient. If it doesn't work, go ahead and grab the newest one at http://www.oracle.com/technetwork/java/javase/downloads/index.html. Tested with OS X 10.13 (High Sierra).
 
 ### GTK
-![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux.png) ![Sample Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux-Game.png)
+![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux.png)
 
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20GTK(x86_64).jar
@@ -117,6 +117,12 @@ Random stuff that may be funny.
 **Randomize Rewards** - Rewards include chests and village items. This encapsultes any item you can get from villages and chests, but does not include villages that grant you gold. Also does not affect any items that are given specifically to a character (e.g. Mani Katti). 50% of the time, the item will be replaced with a related item, and the other 50% of the time will be a completely random item. Possible items include weapons, stat boosters, promotion items, and any other consumable items. Related items for non-weapons are those that fit into the same category (i.e. stat boosters or promotion item). Related items for weapons are those weapons with either the same rank or the same type.
 
 **Randomize Recruitment Order (WIP)** - A weird option from the original randomizer which more or less replaces character data completely with another, simulating a randomized recruitment order. Not sure if I'll make any changes to this or not.
+
+## Sample Screenshots
+[](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/FixedPalettes.png)
+[](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/RandomMinions.png)
+[](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MorePalettes.png)
+[](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MoreText.png)
 
 ## Nice-to-have Features
 * ~~Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.~~ This is actually done now. It mostly works, though it occasionally gives an odd color.
