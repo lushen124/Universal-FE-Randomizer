@@ -141,7 +141,7 @@ public class BasesView extends Composite {
 		deltaParamLabel.setText("Max Delta:");
 		
 		deltaSpinner = new Spinner(deltaParamContainer, SWT.NONE);
-		deltaSpinner.setValues(2, 1, 5, 0, 1, 1);
+		deltaSpinner.setValues(3, 1, 5, 0, 1, 1);
 		deltaSpinner.setEnabled(false);
 		
 		labelData = new FormData();

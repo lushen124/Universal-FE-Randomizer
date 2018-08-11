@@ -284,12 +284,12 @@ private FEBase.GameType gameType;
 	}
 	
 	public String descriptionStringForAddress(long address, Boolean isMagic) {
-		if (offsetsForAdditionalData.get(AdditionalData.STR_MAG_BOOST) == address) { return isMagic ? "+5 MAG" : "+5 STR"; }
-		if (offsetsForAdditionalData.get(AdditionalData.SKL_BOOST) == address) { return "+5 SKL"; }
-		if (offsetsForAdditionalData.get(AdditionalData.SPD_BOOST) == address) { return "+5 SPD"; }
-		if (offsetsForAdditionalData.get(AdditionalData.LCK_BOOST) == address) { return "+5 LCK"; }
-		if (offsetsForAdditionalData.get(AdditionalData.DEF_BOOST) == address) { return "+5 DEF"; }
-		if (offsetsForAdditionalData.get(AdditionalData.RES_BOOST) == address) { return "+5 RES"; }
+		if (offsetsForAdditionalData.get(AdditionalData.STR_MAG_BOOST) == address) { return isMagic ? "+5 Magic" : "+5 Strength"; }
+		if (offsetsForAdditionalData.get(AdditionalData.SKL_BOOST) == address) { return "+5 Skill"; }
+		if (offsetsForAdditionalData.get(AdditionalData.SPD_BOOST) == address) { return "+5 Speed"; }
+		if (offsetsForAdditionalData.get(AdditionalData.LCK_BOOST) == address) { return "+5 Luck"; }
+		if (offsetsForAdditionalData.get(AdditionalData.DEF_BOOST) == address) { return "+5 Defense"; }
+		if (offsetsForAdditionalData.get(AdditionalData.RES_BOOST) == address) { return "+5 Resistance"; }
 		
 		if (offsetsForAdditionalData.get(AdditionalData.KNIGHT_EFFECT) == address) { return "Eff. Armor"; }
 		if (offsetsForAdditionalData.get(AdditionalData.KNIGHTCAV_EFFECT) == address) { return "Eff. Armor and Horseback"; }

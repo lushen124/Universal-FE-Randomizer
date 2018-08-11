@@ -77,7 +77,7 @@ public class EnemyBuffsView extends Composite {
 		buffLabel.setText("Buff Amount:");
 		
 		buffSpinner = new Spinner(buffParamContainer, SWT.NONE);
-		buffSpinner.setValues(5, 0, 100, 0, 1, 1);
+		buffSpinner.setValues(10, 0, 100, 0, 1, 1);
 		buffSpinner.setEnabled(false);
 		
 		FormData labelData = new FormData();
@@ -139,7 +139,7 @@ public class EnemyBuffsView extends Composite {
 		chanceLabel.setText("Chance:");
 		
 		weaponSpinner = new Spinner(container, SWT.NONE);
-		weaponSpinner.setValues(20, 0, 100, 0, 1, 1);
+		weaponSpinner.setValues(25, 0, 100, 0, 1, 1);
 		weaponSpinner.setEnabled(false);
 		
 		FormData chanceLabelData = new FormData();

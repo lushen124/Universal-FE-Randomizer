@@ -147,7 +147,7 @@ public class GrowthsView extends Composite {
 		deltaParamLabel.setText("Max Delta:");
 		
 		deltaSpinner = new Spinner(deltaParamContainer, SWT.NONE);
-		deltaSpinner.setValues(50, 0, 255, 0, 1, 5);
+		deltaSpinner.setValues(20, 0, 255, 0, 1, 5);
 		deltaSpinner.setEnabled(false);
 		
 		labelData = new FormData();
