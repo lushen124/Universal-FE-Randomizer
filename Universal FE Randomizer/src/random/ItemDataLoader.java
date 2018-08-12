@@ -298,6 +298,36 @@ private FEBase.GameType gameType;
 		if (offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT) == address) { return shortForm ? "Eff. Swordfighters" : "Effective against swordfighters"; }
 		if (offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT) == address) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
 		
+		switch (gameType) {
+		case FE7:
+			long durandalStatBonusAddress = itemMap.get(FE7Data.Item.DURANDAL.ID).getStatBonusPointer(); // STR
+			long solKattiStatBonusAddress = itemMap.get(FE7Data.Item.SOL_KATTI.ID).getStatBonusPointer(); // RES
+			long armadsStatBonusAddress = itemMap.get(FE7Data.Item.ARMADS.ID).getStatBonusPointer(); // DEF
+			long forblazeStatBonusAddress = itemMap.get(FE7Data.Item.FORBLAZE.ID).getStatBonusPointer(); // LCK
+			
+			if (address == durandalStatBonusAddress) { return isMagic ? "+5 Magic" : "+5 Strength"; }
+			if (address == solKattiStatBonusAddress) { return "+5 Resistance"; }
+			if (address == armadsStatBonusAddress) { return "+5 Defense"; }
+			if (address == forblazeStatBonusAddress) { return "+5 Luck"; }
+			
+			long rapierEffectivenessAddress = itemMap.get(FE7Data.Item.RAPIER.ID).getEffectivenessPointer();
+			long bowEffectivenessAddress = itemMap.get(FE7Data.Item.IRON_BOW.ID).getEffectivenessPointer();
+			long horseslayerEffectivenessAddress = itemMap.get(FE7Data.Item.HORSESLAYER.ID).getEffectivenessPointer();
+			long hammerEffectivenessAddress = itemMap.get(FE7Data.Item.HAMMER.ID).getEffectivenessPointer();
+			long swordslayerEffectivenessAddress = itemMap.get(FE7Data.Item.SWORDSLAYER.ID).getEffectivenessPointer();
+			long dragonEffectivenessAddress = itemMap.get(FE7Data.Item.DRAGON_AXE.ID).getEffectivenessPointer();
+			
+			if (address == rapierEffectivenessAddress) { return shortForm ? "Eff. Infantry" : "Effective against infantry"; }
+			if (address == bowEffectivenessAddress) { return shortForm ? "Eff. Fliers" : "Effective against fliers"; }
+			if (address == horseslayerEffectivenessAddress) { return shortForm ? "Eff. Cavalry" : "Effective against cavalry"; }
+			if (address == hammerEffectivenessAddress) { return shortForm ? "Eff. Knights" : "Effective against knights"; }
+			if (address == swordslayerEffectivenessAddress) { return shortForm ? "Eff. Swordfighters" : "Effective against swordfighters"; }
+			if (address == dragonEffectivenessAddress) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
+			break;
+		default:
+			break;
+		}
+		
 		return null;
 	}
 	
