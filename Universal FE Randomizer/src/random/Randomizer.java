@@ -1,8 +1,11 @@
 package random;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
+
+import org.eclipse.swt.widgets.Display;
 
 import fedata.FEBase;
 import fedata.fe7.FE7Data;
@@ -26,7 +29,7 @@ import util.FreeSpaceManager;
 import util.HuffmanHelper;
 import util.SeedGenerator;
 
-public class Randomizer {
+public class Randomizer extends Thread {
 	
 	private String sourcePath;
 	private String targetPath;
@@ -50,16 +53,21 @@ public class Randomizer {
 	private PaletteLoader paletteData;
 	private TextLoader textData;
 	
+	private String seedString;
+	
 	private FreeSpaceManager freeSpace;
 	
 	private FileHandler handler;
+	
+	private RandomizerListener listener = null;
 
 	public Randomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions) {
+			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
+		this.seedString = seed;
 		
 		diffCompiler = diffs;
 		
@@ -74,29 +82,50 @@ public class Randomizer {
 		this.gameType = gameType;
 	}
 	
-	public void randomize(String seed) throws Exception {
+	public void setListener(RandomizerListener listener) {
+		this.listener = listener;
+	}
+	
+	public void run() {
+		randomize(seedString);
+	}
+	
+	private void randomize(String seed) {
 		try {
 			handler = new FileHandler(sourcePath);
 		} catch (IOException e) {
-			throw new FileOpenException();
+			notifyError("Failed to open source file.");
+			return;
 		}
 		
 		switch (gameType) {
 		case FE7:
+			updateStatusString("Loading Data...");
+			updateProgress(0.01);
 			generateFE7DataLoaders();
 			break;
 		default:
-			throw new UnsupportedGameException();
+			notifyError("This game is not supported.");
+			return;
 		}
 		
+		updateStatusString("Randomizing...");
 		randomizeGrowthsIfNecessary(seed);
+		updateProgress(0.55);
 		randomizeClassesIfNecessary(seed); // This MUST come before bases.
+		updateProgress(0.70);
 		randomizeBasesIfNecessary(seed);
+		updateProgress(0.75);
 		randomizeWeaponsIfNecessary(seed);
+		updateProgress(0.80);
 		randomizeOtherCharacterTraitsIfNecessary(seed);
+		updateProgress(0.85);
 		buffEnemiesIfNecessary(seed);
+		updateProgress(0.90);
 		randomizeOtherThingsIfNecessary(seed); // i.e. Miscellaneous options.
 		
+		updateStatusString("Compiling changes...");
+		updateProgress(0.95);
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
 		classData.compileDiffs(diffCompiler);
@@ -106,21 +135,46 @@ public class Randomizer {
 		
 		freeSpace.commitChanges(diffCompiler);
 		
+		updateStatusString("Applying changes...");
+		updateProgress(0.99);
 		if (targetPath != null) {
-			DiffApplicator.applyDiffs(diffCompiler, handler, targetPath);
+			try {
+				DiffApplicator.applyDiffs(diffCompiler, handler, targetPath);
+			} catch (FileNotFoundException e) {
+				notifyError("Could not write to destination file.");
+				return;
+			}
 		}
+		
+		updateStatusString("Done!");
+		updateProgress(1);
+		notifyCompletion();
 	}
 	
 	private void generateFE7DataLoaders() {
 		handler.setAppliedDiffs(diffCompiler);
 		
+		updateStatusString("Detecting Free Space...");
+		updateProgress(0.02);
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7);
+		updateStatusString("Loading Text...");
+		updateProgress(0.02);
 		textData = new TextLoader(FEBase.GameType.FE7, handler);
 		
+		updateStatusString("Loading Character Data...");
+		updateProgress(0.20);
 		charData = new CharacterDataLoader(FEBase.GameType.FE7, handler);
+		updateStatusString("Loading Class Data...");
+		updateProgress(0.25);
 		classData = new ClassDataLoader(FEBase.GameType.FE7, handler);
+		updateStatusString("Loading Chapter Data...");
+		updateProgress(0.30);
 		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
+		updateStatusString("Loading Item Data...");
+		updateProgress(0.45);
 		itemData = new ItemDataLoader(FEBase.GameType.FE7, handler, freeSpace);
+		updateStatusString("Loading Palette Data...");
+		updateProgress(0.50);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
 		
 		handler.clearAppliedDiffs();
@@ -128,17 +182,18 @@ public class Randomizer {
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
 		if (growths != null) {
-			
-			
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));
 			switch (growths.mode) {
 			case REDISTRIBUTE:
+				updateStatusString("Redistributing growths...");
 				GrowthsRandomizer.randomizeGrowthsByRedistribution(growths.redistributionOption.variance, charData, rng);
 				break;
 			case DELTA:
+				updateStatusString("Applying random deltas to growths...");
 				GrowthsRandomizer.randomizeGrowthsByRandomDelta(growths.deltaOption.variance, charData, rng);
 				break;
 			case FULL:
+				updateStatusString("Randomizing growths...");
 				GrowthsRandomizer.fullyRandomizeGrowthsWithRange(growths.fullOption.minValue, growths.fullOption.maxValue, charData, rng);
 				break;
 			}
@@ -150,10 +205,13 @@ public class Randomizer {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, BasesRandomizer.rngSalt));
 			switch (bases.mode) {
 			case REDISTRIBUTE:
+				updateStatusString("Redistributing bases...");
 				BasesRandomizer.randomizeBasesByRedistribution(bases.redistributionOption.variance, charData, classData, rng);
 				break;
 			case DELTA:
+				updateStatusString("Applying random deltas to growths...");
 				BasesRandomizer.randomizeBasesByRandomDelta(bases.deltaOption.variance, charData, classData, rng);
+				break;
 			}
 		}
 	}
@@ -161,14 +219,17 @@ public class Randomizer {
 	private void randomizeClassesIfNecessary(String seed) {
 		if (classes != null) {
 			if (classes.randomizePCs) {
+				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 1));
 				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData, paletteData, rng);
 			}
 			if (classes.randomizeEnemies) {
+				updateStatusString("Randomizing minions...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 2));
 				ClassRandomizer.randomizeMinionClasses(charData, classData, chapterData, itemData, rng);
 			}
 			if (classes.randomizeBosses) {
+				updateStatusString("Randomizing boss classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 3));
 				ClassRandomizer.randomizeBossCharacterClasses(charData, classData, chapterData, itemData, paletteData, rng);
 			}
@@ -178,23 +239,28 @@ public class Randomizer {
 	private void randomizeWeaponsIfNecessary(String seed) {
 		if (weapons != null) {
 			if (weapons.mightOptions != null) {
+				updateStatusString("Randomizing weapon power...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt));
 				WeaponsRandomizer.randomizeMights(weapons.mightOptions.minValue, weapons.mightOptions.maxValue, weapons.mightOptions.variance, itemData, rng);
 			}
 			if (weapons.hitOptions != null) {
+				updateStatusString("Randomizing weapon accuracy...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 1));
 				WeaponsRandomizer.randomizeHit(weapons.hitOptions.minValue, weapons.hitOptions.maxValue, weapons.hitOptions.variance, itemData, rng);
 			}
 			if (weapons.weightOptions != null) {
+				updateStatusString("Randomizing weapon weights...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 2));
 				WeaponsRandomizer.randomizeWeight(weapons.weightOptions.minValue, weapons.weightOptions.maxValue, weapons.weightOptions.variance, itemData, rng);
 			}
 			if (weapons.durabilityOptions != null) {
+				updateStatusString("Randomizing weapon durability...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 3));
 				WeaponsRandomizer.randomizeDurability(weapons.durabilityOptions.minValue, weapons.durabilityOptions.maxValue, weapons.durabilityOptions.variance, itemData, rng);
 			}
 			
 			if (weapons.shouldAddEffects && weapons.effectsList != null) {
+				updateStatusString("Adding random effects to weapons...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 4));
 				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, rng);
 			}
@@ -204,14 +270,17 @@ public class Randomizer {
 	private void randomizeOtherCharacterTraitsIfNecessary(String seed) {
 		if (otherCharacterOptions != null) {
 			if (otherCharacterOptions.movementOptions != null) {
+				updateStatusString("Randomizing class movement ranges...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 4));
 				ClassRandomizer.randomizeClassMovement(otherCharacterOptions.movementOptions.minValue, otherCharacterOptions.movementOptions.maxValue, classData, rng);
 			}
 			if (otherCharacterOptions.constitutionOptions != null) {
+				updateStatusString("Randomizing character constitution...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, CharacterRandomizer.rngSalt));
 				CharacterRandomizer.randomizeConstitution(otherCharacterOptions.constitutionOptions.minValue, otherCharacterOptions.constitutionOptions.variance, charData, classData, rng);
 			}
 			if (otherCharacterOptions.randomizeAffinity) {
+				updateStatusString("Randomizing character affinity...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, CharacterRandomizer.rngSalt + 1));
 				CharacterRandomizer.randomizeAffinity(charData, rng);
 			}
@@ -221,12 +290,15 @@ public class Randomizer {
 	private void buffEnemiesIfNecessary(String seed) {
 		if (enemies != null) {
 			if (enemies.mode == EnemyOptions.BuffMode.FLAT) {
+				updateStatusString("Buffing enemies...");
 				EnemyBuffer.buffEnemyGrowthRates(enemies.buffAmount, classData);
 			} else if (enemies.mode == EnemyOptions.BuffMode.SCALING) {
+				updateStatusString("Buffing enemies...");
 				EnemyBuffer.scaleEnemyGrowthRates(enemies.buffAmount, classData);
 			}
 			
 			if (enemies.improveWeapons) {
+				updateStatusString("Upgrading enemy weapons...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt));
 				EnemyBuffer.improveWeapons(enemies.improvementChance, charData, classData, chapterData, itemData, rng);
 			}
@@ -236,9 +308,54 @@ public class Randomizer {
 	private void randomizeOtherThingsIfNecessary(String seed) {
 		if (miscOptions != null) {
 			if (miscOptions.randomizeRewards) {
+				updateStatusString("Randomizing rewards...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt));
 				RandomRandomizer.randomizeRewards(itemData, chapterData, rng);
 			}
+		}
+	}
+	
+	private void updateStatusString(String string) {
+		if (listener != null) {
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					listener.onStatusUpdate(string);	
+				}
+			});
+		}
+	}
+	
+	private void updateProgress(double progress) {
+		if (listener != null) {
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					listener.onProgressUpdate(progress);
+				}
+			});	
+		}
+	}
+	
+	private void notifyError(String errorString) {
+		if (listener != null) {
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					listener.onError(errorString);	
+				}
+			});
+		}
+	}
+	
+	private void notifyCompletion() {
+		if (listener != null) {
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					listener.onComplete();	
+				}
+			});
 		}
 	}
 }

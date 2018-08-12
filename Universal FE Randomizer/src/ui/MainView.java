@@ -31,6 +31,9 @@ import io.FileHandler;
 import random.CharacterDataLoader;
 import random.GrowthsRandomizer;
 import random.Randomizer;
+import random.RandomizerListener;
+import ui.general.MessageModal;
+import ui.general.ProgressModal;
 import util.DiffCompiler;
 import util.SeedGenerator;
 
@@ -62,6 +65,9 @@ public class MainView implements FileFlowDelegate {
 	
 	private Button randomizeButton;
 	
+	private Boolean isShowingModalProgressDialog = false;
+	private ProgressModal progressBox;
+	
 	public MainView(Display mainDisplay) {
 		super();
 		
@@ -79,6 +85,24 @@ public class MainView implements FileFlowDelegate {
 		 
 		 /* Open shell window */
 		  mainShell.open();
+	}
+	
+	public void showModalProgressDialog() {
+		if (!isShowingModalProgressDialog) {
+			isShowingModalProgressDialog = true;
+			progressBox = new ProgressModal(mainShell, "Randomizing...");
+			progressBox.progressBar.setMinimum(0);
+			progressBox.progressBar.setMaximum(100);
+			progressBox.show();
+		}
+	}
+	
+	public void hideModalProgressDialog() {
+		if (isShowingModalProgressDialog) {
+			isShowingModalProgressDialog = false;
+			progressBox.hide();
+			progressBox = null;
+		}
 	}
 
 	public void setupMainShell() {		  
@@ -141,6 +165,7 @@ public class MainView implements FileFlowDelegate {
 		  friendlyName = new Label(topInfo, SWT.LEFT);
 		  length = new Label(bottomInfo, SWT.LEFT);
 		  checksum = new Label(bottomInfo, SWT.LEFT);
+		  new Label(bottomInfo, SWT.LEFT); // Spacer
 		  
 		  seedField = new Text(mainShell, SWT.BORDER);
 		  seedField.addListener(SWT.CHANGED, new Listener() {
@@ -358,20 +383,38 @@ public class MainView implements FileFlowDelegate {
 									weaponView.getWeaponOptions(),
 									otherCharOptionView.getOtherCharacterOptions(),
 									enemyView.getEnemyOptions(),
-									miscView.getMiscellaneousOptions());
-							try {
-								randomizer.randomize(seedField.getText());
-								MessageBox randomSuccess = new MessageBox(mainShell, SWT.ICON_INFORMATION | SWT.OK);
-								randomSuccess.setText("Success");
-								randomSuccess.setMessage("Finished Randomizing!");
-								randomSuccess.open();
-							} catch (Exception e) {
-								e.printStackTrace();
-								MessageBox randomFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK);
-								randomFail.setText("Randomization Error");
-								randomFail.setMessage("Randomization failed with error:\n\n" + e.getMessage());
-								randomFail.open();
-							}
+									miscView.getMiscellaneousOptions(),
+									seedField.getText());
+							
+							randomizer.setListener(new RandomizerListener() {
+
+								@Override
+								public void onStatusUpdate(String status) {
+									progressBox.statusLabel.setText(status);
+								}
+
+								@Override
+								public void onComplete() {
+									hideModalProgressDialog();
+									MessageModal randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!");
+									randomSuccess.show();
+								}
+
+								@Override
+								public void onError(String errorString) {
+									hideModalProgressDialog();
+									MessageModal randomFailure = new MessageModal(mainShell, "Error", "Randomization failed with error: " + errorString);
+									randomFailure.show();
+								}
+
+								@Override
+								public void onProgressUpdate(double progress) {
+									progressBox.progressBar.setSelection((int)(progress * 100));
+								}
+							});
+							
+							randomizer.start();
+							showModalProgressDialog();
 						}
 					}
 				  });
