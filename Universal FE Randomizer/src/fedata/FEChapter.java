@@ -9,6 +9,7 @@ public interface FEChapter {
 	
 	public long[] getFightAddresses();
 	public int fightCommandLength();
+	public byte[] fightReplacementBytes();
 	
 	public String getFriendlyName();
 }

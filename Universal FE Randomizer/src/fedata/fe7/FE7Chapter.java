@@ -115,17 +115,29 @@ public class FE7Chapter implements FEChapter {
 	}
 	
 	public long[] getFightAddresses() {
-		long[] offsets = new long[fightEventOffsets.size()];
-		int i = 0;
-		for (long offset : fightEventOffsets) {
-			offsets[i++] = offset;
+		if (removeFightScenes) {
+			long[] offsets = new long[fightEventOffsets.size()];
+			int i = 0;
+			for (long offset : fightEventOffsets) {
+				offsets[i++] = offset;
+			}
+			
+			return offsets;
+		} else {
+			return new long[] {};
 		}
-		
-		return offsets;
 	}
 	
 	public int fightCommandLength() {
 		return 20; // Put this elsewhere?
+	}
+	
+	public byte[] fightReplacementBytes() {
+		return new byte[] {0x02, 0x00, 0x08, 0x00, // STAL 8
+				0x02, 0x00, 0x08, 0x00, // STAL 8
+				0x02, 0x00, 0x08, 0x00, // STAL 8
+				0x02, 0x00, 0x08, 0x00, // STAL 8
+				0x02, 0x00, 0x08, 0x00 }; // STAL 8
 	}
 	
 	public Boolean isClassSafe() {
@@ -182,6 +194,8 @@ public class FE7Chapter implements FEChapter {
 					loadUnitsFromAddress(handler, unitAddress);
 				}
 			}
+			
+			recordFightAddressesFromEventBlob(handler, eventAddress);
 		}
 	}
 	
@@ -298,29 +312,27 @@ public class FE7Chapter implements FEChapter {
 		byte[] commandWord;
 		long currentAddress = eventAddress;
 		commandWord = handler.readBytesAtOffset(currentAddress, 4);
-		while (!(commandWord[0] == 0x0A && commandWord[1] == 0x00 && commandWord[2] == 0x00 && commandWord[3] == 0x00) && 
-				!(commandWord[0] == 0x0B && commandWord[1] == 0x00 && commandWord[2] == 0x00 && commandWord[3] == 0x00)) {
-			if (commandWord[1] == 0 && commandWord[2] == 0 && commandWord[3] == 0) {
-				if (commandWord[0] == 0x97) {
-					// FIGH - Always has command byte 0x97, and is always 20 length. The second word always contains attacker and defender IDs.
-					// They vary after that, but those aren't important.
-					long address = FileReadHelper.readAddress(handler, currentAddress + 4);
-					if (address != -1) {
-						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found FIGH at 0x" + Long.toHexString(currentAddress));
-						fightEventOffsets.add(address);
-					}
-					currentAddress += 16;
+		while (!WhyDoesJavaNotHaveThese.byteArraysAreEqual(commandWord, new byte[] {0x0A, 0x00, 0x00, 0x00}) &&
+				!WhyDoesJavaNotHaveThese.byteArraysAreEqual(commandWord, new byte[] {0x0B, 0x00, 0x00, 0x00})) {
+			if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(commandWord, new byte[] {(byte)0x97, 0x00, 0x00, 0x00})) {
+				// FIGH - Always has command byte 0x97, and is always 20 length. The second word always contains attacker and defender IDs.
+				// They vary after that, but those aren't important.
+				long address = FileReadHelper.readAddress(handler, currentAddress + 12);
+				if (address != -1) {
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found FIGH at 0x" + Long.toHexString(currentAddress));
+					fightEventOffsets.add(currentAddress);
 				}
+				currentAddress += 16;
+			}
 
-				// Since we don't know how long each command is, we accidentally include what should be an argument for
-				// another event as a command code. Below is a whitelist of codes that cause issues and how many bytes we need to skip.
-				if (commandWord[0] == 0x44) { // 0x44 is apparently LABEL, which I have no idea what it does. It takes 1 word as an argument.
-					currentAddress += 4;
-				} else if (commandWord[0] == 0x27) { // MOVE has several variants, but only the ones that use character ID are dangerous for us.
-					currentAddress += 12;
-				} else if (commandWord[0] == 0x26 || commandWord[0] == 0x28) { 
-					currentAddress += 8;
-				}
+			// Since we don't know how long each command is, we accidentally include what should be an argument for
+			// another event as a command code. Below is a whitelist of codes that cause issues and how many bytes we need to skip.
+			if (commandWord[0] == 0x44) { // 0x44 is apparently LABEL, which I have no idea what it does. It takes 1 word as an argument.
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x27) { // MOVE has several variants, but only the ones that use character ID are dangerous for us.
+				currentAddress += 12;
+			} else if (commandWord[0] == 0x26 || commandWord[0] == 0x28) { 
+				currentAddress += 8;
 			}
 			
 			currentAddress += 4;
