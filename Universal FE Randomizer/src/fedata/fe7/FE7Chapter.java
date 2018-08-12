@@ -329,9 +329,11 @@ public class FE7Chapter implements FEChapter {
 			// another event as a command code. Below is a whitelist of codes that cause issues and how many bytes we need to skip.
 			if (commandWord[0] == 0x44) { // 0x44 is apparently LABEL, which I have no idea what it does. It takes 1 word as an argument.
 				currentAddress += 4;
-			} else if (commandWord[0] == 0x27) { // MOVE has several variants, but only the ones that use character ID are dangerous for us.
+			} else if (commandWord[0] == 0x27) { // MOVE has several variants, but only the ones that use character ID are dangerous for us. This one has 16 bytes.
 				currentAddress += 12;
-			} else if (commandWord[0] == 0x26 || commandWord[0] == 0x28) { 
+			} else if (commandWord[0] == 0x26 || commandWord[0] == 0x28) { // MOVE with 12 bytes.
+				currentAddress += 8;
+			} else if (commandWord[0] == 0x49) { // GOTO_IFAF has 12 bytes., The second word is occasionally 0xA or 0xB, leading us to exit prematurely.
 				currentAddress += 8;
 			}
 			
@@ -402,9 +404,11 @@ public class FE7Chapter implements FEChapter {
 				// another event as a command code. Below is a whitelist of codes that cause issues and how many bytes we need to skip.
 				if (commandWord[0] == 0x44) { // 0x44 is apparently LABEL, which I have no idea what it does. It takes 1 word as an argument.
 					currentAddress += 4;
-				} else if (commandWord[0] == 0x27) { // MOVE has several variants, but only the ones that use character ID are dangerous for us.
+				} else if (commandWord[0] == 0x27) { // MOVE has several variants, but only the ones that use character ID are dangerous for us. This one has 16 bytes.
 					currentAddress += 12;
-				} else if (commandWord[0] == 0x26 || commandWord[0] == 0x28) { 
+				} else if (commandWord[0] == 0x26 || commandWord[0] == 0x28) { // MOVE with 12 bytes.
+					currentAddress += 8;
+				} else if (commandWord[0] == 0x49) { // GOTO_IFAF has 12 bytes., The second word is occasionally 0xA or 0xB, leading us to exit prematurely.
 					currentAddress += 8;
 				}
 			}
@@ -412,6 +416,8 @@ public class FE7Chapter implements FEChapter {
 			currentAddress += 4;
 			commandWord = handler.readBytesAtOffset(currentAddress, 4);
 		}
+		
+		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Finished searching for loading units at address 0x" + Long.toHexString(currentAddress));
 		
 		return addressesLoaded;
 	}

@@ -997,7 +997,6 @@ public class FE7Data {
 			case CHAPTER_7:
 			case CHAPTER_7X:
 			case CHAPTER_8:
-			case CHAPTER_11_E:
 			case CHAPTER_17X:
 			case CHAPTER_29:
 				return true;
