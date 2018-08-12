@@ -266,13 +266,9 @@ public class FE7Item implements FEItem {
 			effects.add(WeaponEffects.REVERSE_TRIANGLE);
 		}
 		
-		if (getWeaponEffect() == FE7Data.Item.WeaponEffect.POISON.ID) {
+		if (getWeaponEffect() == 0) {
 			effects.add(WeaponEffects.POISON);
-		}
-		if (getWeaponEffect() == FE7Data.Item.WeaponEffect.HALFHP.ID) {
 			effects.add(WeaponEffects.HALF_HP);
-		}
-		if (getWeaponEffect() == FE7Data.Item.WeaponEffect.DEVIL.ID) {
 			effects.add(WeaponEffects.DEVIL);
 		}
 		
