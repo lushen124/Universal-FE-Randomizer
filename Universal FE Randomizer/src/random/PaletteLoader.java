@@ -7,6 +7,7 @@ import fedata.FEBase;
 import fedata.FECharacter;
 import fedata.fe7.FE7Data;
 import fedata.general.Palette;
+import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 import io.FileHandler;
 import util.DebugPrinter;
@@ -28,22 +29,32 @@ public class PaletteLoader {
 				int charID = FE7Data.Character.canonicalIDForCharacterID(character.ID);
 				Map<Integer, Palette> map = new HashMap<Integer, Palette>();
 				characterPalettes.put(charID, map);
-				for (PaletteInfo palette : FE7Data.Palette.palettesForCharacter(charID)) {
-					int classID = palette.getClassID();
-					map.put(classID, new Palette(handler, palette, 40));
+				for (PaletteInfo paletteInfo : FE7Data.Palette.palettesForCharacter(charID)) {
+					int classID = paletteInfo.getClassID();
+					Palette palette = new Palette(handler, paletteInfo, 40);
+					map.put(classID, palette);
+					PaletteColor[] supplementalHairColor = FE7Data.Palette.supplementaryHairColorForCharacter(charID);
+					if (supplementalHairColor != null) {
+						palette.assignSupplementalHairColor(supplementalHairColor);
+					}
 					FE7Data.CharacterClass fe7class = FE7Data.CharacterClass.valueOf(classID);
 					FE7Data.Character fe7char = FE7Data.Character.valueOf(charID);
-					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(palette.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe7class.toString() + "))");
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe7class.toString() + "))");
 				}
 			}
 			for (FE7Data.Character boss : FE7Data.Character.allBossCharacters) {
 				int charID = FE7Data.Character.canonicalIDForCharacterID(boss.ID);
 				Map<Integer, Palette> map = new HashMap<Integer, Palette>();
 				characterPalettes.put(charID, map);
-				for (PaletteInfo palette : FE7Data.Palette.palettesForCharacter(charID)) {
-					map.put(palette.getClassID(), new Palette(handler, palette, 40));
+				for (PaletteInfo paletteInfo : FE7Data.Palette.palettesForCharacter(charID)) {
+					Palette palette = new Palette(handler, paletteInfo, 40);
+					map.put(paletteInfo.getClassID(), palette);
+					PaletteColor[] supplementalHairColor = FE7Data.Palette.supplementaryHairColorForCharacter(charID);
+					if (supplementalHairColor != null) {
+						palette.assignSupplementalHairColor(supplementalHairColor);
+					}
 					FE7Data.Character fe7char = FE7Data.Character.valueOf(charID);
-					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Boss 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(palette.getOffset()));
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Boss 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()));
 				}
 			}
 			

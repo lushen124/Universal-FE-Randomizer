@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import util.WhyDoesJavaNotHaveThese;
+
 public class PaletteColor {
 	private double red;
 	private double green;
@@ -27,6 +29,14 @@ public class PaletteColor {
 		red = redValue / 255.0;
 		green = greenValue / 255.0;
 		blue = blueValue / 255.0;
+		
+		calculateValuesWithRGB();
+	}
+	
+	public PaletteColor(int r, int g, int b) {
+		red = (double)WhyDoesJavaNotHaveThese.clamp(r, 0, 255) / 255.0;
+		green = (double)WhyDoesJavaNotHaveThese.clamp(g, 0, 255) / 255.0;
+		blue = (double)WhyDoesJavaNotHaveThese.clamp(b, 0, 255) / 255.0;
 		
 		calculateValuesWithRGB();
 	}

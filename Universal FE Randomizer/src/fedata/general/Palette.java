@@ -25,6 +25,8 @@ public class Palette {
 	private Boolean secondaryModified = false;
 	private Boolean tertiaryModified = false;
 	
+	private List<PaletteColor> supplementalHairColor = null;
+	
 	private Boolean fullUpdate = false;
 	
 	public Palette(FileHandler handler, PaletteInfo info, int paletteSize) {
@@ -85,13 +87,17 @@ public class Palette {
 				originalHairColors = alternatePalette.getHairColors();
 			}
 			
-			if (originalHairColors.length == 0) {
-				// Use armor color for now if hair color isn't available.
-				originalHairColors = originalPalette.getPrimaryColors();
+			if (originalHairColors.length == 0 && originalPalette.supplementalHairColor != null) {
+				originalHairColors = originalPalette.supplementalHairColor.toArray(new PaletteColor[originalPalette.supplementalHairColor.size()]);
+			}
+			
+			if (originalHairColors.length == 0 && alternatePalette != null && alternatePalette.supplementalHairColor != null) {
+				originalHairColors = alternatePalette.supplementalHairColor.toArray(new PaletteColor[alternatePalette.supplementalHairColor.size()]);
 			}
 			
 			if (originalHairColors.length == 0) {
-				originalHairColors = alternatePalette.getPrimaryColors();
+				// Use armor color for now if hair color isn't available.
+				originalHairColors = originalPalette.getPrimaryColors();
 			}
 		}
 		
@@ -124,6 +130,13 @@ public class Palette {
 	
 	public PaletteColor[] getTertiaryColors() {
 		return tertiary.toArray(new PaletteColor[tertiary.size()]);
+	}
+	
+	public void assignSupplementalHairColor(PaletteColor[] hairColors) {
+		supplementalHairColor = new ArrayList<PaletteColor>();
+		for (int i = 0; i < hairColors.length; i++) {
+			supplementalHairColor.add(hairColors[i]);
+		}
 	}
 	
 	public void setHairColors(PaletteColor[] newHairColors) {
@@ -284,6 +297,54 @@ public class Palette {
 			targetArea.clear();
 			targetArea.addAll(Arrays.asList(newColors));
 			return true;
+		}
+		
+		if (targetArea.size() < newColors.length) {
+			int targetSize = targetArea.size();
+			targetArea.clear();
+			for (int i = 0; i < targetSize; i++) {
+				targetArea.add(newColors[i]);
+			}
+			return true;
+		}
+		
+		if (newColors.length > 1 && targetArea.size() == newColors.length + 1) {
+			// We only need one more color, just use the average color in the middle.
+			int midIndex = (newColors.length / 2) - (newColors.length % 2 == 0 ? 1 : 0);
+			PaletteColor midColor = PaletteColor.averageColorFromColors(new PaletteColor[] {newColors[midIndex], newColors[midIndex + 1]});
+			
+			targetArea.clear();
+			targetArea.addAll(Arrays.asList(newColors));
+			targetArea.add(midIndex + 1, midColor);
+			return true;
+		}
+		
+		if (newColors.length > 1 && targetArea.size() == newColors.length + 2) {
+			// We need two more colors.
+			if (newColors.length == 2) {
+				PaletteColor midColor = PaletteColor.averageColorFromColors(new PaletteColor[] {newColors[0], newColors[1]});
+				
+				PaletteColor lowMid = PaletteColor.averageColorFromColors(new PaletteColor[] {newColors[0], midColor});
+				PaletteColor highMid = PaletteColor.averageColorFromColors(new PaletteColor[] {midColor, newColors[1]});
+				
+				targetArea.clear();
+				targetArea.addAll(Arrays.asList(newColors[0], lowMid, highMid, newColors[1]));
+				return true;
+			} else {
+				int midIndex = (newColors.length / 2) - (newColors.length % 2 == 0 ? 1 : 0);
+				
+				int lowMidIndex = midIndex - 1;
+				int highMidIndex = midIndex + 1;
+				
+				PaletteColor lowMid = PaletteColor.averageColorFromColors(new PaletteColor[] {newColors[lowMidIndex], newColors[midIndex]});
+				PaletteColor highMid = PaletteColor.averageColorFromColors(new PaletteColor[] {newColors[midIndex], newColors[highMidIndex]});
+				
+				targetArea.clear();
+				targetArea.addAll(Arrays.asList(newColors));
+				targetArea.add(highMidIndex, highMid);
+				targetArea.add(lowMidIndex, lowMid);
+				return true;
+			}
 		}
 		
 		PaletteColor originalAverage = PaletteColor.averageColorFromColors(targetArea.toArray(new PaletteColor[targetArea.size()]));

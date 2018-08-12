@@ -11,6 +11,7 @@ import java.util.Set;
 
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
+import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 
 public class FE7Data {
@@ -1412,6 +1413,16 @@ public class FE7Data {
 			int canonicalID = Character.canonicalIDForCharacterID(characterID);
 			List<PaletteInfo> list = new ArrayList<PaletteInfo>(classByCharacter.get(canonicalID).values());
 			return list.toArray(new PaletteInfo[list.size()]);
+		}
+		
+		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {
+			Character character = Character.valueOf(characterID);
+			switch (character) {
+			case MARCUS:
+				return new PaletteColor[] {new PaletteColor(208, 144, 216), new PaletteColor(168, 112, 168), new PaletteColor(112, 80, 120), new PaletteColor(88, 64, 96)};
+			default:
+				return null;
+			}
 		}
 		
 		public static PaletteInfo defaultPaletteForClass(int classID) {
