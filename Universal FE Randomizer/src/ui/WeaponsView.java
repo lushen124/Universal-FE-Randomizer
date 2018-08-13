@@ -85,7 +85,7 @@ public class WeaponsView extends Composite {
 		mtVarianceLabel.setText("Variance:");
 		
 		mightVarianceSpinner = new Spinner(mtParamContainer, SWT.NONE);
-		mightVarianceSpinner.setValues(5, 1, 31, 0, 1, 1);
+		mightVarianceSpinner.setValues(3, 1, 31, 0, 1, 1);
 		mightVarianceSpinner.setEnabled(false);
 		
 		FormData mtVarLabelData = new FormData();

@@ -176,6 +176,7 @@ public class FE7Data {
 		public static Map<Integer, Character> getCharacterCounters() {
 			Map<Integer, Character> counterMap = new HashMap<Integer, Character>();
 			counterMap.put(BATTA.ID, LYN_TUTORIAL);
+			counterMap.put(WIRE.ID, HECTOR);
 			return counterMap;
 		}
 		
