@@ -43,6 +43,10 @@ public class CharacterDataLoader {
 		}
 	}
 	
+	public FECharacter characterWithID(int characterID) {
+		return characterMap.get(characterID);
+	}
+	
 	public FECharacter[] playableCharacters() {
 		switch (gameType) {
 			case FE7:

@@ -21,6 +21,7 @@ public class FE7Chapter implements FEChapter {
 	private Boolean removeFightScenes;
 	
 	private Boolean isClassSafe;
+	private Boolean shouldBeSimplified;
 	
 	private long turnBasedEventsOffset = 0;
 	private long characterBasedEventsOffset = 0;
@@ -44,8 +45,14 @@ public class FE7Chapter implements FEChapter {
 	
 	private Set<Integer> blacklistedClassIDs;
 	private Set<Long> fightEventOffsets;
+	
+	private Set<Integer> knownAllyIDs;
+	private Set<Integer> knownEnemyIDs;
+	private int probableLordID = 0;
+	private int probableBossID = 0;
+	
 
-	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName) {
+	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple) {
 		
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
@@ -53,6 +60,7 @@ public class FE7Chapter implements FEChapter {
 			this.blacklistedClassIDs.add(classID);
 		}
 		this.removeFightScenes = removeFightScenes;
+		this.shouldBeSimplified = simple;
 				
 		// We need one jump.
 		long pointerTableOffset = FileReadHelper.readAddress(handler, pointer);
@@ -97,12 +105,19 @@ public class FE7Chapter implements FEChapter {
 		
 		fightEventOffsets = new HashSet<Long>();
 		
+		knownAllyIDs = new HashSet<Integer>();
+		knownEnemyIDs = new HashSet<Integer>();
+		
 		loadUnits(handler);
 		loadRewards(handler);
 	}
 	
 	public String getFriendlyName() {
 		return friendlyName;
+	}
+	
+	public Boolean shouldBeSimplified() {
+		return shouldBeSimplified;
 	}
 
 	@Override
@@ -112,6 +127,14 @@ public class FE7Chapter implements FEChapter {
 	
 	public FEChapterItem[] allRewards() {
 		return allChapterRewards.toArray(new FEChapterItem[allChapterRewards.size()]);
+	}
+	
+	public int lordLeaderID() {
+		return probableLordID;
+	}
+	
+	public int bossLeaderID() {
+		return probableBossID;
 	}
 	
 	public long[] getFightAddresses() {
@@ -490,6 +513,15 @@ public class FE7Chapter implements FEChapter {
 			FE7ChapterUnit unit = new FE7ChapterUnit(unitData, currentOffset); 
 			if (!blacklistedClassIDs.contains(unit.getStartingClass())) { // Remove any characters starting as a blacklisted class from consideration.
 				allChapterUnits.add(unit);
+				
+				if (unitAddress == alliesOffsetEHM || unitAddress == alliesOffsetENM || unitAddress == alliesOffsetHHM || unitAddress == alliesOffsetHNM) {
+					knownAllyIDs.add(unit.getCharacterNumber());
+					if (unit.getLeaderID() == 0) { probableLordID = unit.getCharacterNumber(); }
+				}
+				if (unitAddress == enemiesOffsetEHM || unitAddress == enemiesOffsetENM || unitAddress == enemiesOffsetHHM || unitAddress == enemiesOffsetHNM) {
+					knownEnemyIDs.add(unit.getCharacterNumber());
+					if (unit.getLeaderID() == 0) { probableBossID = unit.getCharacterNumber(); }
+				}
 			}
 			
 			currentOffset += FE7Data.BytesPerChapterUnit;

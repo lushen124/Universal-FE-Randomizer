@@ -145,6 +145,8 @@ public class ClassRandomizer {
 	
 	public static void randomizeMinionClasses(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		for (FEChapter chapter : chapterData.allChapters()) {
+			FECharacter lordCharacter = charactersData.characterWithID(chapter.lordLeaderID());
+			FEClass lordClass = classData.classForID(lordCharacter.getClassID());
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
 				int leaderID = chapterUnit.getLeaderID();
 				int characterID = chapterUnit.getCharacterNumber();
@@ -159,7 +161,9 @@ public class ClassRandomizer {
 					}
 					
 					Boolean shouldRestrictToSafeClasses = !chapter.isClassSafe();
-					FEClass[] possibleClasses = classData.potentialClasses(originalClass, false, false, false, true, false, shouldRestrictToSafeClasses, null);
+					Boolean shouldMakeEasy = chapter.shouldBeSimplified();
+					FEClass loseToClass = shouldMakeEasy ? lordClass : null;
+					FEClass[] possibleClasses = classData.potentialClasses(originalClass, false, false, false, true, false, shouldRestrictToSafeClasses, loseToClass);
 					if (possibleClasses.length == 0) {
 						continue;
 					}

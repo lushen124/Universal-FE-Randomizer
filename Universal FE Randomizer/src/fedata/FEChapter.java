@@ -2,6 +2,9 @@ package fedata;
 
 public interface FEChapter {
 	
+	public int lordLeaderID();
+	public int bossLeaderID();
+	
 	public FEChapterUnit[] allUnits();
 	public Boolean isClassSafe();
 	
@@ -12,4 +15,6 @@ public interface FEChapter {
 	public byte[] fightReplacementBytes();
 	
 	public String getFriendlyName();
+	
+	public Boolean shouldBeSimplified();
 }

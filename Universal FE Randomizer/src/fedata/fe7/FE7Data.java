@@ -321,11 +321,13 @@ public class FE7Data {
 		
 		public static CharacterClass[] classesThatLoseToClass(CharacterClass originalClass, CharacterClass winningClass, Boolean excludeLords, Boolean excludeThieves) {
 			Set<CharacterClass> classList = new HashSet<CharacterClass>();
+			
 			switch (winningClass) {
 			case LORD_ELIWOOD:
 			case LORD_LYN:
 			case MERCENARY:
-			case MYRMIDON: {
+			case MYRMIDON: 
+			case THIEF: {
 				classList.add(FIGHTER);
 				classList.add(BRIGAND);
 				classList.add(PIRATE);
@@ -346,6 +348,7 @@ public class FE7Data {
 			case PEGASUSKNIGHT: {
 				classList.add(MYRMIDON);
 				classList.add(MERCENARY);
+				classList.add(SOLDIER);
 				if (!excludeLords) {
 					classList.add(LORD_ELIWOOD);
 					classList.add(LORD_LYN);
@@ -353,6 +356,32 @@ public class FE7Data {
 				if (!excludeThieves) {
 					classList.add(THIEF);
 				}
+				break;
+			}
+			case MONK: {
+				classList.add(SHAMAN);
+				classList.add(KNIGHT);
+				classList.add(SOLDIER);
+				break;
+			}
+			case MAGE:
+			case MAGE_F: {
+				classList.add(MONK);
+				classList.add(KNIGHT);
+				classList.add(SOLDIER);
+				break;
+			}
+			case SHAMAN: {
+				classList.add(MAGE);
+				classList.add(MAGE_F);
+				classList.add(KNIGHT);
+				classList.add(SOLDIER);
+				break;
+			}
+			case ARCHER:
+			case ARCHER_F: {
+				classList.add(PEGASUSKNIGHT);
+				classList.add(SOLDIER);
 				break;
 			}
 			default:
@@ -975,6 +1004,16 @@ public class FE7Data {
 				return new FE7Data.CharacterClass[] {CharacterClass.ARCHER};
 			default:
 				return new FE7Data.CharacterClass[] {};
+			}
+		}
+		
+		public Boolean shouldBeEasy() {
+			switch(this) {
+			case PROLOGUE:
+			case CHAPTER_11_H:
+				return true;
+			default:
+				return false;
 			}
 		}
 		
