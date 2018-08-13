@@ -335,11 +335,16 @@ public class FE7Chapter implements FEChapter {
 				currentAddress += 8;
 			} else if (commandWord[0] == 0x49) { // GOTO_IFAF has 12 bytes., The second word is occasionally 0xA or 0xB, leading us to exit prematurely.
 				currentAddress += 8;
+			}  else if (commandWord[0] == 0x4F || commandWord[0] == 0x50 || commandWord[0] == 0x52 || commandWord[0] == 0x53 || // GOTO_IFNHM, GOTO_IFNEM, GOTO_IFNO, GOTO_IFYES have 8 bytes. The second word can be 0xB.
+					commandWord[0] == 0x54 || commandWord[0] == 0x56) { // GOTO_IFNTUTORIAL, GOTO_IFTU
+				currentAddress += 4;
 			}
 			
 			currentAddress += 4;
 			commandWord = handler.readBytesAtOffset(currentAddress, 4);
 		}
+		
+		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Finished searching for fights at 0x" + Long.toHexString(currentAddress));
 	}
 	
 	private Set<Long> unitAddressesFromEventBlob(FileHandler handler, long eventAddress) {
@@ -408,8 +413,11 @@ public class FE7Chapter implements FEChapter {
 					currentAddress += 12;
 				} else if (commandWord[0] == 0x26 || commandWord[0] == 0x28) { // MOVE with 12 bytes.
 					currentAddress += 8;
-				} else if (commandWord[0] == 0x49) { // GOTO_IFAF has 12 bytes., The second word is occasionally 0xA or 0xB, leading us to exit prematurely.
+				} else if (commandWord[0] == 0x49) { // GOTO_IFAF has 12 bytes. The second word is occasionally 0xA or 0xB, leading us to exit prematurely.
 					currentAddress += 8;
+				} else if (commandWord[0] == 0x4F || commandWord[0] == 0x50 || commandWord[0] == 0x52 || commandWord[0] == 0x53 || // GOTO_IFNHM, GOTO_IFNEM, GOTO_IFNO, GOTO_IFYES have 8 bytes. The second word can be 0xB.
+						commandWord[0] == 0x54 || commandWord[0] == 0x56) { // GOTO_IFNTUTORIAL, GOTO_IFTU
+					currentAddress += 4;
 				}
 			}
 			
@@ -475,17 +483,22 @@ public class FE7Chapter implements FEChapter {
 	}
 	
 	private void loadRewardsFromEventBlob(FileHandler handler, long eventOffset) {
+		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Searching for rewards beginning at 0x" + Long.toHexString(eventOffset));
 		byte[] commandWord;
 		long currentAddress = eventOffset;
 		commandWord = handler.readBytesAtOffset(currentAddress, 4);
 		while (commandWord[0] != 0x0A && commandWord[0] != 0x0B) {
 			// We just need ITGV.
 			if (commandWord[0] == 0x5B) {
-				allChapterRewards.add(new FE7ChapterItem(handler.readBytesAtOffset(currentAddress, 8), currentAddress));
+				FE7ChapterItem chapterItem = new FE7ChapterItem(handler.readBytesAtOffset(currentAddress, 8), currentAddress);
+				allChapterRewards.add(chapterItem);
+				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found reward at offset 0x" + Long.toHexString(currentAddress) + " Item ID: 0x" + Integer.toHexString(chapterItem.getItemID()));
 				currentAddress += 4;
 			}
 			currentAddress += 4;
 			commandWord = handler.readBytesAtOffset(currentAddress, 4);
 		}
+		
+		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Finished searching for rewards at 0x" + Long.toHexString(currentAddress));
 	}
 }

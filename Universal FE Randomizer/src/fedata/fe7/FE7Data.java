@@ -1420,6 +1420,12 @@ public class FE7Data {
 			switch (character) {
 			case MARCUS:
 				return new PaletteColor[] {new PaletteColor(208, 144, 216), new PaletteColor(168, 112, 168), new PaletteColor(112, 80, 120), new PaletteColor(88, 64, 96)};
+			case OSWIN:
+				return new PaletteColor[] {new PaletteColor(152, 144, 8), new PaletteColor(120, 112, 16), new PaletteColor(104, 80, 16)};
+			case HEATH:
+				return new PaletteColor[] {new PaletteColor(56, 184, 72), new PaletteColor(32, 144, 48)};
+			case VAIDA:
+				return new PaletteColor[] {new PaletteColor(248, 248, 112), new PaletteColor(216, 208, 64), new PaletteColor(176, 152, 64)};
 			default:
 				return null;
 			}
