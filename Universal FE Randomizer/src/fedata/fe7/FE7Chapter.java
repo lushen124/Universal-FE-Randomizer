@@ -287,13 +287,13 @@ public class FE7Chapter implements FEChapter {
 		long currentAddress = miscEventsOffset;
 		miscCommand = handler.readBytesAtOffset(currentAddress, 12); // These events are only 12 bytes long.
 		while (miscCommand[0] != 0x00) {
-			if (miscCommand[0] == 0x0B || miscCommand[0] == 0x01) {
-				// AREA and AFEV are the only ones we care about. Both 12 bytes, and the event is at byte 4, length 4.
+			if (miscCommand[0] == 0x0B || miscCommand[0] == 0x01 || miscCommand[0] == 0x0E) {
+				// ASME, AREA and AFEV are the only ones we care about. Both 12 bytes, and the event is at byte 4, length 4.
 				long address = FileReadHelper.readAddress(handler, currentAddress + 4);
 				if (address != -1) {
 					eventAddresses.add(address);
 				}
-			} else if (miscCommand[0] != 0x0E) { // ASME
+			} else {
 				System.err.println("Unhandled misc event type detected.");
 			}
 			
@@ -324,6 +324,16 @@ public class FE7Chapter implements FEChapter {
 				}
 				currentAddress += 16;
 			}
+			
+			// 0xCB is an interesting command, because it allows us to jump to (and return from) another label, where there might be FIGH events hiding.
+			if (commandWord[0] == (byte)0xCB) {
+				long eventBlob = FileReadHelper.readAddress(handler, currentAddress + 4);
+				if (eventBlob != -1) {
+					// Pray that these blobs don't reference each other.
+					recordFightAddressesFromEventBlob(handler, eventBlob);
+				}
+				currentAddress += 4;
+			}
 
 			// Since we don't know how long each command is, we accidentally include what should be an argument for
 			// another event as a command code. Below is a whitelist of codes that cause issues and how many bytes we need to skip.
@@ -338,6 +348,18 @@ public class FE7Chapter implements FEChapter {
 			}  else if (commandWord[0] == 0x4F || commandWord[0] == 0x50 || commandWord[0] == 0x52 || commandWord[0] == 0x53 || // GOTO_IFNHM, GOTO_IFNEM, GOTO_IFNO, GOTO_IFYES have 8 bytes. The second word can be 0xB.
 					commandWord[0] == 0x54 || commandWord[0] == 0x56) { // GOTO_IFNTUTORIAL, GOTO_IFTU
 				currentAddress += 4;
+			} else if (commandWord[0] == (byte)0x84) { // LOMA, in the case that it loads a map that has the same hex as the commands above. 16 bytes total.
+				currentAddress += 12;
+			} else if (commandWord[0] == 0x6F || commandWord[0] == 0x70) { // REPA, 2 flavors, both 8 bytes. Causes characters to re-appear.
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x45) { // GOTO (the counterpart of LABEL). The word as the argument is the destination.
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x4B) { // No idea what this is. It's not well defined, but it's a conditional of some kind. 8 bytes long. The condition can be 0xA or 0xB.
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x1A) { // TEXTIFEVENTID - 16 bytes, for conditional text. 
+				currentAddress += 12;
+			} else if (commandWord[0] == 0x4C || commandWord[0] == 0x4D) { // GOTO_IFET and GOTO_IFEF - 12 bytes
+				currentAddress += 8;
 			}
 			
 			currentAddress += 4;
@@ -356,12 +378,13 @@ public class FE7Chapter implements FEChapter {
 		byte[] commandWord;
 		long currentAddress = eventAddress;
 		commandWord = handler.readBytesAtOffset(currentAddress, 4);
-		while (!(commandWord[0] == 0x0A && commandWord[1] == 0x00 && commandWord[2] == 0x00 && commandWord[3] == 0x00) && 
-				!(commandWord[0] == 0x0B && commandWord[1] == 0x00 && commandWord[2] == 0x00 && commandWord[3] == 0x00)) {
+		while (!WhyDoesJavaNotHaveThese.byteArraysAreEqual(commandWord, new byte[] {0x0A, 0x00, 0x00, 0x00}) &&
+				!WhyDoesJavaNotHaveThese.byteArraysAreEqual(commandWord, new byte[] {0x0B, 0x00, 0x00, 0x00})) {
 			if (commandWord[1] == 0 && commandWord[2] == 0 && commandWord[3] == 0) {
-				if (commandWord[0] == 0x32 || commandWord[0] == 0x36) {
+				if (commandWord[0] == 0x32 || commandWord[0] == 0x33 || commandWord[0] == 0x36) {
 					// LOU1 - 0x32 key. Pointer at byte 4, length 4 - total 8 bytes.
 					// LOU2 - 0x36 key. Same as LOU1.
+					// 0x33 also seems to be one, but it's undefined in EA. (Found in Ch. 15, 17x)
 					long address = FileReadHelper.readAddress(handler, currentAddress + 4);
 					if (address != -1) {
 						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found LOU1 or LOU2 at 0x" + Long.toHexString(currentAddress) + ". Unit Address: " + Long.toHexString(address));
@@ -375,22 +398,21 @@ public class FE7Chapter implements FEChapter {
 					if (address != -1) {
 						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found LOUMODE1 or LOUMODE2 at 0x" + Long.toHexString(currentAddress) + ". Unit Address: " + Long.toHexString(address) + " (1 / 4)");
 						addressesLoaded.add(address);
-						// Add the other 3 only if the first one is deemed valid.
-						address = FileReadHelper.readAddress(handler, currentAddress + 8);
-						if (address != -1) {
-							DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found LOUMODE1 or LOUMODE2 at 0x" + Long.toHexString(currentAddress) + ". Unit Address: " + Long.toHexString(address) + " (2 / 4)");
-							addressesLoaded.add(address);
-						}
-						address = FileReadHelper.readAddress(handler, currentAddress + 12);
-						if (address != -1) {
-							DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found LOUMODE1 or LOUMODE2 at 0x" + Long.toHexString(currentAddress) + ". Unit Address: " + Long.toHexString(address) + " (3 / 4)");
-							addressesLoaded.add(address);
-						}
-						address = FileReadHelper.readAddress(handler, currentAddress + 16);
-						if (address != -1) {
-							DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found LOUMODE1 or LOUMODE2 at 0x" + Long.toHexString(currentAddress) + ". Unit Address: " + Long.toHexString(address) + " (4 / 4)");
-							addressesLoaded.add(address);
-						}
+					}
+					address = FileReadHelper.readAddress(handler, currentAddress + 8);
+					if (address != -1) {
+						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found LOUMODE1 or LOUMODE2 at 0x" + Long.toHexString(currentAddress) + ". Unit Address: " + Long.toHexString(address) + " (2 / 4)");
+						addressesLoaded.add(address);
+					}
+					address = FileReadHelper.readAddress(handler, currentAddress + 12);
+					if (address != -1) {
+						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found LOUMODE1 or LOUMODE2 at 0x" + Long.toHexString(currentAddress) + ". Unit Address: " + Long.toHexString(address) + " (3 / 4)");
+						addressesLoaded.add(address);
+					}
+					address = FileReadHelper.readAddress(handler, currentAddress + 16);
+					if (address != -1) {
+						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found LOUMODE1 or LOUMODE2 at 0x" + Long.toHexString(currentAddress) + ". Unit Address: " + Long.toHexString(address) + " (4 / 4)");
+						addressesLoaded.add(address);
 					}
 					
 					currentAddress += 16;
@@ -404,6 +426,18 @@ public class FE7Chapter implements FEChapter {
 					}
 					currentAddress += 8;
 				}
+				
+				// 0xCB is an interesting command, because it allows us to jump to (and return from) another label, where there might be UNIT definitions hiding.
+				if (commandWord[0] == (byte)0xCB) {
+					long eventBlob = FileReadHelper.readAddress(handler, currentAddress + 4);
+					if (eventBlob != -1) {
+						// Pray that these blobs don't reference each other.
+						addressesLoaded.addAll(unitAddressesFromEventBlob(handler, eventBlob));
+					}
+					currentAddress += 4;
+				}
+				
+				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Processed command 0x" + Integer.toHexString(commandWord[0] & 0xFF));
 
 				// Since we don't know how long each command is, we accidentally include what should be an argument for
 				// another event as a command code. Below is a whitelist of codes that cause issues and how many bytes we need to skip.
@@ -418,6 +452,18 @@ public class FE7Chapter implements FEChapter {
 				} else if (commandWord[0] == 0x4F || commandWord[0] == 0x50 || commandWord[0] == 0x52 || commandWord[0] == 0x53 || // GOTO_IFNHM, GOTO_IFNEM, GOTO_IFNO, GOTO_IFYES have 8 bytes. The second word can be 0xB.
 						commandWord[0] == 0x54 || commandWord[0] == 0x56) { // GOTO_IFNTUTORIAL, GOTO_IFTU
 					currentAddress += 4;
+				} else if (commandWord[0] == (byte)0x84) { // LOMA, in the case that it loads a map that has the same hex as the commands above. 16 bytes total.
+					currentAddress += 12;
+				} else if (commandWord[0] == 0x6F || commandWord[0] == 0x70) { // REPA, 2 flavors, both 8 bytes. Causes characters to re-appear.
+					currentAddress += 4;
+				} else if (commandWord[0] == 0x45) { // GOTO (the counterpart of LABEL). The word as the argument is the destination.
+					currentAddress += 4;
+				} else if (commandWord[0] == 0x4B) { // No idea what this is. It's not well defined, but it's a conditional of some kind. 8 bytes long. The condition can be 0xA or 0xB.
+					currentAddress += 4;
+				} else if (commandWord[0] == 0x1A) { // TEXTIFEVENTID - 16 bytes, for conditional text. 
+					currentAddress += 12;
+				} else if (commandWord[0] == 0x4C || commandWord[0] == 0x4D) { // GOTO_IFET and GOTO_IFEF - 12 bytes
+					currentAddress += 8;
 				}
 			}
 			
@@ -435,6 +481,7 @@ public class FE7Chapter implements FEChapter {
 		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading units from 0x" + Long.toHexString(unitAddress));
 		if (unitAddress <= 0xC00000) {
 			System.err.println("Suspicious address found for unit: " + Long.toHexString(unitAddress));
+			return;
 		}
 		long currentOffset = unitAddress;
 		byte[] unitData = handler.readBytesAtOffset(currentOffset, FE7Data.BytesPerChapterUnit);
