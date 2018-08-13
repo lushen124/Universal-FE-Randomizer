@@ -477,6 +477,40 @@ private FEBase.GameType gameType;
 		return new FEItem[] {};
 	}
 	
+	public Boolean isHealingStaff(int itemID) {
+		switch (gameType) {
+		case FE7:
+			return FE7Data.Item.allHealingStaves.contains(FE7Data.Item.valueOf(itemID));
+		default:
+			return false;
+		}
+	}
+	
+	public WeaponRank weaponRankFromValue(int rankValue) {
+		switch (gameType) {
+		case FE7:
+			return FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank();
+		default:
+			return null;
+		}
+	}
+	
+	public FEItem getRandomHealingStaff(WeaponRank maxRank, Random rng) {
+		switch (gameType) {
+		case FE7:
+			Set<FE7Data.Item> healingStaves = new HashSet<FE7Data.Item>(FE7Data.Item.allHealingStaves);
+			if (maxRank.isLowerThan(WeaponRank.S)) { healingStaves.removeAll(FE7Data.Item.allSRank); }
+			if (maxRank.isLowerThan(WeaponRank.A)) { healingStaves.removeAll(FE7Data.Item.allARank); }
+			if (maxRank.isLowerThan(WeaponRank.B)) { healingStaves.removeAll(FE7Data.Item.allBRank); }
+			if (maxRank.isLowerThan(WeaponRank.C)) { healingStaves.removeAll(FE7Data.Item.allCRank); }
+			if (maxRank.isLowerThan(WeaponRank.D)) { healingStaves.removeAll(FE7Data.Item.allDRank); }
+			FE7Data.Item[] remainingItems = healingStaves.toArray(new FE7Data.Item[healingStaves.size()]);
+			return itemMap.get(remainingItems[rng.nextInt(remainingItems.length)].ID);
+		default:
+			return null;
+		}
+	}
+	
 	public FEItem[] formerThiefInventory() {
 		switch (gameType) {
 		case FE7:

@@ -4,14 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import fedata.FEChapter;
 import fedata.FEChapterUnit;
 import fedata.FECharacter;
 import fedata.FEClass;
 import fedata.FEItem;
+import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -184,7 +187,7 @@ public class ClassRandomizer {
 						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass());
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
-					validateCharacterInventory(character, chapterUnit, ranged, itemData, forceBasicWeapons, rng);
+					validateCharacterInventory(character, targetClass, chapterUnit, ranged, itemData, forceBasicWeapons, rng);
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
@@ -299,13 +302,23 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void validateCharacterInventory(FECharacter character, FEChapterUnit chapterUnit, Boolean ranged, ItemDataLoader itemData, Boolean forceBasic, Random rng) {
+	private static void validateCharacterInventory(FECharacter character, FEClass charClass, FEChapterUnit chapterUnit, Boolean ranged, ItemDataLoader itemData, Boolean forceBasic, Random rng) {
 		int item1ID = chapterUnit.getItem1();
 		FEItem item1 = itemData.itemWithID(item1ID);
+		FEItem[] prfWeapons = itemData.prfWeaponsForClass(character.getClassID());
+		Set<Integer> prfIDs = new HashSet<Integer>();
+		for (FEItem prfWeapon : prfWeapons) {
+			prfIDs.add(prfWeapon.getID());
+		}
+		
+		Boolean isHealerClass = charClass.getStaffRank() > 0;
+		Boolean hasAtLeastOneHealingStaff = false;
+		
 		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
-			if (!canCharacterUseItem(character, item1)) {
+			if (!canCharacterUseItem(character, item1) || (item1.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item1ID))) {
 				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
+					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
 					chapterUnit.setItem1(replacementItem.getID());
 				} else {
 					chapterUnit.setItem1(0);
@@ -316,9 +329,10 @@ public class ClassRandomizer {
 		int item2ID = chapterUnit.getItem2();
 		FEItem item2 = itemData.itemWithID(item2ID);
 		if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
-			if (!canCharacterUseItem(character, item2)) {
+			if (!canCharacterUseItem(character, item2) || (item2.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item2ID))) {
 				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
+					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
 					chapterUnit.setItem2(replacementItem.getID());
 				} else {
 					chapterUnit.setItem2(0);
@@ -329,9 +343,10 @@ public class ClassRandomizer {
 		int item3ID = chapterUnit.getItem3();
 		FEItem item3 = itemData.itemWithID(item3ID);
 		if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
-			if (!canCharacterUseItem(character, item3)) {
+			if (!canCharacterUseItem(character, item3) || (item3.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item3ID))) {
 				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
+					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
 					chapterUnit.setItem3(replacementItem.getID());
 				} else {
 					chapterUnit.setItem3(0);
@@ -342,14 +357,19 @@ public class ClassRandomizer {
 		int item4ID = chapterUnit.getItem4();
 		FEItem item4 = itemData.itemWithID(item4ID);
 		if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
-			if (!canCharacterUseItem(character, item4)) {
+			if (!canCharacterUseItem(character, item4) || (item4.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item4ID))) {
 				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
 				if (replacementItem != null) {
+					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
 					chapterUnit.setItem4(replacementItem.getID());
 				} else {
 					chapterUnit.setItem4(0);
 				}
 			}
+		}
+		
+		if (isHealerClass && !hasAtLeastOneHealingStaff) {
+			chapterUnit.giveItems(new int[] {itemData.getRandomHealingStaff(itemData.weaponRankFromValue(character.getStaffRank()), rng).getID()});
 		}
 	}
 	

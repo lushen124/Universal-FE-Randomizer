@@ -36,4 +36,25 @@ public enum WeaponRank {
 			return NONE;
 		}
 	}
+	
+	public Boolean isLowerThan(WeaponRank rank) {
+		switch(rank) {
+		case NONE:
+		case PRF:
+		case E:
+			return false;
+		case S:
+			return this != S;
+		case A:
+			return this != S && this != A;
+		case B:
+			return this != S && this != A && this != B;
+		case C:
+			return this == D || this == E;
+		case D:
+			return this == E;
+		default:
+			return false;
+		}
+	}
 }
