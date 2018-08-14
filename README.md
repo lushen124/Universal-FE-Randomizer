@@ -97,6 +97,14 @@ I made some illustrations to show what's going on here.
 ### Bases
 As you may know, a character's base stats are the sum of their personal bases and the bases afforded to them by their class.
 
+
+<p align="center">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Readme/Bases.png">
+</p>
+<p align="center">
+  <i>The randomizer only touches the personal bases.</i>
+</p>
+
 **Redistribution** - Sums up the character's bases and randomly assigns them back out. Note that negative personal bases are not allowed here, so while the sum can be lowered from a character normally having a negative personal base, the personal bases that we end up with are strictly positive.
 
 **Variance** - Adds (or subtracts) a random number up to the variance provided to all of a character's bases. Unlike redistribution, there is a chance of receiving negative personal bases here, though no character is allowed to have a negative base after applying their class bases in any area.
