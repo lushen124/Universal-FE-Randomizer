@@ -127,6 +127,13 @@ As you may know, a character's base stats are the sum of their personal bases an
 
 **Randomize Enemy Minions** - A new option this time around is to randomize the classes of the random enemies that you fight. The same restrictions apply for enemies with unique movement costs across different terrains, so once again, fliers will remain fliers, etc. Note that Thieves are unaffected, since they will remain thieves to apply pressure for chests. Like playable characters, chapters are whitelisted as necessary if they are deemed safe for full randomization. (I think the only chapter that's weird is Chapter 25, which features pirates and fliers over water.)
 
+<p align="center">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Readme/RandomClasses.png">
+</p>
+<p align="center">
+  <i>You can turn on all three!</i>
+</p>
+
 ### Enemy Buffs
 Thought the game was too easy?
 
