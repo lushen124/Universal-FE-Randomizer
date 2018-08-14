@@ -65,11 +65,34 @@ Like I said, the new plan is to support more platforms first before supporting m
 ## Randomization Options
 
 ### Growths
+I made some illustrations to show what's going on here.
+
 **Redistribution** - This method simply sums a character's growth percentages and doles them back out randomly, which attempts to keep high growth characters with high growths, just in random areas. A variance is allowed to add or subtract a random amount from their totals before redistributing, offering some differences.
 
-**Variance** - This method attempts to preserve character's original growths, but adds minor tweaks to each in either direction. For example, somebody with high STR growth will have either slightly more or slightly less, depending on the variance given and the random number generator
+<p align="center">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Readme/GrowthRedistribution.png">
+</p>
+<p align="center">
+  <i>This example assumes variance of 0, so it's pure redistribution of growths.</i>
+</p>
+
+**Variance** - This method attempts to preserve character's original growths, but adds minor tweaks to each in either direction. For example, somebody with high STR growth will have either slightly more or slightly less, depending on the variance given and the random number generator.
+
+<p align="center">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Readme/GrowthDelta.png">
+</p>
+<p align="center">
+  <i>This example assumes variance of 20, so each growth area can change by up to 20% in either direction.</i>
+</p>
 
 **Full** - This method has no attachment to the character's original growths and will simply assign growth values randomly between the specified minimum and maximum for all stat areas.
+
+<p align="center">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Readme/GrowthFull.png">
+</p>
+<p align="center">
+  <i>It should go without saying that this is assuming a minimum of 5% and a maximum of 100%.</i>
+</p>
 
 ### Bases
 As you may know, a character's base stats are the sum of their personal bases and the bases afforded to them by their class.
