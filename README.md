@@ -97,7 +97,6 @@ I made some illustrations to show what's going on here.
 ### Bases
 As you may know, a character's base stats are the sum of their personal bases and the bases afforded to them by their class.
 
-
 <p align="center">
   <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Readme/Bases.png">
 </p>
@@ -146,6 +145,13 @@ As you may know, a character's base stats are the sum of their personal bases an
 Thought the game was too easy?
 
 **Buff Enemy Growths** - Random Enemies and their stats are dictated by class growth rates. Normally these growths would be overridden by a character's personal growths, but enemies don't have that quality, so they will scale based on these rates. Normally, they're pretty low, but this option will increase the growth rates so that, as the game progresses, the enemies will become tougher, due to the autoleveling routine. There are two options: **Flat** and **Scaling**. Flat buffs apply a constant to all of the growth rates. This generally makes up for weak points of enemies (tankier myrmidons and faster knights, etc.) A little boost will go a long way, especially for hard mode, so don't go too crazy with Flat buffs (10 - 20 is a pretty noticeable buff, especially later in the game). Scaling buffs apply a fraction based off of their original class growths. This generally emphasizes a class's strong points (myrmidons that are actually fast and knights that are actually tanky). As it's a fraction, the values is a percentage, where a value of 100% is a doubling of growth rates.
+
+<p align="center">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Readme/EnemyBuff.png">
+</p>
+<p align="center">
+  <i>An example using enemy Knights. Also, hard mode adds phantom levels. :)</i>
+</p>
 
 **Improve Enemy Weapons** - This option selects some enemies and upgrades their weapons to the next level. For example, if an enemy was using an Iron Sword (an E rank weapon), he/she might now be using a Steel Sword (a D rank weapon) or a Longsword (a D rank weapon effective against cavalry), or if he's a myrmidon, a Wo Dao is a possibility (D rank weapon locked to myrmidons and has a high critical rate). You can set how often this happens, anywhere between 1% and 100% of minions. Note that this does not affect boss weaponry.
 
