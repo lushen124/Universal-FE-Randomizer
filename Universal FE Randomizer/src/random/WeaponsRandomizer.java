@@ -94,7 +94,7 @@ public class WeaponsRandomizer {
 		itemsData.commit();
 	}
 	
-	public static void randomizeEffects(WeaponEffectOptions effectOptions, ItemDataLoader itemsData, TextLoader textData, Random rng) {
+	public static void randomizeEffects(WeaponEffectOptions effectOptions, ItemDataLoader itemsData, TextLoader textData, Boolean ignoreIronWeapons, Random rng) {
 		FEItem[] allWeapons = itemsData.getAllWeapons();
 		
 		Set<WeaponEffects> enabledEffects = new HashSet<WeaponEffects>();
@@ -113,6 +113,7 @@ public class WeaponsRandomizer {
 		if (effectOptions.devil) { enabledEffects.add(WeaponEffects.DEVIL); }
 		
 		for (FEItem weapon : allWeapons) {
+			if (ignoreIronWeapons && itemsData.isBasicWeapon(weapon.getID())) { continue; }
 			weapon.applyRandomEffect(enabledEffects, itemsData, textData, itemsData.spellAnimations, rng);
 		}
 		

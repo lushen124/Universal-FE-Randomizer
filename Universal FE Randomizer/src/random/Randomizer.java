@@ -262,7 +262,7 @@ public class Randomizer extends Thread {
 			if (weapons.shouldAddEffects && weapons.effectsList != null) {
 				updateStatusString("Adding random effects to weapons...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 4));
-				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, rng);
+				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, weapons.noEffectIronWeapons, rng);
 			}
 		}
 	}

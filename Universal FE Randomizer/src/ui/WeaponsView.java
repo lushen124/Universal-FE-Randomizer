@@ -28,10 +28,6 @@ public class WeaponsView extends Composite {
 	private Spinner hitVarianceSpinner;
 	private MinMaxControl hitRangeControl;
 	
-//	private Button enableCritButton;
-//	private Spinner critVarianceSpinner;
-//	private MinMaxControl critRangeControl;
-	
 	private Button enableWeightButton;
 	private Spinner weightVarianceSpinner;
 	private MinMaxControl weightRangeControl;
@@ -41,7 +37,7 @@ public class WeaponsView extends Composite {
 	private MinMaxControl durabilityRangeControl;
 	
 	private Button enableRandomEffectsButton;
-//	private Button allowDevilEffectButton;
+	private Button noEffectsForIronButton;;
 	private WeaponEffectSelectionView effectsSelectionView;
 	
 	public WeaponsView(Composite parent, int style) {
@@ -189,76 +185,12 @@ public class WeaponsView extends Composite {
 
 		///////////////////////////////////////////////////////
 		
-//		enableCritButton = new Button(container, SWT.CHECK);
-//		enableCritButton.setText("Randomize Critical Chance");
-//		enableCritButton.setToolTipText("Applies a random delta +/- Variance to all weapons' critical hit chance. All weapons are then clamped to the min and max specified.");
-//
-//		FormData critData = new FormData();
-//		critData.left = new FormAttachment(0, 5);
-//		critData.top = new FormAttachment(hitParamContainer, 5);
-//		enableCritButton.setLayoutData(critData);
-//		
-//		Composite critParamContainer = new Composite(container, SWT.NONE);
-//		
-//		FormLayout critParamLayout = new FormLayout();
-//		critParamLayout.marginLeft = 5;
-//		critParamLayout.marginTop = 5;
-//		critParamLayout.marginBottom = 5;
-//		critParamLayout.marginRight = 5;
-//		critParamContainer.setLayout(critParamLayout);
-//		
-//		Label critVarianceLabel = new Label(critParamContainer, SWT.RIGHT);
-//		critVarianceLabel.setText("Variance:");
-//		
-//		critVarianceSpinner = new Spinner(critParamContainer, SWT.NONE);
-//		critVarianceSpinner.setValues(10, 1, 255, 0, 1, 5);
-//		critVarianceSpinner.setEnabled(false);
-//		
-//		FormData critVarLabelData = new FormData();
-//		critVarLabelData.left = new FormAttachment(0, 5);
-//		critVarLabelData.right = new FormAttachment(50, -5);
-//		critVarLabelData.top = new FormAttachment(critVarianceSpinner, 0, SWT.CENTER);
-//		critVarianceLabel.setLayoutData(critVarLabelData);
-//		
-//		FormData critVarSpinnerData = new FormData();
-//		critVarSpinnerData.left = new FormAttachment(50, 0);
-//		critVarSpinnerData.top = new FormAttachment(0, 5);
-//		critVarianceSpinner.setLayoutData(critVarSpinnerData);
-//
-//		critRangeControl = new MinMaxControl(critParamContainer, SWT.NONE, "Min Crit:", "Max Crit:");
-//
-//		critRangeControl.getMinSpinner().setValues(0, 0, 255, 0, 1, 5);
-//		critRangeControl.getMaxSpinner().setValues(35, 0, 255, 0, 1, 5);
-//		critRangeControl.setEnabled(false);
-//
-//		FormData critRangeControlData = new FormData();
-//		critRangeControlData.top = new FormAttachment(critVarianceSpinner, 5);
-//		critRangeControlData.left = new FormAttachment(0, 5);
-//		critRangeControlData.right = new FormAttachment(100, -5);
-//		critRangeControl.setLayoutData(critRangeControlData);
-//
-//		enableCritButton.addListener(SWT.Selection, new Listener() {
-//			@Override
-//			public void handleEvent(Event event) {
-//				critRangeControl.setEnabled(enableCritButton.getSelection());
-//				critVarianceSpinner.setEnabled(enableCritButton.getSelection());
-//			}
-//		});
-//		
-//		FormData critContainerData = new FormData();
-//		critContainerData.left = new FormAttachment(enableCritButton, 0, SWT.LEFT);
-//		critContainerData.top = new FormAttachment(enableCritButton, 0);
-//		critParamContainer.setLayoutData(critContainerData);
-
-		///////////////////////////////////////////////////////
-		
 		enableWeightButton = new Button(container, SWT.CHECK);
 		enableWeightButton.setText("Randomize Weights (WT)");
 		enableWeightButton.setToolTipText("Applies a random delta +/- Variance to all weapons' weight. All weapons are then clamped to the min and max specified.");
 
 		FormData wtData = new FormData();
 		wtData.left = new FormAttachment(0, 5);
-//		wtData.top = new FormAttachment(critParamContainer, 5);
 		wtData.top = new FormAttachment(hitParamContainer, 5);
 		enableWeightButton.setLayoutData(wtData);
 		
@@ -388,17 +320,22 @@ public class WeaponsView extends Composite {
 		effectsData.top = new FormAttachment(durabilityParamContainer, 5);
 		enableRandomEffectsButton.setLayoutData(effectsData);
 		
-//		allowDevilEffectButton = new Button(container, SWT.CHECK);
-//		allowDevilEffectButton.setText("Allow Devil Effect in Effects Pool");
-//		allowDevilEffectButton.setToolTipText("Devil weapons have a chance of injuring the user on every use. This option allows the randomizer to potentially add the Devil effect when adding random effects.");
-//		allowDevilEffectButton.setEnabled(false);
+		noEffectsForIronButton = new Button(container, SWT.CHECK);
+		noEffectsForIronButton.setText("Safe Basic Weapons");
+		noEffectsForIronButton.setToolTipText("Iron Weapons (inc. Fire, Lightning, and Flux) remain unchanged. This establishes a safe-zone for weapons to not be broken.");
+		noEffectsForIronButton.setEnabled(false);
+		
+		FormData ironData = new FormData();
+		ironData.left = new FormAttachment(enableRandomEffectsButton, 10, SWT.LEFT);
+		ironData.top = new FormAttachment(enableRandomEffectsButton, 5);
+		noEffectsForIronButton.setLayoutData(ironData);
 		
 		effectsSelectionView = new WeaponEffectSelectionView(container, SWT.NONE);
 		effectsSelectionView.setEnabled(false);
 		
 		FormData effectData = new FormData();
-		effectData.left = new FormAttachment(enableRandomEffectsButton, 10, SWT.LEFT);
-		effectData.top = new FormAttachment(enableRandomEffectsButton, 5);
+		effectData.left = new FormAttachment(noEffectsForIronButton, 10, SWT.LEFT);
+		effectData.top = new FormAttachment(noEffectsForIronButton, 5);
 		effectData.bottom = new FormAttachment(100, -5);
 		effectData.width = 280;
 		effectsSelectionView.setLayoutData(effectData);
@@ -418,10 +355,12 @@ public class WeaponsView extends Composite {
 			public void handleEvent(Event event) {
 				Boolean enabled = enableRandomEffectsButton.getSelection();
 				effectsSelectionView.setEnabled(enabled);
+				noEffectsForIronButton.setEnabled(enabled);
 				if (enabled) {
 					effectsSelectionView.selectAll();
 				} else {
 					effectsSelectionView.deselectAll();
+					noEffectsForIronButton.setSelection(false);
 				}
 			}
 		});
@@ -430,7 +369,6 @@ public class WeaponsView extends Composite {
 	public WeaponOptions getWeaponOptions() {
 		MinMaxVarOption mightOptions = null;
 		MinMaxVarOption hitOptions = null;
-//		MinMaxVarOption critOptions = null;
 		MinMaxVarOption weightOptions = null;
 		MinMaxVarOption durabilityOptions = null;
 		
@@ -440,9 +378,6 @@ public class WeaponsView extends Composite {
 		if (enableHitButton.getSelection()) {
 			hitOptions = new MinMaxVarOption(hitRangeControl.getMinMaxOption(), hitVarianceSpinner.getSelection());
 		}
-//		if (enableCritButton.getSelection()) {
-//			critOptions = new MinMaxVarOption(critRangeControl.getMinMaxOption(), critVarianceSpinner.getSelection());
-//		}
 		if (enableWeightButton.getSelection()) {
 			weightOptions = new MinMaxVarOption(weightRangeControl.getMinMaxOption(), weightVarianceSpinner.getSelection());
 		}
@@ -450,7 +385,6 @@ public class WeaponsView extends Composite {
 			durabilityOptions = new MinMaxVarOption(durabilityRangeControl.getMinMaxOption(), durabilityVarianceSpinner.getSelection());
 		}
 		
-//		return new WeaponOptions(mightOptions, hitOptions, critOptions, weightOptions, durabilityOptions, enableRandomEffectsButton.getSelection(), enableRandomEffectsButton.getSelection() && allowDevilEffectButton.getSelection());
-		return new WeaponOptions(mightOptions, hitOptions, weightOptions, durabilityOptions, enableRandomEffectsButton.getSelection(), effectsSelectionView.getOptions());
+		return new WeaponOptions(mightOptions, hitOptions, weightOptions, durabilityOptions, enableRandomEffectsButton.getSelection(), effectsSelectionView.getOptions(), noEffectsForIronButton.getSelection());
 	}
 }

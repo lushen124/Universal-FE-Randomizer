@@ -777,6 +777,15 @@ public class FE7Data {
 		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(REGAL_BLADE, REX_HASTA, BASILIKOS, RIENFLECHE, EXCALIBUR, LUCE, GESPENST, AUREOLA));
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(MANI_KATTI, RAPIER, DURANDAL, SOL_KATTI, WOLF_BEIL, ARMADS, FORBLAZE));
 		
+		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, FIRE, LIGHTNING, FLUX));
+		
+		public static Item[] basicItemsOfType(WeaponType type) {
+			Set<Item> set = new HashSet<Item>();
+			set.addAll(Arrays.asList(weaponsOfType(type)));
+			set.retainAll(allBasicWeapons);
+			return set.toArray(new Item[set.size()]);
+		}
+		
 		public static Item[] formerThiefKit() {
 			return new Item[] {CHEST_KEY_5, DOOR_KEY, DOOR_KEY};
 		}
@@ -887,6 +896,11 @@ public class FE7Data {
 		public static Boolean isPromotionItem(int itemID) {
 			if (valueOf(itemID) == null) { return false; }
 			return allPromotionItems.contains(valueOf(itemID));
+		}
+		
+		public static Boolean isBasicWeapon(int itemID) {
+			if (valueOf(itemID) == null) { return false; }
+			return allBasicWeapons.contains(valueOf(itemID));
 		}
 		
 		public static Item[] weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange) {

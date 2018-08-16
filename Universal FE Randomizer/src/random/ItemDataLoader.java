@@ -340,20 +340,20 @@ private FEBase.GameType gameType;
 				offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT)};
 	}
 	
+	public Boolean isBasicWeapon(int itemID) {
+		switch (gameType) {
+		case FE7:
+			return FE7Data.Item.isBasicWeapon(itemID);
+		default:
+			return false;
+		}
+	}
+	
 	public FEItem basicItemOfType(WeaponType type) {
 		switch (gameType) {
 		case FE7:
-			switch (type) {
-			case SWORD: return itemMap.get(FE7Data.Item.IRON_SWORD.ID);
-			case LANCE: return itemMap.get(FE7Data.Item.IRON_LANCE.ID);
-			case AXE: return itemMap.get(FE7Data.Item.IRON_AXE.ID);
-			case BOW: return itemMap.get(FE7Data.Item.IRON_BOW.ID);
-			case ANIMA: return itemMap.get(FE7Data.Item.FIRE.ID);
-			case LIGHT: return itemMap.get(FE7Data.Item.LIGHTNING.ID);
-			case DARK: return itemMap.get(FE7Data.Item.FLUX.ID);
-			case STAFF: return itemMap.get(FE7Data.Item.HEAL.ID);
-			default: return null;
-			}
+			FE7Data.Item[] items = FE7Data.Item.basicItemsOfType(type);
+			if (items.length > 0) { return itemMap.get(items[0].ID); }
 		default:
 			break;
 		}
