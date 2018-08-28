@@ -23,6 +23,17 @@ public class FileReadHelper {
 		return result;
 	}
 	
+	public static long readBigEndianWord(FileHandler handler, long offset) {
+		byte[] word = handler.readBytesAtOffset(offset, 4);
+		long result = 0;
+		result = word[0];
+		result = (result << 8) | word[1];
+		result = (result << 8) | word[2];
+		result = (result << 8) | word[3];
+		
+		return result;
+	}
+	
 	public static byte[] readBytesInRange(AddressRange range, FileHandler handler) {
 		return handler.readBytesAtOffset(range.start, (int)(range.end - range.start));
 	}

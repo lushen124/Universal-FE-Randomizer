@@ -1,4 +1,4 @@
-package fedata.fe7;
+package fedata.fe6;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,13 +10,14 @@ import fedata.FESpellAnimationCollection;
 import util.Diff;
 import util.DiffCompiler;
 
-public class FE7SpellAnimationCollection implements FESpellAnimationCollection {
-	
+public class FE6SpellAnimationCollection implements FESpellAnimationCollection {
+
 	public enum Animation {
 		NONE(0x00), THROWN_AXE(0x01), ARROW(0x02), JAVELIN(0x03), JAVELIN2(0x04), JAVELIN3(0x05), JAVELIN4(0x06), JAVELIN5(0x07), JAVELIN6(0x08), JAVELIN7(0x09),
-		JAVELIN8(0x0A), JAVELIN9(0x0B), JAVELIN10(0x0C), JAVELIN11(0x0D), DANCE(0x0E), DANCE2(0x0F), BALLISTA(0x10), FLAMETONGUE(0x13), FIRE(0x016), ELFIRE(0x17),
-		FORBLAZE(0x18), THUNDER(0x19), BOLTING(0x1A), FIMBULVETR(0x1B), FLUX(0x1D), NOSFERATU(0x1E), LIGHTNING(0x1F), PURGE(0x20), AUREOLA(0x21), DIVINE(0x22),
-		ECLIPSE(0x24), FENRIR(0x25), SHINE(0x33), LUNA(0x34), EXCALIBUR(0x35), GESPENST(0x36), AURA(0x37), LUCE(0x38), ERESHKIGAL(0x39), MAP_ONLY(0xFFFE), NONE2(0xFFFF);
+		JAVELIN8(0x0A), JAVELIN9(0x0B), JAVELIN10(0x0C), JAVELIN11(0x0D), DANCE(0x0E), DANCE2(0x0F), BALLISTA(0x10), ECKESACHS(0x11), BINDING_BLADE(0x12), FLAMETONGUE(0x13), 
+		DIVINESTONE(0x14), DARKSTONE(0x15), FIRE(0x16), ELFIRE(0x17),
+		FORBLAZE(0x18), THUNDER(0x19), BOLTING(0x1A), FIMBULVETR(0x1B), AIRCALIBUR(0x1C), FLUX(0x1D), NOSFERATU(0x1E), LIGHTNING(0x1F), PURGE(0x20), AUREOLA(0x21), DIVINE(0x22),
+		APOCALYPSE(0x23), ECLIPSE(0x24), FENRIR(0x25), MAP_ONLY(0xFFFE), NONE2(0xFFFF);
 		
 		public int value;
 		
@@ -35,7 +36,7 @@ public class FE7SpellAnimationCollection implements FESpellAnimationCollection {
 		}
 		
 		public static Animation randomMagicAnimation(Random rng) {
-			Animation[] magicAnimations = {FIRE, ELFIRE, THUNDER, BOLTING, FIMBULVETR, FLUX, LIGHTNING, PURGE, DIVINE, SHINE};
+			Animation[] magicAnimations = {FIRE, ELFIRE, THUNDER, AIRCALIBUR, BOLTING, FIMBULVETR, FLUX, LIGHTNING, PURGE, DIVINE, FENRIR};
 			return magicAnimations[rng.nextInt(magicAnimations.length)];
 		}
 	}
@@ -99,15 +100,12 @@ public class FE7SpellAnimationCollection implements FESpellAnimationCollection {
 				case FENRIR:
 				case FLUX:
 				case NOSFERATU:
-				case LUNA:
-				case GESPENST:
-				case ERESHKIGAL:
 					setFlashColor(Flash.DARK);
 					break;
 				case FIMBULVETR:
 					setFlashColor(Flash.BLUE);
 					break;
-				case EXCALIBUR:
+				case AIRCALIBUR:
 					setFlashColor(Flash.GREEN);
 					break;
 				default:
@@ -159,19 +157,19 @@ public class FE7SpellAnimationCollection implements FESpellAnimationCollection {
 	
 	private Map<Integer, SpellAnimationEntry> entries;
 	
-	public FE7SpellAnimationCollection(byte[] data, long originalOffset) {
+	public FE6SpellAnimationCollection(byte[] data, long originalOffset) {
 		super();
 	
 		int currentOffset = 0;
 		
 		entries = new HashMap<Integer, SpellAnimationEntry>();
 		
-		for (int i = 0; i < FE7Data.NumberOfSpellAnimations; i++) {
-			SpellAnimationEntry entry = new SpellAnimationEntry(Arrays.copyOfRange(data, currentOffset, currentOffset + FE7Data.BytesPerSpellAnimation), currentOffset + originalOffset);
+		for (int i = 0; i < FE6Data.NumberOfSpellAnimations; i++) {
+			SpellAnimationEntry entry = new SpellAnimationEntry(Arrays.copyOfRange(data, currentOffset, currentOffset + FE6Data.BytesPerSpellAnimation), currentOffset + originalOffset);
 			
 			entries.put(entry.getWeaponID(), entry);
 			
-			currentOffset += FE7Data.BytesPerSpellAnimation;
+			currentOffset += FE6Data.BytesPerSpellAnimation;
 		}
 	}
 	

@@ -20,7 +20,7 @@ public class DebugPrinter {
 	
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
-		case WEAPONS:
+		case CHAPTER_LOADER:
 			return true;
 		default:
 			return false;

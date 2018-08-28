@@ -3,6 +3,6 @@ package fedata;
 public class FEBase {
 
 	public enum GameType {
-		FE6, FE7, FE8
+		UNKNOWN, FE6, FE7, FE8
 	}
 }

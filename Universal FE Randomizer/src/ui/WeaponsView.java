@@ -358,6 +358,7 @@ public class WeaponsView extends Composite {
 				noEffectsForIronButton.setEnabled(enabled);
 				if (enabled) {
 					effectsSelectionView.selectAll();
+					noEffectsForIronButton.setSelection(true);
 				} else {
 					effectsSelectionView.deselectAll();
 					noEffectsForIronButton.setSelection(false);

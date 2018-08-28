@@ -12,6 +12,9 @@ import java.util.Set;
 import fedata.FEBase;
 import fedata.FEItem;
 import fedata.FESpellAnimationCollection;
+import fedata.fe6.FE6Data;
+import fedata.fe6.FE6Item;
+import fedata.fe6.FE6SpellAnimationCollection;
 import fedata.fe7.FE7Data;
 import fedata.fe7.FE7Item;
 import fedata.fe7.FE7SpellAnimationCollection;
@@ -60,7 +63,127 @@ private FEBase.GameType gameType;
 		this.freeSpace = freeSpace;
 		
 		switch (gameType) {
-			case FE7:
+			case FE6: {
+				long baseAddress = FileReadHelper.readAddress(handler, FE6Data.ItemTablePointer);
+				for (FE6Data.Item item : FE6Data.Item.values()) {
+					if (item == FE6Data.Item.NONE) {
+						continue;
+					}	
+					long offset = baseAddress + (FE6Data.BytesPerItem * item.ID);
+					byte[] itemData = handler.readBytesAtOffset(offset, FE6Data.BytesPerItem);
+					itemMap.put(item.ID, new FE6Item(itemData, offset));
+				}
+				
+				long spellAnimationBaseAddress = FileReadHelper.readAddress(handler, FE6Data.SpellAnimationTablePointer);
+				spellAnimations = new FE6SpellAnimationCollection(handler.readBytesAtOffset(spellAnimationBaseAddress, 
+						FE6Data.NumberOfSpellAnimations * FE6Data.BytesPerSpellAnimation), spellAnimationBaseAddress);
+				
+				offsetsForAdditionalData = new HashMap<AdditionalData, Long>();
+				
+				// Set up effectiveness.
+				long offset = freeSpace.setValue(new byte[] {
+						(byte)FE6Data.CharacterClass.CAVALIER.ID,
+						(byte)FE6Data.CharacterClass.CAVALIER_F.ID,
+						(byte)FE6Data.CharacterClass.PALADIN.ID,
+						(byte)FE6Data.CharacterClass.PALADIN_F.ID,
+						(byte)FE6Data.CharacterClass.KNIGHT.ID,
+						(byte)FE6Data.CharacterClass.KNIGHT_F.ID,
+						(byte)FE6Data.CharacterClass.GENERAL.ID,
+						(byte)FE6Data.CharacterClass.GENERAL_F.ID,
+						(byte)FE6Data.CharacterClass.NOMAD.ID,
+						(byte)FE6Data.CharacterClass.NOMAD_F.ID,
+						(byte)FE6Data.CharacterClass.NOMAD_TROOPER.ID,
+						(byte)FE6Data.CharacterClass.NOMAD_TROOPER_F.ID,
+						(byte)FE6Data.CharacterClass.TROUBADOUR.ID,
+						(byte)FE6Data.CharacterClass.VALKYRIE.ID,
+						(byte)FE6Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.KNIGHTCAV_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.KNIGHTCAV_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE6Data.CharacterClass.KNIGHT.ID,
+						(byte)FE6Data.CharacterClass.KNIGHT_F.ID,
+						(byte)FE6Data.CharacterClass.GENERAL.ID,
+						(byte)FE6Data.CharacterClass.GENERAL_F.ID,
+						(byte)FE6Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.KNIGHT_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.KNIGHT_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE6Data.CharacterClass.CAVALIER.ID,
+						(byte)FE6Data.CharacterClass.CAVALIER_F.ID,
+						(byte)FE6Data.CharacterClass.PALADIN.ID,
+						(byte)FE6Data.CharacterClass.PALADIN_F.ID,
+						(byte)FE6Data.CharacterClass.NOMAD.ID,
+						(byte)FE6Data.CharacterClass.NOMAD_F.ID,
+						(byte)FE6Data.CharacterClass.NOMAD_TROOPER.ID,
+						(byte)FE6Data.CharacterClass.NOMAD_TROOPER_F.ID,
+						(byte)FE6Data.CharacterClass.TROUBADOUR.ID,
+						(byte)FE6Data.CharacterClass.VALKYRIE.ID,
+						(byte)FE6Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.CAVALRY_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.CAVALRY_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE6Data.CharacterClass.FIRE_DRAGON.ID,
+						(byte)FE6Data.CharacterClass.DIVINE_DRAGON.ID,
+						(byte)FE6Data.CharacterClass.MAGIC_DRAGON.ID,
+						(byte)FE6Data.CharacterClass.WYVERN_RIDER.ID,
+						(byte)FE6Data.CharacterClass.WYVERN_RIDER_F.ID,
+						(byte)FE6Data.CharacterClass.WYVERN_KNIGHT.ID,
+						(byte)FE6Data.CharacterClass.WYVERN_KNIGHT_F.ID,
+						(byte)FE6Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.DRAGON_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.DRAGON_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE6Data.CharacterClass.PEGASUS_KNIGHT.ID,
+						(byte)FE6Data.CharacterClass.FALCON_KNIGHT.ID,
+						(byte)FE6Data.CharacterClass.WYVERN_KNIGHT.ID,
+						(byte)FE6Data.CharacterClass.WYVERN_KNIGHT_F.ID,
+						(byte)FE6Data.CharacterClass.WYVERN_RIDER.ID,
+						(byte)FE6Data.CharacterClass.WYVERN_RIDER_F.ID,
+						(byte)FE6Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.FLIERS_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.FLIERS_EFFECT, offset);
+				
+				// Set up stat boosts.
+				offset = freeSpace.setValue(new byte[] {0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, AdditionalData.STR_MAG_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.STR_MAG_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00}, AdditionalData.SKL_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.SKL_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00}, AdditionalData.SPD_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.SPD_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00}, AdditionalData.DEF_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.DEF_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00}, AdditionalData.RES_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.RES_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00}, AdditionalData.LCK_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.LCK_BOOST, offset);
+				
+				// Set up promotion items.
+				long knightCrestOffset = FE6Data.PromotionItem.KNIGHT_CREST.getListAddress();
+				List<Byte> idList = new ArrayList<Byte>();
+				byte currentByte = 0x0;
+				long currentOffset = knightCrestOffset;
+				do {
+					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
+					if (currentByte != 0) {
+						idList.add(currentByte);
+					}
+				} while (currentByte != 0);
+				if (!idList.contains((byte)FE6Data.CharacterClass.LORD.ID)) { idList.add((byte)FE6Data.CharacterClass.LORD.ID); }
+				if (!idList.contains((byte)FE6Data.CharacterClass.SOLDIER.ID)) { idList.add((byte)FE6Data.CharacterClass.SOLDIER.ID); }
+				idList.add((byte)FE6Data.CharacterClass.NONE.ID);
+				byte[] byteArray = new byte[idList.size()];
+				for (int i = 0; i < idList.size(); i++) {
+					byteArray[i] = idList.get(i);
+				}
+				offset = freeSpace.setValue(byteArray, AdditionalData.KNIGHT_CREST_CLASSES.key);
+				offsetsForAdditionalData.put(AdditionalData.KNIGHT_CREST_CLASSES, offset);
+					
+				promotionItemAddressPointers = new HashMap<AdditionalData, Long>();
+				promotionItemAddressPointers.put(AdditionalData.KNIGHT_CREST_CLASSES, knightCrestOffset);
+				
+				break;
+			}
+			case FE7: {
 				long baseAddress = FileReadHelper.readAddress(handler, FE7Data.ItemTablePointer);
 				for (FE7Data.Item item : FE7Data.Item.values()) {
 					if (item == FE7Data.Item.NONE) {
@@ -242,6 +365,7 @@ private FEBase.GameType gameType;
 				promotionItemAddressPointers.put(AdditionalData.MASTER_SEAL_CLASSES, masterSealPointerAddress);
 				
 				break;
+		}
 			default:
 				break;
 		}
@@ -253,6 +377,8 @@ private FEBase.GameType gameType;
 	
 	public int getHighestWeaponRank() {
 		switch (gameType) {
+		case FE6:
+			return FE6Data.Item.FE6WeaponRank.S.value;
 		case FE7:
 			return FE7Data.Item.FE7WeaponRank.S.value;
 		default:
@@ -264,9 +390,14 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] getAllWeapons() {
 		switch (gameType) {
-		case FE7:
+		case FE6: {
+			int arraySize = FE6Data.Item.allWeapons.size();
+			return itemsFromFE6Items(FE6Data.Item.allWeapons.toArray(new FE6Data.Item[arraySize]));
+		}
+		case FE7: {
 			int arraySize = FE7Data.Item.allWeapons.size();
 			return itemsFromFE7Items(FE7Data.Item.allWeapons.toArray(new FE7Data.Item[arraySize]));
+		}
 		default:
 			break;
 		}
@@ -299,7 +430,38 @@ private FEBase.GameType gameType;
 		if (offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT) == address) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
 		
 		switch (gameType) {
-		case FE7:
+		case FE6: {
+			long durandalStatBonusAddress = itemMap.get(FE6Data.Item.DURANDAL.ID).getStatBonusPointer(); // STR
+			long bindingBladeStatBonusAddress = itemMap.get(FE6Data.Item.BINDING_BLADE.ID).getStatBonusPointer(); // DEF, RES
+			long maltetStatBonusAddress = itemMap.get(FE6Data.Item.MALTET.ID).getStatBonusPointer(); // SKL
+			long armadsStatBonusAddress = itemMap.get(FE6Data.Item.ARMADS.ID).getStatBonusPointer(); // DEF
+			long murgleisStatBonusAddress = itemMap.get(FE6Data.Item.MURGLEIS.ID).getStatBonusPointer(); // SPD
+			long forblazeStatBonusAddress = itemMap.get(FE6Data.Item.FORBLAZE.ID).getStatBonusPointer(); // LCK
+			long aureolaStatBonusAddress = itemMap.get(FE6Data.Item.AUREOLA.ID).getStatBonusPointer(); // RES
+			long apocalypseStatBonusAddress = itemMap.get(FE6Data.Item.APOCALYPSE.ID).getStatBonusPointer(); // MAG
+			
+			if (address == durandalStatBonusAddress) { return "+5 Strength"; }
+			if (address == bindingBladeStatBonusAddress) { return "+5 DEF/RES"; }
+			if (address == maltetStatBonusAddress) { return "+5 Skill"; }
+			if (address == armadsStatBonusAddress) { return "+5 Defense"; }
+			if (address == murgleisStatBonusAddress) { return "+5 Speed"; }
+			if (address == forblazeStatBonusAddress) { return "+5 Luck"; }
+			if (address == aureolaStatBonusAddress) { return "+5 Resistance"; }
+			if (address == apocalypseStatBonusAddress) { return "+5 Magic"; }
+			
+			long rapierEffectivenessAddress = itemMap.get(FE6Data.Item.RAPIER.ID).getEffectivenessPointer();
+			long bowEffectivenessAddress = itemMap.get(FE6Data.Item.IRON_BOW.ID).getEffectivenessPointer();
+			long horseslayerEffectivenessAddress = itemMap.get(FE6Data.Item.HORSESLAYER.ID).getEffectivenessPointer();
+			long hammerEffectivenessAddress = itemMap.get(FE6Data.Item.HAMMER.ID).getEffectivenessPointer();
+			long dragonEffectivenessAddress = itemMap.get(FE6Data.Item.WYRMSLAYER.ID).getEffectivenessPointer();
+			
+			if (address == rapierEffectivenessAddress) { return shortForm ? "Eff. Infantry" : "Effective against infantry"; }
+			if (address == bowEffectivenessAddress) { return shortForm ? "Eff. Fliers" : "Effective against fliers"; }
+			if (address == horseslayerEffectivenessAddress) { return shortForm ? "Eff. Cavalry" : "Effective against cavalry"; }
+			if (address == hammerEffectivenessAddress) { return shortForm ? "Eff. Knights" : "Effective against knights"; }
+			if (address == dragonEffectivenessAddress) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
+		}
+		case FE7: {
 			long durandalStatBonusAddress = itemMap.get(FE7Data.Item.DURANDAL.ID).getStatBonusPointer(); // STR
 			long solKattiStatBonusAddress = itemMap.get(FE7Data.Item.SOL_KATTI.ID).getStatBonusPointer(); // RES
 			long armadsStatBonusAddress = itemMap.get(FE7Data.Item.ARMADS.ID).getStatBonusPointer(); // DEF
@@ -324,6 +486,7 @@ private FEBase.GameType gameType;
 			if (address == swordslayerEffectivenessAddress) { return shortForm ? "Eff. Swordfighters" : "Effective against swordfighters"; }
 			if (address == dragonEffectivenessAddress) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
 			break;
+		}
 		default:
 			break;
 		}
@@ -332,16 +495,26 @@ private FEBase.GameType gameType;
 	}
 	
 	public long[] possibleEffectivenessAddresses() {
-		return new long[] { offsetsForAdditionalData.get(AdditionalData.KNIGHT_EFFECT),
+		switch (gameType) {
+		case FE6: return new long[] { offsetsForAdditionalData.get(AdditionalData.KNIGHT_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.KNIGHTCAV_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.CAVALRY_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT)};
+		case FE7: return new long[] { offsetsForAdditionalData.get(AdditionalData.KNIGHT_EFFECT),
 				offsetsForAdditionalData.get(AdditionalData.KNIGHTCAV_EFFECT),
 				offsetsForAdditionalData.get(AdditionalData.CAVALRY_EFFECT),
 				offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT),
 				offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT),
 				offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT)};
+		default: return new long[] {};
+		}
 	}
 	
 	public Boolean isBasicWeapon(int itemID) {
 		switch (gameType) {
+		case FE6:
+			return FE6Data.Item.isBasicWeapon(itemID);
 		case FE7:
 			return FE7Data.Item.isBasicWeapon(itemID);
 		default:
@@ -351,9 +524,14 @@ private FEBase.GameType gameType;
 	
 	public FEItem basicItemOfType(WeaponType type) {
 		switch (gameType) {
-		case FE7:
+		case FE6: {
+			FE6Data.Item[] items = FE6Data.Item.basicItemsOfType(type);
+			if (items.length > 0) { return itemMap.get(items[0].ID); }
+		}
+		case FE7: {
 			FE7Data.Item[] items = FE7Data.Item.basicItemsOfType(type);
 			if (items.length > 0) { return itemMap.get(items[0].ID); }
+		}
 		default:
 			break;
 		}
@@ -363,6 +541,8 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] itemsOfTypeAndBelowRankValue(WeaponType type, int rankValue, Boolean rangedOnly) {
 		switch (gameType) {
+		case FE6:
+			return itemsOfTypeAndBelowRank(type, FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly);
 		case FE7:
 			return itemsOfTypeAndBelowRank(type, FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly);
 		default:
@@ -374,9 +554,14 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] itemsOfTypeAndBelowRank(WeaponType type, WeaponRank rank, Boolean rangedOnly) {
 		switch (gameType) {
-		case FE7:
+		case FE6: {
+			FE6Data.Item[] weapons = FE6Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
+			return itemsFromFE6Items(weapons);
+		}
+		case FE7: {
 			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
 			return itemsFromFE7Items(weapons);
+		}
 		default:
 			break;
 		}
@@ -386,6 +571,8 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] itemsOfTypeAndEqualRankValue(WeaponType type, int rankValue, Boolean rangedOnly, Boolean allowLower) {
 		switch (gameType) {
+		case FE6:
+			return itemsOfTypeAndEqualRank(type, FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, allowLower);
 		case FE7:
 			return itemsOfTypeAndEqualRank(type, FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, allowLower);
 		default:
@@ -397,13 +584,22 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] itemsOfTypeAndEqualRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean allowLower) {
 		switch (gameType) {
-		case FE7:
+		case FE6: {
+			if (type == WeaponType.DARK && rank == WeaponRank.E) { rank = WeaponRank.D; } // There is no E rank dark tome, so we need to set a floor of D.
+			FE6Data.Item[] weapons = FE6Data.Item.weaponsOfTypeAndRank(type, rank, rank, rangedOnly);
+			if ((weapons == null || weapons.length == 0) && allowLower) {
+				weapons = FE6Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
+			}
+			return itemsFromFE6Items(weapons);
+		}
+		case FE7: {
 			if (type == WeaponType.DARK && rank == WeaponRank.E) { rank = WeaponRank.D; } // There is no E rank dark tome, so we need to set a floor of D.
 			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, rank, rank, rangedOnly);
 			if ((weapons == null || weapons.length == 0) && allowLower) {
 				weapons = FE7Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
 			}
 			return itemsFromFE7Items(weapons);
+		}
 		default:
 			break;
 		}
@@ -413,6 +609,8 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] prfWeaponsForClass(int classID) {
 		switch (gameType) {
+		case FE6:
+			return itemsFromFE6Items(FE6Data.Item.prfWeaponsForClassID(classID));
 		case FE7:
 			return itemsFromFE7Items(FE7Data.Item.prfWeaponsForClassID(classID));
 		default:
@@ -424,10 +622,16 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] getChestRewards() {
 		switch (gameType) {
-		case FE7:
+		case FE6: {
+			Set<FE6Data.Item> items = new HashSet<FE6Data.Item>();
+			items.addAll(FE6Data.Item.allPotentialRewards);
+			return itemsFromFE6Items(items.toArray(new FE6Data.Item[items.size()]));
+		}
+		case FE7: {
 			Set<FE7Data.Item> items = new HashSet<FE7Data.Item>();
 			items.addAll(FE7Data.Item.allPotentialRewards);
 			return itemsFromFE7Items(items.toArray(new FE7Data.Item[items.size()]));
+		}
 		default:
 			break;
 		}
@@ -437,7 +641,30 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] relatedItems(int itemID) {
 		switch (gameType) {
-		case FE7:
+		case FE6: {
+			Set<FE6Data.Item> items = new HashSet<FE6Data.Item>();
+			FEItem item = itemWithID(itemID);
+			if (item == null) {
+				System.err.println("Invalid Item " + Integer.toHexString(itemID));
+				break;
+			}
+			if (item.getType() == WeaponType.NOT_A_WEAPON) {
+				if (FE6Data.Item.isStatBooster(item.getID())) {
+					items.addAll(FE6Data.Item.allStatBoosters);
+				}
+				if (FE6Data.Item.isPromotionItem(item.getID())) {
+					items.addAll(FE6Data.Item.allPromotionItems);
+				}
+			} else {
+				items.addAll(Arrays.asList(FE6Data.Item.weaponsOfRank(item.getWeaponRank())));
+				items.addAll(Arrays.asList(FE6Data.Item.weaponsOfType(item.getType())));
+			}
+			
+			items.removeIf(i-> i.ID == itemID);
+			
+			return itemsFromFE6Items(items.toArray(new FE6Data.Item[items.size()]));
+		}
+		case FE7: {
 			Set<FE7Data.Item> items = new HashSet<FE7Data.Item>();
 			FEItem item = itemWithID(itemID);
 			if (item == null) {
@@ -459,6 +686,7 @@ private FEBase.GameType gameType;
 			items.removeIf(i-> i.ID == itemID);
 			
 			return itemsFromFE7Items(items.toArray(new FE7Data.Item[items.size()]));
+		}
 		default:
 			break;
 		}
@@ -468,6 +696,8 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] lockedWeaponsToClass(int classID) {
 		switch (gameType) {
+		case FE6:
+			return itemsFromFE6Items(FE6Data.Item.lockedWeaponsToClassID(classID));
 		case FE7:
 			return itemsFromFE7Items(FE7Data.Item.lockedWeaponsToClassID(classID));
 		default:
@@ -479,6 +709,8 @@ private FEBase.GameType gameType;
 	
 	public Boolean isHealingStaff(int itemID) {
 		switch (gameType) {
+		case FE6:
+			return FE6Data.Item.allHealingStaves.contains(FE6Data.Item.valueOf(itemID));
 		case FE7:
 			return FE7Data.Item.allHealingStaves.contains(FE7Data.Item.valueOf(itemID));
 		default:
@@ -488,6 +720,8 @@ private FEBase.GameType gameType;
 	
 	public WeaponRank weaponRankFromValue(int rankValue) {
 		switch (gameType) {
+		case FE6:
+			return FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank();
 		case FE7:
 			return FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank();
 		default:
@@ -497,7 +731,17 @@ private FEBase.GameType gameType;
 	
 	public FEItem getRandomHealingStaff(WeaponRank maxRank, Random rng) {
 		switch (gameType) {
-		case FE7:
+		case FE6: {
+			Set<FE6Data.Item> healingStaves = new HashSet<FE6Data.Item>(FE6Data.Item.allHealingStaves);
+			if (maxRank.isLowerThan(WeaponRank.S)) { healingStaves.removeAll(FE6Data.Item.allSRank); }
+			if (maxRank.isLowerThan(WeaponRank.A)) { healingStaves.removeAll(FE6Data.Item.allARank); }
+			if (maxRank.isLowerThan(WeaponRank.B)) { healingStaves.removeAll(FE6Data.Item.allBRank); }
+			if (maxRank.isLowerThan(WeaponRank.C)) { healingStaves.removeAll(FE6Data.Item.allCRank); }
+			if (maxRank.isLowerThan(WeaponRank.D)) { healingStaves.removeAll(FE6Data.Item.allDRank); }
+			FE6Data.Item[] remainingItems = healingStaves.toArray(new FE6Data.Item[healingStaves.size()]);
+			return itemMap.get(remainingItems[rng.nextInt(remainingItems.length)].ID);
+		}
+		case FE7: {
 			Set<FE7Data.Item> healingStaves = new HashSet<FE7Data.Item>(FE7Data.Item.allHealingStaves);
 			if (maxRank.isLowerThan(WeaponRank.S)) { healingStaves.removeAll(FE7Data.Item.allSRank); }
 			if (maxRank.isLowerThan(WeaponRank.A)) { healingStaves.removeAll(FE7Data.Item.allARank); }
@@ -506,6 +750,7 @@ private FEBase.GameType gameType;
 			if (maxRank.isLowerThan(WeaponRank.D)) { healingStaves.removeAll(FE7Data.Item.allDRank); }
 			FE7Data.Item[] remainingItems = healingStaves.toArray(new FE7Data.Item[healingStaves.size()]);
 			return itemMap.get(remainingItems[rng.nextInt(remainingItems.length)].ID);
+		}
 		default:
 			return null;
 		}
@@ -513,6 +758,8 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] formerThiefInventory() {
 		switch (gameType) {
+		case FE6:
+			return itemsFromFE6Items(FE6Data.Item.formerThiefKit());
 		case FE7:
 			return itemsFromFE7Items(FE7Data.Item.formerThiefKit());
 		default:
@@ -522,6 +769,8 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] thiefItemsToRemove() {
 		switch (gameType) {
+		case FE6:
+			return itemsFromFE6Items(new FE6Data.Item[] {FE6Data.Item.LOCKPICK});
 		case FE7:
 			return itemsFromFE7Items(new FE7Data.Item[] {FE7Data.Item.LOCKPICK});
 		default:
@@ -531,12 +780,20 @@ private FEBase.GameType gameType;
 	
 	public FEItem[] specialInventoryForClass(int classID, Random rng) {
 		switch (gameType) {
-		case FE7:
+		case FE6: {
+			FE6Data.Item[] items = FE6Data.Item.specialClassKit(classID, rng);
+			if (items != null) {
+				return itemsFromFE6Items(items);
+			}
+			break;
+		}
+		case FE7: {
 			FE7Data.Item[] items = FE7Data.Item.specialClassKit(classID, rng);
 			if (items != null) {
 				return itemsFromFE7Items(items);
 			}
 			break;
+		}
 		default:
 			break;
 		}
@@ -581,6 +838,19 @@ private FEBase.GameType gameType;
 		FEItem[] result = new FEItem[fe7Items.length];
 		for (int i = 0; i < fe7Items.length; i++) {
 			result[i] = itemMap.get(fe7Items[i].ID);
+		}
+		
+		return result;
+	}
+	
+	private FEItem[] itemsFromFE6Items(FE6Data.Item[] fe6Items) {
+		if (fe6Items == null) {
+			return new FEItem[] {};
+		}
+		
+		FEItem[] result = new FEItem[fe6Items.length];
+		for (int i = 0; i < fe6Items.length; i++) {
+			result[i] = itemMap.get(fe6Items[i].ID);
 		}
 		
 		return result;

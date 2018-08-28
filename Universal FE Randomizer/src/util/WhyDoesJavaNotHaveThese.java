@@ -1,5 +1,7 @@
 package util;
 
+import java.util.List;
+
 public class WhyDoesJavaNotHaveThese {
 
 	public static int clamp(int value, int min, int max) {
@@ -50,5 +52,14 @@ public class WhyDoesJavaNotHaveThese {
 		}
 		
 		return new byte[] {(byte)(address & 0xFF), (byte)((address & 0xFF00) >> 8), (byte)((address & 0xFF0000) >> 16), (byte)((address & 0xFF000000) >> 24)};
+	}
+	
+	public static byte[] byteArrayFromByteList(List<Byte> byteList) {
+		byte[] byteArray = new byte[byteList.size()];
+		for (int i = 0; i < byteList.size(); i++) {
+			byteArray[i] = byteList.get(i);
+		}
+		
+		return byteArray;
 	}
 }

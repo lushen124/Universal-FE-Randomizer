@@ -1,12 +1,12 @@
 package random;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import fedata.FEBase;
+import fedata.FEBase.GameType;
+import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
 import io.FileHandler;
 import util.DebugPrinter;
@@ -32,7 +32,20 @@ public class TextLoader {
 		this.gameType = gameType;
 		Date start = new Date();
 		switch (gameType) {
-			case FE7:
+			case FE6: {
+				huffman = new HuffmanHelper(handler);
+				allStrings = new String[FE6Data.NumberOfTextStrings];
+				textArrayOffset = FileReadHelper.readAddress(handler, FE6Data.TextTablePointer);
+				for (int i = 0; i < FE6Data.NumberOfTextStrings; i++) {
+					String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree( 
+							FileReadHelper.readAddress(handler, textArrayOffset + 4 * i), 
+							FileReadHelper.readAddress(handler, FE6Data.HuffmanTreeStart), 
+							FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, FE6Data.HuffmanTreeEnd))), false, gameType);
+					allStrings[i] = decoded;
+				}
+				break;
+			}
+			case FE7: {
 				huffman = new HuffmanHelper(handler);
 				allStrings = new String[FE7Data.NumberOfTextStrings];
 				textArrayOffset = FileReadHelper.readAddress(handler, FE7Data.TextTablePointer);
@@ -44,6 +57,7 @@ public class TextLoader {
 					allStrings[i] = decoded;
 				}
 				break;
+			}
 			default:
 				break;
 		}
@@ -74,8 +88,9 @@ public class TextLoader {
 		for (int index : replacements.keySet()) {
 			String replacement = replacements.get(index);
 			
-			byte[] newByteArray = huffman.encodeString(replacement);
+			byte[] newByteArray = gameType == GameType.FE6 ? huffman.encodeNonHuffmanString(replacement) : huffman.encodeString(replacement);
 			long offset = freeSpace.setValue(newByteArray, "Text At Index 0x" + Integer.toHexString(index));
+			if (gameType == GameType.FE6) { offset |= 0x80000000; } // Mark this as uncompressed.
 			long pointer = textArrayOffset + 4 * index;
 			byte[] addressBytes = WhyDoesJavaNotHaveThese.bytesFromAddress(offset);
 			compiler.addDiff(new Diff(pointer, 4, addressBytes, null));

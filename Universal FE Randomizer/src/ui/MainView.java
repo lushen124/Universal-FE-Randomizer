@@ -25,6 +25,8 @@ import org.eclipse.swt.widgets.Text;
 
 import application.Main;
 import fedata.FEBase;
+import fedata.FEBase.GameType;
+import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
 import io.DiffApplicator;
 import io.FileHandler;
@@ -311,6 +313,8 @@ public class MainView implements FileFlowDelegate {
 			
 			if (gameCode.equals(FE7Data.GameCode)) {
 				friendlyName.setText("Display Name: " + FE7Data.FriendlyName);
+			} else if (gameCode.equals(FE6Data.GameCode)) {
+				friendlyName.setText("Display Name: " + FE6Data.FriendlyName);
 			} else {
 				friendlyName.setText("Display Name: Unknown");
 			}
@@ -318,25 +322,13 @@ public class MainView implements FileFlowDelegate {
 			length.setText("File Length: " + handler.getFileLength());
 			checksum.setText("CRC-32: " + Long.toHexString(handler.getCRC32()).toUpperCase());
 			
-			if (handler.getCRC32() != FE7Data.CleanCRC32) {
-				MessageBox checksumFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK);
-				checksumFail.setText("Failure");
-				checksumFail.setMessage("Checksum failed.\n\nExpected Checksum: " + Long.toHexString(FE7Data.CleanCRC32).toUpperCase() + "\n\nActual Checksum: " + Long.toHexString(handler.getCRC32()).toUpperCase());
-				checksumFail.open();
-				
-				growthView.setVisible(false);
-				baseView.setVisible(false);
-				classView.setVisible(false);
-				otherCharOptionView.setVisible(false);
-				weaponView.setVisible(false);
-				enemyView.setVisible(false);
-				miscView.setVisible(false);
-				randomizeButton.setVisible(false);
-				
-				seedField.setVisible(false);
-				generateButton.setVisible(false);
-				seedLabel.setVisible(false);
-			} else {
+			GameType type = GameType.UNKNOWN;
+			if (handler.getCRC32() == FE6Data.CleanCRC32) { type = GameType.FE6; }
+			else if (handler.getCRC32() == FE7Data.CleanCRC32) { type = GameType.FE7; }
+			
+			final GameType gameType = type;
+			
+			if (type != GameType.UNKNOWN) {
 				growthView.setVisible(true);
 				baseView.setVisible(true);
 				classView.setVisible(true);
@@ -376,7 +368,7 @@ public class MainView implements FileFlowDelegate {
 								}
 							}
 							
-							Randomizer randomizer = new Randomizer(pathToFile, writePath, FEBase.GameType.FE7, compiler, 
+							Randomizer randomizer = new Randomizer(pathToFile, writePath, gameType, compiler, 
 									growthView.getGrowthOptions(),
 									baseView.getBaseOptions(),
 									classView.getClassOptions(),
@@ -418,7 +410,25 @@ public class MainView implements FileFlowDelegate {
 						}
 					}
 				  });
-			}
+			} else {
+				MessageBox checksumFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK);
+				checksumFail.setText("Failure");
+				checksumFail.setMessage("Checksum failed.\n\nThis file may not be supported.");
+				checksumFail.open();
+				
+				growthView.setVisible(false);
+				baseView.setVisible(false);
+				classView.setVisible(false);
+				otherCharOptionView.setVisible(false);
+				weaponView.setVisible(false);
+				enemyView.setVisible(false);
+				miscView.setVisible(false);
+				randomizeButton.setVisible(false);
+				
+				seedField.setVisible(false);
+				generateButton.setVisible(false);
+				seedLabel.setVisible(false);
+			} 
 			
 			romInfoGroup.setVisible(true);
 		} catch (FileNotFoundException e) {

@@ -1,16 +1,20 @@
 package random;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 import java.util.Random;
 
 import org.eclipse.swt.widgets.Display;
 
+import application.Main;
 import fedata.FEBase;
 import fedata.fe7.FE7Data;
 import io.DiffApplicator;
 import io.FileHandler;
+import io.UPSPatcher;
 import random.exc.FileOpenException;
 import random.exc.UnsupportedGameException;
 import ui.model.BaseOptions;
@@ -98,7 +102,28 @@ public class Randomizer extends Thread {
 			return;
 		}
 		
+		String tempPath = null;
+		
 		switch (gameType) {
+		case FE6:
+			updateStatusString("Loading Data...");
+			updateProgress(0.01);
+			// Apply patch first, if necessary.
+			tempPath = new String(targetPath);
+			tempPath.concat(".tmp");
+			URL patchURL = Randomizer.class.getClassLoader().getResource("FE6-TLRedux-v1.0.ups");
+			File patchFile = new File(patchURL.getPath());
+			UPSPatcher.applyUPSPatch(patchFile, sourcePath, tempPath);
+			try {
+				handler = new FileHandler(tempPath);
+			} catch (IOException e1) {
+				System.err.println("Unable to open post-patched file.");
+				e1.printStackTrace();
+				notifyError("Failed to apply translation patch.");
+				return;
+			}
+			generateFE6DataLoaders();
+			break;
 		case FE7:
 			updateStatusString("Loading Data...");
 			updateProgress(0.01);
@@ -146,6 +171,12 @@ public class Randomizer extends Thread {
 			}
 		}
 		
+		if (tempPath != null) {
+			updateStatusString("Cleaning up...");
+			File tempFile = new File(tempPath);
+			if (tempFile != null) { tempFile.delete(); }
+		}
+		
 		updateStatusString("Done!");
 		updateProgress(1);
 		notifyCompletion();
@@ -176,6 +207,35 @@ public class Randomizer extends Thread {
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.50);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
+		
+		handler.clearAppliedDiffs();
+	}
+	
+	private void generateFE6DataLoaders() {
+		handler.setAppliedDiffs(diffCompiler);
+		
+		updateStatusString("Detecting Free Space...");
+		updateProgress(0.02);
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6);
+		updateStatusString("Loading Text...");
+		updateProgress(0.02);
+		textData = new TextLoader(FEBase.GameType.FE6, handler);
+		
+		updateStatusString("Loading Character Data...");
+		updateProgress(0.20);
+		charData = new CharacterDataLoader(FEBase.GameType.FE6, handler);
+		updateStatusString("Loading Class Data...");
+		updateProgress(0.25);
+		classData = new ClassDataLoader(FEBase.GameType.FE6, handler);
+		updateStatusString("Loading Chapter Data...");
+		updateProgress(0.30);
+		chapterData = new ChapterLoader(FEBase.GameType.FE6, handler);
+		updateStatusString("Loading Item Data...");
+		updateProgress(0.45);
+		itemData = new ItemDataLoader(FEBase.GameType.FE6, handler, freeSpace);
+		updateStatusString("Loading Palette Data...");
+		updateProgress(0.50);
+		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler);
 		
 		handler.clearAppliedDiffs();
 	}

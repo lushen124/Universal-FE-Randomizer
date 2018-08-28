@@ -17,6 +17,9 @@ public class FreeSpaceManager {
 	
 	public FreeSpaceManager(FEBase.GameType gameType) {
 		switch (gameType) {
+		case FE6:
+			freeAddress = 0x1000200;
+			break;
 		case FE7:
 			freeAddress = 0x1000000;
 			break;

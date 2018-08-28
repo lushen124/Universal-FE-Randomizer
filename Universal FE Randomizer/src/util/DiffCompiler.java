@@ -20,7 +20,7 @@ public class DiffCompiler {
 	}
 	
 	public void addDiffsFromFile(String diffName) throws IOException {
-		InputStream stream = DiffApplicator.class.getClassLoader().getResourceAsStream(diffName + ".diff");;
+		InputStream stream = DiffApplicator.class.getClassLoader().getResourceAsStream(diffName + ".diff");
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
 		String currentLine = bufferedReader.readLine();
 		while(currentLine != null) {
