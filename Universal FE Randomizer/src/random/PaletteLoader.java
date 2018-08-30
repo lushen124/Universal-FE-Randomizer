@@ -156,6 +156,11 @@ public class PaletteLoader {
 		Palette template = getTemplatePalette(newClassID);
 		Palette promotedTemplate = getTemplatePalette(newPromotedClassID);
 		
+		if (originalPalette == null) {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No palette found for character 0x" + Integer.toHexString(characterID));
+			return;
+		}
+		
 		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Original palette offset: " + Long.toHexString(originalPalette.getInfo().getOffset()));
 		if (originalPromotedPalette != null) {
 			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Original promoted palette offset: " + Long.toHexString(originalPromotedPalette.getInfo().getOffset()));

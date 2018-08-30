@@ -24,14 +24,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import application.Main;
-import fedata.FEBase;
 import fedata.FEBase.GameType;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
-import io.DiffApplicator;
 import io.FileHandler;
-import random.CharacterDataLoader;
-import random.GrowthsRandomizer;
 import random.Randomizer;
 import random.RandomizerListener;
 import ui.general.MessageModal;
@@ -271,7 +267,7 @@ public class MainView implements FileFlowDelegate {
 		  enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
 		  enemyView.setLayoutData(enemyData);
 		  
-		  miscView = new MiscellaneousView(mainShell, SWT.NONE);
+		  miscView = new MiscellaneousView(mainShell, SWT.NONE, GameType.FE7);
 		  miscView.setSize(200, 200);
 		  miscView.setVisible(false);
 		  
@@ -325,6 +321,28 @@ public class MainView implements FileFlowDelegate {
 			GameType type = GameType.UNKNOWN;
 			if (handler.getCRC32() == FE6Data.CleanCRC32) { type = GameType.FE6; }
 			else if (handler.getCRC32() == FE7Data.CleanCRC32) { type = GameType.FE7; }
+			
+			if (type == GameType.FE6) {
+				// Create a new miscellaneous view reflecting this option.
+				miscView.dispose();
+				miscView = new MiscellaneousView(mainShell, SWT.NONE, GameType.FE6);
+				miscView.setSize(200, 200);
+				  
+				FormData miscData = new FormData();
+				miscData.top = new FormAttachment(enemyView, 5);
+				miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
+				miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
+				miscView.setLayoutData(miscData);
+				
+				FormData randomizeData = new FormData();
+				randomizeData.top = new FormAttachment(miscView, 5);
+				randomizeData.left = new FormAttachment(miscView, 0, SWT.LEFT);
+				randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
+				randomizeData.bottom = new FormAttachment(100, -10);
+				randomizeButton.setLayoutData(randomizeData);
+				
+				mainShell.layout();
+			}
 			
 			final GameType gameType = type;
 			

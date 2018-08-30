@@ -36,12 +36,14 @@ public class TextLoader {
 				huffman = new HuffmanHelper(handler);
 				allStrings = new String[FE6Data.NumberOfTextStrings];
 				textArrayOffset = FileReadHelper.readAddress(handler, FE6Data.TextTablePointer);
-				for (int i = 0; i < FE6Data.NumberOfTextStrings; i++) {
-					String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree( 
-							FileReadHelper.readAddress(handler, textArrayOffset + 4 * i), 
+				for (int i = 1; i <= FE6Data.NumberOfTextStrings; i++) {
+					String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree(
+							FileReadHelper.readWord(handler, textArrayOffset + 4 * i, false), // FE6 uses the most significant bit on the text address to signify its english encoding, so this is a little less safe.
 							FileReadHelper.readAddress(handler, FE6Data.HuffmanTreeStart), 
 							FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, FE6Data.HuffmanTreeEnd))), false, gameType);
-					allStrings[i] = decoded;
+					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Decoded FE6 String for index 0x" + Integer.toHexString(i).toUpperCase());
+					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, decoded);
+					allStrings[i - 1] = decoded;
 				}
 				break;
 			}

@@ -12,6 +12,8 @@ public class FileReadHelper {
 		result |= ((word[2] << 16) & 0xFF0000);
 		result |= ((word[3] << 24) & 0xFF000000);
 		
+		result &= 0xFFFFFFFFL;
+		
 		if (isPointer) {
 			if (result > 0x8000000) {
 				result -= 0x8000000;

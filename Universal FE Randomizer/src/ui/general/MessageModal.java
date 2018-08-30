@@ -75,7 +75,7 @@ public class MessageModal {
 		titleData.width = 200;
 		titleLabel.setLayoutData(titleData);
 		
-		descriptionLabel = new Label(contentGroup, SWT.LEFT);
+		descriptionLabel = new Label(contentGroup, SWT.LEFT | SWT.WRAP);
 		descriptionLabel.setText(message);
 		
 		FormData descriptionData = new FormData();

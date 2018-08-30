@@ -109,9 +109,11 @@ public class ChapterLoader {
 				}
 			}
 			
-			for (long fightOffset : chapter.getFightAddresses()) {
-				Diff fightRemovalDiff = new Diff(fightOffset, chapter.fightCommandLength(), chapter.fightReplacementBytes(), null);
-				compiler.addDiff(fightRemovalDiff);
+			if (chapter.getFightAddresses() != null) {
+				for (long fightOffset : chapter.getFightAddresses()) {
+					Diff fightRemovalDiff = new Diff(fightOffset, chapter.fightCommandLength(), chapter.fightReplacementBytes(), null);
+					compiler.addDiff(fightRemovalDiff);
+				}
 			}
 		}
 	}

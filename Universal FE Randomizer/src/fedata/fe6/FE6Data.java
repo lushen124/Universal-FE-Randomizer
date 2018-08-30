@@ -271,7 +271,7 @@ public class FE6Data {
 		
 		public static Set<CharacterClass> allValidClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, PRIEST, MAGE, SHAMAN, CAVALIER, NOMAD,
 				WYVERN_RIDER, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMAD_TROOPER, WYVERN_KNIGHT,
-				BERSERKER, MANAKETE, MASTER_LORD, MYRMIDON_F, KNIGHT_F, ARCHER_F, CLERIC, MAGE_F, SHAMAN_F, TROUBADOUR, NOMAD_F, PEGASUS_KNIGHT, WYVERN_RIDER_F, THIEF_F, DANCER, HERO_F, SWORDMASTER_F, GENERAL_F, SNIPER_F,
+				BERSERKER/*, MANAKETE*/, MASTER_LORD, MYRMIDON_F, KNIGHT_F, ARCHER_F, CLERIC, MAGE_F, SHAMAN_F, TROUBADOUR, NOMAD_F, PEGASUS_KNIGHT, WYVERN_RIDER_F, THIEF_F, DANCER, HERO_F, SWORDMASTER_F, GENERAL_F, SNIPER_F,
 				BISHOP_F, SAGE_F, DRUID_F, VALKYRIE, NOMAD_TROOPER_F, FALCON_KNIGHT, WYVERN_KNIGHT_F, MANAKETE_F));
 		
 		private static Boolean isClassPromoted(CharacterClass sourceClass) {
@@ -1173,9 +1173,12 @@ public class FE6Data {
 			defaultPaletteForClass.put(CharacterClass.BISHOP.ID, BISHOP_YODEL.info);
 			defaultPaletteForClass.put(CharacterClass.BISHOP_F.ID, BISHOP_ELEN.info);
 			defaultPaletteForClass.put(CharacterClass.CAVALIER.ID, CAVALIER_ALAN.info);
+			defaultPaletteForClass.put(CharacterClass.PRIEST.ID, PRIEST_SAUL.info);
 			defaultPaletteForClass.put(CharacterClass.CLERIC.ID, CLERIC_ELEN.info);
 			defaultPaletteForClass.put(CharacterClass.MYRMIDON.ID, MYRMIDON_RUTGER.info);
+			defaultPaletteForClass.put(CharacterClass.MYRMIDON_F.ID, MYRMIDON_FIR.info);
 			defaultPaletteForClass.put(CharacterClass.DRUID.ID, DRUID_REI.info);
+			defaultPaletteForClass.put(CharacterClass.DRUID_F.ID, DRUID_NIIME.info);
 			defaultPaletteForClass.put(CharacterClass.FALCON_KNIGHT.ID, FALCON_KNIGHT_YUNNO.info);
 			defaultPaletteForClass.put(CharacterClass.GENERAL.ID, GENERAL_DOUGLAS.info);
 			defaultPaletteForClass.put(CharacterClass.GENERAL_F.ID, GENERAL_WENDY.info);
@@ -1209,6 +1212,8 @@ public class FE6Data {
 			defaultPaletteForClass.put(CharacterClass.WYVERN_RIDER.ID, WYVERN_RIDER_MILEDY.info); // Assuming male == female for palettes here.
 			defaultPaletteForClass.put(CharacterClass.WYVERN_RIDER_F.ID, WYVERN_RIDER_MILEDY.info);
 			defaultPaletteForClass.put(CharacterClass.MANAKETE_F.ID, MANAKETE_FA.info);
+			defaultPaletteForClass.put(CharacterClass.LORD.ID, LORD_ROY.info);
+			defaultPaletteForClass.put(CharacterClass.MASTER_LORD.ID, LORD_ROY.info);
 		}
 		
 		private Palette(int charID, int classID, long offset) {
@@ -1246,6 +1251,7 @@ public class FE6Data {
 				case CLERIC:
 				case PRIEST:
 				case MYRMIDON:
+				case MYRMIDON_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
 					break;
 				case DRUID:
@@ -1341,8 +1347,13 @@ public class FE6Data {
 		
 		public static PaletteInfo[] palettesForCharacter(int characterID) {
 			int canonicalID = Character.canonicalIDForCharacterID(characterID);
-			List<PaletteInfo> list = new ArrayList<PaletteInfo>(classByCharacter.get(canonicalID).values());
-			return list.toArray(new PaletteInfo[list.size()]);
+			Map<Integer, PaletteInfo> map = classByCharacter.get(canonicalID);
+			if (map != null) {
+				List<PaletteInfo> list = new ArrayList<PaletteInfo>(map.values());
+				return list.toArray(new PaletteInfo[list.size()]);
+			} else {
+				return new PaletteInfo[] {};
+			}
 		}
 		
 		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {

@@ -3,7 +3,7 @@ package util;
 public class DebugPrinter {
 	
 	public enum Key {
-		PALETTE("Palette"), CHAPTER_LOADER("ChapterLoader"), DIFF("Diff"), HUFFMAN("Huffman"), RANDOM("Random"), FREESPACE("Free Space"), WEAPONS("Weapon Effect");
+		PALETTE("Palette"), CHAPTER_LOADER("ChapterLoader"), DIFF("Diff"), HUFFMAN("Huffman"), RANDOM("Random"), FREESPACE("Free Space"), WEAPONS("Weapon Effect"), UPS("UPS");
 		
 		String label;
 		
@@ -20,7 +20,7 @@ public class DebugPrinter {
 	
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
-		case CHAPTER_LOADER:
+		case UPS:
 			return true;
 		default:
 			return false;
