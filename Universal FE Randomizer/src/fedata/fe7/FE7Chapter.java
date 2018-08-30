@@ -574,6 +574,34 @@ public class FE7Chapter implements FEChapter {
 				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found reward at offset 0x" + Long.toHexString(currentAddress) + " Item ID: 0x" + Integer.toHexString(chapterItem.getItemID()));
 				currentAddress += 4;
 			}
+			
+			// Since we don't know how long each command is, we accidentally include what should be an argument for
+			// another event as a command code. Below is a whitelist of codes that cause issues and how many bytes we need to skip.
+			if (commandWord[0] == 0x44) { // 0x44 is apparently LABEL, which I have no idea what it does. It takes 1 word as an argument.
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x27) { // MOVE has several variants, but only the ones that use character ID are dangerous for us. This one has 16 bytes.
+				currentAddress += 12;
+			} else if (commandWord[0] == 0x26 || commandWord[0] == 0x28) { // MOVE with 12 bytes.
+				currentAddress += 8;
+			} else if (commandWord[0] == 0x49) { // GOTO_IFAF has 12 bytes., The second word is occasionally 0xA or 0xB, leading us to exit prematurely.
+				currentAddress += 8;
+			}  else if (commandWord[0] == 0x4F || commandWord[0] == 0x50 || commandWord[0] == 0x52 || commandWord[0] == 0x53 || // GOTO_IFNHM, GOTO_IFNEM, GOTO_IFNO, GOTO_IFYES have 8 bytes. The second word can be 0xB.
+					commandWord[0] == 0x54 || commandWord[0] == 0x56) { // GOTO_IFNTUTORIAL, GOTO_IFTU
+				currentAddress += 4;
+			} else if (commandWord[0] == (byte)0x84) { // LOMA, in the case that it loads a map that has the same hex as the commands above. 16 bytes total.
+				currentAddress += 12;
+			} else if (commandWord[0] == 0x6F || commandWord[0] == 0x70) { // REPA, 2 flavors, both 8 bytes. Causes characters to re-appear.
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x45) { // GOTO (the counterpart of LABEL). The word as the argument is the destination.
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x4B) { // No idea what this is. It's not well defined, but it's a conditional of some kind. 8 bytes long. The condition can be 0xA or 0xB.
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x1A) { // TEXTIFEVENTID - 16 bytes, for conditional text. 
+				currentAddress += 12;
+			} else if (commandWord[0] == 0x4C || commandWord[0] == 0x4D) { // GOTO_IFET and GOTO_IFEF - 12 bytes
+				currentAddress += 8;
+			}
+						
 			currentAddress += 4;
 			commandWord = handler.readBytesAtOffset(currentAddress, 4);
 		}

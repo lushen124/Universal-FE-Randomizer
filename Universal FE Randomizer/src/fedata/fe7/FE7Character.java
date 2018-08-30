@@ -329,6 +329,14 @@ public class FE7Character implements FECharacter {
 		wasModified = true;
 	}
 	
+	// We technically don't need this, but might as well make it complete.
+	public void setIsLord() {
+		byte oldValue = (byte)(data[41] & 0xFF);
+		byte newValue = (byte)(oldValue | 0x20);
+		data[41] = newValue;
+		wasModified = true;
+	}
+	
 	public void resetData() {
 		data = originalData;
 		wasModified = false;

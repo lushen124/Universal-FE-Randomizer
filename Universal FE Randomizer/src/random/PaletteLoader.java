@@ -135,6 +135,7 @@ public class PaletteLoader {
 			FE6Data.CharacterClass newClass = FE6Data.CharacterClass.valueOf(newClassID);
 			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting character 0x" + Integer.toHexString(charID) + " (" + character.toString() + ") " + 
 			" from class 0x" + Integer.toHexString(originalClassID) + "(" + oldClass.toString() + ")" + " to 0x" + Integer.toHexString(newClassID) + " (" + newClass.toString() + ")");
+			break;
 		}
 		case FE7: {
 			FE7Data.Character character = FE7Data.Character.valueOf(charID);
@@ -146,6 +147,8 @@ public class PaletteLoader {
 			if (newClass.ID == FE7Data.CharacterClass.BARD.ID || newClass.ID == FE7Data.CharacterClass.DANCER.ID) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Debugging dancer/bard palettes");
 			}
+			
+			break;
 		}
 		default:
 			break;

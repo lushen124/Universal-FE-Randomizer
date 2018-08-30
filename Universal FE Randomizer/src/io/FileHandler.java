@@ -35,7 +35,6 @@ public class FileHandler {
 			byte[] batch = new byte[numBytes];
 			if (inputStream.read(batch) == -1) { break; }
 			checksum.update(batch);
-			System.out.println("batch size: " + batch.length);
 			currentOffset += batch.length;
 			numBytes = Math.min(1024, (int)(fileLength - currentOffset));
 		}
@@ -61,7 +60,6 @@ public class FileHandler {
 			byte[] batch = new byte[numBytes];
 			if (inputStream.read(batch) == -1) { break; }
 			checksum.update(batch);
-			System.out.println("batch size: " + batch.length);
 			currentOffset += batch.length;
 			numBytes = Math.min(1024, (int)(fileLength - currentOffset));
 		}

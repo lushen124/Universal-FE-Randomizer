@@ -139,7 +139,9 @@ public class FE6Chapter implements FEChapter {
 		Set<Long> addressesSearched = new HashSet<Long>();
 		// Look in the obvious places first.
 		loadUnitsFromAddress(handler, allyUnitsOffset);
+		addressesSearched.add(allyUnitsOffset);
 		loadUnitsFromAddress(handler, enemyUnitsOffset);
+		addressesSearched.add(enemyUnitsOffset);
 		
 		Set<Long> eventAddresses = eventAddressesFromTurnEvents(handler);
 		eventAddresses.addAll(eventAddressesFromCharacterEvents(handler));
@@ -165,10 +167,11 @@ public class FE6Chapter implements FEChapter {
 		byte[] turnCommand;
 		long currentAddress = turnBasedEventsOffset;
 		turnCommand = handler.readBytesAtOffset(currentAddress, 12);
-		while (turnCommand[0] == 0x02 || turnCommand[0] == 0x0D || turnCommand[0] == 0x03) {
+		while (turnCommand[0] == 0x02 || turnCommand[0] == 0x0D || turnCommand[0] == 0x03 || turnCommand[0] == 0x01) {
 			// TURN (0x02) - 12 bytes - offset starts at byte 4 and is 4 bytes long.
 			// ASME (0x0D) - 12 bytes - same
 			// TURN_HM (0x03) - 12 bytes - same
+			// AFEV (0x01) - 12 bytes - same
 			long address = FileReadHelper.readAddress(handler, currentAddress + 4);
 			if (address != -1) {
 				eventAddresses.add(address);
@@ -279,6 +282,13 @@ public class FE6Chapter implements FEChapter {
 				currentAddress += 16;
 			}
 			
+			if (commandWord[0] == 0x03 || commandWord[0] == 0x1B || commandWord[0] == 0x36 || commandWord[0] == 0x37 || commandWord[0] == 0x30 ||
+					commandWord[0] == 0x34 || commandWord[0] == 0x35 || commandWord[0] == 0x02) { // BACG (0x03), LABEL (0x1B), MUSC (0x36), MUSS (0x37), DISA (0x30), ENUT (0x34), ENUF (0x35), STAL (0x02) - 8 bytes
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x20 || commandWord[0] == 0x23) { // IFAF (0x20), IFEF (0x23) - 12 bytes
+				currentAddress += 8;
+			}
+			
 			currentAddress += 4;
 			commandWord = handler.readBytesAtOffset(currentAddress, 4);
 		}
@@ -311,6 +321,13 @@ public class FE6Chapter implements FEChapter {
 				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Processed command 0x" + Integer.toHexString(commandWord[0] & 0xFF));
 			}
 			
+			if (commandWord[0] == 0x03 || commandWord[0] == 0x1B || commandWord[0] == 0x36 || commandWord[0] == 0x37 || commandWord[0] == 0x30 ||
+					commandWord[0] == 0x34 || commandWord[0] == 0x35 || commandWord[0] == 0x02) { // BACG (0x03), LABEL (0x1B), MUSC (0x36), MUSS (0x37), DISA (0x30), ENUT (0x34), ENUF (0x35), STAL (0x02) - 8 bytes
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x20 || commandWord[0] == 0x23) { // IFAF (0x20), IFEF (0x23) - 12 bytes
+				currentAddress += 8;
+			}
+			
 			currentAddress += 4;
 			commandWord = handler.readBytesAtOffset(currentAddress, 4);
 		}
@@ -323,10 +340,6 @@ public class FE6Chapter implements FEChapter {
 	private void loadUnitsFromAddress(FileHandler handler, long unitAddress) {
 		if (unitAddress >= 0x1000000) { return; }
 		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading units from 0x" + Long.toHexString(unitAddress));
-		if (unitAddress <= 0xC00000) {
-			System.err.println("Suspicious address found for unit: " + Long.toHexString(unitAddress));
-			return;
-		}
 		long currentOffset = unitAddress;
 		byte[] unitData = handler.readBytesAtOffset(currentOffset, FE6Data.BytesPerChapterUnit);
 		while (unitData[0] != 0x00) {
@@ -394,6 +407,14 @@ public class FE6Chapter implements FEChapter {
 				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found reward at offset 0x" + Long.toHexString(currentAddress) + " Item ID: 0x" + Integer.toHexString(chapterItem.getItemID()));
 				currentAddress += 4;
 			}
+			
+			if (commandWord[0] == 0x03 || commandWord[0] == 0x1B || commandWord[0] == 0x36 || commandWord[0] == 0x37 || commandWord[0] == 0x30 ||
+					commandWord[0] == 0x34 || commandWord[0] == 0x35 || commandWord[0] == 0x02) { // BACG (0x03), LABEL (0x1B), MUSC (0x36), MUSS (0x37), DISA (0x30), ENUT (0x34), ENUF (0x35), STAL (0x02) - 8 bytes
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x20 || commandWord[0] == 0x23) { // IFAF (0x20), IFEF (0x23) - 12 bytes
+				currentAddress += 8;
+			}
+			
 			currentAddress += 4;
 			commandWord = handler.readBytesAtOffset(currentAddress, 4);
 		}

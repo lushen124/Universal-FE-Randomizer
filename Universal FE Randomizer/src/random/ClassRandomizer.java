@@ -16,6 +16,7 @@ import fedata.FEClass;
 import fedata.FEItem;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
+import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
 public class ClassRandomizer {
@@ -32,12 +33,13 @@ public class ClassRandomizer {
 		}
 	}
 	
-	public static void randomizePlayableCharacterClasses(Boolean includeLords, Boolean includeThieves, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData, Random rng) {
+	public static void randomizePlayableCharacterClasses(Boolean includeLords, Boolean includeThieves, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData, TextLoader textData, Random rng) {
 		FECharacter[] allPlayableCharacters = charactersData.playableCharacters();
 		Map<Integer, FEClass> determinedClasses = new HashMap<Integer, FEClass>();
 		
 		for (FECharacter character : allPlayableCharacters) {
 			
+			Boolean isLordCharacter = charactersData.isLordCharacterID(character.getID());
 			Boolean characterRequiresRange = charactersData.characterIDRequiresRange(character.getID());
 			
 			int originalClassID = character.getClassID();
@@ -48,7 +50,7 @@ public class ClassRandomizer {
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {
-				FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, charactersData.isLordCharacterID(character.getID()), characterRequiresRange, character.isClassRestricted(), null);
+				FEClass[] possibleClasses = classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, isLordCharacter, characterRequiresRange, character.isClassRestricted(), null);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -61,9 +63,14 @@ public class ClassRandomizer {
 				continue;
 			}
 			
+			DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Assigning character 0x" + Integer.toHexString(character.getID()).toUpperCase() + " (" + textData.getStringAtIndex(character.getNameIndex() - 1) + ") to class 0x" + Integer.toHexString(targetClass.getID()) + " (" + textData.getStringAtIndex(targetClass.getNameIndex() - 1) + ")");
+			
 			for (FECharacter linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, classData, chapterData, itemData, false, rng);
+				if (isLordCharacter) {
+					linked.setIsLord();
+				}
 			}
 				
 			Boolean hasOriginalPromotionData = false;
@@ -183,6 +190,10 @@ public class ClassRandomizer {
 		character.setClassID(targetClass.getID());
 		transferWeaponLevels(character, sourceClass, targetClass, rng);
 		applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
+		
+		if (character.getID() == 0x21 || character.getID() == 0x22) {
+			DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Debugging Ward/Lot");
+		}
 		
 		for (FEChapter chapter : chapterData.allChapters()) {
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {

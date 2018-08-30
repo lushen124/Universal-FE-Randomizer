@@ -76,7 +76,7 @@ public class CharacterDataLoader {
 	public FECharacter[] bossCharacters() {
 		switch (gameType) {
 		case FE6:
-			Set<FE7Data.Character> fe6Characters = FE7Data.Character.allBossCharacters;
+			Set<FE6Data.Character> fe6Characters = FE6Data.Character.allBossCharacters;
 			return fe6CharactersFromList(fe6Characters.toArray(new FE6Data.Character[fe6Characters.size()]));
 		case FE7:
 			Set<FE7Data.Character> fe7Characters = FE7Data.Character.allBossCharacters;

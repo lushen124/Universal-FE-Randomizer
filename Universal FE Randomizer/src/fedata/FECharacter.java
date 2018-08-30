@@ -94,4 +94,6 @@ public interface FECharacter extends FEModifiableObject {
 	public void setAffinityValue(int newAffinity);
 	
 	public void prepareForClassRandomization();
+	
+	public void setIsLord();
 }

@@ -27,6 +27,8 @@ public class TextLoader {
 	
 	private Map<Integer, String> replacements = new HashMap<Integer, String>();
 	
+	public Boolean allowTextChanges = false;
+	
 	public TextLoader(FEBase.GameType gameType, FileHandler handler) {
 		super();
 		this.gameType = gameType;
@@ -79,7 +81,9 @@ public class TextLoader {
 	}
 	
 	public void setStringAtIndex(int index, String string) {
-		replacements.put(index, string);
+		if (allowTextChanges) {
+			replacements.put(index, string);
+		}
 	}
 	
 	public HuffmanHelper getHuffman() {
@@ -87,6 +91,8 @@ public class TextLoader {
 	}
 	
 	public void commitChanges(FreeSpaceManager freeSpace, DiffCompiler compiler) {
+		if (!allowTextChanges) { return; }
+		
 		for (int index : replacements.keySet()) {
 			String replacement = replacements.get(index);
 			

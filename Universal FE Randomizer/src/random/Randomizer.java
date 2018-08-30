@@ -191,7 +191,10 @@ public class Randomizer extends Thread {
 			updateStatusString("Cleaning up...");
 			File tempFile = new File(tempPath);
 			if (tempFile != null) { 
-				tempFile.delete(); 
+				Boolean success = tempFile.delete();
+				if (!success) {
+					System.err.println("Failed to delete temp file.");
+				}
 			}
 		}
 		
@@ -209,6 +212,7 @@ public class Randomizer extends Thread {
 		updateStatusString("Loading Text...");
 		updateProgress(0.02);
 		textData = new TextLoader(FEBase.GameType.FE7, handler);
+		textData.allowTextChanges = true;
 		
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.20);
@@ -238,6 +242,9 @@ public class Randomizer extends Thread {
 		updateStatusString("Loading Text...");
 		updateProgress(0.15);
 		textData = new TextLoader(FEBase.GameType.FE6, handler);
+		if (miscOptions.applyEnglishPatch) {
+			textData.allowTextChanges = true;
+		}
 		
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.30);
@@ -299,7 +306,7 @@ public class Randomizer extends Thread {
 			if (classes.randomizePCs) {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 1));
-				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData, paletteData, rng);
+				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData, paletteData, textData, rng);
 			}
 			if (classes.randomizeEnemies) {
 				updateStatusString("Randomizing minions...");
