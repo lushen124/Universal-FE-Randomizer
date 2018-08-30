@@ -224,6 +224,7 @@ public class HuffmanHelper {
 		
 		Boolean isMarked = (textAddress & 0x80000000) != 0;
 		long maskedAddress = textAddress & 0x7FFFFFFF;
+		maskedAddress -= 0x8000000;
 		
 		byte currentByte = 0;
 		
@@ -386,12 +387,12 @@ public class HuffmanHelper {
 				if (!squelchCodes) {
 					sb.append("[");
 				}
-			} else if (currentByte == 0x80) {
+			} else if ((currentByte & 0xFF) == 0x80) {
 				if (!squelchCodes) {
 					sb.append("[0x80" + Integer.toHexString(byteArray[i + 1] & 0xFF) + "]");
 				}
 				i += 1;
-			} else if (currentByte == 0x82) {
+			} else if ((currentByte & 0xFF) == 0x82) {
 				// FE6 stuff.
 				byte dataByte = byteArray[i + 1];
 				sb.append(fe6CharacterFromByte(dataByte));
