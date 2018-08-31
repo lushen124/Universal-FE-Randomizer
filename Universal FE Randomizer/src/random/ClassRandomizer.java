@@ -191,10 +191,6 @@ public class ClassRandomizer {
 		transferWeaponLevels(character, sourceClass, targetClass, rng);
 		applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
 		
-		if (character.getID() == 0x21 || character.getID() == 0x22) {
-			DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Debugging Ward/Lot");
-		}
-		
 		for (FEChapter chapter : chapterData.allChapters()) {
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
 				if (chapterUnit.getCharacterNumber() == character.getID()) {

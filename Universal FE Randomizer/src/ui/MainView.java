@@ -360,8 +360,21 @@ public class MainView implements FileFlowDelegate {
 				generateButton.setVisible(true);
 				seedLabel.setVisible(true);
 				
-				seedField.setText(SeedGenerator.generateRandomSeed());
+				seedField.setText(SeedGenerator.generateRandomSeed(gameType));
+				for (Listener listener : generateButton.getListeners(SWT.Selection)) {
+					generateButton.removeListener(SWT.Selection, listener);
+				}
+				generateButton.addListener(SWT.Selection, new Listener() {
+					  @Override
+						public void handleEvent(Event event) {
+							seedField.setText(SeedGenerator.generateRandomSeed(gameType));
+							randomizeButton.setEnabled(seedField.getText().length() > 0);
+						}
+				  });
 				
+				for (Listener listener : randomizeButton.getListeners(SWT.Selection)) {
+					randomizeButton.removeListener(SWT.Selection, listener);
+				}
 				randomizeButton.addListener(SWT.Selection, new Listener() {
 					@Override
 					public void handleEvent(Event event) {
@@ -374,15 +387,17 @@ public class MainView implements FileFlowDelegate {
 						if (writePath != null && writePath.length() > 0) {
 							DiffCompiler compiler = new DiffCompiler();
 							
-							try {
-								compiler.addDiffsFromFile("tutorialSlayer");
-							} catch (IOException e) {
-								MessageBox tutorialSlayerFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK | SWT.CANCEL);
-								tutorialSlayerFail.setText("Error");
-								tutorialSlayerFail.setMessage("Failed to patch the tutorial slayer.\n\nThe randomizer can continue, but it is recommended that Lyn Normal mode not be used.");
-								int selectedButton = tutorialSlayerFail.open();
-								if (selectedButton == SWT.CANCEL) {
-									return;
+							if (gameType == GameType.FE7) {
+								try {
+									compiler.addDiffsFromFile("tutorialSlayer");
+								} catch (IOException e) {
+									MessageBox tutorialSlayerFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK | SWT.CANCEL);
+									tutorialSlayerFail.setText("Error");
+									tutorialSlayerFail.setMessage("Failed to patch the tutorial slayer.\n\nThe randomizer can continue, but it is recommended that Lyn Normal mode not be used.");
+									int selectedButton = tutorialSlayerFail.open();
+									if (selectedButton == SWT.CANCEL) {
+										return;
+									}
 								}
 							}
 							

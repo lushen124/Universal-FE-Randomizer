@@ -426,7 +426,7 @@ private FEBase.GameType gameType;
 		if (offsetsForAdditionalData.get(AdditionalData.KNIGHTCAV_EFFECT) == address) { return shortForm ? "Eff. Infantry" : "Effective against infantry"; }
 		if (offsetsForAdditionalData.get(AdditionalData.CAVALRY_EFFECT) == address) { return shortForm ? "Eff. Cavalry" : "Effective against cavalry"; }
 		if (offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT) == address) { return shortForm ? "Eff. Fliers" : "Effective against fliers"; }
-		if (offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT) == address) { return shortForm ? "Eff. Swordfighters" : "Effective against swordfighters"; }
+		if (offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT) != null && address == offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT)) { return shortForm ? "Eff. Swordfighters" : "Effective against swordfighters"; }
 		if (offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT) == address) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
 		
 		switch (gameType) {
@@ -460,6 +460,7 @@ private FEBase.GameType gameType;
 			if (address == horseslayerEffectivenessAddress) { return shortForm ? "Eff. Cavalry" : "Effective against cavalry"; }
 			if (address == hammerEffectivenessAddress) { return shortForm ? "Eff. Knights" : "Effective against knights"; }
 			if (address == dragonEffectivenessAddress) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
+			break;
 		}
 		case FE7: {
 			long durandalStatBonusAddress = itemMap.get(FE7Data.Item.DURANDAL.ID).getStatBonusPointer(); // STR

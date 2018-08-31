@@ -451,6 +451,9 @@ public class HuffmanHelper {
 			byteList.add(fe6ByteFromCharacter(character));
 		}
 		
+		// Terminate the string.
+		byteList.add((byte)0);
+		
 		return WhyDoesJavaNotHaveThese.byteArrayFromByteList(byteList);
 	}
 	
