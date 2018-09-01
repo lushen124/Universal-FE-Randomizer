@@ -179,7 +179,7 @@ Random stuff that may be funny.
 * Add random fun ASM changes (Ranging from streamlining changes like removing the need to stand adjacent to a unit for support, to infurating, like 1RN, or Thracia-style 1-99 HIT.)
 
 ## Next Steps (Kind of in order)
-* Add in FE6 support. (Should be straightforward)
+* ~~Add in FE6 support.~~ Done!
 * Add in regional support outside of North America. (Should also be straightforward)
 * Add in FE8 support. (Lower on the priority list since FE8 Auto Randomizer exists)
 * Add in FE4 support. (For the lulz, and mostly because it's possible and I have some fun ideas)
