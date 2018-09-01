@@ -213,7 +213,7 @@ public class WeaponEffectSelectionView extends Composite {
 		highCriticalCheckBox.setSelection(true);
 		magicDamageCheckBox.setSelection(true);
 		poisonCheckBox.setSelection(true);
-		eclipseCheckBox.setSelection(true);
+		if (eclipseCheckBox != null) { eclipseCheckBox.setSelection(true); }
 		devilCheckBox.setSelection(true);
 		squelchCallbacks = false;
 		
@@ -232,7 +232,7 @@ public class WeaponEffectSelectionView extends Composite {
 		highCriticalCheckBox.setSelection(false);
 		magicDamageCheckBox.setSelection(false);
 		poisonCheckBox.setSelection(false);
-		eclipseCheckBox.setSelection(false);
+		if (eclipseCheckBox != null) { eclipseCheckBox.setSelection(false); }
 		devilCheckBox.setSelection(false);
 		squelchCallbacks = false;
 		
@@ -258,7 +258,7 @@ public class WeaponEffectSelectionView extends Composite {
 		criticalEnabled = highCriticalCheckBox.getSelection();
 		magicEnabled = magicDamageCheckBox.getSelection();
 		poisonEnabled = poisonCheckBox.getSelection();
-		eclipseEnabled = eclipseCheckBox.getSelection();
+		eclipseEnabled = eclipseCheckBox != null ? eclipseCheckBox.getSelection() : false;
 		devilEnabled = devilCheckBox.getSelection();
 		
 		if (!squelchCallbacks && listener != null) {
