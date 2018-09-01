@@ -45,6 +45,9 @@ public class MainView implements FileFlowDelegate {
 	private Text seedField;
 	private Button generateButton;
 	
+	private GameType loadedGameType = GameType.UNKNOWN;
+	private Boolean hasLoadedInfo = false;
+	
 	private Group romInfoGroup;
 	private Label romName;
 	private Label romCode;
@@ -130,6 +133,7 @@ public class MainView implements FileFlowDelegate {
 		  fieldData.left = new FormAttachment(romFileLabel, 5);
 		  fieldData.top = new FormAttachment(0, 5);
 		  fieldData.right = new FormAttachment(button, -5);
+		  fieldData.width = 300;
 		  field.setLayoutData(fieldData);
 		  
 		  FormData buttonData = new FormData();
@@ -137,156 +141,183 @@ public class MainView implements FileFlowDelegate {
 		  buttonData.top = new FormAttachment(field, 0, SWT.CENTER);
 		  buttonData.width = 100;
 		  button.setLayoutData(buttonData);
+	}
+	
+	private void setupInfoLayout() {
+		romInfoGroup = new Group(mainShell, SWT.NONE);
+		romInfoGroup.setText("ROM Info");
+		romInfoGroup.setVisible(false);
 		  
-		  romInfoGroup = new Group(mainShell, SWT.NONE);
-		  romInfoGroup.setText("ROM Info");
-		  romInfoGroup.setVisible(false);
+		FormData infoGroupData = new FormData();
+		infoGroupData.left = new FormAttachment(0, 5);
+		infoGroupData.right = new FormAttachment(100, -5);
+		infoGroupData.top = new FormAttachment(filenameField, 5);
+		romInfoGroup.setLayoutData(infoGroupData);
 		  
-		  FormData infoGroupData = new FormData();
-		  infoGroupData.left = new FormAttachment(0, 5);
-		  infoGroupData.right = new FormAttachment(100, -5);
-		  infoGroupData.top = new FormAttachment(field, 5);
-		  romInfoGroup.setLayoutData(infoGroupData);
+		FillLayout infoLayout = new FillLayout();
+		infoLayout.type = SWT.VERTICAL;
+		romInfoGroup.setLayout(infoLayout);
 		  
-		  FillLayout infoLayout = new FillLayout();
-		  infoLayout.type = SWT.VERTICAL;
-		  romInfoGroup.setLayout(infoLayout);
+		Composite topInfo = new Composite(romInfoGroup, 0);
+		topInfo.setLayout(new FillLayout());
 		  
-		  Composite topInfo = new Composite(romInfoGroup, 0);
-		  topInfo.setLayout(new FillLayout());
+		Composite bottomInfo = new Composite(romInfoGroup, 0);
+		bottomInfo.setLayout(new FillLayout());
 		  
-		  Composite bottomInfo = new Composite(romInfoGroup, 0);
-		  bottomInfo.setLayout(new FillLayout());
+		romName = new Label(topInfo, SWT.LEFT);
+		romCode = new Label(topInfo, SWT.LEFT);
+		friendlyName = new Label(topInfo, SWT.LEFT);
+		length = new Label(bottomInfo, SWT.LEFT);
+		checksum = new Label(bottomInfo, SWT.LEFT);
+		new Label(bottomInfo, SWT.LEFT); // Spacer
+	}
+	
+	private void updateLayoutForGameType(GameType type) {
+		if (growthView != null) { growthView.dispose(); }
+		if (baseView != null) { baseView.dispose(); }
+		if (otherCharOptionView != null) { otherCharOptionView.dispose(); }
+		if (weaponView != null) { weaponView.dispose(); }
+		if (classView != null) { classView.dispose(); }
+		if (enemyView != null) { enemyView.dispose(); }
+		if (miscView != null) { miscView.dispose(); }
+		if (randomizeButton != null) { randomizeButton.dispose(); }
+		
+		if (type == GameType.UNKNOWN) {
+			mainShell.layout();
+			final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+			mainShell.setSize(newSize);
+		}
+		
+		if (seedField != null) { seedField.dispose(); }
+		if (generateButton != null) { generateButton.dispose(); }
+		if (seedLabel != null) { seedLabel.dispose(); }
+		
+		seedField = new Text(mainShell, SWT.BORDER);
+		seedField.addListener(SWT.CHANGED, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				randomizeButton.setEnabled(seedField.getText().length() > 0);
+			}
+		});
+		Button button = new Button(mainShell, SWT.PUSH);
+		button.setText("Generate");
+		button.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				seedField.setText(SeedGenerator.generateRandomSeed());
+				randomizeButton.setEnabled(seedField.getText().length() > 0);
+			}
+		});
+		generateButton = button;
 		  
-		  romName = new Label(topInfo, SWT.LEFT);
-		  romCode = new Label(topInfo, SWT.LEFT);
-		  friendlyName = new Label(topInfo, SWT.LEFT);
-		  length = new Label(bottomInfo, SWT.LEFT);
-		  checksum = new Label(bottomInfo, SWT.LEFT);
-		  new Label(bottomInfo, SWT.LEFT); // Spacer
+		seedLabel = new Label(mainShell, SWT.NONE);
+		seedLabel.setText("Randomizer Seed Phrase: ");
 		  
-		  seedField = new Text(mainShell, SWT.BORDER);
-		  seedField.addListener(SWT.CHANGED, new Listener() {
-			  @Override
-			  public void handleEvent(Event event) {
-				  randomizeButton.setEnabled(seedField.getText().length() > 0);
-			  }
-		  });
-		  button = new Button(mainShell, SWT.PUSH);
-		  button.setText("Generate");
-		  button.addListener(SWT.Selection, new Listener() {
-			  @Override
-				public void handleEvent(Event event) {
-					seedField.setText(SeedGenerator.generateRandomSeed());
-					randomizeButton.setEnabled(seedField.getText().length() > 0);
-				}
-		  });
-		  generateButton = button;
+		seedField.setVisible(false);
+		generateButton.setVisible(false);
+		seedLabel.setVisible(false);
 		  
-		  seedLabel = new Label(mainShell, SWT.NONE);
-		  seedLabel.setText("Randomizer Seed Phrase: ");
+		FormData seedFieldData = new FormData();
+		seedFieldData.top = new FormAttachment(romInfoGroup, 10);
+		seedFieldData.right = new FormAttachment(button, -5);
+		seedFieldData.left = new FormAttachment(seedLabel, 5);
+		seedField.setLayoutData(seedFieldData);
 		  
-		  seedField.setVisible(false);
-		  generateButton.setVisible(false);
-		  seedLabel.setVisible(false);
+		FormData seedLabelData = new FormData();
+		seedLabelData.top = new FormAttachment(seedField, 0, SWT.CENTER);
+		seedLabelData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
+		seedLabel.setLayoutData(seedLabelData);
 		  
-		  FormData seedFieldData = new FormData();
-		  seedFieldData.top = new FormAttachment(romInfoGroup, 10);
-		  seedFieldData.right = new FormAttachment(button, -5);
-		  seedFieldData.left = new FormAttachment(seedLabel, 5);
-		  seedField.setLayoutData(seedFieldData);
+		FormData generateData = new FormData();
+		generateData.top = new FormAttachment(seedField, 0, SWT.CENTER);
+		generateData.right = new FormAttachment(100, -5);
+		generateData.width = 100;
+		button.setLayoutData(generateData);
+		
+		growthView = new GrowthsView(mainShell, SWT.NONE);
+		growthView.setSize(200, 200);
+		growthView.setVisible(false);
 		  
-		  FormData seedLabelData = new FormData();
-		  seedLabelData.top = new FormAttachment(seedField, 0, SWT.CENTER);
-		  seedLabelData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
-		  seedLabel.setLayoutData(seedLabelData);
+		FormData growthData = new FormData();
+		growthData.top = new FormAttachment(seedField, 10);
+		growthData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
+		growthView.setLayoutData(growthData);
 		  
-		  FormData generateData = new FormData();
-		  generateData.top = new FormAttachment(seedField, 0, SWT.CENTER);
-		  generateData.right = new FormAttachment(100, -5);
-		  generateData.width = 100;
-		  button.setLayoutData(generateData);
+		baseView = new BasesView(mainShell, SWT.NONE);
+		baseView.setSize(200, 200);
+		baseView.setVisible(false);
 		  
-		  growthView = new GrowthsView(mainShell, SWT.NONE);
-		  growthView.setSize(200, 200);
-		  growthView.setVisible(false);
+		FormData baseData = new FormData();
+		baseData.top = new FormAttachment(growthView, 5);
+		baseData.left = new FormAttachment(growthView, 0, SWT.LEFT);
+		baseData.right = new FormAttachment(growthView, 0, SWT.RIGHT);
+		baseView.setLayoutData(baseData);
 		  
-		  FormData growthData = new FormData();
-		  growthData.top = new FormAttachment(seedField, 10);
-		  growthData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
-		  growthView.setLayoutData(growthData);
+		otherCharOptionView = new MOVCONAffinityView(mainShell, SWT.NONE);
+		otherCharOptionView.setSize(200, 200);
+		otherCharOptionView.setVisible(false);
 		  
-		  baseView = new BasesView(mainShell, SWT.NONE);
-		  baseView.setSize(200, 200);
-		  baseView.setVisible(false);
+		FormData otherData = new FormData();
+		otherData.top = new FormAttachment(baseView, 5);
+		otherData.left = new FormAttachment(baseView, 0, SWT.LEFT);
+		otherData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
+		otherData.bottom = new FormAttachment(100, -10);
+		otherCharOptionView.setLayoutData(otherData);
 		  
-		  FormData baseData = new FormData();
-		  baseData.top = new FormAttachment(growthView, 5);
-		  baseData.left = new FormAttachment(growthView, 0, SWT.LEFT);
-		  baseData.right = new FormAttachment(growthView, 0, SWT.RIGHT);
-		  baseView.setLayoutData(baseData);
+		weaponView = new WeaponsView(mainShell, SWT.NONE, type);
+		weaponView.setSize(200, 200);
+		weaponView.setVisible(false);
 		  
-		  otherCharOptionView = new MOVCONAffinityView(mainShell, SWT.NONE);
-		  otherCharOptionView.setSize(200, 200);
-		  otherCharOptionView.setVisible(false);
+		FormData weaponData = new FormData();
+		weaponData.top = new FormAttachment(growthView, 0, SWT.TOP);
+		weaponData.left = new FormAttachment(growthView, 5);
+		weaponData.bottom = new FormAttachment(100, -10);
+		weaponView.setLayoutData(weaponData);
 		  
-		  FormData otherData = new FormData();
-		  otherData.top = new FormAttachment(baseView, 5);
-		  otherData.left = new FormAttachment(baseView, 0, SWT.LEFT);
-		  otherData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
-		  otherData.bottom = new FormAttachment(100, -10);
-		  otherCharOptionView.setLayoutData(otherData);
+		classView = new ClassesView(mainShell, SWT.NONE);
+		classView.setSize(200, 200);
+		classView.setVisible(false);
 		  
-		  weaponView = new WeaponsView(mainShell, SWT.NONE);
-		  weaponView.setSize(200, 200);
-		  weaponView.setVisible(false);
+		FormData classData = new FormData();
+		classData.top = new FormAttachment(weaponView, 0, SWT.TOP);
+		classData.left = new FormAttachment(weaponView, 5);
+		classData.right = new FormAttachment(100, -5);
+		classView.setLayoutData(classData);
 		  
-		  FormData weaponData = new FormData();
-		  weaponData.top = new FormAttachment(growthView, 0, SWT.TOP);
-		  weaponData.left = new FormAttachment(growthView, 5);
-		  weaponData.bottom = new FormAttachment(100, -10);
-		  weaponView.setLayoutData(weaponData);
+		enemyView = new EnemyBuffsView(mainShell, SWT.NONE);
+		enemyView.setSize(200, 200);
+		enemyView.setVisible(false);
 		  
-		  classView = new ClassesView(mainShell, SWT.NONE);
-		  classView.setSize(200, 200);
-		  classView.setVisible(false);
+		FormData enemyData = new FormData();
+		enemyData.top = new FormAttachment(classView, 5);
+		enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
+		enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
+		enemyView.setLayoutData(enemyData);
 		  
-		  FormData classData = new FormData();
-		  classData.top = new FormAttachment(weaponView, 0, SWT.TOP);
-		  classData.left = new FormAttachment(weaponView, 5);
-		  classData.right = new FormAttachment(100, -5);
-		  classView.setLayoutData(classData);
+		miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
+		miscView.setSize(200, 200);
+		miscView.setVisible(false);
 		  
-		  enemyView = new EnemyBuffsView(mainShell, SWT.NONE);
-		  enemyView.setSize(200, 200);
-		  enemyView.setVisible(false);
+		FormData miscData = new FormData();
+		miscData.top = new FormAttachment(enemyView, 5);
+		miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
+		miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
+		miscView.setLayoutData(miscData);
 		  
-		  FormData enemyData = new FormData();
-		  enemyData.top = new FormAttachment(classView, 5);
-		  enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
-		  enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
-		  enemyView.setLayoutData(enemyData);
+		randomizeButton = new Button(mainShell, SWT.PUSH);
+		randomizeButton.setText("Randomize!");
+		randomizeButton.setVisible(false);
 		  
-		  miscView = new MiscellaneousView(mainShell, SWT.NONE, GameType.FE7);
-		  miscView.setSize(200, 200);
-		  miscView.setVisible(false);
-		  
-		  FormData miscData = new FormData();
-		  miscData.top = new FormAttachment(enemyView, 5);
-		  miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
-		  miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
-		  miscView.setLayoutData(miscData);
-		  
-		  randomizeButton = new Button(mainShell, SWT.PUSH);
-		  randomizeButton.setText("Randomize!");
-		  randomizeButton.setVisible(false);
-		  
-		  FormData randomizeData = new FormData();
-		  randomizeData.top = new FormAttachment(miscView, 5);
-		  randomizeData.left = new FormAttachment(miscView, 0, SWT.LEFT);
-		  randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
-		  randomizeData.bottom = new FormAttachment(100, -10);
-		  randomizeButton.setLayoutData(randomizeData);
+		FormData randomizeData = new FormData();
+		randomizeData.top = new FormAttachment(miscView, 5);
+		randomizeData.left = new FormAttachment(miscView, 0, SWT.LEFT);
+		randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
+		randomizeData.bottom = new FormAttachment(100, -10);
+		randomizeButton.setLayoutData(randomizeData);
+		
+		mainShell.layout();
+		final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		 mainShell.setSize(newSize);
 	}
 
 	@Override
@@ -295,6 +326,10 @@ public class MainView implements FileFlowDelegate {
 			filenameField.setText(pathToFile);
 		} else {
 			return;
+		}
+		
+		if (!hasLoadedInfo) {
+			setupInfoLayout();
 		}
 		
 		try {
@@ -318,31 +353,13 @@ public class MainView implements FileFlowDelegate {
 			length.setText("File Length: " + handler.getFileLength());
 			checksum.setText("CRC-32: " + Long.toHexString(handler.getCRC32()).toUpperCase());
 			
-			GameType type = GameType.UNKNOWN;
+			GameType type = loadedGameType;
 			if (handler.getCRC32() == FE6Data.CleanCRC32) { type = GameType.FE6; }
 			else if (handler.getCRC32() == FE7Data.CleanCRC32) { type = GameType.FE7; }
 			
-			if (type == GameType.FE6) {
-				// Create a new miscellaneous view reflecting this option.
-				miscView.dispose();
-				miscView = new MiscellaneousView(mainShell, SWT.NONE, GameType.FE6);
-				miscView.setSize(200, 200);
-				  
-				FormData miscData = new FormData();
-				miscData.top = new FormAttachment(enemyView, 5);
-				miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
-				miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
-				miscView.setLayoutData(miscData);
-				
-				FormData randomizeData = new FormData();
-				randomizeData.top = new FormAttachment(miscView, 5);
-				randomizeData.left = new FormAttachment(miscView, 0, SWT.LEFT);
-				randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
-				randomizeData.bottom = new FormAttachment(100, -10);
-				randomizeButton.setLayoutData(randomizeData);
-				
-				mainShell.layout();
-			}
+			updateLayoutForGameType(type);
+			
+			loadedGameType = type;
 			
 			final GameType gameType = type;
 			
@@ -448,19 +465,6 @@ public class MainView implements FileFlowDelegate {
 				checksumFail.setText("Failure");
 				checksumFail.setMessage("Checksum failed.\n\nThis file may not be supported.");
 				checksumFail.open();
-				
-				growthView.setVisible(false);
-				baseView.setVisible(false);
-				classView.setVisible(false);
-				otherCharOptionView.setVisible(false);
-				weaponView.setVisible(false);
-				enemyView.setVisible(false);
-				miscView.setVisible(false);
-				randomizeButton.setVisible(false);
-				
-				seedField.setVisible(false);
-				generateButton.setVisible(false);
-				seedLabel.setVisible(false);
 			} 
 			
 			romInfoGroup.setVisible(true);

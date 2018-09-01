@@ -5,6 +5,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -91,6 +92,10 @@ public class MessageModal {
 		contentGroup.setLayoutData(groupData);
 		
 		layoutSize();
+		Rectangle parentBounds = parent.getBounds();
+		Rectangle dialogBounds = dialogShell.getBounds();
+		
+		dialogShell.setLocation(parentBounds.x + (parentBounds.width - dialogBounds.width) / 2, parentBounds.y + (parentBounds.height - dialogBounds.height) / 2);
 	}
 	
 	public void addButton(String title, ModalButtonListener listener) {

@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import fedata.FEBase.GameType;
 import ui.model.WeaponEffectOptions;
 
 public class WeaponEffectSelectionView extends Composite {
@@ -44,17 +45,17 @@ public class WeaponEffectSelectionView extends Composite {
 	private WeaponEffectSelectionViewListener listener;
 	private Boolean squelchCallbacks;
 
-	public WeaponEffectSelectionView(Composite parent, int style) {
+	public WeaponEffectSelectionView(Composite parent, int style, GameType type) {
 		super(parent, style);
 		
 		RowLayout rowLayout = new RowLayout();
 		rowLayout.pack = false;
 		setLayout(rowLayout);
 		
-		buildView();
+		buildView(type);
 	}
 	
-	protected void buildView() {
+	protected void buildView(GameType type) {
 		noneCheckBox = new Button(this, SWT.CHECK);
 		noneCheckBox.setText("None");
 		noneCheckBox.setToolTipText("Allows random weapons to remain as they were and not receive a random effect.");
@@ -155,15 +156,17 @@ public class WeaponEffectSelectionView extends Composite {
 			}
 		});
 		
-		eclipseCheckBox = new Button(this, SWT.CHECK);
-		eclipseCheckBox.setText("Eclipse");
-		eclipseCheckBox.setToolTipText("Allows random weapons to always do half of the target's current HP.");
-		eclipseCheckBox.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				notifySelectionChange();
-			}
-		});
+		if (type != GameType.FE6) {
+			eclipseCheckBox = new Button(this, SWT.CHECK);
+			eclipseCheckBox.setText("Eclipse");
+			eclipseCheckBox.setToolTipText("Allows random weapons to always do half of the target's current HP.");
+			eclipseCheckBox.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					notifySelectionChange();
+				}
+			});
+		}
 		
 		devilCheckBox = new Button(this, SWT.CHECK);
 		devilCheckBox.setText("Devil");
@@ -190,7 +193,7 @@ public class WeaponEffectSelectionView extends Composite {
 		highCriticalCheckBox.setEnabled(enabled);
 		magicDamageCheckBox.setEnabled(enabled);
 		poisonCheckBox.setEnabled(enabled);
-		eclipseCheckBox.setEnabled(enabled);
+		if (eclipseCheckBox != null) { eclipseCheckBox.setEnabled(enabled); }
 		devilCheckBox.setEnabled(enabled);
 	}
 	

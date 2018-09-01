@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
+import fedata.FEBase.GameType;
 import ui.WeaponEffectSelectionView.WeaponEffectSelectionViewListener;
 import ui.model.MinMaxVarOption;
 import ui.model.WeaponOptions;
@@ -40,7 +41,7 @@ public class WeaponsView extends Composite {
 	private Button noEffectsForIronButton;;
 	private WeaponEffectSelectionView effectsSelectionView;
 	
-	public WeaponsView(Composite parent, int style) {
+	public WeaponsView(Composite parent, int style, GameType type) {
 		super(parent, style);
 		
 		FillLayout layout = new FillLayout();
@@ -330,7 +331,13 @@ public class WeaponsView extends Composite {
 		ironData.top = new FormAttachment(enableRandomEffectsButton, 5);
 		noEffectsForIronButton.setLayoutData(ironData);
 		
-		effectsSelectionView = new WeaponEffectSelectionView(container, SWT.NONE);
+		updateWeaponEffectSelectionViewForGame(type);
+	}
+	
+	public void updateWeaponEffectSelectionViewForGame(GameType type) {
+		if (effectsSelectionView != null) { effectsSelectionView.dispose(); }
+		
+		effectsSelectionView = new WeaponEffectSelectionView(container, SWT.NONE, type);
 		effectsSelectionView.setEnabled(false);
 		
 		FormData effectData = new FormData();
@@ -349,6 +356,10 @@ public class WeaponsView extends Composite {
 				}
 			}
 		});
+		
+		for (Listener listener : enableRandomEffectsButton.getListeners(SWT.Selection)) {
+			enableRandomEffectsButton.removeListener(SWT.Selection, listener);
+		}
 		
 		enableRandomEffectsButton.addListener(SWT.Selection, new Listener() {
 			@Override

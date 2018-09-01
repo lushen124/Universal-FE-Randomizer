@@ -3,6 +3,7 @@ package ui.general;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -66,6 +67,11 @@ public class ProgressModal {
 		dialogShell.layout();
 		final Point newSize = dialogShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		dialogShell.setSize(newSize);
+		
+		Rectangle parentBounds = parent.getBounds();
+		Rectangle dialogBounds = dialogShell.getBounds();
+		
+		dialogShell.setLocation(parentBounds.x + (parentBounds.width - dialogBounds.width) / 2, parentBounds.y + (parentBounds.height - dialogBounds.height) / 2);
 	}
 	
 	public void show() {
