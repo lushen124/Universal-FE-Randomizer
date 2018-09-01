@@ -335,10 +335,10 @@ public class FE6Character implements FECharacter {
 		byte newValue = (byte)(oldValue | 0x20);
 		data[41] = newValue;
 		
-		// Give Sword of Seals lock
-		oldValue = (byte)(data[40] & 0xFF);
+		// Give Sword of Seals lock (Ability 3)
+		oldValue = (byte)(data[42] & 0xFF);
 		newValue = (byte)(oldValue | 0x01);
-		data[40] = newValue; 
+		data[42] = newValue; 
 		
 		wasModified = true;
 	}

@@ -1258,14 +1258,16 @@ public class FE6Data {
 				case CLERIC:
 				case PRIEST:
 				case MANAKETE_F:
-				case SOLDIER:
 				case MYRMIDON:
 				case MYRMIDON_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
 					break;
+				case SOLDIER:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {23, 25, 27});
+					break;
 				case DRUID:
 				case DRUID_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32, 34}, new int[] {16, 18, 20});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32, 34, 36}, new int[] {16, 18, 20});
 					break;
 				case FALCON_KNIGHT:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 18}, new int[] {25, 27, 36}, new int[] {16, 11, 9});
@@ -1297,7 +1299,7 @@ public class FE6Data {
 					this.info = new PaletteInfo(classID, charID, offset, 16, 3, 32, 3, 23, 3);
 					break;
 				case MERCENARY:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {25, 11, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 36}, new int[] {25, 11, 9}, new int[] {});
 					break;
 				case NOMAD:
 				case NOMAD_F:
@@ -1369,7 +1371,24 @@ public class FE6Data {
 		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {
 			Character character = Character.valueOf(characterID);
 			switch (character) {
-			
+			case BARTH:
+				return new PaletteColor[] {new PaletteColor(198, 189, 82), new PaletteColor(165, 148, 74), new PaletteColor(115, 107, 90)};
+			case BORS:
+				return new PaletteColor[] {new PaletteColor(90, 214, 74), new PaletteColor(82, 173, 74), new PaletteColor(66, 123, 74)};
+			case DOUGLAS:
+				return new PaletteColor[] {new PaletteColor(165, 123, 74), new PaletteColor(115, 90, 74), new PaletteColor(99, 74, 57)};
+			case PERCIVAL:
+				return new PaletteColor[] {new PaletteColor(255, 247, 99), new PaletteColor(231, 206, 57), new PaletteColor(189, 156, 57)};
+			case MARCUS:
+				return new PaletteColor[] {new PaletteColor(255, 231, 255), new PaletteColor(222, 198, 222), new PaletteColor(140, 123, 156)};
+			case REI:
+				return new PaletteColor[] {new PaletteColor(123, 239, 57), new PaletteColor(90, 198, 57), new PaletteColor(90, 132, 82)};
+			case ZEISS:
+				return new PaletteColor[] {new PaletteColor(239, 66, 49), new PaletteColor(206, 57, 49), new PaletteColor(140, 66, 57)};
+			case ZEALOT:
+				return new PaletteColor[] {new PaletteColor(148, 140, 156), new PaletteColor(115, 115, 132), new PaletteColor(99, 90, 99)};
+			case WENDY:
+				return new PaletteColor[] {new PaletteColor(255, 123, 222), new PaletteColor(231, 99, 189), new PaletteColor(173, 66, 148)};
 			default:
 				return null;
 			}
