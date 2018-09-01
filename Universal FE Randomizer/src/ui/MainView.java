@@ -172,7 +172,7 @@ public class MainView implements FileFlowDelegate {
 		new Label(bottomInfo, SWT.LEFT); // Spacer
 	}
 	
-	private void updateLayoutForGameType(GameType type) {
+	private void disposeRandomizationOptionsViews() {
 		if (growthView != null) { growthView.dispose(); }
 		if (baseView != null) { baseView.dispose(); }
 		if (otherCharOptionView != null) { otherCharOptionView.dispose(); }
@@ -182,15 +182,22 @@ public class MainView implements FileFlowDelegate {
 		if (miscView != null) { miscView.dispose(); }
 		if (randomizeButton != null) { randomizeButton.dispose(); }
 		
-		if (type == GameType.UNKNOWN) {
-			mainShell.layout();
-			final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-			mainShell.setSize(newSize);
-		}
-		
 		if (seedField != null) { seedField.dispose(); }
 		if (generateButton != null) { generateButton.dispose(); }
 		if (seedLabel != null) { seedLabel.dispose(); }
+		
+		mainShell.layout();
+		final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		mainShell.setSize(newSize);
+	}
+	
+	private void updateLayoutForGameType(GameType type) {
+		
+		disposeRandomizationOptionsViews();
+		
+		if (type == GameType.UNKNOWN) {
+			return;
+		}
 		
 		seedField = new Text(mainShell, SWT.BORDER);
 		seedField.addListener(SWT.CHANGED, new Listener() {
@@ -330,6 +337,7 @@ public class MainView implements FileFlowDelegate {
 		
 		if (!hasLoadedInfo) {
 			setupInfoLayout();
+			hasLoadedInfo = true;
 		}
 		
 		try {
@@ -342,20 +350,22 @@ public class MainView implements FileFlowDelegate {
 			String gameCode = new String(result, StandardCharsets.US_ASCII);
 			romCode.setText("ROM Code: " + gameCode);
 			
-			if (gameCode.equals(FE7Data.GameCode)) {
-				friendlyName.setText("Display Name: " + FE7Data.FriendlyName);
-			} else if (gameCode.equals(FE6Data.GameCode)) {
-				friendlyName.setText("Display Name: " + FE6Data.FriendlyName);
-			} else {
-				friendlyName.setText("Display Name: Unknown");
-			}
-			
 			length.setText("File Length: " + handler.getFileLength());
 			checksum.setText("CRC-32: " + Long.toHexString(handler.getCRC32()).toUpperCase());
 			
 			GameType type = loadedGameType;
-			if (handler.getCRC32() == FE6Data.CleanCRC32) { type = GameType.FE6; }
-			else if (handler.getCRC32() == FE7Data.CleanCRC32) { type = GameType.FE7; }
+			if (handler.getCRC32() == FE6Data.CleanCRC32) { 
+				type = GameType.FE6;
+				friendlyName.setText("Display Name: " + FE6Data.FriendlyName);
+			}
+			else if (handler.getCRC32() == FE7Data.CleanCRC32) { 
+				type = GameType.FE7;
+				friendlyName.setText("Display Name: " + FE7Data.FriendlyName);
+			}
+			else { 
+				type = GameType.UNKNOWN;
+				friendlyName.setText("Display Name: Unknown");
+			}
 			
 			updateLayoutForGameType(type);
 			
@@ -395,8 +405,6 @@ public class MainView implements FileFlowDelegate {
 				randomizeButton.addListener(SWT.Selection, new Listener() {
 					@Override
 					public void handleEvent(Event event) {
-						//TextHelper textHelper = new TextHelper(FEBase.GameType.FE7, handler);
-						
 						FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
 						openDialog.setFilterExtensions(new String[] {"*.gba"});
 						String writePath = openDialog.open();
@@ -465,6 +473,8 @@ public class MainView implements FileFlowDelegate {
 				checksumFail.setText("Failure");
 				checksumFail.setMessage("Checksum failed.\n\nThis file may not be supported.");
 				checksumFail.open();
+				
+				disposeRandomizationOptionsViews();
 			} 
 			
 			romInfoGroup.setVisible(true);
