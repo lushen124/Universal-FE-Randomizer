@@ -330,9 +330,16 @@ public class FE6Character implements FECharacter {
 	}
 	
 	public void setIsLord() {
+		// Mark as Lord (Ability 2)
 		byte oldValue = (byte)(data[41] & 0xFF);
 		byte newValue = (byte)(oldValue | 0x20);
 		data[41] = newValue;
+		
+		// Give Sword of Seals lock
+		oldValue = (byte)(data[40] & 0xFF);
+		newValue = (byte)(oldValue | 0x01);
+		data[40] = newValue; 
+		
 		wasModified = true;
 	}
 	

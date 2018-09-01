@@ -133,7 +133,7 @@ public class FE6Data {
 				NARSHEN, RANDY, ROSE, MAGGIE, RAETH, ARCARD, MARTEL, SIGUNE, ROARTZ, MURDOCK, BRUNYA, ZINC, MONKE, GEL, SCOLLAN, GRERO, OHTZ, TECK, THORIL, BRAKUL, KUDOKA, MARRAL, KABUL, CHAN, PERETH,
 				WINDAM, MORGAN));
 		
-		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(THITO, MILEDY, GALE, NARSHEN));
+		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(THITO, MILEDY, GALE, NARSHEN, ROY));
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(ROY));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(CHAD, ASTOL, CASS));
@@ -393,6 +393,8 @@ public class FE6Data {
 		
 		private static CharacterClass[] limitedClassesForRandomization(CharacterClass sourceClass) {
 			switch(sourceClass) {
+			case LORD: // Special case for Roy to be able to always use swords (and have promotions)
+				return new CharacterClass[] {LORD, MYRMIDON, MERCENARY, MYRMIDON_F, CAVALIER, PEGASUS_KNIGHT, NOMAD};
 			case WYVERN_RIDER:
 			case WYVERN_RIDER_F:
 			case PEGASUS_KNIGHT:
@@ -1322,7 +1324,7 @@ public class FE6Data {
 					break;
 				case THIEF:
 				case THIEF_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {11, 20, 14}, new int[] {32, 34, 36}); // Primary is cape, secondary is inner cloak (+ hairband for female)
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {11, 29, 14}, new int[] {32, 34, 36}); // Primary is cape, secondary is inner cloak (+ hairband for female)
 					break;
 				case TROUBADOUR:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 16}, new int[] {25, 27, 29});
