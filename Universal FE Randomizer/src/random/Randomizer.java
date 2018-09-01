@@ -17,6 +17,7 @@ import fedata.fe7.FE7Data;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
+import io.UPSPatcherStatusListener;
 import random.exc.FileOpenException;
 import random.exc.UnsupportedGameException;
 import ui.model.BaseOptions;
@@ -114,15 +115,7 @@ public class Randomizer extends Thread {
 				updateProgress(0.05);
 				
 				tempPath = new String(targetPath).concat(".tmp");
-				URI patchURI = null;
-				try {
-					patchURI = Randomizer.class.getClassLoader().getResource("FE6-TLRedux-v1.0.ups").toURI();
-				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				File patchFile = new File(patchURI);
-				Boolean success = UPSPatcher.applyUPSPatch(patchFile, sourcePath, tempPath);
+				Boolean success = UPSPatcher.applyUPSPatch("FE6-TLRedux-v1.0.ups", sourcePath, tempPath, null);
 				if (!success) {
 					notifyError("Failed to apply translation patch.");
 					return;

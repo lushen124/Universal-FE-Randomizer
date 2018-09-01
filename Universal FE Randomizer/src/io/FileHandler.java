@@ -81,6 +81,11 @@ public class FileHandler {
 		return nextReadOffset;
 	}
 	
+	public void setNextReadOffset(long newOffset) throws IOException {
+		inputFile.seek(newOffset);
+		nextReadOffset = newOffset;
+	}
+	
 	public byte continueReadingNextByte() {
 		byte[] outputBytes = new byte[1];
 		try {

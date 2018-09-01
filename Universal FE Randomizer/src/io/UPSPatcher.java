@@ -3,6 +3,10 @@ package io;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import util.DebugPrinter;
 import util.FileReadHelper;
@@ -10,21 +14,34 @@ import util.WhyDoesJavaNotHaveThese;
 
 public class UPSPatcher {
 	
-	public static Boolean applyUPSPatch(File patchFile, String sourceFile, String targetFile) {
+	public static Boolean applyUPSPatch(String patchFile, String sourceFile, String targetFile, UPSPatcherStatusListener listener) {
 		try {
-			FileHandler patchHandler = new FileHandler(patchFile);
+			InputStream stream = UPSPatcher.class.getClassLoader().getResourceAsStream(patchFile);
+			Path temp = Files.createTempFile("file", "temp");
+			Files.copy(stream, temp, StandardCopyOption.REPLACE_EXISTING);
+			stream.close();
+			
+			if (listener != null) { listener.onMessageUpdate("Opening patch file..."); }
+			FileHandler patchHandler = new FileHandler(temp.toString());
+			if (listener != null) { listener.onMessageUpdate("Reading Magic number..."); }
 			byte[] header = patchHandler.readBytesAtOffset(0, 4);
 			if (!WhyDoesJavaNotHaveThese.byteArraysAreEqual(header, new byte[] {0x55, 0x50, 0x53, 0x31})) {
 				return false;
 			}
 			
+			if (listener != null) { listener.onMessageUpdate("Reading input length..."); }
 			long inputLength = readVariableWidthOffset(patchHandler);
+			if (listener != null) { listener.onMessageUpdate("Reading output length..."); }
 			long outputLength = readVariableWidthOffset(patchHandler);
 			
-			FileHandler tempPatchHandler = new FileHandler(patchFile);
-			long sourceCRC = FileReadHelper.readWord(tempPatchHandler, tempPatchHandler.getFileLength() - 12, false);
+			if (listener != null) { listener.onMessageUpdate("Loading CRC32s..."); }
+			long oldReadOffset = patchHandler.getNextReadOffset();
+			long sourceCRC = FileReadHelper.readWord(patchHandler, patchHandler.getFileLength() - 12, false);
+			patchHandler.setNextReadOffset(oldReadOffset);
 			
+			if (listener != null) { listener.onMessageUpdate("Opening source file..."); }
 			FileHandler sourceHandler = new FileHandler(sourceFile);
+			if (listener != null) { listener.onMessageUpdate("Opening output stream..."); }
 			FileOutputStream outputStream = new FileOutputStream(targetFile);
 			
 			if (inputLength != sourceHandler.getFileLength()) {
@@ -44,6 +61,8 @@ public class UPSPatcher {
 			
 			long bytesToSkip = 0;
 			long lastWrittenOffset = 0;
+			
+			if (listener != null) { listener.onMessageUpdate("Patching..."); }
 			
 			while (patchHandler.getNextReadOffset() < patchHandler.getFileLength() - 12) {
 				bytesToSkip = readVariableWidthOffset(patchHandler);
