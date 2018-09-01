@@ -735,7 +735,7 @@ public class FE6Data {
 				return new Item[] {FIRE_DRAGON_STONE};
 			} else if (classID == FE6Data.CharacterClass.MANAKETE_F.ID) {
 				return new Item[] {DIVINE_DRAGON_STONE};
-			} else if (classID == FE6Data.CharacterClass.THIEF.ID) {
+			} else if (classID == FE6Data.CharacterClass.THIEF.ID || classID == FE6Data.CharacterClass.THIEF_F.ID) {
 				return new Item[] {LOCKPICK};
 			} else if (classID == FE6Data.CharacterClass.DANCER.ID || classID == FE6Data.CharacterClass.BARD.ID) {
 				return new Item[] {ELIXIR};
