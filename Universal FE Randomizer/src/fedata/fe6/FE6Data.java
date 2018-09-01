@@ -1224,14 +1224,17 @@ public class FE6Data {
 				switch (charClass) {
 				case ARCHER:
 				case ARCHER_F:
-				case DANCER:
 					this.info = new PaletteInfo(classID, charID, offset, 16, 3, 32, 3);
+					break;
+				case DANCER:
+					this.info = new PaletteInfo(classID, charID, offset, 16, 3, 32, 3, 23, 3);
 					break;
 				case BRIGAND:
 				case FIGHTER:
 					this.info = new PaletteInfo(classID, charID, offset, 18, 2, 32, 3);
 					break;
 				case BARD:
+				case MANAKETE:
 				case SNIPER:
 				case SNIPER_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {23, 25, 27});
@@ -1250,6 +1253,8 @@ public class FE6Data {
 					break;
 				case CLERIC:
 				case PRIEST:
+				case MANAKETE_F:
+				case SOLDIER:
 				case MYRMIDON:
 				case MYRMIDON_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
@@ -1267,7 +1272,6 @@ public class FE6Data {
 					break;
 				case HERO:
 				case HERO_F:
-				case MANAKETE_F:
 				case SWORDMASTER:
 				case SWORDMASTER_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {});
@@ -1309,12 +1313,14 @@ public class FE6Data {
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {}); // Outfit/Bandana is the only color.
 					break;
 				case SHAMAN:
-				case SHAMAN_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32, 34}, new int[] {9, 16, 18}); // Not really hair, but it matches up in the only one that matters (Canas)
+					break;
+				case SHAMAN_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27}, new int[] {29, 32, 34});
 					break;
 				case THIEF:
 				case THIEF_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 29, 14}, new int[] {34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {11, 20, 14}, new int[] {32, 34, 36}); // Primary is cape, secondary is inner cloak (+ hairband for female)
 					break;
 				case TROUBADOUR:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 16}, new int[] {25, 27, 29});
