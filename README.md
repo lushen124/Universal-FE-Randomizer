@@ -60,7 +60,7 @@ $ java -jar Yune\ -\ GTK(x86_64).jar
 ...or something like that. Tested with Ubuntu 16.04.4.
 
 ## Compatability
-Like I said, the new plan is to support more platforms first before supporting more games. So to this end, the current state of the randomizer supports a very specific version of a single Fire Emblem game, though this is one of the ones I suspect most of the western world started with: the first Fire Emblem released worldwide for the GBA, simply titled Fire Emblem, otherwise known as 烈火の剣, Rekka no Ken, Blazing Sword, or FE7. More specifically, it's only been tested using the North American version of the game and requires it. Unlike the original randomizer, this randomizer checks the CRC32 of the file it's fed, and won't do anything unless it matches. I'll look into adding support for Japanese and European versions of the game later, but for now, it's very specific. It is almost feature complete for FE7 with a few of the more exotic randomization features remaining to be implemented and some nice-to-have polishing things in the backlog. I'll likely leave the minor polish off until much later.
+At time of writing, the randomizer supports two games: Fire Emblem: Binding Blade (aka FE6 or ファイアーエムブレム　封印の剣) and Fire Emblem: Blazing Sword (aka FE7 or ファイアーエムブレム 烈火の剣). In the case of the former, the randomizer expects a clean JP ROM and will give the option to apply the english patch on top of it. In the case of the latter, only the US version of the game is supported. I plan to add support for FE7JP and FE8 soon. Afterwards, it'll take a while, but I'll look into either the SFC games (FE3 ~ FE5) or the Tellius games (FE9 ~ FE10) depending on whether I want to learn more about how FE3 ~ FE5 work or if I want to learn how to decode ISO files.
 
 ## Randomization Options
 
@@ -169,6 +169,8 @@ Random stuff that may be funny.
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/RandomMinions.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MorePalettes.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MoreText.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE6.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE6_2.png)
 
 ## Nice-to-have Features
 * ~~Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.~~ This is actually done now. It mostly works, though it occasionally gives an odd color.
