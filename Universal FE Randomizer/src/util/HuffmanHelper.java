@@ -224,7 +224,7 @@ public class HuffmanHelper {
 		
 		Boolean isMarked = (textAddress & 0x80000000) != 0;
 		long maskedAddress = textAddress & 0x7FFFFFFF;
-		maskedAddress -= 0x8000000;
+		if (isMarked) { maskedAddress -= 0x8000000; }
 		
 		byte currentByte = 0;
 		
