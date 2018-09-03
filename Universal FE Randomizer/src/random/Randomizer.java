@@ -462,7 +462,8 @@ public class Randomizer extends Thread {
 	}
 	
 	public RecordKeeper initializeRecordKeeper() {
-		String title = targetPath.substring(targetPath.lastIndexOf('\\') + 1);
+		int index = Math.max(targetPath.lastIndexOf('/'), targetPath.lastIndexOf('\\'));
+		String title =  targetPath.substring(index + 1);
 		String gameTitle = "(null)";
 		switch (gameType) {
 		case FE6:
