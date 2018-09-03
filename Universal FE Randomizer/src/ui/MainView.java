@@ -456,13 +456,15 @@ public class MainView implements FileFlowDelegate {
 											FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
 											openDialog.setFilterExtensions(new String[] {"*.html"});
 											String writePath = openDialog.open();
-											Boolean success = rk.exportRecordsToHTML(writePath);
-											if (success) {
-												MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
-												saveSuccess.show();
-											} else {
-												MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
-												saveFail.show();
+											if (writePath != null) {
+												Boolean success = rk.exportRecordsToHTML(writePath);
+												if (success) {
+													MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
+													saveSuccess.show();
+												} else {
+													MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
+													saveFail.show();
+												}
 											}
 										}
 									});

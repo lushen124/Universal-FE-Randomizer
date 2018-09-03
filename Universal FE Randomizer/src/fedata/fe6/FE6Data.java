@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import fedata.fe7.FE7Data.Item.Ability1Mask;
 import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 import fedata.general.WeaponRank;
@@ -1024,7 +1023,7 @@ public class FE6Data {
 		}
 		
 		public long getListAddress() {
-			return (offset * 4) + PromotionItemTablePointer;
+			return (offset * 8) + PromotionItemTablePointer + 4;
 		}
 	}
 	
