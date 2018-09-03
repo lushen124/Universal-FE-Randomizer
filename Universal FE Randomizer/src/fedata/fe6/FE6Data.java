@@ -9,10 +9,12 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import fedata.fe7.FE7Data.Item.Ability1Mask;
 import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
+import util.WhyDoesJavaNotHaveThese;
 
 public class FE6Data {
 	public static final String FriendlyName = "ファイアーエムブレム　封印の剣";
@@ -626,11 +628,19 @@ public class FE6Data {
 			public static Ability1Mask valueOf(int val) {
 				return map.get(val);
 			}
+			
+			public static String stringOfActiveAbilities(int abilityValue, String delimiter) {
+				List<String> strings = new ArrayList<String>();
+				for (Ability1Mask mask : Ability1Mask.values()) {
+					if ((abilityValue & mask.ID) != 0) { strings.add(WhyDoesJavaNotHaveThese.stringByCapitalizingFirstLetter(mask.toString())); }
+				}
+				return String.join(delimiter, strings);
+			}
 		}
 		
 		public enum Ability2Mask {
-			NONE(0x00), REVERSEWEAPONTRIANGLE(0x01), DRAGONSTONELOCK(0x04), LORDLOCK(0x08),
-			MYRMLOCK(0x10), KINGLOCK(0x20), IOTESHIELD(0x40);
+			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), DRAGONSTONE_LOCK(0x04), LORD_LOCK(0x08),
+			MYRMIDON_LOCK(0x10), KING_LOCK(0x20), IOTE_SHIELD_EFFECT(0x40);
 			public int ID;
 			
 			private static Map<Integer, Ability2Mask> map = new HashMap<Integer, Ability2Mask>();
@@ -646,10 +656,18 @@ public class FE6Data {
 			public static Ability2Mask valueOf(int val) {
 				return map.get(val);
 			}
+			
+			public static String stringOfActiveAbilities(int abilityValue, String delimiter) {
+				List<String> strings = new ArrayList<String>();
+				for (Ability2Mask mask : Ability2Mask.values()) {
+					if ((abilityValue & mask.ID) != 0) { strings.add(WhyDoesJavaNotHaveThese.stringByCapitalizingFirstLetter(mask.toString())); }
+				}
+				return String.join(delimiter, strings);
+			}
 		}
 		
 		public enum WeaponEffect {
-			NONE(0x00), POISON(0x01), STEALHP(0x02), REDUCETO1HP(0x03), DEVIL(0x04);
+			NONE(0x00), POISON(0x01), STEALS_HP(0x02), REDUCE_TO_1HP(0x03), DEVIL(0x04);
 			
 			public int ID;
 			
@@ -665,6 +683,14 @@ public class FE6Data {
 			
 			public static WeaponEffect valueOf(int val) {
 				return map.get(val);
+			}
+			
+			public static String stringOfActiveEffect(int effectValue) {
+				for (WeaponEffect effect : WeaponEffect.values()) {
+					if (effectValue == effect.ID) { return WhyDoesJavaNotHaveThese.stringByCapitalizingFirstLetter(effect.toString()); }
+				}
+				
+				return "Unknown";
 			}
 		}
 		

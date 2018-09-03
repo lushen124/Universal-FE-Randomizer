@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import fedata.FEBase;
+import fedata.FECharacter;
 import fedata.FEClass;
 import fedata.fe6.FE6Class;
 import fedata.fe6.FE6Data;
@@ -15,6 +16,7 @@ import io.FileHandler;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
+import util.recordkeeper.RecordKeeper;
 
 public class ClassDataLoader {
 
@@ -24,6 +26,8 @@ private FEBase.GameType gameType;
 	
 	private Map<Integer, FEClass> lordMap = new HashMap<Integer, FEClass>();
 	private Map<Integer, FEClass> thiefMap = new HashMap<Integer, FEClass>();
+	
+	public static final String RecordKeeperCategoryKey = "Classes";
 
 	public ClassDataLoader(FEBase.GameType gameType, FileHandler handler) {
 		super();
@@ -128,6 +132,17 @@ private FEBase.GameType gameType;
 		return thiefMap.containsKey(classID);
 	}
 	
+	public Boolean isFemale(int classID) {
+		switch (gameType) {
+		case FE6:
+			return FE6Data.CharacterClass.allFemaleClasses.contains(FE6Data.CharacterClass.valueOf(classID));
+		case FE7:
+			return FE7Data.CharacterClass.allFemaleClasses.contains(FE7Data.CharacterClass.valueOf(classID));
+		default:
+			return false;
+		}
+	}
+	
 	public FEClass[] potentialClasses(FEClass sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean applyRestrictions, FEClass mustLoseToClass) {
 		switch (gameType) {
 		case FE6: {
@@ -188,6 +203,43 @@ private FEBase.GameType gameType;
 			return FE7Data.CharacterClass.allValidClasses.contains(FE7Data.CharacterClass.valueOf(classID));
 		default:
 			return false;
+		}
+	}
+	
+	public void recordClasses(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, TextLoader textData) {
+		for (FEClass charClass : allClasses()) {
+			if (!isValidClass(charClass.getID())) { continue; }
+			recordClass(rk, charClass, isInitial, textData);
+		}
+	}
+	
+	private void recordClass(RecordKeeper rk, FEClass charClass, Boolean isInitial, TextLoader textData) {
+		int nameIndex = charClass.getNameIndex();
+		String name = textData.getStringAtIndex(nameIndex).trim();
+		
+		Boolean isFemale = isFemale(charClass.getID());
+		if (isFemale) { name = name + " (F)"; }
+		
+		if (isInitial) {
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "HP Growth", String.format("%d%%", charClass.getHPGrowth()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "STR/MAG Growth", String.format("%d%%", charClass.getSTRGrowth()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "SKL Growth", String.format("%d%%", charClass.getSKLGrowth()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "SPD Growth", String.format("%d%%", charClass.getSPDGrowth()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "LCK Growth", String.format("%d%%", charClass.getLCKGrowth()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "DEF Growth", String.format("%d%%", charClass.getDEFGrowth()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "RES Growth", String.format("%d%%", charClass.getRESGrowth()));
+			
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Movement Range", Integer.toString(charClass.getMOV()));
+		} else {
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "HP Growth", String.format("%d%%", charClass.getHPGrowth()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "STR/MAG Growth", String.format("%d%%", charClass.getSTRGrowth()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "SKL Growth", String.format("%d%%", charClass.getSKLGrowth()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "SPD Growth", String.format("%d%%", charClass.getSPDGrowth()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "LCK Growth", String.format("%d%%", charClass.getLCKGrowth()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "DEF Growth", String.format("%d%%", charClass.getDEFGrowth()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "RES Growth", String.format("%d%%", charClass.getRESGrowth()));
+			
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Movement Range", Integer.toString(charClass.getMOV()));
 		}
 	}
 }

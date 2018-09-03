@@ -104,6 +104,7 @@ public class MessageModal {
 		if (buttonGroup == null) {
 			buttonGroup = new Composite(dialogShell, SWT.NONE);
 			FillLayout buttonGroupLayout = new FillLayout(SWT.HORIZONTAL);
+			buttonGroupLayout.spacing = 10;
 			buttonGroup.setLayout(buttonGroupLayout);
 		}
 		

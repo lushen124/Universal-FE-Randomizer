@@ -4,6 +4,9 @@ import fedata.FEBase;
 import fedata.FEChapter;
 import fedata.FEChapterItem;
 import fedata.FEChapterUnit;
+import fedata.FECharacter;
+import fedata.FEClass;
+import fedata.FEItem;
 import fedata.fe6.FE6Chapter;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Chapter;
@@ -13,12 +16,16 @@ import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
+import util.WhyDoesJavaNotHaveThese;
+import util.recordkeeper.RecordKeeper;
 
 public class ChapterLoader {
 	
 	private FEBase.GameType gameType;
 	
 	private FEChapter[] chapters;
+	
+	public static final String RecordKeeperCategoryKey = "Chapters";
 
 	public ChapterLoader(FEBase.GameType gameType, FileHandler handler) {
 		super();
@@ -116,5 +123,77 @@ public class ChapterLoader {
 				}
 			}
 		}
+	}
+	
+	public void recordChapters(RecordKeeper rk, Boolean isInitial, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
+		for (FEChapter chapter : allChapters()) {
+			recordChapter(rk, isInitial, chapter, charData, classData, itemData, textData);
+		}
+	}
+	
+	private void recordChapter(RecordKeeper rk, Boolean isInitial, FEChapter chapter, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
+		String chapterName = WhyDoesJavaNotHaveThese.stringByCapitalizingFirstLetter(chapter.getFriendlyName());
+		
+		int unitCounter = 1;
+		for (FEChapterUnit unit : chapter.allUnits()) {
+			if (isInitial) {
+				rk.recordOriginalEntry(RecordKeeperCategoryKey, chapterName, "Unit #" + unitCounter, markupForUnit(rk, unit, charData, classData, itemData, textData));
+			} else {
+				rk.recordUpdatedEntry(RecordKeeperCategoryKey, chapterName, "Unit #" + unitCounter, markupForUnit(rk, unit, charData, classData, itemData, textData));
+			}
+			unitCounter++;
+		}
+		
+		int chestCounter = 1;
+		int villageCounter = 1;
+		for (FEChapterItem reward : chapter.allRewards()) {
+			String key;
+			if (reward.getRewardType() == FEChapterItem.Type.CHES) { 
+				key = "Chest #" + chestCounter;
+				chestCounter++;
+			} else {
+				key = "Village #" + villageCounter;
+				villageCounter++;
+			}
+			
+			FEItem item = itemData.itemWithID(reward.getItemID());
+			
+			if (isInitial) {
+				rk.recordOriginalEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex()) : "Unknown (0x" + Integer.toHexString(reward.getItemID()).toUpperCase() + ")"));
+			} else {
+				rk.recordUpdatedEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex()) : "Unknown (0x" + Integer.toHexString(reward.getItemID()).toUpperCase() + ")"));
+			}
+		}
+	}
+	
+	private String markupForUnit(RecordKeeper rk, FEChapterUnit chapterUnit, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
+		int characterID = chapterUnit.getCharacterNumber();
+		FECharacter character = charData.characterWithID(characterID);
+		FEClass charClass = classData.classForID(chapterUnit.getStartingClass());
+		StringBuilder sb = new StringBuilder();
+		sb.append("<table>\n");
+		if (character == null) {
+			// This is probably a minion.
+			sb.append("<tr><td>Character ID</td><td>0x" + Integer.toHexString(chapterUnit.getCharacterNumber()).toUpperCase() + "</td></tr>\n");
+		} else {
+			// This is a somewhat important character.
+			sb.append("<tr><td>Character ID</td><td>" + textData.getStringAtIndex(character.getNameIndex()) + "</td></tr>\n");
+		}
+		
+		sb.append("<tr><td>Class</td><td>" + (charClass != null ? textData.getStringAtIndex(charClass.getNameIndex()) + (classData.isFemale(charClass.getID()) ? " (F)" : "") : "Unknown (0x" + Integer.toHexString(chapterUnit.getStartingClass()) + ")") + "</td></tr>\n");
+		sb.append("<tr><td>Loading Coordinates</td><td>(" + chapterUnit.getLoadingX() + ", " + chapterUnit.getLoadingY() + ")</td></tr>\n");
+		sb.append("<tr><td>Starting Coordinates</td><td>(" + chapterUnit.getStartingX() + ", " + chapterUnit.getStartingY() + ")</td></tr>\n");
+		FEItem item1 = itemData.itemWithID(chapterUnit.getItem1());
+		FEItem item2 = itemData.itemWithID(chapterUnit.getItem2());
+		FEItem item3 = itemData.itemWithID(chapterUnit.getItem3());
+		FEItem item4 = itemData.itemWithID(chapterUnit.getItem4());
+		
+		sb.append("<tr><td>Item 1</td><td>" + (item1 != null ? textData.getStringAtIndex(item1.getNameIndex()) : (chapterUnit.getItem1() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem1()).toUpperCase() + ")" : "")) + "</td></tr>\n");
+		sb.append("<tr><td>Item 2</td><td>" + (item2 != null ? textData.getStringAtIndex(item2.getNameIndex()) : (chapterUnit.getItem2() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem2()).toUpperCase() + ")" : "")) + "</td></tr>\n");
+		sb.append("<tr><td>Item 3</td><td>" + (item3 != null ? textData.getStringAtIndex(item3.getNameIndex()) : (chapterUnit.getItem3() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem3()).toUpperCase() + ")" : "")) + "</td></tr>\n");
+		sb.append("<tr><td>Item 4</td><td>" + (item4 != null ? textData.getStringAtIndex(item4.getNameIndex()) : (chapterUnit.getItem4() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem4()).toUpperCase() + ")" : "")) + "</td></tr>\n");
+		
+		sb.append("</table>\n");
+		return sb.toString();
 	}
 }

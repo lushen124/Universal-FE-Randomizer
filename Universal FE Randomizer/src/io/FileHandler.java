@@ -132,13 +132,13 @@ public class FileHandler {
 		return outputBytes;
 	}
 	
-	public byte[] continueReadingBytesUpToNextTerminator(int maxOffset) {
+	public byte[] continueReadingBytesUpToNextTerminator(long maxOffset) {
 		byte[] result = null;
 		int zeroIndex = -1;
 		
 		do {
 			long initialReadOffset = nextReadOffset;
-			int numBytes = Math.min(1024, maxOffset - (int)initialReadOffset - 1);
+			int numBytes = Math.min(1024, (int)(maxOffset - initialReadOffset - 1));
 			if (numBytes == 0) {
 				break;
 			}

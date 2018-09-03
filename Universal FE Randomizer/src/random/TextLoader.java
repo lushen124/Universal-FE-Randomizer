@@ -36,7 +36,7 @@ public class TextLoader {
 		switch (gameType) {
 			case FE6: {
 				huffman = new HuffmanHelper(handler);
-				allStrings = new String[FE6Data.NumberOfTextStrings];
+				allStrings = new String[FE6Data.NumberOfTextStrings + 1];
 				textArrayOffset = FileReadHelper.readAddress(handler, FE6Data.TextTablePointer);
 				for (int i = 1; i <= FE6Data.NumberOfTextStrings; i++) {
 					String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree(
@@ -45,7 +45,7 @@ public class TextLoader {
 							FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, FE6Data.HuffmanTreeEnd))), false, gameType);
 					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Decoded FE6 String for index 0x" + Integer.toHexString(i).toUpperCase());
 					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, decoded);
-					allStrings[i - 1] = decoded;
+					allStrings[i] = decoded;
 				}
 				break;
 			}
@@ -77,6 +77,7 @@ public class TextLoader {
 		if (replacement != null) { return replacement; }
 		
 		String result = allStrings[index];
+		if (result == null) { return ""; }
 		return result.replaceAll("\\[[^\\[]*\\]", "");
 	}
 	

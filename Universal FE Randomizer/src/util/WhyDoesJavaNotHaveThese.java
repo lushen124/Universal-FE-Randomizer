@@ -62,4 +62,10 @@ public class WhyDoesJavaNotHaveThese {
 		
 		return byteArray;
 	}
+	
+	public static String stringByCapitalizingFirstLetter(String input) {
+		String firstLetter = input.substring(0, 1);
+		String remainder = input.substring(1).replace('_', ' ');
+		return firstLetter.toUpperCase() + remainder.toLowerCase();
+	}
 }

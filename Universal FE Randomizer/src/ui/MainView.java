@@ -31,9 +31,11 @@ import io.FileHandler;
 import random.Randomizer;
 import random.RandomizerListener;
 import ui.general.MessageModal;
+import ui.general.ModalButtonListener;
 import ui.general.ProgressModal;
 import util.DiffCompiler;
 import util.SeedGenerator;
+import util.recordkeeper.RecordKeeper;
 
 public class MainView implements FileFlowDelegate {
 	
@@ -444,9 +446,31 @@ public class MainView implements FileFlowDelegate {
 								}
 
 								@Override
-								public void onComplete() {
+								public void onComplete(RecordKeeper rk) {
 									hideModalProgressDialog();
-									MessageModal randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!");
+									MessageModal randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
+									randomSuccess.addButton("Yes", new ModalButtonListener() {
+										@Override
+										public void onSelected() {
+											randomSuccess.hide();
+											FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
+											openDialog.setFilterExtensions(new String[] {"*.html"});
+											String writePath = openDialog.open();
+											Boolean success = rk.exportRecordsToHTML(writePath);
+											if (success) {
+												MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
+												saveSuccess.show();
+											} else {
+												MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
+												saveFail.show();
+											}
+										}
+									});
+									randomSuccess.addButton("No", new ModalButtonListener() {
+										public void onSelected() {
+											randomSuccess.hide();
+										}
+									});
 									randomSuccess.show();
 								}
 

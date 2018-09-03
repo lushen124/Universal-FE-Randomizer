@@ -258,11 +258,11 @@ public class FE7Item implements FEItem {
 		if ((getAbility1() & FE7Data.Item.Ability1Mask.BRAVE.ID) == 0) {
 			effects.add(WeaponEffects.BRAVE);
 		}
-		if ((getAbility1() & FE7Data.Item.Ability1Mask.MAGICDAMAGE.ID) == 0 && (getAbility1() & FE7Data.Item.Ability1Mask.MAGIC.ID) == 0 && getType() != WeaponType.AXE) {
+		if ((getAbility1() & FE7Data.Item.Ability1Mask.MAGIC_DAMAGE.ID) == 0 && (getAbility1() & FE7Data.Item.Ability1Mask.MAGIC.ID) == 0 && getType() != WeaponType.AXE) {
 			effects.add(WeaponEffects.MAGIC_DAMAGE);
 		}
 		
-		if ((getAbility2() & FE7Data.Item.Ability2Mask.REVERSEWEAPONTRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
+		if ((getAbility2() & FE7Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
 			effects.add(WeaponEffects.REVERSE_TRIANGLE);
 		}
 		
@@ -340,7 +340,7 @@ public class FE7Item implements FEItem {
 			break;
 		case MAGIC_DAMAGE:
 			ability1 = getAbility1();
-			ability1 |= FE7Data.Item.Ability1Mask.MAGICDAMAGE.ID;
+			ability1 |= FE7Data.Item.Ability1Mask.MAGIC_DAMAGE.ID;
 			data[8] = (byte)(ability1 & 0xFF);
 			
 			if (getMaxRange() == 1) {
@@ -358,7 +358,7 @@ public class FE7Item implements FEItem {
 			break;
 		case REVERSE_TRIANGLE:
 			int ability2 = getAbility2();
-			ability2 |= FE7Data.Item.Ability2Mask.REVERSEWEAPONTRIANGLE.ID;
+			ability2 |= FE7Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID;
 			data[9] = (byte)(ability2 & 0xFF);
 			wasModified = true;
 			break;
@@ -368,7 +368,7 @@ public class FE7Item implements FEItem {
 			wasModified = true;
 			break;
 		case HALF_HP:
-			effectValue = FE7Data.Item.WeaponEffect.HALFHP.ID;
+			effectValue = FE7Data.Item.WeaponEffect.HALVES_HP.ID;
 			data[31] = (byte)(effectValue & 0xFF);
 			wasModified = true;
 			break;
@@ -405,9 +405,9 @@ public class FE7Item implements FEItem {
 		else if (isOnlyRanged && getMinRange() < 2) { traitStrings.add("Usable at close range"); shortStrings.put("Usable at close range", "Melee"); }
 		
 		if ((getAbility1() & Ability1Mask.BRAVE.ID) != 0) { traitStrings.add("Strikes twice"); shortStrings.put("Strikes twice", "Brave"); }
-		if ((getAbility1() & Ability1Mask.MAGICDAMAGE.ID) != 0) { traitStrings.add("Targets RES"); shortStrings.put("Targets RES", "Magic"); }
+		if ((getAbility1() & Ability1Mask.MAGIC_DAMAGE.ID) != 0) { traitStrings.add("Targets RES"); shortStrings.put("Targets RES", "Magic"); }
 		
-		if ((getAbility2() & Ability2Mask.REVERSEWEAPONTRIANGLE.ID) != 0) {
+		if ((getAbility2() & Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) != 0) {
 			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs. Lances"); shortStrings.put("Strong vs. Lances", "Bests lances"); }
 			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs. Axes"); shortStrings.put("Strong vs. Axes", "Bests axes"); }
 			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong vs. Swords"); shortStrings.put("Strong vs. Swords", "Bests Swords"); }
@@ -417,7 +417,7 @@ public class FE7Item implements FEItem {
 		}
 		
 		if (getWeaponEffect() == FE7Data.Item.WeaponEffect.POISON.ID) { traitStrings.add("Poisons on hit"); shortStrings.put("Poisons on hit", "Poison"); }
-		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.HALFHP.ID) { traitStrings.add("Halves HP"); shortStrings.put("Halves HP", "Eclipse"); }
+		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.HALVES_HP.ID) { traitStrings.add("Halves HP"); shortStrings.put("Halves HP", "Eclipse"); }
 		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.DEVIL.ID) { traitStrings.add("May damage user"); shortStrings.put("May damage user", "Devil"); }
 		
 		if (getCritical() >= 20) { traitStrings.add("High Critical Rate"); shortStrings.put("High Critical Rate", "Critical"); }

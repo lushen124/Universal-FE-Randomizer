@@ -13,6 +13,9 @@ import org.eclipse.swt.widgets.Display;
 
 import application.Main;
 import fedata.FEBase;
+import fedata.FECharacter;
+import fedata.FEClass;
+import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
 import io.DiffApplicator;
 import io.FileHandler;
@@ -35,6 +38,7 @@ import util.FileReadHelper;
 import util.FreeSpaceManager;
 import util.HuffmanHelper;
 import util.SeedGenerator;
+import util.recordkeeper.RecordKeeper;
 
 public class Randomizer extends Thread {
 	
@@ -143,6 +147,9 @@ public class Randomizer extends Thread {
 			return;
 		}
 		
+		RecordKeeper recordKeeper = initializeRecordKeeper();
+		recordKeeper.addHeaderItem("Randomizer Seed Phrase", seed);
+		
 		updateStatusString("Randomizing...");
 		randomizeGrowthsIfNecessary(seed);
 		updateProgress(0.55);
@@ -191,9 +198,26 @@ public class Randomizer extends Thread {
 			}
 		}
 		
+		FileHandler targetFileHandler = null;
+		try {
+			targetFileHandler = new FileHandler(targetPath);
+		} catch (IOException e) {
+			notifyError("Failed to open source file.");
+			return;
+		}
+		
+		charData.recordCharacters(recordKeeper, false, classData, textData);
+		classData.recordClasses(recordKeeper, false, classData, textData);
+		itemData.recordWeapons(recordKeeper, false, classData, textData, targetFileHandler);
+		chapterData.recordChapters(recordKeeper, false, charData, classData, itemData, textData);
+		
+		recordKeeper.sortKeysInCategory(CharacterDataLoader.RecordKeeperCategoryKey);
+		recordKeeper.sortKeysInCategory(ClassDataLoader.RecordKeeperCategoryKey);
+		recordKeeper.sortKeysInCategory(ItemDataLoader.RecordKeeperCategoryWeaponKey);
+		
 		updateStatusString("Done!");
 		updateProgress(1);
-		notifyCompletion();
+		notifyCompletion(recordKeeper);
 	}
 	
 	private void generateFE7DataLoaders() {
@@ -426,14 +450,185 @@ public class Randomizer extends Thread {
 		}
 	}
 	
-	private void notifyCompletion() {
+	private void notifyCompletion(RecordKeeper rk) {
 		if (listener != null) {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					listener.onComplete();	
+					listener.onComplete(rk);	
 				}
 			});
 		}
+	}
+	
+	public RecordKeeper initializeRecordKeeper() {
+		String title = targetPath.substring(targetPath.lastIndexOf('\\') + 1);
+		String gameTitle = "(null)";
+		switch (gameType) {
+		case FE6:
+			gameTitle = FE6Data.FriendlyName;
+			break;
+		case FE7:
+			gameTitle = FE7Data.FriendlyName;
+			break;
+		default:
+			gameTitle = "Unknown Game";
+			break;
+		}
+		
+		RecordKeeper rk = new RecordKeeper(title);
+		
+		rk.addHeaderItem("Game Title", gameTitle);
+		
+		if (growths != null) {
+			switch (growths.mode) {
+			case REDISTRIBUTE:
+				rk.addHeaderItem("Randomize Growths", "Redistribution (" + growths.redistributionOption.variance + "% variance)");
+				break;
+			case DELTA:
+				rk.addHeaderItem("Randomize Growths", "Delta (+/- " + growths.deltaOption.variance + "%)");
+				break;
+			case FULL:
+				rk.addHeaderItem("Randomize Growths", "Full (" + growths.fullOption.minValue + "% ~ " + growths.fullOption.maxValue + "%)");	
+				break;
+			}
+		} else {
+			rk.addHeaderItem("Randomize Growths", "NO");
+		}
+		
+		if (bases != null) {
+			switch (bases.mode) {
+			case REDISTRIBUTE:
+				rk.addHeaderItem("Randomize Bases", "Redistribution (" + bases.redistributionOption.variance + " variance)");
+				break;
+			case DELTA:
+				rk.addHeaderItem("Randomize Bases", "Delta (+/- " + bases.deltaOption.variance + ")");
+				break;
+			}
+		} else {
+			rk.addHeaderItem("Randomize Bases", "NO");
+		}
+		
+		if (otherCharacterOptions.constitutionOptions != null) {
+			rk.addHeaderItem("Randomize Constitution", "+/- " + otherCharacterOptions.constitutionOptions.variance + ", Min: " + otherCharacterOptions.constitutionOptions.minValue);
+		} else {
+			rk.addHeaderItem("Randomize Constitution", "NO");
+		}
+		
+		if (otherCharacterOptions.movementOptions != null) {
+			rk.addHeaderItem("Randomize Movement Ranges", "" + otherCharacterOptions.movementOptions.minValue + " ~ " + otherCharacterOptions.movementOptions.maxValue);
+		} else {
+			rk.addHeaderItem("Randomize Movement Ranges", "NO");
+		}
+		
+		if (otherCharacterOptions.randomizeAffinity) {
+			rk.addHeaderItem("Randomize Affinity", "YES");
+		} else {
+			rk.addHeaderItem("Randomize Affinity", "NO");
+		}
+		
+		if (weapons.mightOptions != null) {
+			rk.addHeaderItem("Randomize Weapon Power", "+/- " + weapons.mightOptions.variance + ", (" + weapons.mightOptions.minValue + " ~ " + weapons.mightOptions.maxValue + ")");
+		} else {
+			rk.addHeaderItem("Randomize Weapon Power", "NO");
+		}
+		if (weapons.hitOptions != null) {
+			rk.addHeaderItem("Randomize Weapon Accuracy", "+/- " + weapons.hitOptions.variance + ", (" + weapons.hitOptions.minValue + " ~ " + weapons.hitOptions.maxValue + ")");
+		} else {
+			rk.addHeaderItem("Randomize Weapon Accuracy", "NO");
+		}
+		if (weapons.weightOptions != null) {
+			rk.addHeaderItem("Randomize Weapon Weight", "+/- " + weapons.weightOptions.variance + ", (" + weapons.weightOptions.minValue + " ~ " + weapons.weightOptions.maxValue + ")");
+		} else {
+			rk.addHeaderItem("Randomize Weapon Weight", "NO");
+		}
+		if (weapons.durabilityOptions != null) {
+			rk.addHeaderItem("Randomize Weapon Durability", "+/- " + weapons.durabilityOptions.variance + ", (" + weapons.durabilityOptions.minValue + " ~ " + weapons.durabilityOptions.maxValue + ")");
+		} else {
+			rk.addHeaderItem("Randomize Weapon Durability", "NO");
+		}
+		if (weapons.shouldAddEffects) {
+			rk.addHeaderItem("Add Random Effects", "YES");
+			StringBuilder sb = new StringBuilder();
+			sb.append("<ul>\n");
+			if (weapons.effectsList.none) { sb.append("<li>No Effect</li>\n"); }
+			if (weapons.effectsList.statBoosts) { sb.append("<li>Stat Boosts</li>\n"); }
+			if (weapons.effectsList.effectiveness) { sb.append("<li>Effectiveness</li>\n"); }
+			if (weapons.effectsList.unbreakable) { sb.append("<li>Unbreakable</li>\n"); }
+			if (weapons.effectsList.brave) { sb.append("<li>Brave</li>\n"); }
+			if (weapons.effectsList.reverseTriangle) { sb.append("<li>Reverse Triangle</li>\n"); }
+			if (weapons.effectsList.extendedRange) { sb.append("<li>Extended Range</li>\n"); }
+			if (weapons.effectsList.highCritical) { sb.append("<li>Critical</li>\n"); }
+			if (weapons.effectsList.magicDamage) { sb.append("<li>Magic Damage</li>\n"); }
+			if (weapons.effectsList.poison) { sb.append("<li>Poison</li>\n"); }
+			if (weapons.effectsList.eclipse) { sb.append("<li>Eclipse</li>\n"); }
+			if (weapons.effectsList.devil) { sb.append("<li>Devil</li>\n"); }
+			sb.append("</ul>\n");
+			rk.addHeaderItem("Random Effects Allowed", sb.toString());
+			if (weapons.noEffectIronWeapons) {
+				rk.addHeaderItem("Safe Basic Weapons", "YES");
+			} else {
+				rk.addHeaderItem("Safe Basic Weapons", "NO");
+			}
+		} else {
+			rk.addHeaderItem("Add Random Effects", "NO");
+		}
+		
+		if (classes.randomizePCs) {
+			rk.addHeaderItem("Randomize Playable Character Classes", "YES");
+			if (classes.includeLords) {
+				rk.addHeaderItem("Include Lords", "YES");
+			} else {
+				rk.addHeaderItem("Include Lords", "NO");
+			}
+			if (classes.includeThieves) {
+				rk.addHeaderItem("Include Thieves", "YES");
+			} else {
+				rk.addHeaderItem("Include Thieves", "NO");
+			}
+		} else {
+			rk.addHeaderItem("Randomize Playable Character Classes", "NO");
+		}
+		if (classes.randomizeBosses) {
+			rk.addHeaderItem("Randomize Boss Classes", "YES");
+		} else {
+			rk.addHeaderItem("Randomize Boss Classes", "NO");
+		}
+		if (classes.randomizeEnemies) {
+			rk.addHeaderItem("Randomize Minions", "YES");
+		} else {
+			rk.addHeaderItem("Randomize Minions", "NO");
+		}
+		
+		switch (enemies.mode) {
+		case NONE:
+			rk.addHeaderItem("Buff Enemies", "NO");
+			break;
+		case FLAT:
+			rk.addHeaderItem("Buff Enemies", "Flat Buff (Growths +" + enemies.buffAmount + "%)");
+			break;
+		case SCALING:
+			rk.addHeaderItem("Buff Enemies", "Scaling Buff (Growths x" + String.format("%.2f", (enemies.buffAmount / 100.0) + 1) + ")");
+			break;
+		}
+		
+		if (enemies.improveWeapons) {
+			rk.addHeaderItem("Improve Enemy Weapons", "" + enemies.improvementChance + "% of enemies");
+		} else {
+			rk.addHeaderItem("Improve Enemy Weapons", "NO");
+		}
+		
+		if (miscOptions.randomizeRewards) {
+			rk.addHeaderItem("Randomize Rewards", "YES");
+		} else {
+			rk.addHeaderItem("Randomize Rewards", "NO");
+		}
+		
+		charData.recordCharacters(rk, true, classData, textData);
+		classData.recordClasses(rk, true, classData, textData);
+		itemData.recordWeapons(rk, true, classData, textData, handler);
+		chapterData.recordChapters(rk, true, charData, classData, itemData, textData);
+		
+		return rk;
 	}
 }

@@ -1,5 +1,6 @@
 package random;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Random;
 import java.util.Set;
 
 import fedata.FEBase;
+import fedata.FEClass;
 import fedata.FEItem;
 import fedata.FESpellAnimationCollection;
 import fedata.fe6.FE6Data;
@@ -30,6 +32,7 @@ import util.FileReadHelper;
 import util.FreeSpaceManager;
 import util.HuffmanHelper;
 import util.WhyDoesJavaNotHaveThese;
+import util.recordkeeper.RecordKeeper;
 
 public class ItemDataLoader {
 private FEBase.GameType gameType;
@@ -56,6 +59,8 @@ private FEBase.GameType gameType;
 	private FreeSpaceManager freeSpace;
 	private Map<AdditionalData, Long> offsetsForAdditionalData;
 	private Map<AdditionalData, Long> promotionItemAddressPointers;
+	
+	public static final String RecordKeeperCategoryWeaponKey = "Weapons";
 
 	public ItemDataLoader(FEBase.GameType gameType, FileHandler handler, FreeSpaceManager freeSpace) {
 		super();
@@ -855,5 +860,190 @@ private FEBase.GameType gameType;
 		}
 		
 		return result;
+	}
+	
+	public void recordWeapons(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, TextLoader textData, FileHandler handler) {
+		for (FEItem item : getAllWeapons()) {
+			recordWeapon(rk, item, isInitial, classData, textData, handler);
+		}
+	}
+	
+	private void recordWeapon(RecordKeeper rk, FEItem item, Boolean isInitial, ClassDataLoader classData, TextLoader textData, FileHandler handler) {
+		int nameIndex = item.getNameIndex();
+		String name = textData.getStringAtIndex(nameIndex).trim();
+		int descriptionIndex = item.getDescriptionIndex();
+		String description = textData.getStringAtIndex(descriptionIndex).trim();
+		
+		if (isInitial) {
+			rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Description", description);
+			rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Power (MT)", String.format("%d", item.getMight()));
+			rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Accuracy (Hit)", String.format("%d", item.getHit()));
+			rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Weight (WT)", String.format("%d", item.getWeight()));
+			rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Durability", String.format("%d", item.getDurability()));
+			rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Critical", String.format("%d",  item.getCritical()));
+			
+			long statPointerAddress = item.getStatBonusPointer();
+			if (statPointerAddress != 0) {
+				statPointerAddress -= 0x8000000;
+				if (handler != null) {
+					byte[] bonuses = handler.readBytesAtOffset(statPointerAddress, 7);
+					List<String> bonusStrings = new ArrayList<String>();
+					if (bonuses[0] > 0) { bonusStrings.add("+" + bonuses[0] + " HP"); }
+					if (bonuses[1] > 0) { bonusStrings.add("+" + bonuses[1] + ((item.getType() == WeaponType.ANIMA || item.getType() == WeaponType.LIGHT || item.getType() == WeaponType.DARK) ? " Magic" : " Strength")); }
+					if (bonuses[2] > 0) { bonusStrings.add("+" + bonuses[2] + " Skill"); }
+					if (bonuses[3] > 0) { bonusStrings.add("+" + bonuses[3] + " Speed"); }
+					if (bonuses[4] > 0) { bonusStrings.add("+" + bonuses[4] + " Defense"); }
+					if (bonuses[5] > 0) { bonusStrings.add("+" + bonuses[5] + " Resistance"); }
+					if (bonuses[6] > 0) { bonusStrings.add("+" + bonuses[6] + " Luck"); }
+					
+					rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Stat Bonus", String.join("<br>", bonusStrings));
+				} else {
+					rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Stat Bonus", "No input handler.");
+				}
+			} else {
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Stat Bonus", "None");
+			}
+			
+			long effectiveClasses = item.getEffectivenessPointer();
+			if (effectiveClasses != 0) {
+				effectiveClasses -= 0x8000000;
+				if (handler != null) {
+					try {
+						handler.setNextReadOffset(effectiveClasses);
+						byte[] classes = handler.continueReadingBytesUpToNextTerminator(effectiveClasses + 100);
+						List<String> classList = new ArrayList<String>();
+						for (byte classID : classes) {
+							if (classID == 0) { break; }
+							FEClass classObject = classData.classForID(classID);
+							if (classObject == null) {
+								classList.add("Unknown (0x" + Integer.toHexString(classID).toUpperCase() + ")");
+							} else {
+								if (classData.isFemale(classID)) {
+									classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim() + " (F)");
+								} else {
+									classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim());
+								}
+							}
+						}
+						rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", String.join("<br>", classList));
+					} catch (IOException e) {
+						e.printStackTrace();
+						rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "Error");
+					}
+				} else {
+					rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "No input handler.");
+				}
+			} else {
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "None");
+			}
+			
+			int ability1Value = item.getAbility1();
+			int ability2Value = item.getAbility2();
+			int ability3Value = item.getAbility3();
+			int effectValue = item.getWeaponEffect();
+			switch(gameType) {
+			case FE6:
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", FE6Data.Item.Ability1Mask.stringOfActiveAbilities(ability1Value, "<br>"));
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", FE6Data.Item.Ability2Mask.stringOfActiveAbilities(ability2Value, "<br>"));
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effect", FE6Data.Item.WeaponEffect.stringOfActiveEffect(effectValue));
+				break;
+			case FE7:
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", FE7Data.Item.Ability1Mask.stringOfActiveAbilities(ability1Value, "<br>"));
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", FE7Data.Item.Ability2Mask.stringOfActiveAbilities(ability2Value, "<br>"));
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 3", FE7Data.Item.Ability3Mask.stringOfActiveAbilities(ability3Value, "<br>"));
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effect", FE7Data.Item.WeaponEffect.stringOfActiveEffect(effectValue));
+				break;
+			default:
+				break;
+			}
+			
+			rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Range", String.format("%d ~ %d", item.getMinRange(), item.getMaxRange()));
+			
+		} else {
+			rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Description", description);
+			rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Power (MT)", String.format("%d", item.getMight()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Accuracy (Hit)", String.format("%d", item.getHit()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Weight (WT)", String.format("%d", item.getWeight()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Durability", String.format("%d", item.getDurability()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Critical", String.format("%d",  item.getCritical()));
+			
+			long statPointerAddress = item.getStatBonusPointer();
+			if (statPointerAddress != 0) {
+				statPointerAddress -= 0x8000000;
+				if (handler != null) {
+					byte[] bonuses = handler.readBytesAtOffset(statPointerAddress, 7);
+					List<String> bonusStrings = new ArrayList<String>();
+					if (bonuses[0] > 0) { bonusStrings.add("+" + bonuses[0] + " HP"); }
+					if (bonuses[1] > 0) { bonusStrings.add("+" + bonuses[1] + ((item.getType() == WeaponType.ANIMA || item.getType() == WeaponType.LIGHT || item.getType() == WeaponType.DARK) ? " Magic" : " Strength")); }
+					if (bonuses[2] > 0) { bonusStrings.add("+" + bonuses[2] + " Skill"); }
+					if (bonuses[3] > 0) { bonusStrings.add("+" + bonuses[3] + " Speed"); }
+					if (bonuses[4] > 0) { bonusStrings.add("+" + bonuses[4] + " Defense"); }
+					if (bonuses[5] > 0) { bonusStrings.add("+" + bonuses[5] + " Resistance"); }
+					if (bonuses[6] > 0) { bonusStrings.add("+" + bonuses[6] + " Luck"); }
+					
+					rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Stat Bonus", String.join("<br>", bonusStrings));
+				} else {
+					rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Stat Bonus", "No output handler.");
+				}
+			} else {
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Stat Bonus", "None");
+			}
+			
+			long effectiveClasses = item.getEffectivenessPointer();
+			if (effectiveClasses != 0) {
+				effectiveClasses -= 0x8000000;
+				if (handler != null) {
+					try {
+						handler.setNextReadOffset(effectiveClasses);
+						byte[] classes = handler.continueReadingBytesUpToNextTerminator(effectiveClasses + 100);
+						List<String> classList = new ArrayList<String>();
+						for (byte classID : classes) {
+							if (classID == 0) { break; }
+							FEClass classObject = classData.classForID(classID);
+							if (classObject == null) {
+								classList.add("Unknown (0x" + Integer.toHexString(classID).toUpperCase() + ")");
+							} else {
+								if (classData.isFemale(classID)) {
+									classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim() + " (F)");
+								} else {
+									classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim());
+								}
+							}
+						}
+						rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", String.join("<br>", classList));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "Error");
+					}
+				} else {
+					rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "No output handler.");
+				}
+			} else {
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "None");
+			}
+			
+			int ability1Value = item.getAbility1();
+			int ability2Value = item.getAbility2();
+			int ability3Value = item.getAbility3();
+			int effectValue = item.getWeaponEffect();
+			switch(gameType) {
+			case FE6:
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", FE6Data.Item.Ability1Mask.stringOfActiveAbilities(ability1Value, "<br>"));
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", FE6Data.Item.Ability2Mask.stringOfActiveAbilities(ability2Value, "<br>"));
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effect", FE6Data.Item.WeaponEffect.stringOfActiveEffect(effectValue));
+				break;
+			case FE7:
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", FE7Data.Item.Ability1Mask.stringOfActiveAbilities(ability1Value, "<br>"));
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", FE7Data.Item.Ability2Mask.stringOfActiveAbilities(ability2Value, "<br>"));
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 3", FE7Data.Item.Ability3Mask.stringOfActiveAbilities(ability3Value, "<br>"));
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effect", FE7Data.Item.WeaponEffect.stringOfActiveEffect(effectValue));
+				break;
+			default:
+				break;
+			}
+			
+			rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Range", String.format("%d ~ %d", item.getMinRange(), item.getMaxRange()));
+		}
 	}
 }

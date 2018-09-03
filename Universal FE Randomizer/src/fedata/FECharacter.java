@@ -92,6 +92,7 @@ public interface FECharacter extends FEModifiableObject {
 	public void setConstitution(int newCON);
 	public int getAffinityValue();
 	public void setAffinityValue(int newAffinity);
+	public String getAffinityName();
 	
 	public void prepareForClassRandomization();
 	

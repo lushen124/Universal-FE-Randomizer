@@ -329,6 +329,10 @@ public class FE6Character implements FECharacter {
 		wasModified = true;
 	}
 	
+	public String getAffinityName() {
+		return Affinity.affinityWithID(getAffinityValue()).toString();
+	}
+	
 	public void setIsLord() {
 		// Mark as Lord (Ability 2)
 		byte oldValue = (byte)(data[41] & 0xFF);

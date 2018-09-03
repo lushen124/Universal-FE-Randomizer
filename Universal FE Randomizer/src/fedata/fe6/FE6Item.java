@@ -260,7 +260,7 @@ public class FE6Item implements FEItem {
 			effects.add(WeaponEffects.MAGIC_DAMAGE);
 		}
 		
-		if ((getAbility2() & FE6Data.Item.Ability2Mask.REVERSEWEAPONTRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
+		if ((getAbility2() & FE6Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
 			effects.add(WeaponEffects.REVERSE_TRIANGLE);
 		}
 		
@@ -355,7 +355,7 @@ public class FE6Item implements FEItem {
 			break;
 		case REVERSE_TRIANGLE:
 			int ability2 = getAbility2();
-			ability2 |= FE6Data.Item.Ability2Mask.REVERSEWEAPONTRIANGLE.ID;
+			ability2 |= FE6Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID;
 			data[9] = (byte)(ability2 & 0xFF);
 			wasModified = true;
 			break;
@@ -399,7 +399,7 @@ public class FE6Item implements FEItem {
 		if ((getAbility1() & Ability1Mask.BRAVE.ID) != 0) { traitStrings.add("Strikes twice"); shortStrings.put("Strikes twice", "Brave"); }
 		if ((getAbility1() & Ability1Mask.MAGICDAMAGE.ID) != 0) { traitStrings.add("Fixed damage at range"); shortStrings.put("Fixed damage at range", "Magic"); }
 		
-		if ((getAbility2() & Ability2Mask.REVERSEWEAPONTRIANGLE.ID) != 0) {
+		if ((getAbility2() & Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) != 0) {
 			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs. Lances"); shortStrings.put("Strong vs. Lances", "Bests lances"); }
 			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs. Axes"); shortStrings.put("Strong vs. Axes", "Bests axes"); }
 			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong vs. Swords"); shortStrings.put("Strong vs. Swords", "Bests Swords"); }

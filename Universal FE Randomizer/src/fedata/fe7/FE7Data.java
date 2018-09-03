@@ -11,6 +11,8 @@ import java.util.Set;
 
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
+import util.WhyDoesJavaNotHaveThese;
+import fedata.fe6.FE6Data.Item.WeaponEffect;
 import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 
@@ -269,7 +271,8 @@ public class FE7Data {
 		DRUID_F(0x27), // Doesn't exist naturally. May not work.
 		NOMADTROOPER_F(0x31), // Doesn't exist naturally. May not work.
 		
-		FIRE_DRAGON(0x46); // For dragon effectiveness.
+		FIRE_DRAGON(0x46), // For dragon effectiveness.
+		UBER_SAGE(0x5A); // Limstella has higher DEF and RES caps.
 		
 		public int ID;
 		
@@ -300,20 +303,20 @@ public class FE7Data {
 				WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMADTROOPER, WYVERNLORD,
 				BERSERKER, ASSASSIN));
 		public static Set<CharacterClass> allFemaleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
-				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F));
+				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, UBER_SAGE));
 		public static Set<CharacterClass> allLordClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, LORD_KNIGHT, BLADE_LORD, GREAT_LORD));
 		public static Set<CharacterClass> allThiefClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, ASSASSIN));
 		public static Set<CharacterClass> allUnpromotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN,
 				CAVALIER, NOMAD, WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER));
 		public static Set<CharacterClass> allPromotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, BLADE_LORD, GREAT_LORD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID,
-				PALADIN, NOMADTROOPER, WYVERNLORD, BERSERKER, ASSASSIN, SWORDMASTER_F, SNIPER_F, BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F));
+				PALADIN, NOMADTROOPER, WYVERNLORD, BERSERKER, ASSASSIN, SWORDMASTER_F, SNIPER_F, BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, UBER_SAGE));
 		public static Set<CharacterClass> allPacifistClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, BARD, CLERIC, TROUBADOUR));
 		public static Set<CharacterClass> allMeleeLockedClasses = new HashSet<CharacterClass>(Arrays.asList(MYRMIDON, MERCENARY, LORD_LYN, LORD_ELIWOOD, THIEF));
 		
 		public static Set<CharacterClass> allValidClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN, CAVALIER, NOMAD,
 				WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMADTROOPER, WYVERNLORD,
 				BERSERKER, ASSASSIN, LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
-				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, LORD_KNIGHT, GREAT_LORD));
+				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, LORD_KNIGHT, GREAT_LORD, UBER_SAGE));
 		
 		private static Boolean isClassPromoted(CharacterClass sourceClass) {
 			return allPromotedClasses.contains(sourceClass);
@@ -644,7 +647,7 @@ public class FE7Data {
 		
 		public enum Ability1Mask {
 			NONE(0x00), WEAPON(0x01), MAGIC(0x02), STAFF(0x04), UNBREAKABLE(0x08), 
-			UNSELLABLE(0x10), BRAVE(0x20), MAGICDAMAGE(0x40), UNCOUNTERABLE(0x80);
+			UNSELLABLE(0x10), BRAVE(0x20), MAGIC_DAMAGE(0x40), UNCOUNTERABLE(0x80);
 			
 			public int ID;
 			
@@ -661,11 +664,19 @@ public class FE7Data {
 			public static Ability1Mask valueOf(int val) {
 				return map.get(val);
 			}
+			
+			public static String stringOfActiveAbilities(int abilityValue, String delimiter) {
+				List<String> strings = new ArrayList<String>();
+				for (Ability1Mask mask : Ability1Mask.values()) {
+					if ((abilityValue & mask.ID) != 0) { strings.add(WhyDoesJavaNotHaveThese.stringByCapitalizingFirstLetter(mask.toString())); }
+				}
+				return String.join(delimiter, strings);
+			}
 		}
 		
 		public enum Ability2Mask {
-			NONE(0x00), REVERSEWEAPONTRIANGLE(0x01), DRAGONSTONELOCK(0x04), 
-			MYRMLOCK(0x10), IOTESHIELD(0x40), IRONRUNE(0x80);
+			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), DRAGONSTONE_LOCK(0x04), 
+			MYRMIDON_LOCK(0x10), IOTE_SHIELD_EFFECT(0x40), IRON_RUNE_EFFECT(0x80);
 			public int ID;
 			
 			private static Map<Integer, Ability2Mask> map = new HashMap<Integer, Ability2Mask>();
@@ -681,11 +692,19 @@ public class FE7Data {
 			public static Ability2Mask valueOf(int val) {
 				return map.get(val);
 			}
+			
+			public static String stringOfActiveAbilities(int abilityValue, String delimiter) {
+				List<String> strings = new ArrayList<String>();
+				for (Ability2Mask mask : Ability2Mask.values()) {
+					if ((abilityValue & mask.ID) != 0) { strings.add(WhyDoesJavaNotHaveThese.stringByCapitalizingFirstLetter(mask.toString())); }
+				}
+				return String.join(delimiter, strings);
+			}
 		}
 		
 		public enum Ability3Mask {
-			NONE(0x00), NEGATEDEFENSE(0x02), ELIWOODLOCK(0x04), HECTORLOCK(0x08),
-			LYNLOCK(0x10), ATHOSLOCK(0x20);
+			NONE(0x00), NEGATE_DEFENSE(0x02), ELIWOOD_LOCK(0x04), HECTOR_LOCK(0x08),
+			LYN_LOCK(0x10), ATHOS_LOCK(0x20);
 			
 			public int ID;
 			
@@ -702,10 +721,18 @@ public class FE7Data {
 			public static Ability3Mask valueOf(int val) {
 				return map.get(val);
 			}
+			
+			public static String stringOfActiveAbilities(int abilityValue, String delimiter) {
+				List<String> strings = new ArrayList<String>();
+				for (Ability3Mask mask : Ability3Mask.values()) {
+					if ((abilityValue & mask.ID) != 0) { strings.add(WhyDoesJavaNotHaveThese.stringByCapitalizingFirstLetter(mask.toString())); }
+				}
+				return String.join(delimiter, strings);
+			}
 		}
 		
 		public enum WeaponEffect {
-			NONE(0x00), POISON(0x01), STEALHP(0x02), HALFHP(0x03), DEVIL(0x04);
+			NONE(0x00), POISON(0x01), STEALS_HP(0x02), HALVES_HP(0x03), DEVIL(0x04);
 			
 			public int ID;
 			
@@ -721,6 +748,14 @@ public class FE7Data {
 			
 			public static WeaponEffect valueOf(int val) {
 				return map.get(val);
+			}
+			
+			public static String stringOfActiveEffect(int effectValue) {
+				for (WeaponEffect effect : WeaponEffect.values()) {
+					if (effectValue == effect.ID) { return WhyDoesJavaNotHaveThese.stringByCapitalizingFirstLetter(effect.toString()); }
+				}
+				
+				return "Unknown";
 			}
 		}
 		
@@ -1198,7 +1233,7 @@ public class FE7Data {
 		SAGE_ERK(Character.ERK.ID, CharacterClass.SAGE.ID, 0xFDB340),
 		SAGE_NINO(Character.NINO.ID, CharacterClass.SAGE_F.ID, 0xFDB1FC),
 		SAGE_SONIA(Character.SONIA.ID, CharacterClass.SAGE_F.ID, 0xFDB26C),
-		SAGE_LIMSTELLA(Character.LIMSTELLA.ID, CharacterClass.SAGE_F.ID, 0xFDB194),
+		UBER_SAGE_LIMSTELLA(Character.LIMSTELLA.ID, CharacterClass.UBER_SAGE.ID, 0xFDB194),
 		
 		SHAMAN_CANAS(Character.CANAS.ID, CharacterClass.SHAMAN.ID, 0xFDB430),
 		SHAMAN_HEINTZ(Character.HEINTZ.ID, CharacterClass.SHAMAN.ID, 0xFDB484),
@@ -1295,6 +1330,7 @@ public class FE7Data {
 			defaultPaletteForClass.put(CharacterClass.MAGE_F.ID, MAGE_NINO.info);
 			defaultPaletteForClass.put(CharacterClass.SAGE.ID, SAGE_ERK.info);
 			defaultPaletteForClass.put(CharacterClass.SAGE_F.ID, SAGE_NINO.info);
+			defaultPaletteForClass.put(CharacterClass.UBER_SAGE.ID, UBER_SAGE_LIMSTELLA.info);
 			defaultPaletteForClass.put(CharacterClass.MERCENARY.ID, MERCENARY_RAVEN.info);
 			defaultPaletteForClass.put(CharacterClass.NOMAD.ID, NOMAD_RATH.info);
 			defaultPaletteForClass.put(CharacterClass.NOMADTROOPER.ID, NOMADTROOPER_RATH.info);
@@ -1406,6 +1442,7 @@ public class FE7Data {
 				case MAGE_F:
 				case SAGE:
 				case SAGE_F:
+				case UBER_SAGE:
 					this.info = new PaletteInfo(classID, charID, offset, 16, 3, 32, 3, 23, 3);
 					break;
 				case MERCENARY:

@@ -157,7 +157,9 @@ public class ClassRandomizer {
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
 				int leaderID = chapterUnit.getLeaderID();
 				int characterID = chapterUnit.getCharacterNumber();
-				if (charactersData.isBossCharacterID(leaderID) && !charactersData.isPlayableCharacterID(characterID)) {
+				// It's safe to check for boss leader ID in the case of FE7, but FE6 tends to put other IDs there (kind of like squad captains).
+				// We're going to remove this safety check in the meantime, but we should be wary of any accidental changes.
+				if (/*charactersData.isBossCharacterID(leaderID) &&*/ !charactersData.isPlayableCharacterID(characterID)) {
 					FEClass originalClass = classData.classForID(chapterUnit.getStartingClass());
 					if (originalClass == null) {
 						continue;
@@ -328,6 +330,12 @@ public class ClassRandomizer {
 		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item1) || (item1.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item1ID))) {
 				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
+				if (item1.getWeaponRank() == WeaponRank.S) {
+					FEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
+					if (topWeapons.length > 0) {
+						replacementItem = topWeapons[rng.nextInt(topWeapons.length)];
+					}
+				}
 				if (replacementItem != null) {
 					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
 					chapterUnit.setItem1(replacementItem.getID());
@@ -342,6 +350,12 @@ public class ClassRandomizer {
 		if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item2) || (item2.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item2ID))) {
 				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
+				if (item2.getWeaponRank() == WeaponRank.S) {
+					FEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
+					if (topWeapons.length > 0) {
+						replacementItem = topWeapons[rng.nextInt(topWeapons.length)];
+					}
+				}
 				if (replacementItem != null) {
 					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
 					chapterUnit.setItem2(replacementItem.getID());
@@ -356,6 +370,12 @@ public class ClassRandomizer {
 		if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item3) || (item3.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item3ID))) {
 				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
+				if (item3.getWeaponRank() == WeaponRank.S) {
+					FEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
+					if (topWeapons.length > 0) {
+						replacementItem = topWeapons[rng.nextInt(topWeapons.length)];
+					}
+				}
 				if (replacementItem != null) {
 					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
 					chapterUnit.setItem3(replacementItem.getID());
@@ -370,6 +390,12 @@ public class ClassRandomizer {
 		if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
 			if (!canCharacterUseItem(character, item4) || (item4.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item4ID))) {
 				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, itemData, rng);
+				if (item4.getWeaponRank() == WeaponRank.S) {
+					FEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
+					if (topWeapons.length > 0) {
+						replacementItem = topWeapons[rng.nextInt(topWeapons.length)];
+					}
+				}
 				if (replacementItem != null) {
 					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
 					chapterUnit.setItem4(replacementItem.getID());
@@ -432,6 +458,20 @@ public class ClassRandomizer {
 		if (character.getLightRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.LIGHT, character.getLightRank(), ranged))); }
 		if (character.getDarkRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.DARK, character.getDarkRank(), ranged))); }
 		if (character.getStaffRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.STAFF, character.getStaffRank(), ranged))); }
+		
+		return items.toArray(new FEItem[items.size()]);
+	}
+	
+	private static FEItem[] topRankWeaponsForClass(FEClass characterClass, ItemDataLoader itemData) {
+		ArrayList<FEItem> items = new ArrayList<FEItem>();
+		if (characterClass.getSwordRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.SWORD, WeaponRank.S, false, true))); }
+		if (characterClass.getLanceRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.LANCE, WeaponRank.S, false, true))); }
+		if (characterClass.getAxeRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.AXE, WeaponRank.S, false, true))); }
+		if (characterClass.getBowRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.BOW, WeaponRank.S, false, true))); }
+		if (characterClass.getAnimaRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.ANIMA, WeaponRank.S, false, true))); }
+		if (characterClass.getLightRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.LIGHT, WeaponRank.S, false, true))); }
+		if (characterClass.getDarkRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.DARK, WeaponRank.S, false, true))); }
+		if (characterClass.getStaffRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.STAFF, WeaponRank.S, false, true))); }
 		
 		return items.toArray(new FEItem[items.size()]);
 	}

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import fedata.FECharacter;
+import fedata.fe6.FE6Character.Affinity;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE7Character implements FECharacter {
@@ -312,7 +313,7 @@ public class FE7Character implements FECharacter {
 	}
 	
 	public int getConstitution() {
-		return data[19] & 0xFF;
+		return data[19];
 	}
 	
 	public void setConstitution(int newCON) {
@@ -327,6 +328,10 @@ public class FE7Character implements FECharacter {
 	public void setAffinityValue(int newAffinity) {
 		data[9] = (byte)(newAffinity & 0xFF);
 		wasModified = true;
+	}
+	
+	public String getAffinityName() {
+		return Affinity.affinityWithID(getAffinityValue()).toString();
 	}
 	
 	// We technically don't need this, but might as well make it complete.
