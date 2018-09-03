@@ -179,7 +179,7 @@ public class CharacterDataLoader {
 	public int[] validAffinityValues() {
 		switch (gameType) {
 		case FE6:
-			FE6Character.Affinity[] fe6Affinities = FE6Character.Affinity.values();
+			FE6Character.Affinity[] fe6Affinities = FE6Character.Affinity.validAffinities();
 			int[] validValues = new int[fe6Affinities.length];
 			for (int i = 0; i < fe6Affinities.length; i++) {
 				validValues[i] = fe6Affinities[i].value;
@@ -187,7 +187,7 @@ public class CharacterDataLoader {
 			
 			return validValues;
 		case FE7:
-			FE7Character.Affinity[] fe7Affinities = FE7Character.Affinity.values();
+			FE7Character.Affinity[] fe7Affinities = FE7Character.Affinity.validAffinities();
 			validValues = new int[fe7Affinities.length];
 			for (int i = 0; i < fe7Affinities.length; i++) {
 				validValues[i] = fe7Affinities[i].value;

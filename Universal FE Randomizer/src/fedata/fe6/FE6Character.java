@@ -26,6 +26,10 @@ public class FE6Character implements FECharacter {
 		public static Affinity affinityWithID(int value) {
 			return map.get(value);
 		}
+		
+		public static Affinity[] validAffinities() { 
+			return new Affinity[] {FIRE, THUNDER, WIND, WATER, DARK, LIGHT, ANIMA};
+		}
 	}
 	
 	private byte[] originalData;
