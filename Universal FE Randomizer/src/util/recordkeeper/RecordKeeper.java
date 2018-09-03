@@ -1,16 +1,14 @@
 package util.recordkeeper;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.event.ListSelectionEvent;
 
 public class RecordKeeper {
 	
@@ -118,8 +116,8 @@ public class RecordKeeper {
 	
 	public Boolean exportRecordsToHTML(String outputPath) {
 		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath));
-			writer.write("<html><head><style>\n");
+			OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(outputPath), Charset.forName("UTF-8").newEncoder());
+			writer.write("<html><meta http-equiv=\"Content-Type\" content = \"text/html; charset=utf-8\" /><head><style>\n");
 			writer.write("table, th, td {\n\tborder: 1px solid black;\n}\n");
 			writer.write("</style></head><body>\n");
 			writer.write("<center><h1><p>Changelog for " + header.title + "</p></h1><br>\n");
