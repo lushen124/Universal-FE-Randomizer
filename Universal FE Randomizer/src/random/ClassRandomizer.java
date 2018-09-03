@@ -159,7 +159,7 @@ public class ClassRandomizer {
 				int characterID = chapterUnit.getCharacterNumber();
 				// It's safe to check for boss leader ID in the case of FE7, but FE6 tends to put other IDs there (kind of like squad captains).
 				// We're going to remove this safety check in the meantime, but we should be wary of any accidental changes.
-				if (/*charactersData.isBossCharacterID(leaderID) &&*/ !charactersData.isPlayableCharacterID(characterID)) {
+				if (!charactersData.isBossCharacterID(characterID) && /*charactersData.isBossCharacterID(leaderID) &&*/ !charactersData.isPlayableCharacterID(characterID)) {
 					FEClass originalClass = classData.classForID(chapterUnit.getStartingClass());
 					if (originalClass == null) {
 						continue;
@@ -263,7 +263,7 @@ public class ClassRandomizer {
 		if (unitClass != null) {
 			int item1ID = chapterUnit.getItem1();
 			FEItem item1 = itemData.itemWithID(item1ID);
-			if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
+			if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON && item1.getWeaponRank() != WeaponRank.NONE) {
 				if (!canClassUseItem(unitClass, item1)) {
 					FEItem replacementItem = getSidegradeWeapon(unitClass, item1, itemData, rng);
 					if (replacementItem != null) {
@@ -276,7 +276,7 @@ public class ClassRandomizer {
 			
 			int item2ID = chapterUnit.getItem2();
 			FEItem item2 = itemData.itemWithID(item2ID);
-			if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
+			if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON && item2.getWeaponRank() != WeaponRank.NONE) {
 				if (!canClassUseItem(unitClass, item2)) {
 					FEItem replacementItem = getSidegradeWeapon(unitClass, item2, itemData, rng);
 					if (replacementItem != null) {
@@ -289,7 +289,7 @@ public class ClassRandomizer {
 			
 			int item3ID = chapterUnit.getItem3();
 			FEItem item3 = itemData.itemWithID(item3ID);
-			if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
+			if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON && item3.getWeaponRank() != WeaponRank.NONE) {
 				if (!canClassUseItem(unitClass, item3)) {
 					FEItem replacementItem = getSidegradeWeapon(unitClass, item3, itemData, rng);
 					if (replacementItem != null) {
@@ -302,7 +302,7 @@ public class ClassRandomizer {
 			
 			int item4ID = chapterUnit.getItem4();
 			FEItem item4 = itemData.itemWithID(item4ID);
-			if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
+			if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON && item4.getWeaponRank() != WeaponRank.NONE) {
 				if (!canClassUseItem(unitClass, item4)) {
 					FEItem replacementItem = getSidegradeWeapon(unitClass, item4, itemData, rng);
 					if (replacementItem != null) {
