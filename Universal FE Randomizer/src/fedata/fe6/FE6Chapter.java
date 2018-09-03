@@ -282,11 +282,18 @@ public class FE6Chapter implements FEChapter {
 				currentAddress += 16;
 			}
 			
-			if (commandWord[0] == 0x03 || commandWord[0] == 0x1B || commandWord[0] == 0x36 || commandWord[0] == 0x37 || commandWord[0] == 0x30 ||
-					commandWord[0] == 0x34 || commandWord[0] == 0x35 || commandWord[0] == 0x02) { // BACG (0x03), LABEL (0x1B), MUSC (0x36), MUSS (0x37), DISA (0x30), ENUT (0x34), ENUF (0x35), STAL (0x02) - 8 bytes
-				currentAddress += 4;
-			} else if (commandWord[0] == 0x20 || commandWord[0] == 0x23) { // IFAF (0x20), IFEF (0x23) - 12 bytes
-				currentAddress += 8;
+			if (commandWord[1] == 0 && commandWord[2] == 0 && commandWord[3] == 0) {
+				// BACG (0x03), LABEL (0x1B), MUSC (0x36), MUSS (0x37), DISA (0x30), ENUT (0x34), ENUF (0x35), STAL (0x02), CAM1(0xB, 0xC), CURF(0x2C, 0x2D), TEX1(0x7), MORETEXT(0x8), MNCH(0x3D), GOTO(0x1C) - 8 bytes
+				if (commandWord[0] == 0x03 || commandWord[0] == 0x1B || commandWord[0] == 0x36 || commandWord[0] == 0x37 || commandWord[0] == 0x30 ||
+						commandWord[0] == 0x34 || commandWord[0] == 0x35 || commandWord[0] == 0x02 || commandWord[0] == 0x0B || commandWord[0] == 0x0C ||
+						commandWord[0] == 0x2C || commandWord[0] == 0x2D || commandWord[0] == 0x07 || commandWord[0] == 0x08 || commandWord[0] == 0x3D ||
+						commandWord[0] == 0x1C) { 
+					currentAddress += 4;
+				} else if (commandWord[0] == 0x20 || commandWord[0] == 0x23 || commandWord[0] == 0x22) { // IFAF (0x20), IFEF (0x23), GOTO_IFET (0x22) - 12 bytes
+					currentAddress += 8;
+				} else if (commandWord[0] == 0x3F) { // LOMA (0x3F) - 16 bytes
+					currentAddress += 12;
+				}
 			}
 			
 			currentAddress += 4;
@@ -319,13 +326,18 @@ public class FE6Chapter implements FEChapter {
 				}
 				
 				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Processed command 0x" + Integer.toHexString(commandWord[0] & 0xFF));
-			}
 			
-			if (commandWord[0] == 0x03 || commandWord[0] == 0x1B || commandWord[0] == 0x36 || commandWord[0] == 0x37 || commandWord[0] == 0x30 ||
-					commandWord[0] == 0x34 || commandWord[0] == 0x35 || commandWord[0] == 0x02) { // BACG (0x03), LABEL (0x1B), MUSC (0x36), MUSS (0x37), DISA (0x30), ENUT (0x34), ENUF (0x35), STAL (0x02) - 8 bytes
-				currentAddress += 4;
-			} else if (commandWord[0] == 0x20 || commandWord[0] == 0x23) { // IFAF (0x20), IFEF (0x23) - 12 bytes
-				currentAddress += 8;
+				// BACG (0x03), LABEL (0x1B), MUSC (0x36), MUSS (0x37), DISA (0x30), ENUT (0x34), ENUF (0x35), STAL (0x02), CAM1(0xB, 0xC), CURF(0x2C, 0x2D), TEX1(0x7), MORETEXT(0x8), MNCH(0x3D), GOTO(0x1C) - 8 bytes
+				if (commandWord[0] == 0x03 || commandWord[0] == 0x1B || commandWord[0] == 0x36 || commandWord[0] == 0x37 || commandWord[0] == 0x30 ||
+						commandWord[0] == 0x34 || commandWord[0] == 0x35 || commandWord[0] == 0x02 || commandWord[0] == 0x0B || commandWord[0] == 0x0C ||
+						commandWord[0] == 0x2C || commandWord[0] == 0x2D || commandWord[0] == 0x07 || commandWord[0] == 0x08 || commandWord[0] == 0x3D ||
+						commandWord[0] == 0x1C) { 
+					currentAddress += 4;
+				} else if (commandWord[0] == 0x20 || commandWord[0] == 0x23 || commandWord[0] == 0x22) { // IFAF (0x20), IFEF (0x23), GOTO_IFET (0x22) - 12 bytes
+					currentAddress += 8;
+				} else if (commandWord[0] == 0x3F) { // LOMA (0x3F) - 16 bytes
+					currentAddress += 12;
+				}
 			}
 			
 			currentAddress += 4;
@@ -408,11 +420,18 @@ public class FE6Chapter implements FEChapter {
 				currentAddress += 4;
 			}
 			
-			if (commandWord[0] == 0x03 || commandWord[0] == 0x1B || commandWord[0] == 0x36 || commandWord[0] == 0x37 || commandWord[0] == 0x30 ||
-					commandWord[0] == 0x34 || commandWord[0] == 0x35 || commandWord[0] == 0x02) { // BACG (0x03), LABEL (0x1B), MUSC (0x36), MUSS (0x37), DISA (0x30), ENUT (0x34), ENUF (0x35), STAL (0x02) - 8 bytes
-				currentAddress += 4;
-			} else if (commandWord[0] == 0x20 || commandWord[0] == 0x23) { // IFAF (0x20), IFEF (0x23) - 12 bytes
-				currentAddress += 8;
+			if (commandWord[1] == 0 && commandWord[2] == 0 && commandWord[3] == 0) {
+				// BACG (0x03), LABEL (0x1B), MUSC (0x36), MUSS (0x37), DISA (0x30), ENUT (0x34), ENUF (0x35), STAL (0x02), CAM1(0xB, 0xC), CURF(0x2C, 0x2D), TEX1(0x7), MORETEXT(0x8), MNCH(0x3D), GOTO(0x1C) - 8 bytes
+				if (commandWord[0] == 0x03 || commandWord[0] == 0x1B || commandWord[0] == 0x36 || commandWord[0] == 0x37 || commandWord[0] == 0x30 ||
+						commandWord[0] == 0x34 || commandWord[0] == 0x35 || commandWord[0] == 0x02 || commandWord[0] == 0x0B || commandWord[0] == 0x0C ||
+						commandWord[0] == 0x2C || commandWord[0] == 0x2D || commandWord[0] == 0x07 || commandWord[0] == 0x08 || commandWord[0] == 0x3D ||
+						commandWord[0] == 0x1C) { 
+					currentAddress += 4;
+				} else if (commandWord[0] == 0x20 || commandWord[0] == 0x23 || commandWord[0] == 0x22) { // IFAF (0x20), IFEF (0x23), GOTO_IFET (0x22) - 12 bytes
+					currentAddress += 8;
+				} else if (commandWord[0] == 0x3F) { // LOMA (0x3F) - 16 bytes
+					currentAddress += 12;
+				}
 			}
 			
 			currentAddress += 4;

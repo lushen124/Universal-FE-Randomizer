@@ -383,6 +383,16 @@ public class FE7Chapter implements FEChapter {
 				currentAddress += 12;
 			} else if (commandWord[0] == 0x4C || commandWord[0] == 0x4D) { // GOTO_IFET and GOTO_IFEF - 12 bytes
 				currentAddress += 8;
+			} else if (commandWord[0] == 0x0D) { // TEX1 - 8 bytes
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x2E || commandWord[0] == 0x2F) { // REPOS - 12 bytes
+				currentAddress += 8;
+			} else if (commandWord[0] == 0x29) { // MOVENEXTTO - 12 bytes
+				currentAddress += 8;
+			} else if (commandWord[0] == 0x66 || commandWord[0] == 0x67) { // CURF - 8 bytes
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x6A || commandWord[0] == 0x6B) { // DISA - 8 bytes
+				currentAddress += 4;
 			}
 			
 			currentAddress += 4;
@@ -487,6 +497,16 @@ public class FE7Chapter implements FEChapter {
 					currentAddress += 12;
 				} else if (commandWord[0] == 0x4C || commandWord[0] == 0x4D) { // GOTO_IFET and GOTO_IFEF - 12 bytes
 					currentAddress += 8;
+				} else if (commandWord[0] == 0x0D) { // TEX1 - 8 bytes
+					currentAddress += 4;
+				} else if (commandWord[0] == 0x2E || commandWord[0] == 0x2F) { // REPOS - 12 bytes
+					currentAddress += 8;
+				} else if (commandWord[0] == 0x29) { // MOVENEXTTO - 12 bytes
+					currentAddress += 8;
+				} else if (commandWord[0] == 0x66 || commandWord[0] == 0x67) { // CURF - 8 bytes
+					currentAddress += 4;
+				} else if (commandWord[0] == 0x6A || commandWord[0] == 0x6B) { // DISA - 8 bytes
+					currentAddress += 4;
 				}
 			}
 			
@@ -600,6 +620,16 @@ public class FE7Chapter implements FEChapter {
 				currentAddress += 12;
 			} else if (commandWord[0] == 0x4C || commandWord[0] == 0x4D) { // GOTO_IFET and GOTO_IFEF - 12 bytes
 				currentAddress += 8;
+			} else if (commandWord[0] == 0x0D) { // TEX1 - 8 bytes
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x2E || commandWord[0] == 0x2F) { // REPOS - 12 bytes
+				currentAddress += 8;
+			} else if (commandWord[0] == 0x29) { // MOVENEXTTO - 12 bytes
+				currentAddress += 8;
+			} else if (commandWord[0] == 0x66 || commandWord[0] == 0x67) { // CURF - 8 bytes
+				currentAddress += 4;
+			} else if (commandWord[0] == 0x6A || commandWord[0] == 0x6B) { // DISA - 8 bytes
+				currentAddress += 4;
 			}
 						
 			currentAddress += 4;
