@@ -1513,6 +1513,44 @@ public class FE8Data {
 			defaultPaletteForClass.put(CharacterClass.CLERIC.ID, CLERIC_NATASHA.info);
 			defaultPaletteForClass.put(CharacterClass.FIGHTER.ID, FIGHTER_GARCIA.info);
 			defaultPaletteForClass.put(CharacterClass.BRIGAND.ID, BRIGAND_BAZBA.info);
+			defaultPaletteForClass.put(CharacterClass.WARRIOR.ID, WARRIOR_BINKS.info);
+			defaultPaletteForClass.put(CharacterClass.BERSERKER.ID, BERSERKER_DOZLA.info);
+			defaultPaletteForClass.put(CharacterClass.RANGER.ID, RANGER_BERAN.info);
+			defaultPaletteForClass.put(CharacterClass.RANGER_F.ID, RANGER_NEIMI.info);
+			defaultPaletteForClass.put(CharacterClass.CAVALIER.ID, CAVALIER_FRANZ.info);
+			defaultPaletteForClass.put(CharacterClass.CAVALIER_F.ID, CAVALIER_AMELIA.info);
+			defaultPaletteForClass.put(CharacterClass.PALADIN.ID, PALADIN_SETH.info);
+			defaultPaletteForClass.put(CharacterClass.PALADIN_F.ID, PALADIN_AMELIA.info);
+			defaultPaletteForClass.put(CharacterClass.KNIGHT.ID, KNIGHT_GILLIAM.info);
+			defaultPaletteForClass.put(CharacterClass.KNIGHT_F.ID, KNIGHT_AMELIA.info);
+			defaultPaletteForClass.put(CharacterClass.GENERAL.ID, GENERAL_FADO.info);
+			defaultPaletteForClass.put(CharacterClass.GENERAL_F.ID, GENERAL_AMELIA.info);
+			defaultPaletteForClass.put(CharacterClass.GREAT_KNIGHT.ID, GREAT_KNIGHT_DUESSEL.info);
+			defaultPaletteForClass.put(CharacterClass.GREAT_KNIGHT_F.ID, GREAT_KNIGHT_AMELIA.info);
+			defaultPaletteForClass.put(CharacterClass.WYVERN_RIDER.ID, WYVERN_RIDER_CORMAG.info);
+			defaultPaletteForClass.put(CharacterClass.WYVERN_LORD.ID, WYVERN_LORD_GLEN.info);
+			defaultPaletteForClass.put(CharacterClass.WYVERN_KNIGHT.ID, WYVERN_KNIGHT_VALTER.info);
+			defaultPaletteForClass.put(CharacterClass.WYVERN_KNIGHT_F.ID, WYVERN_KNIGHT_TANA.info);
+			defaultPaletteForClass.put(CharacterClass.PEGASUS_KNIGHT.ID, PEGASUS_KNIGHT_VANESSA.info);
+			defaultPaletteForClass.put(CharacterClass.MAGE.ID, MAGE_EWAN.info);
+			defaultPaletteForClass.put(CharacterClass.MAGE_F.ID, MAGE_LUTE.info);
+			defaultPaletteForClass.put(CharacterClass.SAGE.ID, SAGE_SALEH.info);
+			defaultPaletteForClass.put(CharacterClass.SAGE_F.ID, SAGE_LUTE.info);
+			defaultPaletteForClass.put(CharacterClass.MAGE_KNIGHT.ID, MAGE_KNIGHT_EWAN.info);
+			defaultPaletteForClass.put(CharacterClass.MAGE_KNIGHT_F.ID, MAGE_KNIGHT_SELENA.info);
+			defaultPaletteForClass.put(CharacterClass.SHAMAN.ID, SHAMAN_KNOLL.info);
+			defaultPaletteForClass.put(CharacterClass.DRUID.ID, DRUID_KNOLL.info);
+			defaultPaletteForClass.put(CharacterClass.SUMMONER.ID, SUMMONER_KNOLL.info);
+			defaultPaletteForClass.put(CharacterClass.BISHOP.ID, BISHOP_RIEV.info);
+			defaultPaletteForClass.put(CharacterClass.BISHOP_F.ID, BISHOP_NATASHA.info);
+			defaultPaletteForClass.put(CharacterClass.TROUBADOUR.ID, TROUBADOUR_LARACHEL.info);
+			defaultPaletteForClass.put(CharacterClass.VALKYRIE.ID, VALKYRIE_LARACHEL.info);
+			defaultPaletteForClass.put(CharacterClass.THIEF.ID, THIEF_COLM.info);
+			defaultPaletteForClass.put(CharacterClass.ASSASSIN.ID, ASSASSIN_COLM.info);
+			defaultPaletteForClass.put(CharacterClass.ASSASSIN_F.ID, ASSASSIN_MARISA.info);
+			defaultPaletteForClass.put(CharacterClass.ROGUE.ID, ROGUE_RENNAC.info);
+			defaultPaletteForClass.put(CharacterClass.DANCER.ID, DANCER_TETHYS.info);
+			defaultPaletteForClass.put(CharacterClass.PIRATE.ID, PIRATE_ROSS.info);
 			
 			defaultPaletteForClass.put(CharacterClass.SOLDIER.ID, SOLDIER_GENERIC.info);
 			
@@ -1524,139 +1562,202 @@ public class FE8Data {
 			CharacterClass charClass = CharacterClass.valueOf(classID);
 			if (charClass != null) {
 				switch (charClass) {
-				case ARCHER:
-				case ARCHER_F:
-				case BLADE_LORD:
-				case DANCER:
-				case LORD_LYN:
-					this.info = new PaletteInfo(classID, charID, offset, 16, 3, 32, 3);
+				case EIRIKA_LORD:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {25, 27, 29}, new int[] {32, 34, 36});
 					break;
-				case ASSASSIN:
-					if (charID == Character.LEGAULT.ID) { // Legault's unique animation ties hair and cape together with 6 colors.
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 16, 27, 29, 14}, new int[] {32, 34, 36}, new int[] {}); 
-					} else if (charID == Character.JERME.ID) {
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {16, 27, 14}, new int[] {32, 34, 36});
-					} else {
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {16, 27, 14}, new int[] {32, 34});
-					}
+				case EIRIKA_MASTER_LORD:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20, 23}, new int[] {25, 27, 29}, new int[] {32, 34, 36});
 					break;
-				case BRIGAND:
-				case FIGHTER:
-					this.info = new PaletteInfo(classID, charID, offset, 18, 2, 32, 3);
+				case EPHRAIM_LORD:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {25, 27}, new int[] {32, 34, 36});
 					break;
-				case BARD:
-				case SNIPER:
-				case SNIPER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {23, 25, 27});
+				case EPHRAIM_MASTER_LORD:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {23, 25}, new int[] {34, 36});
 					break;
-				case BERSERKER:
-					if (charID == Character.HAWKEYE.ID) {
-						this.info = new PaletteInfo(classID, charID, offset, 14, 3, 32, 3);
-					} else {
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
-					}
+				case TRAINEE:
+				case TRAINEE_2:
+				case SUPER_TRAINEE:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {25, 27, 29}, new int[] {});
 					break;
-				case BISHOP:
-					if (charID == Character.LUCIUS.ID) {
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 16, 18}, new int[] {23, 34, 36}, new int[] {29, 32});
-					} else {
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18}, new int[] {23, 34, 36}, new int[] {29, 32});
-					}
+				case RECRUIT:
+				case RECRUIT_2:
+				case SUPER_RECRUIT:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {25, 27, 29}, new int[] {});
 					break;
-				case BISHOP_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 16, 18}, new int[] {29, 32, 34, 36}, new int[] {});
+				case PUPIL:
+				case PUPIL_2:
+				case SUPER_PUPIL:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {25, 27, 29});
 					break;
-				case CAVALIER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27}, new int[] {11, 16});
+				case MANAKETE_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32}, new int[] {34, 36});
 					break;
-				case CLERIC:
-				case MONK: // May need to split out Lucius as a special case. This is assuming a Lucius sprite, which is unique from other monks.
-				case MYRMIDON: // May need to split out Guy as a special case. This is assuming a Guy sprite, which is unique from other myrmidons.
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
+				case REVENANT:
+				case ENTOMBED:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {18, 20}, new int[] {32, 34, 36}, new int[] {}); // These guys actually have hair. The second color is the remnants of their pants.
 					break;
-				case DRUID:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32, 34}, new int[] {16, 18, 20});
+				case BONEWALKER:
+				case BONEWALKER_BOW:
+				case WIGHT:
+				case WIGHT_BOW:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {23, 25, 27}, new int[] {9, 11, 14}); // No hair. Primary is their loincloth. Secondary is their breastplate.
 					break;
-				case FALCONKNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 18}, new int[] {25, 27, 36}, new int[] {16, 11, 9});
+				case BAEL:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {16, 14, 18, 11, 20}, new int[] {}, new int[] {}); // They have two hair colors, but in the case of the Bael, they're the same color, so we're keeping it that way.
 					break;
-				case GENERAL:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+				case ELDER_BAEL:
+				case ELDER_BAEL_2:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {16, 18, 20}, new int[] {14, 11}, new int[] {}); // Unlike Baels, Elder Baels gain a different color streak through their "hair". That's reflected here.
 					break;
-				case HERO:
-				case GREAT_LORD:
-				case SWORDMASTER:
-				case SWORDMASTER_F:
-					if (charID == Character.GUY.ID) {
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
-					} else if (charID == Character.LLOYD_FFO.ID) {
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {});
-					} else {
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {});
-					}
+				case CYCLOPS:
+				case CYCLOPS_2:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {18, 20, 9, 11, 14, 16}, new int[] {34, 36}); // No hair again, but lots of armor colors. Secondary is the color of their loincloth.
 					break;
-				case KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {14, 16, 9, 11, 7}, new int[] {});
+				case MAUTHE_DOOG:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {25, 27, 29}, new int[] {32, 34, 36}, new int[] {});
 					break;
-				case LORD_ELIWOOD:
-				case LORD_KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 16, 20}, new int[] {29, 32, 34, 36}, new int[] {});
+				case GWYLLGI:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {25, 27, 29}, new int[] {32, 34, 36}, new int[] {18, 20, 23}); // Gwyllgis get a tail color in addition to what they had as Mauth Doogs.
 					break;
-				case LORD_HECTOR:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {36, 14});
+				case TARVOS:
+				case MAELDUIN:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {18, 20}, new int[] {9, 11, 14, 16}, new int[] {}); // They have a body color, but since they share the same as Maelduins, we want to have some difference between the two.
 					break;
-				case MAGE:
-					this.info = new PaletteInfo(classID, charID, offset, 18, 2, 32, 3, 23, 3);
+				case MOGALL:
+				case ARCH_MOGALL:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {32, 34, 36}, new int[] {14, 16, 18}, new int[] {}); // "Hair" is the tentacles. "Armor" is the membrane.
 					break;
-				case MAGE_F:
-				case SAGE:
-				case SAGE_F:
-				case UBER_SAGE:
-					this.info = new PaletteInfo(classID, charID, offset, 16, 3, 32, 3, 23, 3);
+				case GORGON:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {9, 11, 14});
+					break;
+				case GARGOYLE:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 11, 14}, new int[] {}, new int[] {}); // "Hair" is their horns and claws. Let's not touch anything else for now. They'll get their colors when promoted
+					break;
+				case DEATHGOYLE:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 11, 14}, new int[] {29, 32, 34, 36}, new int[] {25, 27}); // Now they get a non-gray body.
 					break;
 				case MERCENARY:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {25, 11, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 32}, new int[] {25, 11, 36}, new int[] {});
 					break;
-				case NOMAD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 36}, new int[] {14, 16}, new int[] {23, 25, 27, 29}); // Secondary is Mount/Bow
+				case HERO:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {});
 					break;
-				case NOMADTROOPER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {9, 16}, new int[] {23, 25, 27, 29});
+				case MYRMIDON:
+				case MYRMIDON_F:
+				case SWORDMASTER:
+				case SWORDMASTER_F:
+				case ARCHER:
+				case ARCHER_F:
+				case SNIPER:
+				case SNIPER_F:
+				case MONK:
+				case PRIEST:
+				case CLERIC:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
+					break;
+				case FIGHTER:
+				case BRIGAND:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {32, 34, 36}, new int[] {});
+					break;
+				case WARRIOR:
+				case BERSERKER:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					break;
+				case RANGER:
+				case RANGER_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {34, 16}, new int[] {23, 25, 27, 29});
+					break;
+				case CAVALIER:
+				case CAVALIER_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 11, 25, 16, 27, 29}, new int[] {});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {23, 25, 27}, new int[] {16, 11, 14}, new int[] {18, 20}); // No hair. Armor primary, mane/insignia secondary, shield tertiary.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {23, 25, 27, 29}, new int[] {20}, new int[] {16, 11, 13}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
 					break;
 				case PALADIN_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {25, 27, 29}, new int[] {16, 11, 14}); // Hair matches shield in the female.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27}, new int[] {16, 11, 13}); // Hair also affects shield. Secondary is mane + shield crest.
 					break;
-				case PEGASUSKNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 18}, new int[] {25, 27, 36}, new int[] {29, 32, 34}, new int[] {16, 11}); // Armor Primary, Wing Secondary, Mane tertiary
+				case KNIGHT:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 13, 16, 11, 9, 7}, new int[] {});
 					break;
-				case CORSAIR:
-				case PIRATE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {}); // Outfit/Bandana is the only color.
+				case KNIGHT_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 13, 9, 7}, new int[] {});
+					break;
+				case GENERAL:
+				case GENERAL_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {13, 16, 20});
+					break;
+				case GREAT_KNIGHT:
+				case GREAT_KNIGHT_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					break;
+				case WYVERN_RIDER:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 9}, new int[] {27, 29, 32, 34}, new int[] {25});
+					break;
+				case WYVERN_LORD:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {20, 23}, new int[] {27, 29, 32, 34}, new int[] {25});
+					break;
+				case WYVERN_KNIGHT:
+				case WYVERN_KNIGHT_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {25, 23, 20}, new int[] {27, 29, 32, 34}, new int[] {});
+					break;
+				case PEGASUS_KNIGHT:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 18}, new int[] {25, 27}, new int[] {});
+					break;
+				case FALCON_KNIGHT:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 18}, new int[] {25, 27, 36}, new int[] {});
+					break;
+				case MAGE:
+				case MAGE_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {32, 34, 36}, new int[] {23, 25, 27});
+					break;
+				case SAGE:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {23, 25, 27});
+					break;
+				case SAGE_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {29, 23, 25, 27});
+					break;
+				case MAGE_KNIGHT:
+				case MAGE_KNIGHT_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {27, 29}, new int[] {23, 25}, new int[] {32, 34, 36}); // Primary is cape, secondary is shirt, tertiary is horse armor.
 					break;
 				case SHAMAN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32, 34}, new int[] {9, 16, 18}); // Not really hair, but it matches up in the only one that matters (Canas)
+				case DRUID:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32, 34, 36}, new int[] {});
+					break;
+				case SUMMONER:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 23}, new int[] {32, 34, 36}, new int[] {25, 27, 29});
+					break;
+				case BISHOP:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18}, new int[] {23, 34, 36}, new int[] {29, 32});
+					break;
+				case BISHOP_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18}, new int[] {29, 32, 34, 36}, new int[] {});
+					break;
+				case TROUBADOUR:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27, 29}, new int[] {});
+					break;
+				case VALKYRIE:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27, 29, 36}, new int[] {});
 					break;
 				case THIEF:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 29, 14}, new int[] {34, 36});
 					break;
-				case TROUBADOUR:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 16}, new int[] {25, 27, 29});
+				case ASSASSIN:
+				case ASSASSIN_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {16, 27}, new int[] {32, 34, 36});
 					break;
-				case VALKYRIE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27, 36, 29}, new int[] {});
+				case ROGUE:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25}, new int[] {32, 34, 36}, new int[] {16, 18, 20});
 					break;
-				case WARRIOR:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {20, 29}); // No Hair. Primary is pants/helmet color. Secondary is breastplate.
+				case DANCER:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {23, 25, 27});
 					break;
-				case WYVERNKNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {27, 29, 32, 34}, new int[] {16, 14, 18}, new int[] {25}); // Primary is Wyvern Body, Secondary is Mount, Tertiary is Wyvern's Wingspan
+				case PIRATE:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {});
 					break;
-				case WYVERNLORD:
-				case WYVERNLORD_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {27, 29, 32, 34}, new int[] {7, 25}, new int[] {25});
+				case SOLDIER:
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {});
 					break;
 				default:
 					break;
@@ -1678,14 +1779,29 @@ public class FE8Data {
 		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {
 			Character character = Character.valueOf(characterID);
 			switch (character) {
-			case MARCUS:
-				return new PaletteColor[] {new PaletteColor(208, 144, 216), new PaletteColor(168, 112, 168), new PaletteColor(112, 80, 120), new PaletteColor(88, 64, 96)};
-			case OSWIN:
-				return new PaletteColor[] {new PaletteColor(152, 144, 8), new PaletteColor(120, 112, 16), new PaletteColor(104, 80, 16)};
-			case HEATH:
-				return new PaletteColor[] {new PaletteColor(56, 184, 72), new PaletteColor(32, 144, 48)};
-			case VAIDA:
-				return new PaletteColor[] {new PaletteColor(248, 248, 112), new PaletteColor(216, 208, 64), new PaletteColor(176, 152, 64)};
+			case SETH:
+				return new PaletteColor[] {new PaletteColor(189, 16, 8), new PaletteColor(132, 0, 0), new PaletteColor(99, 16, 24)};
+			case GILLIAM:
+				return new PaletteColor[] {new PaletteColor(132, 132, 107), new PaletteColor(99, 99, 74), new PaletteColor(74, 66, 66)};
+			case CORMAG:
+			case GLEN:
+				return new PaletteColor[] {new PaletteColor(255, 255, 189), new PaletteColor(222, 222, 99), new PaletteColor(173, 173, 49), new PaletteColor(115, 115, 49)};
+			case DOZLA:
+				return new PaletteColor[] {new PaletteColor(90, 148, 74), new PaletteColor(49, 99, 41), new PaletteColor(57, 66, 41)};
+			case DUESSEL:
+				return new PaletteColor[] {new PaletteColor(222, 214, 214), new PaletteColor(198, 173, 181), new PaletteColor(156, 123, 156), new PaletteColor(107, 82, 107), new PaletteColor(74, 66, 74)};
+			case BREGUET:
+				return new PaletteColor[] {new PaletteColor(123, 132, 189), new PaletteColor(82, 90, 132), new PaletteColor(66, 57, 82)};
+			case SAAR:
+				return new PaletteColor[] {new PaletteColor(198, 181, 148), new PaletteColor(148, 132, 123), new PaletteColor(90, 66, 74)};
+			case AIAS:
+				return new PaletteColor[] {new PaletteColor(214, 206, 107), new PaletteColor(173, 165, 49), new PaletteColor(107, 99, 16)};
+			case GHEB:
+				return new PaletteColor[] {new PaletteColor(181, 115, 24), new PaletteColor(140, 82, 8), new PaletteColor(99, 57, 24)};
+			case VALTER:
+				return new PaletteColor[] {new PaletteColor(123, 173, 189), new PaletteColor(82, 115, 115), new PaletteColor(57, 74, 74)};
+			case ORSON:
+				return new PaletteColor[] {new PaletteColor(189, 123, 74), new PaletteColor(148, 99, 57), new PaletteColor(107, 66, 57)};
 			default:
 				return null;
 			}
