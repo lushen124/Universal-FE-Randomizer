@@ -166,7 +166,7 @@ private FEBase.GameType gameType;
 				long knightCrestOffset = FE6Data.PromotionItem.KNIGHT_CREST.getListAddress();
 				List<Byte> idList = new ArrayList<Byte>();
 				byte currentByte = 0x0;
-				long currentOffset = knightCrestOffset;
+				long currentOffset = FileReadHelper.readAddress(handler, knightCrestOffset); // One more jump here.
 				do {
 					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
 					if (currentByte != 0) {
@@ -302,7 +302,7 @@ private FEBase.GameType gameType;
 				long heroCrestPointerAddress = FileReadHelper.readAddress(handler, heroCrestOffset) + 4;
 				List<Byte> idList = new ArrayList<Byte>();
 				byte currentByte = 0x0;
-				long currentOffset = heroCrestPointerAddress;
+				long currentOffset = FileReadHelper.readAddress(handler, heroCrestPointerAddress); // One more jump here.
 				do {
 					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
 					if (currentByte != 0) {
@@ -323,7 +323,7 @@ private FEBase.GameType gameType;
 				long knightCrestPointerAddress = FileReadHelper.readAddress(handler, knightCrestOffset) + 4;
 				idList.clear();
 				currentByte = 0x0;
-				currentOffset = knightCrestPointerAddress;
+				currentOffset = FileReadHelper.readAddress(handler, knightCrestPointerAddress); // One more jump here.
 				do {
 					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
 					if (currentByte != 0) {
@@ -345,7 +345,7 @@ private FEBase.GameType gameType;
 				long masterSealPointerAddress = FileReadHelper.readAddress(handler, masterSealOffset) + 4;
 				idList.clear();
 				currentByte = 0x0;
-				currentOffset = masterSealPointerAddress;
+				currentOffset = FileReadHelper.readAddress(handler, masterSealPointerAddress); // One more jump here.
 				do {
 					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
 					if (currentByte != 0) {
