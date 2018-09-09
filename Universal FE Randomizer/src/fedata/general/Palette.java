@@ -56,9 +56,9 @@ public class Palette {
 		}
 	}
 	
-	public Palette(Palette template, Palette primarySourcePalette, Palette[] allReferencePalettes) {
+	public Palette(Palette template, Palette targetPalette, Palette[] allReferencePalettes) {
 		info = new PaletteInfo(template.info);
-		info.paletteOffset = primarySourcePalette.info.paletteOffset;
+		info.paletteOffset = targetPalette.info.paletteOffset;
 		rawData = template.rawData.clone();
 		fullUpdate = true;
 		
@@ -83,61 +83,53 @@ public class Palette {
 		}
 		
 		if (hair.size() > 0) {
-			if (primarySourcePalette.getHairColors().length > 0) {
-				setHairColors(PaletteColor.coerceColors(primarySourcePalette.getHairColors(), hair.size()));
-			} else if (primarySourcePalette.supplementalHairColor != null && !primarySourcePalette.supplementalHairColor.isEmpty()) {
-				setHairColors(PaletteColor.coerceColors(primarySourcePalette.supplementalHairColor.toArray(new PaletteColor[primarySourcePalette.supplementalHairColor.size()]), hair.size()));
-			} else {
-				Boolean hairSet = false;
+			Boolean hairSet = false;
+			for (Palette otherPalette : allReferencePalettes) {
+				if (otherPalette.getHairColors().length > 0) {
+					setHairColors(PaletteColor.coerceColors(otherPalette.getHairColors(), hair.size()));
+					hairSet = true;
+					break;
+				} else if (otherPalette.supplementalHairColor != null && !otherPalette.supplementalHairColor.isEmpty()) {
+					List<PaletteColor> supplementalList = otherPalette.supplementalHairColor;
+					setHairColors(PaletteColor.coerceColors(supplementalList.toArray(new PaletteColor[supplementalList.size()]), hair.size()));
+					hairSet = true;
+					break;
+				}
+			}
+			
+			if (!hairSet) {
 				for (Palette otherPalette : allReferencePalettes) {
-					if (otherPalette.getHairColors().length > 0) {
-						setHairColors(PaletteColor.coerceColors(otherPalette.getHairColors(), hair.size()));
-						hairSet = true;
+					if (otherPalette.getPrimaryColors().length > 0) {
+						setHairColors(PaletteColor.coerceColors(otherPalette.getPrimaryColors(), primary.size()));
 						break;
 					}
-				}
-				
-				if (!hairSet) {
-					setHairColors(PaletteColor.coerceColors(primarySourcePalette.getPrimaryColors(), hair.size()));
 				}
 			}
 		}
 		
 		if (primary.size() > 0) {
-			if (primarySourcePalette.primary.size() > 0) {
-				setPrimaryColors(PaletteColor.coerceColors(primarySourcePalette.getPrimaryColors(), primary.size()));
-			} else {
-				for (Palette otherPalette : allReferencePalettes) {
-					if (otherPalette.getPrimaryColors().length > 0) {
-						setPrimaryColors(PaletteColor.coerceColors(otherPalette.getPrimaryColors(), primary.size()));
-						break;
-					}
+			for (Palette otherPalette : allReferencePalettes) {
+				if (otherPalette.getPrimaryColors().length > 0) {
+					setPrimaryColors(PaletteColor.coerceColors(otherPalette.getPrimaryColors(), primary.size()));
+					break;
 				}
 			}
 		}
 		
 		if (secondary.size() > 0) {
-			if (primarySourcePalette.secondary.size() > 0) {
-				setSecondaryColors(PaletteColor.coerceColors(primarySourcePalette.getSecondaryColors(), secondary.size()));
-			} else {
-				for (Palette otherPalette : allReferencePalettes) {
-					if (otherPalette.getSecondaryColors().length > 0) {
-						setSecondaryColors(PaletteColor.coerceColors(otherPalette.getSecondaryColors(), secondary.size()));
-						break;
-					}
+			for (Palette otherPalette : allReferencePalettes) {
+				if (otherPalette.getSecondaryColors().length > 0) {
+					setSecondaryColors(PaletteColor.coerceColors(otherPalette.getSecondaryColors(), secondary.size()));
+					break;
 				}
 			}
 		}
 		
 		if (tertiary.size() > 0) {
-			if (primarySourcePalette.tertiary.size() >= tertiary.size()) {
-				setTertiaryColors(PaletteColor.coerceColors(primarySourcePalette.getTertiaryColors(), tertiary.size()));
-			} else {
-				for (Palette otherPalette : allReferencePalettes) {
-					if (otherPalette.getTertiaryColors().length > 0) {
-						setTertiaryColors(PaletteColor.coerceColors(otherPalette.getTertiaryColors(), tertiary.size()));
-						break;
-					}
+			for (Palette otherPalette : allReferencePalettes) {
+				if (otherPalette.getTertiaryColors().length > 0) {
+					setTertiaryColors(PaletteColor.coerceColors(otherPalette.getTertiaryColors(), tertiary.size()));
+					break;
 				}
 			}
 		}

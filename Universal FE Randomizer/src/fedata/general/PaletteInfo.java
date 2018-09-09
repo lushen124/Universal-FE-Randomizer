@@ -12,6 +12,8 @@ public class PaletteInfo {
 	int[] secondaryColorOffsets; // Lightest to Darkest
 	int[] tertiaryColorOffsets; // Lightest to Darkest
 	
+	int paletteID;
+	
 	public PaletteInfo(PaletteInfo otherInfo) {
 		classID = otherInfo.classID;
 		characterID = otherInfo.characterID;
@@ -108,6 +110,14 @@ public class PaletteInfo {
 		this.primaryColorOffsets = primaryColors;
 		this.secondaryColorOffsets = secondaryColors;
 		this.tertiaryColorOffsets = tertiaryColors;
+	}
+	
+	public void setPaletteID(int identifier) {
+		paletteID = identifier;
+	}
+	
+	public int getPaletteID() {
+		return paletteID;
 	}
 	
 	public int getClassID() {

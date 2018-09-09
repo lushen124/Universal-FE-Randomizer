@@ -107,10 +107,14 @@ public class ClassRandomizer {
 			}
 			
 			if (type == GameType.FE8) {
-				paletteData.adaptFE8CharacterToClass(character.getID(), originalClass.getID(), targetClass.getID());
+				paletteData.adaptFE8CharacterToClass(character.getID(), originalClass.getID(), targetClass.getID(), false);
 			} else {
 				paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), hasOriginalPromotionData ? originalPromoClassID : 0, targetClass.getID(), hasTargetPromotionData ? targetPromoClassID : 0);
 			}
+		}
+		
+		if (type == GameType.FE8) {
+			paletteData.backfillFE8Palettes();
 		}
 	}
 	
@@ -169,13 +173,17 @@ public class ClassRandomizer {
 				continue;
 			}
 			
+			if (character.getID() == 0x46) {
+				System.out.println("Debugging Breguet");
+			}
+			
 			for (FECharacter linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
 			}
 			
 			if (type == GameType.FE8) {
-				paletteData.adaptFE8CharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), targetClass.getID());
+				paletteData.adaptFE8CharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), targetClass.getID(), true);
 			} else {
 				paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), 0, targetClass.getID(), 0);
 			}

@@ -1287,190 +1287,193 @@ public class FE8Data {
 	}
 	
 	public enum Palette {
-		ARCHER_NEIMI(Character.NEIMI.ID, CharacterClass.ARCHER_F.ID, 0xEF9000),
+		ARCHER_NEIMI(0x01, Character.NEIMI.ID, CharacterClass.ARCHER_F.ID, 0xEF9000),
 		
-		ASSASSIN_COLM(Character.COLM.ID, CharacterClass.ASSASSIN.ID, 0xEF9268),
-		ASSASSIN_MARISA(Character.MARISA.ID, CharacterClass.ASSASSIN_F.ID, 0xEF9200),
-		ASSASSIN_JOSHUA(Character.JOSHUA.ID, CharacterClass.ASSASSIN.ID, 0xEF92B8),
+		ASSASSIN_COLM(0x07, Character.COLM.ID, CharacterClass.ASSASSIN.ID, 0xEF9268),
+		ASSASSIN_MARISA(0x06, Character.MARISA.ID, CharacterClass.ASSASSIN_F.ID, 0xEF9200),
+		ASSASSIN_JOSHUA(0x08, Character.JOSHUA.ID, CharacterClass.ASSASSIN.ID, 0xEF92B8),
 		
-		BERSERKER_ROSS(Character.ROSS.ID, CharacterClass.BERSERKER.ID, 0xEF9708),
-		BERSERKER_DOZLA(Character.DOZLA.ID, CharacterClass.BERSERKER.ID, 0xEF96B4),
+		BERSERKER_ROSS(0x14, Character.ROSS.ID, CharacterClass.BERSERKER.ID, 0xEF9708),
+		BERSERKER_DOZLA(0x13, Character.DOZLA.ID, CharacterClass.BERSERKER.ID, 0xEF96B4),
 		
-		BISHOP_MOULDER(Character.MOULDER.ID, CharacterClass.BISHOP.ID, 0xEF949C),
-		BISHOP_NATASHA(Character.NATASHA.ID, CharacterClass.BISHOP_F.ID, 0xEF9440),
-		BISHOP_ARTUR(Character.ARTUR.ID, CharacterClass.BISHOP.ID, 0xEF93E4),
-		BISHOP_RIEV(Character.RIEV.ID, CharacterClass.BISHOP.ID, 0xEF94F8),
+		BISHOP_MOULDER(0x0D, Character.MOULDER.ID, CharacterClass.BISHOP.ID, 0xEF949C),
+		BISHOP_NATASHA(0x0C, Character.NATASHA.ID, CharacterClass.BISHOP_F.ID, 0xEF9440),
+		BISHOP_ARTUR(0x0B, Character.ARTUR.ID, CharacterClass.BISHOP.ID, 0xEF93E4),
+		BISHOP_RIEV(0x0E, Character.RIEV.ID, CharacterClass.BISHOP.ID, 0xEF94F8),
 		
-		BRIGAND_BONE(Character.BONE.ID, CharacterClass.BRIGAND.ID, 0xEF931C),
-		BRIGAND_BAZBA(Character.BAZBA.ID, CharacterClass.BRIGAND.ID, 0xEF9380),
+		BRIGAND_BONE(0x09, Character.BONE.ID, CharacterClass.BRIGAND.ID, 0xEF931C),
+		BRIGAND_BAZBA(0x0A, Character.BAZBA.ID, CharacterClass.BRIGAND.ID, 0xEF9380),
 		
-		DANCER_TETHYS(Character.TETHYS.ID, CharacterClass.DANCER.ID, 0xEF975C),
+		DANCER_TETHYS(0x15, Character.TETHYS.ID, CharacterClass.DANCER.ID, 0xEF975C),
 		
-		DRUID_EWAN(Character.EWAN.ID, CharacterClass.DRUID.ID, 0xEF991C),
-		DRUID_KNOLL(Character.KNOLL.ID, CharacterClass.DRUID.ID, 0xEF98C8),
+		DRUID_EWAN(0x1A, Character.EWAN.ID, CharacterClass.DRUID.ID, 0xEF991C),
+		DRUID_KNOLL(0x19, Character.KNOLL.ID, CharacterClass.DRUID.ID, 0xEF98C8),
 		
-		FALCON_KNIGHT_VANESSA(Character.VANESSA.ID, CharacterClass.FALCON_KNIGHT.ID, 0xEF99C4),
-		FALCON_KNIGHT_SYRENE(Character.SYRENE.ID, CharacterClass.FALCON_KNIGHT.ID, 0xEF9A18),
-		FALCON_KNIGHT_TANA(Character.TANA.ID, CharacterClass.FALCON_KNIGHT.ID, 0xEF9970),
+		FALCON_KNIGHT_VANESSA(0x1C, Character.VANESSA.ID, CharacterClass.FALCON_KNIGHT.ID, 0xEF99C4),
+		FALCON_KNIGHT_SYRENE(0x1D, Character.SYRENE.ID, CharacterClass.FALCON_KNIGHT.ID, 0xEF9A18),
+		FALCON_KNIGHT_TANA(0x1B, Character.TANA.ID, CharacterClass.FALCON_KNIGHT.ID, 0xEF9970),
 		
-		FIGHTER_ROSS(Character.ROSS.ID, CharacterClass.FIGHTER.ID, 0xEF9AB8),
-		FIGHTER_GARCIA(Character.GARCIA.ID, CharacterClass.FIGHTER.ID, 0xEF9A68),
-		FIGHTER_ONEILL(Character.ONEILL.ID, CharacterClass.FIGHTER.ID, 0xEF9B08),
+		FIGHTER_ROSS(0x1F, Character.ROSS.ID, CharacterClass.FIGHTER.ID, 0xEF9AB8),
+		FIGHTER_GARCIA(0x1E, Character.GARCIA.ID, CharacterClass.FIGHTER.ID, 0xEF9A68),
+		FIGHTER_ONEILL(0x20, Character.ONEILL.ID, CharacterClass.FIGHTER.ID, 0xEF9B08),
 		
-		GENERAL_GILLIAM(Character.GILLIAM.ID, CharacterClass.GENERAL.ID, 0xEF9C9C),
-		GENERAL_AMELIA(Character.AMELIA.ID, CharacterClass.GENERAL_F.ID, 0xEF9C48),
-		GENERAL_FADO(Character.FADO.ID, CharacterClass.GENERAL.ID, 0xEFAD80),
-		GENERAL_TIRADO(Character.TIRADO.ID, CharacterClass.GENERAL.ID, 0xEF9D2C),
-		GENERAL_VIGARDE(Character.VIGARDE.ID, CharacterClass.GENERAL.ID, 0xEF9CF0),
+		GENERAL_GILLIAM(0x25, Character.GILLIAM.ID, CharacterClass.GENERAL.ID, 0xEF9C9C),
+		GENERAL_AMELIA(0x24, Character.AMELIA.ID, CharacterClass.GENERAL_F.ID, 0xEF9C48),
+		GENERAL_FADO(0x5B, Character.FADO.ID, CharacterClass.GENERAL.ID, 0xEFAD80),
+		GENERAL_TIRADO(0x27, Character.TIRADO.ID, CharacterClass.GENERAL.ID, 0xEF9D2C),
+		GENERAL_VIGARDE(0x26, Character.VIGARDE.ID, CharacterClass.GENERAL.ID, 0xEF9CF0),
 		
-		GREAT_KNIGHT_GILLIAM(Character.GILLIAM.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9E28),
-		GREAT_KNIGHT_FRANZ(Character.FRANZ.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9DD4),
-		GREAT_KNIGHT_FORDE(Character.FORDE.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9D68),
-		GREAT_KNIGHT_KYLE(Character.KYLE.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9E7C),
-		GREAT_KNIGHT_AMELIA(Character.AMELIA.ID, CharacterClass.GREAT_KNIGHT_F.ID, 0xEF9ED0),
-		GREAT_KNIGHT_DUESSEL(Character.DUESSEL.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9F20),
-		GREAT_KNIGHT_AIAS(Character.AIAS.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9F84),
+		GREAT_KNIGHT_GILLIAM(0x2A, Character.GILLIAM.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9E28),
+		GREAT_KNIGHT_FRANZ(0x29, Character.FRANZ.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9DD4),
+		GREAT_KNIGHT_FORDE(0x28, Character.FORDE.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9D68),
+		GREAT_KNIGHT_KYLE(0x2B, Character.KYLE.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9E7C),
+		GREAT_KNIGHT_AMELIA(0x2C, Character.AMELIA.ID, CharacterClass.GREAT_KNIGHT_F.ID, 0xEF9ED0),
+		GREAT_KNIGHT_DUESSEL(0x2D, Character.DUESSEL.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9F20),
+		GREAT_KNIGHT_AIAS(0x2E, Character.AIAS.ID, CharacterClass.GREAT_KNIGHT.ID, 0xEF9F84),
 		
-		HERO_ROSS(Character.ROSS.ID, CharacterClass.HERO.ID, 0xEFA5AC),
-		HERO_GARCIA(Character.GARCIA.ID, CharacterClass.HERO.ID, 0xEF95B0),
-		HERO_GERIK(Character.GERIK.ID, CharacterClass.HERO.ID, 0xEF9664),
-		HERO_CAELLACH(Character.CAELLACH.ID, CharacterClass.HERO.ID, 0xEFB2A4),
+		HERO_ROSS(0x42, Character.ROSS.ID, CharacterClass.HERO.ID, 0xEFA5AC),
+		HERO_GARCIA(0x10, Character.GARCIA.ID, CharacterClass.HERO.ID, 0xEF95B0),
+		HERO_GERIK(0x12, Character.GERIK.ID, CharacterClass.HERO.ID, 0xEF9664),
+		HERO_CAELLACH(0x6C, Character.CAELLACH.ID, CharacterClass.HERO.ID, 0xEFB2A4),
 		
-		KNIGHT_GILLIAM(Character.GILLIAM.ID, CharacterClass.KNIGHT.ID, 0xEF90BC),
-		KNIGHT_AMELIA(Character.AMELIA.ID, CharacterClass.KNIGHT_F.ID, 0xEF9054),
-		KNIGHT_BREGUET(Character.BREGUET.ID, CharacterClass.KNIGHT.ID, 0xEF9128),
-		KNIGHT_SAAR(Character.SAAR.ID, CharacterClass.KNIGHT.ID, 0xEF9194),
+		KNIGHT_GILLIAM(0x03, Character.GILLIAM.ID, CharacterClass.KNIGHT.ID, 0xEF90BC),
+		KNIGHT_AMELIA(0x02, Character.AMELIA.ID, CharacterClass.KNIGHT_F.ID, 0xEF9054),
+		KNIGHT_BREGUET(0x04, Character.BREGUET.ID, CharacterClass.KNIGHT.ID, 0xEF9128),
+		KNIGHT_SAAR(0x05, Character.SAAR.ID, CharacterClass.KNIGHT.ID, 0xEF9194),
 		
-		MAGE_LUTE(Character.LUTE.ID, CharacterClass.MAGE_F.ID, 0xEF9FC0),
-		MAGE_EWAN(Character.EWAN.ID, CharacterClass.MAGE.ID, 0xEFA014),
+		MAGE_LUTE(0x2F, Character.LUTE.ID, CharacterClass.MAGE_F.ID, 0xEF9FC0),
+		MAGE_EWAN(0x30, Character.EWAN.ID, CharacterClass.MAGE.ID, 0xEFA014),
 		
-		MAGE_KNIGHT_LUTE(Character.LUTE.ID, CharacterClass.MAGE_KNIGHT_F.ID, 0xEFA1A0),
-		MAGE_KNIGHT_EWAN(Character.EWAN.ID, CharacterClass.MAGE_KNIGHT.ID, 0xEFA100),
-		MAGE_KNIGHT_LARACHEL(Character.LARACHEL.ID, CharacterClass.MAGE_KNIGHT_F.ID, 0xEFA150),
-		MAGE_KNIGHT_SELENA(Character.SELENA.ID, CharacterClass.MAGE_KNIGHT_F.ID, 0xEFA1F0),
+		MAGE_KNIGHT_LUTE(0x35, Character.LUTE.ID, CharacterClass.MAGE_KNIGHT_F.ID, 0xEFA1A0),
+		MAGE_KNIGHT_EWAN(0x33, Character.EWAN.ID, CharacterClass.MAGE_KNIGHT.ID, 0xEFA100),
+		MAGE_KNIGHT_LARACHEL(0x34, Character.LARACHEL.ID, CharacterClass.MAGE_KNIGHT_F.ID, 0xEFA150),
+		MAGE_KNIGHT_SELENA(0x36, Character.SELENA.ID, CharacterClass.MAGE_KNIGHT_F.ID, 0xEFA1F0),
 		
-		MERCENARY_GERIK(Character.GERIK.ID, CharacterClass.MERCENARY.ID, 0xEFA06C),
-		MERCENARY_ZONTA(Character.ZONTA.ID, CharacterClass.MERCENARY.ID, 0xEFA0C4),
+		MERCENARY_GERIK(0x31, Character.GERIK.ID, CharacterClass.MERCENARY.ID, 0xEFA06C),
+		MERCENARY_ZONTA(0x32, Character.ZONTA.ID, CharacterClass.MERCENARY.ID, 0xEFA0C4),
 		
-		MONK_ARTUR(Character.ARTUR.ID, CharacterClass.MONK.ID, 0xEFA22C),
+		MONK_ARTUR(0x37, Character.ARTUR.ID, CharacterClass.MONK.ID, 0xEFA22C),
 		
-		MYRMIDON_MARISA(Character.MARISA.ID, CharacterClass.MYRMIDON_F.ID, 0xEFA2DC),
-		MYRMIDON_JOSHUA(Character.JOSHUA.ID, CharacterClass.MYRMIDON.ID, 0xEFA280),
+		MYRMIDON_MARISA(0x39, Character.MARISA.ID, CharacterClass.MYRMIDON_F.ID, 0xEFA2DC),
+		MYRMIDON_JOSHUA(0x38, Character.JOSHUA.ID, CharacterClass.MYRMIDON.ID, 0xEFA280),
 		
-		PALADIN_SETH(Character.SETH.ID, CharacterClass.PALADIN.ID, 0xEFA3E8),
-		PALADIN_FRANZ(Character.FRANZ.ID, CharacterClass.PALADIN.ID, 0xEFA430),
-		PALADIN_FORDE(Character.FORDE.ID, CharacterClass.PALADIN.ID, 0xEFA398),
-		PALADIN_KYLE(Character.KYLE.ID, CharacterClass.PALADIN.ID, 0xEFA480),
-		PALADIN_AMELIA(Character.AMELIA.ID, CharacterClass.PALADIN_F.ID, 0xEFA338),
-		PALADIN_ORSON(Character.ORSON.ID, CharacterClass.PALADIN.ID, 0xEFA4D0),
+		PALADIN_SETH(0x3C, Character.SETH.ID, CharacterClass.PALADIN.ID, 0xEFA3E8),
+		PALADIN_FRANZ(0x3D, Character.FRANZ.ID, CharacterClass.PALADIN.ID, 0xEFA430),
+		PALADIN_FORDE(0x3B, Character.FORDE.ID, CharacterClass.PALADIN.ID, 0xEFA398),
+		PALADIN_KYLE(0x3E, Character.KYLE.ID, CharacterClass.PALADIN.ID, 0xEFA480),
+		PALADIN_AMELIA(0x3A, Character.AMELIA.ID, CharacterClass.PALADIN_F.ID, 0xEFA338),
+		PALADIN_ORSON(0x3F, Character.ORSON.ID, CharacterClass.PALADIN.ID, 0xEFA4D0),
 		
-		PEGASUS_KNIGHT_VANESSA(Character.VANESSA.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0xEFA50C),
-		PEGASUS_KNIGHT_TANA(Character.TANA.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0xEFA55C),
+		PEGASUS_KNIGHT_VANESSA(0x40, Character.VANESSA.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0xEFA50C),
+		PEGASUS_KNIGHT_TANA(0x41, Character.TANA.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0xEFA55C),
 		
-		PIRATE_ROSS(Character.ROSS.ID, CharacterClass.PIRATE.ID, 0xEF9600),
+		PIRATE_ROSS(0x11, Character.ROSS.ID, CharacterClass.PIRATE.ID, 0xEF9600),
 		
-		PRIEST_MOULDER(Character.MOULDER.ID, CharacterClass.PRIEST.ID, 0xEFA6B4),
+		PRIEST_MOULDER(0x45, Character.MOULDER.ID, CharacterClass.PRIEST.ID, 0xEFA6B4),
 		
-		RANGER_NEIMI(Character.NEIMI.ID, CharacterClass.RANGER_F.ID, 0xEF9BB0),
-		RANGER_GERIK(Character.GERIK.ID, CharacterClass.RANGER.ID, 0xEF9B58),
-		RANGER_HAYDEN(Character.HAYDEN.ID, CharacterClass.RANGER.ID, 0xEFAD44),
-		RANGER_BERAN(Character.BERAN.ID, CharacterClass.RANGER.ID, 0xEF9C08),
+		RANGER_NEIMI(0x22, Character.NEIMI.ID, CharacterClass.RANGER_F.ID, 0xEF9BB0),
+		RANGER_GERIK(0x21, Character.GERIK.ID, CharacterClass.RANGER.ID, 0xEF9B58),
+		RANGER_HAYDEN(0x5A, Character.HAYDEN.ID, CharacterClass.RANGER.ID, 0xEFAD44),
+		RANGER_BERAN(0x23, Character.BERAN.ID, CharacterClass.RANGER.ID, 0xEF9C08),
 		
-		ROGUE_COLM(Character.COLM.ID, CharacterClass.ROGUE.ID, 0xEFA660),
-		ROGUE_RENNAC(Character.RENNAC.ID, CharacterClass.ROGUE.ID, 0xEFA710),
+		ROGUE_COLM(0x44, Character.COLM.ID, CharacterClass.ROGUE.ID, 0xEFA660),
+		ROGUE_RENNAC(0x46, Character.RENNAC.ID, CharacterClass.ROGUE.ID, 0xEFA710),
 		
-		SAGE_MOULDER(Character.MOULDER.ID, CharacterClass.SAGE.ID, 0xEFA8BC),
-		SAGE_LUTE(Character.LUTE.ID, CharacterClass.SAGE_F.ID, 0xEFA770),
-		SAGE_ARTUR(Character.ARTUR.ID, CharacterClass.SAGE.ID, 0xEFA7C0),
-		SAGE_SALEH(Character.SALEH.ID, CharacterClass.SAGE.ID, 0xEFA910),
-		SAGE_EWAN(Character.EWAN.ID, CharacterClass.SAGE.ID, 0xEFA814),
-		SAGE_PABLO(Character.PABLO.ID, CharacterClass.SAGE.ID, 0xEFB268),
+		SAGE_MOULDER(0x4B, Character.MOULDER.ID, CharacterClass.SAGE.ID, 0xEFA8BC),
+		SAGE_LUTE(0x47, Character.LUTE.ID, CharacterClass.SAGE_F.ID, 0xEFA770),
+		SAGE_ARTUR(0x48, Character.ARTUR.ID, CharacterClass.SAGE.ID, 0xEFA7C0),
+		SAGE_SALEH(0x4C, Character.SALEH.ID, CharacterClass.SAGE.ID, 0xEFA910),
+		SAGE_EWAN(0x49, Character.EWAN.ID, CharacterClass.SAGE.ID, 0xEFA814),
+		SAGE_PABLO(0x6B, Character.PABLO.ID, CharacterClass.SAGE.ID, 0xEFB268),
 		
-		SHAMAN_EWAN(Character.EWAN.ID, CharacterClass.SHAMAN.ID, 0xEFA964),
-		SHAMAN_KNOLL(Character.KNOLL.ID, CharacterClass.SHAMAN.ID, 0xEFA9B8),
-		SHAMAN_NOVALA(Character.NOVALA.ID, CharacterClass.SHAMAN.ID, 0xEFAA0C),
+		SHAMAN_EWAN(0x4D, Character.EWAN.ID, CharacterClass.SHAMAN.ID, 0xEFA964),
+		SHAMAN_KNOLL(0x4E, Character.KNOLL.ID, CharacterClass.SHAMAN.ID, 0xEFA9B8),
+		SHAMAN_NOVALA(0x4F, Character.NOVALA.ID, CharacterClass.SHAMAN.ID, 0xEFAA0C),
 		
-		CLERIC_NATASHA(Character.NATASHA.ID, CharacterClass.CLERIC.ID, 0xEFA5FC),
+		CLERIC_NATASHA(0x43, Character.NATASHA.ID, CharacterClass.CLERIC.ID, 0xEFA5FC),
 		
-		SNIPER_NEIMI(Character.NEIMI.ID, CharacterClass.SNIPER_F.ID, 0xEFAB34),
-		SNIPER_INNES(Character.INNES.ID, CharacterClass.SNIPER.ID, 0xEFAAE0),
+		SNIPER_NEIMI(0x53, Character.NEIMI.ID, CharacterClass.SNIPER_F.ID, 0xEFAB34),
+		SNIPER_INNES(0x52, Character.INNES.ID, CharacterClass.SNIPER.ID, 0xEFAAE0),
 		
-		CAVALIER_FRANZ(Character.FRANZ.ID, CharacterClass.CAVALIER.ID, 0xEFABDC),
-		CAVALIER_FORDE(Character.FORDE.ID, CharacterClass.CAVALIER.ID, 0xEFAC7C),
-		CAVALIER_KYLE(Character.KYLE.ID, CharacterClass.CAVALIER.ID, 0xEFAC2C),
-		CAVALIER_AMELIA(Character.AMELIA.ID, CharacterClass.CAVALIER_F.ID, 0xEFAB8C),
-		CAVALIER_MURRAY(Character.MURRAY.ID, CharacterClass.CAVALIER.ID, 0xEFACCC),
+		CAVALIER_FRANZ(0x55, Character.FRANZ.ID, CharacterClass.CAVALIER.ID, 0xEFABDC),
+		CAVALIER_FORDE(0x57, Character.FORDE.ID, CharacterClass.CAVALIER.ID, 0xEFAC7C),
+		CAVALIER_KYLE(0x56, Character.KYLE.ID, CharacterClass.CAVALIER.ID, 0xEFAC2C),
+		CAVALIER_AMELIA(0x54, Character.AMELIA.ID, CharacterClass.CAVALIER_F.ID, 0xEFAB8C),
+		CAVALIER_MURRAY(0x58, Character.MURRAY.ID, CharacterClass.CAVALIER.ID, 0xEFACCC),
 		
-		SUMMONER_EWAN(Character.EWAN.ID, CharacterClass.SUMMONER.ID, 0xEFAA48),
-		SUMMONER_KNOLL(Character.KNOLL.ID, CharacterClass.SUMMONER.ID, 0xEFAA98),
+		SUMMONER_EWAN(0x50, Character.EWAN.ID, CharacterClass.SUMMONER.ID, 0xEFAA48),
+		SUMMONER_KNOLL(0x51, Character.KNOLL.ID, CharacterClass.SUMMONER.ID, 0xEFAA98),
 		
-		SWORDMASTER_MARISA(Character.MARISA.ID, CharacterClass.SWORDMASTER_F.ID, 0xEFAE10),
-		SWORDMASTER_JOSHUA(Character.JOSHUA.ID, CharacterClass.SWORDMASTER.ID, 0xEFADBC),
-		SWORDMASTER_ISMAIRE(Character.ISMAIRE.ID, CharacterClass.SWORDMASTER_F.ID, 0xEFAD08),
-		SWORDMASTER_CARLYLE(Character.CARLYLE.ID, CharacterClass.SWORDMASTER.ID, 0xEFAEAC),
+		SWORDMASTER_MARISA(0x5D, Character.MARISA.ID, CharacterClass.SWORDMASTER_F.ID, 0xEFAE10),
+		SWORDMASTER_JOSHUA(0x5C, Character.JOSHUA.ID, CharacterClass.SWORDMASTER.ID, 0xEFADBC),
+		SWORDMASTER_ISMAIRE(0x59, Character.ISMAIRE.ID, CharacterClass.SWORDMASTER_F.ID, 0xEFAD08),
+		SWORDMASTER_CARLYLE(0x5F, Character.CARLYLE.ID, CharacterClass.SWORDMASTER.ID, 0xEFAEAC),
 		
-		THIEF_COLM(Character.COLM.ID, CharacterClass.THIEF.ID, 0xEFAE64),
+		THIEF_COLM(0x5E, Character.COLM.ID, CharacterClass.THIEF.ID, 0xEFAE64),
 		
-		TROUBADOUR_LARACHEL(Character.LARACHEL.ID, CharacterClass.TROUBADOUR.ID, 0xEFAFB0),
+		TROUBADOUR_LARACHEL(0x62, Character.LARACHEL.ID, CharacterClass.TROUBADOUR.ID, 0xEFAFB0),
 		
-		VALKYRIE_NATASHA(Character.NATASHA.ID, CharacterClass.VALKYRIE.ID, 0xEFAF4C),
-		VALKYRIE_LARACHEL(Character.LARACHEL.ID, CharacterClass.VALKYRIE.ID, 0xEFAEE8),
+		VALKYRIE_NATASHA(0x61, Character.NATASHA.ID, CharacterClass.VALKYRIE.ID, 0xEFAF4C),
+		VALKYRIE_LARACHEL(0x60, Character.LARACHEL.ID, CharacterClass.VALKYRIE.ID, 0xEFAEE8),
 		
-		WARRIOR_ROSS(Character.ROSS.ID, CharacterClass.WARRIOR.ID, 0xEFB054),
-		WARRIOR_GARCIA(Character.GARCIA.ID, CharacterClass.WARRIOR.ID, 0xEFB004),
-		WARRIOR_BINKS(Character.BINKS.ID, CharacterClass.WARRIOR.ID, 0xEFB0A4),
-		WARRIOR_GHEB(Character.GHEB.ID, CharacterClass.WARRIOR.ID, 0xEFB22C),
+		WARRIOR_ROSS(0x64, Character.ROSS.ID, CharacterClass.WARRIOR.ID, 0xEFB054),
+		WARRIOR_GARCIA(0x63, Character.GARCIA.ID, CharacterClass.WARRIOR.ID, 0xEFB004),
+		WARRIOR_BINKS(0x65, Character.BINKS.ID, CharacterClass.WARRIOR.ID, 0xEFB0A4),
+		WARRIOR_GHEB(0x6A, Character.GHEB.ID, CharacterClass.WARRIOR.ID, 0xEFB22C),
 		
-		WYVERN_KNIGHT_VANESSA(Character.VANESSA.ID, CharacterClass.WYVERN_KNIGHT_F.ID, 0xEFB13C),
-		WYVERN_KNIGHT_CORMAG(Character.CORMAG.ID, CharacterClass.WYVERN_KNIGHT.ID, 0xEFB194),
-		WYVERN_KNIGHT_TANA(Character.TANA.ID, CharacterClass.WYVERN_KNIGHT_F.ID, 0xEFB0E0),
-		WYVERN_KNIGHT_VALTER(Character.VALTER.ID, CharacterClass.WYVERN_KNIGHT.ID, 0xEFB1F0),
+		WYVERN_KNIGHT_VANESSA(0x67, Character.VANESSA.ID, CharacterClass.WYVERN_KNIGHT_F.ID, 0xEFB13C),
+		WYVERN_KNIGHT_CORMAG(0x68, Character.CORMAG.ID, CharacterClass.WYVERN_KNIGHT.ID, 0xEFB194),
+		WYVERN_KNIGHT_TANA(0x66, Character.TANA.ID, CharacterClass.WYVERN_KNIGHT_F.ID, 0xEFB0E0),
+		WYVERN_KNIGHT_VALTER(0x69, Character.VALTER.ID, CharacterClass.WYVERN_KNIGHT.ID, 0xEFB1F0),
 		
-		WYVERN_LORD_CORMAG(Character.CORMAG.ID, CharacterClass.WYVERN_LORD.ID, 0xEF9808),
-		WYVERN_LORD_GLEN(Character.GLEN.ID, CharacterClass.WYVERN_LORD.ID, 0xEF9864),
+		WYVERN_LORD_CORMAG(0x17, Character.CORMAG.ID, CharacterClass.WYVERN_LORD.ID, 0xEF9808),
+		WYVERN_LORD_GLEN(0x18, Character.GLEN.ID, CharacterClass.WYVERN_LORD.ID, 0xEF9864),
 		
-		WYVERN_RIDER_CORMAG(Character.CORMAG.ID, CharacterClass.WYVERN_RIDER.ID, 0xEF97AC),
+		WYVERN_RIDER_CORMAG(0x16, Character.CORMAG.ID, CharacterClass.WYVERN_RIDER.ID, 0xEF97AC),
 		
 		// Unique palettes
-		LORD_EIRIKA(Character.EIRIKA.ID, CharacterClass.EIRIKA_LORD.ID, 0xC0EB30),
-		LORD_EPHRAIM(Character.EPHRAIM.ID, CharacterClass.EPHRAIM_LORD.ID, 0xC09B10),
-		MASTER_LORD_EIRIKA(Character.EIRIKA.ID, CharacterClass.EIRIKA_MASTER_LORD.ID, 0xC2165C),
-		MASTER_LORD_EPHRAIM(Character.EPHRAIM.ID, CharacterClass.EPHRAIM_MASTER_LORD.ID, 0xC18EF0),
+		LORD_EIRIKA(0x00, Character.EIRIKA.ID, CharacterClass.EIRIKA_LORD.ID, 0xC0EB30),
+		LORD_EPHRAIM(0x00, Character.EPHRAIM.ID, CharacterClass.EPHRAIM_LORD.ID, 0xC09B10),
+		MASTER_LORD_EIRIKA(0x00, Character.EIRIKA.ID, CharacterClass.EIRIKA_MASTER_LORD.ID, 0xC2165C),
+		MASTER_LORD_EPHRAIM(0x00, Character.EPHRAIM.ID, CharacterClass.EPHRAIM_MASTER_LORD.ID, 0xC18EF0),
 		
-		TRAINEE_ROSS(Character.ROSS.ID, CharacterClass.TRAINEE.ID, 0xDA9694),
-		RECRUIT_AMELIA(Character.AMELIA.ID, CharacterClass.RECRUIT.ID, 0xDB2FB4),
-		PUPIL_EWAN(Character.EWAN.ID, CharacterClass.PUPIL.ID, 0xDAC700),
+		TRAINEE_ROSS(0x00, Character.ROSS.ID, CharacterClass.TRAINEE.ID, 0xDA9694),
+		RECRUIT_AMELIA(0x00, Character.AMELIA.ID, CharacterClass.RECRUIT.ID, 0xDB2FB4),
+		PUPIL_EWAN(0x00, Character.EWAN.ID, CharacterClass.PUPIL.ID, 0xDAC700),
 		
-		MANAKETE_MYRRH(Character.MYRRH.ID, CharacterClass.MANAKETE_F.ID, 0xE45ED4),
+		MANAKETE_MYRRH(0x00, Character.MYRRH.ID, CharacterClass.MANAKETE_F.ID, 0xE45ED4),
 		
-		SOLDIER_GENERIC(Character.NONE.ID, CharacterClass.SOLDIER.ID, 0xDB7968),
+		SOLDIER_GENERIC(0x00, Character.NONE.ID, CharacterClass.SOLDIER.ID, 0xDB7968),
 		
 		// Monster palettes (should be read only)
-		REVENANT(Character.NONE.ID, CharacterClass.REVENANT.ID, 0xDCB880),
-		ENTOMBED(Character.NONE.ID, CharacterClass.ENTOMBED.ID, 0xDCC604),
-		BONEWALKER(Character.NONE.ID, CharacterClass.BONEWALKER.ID, 0xDD1290), // Bonewalkers with Bows use the same palette
-		WIGHT(Character.NONE.ID, CharacterClass.WIGHT.ID, 0xDDA1E0), // Wights with Bows use the same palette
-		BAEL(Character.NONE.ID, CharacterClass.BAEL.ID, 0xDE42D8),
-		ELDER_BAEL(Character.NONE.ID, CharacterClass.ELDER_BAEL.ID, 0xDE4F08), // ELDER_BAEL_2 is probably the same.
-		CYCLOPS(Character.NONE.ID, CharacterClass.CYCLOPS.ID, 0xDF03E4),
-		MAUTH_DOOG(Character.NONE.ID, CharacterClass.MAUTHE_DOOG.ID, 0xDF5048),
-		GWYLLGI(Character.NONE.ID, CharacterClass.GWYLLGI.ID, 0xDFBAA8),
-		TARVOS(Character.NONE.ID, CharacterClass.TARVOS.ID, 0xE01BD4),
-		MAELDUIN(Character.NONE.ID, CharacterClass.MAELDUIN.ID, 0xE06440),
-		MOGALL(Character.NONE.ID, CharacterClass.MOGALL.ID, 0xE110A4),
-		ARCH_MOGALL(Character.NONE.ID, CharacterClass.ARCH_MOGALL.ID, 0xE11AF8),
-		GORGON(Character.NONE.ID, CharacterClass.GORGON.ID, 0xE17CB0),
-		GARGOYLE(Character.NONE.ID, CharacterClass.GARGOYLE.ID, 0xE249FC),
-		DEATHGOYLE(Character.NONE.ID, CharacterClass.DEATHGOYLE.ID, 0xE24F50);
+		REVENANT(0x00, Character.NONE.ID, CharacterClass.REVENANT.ID, 0xDCB880),
+		ENTOMBED(0x00, Character.NONE.ID, CharacterClass.ENTOMBED.ID, 0xDCC604),
+		BONEWALKER(0x00, Character.NONE.ID, CharacterClass.BONEWALKER.ID, 0xDD1290), // Bonewalkers with Bows use the same palette
+		WIGHT(0x00, Character.NONE.ID, CharacterClass.WIGHT.ID, 0xDDA1E0), // Wights with Bows use the same palette
+		BAEL(0x00, Character.NONE.ID, CharacterClass.BAEL.ID, 0xDE42D8),
+		ELDER_BAEL(0x00, Character.NONE.ID, CharacterClass.ELDER_BAEL.ID, 0xDE4F08), // ELDER_BAEL_2 is probably the same.
+		CYCLOPS(0x00, Character.NONE.ID, CharacterClass.CYCLOPS.ID, 0xDF03E4),
+		MAUTH_DOOG(0x00, Character.NONE.ID, CharacterClass.MAUTHE_DOOG.ID, 0xDF5048),
+		GWYLLGI(0x00, Character.NONE.ID, CharacterClass.GWYLLGI.ID, 0xDFBAA8),
+		TARVOS(0x00, Character.NONE.ID, CharacterClass.TARVOS.ID, 0xE01BD4),
+		MAELDUIN(0x00, Character.NONE.ID, CharacterClass.MAELDUIN.ID, 0xE06440),
+		MOGALL(0x00, Character.NONE.ID, CharacterClass.MOGALL.ID, 0xE110A4),
+		ARCH_MOGALL(0x00, Character.NONE.ID, CharacterClass.ARCH_MOGALL.ID, 0xE11AF8),
+		GORGON(0x00, Character.NONE.ID, CharacterClass.GORGON.ID, 0xE17CB0),
+		GARGOYLE(0x00, Character.NONE.ID, CharacterClass.GARGOYLE.ID, 0xE249FC),
+		DEATHGOYLE(0x00, Character.NONE.ID, CharacterClass.DEATHGOYLE.ID, 0xE24F50);
 		
 		int characterID;
 		int classID;
+		
+		int paletteID;
 		
 		PaletteInfo info;
 		
 		static Map<Integer, Map<Integer, PaletteInfo>> classByCharacter = new HashMap<Integer, Map<Integer, PaletteInfo>>();
 		static Map<Integer, Map<Integer, PaletteInfo>> charactersByClass = new HashMap<Integer, Map<Integer, PaletteInfo>>();
 		static Map<Integer, PaletteInfo> defaultPaletteForClass = new HashMap<Integer, PaletteInfo>();
+		static Map<Integer, Palette> palettesByID = new HashMap<Integer, Palette>();
 		
 		static {
 			for (Palette palette : Palette.values()) {
@@ -1487,6 +1490,8 @@ public class FE8Data {
 					charactersByClass.put(palette.classID, map);
 				}
 				map.put(palette.characterID, palette.info);
+				
+				palettesByID.put(palette.paletteID, palette);
 			}
 			
 			defaultPaletteForClass.put(CharacterClass.EIRIKA_LORD.ID, LORD_EIRIKA.info);
@@ -1587,7 +1592,8 @@ public class FE8Data {
 			
 		}
 		
-		private Palette(int charID, int classID, long offset) {
+		private Palette(int paletteID, int charID, int classID, long offset) {
+			this.paletteID = paletteID;
 			this.characterID = charID;
 			this.classID = classID;
 			CharacterClass charClass = CharacterClass.valueOf(classID);
@@ -1794,6 +1800,8 @@ public class FE8Data {
 					break;
 				}
 			}
+			
+			this.info.setPaletteID(paletteID);
 		}
 		
 		public static PaletteInfo paletteForCharacterInClass(int characterID, int classID) {
@@ -1838,6 +1846,10 @@ public class FE8Data {
 			default:
 				return null;
 			}
+		}
+		
+		public static Palette paletteForID(int paletteID) {
+			return palettesByID.get(paletteID);
 		}
 		
 		public static PaletteInfo defaultPaletteForClass(int classID) {
