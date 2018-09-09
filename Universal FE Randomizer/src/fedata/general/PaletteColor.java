@@ -69,7 +69,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		int numberOfColorsToRemove = colors.length - numberOfColors;
 		int indexDelta = colors.length / (numberOfColorsToRemove + 1);
 		
-		int currentIndex = colors.length;
+		int currentIndex = colors.length - 1;
 		List<PaletteColor> result = new ArrayList<PaletteColor>(Arrays.asList(colors));
 		for (int i = 0; i < numberOfColorsToRemove; i++) {
 			currentIndex -= indexDelta;

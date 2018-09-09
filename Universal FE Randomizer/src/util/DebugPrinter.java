@@ -20,7 +20,7 @@ public class DebugPrinter {
 	
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
-		case CLASS_RANDOMIZER:
+		case PALETTE:
 			return true;
 		default:
 			return false;

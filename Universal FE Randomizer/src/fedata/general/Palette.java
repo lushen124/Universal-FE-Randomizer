@@ -82,26 +82,30 @@ public class Palette {
 			tertiary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
 		}
 		
-		if (primarySourcePalette.hair.size() >= hair.size() && hair.size() > 0) {
-			setHairColors(PaletteColor.coerceColors(primarySourcePalette.getHairColors(), hair.size()));
-		} else {
-			if (primarySourcePalette.hair.isEmpty()) {
-				setHairColors(PaletteColor.coerceColors(primarySourcePalette.getPrimaryColors(), hair.size()));
+		if (hair.size() > 0) {
+			if (primarySourcePalette.getHairColors().length > 0) {
+				setHairColors(PaletteColor.coerceColors(primarySourcePalette.getHairColors(), hair.size()));
+			} else if (primarySourcePalette.supplementalHairColor != null && !primarySourcePalette.supplementalHairColor.isEmpty()) {
+				setHairColors(PaletteColor.coerceColors(primarySourcePalette.supplementalHairColor.toArray(new PaletteColor[primarySourcePalette.supplementalHairColor.size()]), hair.size()));
 			} else {
+				Boolean hairSet = false;
 				for (Palette otherPalette : allReferencePalettes) {
 					if (otherPalette.getHairColors().length > 0) {
 						setHairColors(PaletteColor.coerceColors(otherPalette.getHairColors(), hair.size()));
+						hairSet = true;
 						break;
 					}
+				}
+				
+				if (!hairSet) {
+					setHairColors(PaletteColor.coerceColors(primarySourcePalette.getPrimaryColors(), hair.size()));
 				}
 			}
 		}
 		
-		if (primarySourcePalette.primary.size() >= primary.size() && primary.size() > 0) {
-			setPrimaryColors(PaletteColor.coerceColors(primarySourcePalette.getPrimaryColors(), primary.size()));
-		} else {
-			if (primarySourcePalette.primary.isEmpty()) {
-				NotReached.trigger("Insufficient information to set primary color!");
+		if (primary.size() > 0) {
+			if (primarySourcePalette.primary.size() > 0) {
+				setPrimaryColors(PaletteColor.coerceColors(primarySourcePalette.getPrimaryColors(), primary.size()));
 			} else {
 				for (Palette otherPalette : allReferencePalettes) {
 					if (otherPalette.getPrimaryColors().length > 0) {
@@ -112,11 +116,9 @@ public class Palette {
 			}
 		}
 		
-		if (primarySourcePalette.secondary.size() >= secondary.size() && secondary.size() > 0) {
-			setSecondaryColors(PaletteColor.coerceColors(primarySourcePalette.getSecondaryColors(), secondary.size()));
-		} else {
-			if (primarySourcePalette.secondary.isEmpty()) {
-				// No info.
+		if (secondary.size() > 0) {
+			if (primarySourcePalette.secondary.size() > 0) {
+				setSecondaryColors(PaletteColor.coerceColors(primarySourcePalette.getSecondaryColors(), secondary.size()));
 			} else {
 				for (Palette otherPalette : allReferencePalettes) {
 					if (otherPalette.getSecondaryColors().length > 0) {
@@ -127,11 +129,9 @@ public class Palette {
 			}
 		}
 		
-		if (primarySourcePalette.tertiary.size() >= tertiary.size() && tertiary.size() > 0) {
-			setTertiaryColors(PaletteColor.coerceColors(primarySourcePalette.getTertiaryColors(), tertiary.size()));
-		} else {
-			if (primarySourcePalette.tertiary.isEmpty()) {
-				// No info.
+		if (tertiary.size() > 0) {
+			if (primarySourcePalette.tertiary.size() >= tertiary.size()) {
+				setTertiaryColors(PaletteColor.coerceColors(primarySourcePalette.getTertiaryColors(), tertiary.size()));
 			} else {
 				for (Palette otherPalette : allReferencePalettes) {
 					if (otherPalette.getTertiaryColors().length > 0) {
