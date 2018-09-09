@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import io.FileHandler;
+import random.exc.NotReached;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
@@ -52,6 +53,93 @@ public class Palette {
 		tertiary = new ArrayList<PaletteColor>();
 		for (int offset : info.tertiaryColorOffsets) {
 			tertiary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+		}
+	}
+	
+	public Palette(Palette template, Palette primarySourcePalette, Palette[] allReferencePalettes) {
+		info = new PaletteInfo(template.info);
+		info.paletteOffset = primarySourcePalette.info.paletteOffset;
+		rawData = template.rawData.clone();
+		fullUpdate = true;
+		
+		hair = new ArrayList<PaletteColor>();
+		for (int offset : info.hairColorOffsets) {
+			hair.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+		}
+		
+		primary = new ArrayList<PaletteColor>();
+		for (int offset : info.primaryColorOffsets) {
+			primary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+		}
+		
+		secondary = new ArrayList<PaletteColor>();
+		for (int offset : info.secondaryColorOffsets) {
+			secondary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+		}
+		
+		tertiary = new ArrayList<PaletteColor>();
+		for (int offset : info.tertiaryColorOffsets) {
+			tertiary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+		}
+		
+		if (primarySourcePalette.hair.size() >= hair.size() && hair.size() > 0) {
+			setHairColors(PaletteColor.coerceColors(primarySourcePalette.getHairColors(), hair.size()));
+		} else {
+			if (primarySourcePalette.hair.isEmpty()) {
+				setHairColors(PaletteColor.coerceColors(primarySourcePalette.getPrimaryColors(), hair.size()));
+			} else {
+				for (Palette otherPalette : allReferencePalettes) {
+					if (otherPalette.getHairColors().length > 0) {
+						setHairColors(PaletteColor.coerceColors(otherPalette.getHairColors(), hair.size()));
+						break;
+					}
+				}
+			}
+		}
+		
+		if (primarySourcePalette.primary.size() >= primary.size() && primary.size() > 0) {
+			setPrimaryColors(PaletteColor.coerceColors(primarySourcePalette.getPrimaryColors(), primary.size()));
+		} else {
+			if (primarySourcePalette.primary.isEmpty()) {
+				NotReached.trigger("Insufficient information to set primary color!");
+			} else {
+				for (Palette otherPalette : allReferencePalettes) {
+					if (otherPalette.getPrimaryColors().length > 0) {
+						setPrimaryColors(PaletteColor.coerceColors(otherPalette.getPrimaryColors(), primary.size()));
+						break;
+					}
+				}
+			}
+		}
+		
+		if (primarySourcePalette.secondary.size() >= secondary.size() && secondary.size() > 0) {
+			setSecondaryColors(PaletteColor.coerceColors(primarySourcePalette.getSecondaryColors(), secondary.size()));
+		} else {
+			if (primarySourcePalette.secondary.isEmpty()) {
+				// No info.
+			} else {
+				for (Palette otherPalette : allReferencePalettes) {
+					if (otherPalette.getSecondaryColors().length > 0) {
+						setSecondaryColors(PaletteColor.coerceColors(otherPalette.getSecondaryColors(), secondary.size()));
+						break;
+					}
+				}
+			}
+		}
+		
+		if (primarySourcePalette.tertiary.size() >= tertiary.size() && tertiary.size() > 0) {
+			setTertiaryColors(PaletteColor.coerceColors(primarySourcePalette.getTertiaryColors(), tertiary.size()));
+		} else {
+			if (primarySourcePalette.tertiary.isEmpty()) {
+				// No info.
+			} else {
+				for (Palette otherPalette : allReferencePalettes) {
+					if (otherPalette.getTertiaryColors().length > 0) {
+						setTertiaryColors(PaletteColor.coerceColors(otherPalette.getTertiaryColors(), tertiary.size()));
+						break;
+					}
+				}
+			}
 		}
 	}
 	

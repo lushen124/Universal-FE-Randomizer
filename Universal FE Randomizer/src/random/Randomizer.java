@@ -13,10 +13,13 @@ import org.eclipse.swt.widgets.Display;
 
 import application.Main;
 import fedata.FEBase;
+import fedata.FEBase.GameType;
 import fedata.FECharacter;
 import fedata.FEClass;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
+import fedata.fe8.FE8PaletteMapper;
+import fedata.fe8.FE8PromotionManager;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
@@ -63,6 +66,10 @@ public class Randomizer extends Thread {
 	private ItemDataLoader itemData;
 	private PaletteLoader paletteData;
 	private TextLoader textData;
+	
+	// FE8 only
+	private FE8PaletteMapper fe8_paletteMapper;
+	private FE8PromotionManager fe8_promotionManager;
 	
 	private String seedString;
 	
@@ -141,6 +148,10 @@ public class Randomizer extends Thread {
 			updateStatusString("Loading Data...");
 			updateProgress(0.01);
 			generateFE7DataLoaders();
+		case FE8:
+			updateStatusString("Loading Data...");
+			updateProgress(0.01);
+			generateFE8DataLoaders();
 			break;
 		default:
 			notifyError("This game is not supported.");
@@ -173,6 +184,11 @@ public class Randomizer extends Thread {
 		itemData.compileDiffs(diffCompiler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
+		
+		if (gameType == GameType.FE8) {
+			fe8_paletteMapper.commitChanges(diffCompiler);
+			fe8_promotionManager.compileDiffs(diffCompiler);
+		}
 		
 		freeSpace.commitChanges(diffCompiler);
 		
@@ -282,6 +298,44 @@ public class Randomizer extends Thread {
 		handler.clearAppliedDiffs();
 	}
 	
+	private void generateFE8DataLoaders() {
+		handler.setAppliedDiffs(diffCompiler);
+		
+		updateStatusString("Detecting Free Space...");
+		updateProgress(0.02);
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE8);
+		updateStatusString("Loading Text...");
+		updateProgress(0.04);
+		textData = new TextLoader(FEBase.GameType.FE8, handler);
+		textData.allowTextChanges = true;
+		
+		updateStatusString("Loading Promotion Data...");
+		updateProgress(0.06);
+		fe8_promotionManager = new FE8PromotionManager(handler);
+		
+		updateStatusString("Loading Character Data...");
+		updateProgress(0.10);
+		charData = new CharacterDataLoader(FEBase.GameType.FE8, handler);
+		updateStatusString("Loading Class Data...");
+		updateProgress(0.15);
+		classData = new ClassDataLoader(FEBase.GameType.FE8, handler);
+		updateStatusString("Loading Chapter Data...");
+		updateProgress(0.20);
+		chapterData = new ChapterLoader(FEBase.GameType.FE8, handler);
+		updateStatusString("Loading Item Data...");
+		updateProgress(0.35);
+		itemData = new ItemDataLoader(FEBase.GameType.FE8, handler, freeSpace);
+		updateStatusString("Loading Palette Data...");
+		updateProgress(0.40);
+		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler);
+		
+		updateStatusString("Loading Palette Mapper...");
+		updateProgress(0.50);
+		fe8_paletteMapper = paletteData.setupFE8SpecialManagers(handler, fe8_promotionManager);
+		
+		handler.clearAppliedDiffs();
+	}
+	
 	private void randomizeGrowthsIfNecessary(String seed) {
 		if (growths != null) {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));
@@ -323,17 +377,17 @@ public class Randomizer extends Thread {
 			if (classes.randomizePCs) {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 1));
-				ClassRandomizer.randomizePlayableCharacterClasses(classes.includeLords, classes.includeThieves, charData, classData, chapterData, itemData, paletteData, textData, rng);
+				ClassRandomizer.randomizePlayableCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, paletteData, textData, rng);
 			}
 			if (classes.randomizeEnemies) {
 				updateStatusString("Randomizing minions...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 2));
-				ClassRandomizer.randomizeMinionClasses(charData, classData, chapterData, itemData, rng);
+				ClassRandomizer.randomizeMinionClasses(classes, gameType, charData, classData, chapterData, itemData, rng);
 			}
 			if (classes.randomizeBosses) {
 				updateStatusString("Randomizing boss classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 3));
-				ClassRandomizer.randomizeBossCharacterClasses(charData, classData, chapterData, itemData, paletteData, rng);
+				ClassRandomizer.randomizeBossCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, paletteData, textData, rng);
 			}
 		}
 	}

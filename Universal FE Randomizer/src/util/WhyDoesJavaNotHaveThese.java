@@ -46,6 +46,27 @@ public class WhyDoesJavaNotHaveThese {
 		return true;
 	}
 	
+	public static Boolean byteArrayHasPrefix(byte[] array, byte[] prefix) {
+		if (prefix.length > array.length) { return false; }
+		for (int i = 0; i < prefix.length; i++) {
+			if (prefix[i] != array[i]) { return false; }
+		}
+		
+		return true;
+	}
+	
+	public static Boolean byteArrayMatchesFormat(byte[] array, List<Byte> format) {
+		if (format.size() > array.length) { return false; }
+		for (int i = 0; i < format.size(); i++) {
+			Byte currentFormatByte = format.get(i);
+			if (currentFormatByte == null) { continue; }
+			byte formatByteValue = currentFormatByte.byteValue();
+			if (array[i] != formatByteValue) { return false; }
+		}
+		
+		return true;
+	}
+	
 	public static byte[] bytesFromAddress(long address) {
 		if (address <= 0x8000000) {
 			address += 0x8000000;

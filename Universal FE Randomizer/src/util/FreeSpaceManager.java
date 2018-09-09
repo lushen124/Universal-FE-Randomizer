@@ -21,6 +21,7 @@ public class FreeSpaceManager {
 			freeAddress = 0x1000200;
 			break;
 		case FE7:
+		case FE8:
 			freeAddress = 0x1000000;
 			break;
 		default:

@@ -8,6 +8,7 @@ import fedata.FEBase;
 import fedata.FEBase.GameType;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
+import fedata.fe8.FE8Data;
 import io.FileHandler;
 import util.DebugPrinter;
 import util.Diff;
@@ -58,6 +59,20 @@ public class TextLoader {
 							FileReadHelper.readAddress(handler, textArrayOffset + 4 * i), 
 							FileReadHelper.readAddress(handler, FE7Data.HuffmanTreeStart), 
 							FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, FE7Data.HuffmanTreeEnd))), false, gameType);
+					allStrings[i] = decoded;
+				}
+				break;
+			}
+			case FE8: {
+				huffman = new HuffmanHelper(handler);
+				allStrings = new String[FE8Data.NumberOfTextStrings + 1];
+				textArrayOffset = FileReadHelper.readAddress(handler, FE8Data.TextTablePointer);
+				for (int i = 1; i <= FE8Data.NumberOfTextStrings; i++) {
+					String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree( 
+							FileReadHelper.readAddress(handler, textArrayOffset + 4 * i), 
+							FileReadHelper.readAddress(handler, FE8Data.HuffmanTreeStart), 
+							FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, FE8Data.HuffmanTreeEnd))), false, gameType);
+					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, "Loaded Text for index 0x" + Integer.toHexString(i) + ": " + decoded);
 					allStrings[i] = decoded;
 				}
 				break;

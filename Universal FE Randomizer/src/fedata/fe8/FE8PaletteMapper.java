@@ -1,6 +1,8 @@
 package fedata.fe8;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import util.Diff;
@@ -8,6 +10,7 @@ import util.DiffCompiler;
 import util.FileReadHelper;
 
 import io.FileHandler;
+import random.exc.NotReached;
 
 // FE8 uses two auxiliary tables to map palettes based on class.
 // The first tells us which classes a character can be, and the second
@@ -17,22 +20,13 @@ import io.FileHandler;
 
 // For the most part, we don't need to mess with the palette assignment, as we'll
 // be updating those colors anyway, but we do need to make sure the classes line up.
+// TODO: Integrate this table. Some units are going to cheat a little by altering the underlying
+// sprite itself, but characters like Tethys who go from no promotions to some promotions won't have
+// enough palettes to support it.
 public class FE8PaletteMapper {
 	
-	private class PromotionBranch {
-		byte[] data;
-		
-		private PromotionBranch(FileHandler handler, long offset) {
-			data = handler.readBytesAtOffset(offset, FE8PromotionBranchTableEntryLength);
-		}
-		
-		private int getFirstPromotion() {
-			return data[0] & 0xFF;
-		}
-		
-		private int getSecondPromotion() {
-			return data[1] & 0xFF;
-		}
+	public enum PaletteMapType {
+		UNKNOWN, TRAINEE, UNPROMOTED, PROMOTED;
 	}
 	
 	private class MapEntry {
@@ -45,10 +39,27 @@ public class FE8PaletteMapper {
 		
 		private MapEntry(FileHandler handler, long offset) {
 			originalOffset = offset;
-			originalData = handler.readBytesAtOffset(offset, FE8PaletteClassTableEntryLength);
+			originalData = handler.readBytesAtOffset(offset, FE8Data.BytesPerPaletteTableEntry);
 			data = originalData.clone();
 			
 			wasModified = false;
+		}
+		
+		private PaletteMapType getMapType() {
+			if (getTraineeClassID() != 0 && getBaseClassID() != 0 && getSecondaryBaseClassID() != 0 && getFirstPromotionClassID() != 0 &&
+					getSecondaryPromotionClassID() != 0 && getThirdPromotionClassID() != 0 && getFourthPromotionClassID() != 0) {
+				return PaletteMapType.TRAINEE;
+			} else if (getTraineeClassID() == 0 && getBaseClassID() != 0 && getSecondaryBaseClassID() == 0 &&
+					getFirstPromotionClassID() != 0 && getThirdPromotionClassID() == 0 && getFourthPromotionClassID() == 0) { // The second promotion is optional, since some classes only have one option.
+				return PaletteMapType.UNPROMOTED;
+			} else if (getTraineeClassID() == 0 && getBaseClassID() == 0 && getSecondaryBaseClassID() == 0 &&
+					getFirstPromotionClassID() != 0 && getSecondaryPromotionClassID() == 0 && getThirdPromotionClassID() == 0 && getFourthPromotionClassID() == 0) {
+				return PaletteMapType.PROMOTED;
+			}
+			
+			NotReached.trigger("Detected unknown palette map type.");
+			
+			return PaletteMapType.UNKNOWN;
 		}
 		
 		private int getTraineeClassID() {
@@ -119,51 +130,30 @@ public class FE8PaletteMapper {
 		}
 	}
 	
-	private static final long FE8PaletteClassTablePointer = 0x575B4;
-	//private static final long FE8DefaultPaletteClassTableOffset = 0x95E0A4L;
-	private static final int FE8PaletteClassTableEntryLength = 7;
-	
-	// The order of the promotion classes kind of matters, so we need to look up the correct ordering from another table.
-	
-	private static final long FE8PromotionBranchTablePointer = 0xCC7D0;
-	//private static final long FE8PromotionBranchTableOffset = 0x95DFA4L;
-	private static final int FE8PromotionBranchTableEntryLength = 2;
-	
 	private Map<FE8Data.Character, MapEntry> paletteClassMap;
-	private Map<FE8Data.CharacterClass, PromotionBranch> promotionBranches;
+	private FE8PromotionManager promotionManager;
 	
-	public FE8PaletteMapper(FileHandler handler) {
+	public FE8PaletteMapper(FileHandler handler, FE8PromotionManager promotionManager) {
 		paletteClassMap = new HashMap<FE8Data.Character, MapEntry>();
 		
-		long tableOffset = FileReadHelper.readAddress(handler, FE8PaletteClassTablePointer);
+		long tableOffset = FileReadHelper.readAddress(handler, FE8Data.PaletteClassTablePointer);
 		// As far as the indices go, it looks like the offsets follow the same order as the characters' IDs, albeit - 1, so Eirika starts at 0x0 instead of 0x1, Seth at 0x1 instead of 0x2, and so on.
 		
 		FE8Data.Character[] characters = FE8Data.Character.values();
 		for (FE8Data.Character currentCharacter : characters) {
 			int index = currentCharacter.ID - 1;
-			long offset = FE8PaletteClassTableEntryLength * index + tableOffset;
+			long offset = FE8Data.BytesPerPaletteTableEntry * index + tableOffset;
 			MapEntry characterMapEntry = new MapEntry(handler, offset);
 			paletteClassMap.put(currentCharacter, characterMapEntry);
 		}
 		
-		long promotionTableOffset = FileReadHelper.readAddress(handler, FE8PromotionBranchTablePointer);
-		// Unlike above, these actually point to a 0 index, so the class ID can be used as is.
-		
-		promotionBranches = new HashMap<FE8Data.CharacterClass, PromotionBranch>();
-		FE8Data.CharacterClass[] charClasses = FE8Data.CharacterClass.allUnpromotedClasses.toArray(new FE8Data.CharacterClass[FE8Data.CharacterClass.allUnpromotedClasses.size()]);
-		for (FE8Data.CharacterClass currentClass : charClasses) {
-			int index = currentClass.ID;
-			long offset = FE8PromotionBranchTableEntryLength * index + promotionTableOffset;
-			PromotionBranch branch = new PromotionBranch(handler, offset);
-			promotionBranches.put(currentClass, branch);
-		}
-		FE8Data.CharacterClass[] traineeClasses = FE8Data.CharacterClass.allTraineeClasses.toArray(new FE8Data.CharacterClass[FE8Data.CharacterClass.allTraineeClasses.size()]);
-		for (FE8Data.CharacterClass traineeClass : traineeClasses) {
-			int index = traineeClass.ID;
-			long offset = FE8PromotionBranchTableEntryLength * index + promotionTableOffset;
-			PromotionBranch branch = new PromotionBranch(handler, offset);
-			promotionBranches.put(traineeClass, branch);
-		}
+		this.promotionManager = promotionManager;
+	}
+	
+	public PaletteMapType getMapTypeForCharacter(int characterID) {
+		FE8Data.Character character = FE8Data.Character.valueOf(characterID);
+		if (character == null) { return PaletteMapType.UNKNOWN; }
+		return paletteClassMap.get(character).getMapType();
 	}
 
 	public void setUnpromotedClass(int unpromotedClassID, int characterID) {
@@ -181,9 +171,8 @@ public class FE8PaletteMapper {
 			map.setBaseClassID(unpromotedClassID);
 			map.setSecondaryBaseClassID(0);
 			
-			PromotionBranch branch = promotionBranches.get(unpromotedClass);
-			int primaryPromotionID = branch.getFirstPromotion();
-			int secondaryPromotionID = branch.getSecondPromotion();
+			int primaryPromotionID = promotionManager.getFirstPromotionOptionClassID(unpromotedClass.ID);
+			int secondaryPromotionID = promotionManager.getSecondPromotionOptionClassID(unpromotedClass.ID);
 			
 			if (primaryPromotionID != 0) {
 				FE8Data.CharacterClass primaryPromotionClass = FE8Data.CharacterClass.valueOf(primaryPromotionID);
@@ -248,17 +237,17 @@ public class FE8PaletteMapper {
 			
 			map.setTraineeClassID(traineeClassID);
 			
-			PromotionBranch traineeBranch = promotionBranches.get(traineeClass);
-			int primaryBaseClassID = traineeBranch.getFirstPromotion();
-			int secondaryBaseClassID = traineeBranch.getSecondPromotion();
+			int primaryBaseClassID = promotionManager.getFirstPromotionOptionClassID(traineeClass.ID);
+			int secondaryBaseClassID = promotionManager.getSecondPromotionOptionClassID(traineeClass.ID);
 			
 			if (primaryBaseClassID != 0) {
 				FE8Data.CharacterClass primaryBaseClass = FE8Data.CharacterClass.valueOf(primaryBaseClassID);
 				if (primaryBaseClass != null) {
 					map.setBaseClassID(primaryBaseClassID);
-					PromotionBranch primaryBranch = promotionBranches.get(primaryBaseClass);
-					int primaryPromotedClassID = primaryBranch.getFirstPromotion();
-					int secondaryPromotedClassID = primaryBranch.getSecondPromotion();
+					
+					int primaryPromotedClassID = promotionManager.getFirstPromotionOptionClassID(primaryBaseClass.ID);
+					int secondaryPromotedClassID = promotionManager.getSecondPromotionOptionClassID(primaryBaseClass.ID);
+					
 					if (primaryPromotedClassID != 0) {
 						FE8Data.CharacterClass primaryPromotedClass = FE8Data.CharacterClass.valueOf(primaryPromotedClassID);
 						if (primaryPromotedClass != null) {
@@ -287,9 +276,10 @@ public class FE8PaletteMapper {
 				FE8Data.CharacterClass secondaryBaseClass = FE8Data.CharacterClass.valueOf(secondaryBaseClassID);
 				if (secondaryBaseClass != null) {
 					map.setSecondaryBaseClassID(secondaryBaseClassID);
-					PromotionBranch secondaryBranch = promotionBranches.get(secondaryBaseClass);
-					int thirdPromotedClassID = secondaryBranch.getFirstPromotion();
-					int fourthPromotedClassID = secondaryBranch.getSecondPromotion();
+					
+					int thirdPromotedClassID = promotionManager.getFirstPromotionOptionClassID(secondaryBaseClass.ID);
+					int fourthPromotedClassID = promotionManager.getSecondPromotionOptionClassID(secondaryBaseClass.ID);
+					
 					if (thirdPromotedClassID != 0) {
 						FE8Data.CharacterClass thirdPromotedClass = FE8Data.CharacterClass.valueOf(thirdPromotedClassID);
 						if (thirdPromotedClass != null) {

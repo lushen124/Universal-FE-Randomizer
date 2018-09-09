@@ -9,17 +9,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import fedata.fe7.FE7Data;
-import fedata.fe7.FE7Data.Character;
-import fedata.fe7.FE7Data.CharacterClass;
-import fedata.fe7.FE7Data.Item;
-import fedata.fe7.FE7Data.Palette;
-import fedata.fe7.FE7Data.Item.Ability1Mask;
-import fedata.fe7.FE7Data.Item.Ability2Mask;
-import fedata.fe7.FE7Data.Item.Ability3Mask;
-import fedata.fe7.FE7Data.Item.FE7WeaponRank;
-import fedata.fe7.FE7Data.Item.FE7WeaponType;
-import fedata.fe7.FE7Data.Item.WeaponEffect;
 import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 import fedata.general.WeaponRank;
@@ -30,12 +19,12 @@ public class FE8Data {
 	public static final String FriendlyName = "Fire Emblem: The Sacred Stones";
 	public static final String GameCode = "BE8E";
 
-	public static final long CleanCRC32 = 0x77210965L;
+	public static final long CleanCRC32 = 0xA47246AEL;
 	public static final long CleanSize = 16777216;
 	
 	public static final int NumberOfCharacters = 256;
 	public static final int BytesPerCharacter = 52;
-	public static final long CharacterTablePointer = 0x17D60; 
+	public static final long CharacterTablePointer = 0x17D64; 
 	//public static final long DefaultCharacterTableAddress = 0x803D30; 
 	
 	public static final int NumberOfClasses = 128;
@@ -50,7 +39,7 @@ public class FE8Data {
 	
 	public static final int NumberOfSpellAnimations = 160;
 	public static final int BytesPerSpellAnimation = 16;
-	public static final long SpellAnimationTablePointer = 0x58014; // True in both prepatch and postpatch
+	public static final long SpellAnimationTablePointer = 0x58014;
 	//public static final long DefaultSpellAnimationTableOffset = 0x8AFBD8;
 	
 	public static final int HuffmanTreeStart = 0x6E0; // Resolved once
@@ -64,6 +53,19 @@ public class FE8Data {
 	public static final int BytesPerChapterUnit = 20;
 	
 	public static final long PromotionItemTablePointer = 0x29218; // These work the same way as FE7.
+	
+	// Unique to FE8
+	public static final long PromotionBranchTablePointer = 0xCC7D0;
+	//public static final long DefaultPromotionBranchTableOffset = 0x95DFA4L;
+	public static final int BytesPerPromotionBranchEntry = 2;
+	
+	public static final long PaletteClassTablePointer = 0x575B4;
+	//public static final long DefaultPaletteClassTableOffset = 0x95E0A4L;
+	public static final int BytesPerPaletteTableEntry = 7;
+	
+	public static final long PaletteIndexTablePointer = 0x57394;
+	//public static final long DefaultPaletteIndexTableOffset = 0x95EEA4;
+	public static final int BytesPerPaletteIndexTableEntry = 7;
 	
 	public enum Character {
 		NONE(0x00),
@@ -141,12 +143,13 @@ public class FE8Data {
 		public static Set<Character> allBossCharacters = new HashSet<Character>(Arrays.asList(ORSON, SELENA, SELENA_10B_13B, VALTER, VALTER_CH15, VALTER_PROLOGUE, RIEV, CAELLACH, BREGUET, BONE, BAZBA, MUMMY_CH4,
 				SAAR, NOVALA, MURRAY, TIRADO, BINKS, PABLO, MACDAIRE_12A, AIAS, CARLYLE, CAELLACH_CH15, PABLO_13A, GORGON_CH18,
 				RIEV_CH19_CH20, GHEB, BERAN, CYCLOPS_CH12B, HELLBONE_11A, DEATHGOYLE_11B, ONEILL, GLEN_CUTSCENE, ZONTA, VIGARDE, ORSON_CH16));
-		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(CORMAG, VALTER, GLEN));
+		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE));
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(COLM, RENNAC));
 		
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
+		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList(SETH)); // The prologue scripted battle.
 		
 		public Boolean isLord() {
 			return allLords.contains(this);
@@ -166,6 +169,10 @@ public class FE8Data {
 		
 		public Boolean requiresRange() {
 			return charactersThatRequireRange.contains(this);
+		}
+		
+		public Boolean requiresMelee() {
+			return charactersThatRequireMelee.contains(this);
 		}
 		
 		public Boolean hasLimitedClasses() {
@@ -243,7 +250,7 @@ public class FE8Data {
 		
 		MANAKETE(0x0E), MERCENARY_F(0x10), HERO_F(0x12), WYVERN_RIDER_F(0x20), WYVERN_LORD_F(0x22), SHAMAN_F(0x2E), DRUID_F(0x30), SUMMONER_F(0x32), MANAKETE_2(0x3B), BARD(0x46), 
 		
-		GORGON_EGG(0x34), NECROMANCER(0x4F), FLEET(0x50), GHOST_FIGHTER(0x51), DRACOZOMBIE(0x65),
+		GORGON_EGG(0x34), NECROMANCER(0x4F), FLEET(0x50), GHOST_FIGHTER(0x51), DRACOZOMBIE(0x65), DEMON_KING(0x66)
 		;
 		
 		public int ID;
@@ -293,8 +300,9 @@ public class FE8Data {
 				GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2));
 		
 		public static Set<CharacterClass> allPacifistClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, CLERIC, TROUBADOUR, PRIEST));
-		public static Set<CharacterClass> allMeleeLockedClasses = new HashSet<CharacterClass>(Arrays.asList(MYRMIDON, MERCENARY, EIRIKA_LORD, THIEF, MYRMIDON_F, BONEWALKER, BAEL, ELDER_BAEL, ELDER_BAEL_2, MAUTHE_DOOG,
+		public static Set<CharacterClass> allMeleeLockedClasses = new HashSet<CharacterClass>(Arrays.asList(MYRMIDON, MERCENARY, EIRIKA_LORD, THIEF, MYRMIDON_F, BAEL, ELDER_BAEL, ELDER_BAEL_2, MAUTHE_DOOG,
 				GWYLLGI, REVENANT, ENTOMBED));
+		public static Set<CharacterClass> allRangeLockedClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, ARCHER_F, SNIPER, SNIPER_F, BONEWALKER_BOW, WIGHT_BOW));
 		
 		public static Set<CharacterClass> allValidClasses = new HashSet<CharacterClass>(Arrays.asList(EPHRAIM_LORD, CAVALIER, KNIGHT, THIEF, MERCENARY, MYRMIDON, ARCHER, WYVERN_RIDER, MAGE, SHAMAN, 
 				FIGHTER, BRIGAND, PIRATE, MONK, PRIEST, SOLDIER, TRAINEE_2, PUPIL_2, EPHRAIM_MASTER_LORD, PALADIN, GENERAL, HERO, SWORDMASTER, ASSASSIN, SNIPER, RANGER, WYVERN_LORD, WYVERN_KNIGHT, SAGE, 
@@ -377,8 +385,8 @@ public class FE8Data {
 			return classList.toArray(new CharacterClass[classList.size()]);
 		}
 		
-		public static CharacterClass[] targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean separateMonsterClasses, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
-			CharacterClass[] limited = limitedClassesForRandomization(sourceClass, separateMonsterClasses, requiresRange);
+		public static CharacterClass[] targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean separateMonsterClasses, Boolean requireAttack, Boolean requiresRange, Boolean requiresMelee, Boolean applyRestrictions) {
+			CharacterClass[] limited = limitedClassesForRandomization(sourceClass, separateMonsterClasses, requiresRange, requiresMelee);
 			if (limited != null && applyRestrictions) {
 				return limited;
 			}
@@ -426,11 +434,15 @@ public class FE8Data {
 				classList.removeAll(allPacifistClasses);
 				classList.removeAll(allMeleeLockedClasses);
 			}
+			if (requiresMelee) {
+				classList.removeAll(allPacifistClasses);
+				classList.removeAll(allRangeLockedClasses);
+			}
 			
 			return classList.toArray(new CharacterClass[classList.size()]);
 		}
 		
-		private static CharacterClass[] limitedClassesForRandomization(CharacterClass sourceClass, Boolean separateMonsters, Boolean requireRange) {
+		private static CharacterClass[] limitedClassesForRandomization(CharacterClass sourceClass, Boolean separateMonsters, Boolean requireRange, Boolean requireMelee) {
 			if (separateMonsters) {
 				switch(sourceClass) {
 				case WYVERN_RIDER:
@@ -862,6 +874,7 @@ public class FE8Data {
 		public static Set<Item> allRangedWeapons = new HashSet<Item>(Arrays.asList(LIGHT_BRAND, RUNE_SWORD, WIND_SWORD, JAVELIN, SPEAR, SHORT_SPEAR, HAND_AXE, TOMAHAWK, IRON_BOW, STEEL_BOW,
 				SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONG_BOW, BEACON_BOW, NIDHOGG, FIRE, THUNDER, ELFIRE, FIMBULVETR, EXCALIBUR, LIGHTNING, SHINE, DIVINE, 
 				AURA, IVALDI, FLUX, LUNA, NOSFERATU, FENRIR, GLEIPNIR, NAGLFAR, WRETCHED_AIR, DEMON_SURGE, EVIL_EYE, CRIMSON_EYE));
+		public static Set<Item> allRangedOnlyWeapons = new HashSet<Item>(Arrays.asList(IRON_BOW, STEEL_BOW, SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONG_BOW, BEACON_BOW, NIDHOGG));
 		public static Set<Item> allStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER, SILENCE, SLEEP, BERSERK));
 		
 		public static Set<Item> allERank = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, SHADOWKILLER, IRON_LANCE, SLIM_LANCE, TOXIN_LANCE, JAVELIN, BRIGHT_LANCE, IRON_AXE, STEEL_AXE, DEVIL_AXE,
@@ -918,6 +931,8 @@ public class FE8Data {
 				else { return new Item[] {DEMON_SURGE}; }
 			} else if (classID == FE8Data.CharacterClass.THIEF.ID) {
 				return new Item[] {LOCKPICK};
+			} else if (classID == FE8Data.CharacterClass.MANAKETE_F.ID) {
+				return new Item[] {DRAGONSTONE};
 			}
 			
 			return null;
@@ -1095,19 +1110,19 @@ public class FE8Data {
 			}
 		}
 		
-		public static Item[] weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange) {
+		public static Item[] weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange, Boolean requiresMelee) {
 			if (min == WeaponRank.PRF || max == WeaponRank.PRF) {
 				return null;
 			}
 			
-			FE7WeaponRank minRank = FE7WeaponRank.E;
+			FE8WeaponRank minRank = FE8WeaponRank.E;
 			if (min != null) {
-				minRank = FE7WeaponRank.rankFromGeneralRank(min);
+				minRank = FE8WeaponRank.rankFromGeneralRank(min);
 			}
 			
-			FE7WeaponRank maxRank = FE7WeaponRank.S;
+			FE8WeaponRank maxRank = FE8WeaponRank.S;
 			if (max != null) {
-				maxRank = FE7WeaponRank.rankFromGeneralRank(max);
+				maxRank = FE8WeaponRank.rankFromGeneralRank(max);
 			}
 			
 			if (minRank.isHigherThanRank(maxRank)) {
@@ -1144,43 +1159,46 @@ public class FE8Data {
 				break;
 			}
 			
-			if (FE7WeaponRank.E.isLowerThanRank(minRank)) {
+			if (FE8WeaponRank.E.isLowerThanRank(minRank)) {
 				list.removeAll(allERank);
 			}
-			if (FE7WeaponRank.D.isLowerThanRank(minRank)) {
+			if (FE8WeaponRank.D.isLowerThanRank(minRank)) {
 				list.removeAll(allDRank);
 			}
-			if (FE7WeaponRank.C.isLowerThanRank(minRank)) {
+			if (FE8WeaponRank.C.isLowerThanRank(minRank)) {
 				list.removeAll(allCRank);
 			}
-			if (FE7WeaponRank.B.isLowerThanRank(minRank)) {
+			if (FE8WeaponRank.B.isLowerThanRank(minRank)) {
 				list.removeAll(allBRank);
 			}
-			if (FE7WeaponRank.A.isLowerThanRank(minRank)) {
+			if (FE8WeaponRank.A.isLowerThanRank(minRank)) {
 				list.removeAll(allARank);
 			}
 			
 			list.removeAll(allPrfRank);
 			list.remove(SHAMSHIR); // This one is special. It must be added in only if we're certain the class asking for the item can use it.
 			
-			if (FE7WeaponRank.S.isHigherThanRank(maxRank)) {
+			if (FE8WeaponRank.S.isHigherThanRank(maxRank)) {
 				list.removeAll(allSRank);
 			}
-			if (FE7WeaponRank.A.isHigherThanRank(maxRank)) {
+			if (FE8WeaponRank.A.isHigherThanRank(maxRank)) {
 				list.removeAll(allARank);
 			}
-			if (FE7WeaponRank.B.isHigherThanRank(maxRank)) {
+			if (FE8WeaponRank.B.isHigherThanRank(maxRank)) {
 				list.removeAll(allBRank);
 			}
-			if (FE7WeaponRank.C.isHigherThanRank(maxRank)) {
+			if (FE8WeaponRank.C.isHigherThanRank(maxRank)) {
 				list.removeAll(allCRank);
 			}
-			if (FE7WeaponRank.D.isHigherThanRank(maxRank)) {
+			if (FE8WeaponRank.D.isHigherThanRank(maxRank)) {
 				list.removeAll(allDRank);
 			}
 			
 			if (requiresRange) {
 				list.retainAll(allRangedWeapons);
+			}
+			if (requiresMelee) {
+				list.removeAll(allRangedOnlyWeapons);
 			}
 			
 			return list.toArray(new Item[list.size()]);
@@ -1188,7 +1206,7 @@ public class FE8Data {
 	}
 
 	public enum ChapterPointer {
-		PROLOGUE(0x07), CHAPTER_1(0x0A), CHAPTER_2(0x0D), CHAPTER_3(0x14), CHAPTER_4(0x17), CHAPTER_5(0x21), CHAPTER_5X(0x1D), CHAPTER_6(0x24),
+		PROLOGUE(0x07), CHAPTER_1(0x0A), CHAPTER_2(0x0D), CHAPTER_3(0x14), CHAPTER_4(0x17), CHAPTER_5(0x21), CHAPTER_5X(0x1E), CHAPTER_6(0x24),
 		CHAPTER_7(0x27), CHAPTER_8(0x2A),
 		
 		CHAPTER_9_EIRIKA(0x2D), CHAPTER_10_EIRIKA(0x33), CHAPTER_11_EIRIKA(0xD1), CHAPTER_12_EIRIKA(0x37), CHAPTER_13_EIRIKA(0x3B), CHAPTER_14_EIRIKA(0x41),
@@ -1207,10 +1225,10 @@ public class FE8Data {
 			this.chapterID = chapterID;
 		}
 		
-		public FE7Data.CharacterClass[] blacklistedClasses() {
+		public CharacterClass[] blacklistedClasses() {
 			switch(this) {
 			default:
-				return new FE7Data.CharacterClass[] {};
+				return new CharacterClass[] {};
 			}
 		}
 		
@@ -1235,6 +1253,18 @@ public class FE8Data {
 			default:
 				return false;
 			}
+		}
+		
+		public Character[] targetedRewardRecipientsToTrack() {
+			switch (this) {
+			case PROLOGUE: {
+				return new Character[] {Character.EIRIKA};
+			}
+			default:
+				break;
+			}
+			
+			return new Character[] {};
 		}
 	}
 	
@@ -1532,6 +1562,7 @@ public class FE8Data {
 			defaultPaletteForClass.put(CharacterClass.WYVERN_KNIGHT.ID, WYVERN_KNIGHT_VALTER.info);
 			defaultPaletteForClass.put(CharacterClass.WYVERN_KNIGHT_F.ID, WYVERN_KNIGHT_TANA.info);
 			defaultPaletteForClass.put(CharacterClass.PEGASUS_KNIGHT.ID, PEGASUS_KNIGHT_VANESSA.info);
+			defaultPaletteForClass.put(CharacterClass.FALCON_KNIGHT.ID, FALCON_KNIGHT_SYRENE.info);
 			defaultPaletteForClass.put(CharacterClass.MAGE.ID, MAGE_EWAN.info);
 			defaultPaletteForClass.put(CharacterClass.MAGE_F.ID, MAGE_LUTE.info);
 			defaultPaletteForClass.put(CharacterClass.SAGE.ID, SAGE_SALEH.info);
@@ -1772,7 +1803,9 @@ public class FE8Data {
 		
 		public static PaletteInfo[] palettesForCharacter(int characterID) {
 			int canonicalID = Character.canonicalIDForCharacterID(characterID);
-			List<PaletteInfo> list = new ArrayList<PaletteInfo>(classByCharacter.get(canonicalID).values());
+			Map<Integer, PaletteInfo> map = classByCharacter.get(canonicalID);
+			if (map == null) { return new PaletteInfo[] {}; }
+			List<PaletteInfo> list = new ArrayList<PaletteInfo>(map.values());
 			return list.toArray(new PaletteInfo[list.size()]);
 		}
 		

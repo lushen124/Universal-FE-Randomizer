@@ -20,6 +20,9 @@ import fedata.fe6.FE6SpellAnimationCollection;
 import fedata.fe7.FE7Data;
 import fedata.fe7.FE7Item;
 import fedata.fe7.FE7SpellAnimationCollection;
+import fedata.fe8.FE8Data;
+import fedata.fe8.FE8Item;
+import fedata.fe8.FE8SpellAnimationCollection;
 import fedata.fe7.FE7Data.Item;
 import fedata.fe7.FE7Data.Item.WeaponEffect;
 import fedata.general.WeaponEffects;
@@ -40,9 +43,9 @@ private FEBase.GameType gameType;
 	public enum AdditionalData {
 		STR_MAG_BOOST("STRMAG"), SKL_BOOST("SKL"), SPD_BOOST("SPD"), DEF_BOOST("DEF"), RES_BOOST("RES"), LCK_BOOST("LCK"),
 		
-		HERO_CREST_CLASSES("HEROCREST"), KNIGHT_CREST_CLASSES("KNIGHTCREST"), MASTER_SEAL_CLASSES("MASTERSEAL"),
+		HERO_CREST_CLASSES("HEROCREST"), KNIGHT_CREST_CLASSES("KNIGHTCREST"), MASTER_SEAL_CLASSES("MASTERSEAL"), ELYSIAN_WHIP_CLASSES("ELYSIANWHIP"), GUIDING_RING_CLASSES("GUIDINGRING"), ORION_BOLT_CLASSES("ORIONBOLT"),
 		
-		KNIGHTCAV_EFFECT("EFF_KNIGHT_CAV"), KNIGHT_EFFECT("EFF_KNIGHT"), DRAGON_EFFECT("EFF_DRAGON"), CAVALRY_EFFECT("EFF_CAVALRY"), MYRMIDON_EFFECT("EFF_MYRMIDON"), FLIERS_EFFECT("EFF_FLIER");
+		KNIGHTCAV_EFFECT("EFF_KNIGHT_CAV"), KNIGHT_EFFECT("EFF_KNIGHT"), DRAGON_EFFECT("EFF_DRAGON"), CAVALRY_EFFECT("EFF_CAVALRY"), MYRMIDON_EFFECT("EFF_MYRMIDON"), FLIERS_EFFECT("EFF_FLIER"), MONSTER_EFFECT("EFF_MONSTER");
 		
 		String key;
 		
@@ -371,6 +374,309 @@ private FEBase.GameType gameType;
 				
 				break;
 		}
+			case FE8: {
+				long baseAddress = FileReadHelper.readAddress(handler, FE8Data.ItemTablePointer);
+				for (FE8Data.Item item : FE8Data.Item.values()) {
+					if (item == FE8Data.Item.NONE) {
+						continue;
+					}	
+					long offset = baseAddress + (FE8Data.BytesPerItem * item.ID);
+					byte[] itemData = handler.readBytesAtOffset(offset, FE8Data.BytesPerItem);
+					itemMap.put(item.ID, new FE8Item(itemData, offset, item.ID));
+				}
+				
+				long spellAnimationBaseAddress = FileReadHelper.readAddress(handler, FE8Data.SpellAnimationTablePointer);
+				spellAnimations = new FE8SpellAnimationCollection(handler.readBytesAtOffset(spellAnimationBaseAddress, 
+						FE8Data.NumberOfSpellAnimations * FE8Data.BytesPerSpellAnimation), spellAnimationBaseAddress);
+				
+				offsetsForAdditionalData = new HashMap<AdditionalData, Long>();
+				
+				// Set up effectiveness.
+				long offset = freeSpace.setValue(new byte[] {
+						(byte)FE8Data.CharacterClass.CAVALIER.ID,
+						(byte)FE8Data.CharacterClass.CAVALIER_F.ID,
+						(byte)FE8Data.CharacterClass.PALADIN.ID,
+						(byte)FE8Data.CharacterClass.PALADIN_F.ID,
+						(byte)FE8Data.CharacterClass.GREAT_KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.GREAT_KNIGHT_F.ID,
+						(byte)FE8Data.CharacterClass.KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.KNIGHT_F.ID,
+						(byte)FE8Data.CharacterClass.GENERAL.ID,
+						(byte)FE8Data.CharacterClass.GENERAL_F.ID,
+						(byte)FE8Data.CharacterClass.RANGER.ID,
+						(byte)FE8Data.CharacterClass.RANGER_F.ID,
+						(byte)FE8Data.CharacterClass.TROUBADOUR.ID,
+						(byte)FE8Data.CharacterClass.VALKYRIE.ID,
+						(byte)FE8Data.CharacterClass.MAGE_KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.MAGE_KNIGHT_F.ID,
+						(byte)FE8Data.CharacterClass.EIRIKA_MASTER_LORD.ID,
+						(byte)FE8Data.CharacterClass.EPHRAIM_MASTER_LORD.ID,
+						(byte)FE8Data.CharacterClass.TARVOS.ID,
+						(byte)FE8Data.CharacterClass.MAELDUIN.ID,
+						(byte)FE8Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.KNIGHTCAV_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.KNIGHTCAV_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE8Data.CharacterClass.KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.KNIGHT_F.ID,
+						(byte)FE8Data.CharacterClass.GENERAL.ID,
+						(byte)FE8Data.CharacterClass.GENERAL_F.ID,
+						(byte)FE8Data.CharacterClass.GREAT_KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.GREAT_KNIGHT_F.ID,
+						(byte)FE8Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.KNIGHT_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.KNIGHT_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE8Data.CharacterClass.CAVALIER.ID,
+						(byte)FE8Data.CharacterClass.CAVALIER_F.ID,
+						(byte)FE8Data.CharacterClass.PALADIN.ID,
+						(byte)FE8Data.CharacterClass.PALADIN_F.ID,
+						(byte)FE8Data.CharacterClass.GREAT_KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.GREAT_KNIGHT_F.ID,
+						(byte)FE8Data.CharacterClass.RANGER.ID,
+						(byte)FE8Data.CharacterClass.RANGER_F.ID,
+						(byte)FE8Data.CharacterClass.MAGE_KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.MAGE_KNIGHT_F.ID,
+						(byte)FE8Data.CharacterClass.TROUBADOUR.ID,
+						(byte)FE8Data.CharacterClass.VALKYRIE.ID,
+						(byte)FE8Data.CharacterClass.EIRIKA_MASTER_LORD.ID,
+						(byte)FE8Data.CharacterClass.EPHRAIM_MASTER_LORD.ID,
+						(byte)FE8Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.CAVALRY_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.CAVALRY_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE8Data.CharacterClass.REVENANT.ID,
+						(byte)FE8Data.CharacterClass.ENTOMBED.ID,
+						(byte)FE8Data.CharacterClass.BONEWALKER.ID,
+						(byte)FE8Data.CharacterClass.BONEWALKER_BOW.ID,
+						(byte)FE8Data.CharacterClass.WIGHT.ID,
+						(byte)FE8Data.CharacterClass.WIGHT_BOW.ID,
+						(byte)FE8Data.CharacterClass.BAEL.ID,
+						(byte)FE8Data.CharacterClass.ELDER_BAEL.ID,
+						(byte)FE8Data.CharacterClass.CYCLOPS.ID,
+						(byte)FE8Data.CharacterClass.MAUTHE_DOOG.ID,
+						(byte)FE8Data.CharacterClass.GWYLLGI.ID,
+						(byte)FE8Data.CharacterClass.TARVOS.ID,
+						(byte)FE8Data.CharacterClass.MAELDUIN.ID,
+						(byte)FE8Data.CharacterClass.MOGALL.ID,
+						(byte)FE8Data.CharacterClass.ARCH_MOGALL.ID,
+						(byte)FE8Data.CharacterClass.GORGON.ID,
+						(byte)FE8Data.CharacterClass.GORGON_EGG.ID,
+						(byte)FE8Data.CharacterClass.GARGOYLE.ID,
+						(byte)FE8Data.CharacterClass.DEATHGOYLE.ID,
+						(byte)FE8Data.CharacterClass.DRACOZOMBIE.ID,
+						(byte)FE8Data.CharacterClass.DEMON_KING.ID,
+						(byte)FE8Data.CharacterClass.MANAKETE.ID,
+						(byte)FE8Data.CharacterClass.CYCLOPS_2.ID,
+						(byte)FE8Data.CharacterClass.ELDER_BAEL_2.ID,
+						(byte)FE8Data.CharacterClass.GHOST_FIGHTER.ID,
+						(byte)FE8Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.MONSTER_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.MONSTER_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE8Data.CharacterClass.DRACOZOMBIE.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_KNIGHT_F.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_LORD.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_LORD_F.ID,
+						(byte)FE8Data.CharacterClass.MANAKETE.ID,
+						(byte)FE8Data.CharacterClass.MANAKETE_F.ID,
+						(byte)FE8Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.DRAGON_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.DRAGON_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE8Data.CharacterClass.MYRMIDON.ID,
+						(byte)FE8Data.CharacterClass.MYRMIDON_F.ID,
+						(byte)FE8Data.CharacterClass.SWORDMASTER.ID,
+						(byte)FE8Data.CharacterClass.SWORDMASTER_F.ID,
+						(byte)FE8Data.CharacterClass.MERCENARY.ID,
+						(byte)FE8Data.CharacterClass.MERCENARY_F.ID,
+						(byte)FE8Data.CharacterClass.HERO.ID,
+						(byte)FE8Data.CharacterClass.HERO_F.ID,
+						(byte)FE8Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.MYRMIDON_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.MYRMIDON_EFFECT, offset);
+				offset = freeSpace.setValue(new byte[] {
+						(byte)FE8Data.CharacterClass.PEGASUS_KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.FALCON_KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_RIDER.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_RIDER_F.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_KNIGHT.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_KNIGHT_F.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_LORD.ID,
+						(byte)FE8Data.CharacterClass.WYVERN_LORD_F.ID,
+						(byte)FE8Data.CharacterClass.GARGOYLE.ID,
+						(byte)FE8Data.CharacterClass.DEATHGOYLE.ID,
+						(byte)FE8Data.CharacterClass.MANAKETE.ID,
+						(byte)FE8Data.CharacterClass.MANAKETE_F.ID,
+						(byte)FE8Data.CharacterClass.DRACOZOMBIE.ID,
+						(byte)FE8Data.CharacterClass.NONE.ID // Terminal.
+				}, AdditionalData.FLIERS_EFFECT.key); 
+				offsetsForAdditionalData.put(AdditionalData.FLIERS_EFFECT, offset);
+				
+				// Set up stat boosts.
+				offset = freeSpace.setValue(new byte[] {0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, AdditionalData.STR_MAG_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.STR_MAG_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00}, AdditionalData.SKL_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.SKL_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00}, AdditionalData.SPD_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.SPD_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00}, AdditionalData.DEF_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.DEF_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00}, AdditionalData.RES_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.RES_BOOST, offset);
+				offset = freeSpace.setValue(new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00}, AdditionalData.LCK_BOOST.key);
+				offsetsForAdditionalData.put(AdditionalData.LCK_BOOST, offset);
+				
+				// Set up promotion items.
+				long heroCrestOffset = FE8Data.PromotionItem.HERO_CREST.getPointerAddress();
+				long heroCrestPointerAddress = FileReadHelper.readAddress(handler, heroCrestOffset) + 4;
+				List<Byte> idList = new ArrayList<Byte>();
+				byte currentByte = 0x0;
+				long currentOffset = FileReadHelper.readAddress(handler, heroCrestPointerAddress);
+				do {
+					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
+					if (currentByte != 0) {
+						idList.add(currentByte);
+					}
+				} while (currentByte != 0);
+				if (!idList.contains((byte)FE8Data.CharacterClass.REVENANT.ID)) { idList.add((byte)FE8Data.CharacterClass.REVENANT.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.BONEWALKER.ID)) { idList.add((byte)FE8Data.CharacterClass.BONEWALKER.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.MAUTHE_DOOG.ID)) { idList.add((byte)FE8Data.CharacterClass.MAUTHE_DOOG.ID); }
+				// Always end with terminal
+				idList.add((byte)FE7Data.CharacterClass.NONE.ID);
+				byte[] byteArray = new byte[idList.size()];
+				for (int i = 0; i < idList.size(); i++) {
+					byteArray[i] = idList.get(i);
+				}
+				offset = freeSpace.setValue(byteArray, AdditionalData.HERO_CREST_CLASSES.key);
+				offsetsForAdditionalData.put(AdditionalData.HERO_CREST_CLASSES, offset);
+				
+				long knightCrestOffset = FE8Data.PromotionItem.KNIGHT_CREST.getPointerAddress();
+				long knightCrestPointerAddress = FileReadHelper.readAddress(handler, knightCrestOffset) + 4;
+				idList.clear();
+				currentByte = 0x0;
+				currentOffset = FileReadHelper.readAddress(handler, knightCrestPointerAddress);
+				do {
+					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
+					if (currentByte != 0) {
+						idList.add(currentByte);
+					}
+				} while (currentByte != 0);
+				if (!idList.contains((byte)FE8Data.CharacterClass.EIRIKA_LORD.ID)) { idList.add((byte)FE8Data.CharacterClass.EIRIKA_LORD.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.EPHRAIM_LORD.ID)) { idList.add((byte)FE8Data.CharacterClass.EPHRAIM_LORD.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.SOLDIER.ID)) { idList.add((byte)FE8Data.CharacterClass.SOLDIER.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.TARVOS.ID)) { idList.add((byte)FE8Data.CharacterClass.TARVOS.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.BAEL.ID)) { idList.add((byte)FE8Data.CharacterClass.BAEL.ID); }
+				idList.add((byte)FE7Data.CharacterClass.NONE.ID);
+				byteArray = new byte[idList.size()];
+				for (int i = 0; i < idList.size(); i++) {
+					byteArray[i] = idList.get(i);
+				}
+				offset = freeSpace.setValue(byteArray, AdditionalData.KNIGHT_CREST_CLASSES.key);
+				offsetsForAdditionalData.put(AdditionalData.KNIGHT_CREST_CLASSES, offset);
+				
+				long elysianWhipOffset = FE8Data.PromotionItem.ELYSIAN_WHIP.getPointerAddress();
+				long elysianWhipPointerAddress = FileReadHelper.readAddress(handler, elysianWhipOffset) + 4;
+				idList.clear();
+				currentByte = 0x0;
+				currentOffset = FileReadHelper.readAddress(handler, elysianWhipPointerAddress);
+				do {
+					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
+					if (currentByte != 0) {
+						idList.add(currentByte);
+					}
+				} while (currentByte != 0);
+				if (!idList.contains((byte)FE8Data.CharacterClass.GARGOYLE.ID)) { idList.add((byte)FE8Data.CharacterClass.GARGOYLE.ID); }
+				idList.add((byte)FE8Data.CharacterClass.NONE.ID);
+				byteArray = new byte[idList.size()];
+				for (int i = 0; i < idList.size(); i++) {
+					byteArray[i] = idList.get(i);
+				}
+				offset = freeSpace.setValue(byteArray, AdditionalData.ELYSIAN_WHIP_CLASSES.key);
+				offsetsForAdditionalData.put(AdditionalData.ELYSIAN_WHIP_CLASSES, offset);
+				
+				long orionBoltOffset = FE8Data.PromotionItem.ORION_BOLT.getPointerAddress();
+				long orionBoltPointerAddress = FileReadHelper.readAddress(handler, orionBoltOffset) + 4;
+				idList.clear();
+				currentByte = 0x0;
+				currentOffset = FileReadHelper.readAddress(handler, orionBoltPointerAddress);
+				do {
+					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
+					if (currentByte != 0) {
+						idList.add(currentByte);
+					}
+				} while (currentByte != 0);
+				if (!idList.contains((byte)FE8Data.CharacterClass.BONEWALKER_BOW.ID)) { idList.add((byte)FE8Data.CharacterClass.BONEWALKER_BOW.ID); }
+				idList.add((byte)FE8Data.CharacterClass.NONE.ID);
+				byteArray = new byte[idList.size()];
+				for (int i = 0; i < idList.size(); i++) {
+					byteArray[i] = idList.get(i);
+				}
+				offset = freeSpace.setValue(byteArray, AdditionalData.ORION_BOLT_CLASSES.key);
+				offsetsForAdditionalData.put(AdditionalData.ORION_BOLT_CLASSES, offset);
+				
+				long guidingRingOffset = FE8Data.PromotionItem.GUIDING_RING.getPointerAddress();
+				long guidingRingPointerAddress = FileReadHelper.readAddress(handler, guidingRingOffset) + 4;
+				idList.clear();
+				currentByte = 0x0;
+				currentOffset = FileReadHelper.readAddress(handler, guidingRingPointerAddress);
+				do {
+					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
+					if (currentByte != 0) {
+						idList.add(currentByte);
+					}
+				} while (currentByte != 0);
+				if (!idList.contains((byte)FE8Data.CharacterClass.MOGALL.ID)) { idList.add((byte)FE8Data.CharacterClass.MOGALL.ID); }
+				idList.add((byte)FE8Data.CharacterClass.NONE.ID);
+				byteArray = new byte[idList.size()];
+				for (int i = 0; i < idList.size(); i++) {
+					byteArray[i] = idList.get(i);
+				}
+				offset = freeSpace.setValue(byteArray, AdditionalData.GUIDING_RING_CLASSES.key);
+				offsetsForAdditionalData.put(AdditionalData.GUIDING_RING_CLASSES, offset);
+				
+				long masterSealOffset = FE8Data.PromotionItem.MASTER_SEAL.getPointerAddress();
+				long masterSealPointerAddress = FileReadHelper.readAddress(handler, masterSealOffset) + 4;
+				idList.clear();
+				currentByte = 0x0;
+				currentOffset = FileReadHelper.readAddress(handler, masterSealPointerAddress);
+				do {
+					currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
+					if (currentByte != 0) {
+						idList.add(currentByte);
+					}
+				} while (currentByte != 0);
+				if (!idList.contains((byte)FE8Data.CharacterClass.EIRIKA_LORD.ID)) { idList.add((byte)FE8Data.CharacterClass.EIRIKA_LORD.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.EPHRAIM_LORD.ID)) { idList.add((byte)FE8Data.CharacterClass.EPHRAIM_LORD.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.SOLDIER.ID)) { idList.add((byte)FE8Data.CharacterClass.SOLDIER.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.REVENANT.ID)) { idList.add((byte)FE8Data.CharacterClass.REVENANT.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.BONEWALKER.ID)) { idList.add((byte)FE8Data.CharacterClass.BONEWALKER.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.BONEWALKER_BOW.ID)) { idList.add((byte)FE8Data.CharacterClass.BONEWALKER_BOW.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.BAEL.ID)) { idList.add((byte)FE8Data.CharacterClass.BAEL.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.MAUTHE_DOOG.ID)) { idList.add((byte)FE8Data.CharacterClass.MAUTHE_DOOG.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.TARVOS.ID)) { idList.add((byte)FE8Data.CharacterClass.TARVOS.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.MOGALL.ID)) { idList.add((byte)FE8Data.CharacterClass.MOGALL.ID); }
+				if (!idList.contains((byte)FE8Data.CharacterClass.GARGOYLE.ID)) { idList.add((byte)FE8Data.CharacterClass.GARGOYLE.ID); }
+				
+				idList.add((byte)FE8Data.CharacterClass.NONE.ID);
+				byteArray = new byte[idList.size()];
+				for (int i = 0; i < idList.size(); i++) {
+					byteArray[i] = idList.get(i);
+				}
+				offset = freeSpace.setValue(byteArray, AdditionalData.MASTER_SEAL_CLASSES.key);
+				offsetsForAdditionalData.put(AdditionalData.MASTER_SEAL_CLASSES, offset);
+				
+				promotionItemAddressPointers = new HashMap<AdditionalData, Long>();
+				promotionItemAddressPointers.put(AdditionalData.HERO_CREST_CLASSES, heroCrestPointerAddress);
+				promotionItemAddressPointers.put(AdditionalData.KNIGHT_CREST_CLASSES, knightCrestPointerAddress);
+				promotionItemAddressPointers.put(AdditionalData.MASTER_SEAL_CLASSES, masterSealPointerAddress);
+				promotionItemAddressPointers.put(AdditionalData.ORION_BOLT_CLASSES, orionBoltPointerAddress);
+				promotionItemAddressPointers.put(AdditionalData.GUIDING_RING_CLASSES, guidingRingPointerAddress);
+				promotionItemAddressPointers.put(AdditionalData.ELYSIAN_WHIP_CLASSES, elysianWhipPointerAddress);
+				
+				break;
+		}
 			default:
 				break;
 		}
@@ -386,6 +692,8 @@ private FEBase.GameType gameType;
 			return FE6Data.Item.FE6WeaponRank.S.value;
 		case FE7:
 			return FE7Data.Item.FE7WeaponRank.S.value;
+		case FE8:
+			return FE8Data.Item.FE8WeaponRank.S.value;
 		default:
 			break;
 		}
@@ -402,6 +710,10 @@ private FEBase.GameType gameType;
 		case FE7: {
 			int arraySize = FE7Data.Item.allWeapons.size();
 			return itemsFromFE7Items(FE7Data.Item.allWeapons.toArray(new FE7Data.Item[arraySize]));
+		}
+		case FE8: {
+			int arraySize = FE8Data.Item.allWeapons.size();
+			return itemsFromFE8Items(FE8Data.Item.allWeapons.toArray(new FE8Data.Item[arraySize]));
 		}
 		default:
 			break;
@@ -446,7 +758,7 @@ private FEBase.GameType gameType;
 			long apocalypseStatBonusAddress = itemMap.get(FE6Data.Item.APOCALYPSE.ID).getStatBonusPointer(); // MAG
 			
 			if (address == durandalStatBonusAddress) { return "+5 Strength"; }
-			if (address == bindingBladeStatBonusAddress) { return "+5 DEF/RES"; }
+			if (address == bindingBladeStatBonusAddress) { return "+5 Defense, Resistance"; }
 			if (address == maltetStatBonusAddress) { return "+5 Skill"; }
 			if (address == armadsStatBonusAddress) { return "+5 Defense"; }
 			if (address == murgleisStatBonusAddress) { return "+5 Speed"; }
@@ -493,6 +805,45 @@ private FEBase.GameType gameType;
 			if (address == dragonEffectivenessAddress) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
 			break;
 		}
+		case FE8: {
+			long excaliburStatBonus = itemMap.get(FE8Data.Item.EXCALIBUR.ID).getStatBonusPointer(); // SPD
+			long gleipnirStatBonus = itemMap.get(FE8Data.Item.GLEIPNIR.ID).getStatBonusPointer(); // SKL
+			long sieglindeStatBonusAddress = itemMap.get(FE8Data.Item.SIEGLINDE.ID).getStatBonusPointer(); // STR
+			long ivaldiStatBonusAddress = itemMap.get(FE8Data.Item.IVALDI.ID).getStatBonusPointer(); // DEF
+			long vidofnirStatBonusAddress = itemMap.get(FE8Data.Item.VIDOFNIR.ID).getStatBonusPointer(); // DEF
+			long audhulmaStatBonusAddress = itemMap.get(FE8Data.Item.AUDHULMA.ID).getStatBonusPointer(); // RES
+			long siegmundStatBonusAddress = itemMap.get(FE8Data.Item.SIEGMUND.ID).getStatBonusPointer(); // STR
+			long garmStatBonusAddress = itemMap.get(FE8Data.Item.GARM.ID).getStatBonusPointer(); // SPD
+			long nidhoggStatBonusAddress = itemMap.get(FE8Data.Item.NIDHOGG.ID).getStatBonusPointer(); // LCK
+			
+			if (address == excaliburStatBonus || address == garmStatBonusAddress) { return "+5 Speed"; }
+			if (address == gleipnirStatBonus) { return "+5 Skill"; }
+			if (address == sieglindeStatBonusAddress || address == siegmundStatBonusAddress) { return "+5 Strength"; }
+			if (address == ivaldiStatBonusAddress || address == vidofnirStatBonusAddress) { return "+5 Defense"; }
+			if (address == audhulmaStatBonusAddress) { return "+5 Resistance"; }
+			if (address == nidhoggStatBonusAddress) { return "+5 Luck"; }
+			
+			long rapierEffectivenessAddress = itemMap.get(FE8Data.Item.RAPIER.ID).getEffectivenessPointer(); // 0x8ADEC2
+			long armorslayerEffectivenessAddress = itemMap.get(FE8Data.Item.ARMORSLAYER.ID).getEffectivenessPointer(); // 0x8ADEBB
+			long wyrmslayerEffectivenessAddress = itemMap.get(FE8Data.Item.WYRMSLAYER.ID).getEffectivenessPointer(); // 0x8ADF13
+			long zanbatoEffectivenessAddress = itemMap.get(FE8Data.Item.ZANBATO.ID).getEffectivenessPointer(); // 0x8ADEE0
+			long swordslayerEffectivenessAddress = itemMap.get(FE8Data.Item.SWORDSLAYER.ID).getEffectivenessPointer(); // 0x8ADED7
+			long bowEffectivenessAddress = itemMap.get(FE8Data.Item.IRON_BOW.ID).getEffectivenessPointer(); // 0x8ADF2A (includes Wind Sword)
+			
+			long shadowKillerEffectivenessAddress = itemMap.get(FE8Data.Item.SHADOWKILLER.ID).getEffectivenessPointer(); // 0x8ADF39 (all other legendaries fall under this, as well as Myrrh's Dragonstone)
+			long beaconBowEffectivenessAddress = itemMap.get(FE8Data.Item.BEACON_BOW.ID).getEffectivenessPointer(); // 0x8ADEF1 (Monsters + Fliers) (includes Nidhogg)
+			
+			
+			if (address == rapierEffectivenessAddress) { return shortForm ? "Eff. Infantry" : "Effective against infantry"; }
+			if (address == bowEffectivenessAddress) { return shortForm ? "Eff. Fliers" : "Effective against fliers"; }
+			if (address == zanbatoEffectivenessAddress) { return shortForm ? "Eff. Cavalry" : "Effective against cavalry"; }
+			if (address == armorslayerEffectivenessAddress) { return shortForm ? "Eff. Knights" : "Effective against knights"; }
+			if (address == swordslayerEffectivenessAddress) { return shortForm ? "Eff. Swordfighters" : "Effective against swordfighters"; }
+			if (address == wyrmslayerEffectivenessAddress) { return shortForm ? "Eff. Dragons" : "Effective against dragons"; }
+			// Just throw beacon bow under here. it should be obvious that it's still effective against fliers.
+			if (address == shadowKillerEffectivenessAddress || address == beaconBowEffectivenessAddress) { return shortForm? "Eff. Monsters" : "Effective against monsters"; }
+			break;
+		}
 		default:
 			break;
 		}
@@ -513,6 +864,13 @@ private FEBase.GameType gameType;
 				offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT),
 				offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT),
 				offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT)};
+		case FE8: return new long[] { offsetsForAdditionalData.get(AdditionalData.KNIGHT_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.KNIGHTCAV_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.CAVALRY_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.MONSTER_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.DRAGON_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.MYRMIDON_EFFECT),
+				offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT)};
 		default: return new long[] {};
 		}
 	}
@@ -523,6 +881,8 @@ private FEBase.GameType gameType;
 			return FE6Data.Item.isBasicWeapon(itemID);
 		case FE7:
 			return FE7Data.Item.isBasicWeapon(itemID);
+		case FE8:
+			return FE8Data.Item.isBasicWeapon(itemID);
 		default:
 			return false;
 		}
@@ -538,6 +898,10 @@ private FEBase.GameType gameType;
 			FE7Data.Item[] items = FE7Data.Item.basicItemsOfType(type);
 			if (items.length > 0) { return itemMap.get(items[0].ID); }
 		}
+		case FE8: {
+			FE8Data.Item[] items = FE8Data.Item.basicItemsOfType(type);
+			if (items.length > 0) { return itemMap.get(items[0].ID); }
+		}
 		default:
 			break;
 		}
@@ -545,12 +909,14 @@ private FEBase.GameType gameType;
 		return null;
 	}
 	
-	public FEItem[] itemsOfTypeAndBelowRankValue(WeaponType type, int rankValue, Boolean rangedOnly) {
+	public FEItem[] itemsOfTypeAndBelowRankValue(WeaponType type, int rankValue, Boolean rangedOnly, Boolean requiresMelee) {
 		switch (gameType) {
 		case FE6:
-			return itemsOfTypeAndBelowRank(type, FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly);
+			return itemsOfTypeAndBelowRank(type, FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, requiresMelee);
 		case FE7:
-			return itemsOfTypeAndBelowRank(type, FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly);
+			return itemsOfTypeAndBelowRank(type, FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, requiresMelee);
+		case FE8:
+			return itemsOfTypeAndBelowRank(type, FE8Data.Item.FE8WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, requiresMelee);
 		default:
 			break;
 		}
@@ -558,7 +924,7 @@ private FEBase.GameType gameType;
 		return new FEItem[] {};
 	}
 	
-	public FEItem[] itemsOfTypeAndBelowRank(WeaponType type, WeaponRank rank, Boolean rangedOnly) {
+	public FEItem[] itemsOfTypeAndBelowRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean requiresMelee) {
 		switch (gameType) {
 		case FE6: {
 			FE6Data.Item[] weapons = FE6Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
@@ -568,6 +934,10 @@ private FEBase.GameType gameType;
 			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
 			return itemsFromFE7Items(weapons);
 		}
+		case FE8: {
+			FE8Data.Item[] weapons = FE8Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly, requiresMelee);
+			return itemsFromFE8Items(weapons);
+		}
 		default:
 			break;
 		}
@@ -575,12 +945,14 @@ private FEBase.GameType gameType;
 		return new FEItem[] {};
 	}
 	
-	public FEItem[] itemsOfTypeAndEqualRankValue(WeaponType type, int rankValue, Boolean rangedOnly, Boolean allowLower) {
+	public FEItem[] itemsOfTypeAndEqualRankValue(WeaponType type, int rankValue, Boolean rangedOnly, Boolean requiresMelee, Boolean allowLower) {
 		switch (gameType) {
 		case FE6:
-			return itemsOfTypeAndEqualRank(type, FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, allowLower);
+			return itemsOfTypeAndEqualRank(type, FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, requiresMelee, allowLower);
 		case FE7:
-			return itemsOfTypeAndEqualRank(type, FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, allowLower);
+			return itemsOfTypeAndEqualRank(type, FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, requiresMelee, allowLower);
+		case FE8:
+			return itemsOfTypeAndEqualRank(type, FE8Data.Item.FE8WeaponRank.valueOf(rankValue).toGeneralRank(), rangedOnly, requiresMelee, allowLower);
 		default:
 			break;
 		}
@@ -588,7 +960,31 @@ private FEBase.GameType gameType;
 		return new FEItem[] {};
 	}
 	
-	public FEItem[] itemsOfTypeAndEqualRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean allowLower) {
+	public int weaponRankValueForRank(WeaponRank rank) {
+		switch (gameType) {
+		case FE6: {
+			FE6Data.Item.FE6WeaponRank fe6Rank = FE6Data.Item.FE6WeaponRank.rankFromGeneralRank(rank);
+			if (fe6Rank != null) { return fe6Rank.value; }
+			return 0;
+		}
+		case FE7: {
+			FE7Data.Item.FE7WeaponRank fe7Rank = FE7Data.Item.FE7WeaponRank.rankFromGeneralRank(rank);
+			if (fe7Rank != null) { return fe7Rank.value; }
+			return 0;
+		}
+		case FE8: {
+			FE8Data.Item.FE8WeaponRank fe8Rank = FE8Data.Item.FE8WeaponRank.rankFromGeneralRank(rank);
+			if (fe8Rank != null) { return fe8Rank.value; }
+			return 0;
+		}
+		default:
+			break;
+		}
+		
+		return 0;
+	}
+	
+	public FEItem[] itemsOfTypeAndEqualRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean requiresMelee, Boolean allowLower) {
 		switch (gameType) {
 		case FE6: {
 			if (type == WeaponType.DARK && rank == WeaponRank.E) { rank = WeaponRank.D; } // There is no E rank dark tome, so we need to set a floor of D.
@@ -606,6 +1002,14 @@ private FEBase.GameType gameType;
 			}
 			return itemsFromFE7Items(weapons);
 		}
+		case FE8: {
+			if (type == WeaponType.DARK && rank == WeaponRank.E) { rank = WeaponRank.D; } // There is no E rank dark tome, so we need to set a floor of D.
+			FE8Data.Item[] weapons = FE8Data.Item.weaponsOfTypeAndRank(type, rank, rank, rangedOnly, requiresMelee);
+			if ((weapons == null || weapons.length == 0) && allowLower) {
+				weapons = FE8Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly, requiresMelee);
+			}
+			return itemsFromFE8Items(weapons);
+		}
 		default:
 			break;
 		}
@@ -619,6 +1023,8 @@ private FEBase.GameType gameType;
 			return itemsFromFE6Items(FE6Data.Item.prfWeaponsForClassID(classID));
 		case FE7:
 			return itemsFromFE7Items(FE7Data.Item.prfWeaponsForClassID(classID));
+		case FE8:
+			return itemsFromFE8Items(FE8Data.Item.prfWeaponsForClassID(classID));
 		default:
 			break;
 		}
@@ -637,6 +1043,11 @@ private FEBase.GameType gameType;
 			Set<FE7Data.Item> items = new HashSet<FE7Data.Item>();
 			items.addAll(FE7Data.Item.allPotentialRewards);
 			return itemsFromFE7Items(items.toArray(new FE7Data.Item[items.size()]));
+		}
+		case FE8: {
+			Set<FE8Data.Item> items = new HashSet<FE8Data.Item>();
+			items.addAll(FE8Data.Item.allPotentialRewards);
+			return itemsFromFE8Items(items.toArray(new FE8Data.Item[items.size()]));
 		}
 		default:
 			break;
@@ -693,6 +1104,29 @@ private FEBase.GameType gameType;
 			
 			return itemsFromFE7Items(items.toArray(new FE7Data.Item[items.size()]));
 		}
+		case FE8: {
+			Set<FE8Data.Item> items = new HashSet<FE8Data.Item>();
+			FEItem item = itemWithID(itemID);
+			if (item == null) {
+				System.err.println("Invalid Item " + Integer.toHexString(itemID));
+				break;
+			}
+			if (item.getType() == WeaponType.NOT_A_WEAPON) {
+				if (FE8Data.Item.isStatBooster(item.getID())) {
+					items.addAll(FE8Data.Item.allStatBoosters);
+				}
+				if (FE8Data.Item.isPromotionItem(item.getID())) {
+					items.addAll(FE8Data.Item.allPromotionItems);
+				}
+			} else {
+				items.addAll(Arrays.asList(FE8Data.Item.weaponsOfRank(item.getWeaponRank())));
+				items.addAll(Arrays.asList(FE8Data.Item.weaponsOfType(item.getType())));
+			}
+			
+			items.removeIf(i-> i.ID == itemID);
+			
+			return itemsFromFE8Items(items.toArray(new FE8Data.Item[items.size()]));
+		}
 		default:
 			break;
 		}
@@ -706,6 +1140,8 @@ private FEBase.GameType gameType;
 			return itemsFromFE6Items(FE6Data.Item.lockedWeaponsToClassID(classID));
 		case FE7:
 			return itemsFromFE7Items(FE7Data.Item.lockedWeaponsToClassID(classID));
+		case FE8:
+			return itemsFromFE8Items(FE8Data.Item.lockedWeaponsToClassID(classID));
 		default:
 			break;
 		}
@@ -719,6 +1155,8 @@ private FEBase.GameType gameType;
 			return FE6Data.Item.allHealingStaves.contains(FE6Data.Item.valueOf(itemID));
 		case FE7:
 			return FE7Data.Item.allHealingStaves.contains(FE7Data.Item.valueOf(itemID));
+		case FE8:
+			return FE8Data.Item.allHealingStaves.contains(FE8Data.Item.valueOf(itemID));
 		default:
 			return false;
 		}
@@ -730,6 +1168,8 @@ private FEBase.GameType gameType;
 			return FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank();
 		case FE7:
 			return FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank();
+		case FE8:
+			return FE8Data.Item.FE8WeaponRank.valueOf(rankValue).toGeneralRank();
 		default:
 			return null;
 		}
@@ -757,6 +1197,16 @@ private FEBase.GameType gameType;
 			FE7Data.Item[] remainingItems = healingStaves.toArray(new FE7Data.Item[healingStaves.size()]);
 			return itemMap.get(remainingItems[rng.nextInt(remainingItems.length)].ID);
 		}
+		case FE8: {
+			Set<FE8Data.Item> healingStaves = new HashSet<FE8Data.Item>(FE8Data.Item.allHealingStaves);
+			if (maxRank.isLowerThan(WeaponRank.S)) { healingStaves.removeAll(FE8Data.Item.allSRank); }
+			if (maxRank.isLowerThan(WeaponRank.A)) { healingStaves.removeAll(FE8Data.Item.allARank); }
+			if (maxRank.isLowerThan(WeaponRank.B)) { healingStaves.removeAll(FE8Data.Item.allBRank); }
+			if (maxRank.isLowerThan(WeaponRank.C)) { healingStaves.removeAll(FE8Data.Item.allCRank); }
+			if (maxRank.isLowerThan(WeaponRank.D)) { healingStaves.removeAll(FE8Data.Item.allDRank); }
+			FE8Data.Item[] remainingItems = healingStaves.toArray(new FE8Data.Item[healingStaves.size()]);
+			return itemMap.get(remainingItems[rng.nextInt(remainingItems.length)].ID);
+		}
 		default:
 			return null;
 		}
@@ -768,6 +1218,8 @@ private FEBase.GameType gameType;
 			return itemsFromFE6Items(FE6Data.Item.formerThiefKit());
 		case FE7:
 			return itemsFromFE7Items(FE7Data.Item.formerThiefKit());
+		case FE8:
+			return itemsFromFE8Items(FE8Data.Item.formerThiefKit());
 		default:
 			return new FEItem[] {};
 		}
@@ -779,6 +1231,8 @@ private FEBase.GameType gameType;
 			return itemsFromFE6Items(new FE6Data.Item[] {FE6Data.Item.LOCKPICK});
 		case FE7:
 			return itemsFromFE7Items(new FE7Data.Item[] {FE7Data.Item.LOCKPICK});
+		case FE8:
+			return itemsFromFE8Items(new FE8Data.Item[] {FE8Data.Item.LOCKPICK});
 		default:
 			return new FEItem[] {};
 		}
@@ -797,6 +1251,13 @@ private FEBase.GameType gameType;
 			FE7Data.Item[] items = FE7Data.Item.specialClassKit(classID, rng);
 			if (items != null) {
 				return itemsFromFE7Items(items);
+			}
+			break;
+		}
+		case FE8: {
+			FE8Data.Item[] items = FE8Data.Item.specialClassKit(classID, rng);
+			if (items != null) {
+				return itemsFromFE8Items(items);
 			}
 			break;
 		}
@@ -857,6 +1318,19 @@ private FEBase.GameType gameType;
 		FEItem[] result = new FEItem[fe6Items.length];
 		for (int i = 0; i < fe6Items.length; i++) {
 			result[i] = itemMap.get(fe6Items[i].ID);
+		}
+		
+		return result;
+	}
+	
+	private FEItem[] itemsFromFE8Items(FE8Data.Item[] fe8Items) {
+		if (fe8Items == null) {
+			return new FEItem[] {};
+		}
+		
+		FEItem[] result = new FEItem[fe8Items.length];
+		for (int i = 0; i < fe8Items.length; i++) {
+			result[i] = itemMap.get(fe8Items[i].ID);
 		}
 		
 		return result;

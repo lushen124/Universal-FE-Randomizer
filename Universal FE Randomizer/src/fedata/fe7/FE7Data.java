@@ -13,6 +13,7 @@ import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
 import util.WhyDoesJavaNotHaveThese;
 import fedata.fe6.FE6Data.Item.WeaponEffect;
+import fedata.fe8.FE8Data.Character;
 import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 
@@ -150,6 +151,7 @@ public class FE7Data {
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(MATTHEW, LEGAULT, JAFFAR));
 		
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList(ERK, RATH, RATH_TUTORIAL));
+		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
 		
 		public Boolean isLord() {
 			return allLords.contains(this);
@@ -169,6 +171,10 @@ public class FE7Data {
 		
 		public Boolean requiresRange() {
 			return charactersThatRequireRange.contains(this);
+		}
+		
+		public Boolean requiresMelee() {
+			return charactersThatRequireMelee.contains(this);
 		}
 		
 		public Boolean hasLimitedClasses() {

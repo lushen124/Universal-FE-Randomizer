@@ -106,6 +106,10 @@ public class FE6Chapter implements FEChapter {
 	public FEChapterItem[] allRewards() {
 		return allChapterRewards.toArray(new FEChapterItem[allChapterRewards.size()]);
 	}
+	
+	public FEChapterItem[] allTargetedRewards() {
+		return new FEChapterItem[] {};
+	}
 
 	@Override
 	public long[] getFightAddresses() {
@@ -441,4 +445,5 @@ public class FE6Chapter implements FEChapter {
 		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Finished searching for rewards at 0x" + Long.toHexString(currentAddress));
 	}
 
+	public FEChapterItem chapterItemGivenToCharacter(int characterID) { return null; }
 }

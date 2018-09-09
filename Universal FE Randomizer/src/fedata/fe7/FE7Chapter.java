@@ -129,6 +129,10 @@ public class FE7Chapter implements FEChapter {
 		return allChapterRewards.toArray(new FEChapterItem[allChapterRewards.size()]);
 	}
 	
+	public FEChapterItem[] allTargetedRewards() {
+		return new FEChapterItem[] {};
+	}
+	
 	public int lordLeaderID() {
 		return probableLordID;
 	}
@@ -638,4 +642,6 @@ public class FE7Chapter implements FEChapter {
 		
 		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Finished searching for rewards at 0x" + Long.toHexString(currentAddress));
 	}
+	
+	public FEChapterItem chapterItemGivenToCharacter(int characterID) { return null; }
 }

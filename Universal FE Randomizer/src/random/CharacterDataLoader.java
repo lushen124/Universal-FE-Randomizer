@@ -1,7 +1,5 @@
 package random;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +11,8 @@ import fedata.fe6.FE6Character;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Character;
 import fedata.fe7.FE7Data;
+import fedata.fe8.FE8Character;
+import fedata.fe8.FE8Data;
 import io.FileHandler;
 import util.Diff;
 import util.DiffCompiler;
@@ -57,6 +57,18 @@ public class CharacterDataLoader {
 					counterMap.put(characterID, characterMap.get(fe7Counters.get(characterID).ID));
 				}
 				break;
+			case FE8:
+				baseAddress = FileReadHelper.readAddress(handler, FE8Data.CharacterTablePointer);
+				for (FE8Data.Character character : FE8Data.Character.values()) {
+					long offset = baseAddress + (FE8Data.BytesPerCharacter * character.ID);
+					byte[] charData = handler.readBytesAtOffset(offset, FE8Data.BytesPerCharacter);
+					characterMap.put(character.ID, new FE8Character(charData, offset, character.hasLimitedClasses()));
+				}
+				Map<Integer, FE8Data.Character> fe8Counters = FE8Data.Character.getCharacterCounters();
+				for (int characterID : fe8Counters.keySet()) {
+					counterMap.put(characterID, characterMap.get(fe8Counters.get(characterID).ID));
+				}
+				break;
 			default:
 				break;
 		}
@@ -74,6 +86,9 @@ public class CharacterDataLoader {
 			case FE7:
 				Set<FE7Data.Character> fe7Characters = FE7Data.Character.allPlayableCharacters;
 				return fe7CharactersFromList(fe7Characters.toArray(new FE7Data.Character[fe7Characters.size()]));
+			case FE8:
+				Set<FE8Data.Character> fe8Characters = FE8Data.Character.allPlayableCharacters;
+				return fe8CharactersFromList(fe8Characters.toArray(new FE8Data.Character[fe8Characters.size()]));
 			default:
 				return new FECharacter[] {};
 		}
@@ -87,6 +102,9 @@ public class CharacterDataLoader {
 		case FE7:
 			Set<FE7Data.Character> fe7Characters = FE7Data.Character.allBossCharacters;
 			return fe7CharactersFromList(fe7Characters.toArray(new FE7Data.Character[fe7Characters.size()]));
+		case FE8:
+			Set<FE8Data.Character> fe8Characters = FE8Data.Character.allBossCharacters;
+			return fe8CharactersFromList(fe8Characters.toArray(new FE8Data.Character[fe8Characters.size()]));
 		default:
 			return new FECharacter[] {};
 		}
@@ -105,6 +123,13 @@ public class CharacterDataLoader {
 			FE7Data.Character fe7Character = FE7Data.Character.valueOf(characterID);
 			if (fe7Character != null) {
 				return fe7Character.isPlayableCharacter();	
+			} else {
+				return false;
+			}
+		case FE8:
+			FE8Data.Character fe8Character = FE8Data.Character.valueOf(characterID);
+			if (fe8Character != null) {
+				return fe8Character.isPlayableCharacter();
 			} else {
 				return false;
 			}
@@ -129,6 +154,13 @@ public class CharacterDataLoader {
 			} else {
 				return false;
 			}
+		case FE8:
+			FE8Data.Character fe8Character = FE8Data.Character.valueOf(characterID);
+			if (fe8Character != null) {
+				return fe8Character.isBoss();
+			} else {
+				return false;
+			}
 		default:
 			return false;
 		}
@@ -150,6 +182,13 @@ public class CharacterDataLoader {
 			} else {
 				return false;
 			}
+		case FE8:
+			FE8Data.Character fe8Character = FE8Data.Character.valueOf(characterID);
+			if (fe8Character != null) {
+				return fe8Character.isLord();
+			} else {
+				return false;
+			}
 		default:
 			return false;
 		}
@@ -168,6 +207,13 @@ public class CharacterDataLoader {
 			FE7Data.Character fe7Character = FE7Data.Character.valueOf(characterID);
 			if (fe7Character != null) {
 				return fe7Character.isThief();
+			} else {
+				return false;
+			}
+		case FE8:
+			FE8Data.Character fe8Character = FE8Data.Character.valueOf(characterID);
+			if (fe8Character != null) {
+				return fe8Character.isThief();
 			} else {
 				return false;
 			}
@@ -194,6 +240,14 @@ public class CharacterDataLoader {
 			}
 			
 			return validValues;
+		case FE8:
+			FE8Character.Affinity[] fe8Affinities = FE8Character.Affinity.validAffinities();
+			validValues = new int[fe8Affinities.length];
+			for (int i = 0; i < fe8Affinities.length; i++) {
+				validValues[i] = fe8Affinities[i].value;
+			}
+			
+			return validValues;
 		default:
 			return new int[] {};
 		}
@@ -215,6 +269,41 @@ public class CharacterDataLoader {
 			} else {
 				return false;
 			}
+		case FE8:
+			FE8Data.Character fe8Character = FE8Data.Character.valueOf(characterID);
+			if (fe8Character != null) {
+				return fe8Character.requiresRange();
+			} else {
+				return false;
+			}
+		default:
+			return false;
+		}
+	}
+	
+	public Boolean characterIDRequiresMelee(int characterID) {
+		switch (gameType) {
+		case FE6:
+			FE6Data.Character fe6Character = FE6Data.Character.valueOf(characterID);
+			if (fe6Character != null) {
+				return fe6Character.requiresMelee();
+			} else {
+				return false;
+			}
+		case FE7:
+			FE7Data.Character fe7Character = FE7Data.Character.valueOf(characterID);
+			if (fe7Character != null) {
+				return fe7Character.requiresMelee();
+			} else {
+				return false;
+			}
+		case FE8:
+			FE8Data.Character fe8Character = FE8Data.Character.valueOf(characterID);
+			if (fe8Character != null) {
+				return fe8Character.requiresMelee();
+			} else {
+				return false;
+			}
 		default:
 			return false;
 		}
@@ -232,6 +321,9 @@ public class CharacterDataLoader {
 		case FE7:
 			FE7Data.Character fe7Characters[] = FE7Data.Character.allLinkedCharactersFor(FE7Data.Character.valueOf(character.getID()));
 			return fe7CharactersFromList(fe7Characters);
+		case FE8:
+			FE8Data.Character fe8Characters[] = FE8Data.Character.allLinkedCharactersFor(FE8Data.Character.valueOf(character.getID()));
+			return fe8CharactersFromList(fe8Characters);
 		default:
 			return new FECharacter[] {character};
 		}
@@ -243,6 +335,8 @@ public class CharacterDataLoader {
 			return FE6Data.Character.canonicalIDForCharacterID(character.getID());
 		case FE7:
 			return FE7Data.Character.canonicalIDForCharacterID(character.getID());
+		case FE8:
+			return FE8Data.Character.canonicalIDForCharacterID(character.getID());
 		default:
 			return character.getID();
 		}
@@ -276,6 +370,17 @@ public class CharacterDataLoader {
 	}
 	
 	private FECharacter[] fe6CharactersFromList(FE6Data.Character[] characters) {
+		int charCount = characters.length;
+		FECharacter[] result = new FECharacter[charCount];
+		for (int i = 0; i < charCount; i++) {
+			FECharacter character = characterMap.get(characters[i].ID);
+			result[i] = character;
+		}
+		
+		return result;
+	}
+	
+	private FECharacter[] fe8CharactersFromList(FE8Data.Character[] characters) {
 		int charCount = characters.length;
 		FECharacter[] result = new FECharacter[charCount];
 		for (int i = 0; i < charCount; i++) {

@@ -1,4 +1,4 @@
-package fedata.fe7;
+package fedata.fe8;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,10 +10,10 @@ import java.util.Set;
 
 import fedata.FEItem;
 import fedata.FESpellAnimationCollection;
-import fedata.fe7.FE7Data.Item.Ability1Mask;
-import fedata.fe7.FE7Data.Item.Ability2Mask;
-import fedata.fe7.FE7Data.Item.FE7WeaponRank;
-import fedata.fe7.FE7Data.Item.FE7WeaponType;
+import fedata.fe8.FE8Data.Item.Ability1Mask;
+import fedata.fe8.FE8Data.Item.Ability2Mask;
+import fedata.fe8.FE8Data.Item.FE8WeaponRank;
+import fedata.fe8.FE8Data.Item.FE8WeaponType;
 import fedata.general.WeaponEffects;
 import fedata.general.WeaponRank;
 import fedata.general.WeaponType;
@@ -22,21 +22,25 @@ import random.TextLoader;
 import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE7Item implements FEItem {
-	
+public class FE8Item implements FEItem {
+
 	private byte[] originalData;
 	private byte[] data;
 	
 	private long originalOffset;
 	
+	private int itemID;
+	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
-
-	public FE7Item(byte[] data, long originalOffset) {
+	
+	// FE8 items don't embed their item ID, so we need it passed in on creation.
+	public FE8Item(byte[] data, long originalOffset, int itemID) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
+		this.itemID = itemID;
 	}
 
 	public int getNameIndex() {
@@ -52,11 +56,11 @@ public class FE7Item implements FEItem {
 	}
 
 	public int getID() {
-		return data[6] & 0xFF;
+		return itemID;
 	}
 
 	public WeaponType getType() {
-		FE7WeaponType type = FE7WeaponType.valueOf(data[7] & 0xFF);
+		FE8WeaponType type = FE8WeaponType.valueOf(data[7] & 0xFF);
 		return type.toGeneralType();
 	}
 
@@ -114,12 +118,12 @@ public class FE7Item implements FEItem {
 
 	public WeaponRank getWeaponRank() {
 		int rank = data[28] & 0xFF;
-		FE7WeaponRank weaponRank = FE7Data.Item.FE7WeaponRank.valueOf(rank);
+		FE8WeaponRank weaponRank = FE8Data.Item.FE8WeaponRank.valueOf(rank);
 		if (weaponRank != null) {
 			return weaponRank.toGeneralRank();
 		} else {
-			FE7Data.Item weapon = FE7Data.Item.valueOf(getID());
-			if (weapon != null && FE7Data.Item.allPrfRank.contains(weapon)) {
+			FE8Data.Item weapon = FE8Data.Item.valueOf(getID());
+			if (weapon != null && FE8Data.Item.allPrfRank.contains(weapon)) {
 				return WeaponRank.PRF;
 			} else {
 				return WeaponRank.NONE;
@@ -250,17 +254,17 @@ public class FE7Item implements FEItem {
 			effects.add(WeaponEffects.EXTEND_RANGE);
 		}
 
-		if ((getAbility1() & FE7Data.Item.Ability1Mask.UNBREAKABLE.ID) == 0) {
+		if ((getAbility1() & FE8Data.Item.Ability1Mask.UNBREAKABLE.ID) == 0) {
 			effects.add(WeaponEffects.UNBREAKABLE);
 		}
-		if ((getAbility1() & FE7Data.Item.Ability1Mask.BRAVE.ID) == 0) {
+		if ((getAbility1() & FE8Data.Item.Ability1Mask.BRAVE.ID) == 0) {
 			effects.add(WeaponEffects.BRAVE);
 		}
-		if ((getAbility1() & FE7Data.Item.Ability1Mask.MAGIC_DAMAGE.ID) == 0 && (getAbility1() & FE7Data.Item.Ability1Mask.MAGIC.ID) == 0 && getType() != WeaponType.AXE) {
+		if ((getAbility1() & FE8Data.Item.Ability1Mask.MAGIC_DAMAGE.ID) == 0 && (getAbility1() & FE8Data.Item.Ability1Mask.MAGIC.ID) == 0 && getType() != WeaponType.AXE) {
 			effects.add(WeaponEffects.MAGIC_DAMAGE);
 		}
 		
-		if ((getAbility2() & FE7Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
+		if ((getAbility2() & FE8Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
 			effects.add(WeaponEffects.REVERSE_TRIANGLE);
 		}
 		
@@ -314,11 +318,11 @@ public class FE7Item implements FEItem {
 			} else { // Melee weapons.
 				maxRange = 2;
 				if (getType() == WeaponType.LANCE) {
-					spellAnimations.setAnimationValueForID(getID(), FE7SpellAnimationCollection.Animation.JAVELIN.value);
+					spellAnimations.setAnimationValueForID(getID(), FE8SpellAnimationCollection.Animation.JAVELIN.value);
 				} else if (getType() == WeaponType.AXE) {
-					spellAnimations.setAnimationValueForID(getID(), FE7SpellAnimationCollection.Animation.THROWN_AXE.value);
+					spellAnimations.setAnimationValueForID(getID(), FE8SpellAnimationCollection.Animation.THROWN_AXE.value);
 				} else {
-					spellAnimations.setAnimationValueForID(getID(), FE7SpellAnimationCollection.Animation.ARROW.value);
+					spellAnimations.setAnimationValueForID(getID(), FE8SpellAnimationCollection.Animation.ARROW.value);
 				}
 			}
 			setMinRange(minRange);
@@ -326,19 +330,19 @@ public class FE7Item implements FEItem {
 			break;
 		case UNBREAKABLE:
 			int ability1 = getAbility1();
-			ability1 |= FE7Data.Item.Ability1Mask.UNBREAKABLE.ID;
+			ability1 |= FE8Data.Item.Ability1Mask.UNBREAKABLE.ID;
 			data[8] = (byte)(ability1 & 0xFF);
 			wasModified = true;
 			break;
 		case BRAVE:
 			ability1 = getAbility1();
-			ability1 |= FE7Data.Item.Ability1Mask.BRAVE.ID;
+			ability1 |= FE8Data.Item.Ability1Mask.BRAVE.ID;
 			data[8] = (byte)(ability1 & 0xFF);
 			wasModified = true;
 			break;
 		case MAGIC_DAMAGE:
 			ability1 = getAbility1();
-			ability1 |= FE7Data.Item.Ability1Mask.MAGIC_DAMAGE.ID;
+			ability1 |= FE8Data.Item.Ability1Mask.MAGIC_DAMAGE.ID;
 			data[8] = (byte)(ability1 & 0xFF);
 			
 			if (getMaxRange() == 1) {
@@ -348,30 +352,30 @@ public class FE7Item implements FEItem {
 			
 			if (getType() == WeaponType.AXE) {
 				// Unfortunately, ranged axes will soft lock the game if any other animation is used. 
-				spellAnimations.setAnimationValueForID(getID(), FE7SpellAnimationCollection.Animation.THROWN_AXE.value);
+				spellAnimations.setAnimationValueForID(getID(), FE8SpellAnimationCollection.Animation.THROWN_AXE.value);
 			} else {
 				// Everything else is fine though.
-				spellAnimations.setAnimationValueForID(getID(), FE7SpellAnimationCollection.Animation.randomMagicAnimation(rng).value);
+				spellAnimations.setAnimationValueForID(getID(), FE8SpellAnimationCollection.Animation.randomMagicAnimation(rng).value);
 			}
 			break;
 		case REVERSE_TRIANGLE:
 			int ability2 = getAbility2();
-			ability2 |= FE7Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID;
+			ability2 |= FE8Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID;
 			data[9] = (byte)(ability2 & 0xFF);
 			wasModified = true;
 			break;
 		case POISON:
-			int effectValue = FE7Data.Item.WeaponEffect.POISON.ID;
+			int effectValue = FE8Data.Item.WeaponEffect.POISON.ID;
 			data[31] = (byte)(effectValue & 0xFF);
 			wasModified = true;
 			break;
 		case HALF_HP:
-			effectValue = FE7Data.Item.WeaponEffect.HALVES_HP.ID;
+			effectValue = FE8Data.Item.WeaponEffect.HALVES_HP.ID;
 			data[31] = (byte)(effectValue & 0xFF);
 			wasModified = true;
 			break;
 		case DEVIL:
-			effectValue = FE7Data.Item.WeaponEffect.DEVIL.ID;
+			effectValue = FE8Data.Item.WeaponEffect.DEVIL.ID;
 			data[31] = (byte)(effectValue & 0xFF);
 			int currentMight = getMight();
 			setMight(Math.max((int)(currentMight * 1.5), currentMight + 5));
@@ -414,9 +418,9 @@ public class FE7Item implements FEItem {
 			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong vs. Light Magic"); shortStrings.put("Strong vs. Light Magic", "Bests Light"); }
 		}
 		
-		if (getWeaponEffect() == FE7Data.Item.WeaponEffect.POISON.ID) { traitStrings.add("Poisons on hit"); shortStrings.put("Poisons on hit", "Poison"); }
-		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.HALVES_HP.ID) { traitStrings.add("Halves HP"); shortStrings.put("Halves HP", "Eclipse"); }
-		else if (getWeaponEffect() == FE7Data.Item.WeaponEffect.DEVIL.ID) { traitStrings.add("May damage user"); shortStrings.put("May damage user", "Devil"); }
+		if (getWeaponEffect() == FE8Data.Item.WeaponEffect.POISON.ID) { traitStrings.add("Poisons on hit"); shortStrings.put("Poisons on hit", "Poison"); }
+		else if (getWeaponEffect() == FE8Data.Item.WeaponEffect.HALVES_HP.ID) { traitStrings.add("Halves HP"); shortStrings.put("Halves HP", "Eclipse"); }
+		else if (getWeaponEffect() == FE8Data.Item.WeaponEffect.DEVIL.ID) { traitStrings.add("May damage user"); shortStrings.put("May damage user", "Devil"); }
 		
 		if (getCritical() >= 20) { traitStrings.add("High Critical Rate"); shortStrings.put("High Critical Rate", "Critical"); }
 		

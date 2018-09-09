@@ -27,6 +27,7 @@ import application.Main;
 import fedata.FEBase.GameType;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
+import fedata.fe8.FE8Data;
 import io.FileHandler;
 import random.Randomizer;
 import random.RandomizerListener;
@@ -283,7 +284,7 @@ public class MainView implements FileFlowDelegate {
 		weaponData.bottom = new FormAttachment(100, -10);
 		weaponView.setLayoutData(weaponData);
 		  
-		classView = new ClassesView(mainShell, SWT.NONE);
+		classView = new ClassesView(mainShell, SWT.NONE, type);
 		classView.setSize(200, 200);
 		classView.setVisible(false);
 		  
@@ -363,6 +364,10 @@ public class MainView implements FileFlowDelegate {
 			else if (handler.getCRC32() == FE7Data.CleanCRC32) { 
 				type = GameType.FE7;
 				friendlyName.setText("Display Name: " + FE7Data.FriendlyName);
+			}
+			else if (handler.getCRC32() == FE8Data.CleanCRC32) {
+				type = GameType.FE8;
+				friendlyName.setText("Display Name: " + FE8Data.FriendlyName);
 			}
 			else { 
 				type = GameType.UNKNOWN;

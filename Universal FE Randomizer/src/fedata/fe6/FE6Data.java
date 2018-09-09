@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import fedata.fe8.FE8Data.Character;
 import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 import fedata.general.WeaponRank;
@@ -140,6 +141,7 @@ public class FE6Data {
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(CHAD, ASTOL, CASS));
 		
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
+		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
 		
 		public Boolean isLord() {
 			return allLords.contains(this);
@@ -159,6 +161,10 @@ public class FE6Data {
 		
 		public Boolean requiresRange() {
 			return charactersThatRequireRange.contains(this);
+		}
+		
+		public Boolean requiresMelee() {
+			return charactersThatRequireMelee.contains(this);
 		}
 		
 		public Boolean hasLimitedClasses() {

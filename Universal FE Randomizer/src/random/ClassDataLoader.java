@@ -12,7 +12,10 @@ import fedata.fe6.FE6Class;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Class;
 import fedata.fe7.FE7Data;
+import fedata.fe8.FE8Class;
+import fedata.fe8.FE8Data;
 import io.FileHandler;
+import random.exc.NotReached;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
@@ -74,6 +77,22 @@ private FEBase.GameType gameType;
 					}
 				}
 				break;
+			case FE8:
+				baseAddress = FileReadHelper.readAddress(handler, FE8Data.ClassTablePointer);
+				for (FE8Data.CharacterClass charClass : FE8Data.CharacterClass.values()) {
+					long offset = baseAddress + (charClass.ID * FE8Data.BytesPerClass);
+					byte[] classData = handler.readBytesAtOffset(offset, FE8Data.BytesPerClass);
+					FE8Class classObject = new FE8Class(classData, offset);
+					classMap.put(charClass.ID, classObject);
+					
+					if (FE8Data.CharacterClass.allLordClasses.contains(charClass)) {
+						lordMap.put(charClass.ID, classObject);
+					}
+					if (FE8Data.CharacterClass.allThiefClasses.contains(charClass)) {
+						thiefMap.put(charClass.ID, classObject);
+					}
+				}
+				break;
 			default:
 				break;
 		}
@@ -93,6 +112,12 @@ private FEBase.GameType gameType;
 				classes.add(classMap.get(charClass.ID));
 			}
 			return classes.toArray(new FEClass[classes.size()]);
+		case FE8:
+			classes = new ArrayList<FEClass>();
+			for (FE8Data.CharacterClass charClass : FE8Data.CharacterClass.allValidClasses) {
+				classes.add(classMap.get(charClass.ID));
+			}
+			return classes.toArray(new FEClass[classes.size()]);
 		default:
 			return new FEClass[] {};
 		}
@@ -102,6 +127,7 @@ private FEBase.GameType gameType;
 		switch (gameType) {
 			case FE6:
 			case FE7:
+			case FE8:
 				return classMap.get(classID);
 			default:
 				return null;
@@ -138,12 +164,14 @@ private FEBase.GameType gameType;
 			return FE6Data.CharacterClass.allFemaleClasses.contains(FE6Data.CharacterClass.valueOf(classID));
 		case FE7:
 			return FE7Data.CharacterClass.allFemaleClasses.contains(FE7Data.CharacterClass.valueOf(classID));
+		case FE8:
+			return FE8Data.CharacterClass.allFemaleClasses.contains(FE8Data.CharacterClass.valueOf(classID));
 		default:
 			return false;
 		}
 	}
 	
-	public FEClass[] potentialClasses(FEClass sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean applyRestrictions, FEClass mustLoseToClass) {
+	public FEClass[] potentialClasses(FEClass sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requiresMelee, Boolean applyRestrictions, FEClass mustLoseToClass) {
 		switch (gameType) {
 		case FE6: {
 			FE6Data.CharacterClass sourceCharClass = FE6Data.CharacterClass.valueOf(sourceClass.getID());
@@ -179,7 +207,34 @@ private FEBase.GameType gameType;
 			
 			return result;
 		}
+		case FE8: {
+			NotReached.trigger("FE8 should use the variant of this method that includes the separateMonsters parameter.");
+		}
 		default:
+			return new FEClass[] {};
+		}
+	}
+	
+	public FEClass[] potentialClasses(FEClass sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, FEClass mustLoseToClass) {
+	switch (gameType) {
+		case FE8:
+			FE8Data.CharacterClass sourceCharClass = FE8Data.CharacterClass.valueOf(sourceClass.getID());
+			FE8Data.CharacterClass[] targetClasses = null;
+			if (mustLoseToClass != null) {
+				targetClasses = FE8Data.CharacterClass.classesThatLoseToClass(sourceCharClass, FE8Data.CharacterClass.valueOf(mustLoseToClass.getID()), excludeLords, excludeThieves);
+			} 
+			
+			if (targetClasses == null || targetClasses.length == 0) {
+				targetClasses = FE8Data.CharacterClass.targetClassesForRandomization(sourceCharClass, excludeSource, excludeLords, excludeThieves, separateMonsters, requireAttack, requireRange, requireMelee, applyRestrictions);
+			}
+			FEClass[] result = new FEClass[targetClasses.length];
+			for (int i = 0; i < targetClasses.length; i++) {
+				result[i] = classMap.get(targetClasses[i].ID);
+			}
+			
+			return result;
+		default:
+			NotReached.trigger("This method is only intended for FE8.");
 			return new FEClass[] {};
 		}
 	}
@@ -190,6 +245,8 @@ private FEBase.GameType gameType;
 			return FE6Data.CharacterClass.allPromotedClasses.contains(FE6Data.CharacterClass.valueOf(classID));
 		case FE7:
 			return FE7Data.CharacterClass.allPromotedClasses.contains(FE7Data.CharacterClass.valueOf(classID));
+		case FE8:
+			return FE8Data.CharacterClass.allPromotedClasses.contains(FE8Data.CharacterClass.valueOf(classID));
 		default:
 			return false;
 		}
@@ -201,6 +258,8 @@ private FEBase.GameType gameType;
 			return FE6Data.CharacterClass.allValidClasses.contains(FE6Data.CharacterClass.valueOf(classID));
 		case FE7:
 			return FE7Data.CharacterClass.allValidClasses.contains(FE7Data.CharacterClass.valueOf(classID));
+		case FE8:
+			return FE8Data.CharacterClass.allValidClasses.contains(FE8Data.CharacterClass.valueOf(classID));
 		default:
 			return false;
 		}
