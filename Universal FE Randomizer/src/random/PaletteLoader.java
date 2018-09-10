@@ -45,7 +45,7 @@ public class PaletteLoader {
 				characterPalettes.put(charID, map);
 				for (PaletteInfo paletteInfo : FE6Data.Palette.palettesForCharacter(charID)) {
 					int classID = paletteInfo.getClassID();
-					Palette palette = new Palette(handler, paletteInfo, 40);
+					Palette palette = new Palette(handler, paletteInfo, 40, null);
 					map.put(classID, palette);
 					PaletteColor[] supplementalHairColor = FE6Data.Palette.supplementaryHairColorForCharacter(charID);
 					if (supplementalHairColor != null) {
@@ -61,7 +61,7 @@ public class PaletteLoader {
 				Map<Integer, Palette> map = new HashMap<Integer, Palette>();
 				characterPalettes.put(charID, map);
 				for (PaletteInfo paletteInfo : FE6Data.Palette.palettesForCharacter(charID)) {
-					Palette palette = new Palette(handler, paletteInfo, 40);
+					Palette palette = new Palette(handler, paletteInfo, 40, null);
 					map.put(paletteInfo.getClassID(), palette);
 					PaletteColor[] supplementalHairColor = FE6Data.Palette.supplementaryHairColorForCharacter(charID);
 					if (supplementalHairColor != null) {
@@ -73,7 +73,7 @@ public class PaletteLoader {
 			}
 			
 			for (FE6Data.CharacterClass characterClass : FE6Data.CharacterClass.allValidClasses) {
-				templates.put(characterClass.ID, new Palette(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID), 40));
+				templates.put(characterClass.ID, new Palette(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID), 40, null));
 			}
 			break;
 		case FE7:
@@ -83,7 +83,7 @@ public class PaletteLoader {
 				characterPalettes.put(charID, map);
 				for (PaletteInfo paletteInfo : FE7Data.Palette.palettesForCharacter(charID)) {
 					int classID = paletteInfo.getClassID();
-					Palette palette = new Palette(handler, paletteInfo, 40);
+					Palette palette = new Palette(handler, paletteInfo, 40, null);
 					map.put(classID, palette);
 					PaletteColor[] supplementalHairColor = FE7Data.Palette.supplementaryHairColorForCharacter(charID);
 					if (supplementalHairColor != null) {
@@ -99,7 +99,7 @@ public class PaletteLoader {
 				Map<Integer, Palette> map = new HashMap<Integer, Palette>();
 				characterPalettes.put(charID, map);
 				for (PaletteInfo paletteInfo : FE7Data.Palette.palettesForCharacter(charID)) {
-					Palette palette = new Palette(handler, paletteInfo, 40);
+					Palette palette = new Palette(handler, paletteInfo, 40, null);
 					map.put(paletteInfo.getClassID(), palette);
 					PaletteColor[] supplementalHairColor = FE7Data.Palette.supplementaryHairColorForCharacter(charID);
 					if (supplementalHairColor != null) {
@@ -111,7 +111,7 @@ public class PaletteLoader {
 			}
 			
 			for (FE7Data.CharacterClass characterClass : FE7Data.CharacterClass.allValidClasses) {
-				templates.put(characterClass.ID, new Palette(handler, FE7Data.Palette.defaultPaletteForClass(characterClass.ID), 40));
+				templates.put(characterClass.ID, new Palette(handler, FE7Data.Palette.defaultPaletteForClass(characterClass.ID), 40, null));
 			}
 			break;
 		case FE8:
@@ -122,7 +122,7 @@ public class PaletteLoader {
 				characterPalettes.put(charID, map);
 				for (PaletteInfo paletteInfo : FE8Data.Palette.palettesForCharacter(charID)) {
 					int classID = paletteInfo.getClassID();
-					Palette palette = new Palette(handler, paletteInfo, 40);
+					Palette palette = new Palette(handler, paletteInfo, FE8Data.Palette.paletteSizeForCharacter(charID), FE8Data.Palette.customMappingForCharacter(charID));
 					paletteByPaletteID.put(paletteInfo.getPaletteID(), palette);
 					map.put(classID, palette);
 					PaletteColor[] supplementalHairColor = FE8Data.Palette.supplementaryHairColorForCharacter(charID);
@@ -139,7 +139,7 @@ public class PaletteLoader {
 				Map<Integer, Palette> map = new HashMap<Integer, Palette>();
 				characterPalettes.put(charID, map);
 				for (PaletteInfo paletteInfo : FE8Data.Palette.palettesForCharacter(charID)) {
-					Palette palette = new Palette(handler, paletteInfo, 40);
+					Palette palette = new Palette(handler, paletteInfo, FE8Data.Palette.paletteSizeForCharacter(charID), FE8Data.Palette.customMappingForCharacter(charID));
 					paletteByPaletteID.put(paletteInfo.getPaletteID(), palette);
 					map.put(paletteInfo.getClassID(), palette);
 					PaletteColor[] supplementalHairColor = FE8Data.Palette.supplementaryHairColorForCharacter(charID);
@@ -152,7 +152,7 @@ public class PaletteLoader {
 			}
 			
 			for (FE8Data.CharacterClass characterClass : FE8Data.CharacterClass.allValidClasses) {
-				templates.put(characterClass.ID, new Palette(handler, FE8Data.Palette.defaultPaletteForClass(characterClass.ID), 40));
+				templates.put(characterClass.ID, new Palette(handler, FE8Data.Palette.defaultPaletteForClass(characterClass.ID), FE8Data.BytesPerPalette, null));
 			}
 			break;
 		default:
@@ -212,7 +212,9 @@ public class PaletteLoader {
 				int targetClassID = fe8Mapper.classIDMappedToCharacterForType(characterID, type);
 				Palette template = getTemplatePalette(targetClassID);
 				
-				Palette adapted = new Palette(template, recipientPalette, allReferencePalettes);
+				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Adapting palette index 0x" + Integer.toHexString(paletteIndex) + " for character " + FE8Data.Character.valueOf(characterID).toString() + " class " + FE8Data.CharacterClass.valueOf(targetClassID).toString());
+				
+				Palette adapted = new Palette(template, recipientPalette, allReferencePalettes, FE8Data.Palette.customMappingForCharacter(characterID));
 				paletteMap.put(targetClassID, adapted);
 				
 				fe8Mapper.assignRecycledPaletteIndexToCharacterAndClass(paletteIndex, characterID, targetClassID);
@@ -223,6 +225,12 @@ public class PaletteLoader {
 	public void adaptFE8CharacterToClass(int characterID, int originalClassID, int newClassID, Boolean isBoss) { // This currently assumes lateral movement. i.e. no Unpromoted -> Promoted.
 		assert gameType == GameType.FE8 : "This method is only for FE8.";
 		assert fe8Mapper != null : "FE8 requires additional setup before it can adapt palettes.";
+		
+		// Bosses are weird. Their battle palette seems to extend beyond the normal palette size, and we mess
+		// up a lot of other things if we modify stuff there. Let's use defaults for bosses for now. At least playable characters works.
+//		if (isBoss) {
+//			return; // On the off chance that their class hasn't changed, might as well use any palette they had from before.
+//		}
 		
 		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting Character " + FE8Data.Character.valueOf(characterID).toString() + " from class " + FE8Data.CharacterClass.valueOf(originalClassID).toString() + " to " + FE8Data.CharacterClass.valueOf(newClassID).toString());
 		
@@ -241,6 +249,8 @@ public class PaletteLoader {
 		int charID = canonicalCharacterID(characterID);
 		Palette[] referencePalettes = getAllPalettesForCharacter(characterID);
 		Map<Integer, Palette> paletteMap = characterPalettes.get(charID);
+		
+		Map<Integer, Integer> customMap = FE8Data.Palette.customMappingForCharacter(charID);
 		
 		switch (fe8Mapper.getMapTypeForCharacter(charID)) {
 		case UNKNOWN:
@@ -265,13 +275,13 @@ public class PaletteLoader {
 				int promoted4 = fe8Promotions.getSecondPromotionOptionClassID(newPromotion2);
 				
 				// Adapt every palette over as is.
-				Palette adaptedTrainee = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, referencePalettes);
-				Palette adaptedBase1 = paletteForAdaptingCharacterToClass(charID, originalPromotion1, base1, referencePalettes);
-				Palette adaptedBase2 = paletteForAdaptingCharacterToClass(charID, originalPromotion2, base2, referencePalettes);
-				Palette adaptedPromoted1 = paletteForAdaptingCharacterToClass(charID, oldPromoted1, promoted1, referencePalettes);
-				Palette adaptedPromoted2 = paletteForAdaptingCharacterToClass(charID, oldPromoted2, promoted2, referencePalettes);
-				Palette adaptedPromoted3 = paletteForAdaptingCharacterToClass(charID, oldPromoted3, promoted3, referencePalettes);
-				Palette adaptedPromoted4 = paletteForAdaptingCharacterToClass(charID, oldPromoted4, promoted4, referencePalettes);
+				Palette adaptedTrainee = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, referencePalettes, customMap);
+				Palette adaptedBase1 = paletteForAdaptingCharacterToClass(charID, originalPromotion1, base1, referencePalettes, customMap);
+				Palette adaptedBase2 = paletteForAdaptingCharacterToClass(charID, originalPromotion2, base2, referencePalettes, customMap);
+				Palette adaptedPromoted1 = paletteForAdaptingCharacterToClass(charID, oldPromoted1, promoted1, referencePalettes, customMap);
+				Palette adaptedPromoted2 = paletteForAdaptingCharacterToClass(charID, oldPromoted2, promoted2, referencePalettes, customMap);
+				Palette adaptedPromoted3 = paletteForAdaptingCharacterToClass(charID, oldPromoted3, promoted3, referencePalettes, customMap);
+				Palette adaptedPromoted4 = paletteForAdaptingCharacterToClass(charID, oldPromoted4, promoted4, referencePalettes, customMap);
 				
 				paletteMap.clear();
 				if (adaptedTrainee != null) { paletteMap.put(newClassID, adaptedTrainee); }
@@ -286,13 +296,13 @@ public class PaletteLoader {
 				if (newClassHasPromotions && !isBoss) {
 					int promoted1 = newPromotion1;
 					int promoted2 = newPromotion2;
-					Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newClassID, referencePalettes);
-					Palette adaptedPromotion1 = paletteForAdaptingCharacterToClass(charID, oldPromoted1, promoted1, referencePalettes);
+					Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newClassID, referencePalettes, customMap);
+					Palette adaptedPromotion1 = paletteForAdaptingCharacterToClass(charID, oldPromoted1, promoted1, referencePalettes, customMap);
 					
 					paletteMap.clear();
 					
 					if (promoted2 != 0) {
-						Palette adaptedPromotion2 = paletteForAdaptingCharacterToClass(charID, oldPromoted2, promoted2, referencePalettes);
+						Palette adaptedPromotion2 = paletteForAdaptingCharacterToClass(charID, oldPromoted2, promoted2, referencePalettes, customMap);
 						if (adaptedPromotion2 != null) { paletteMap.put(promoted2, adaptedPromotion2); }
 					}
 					
@@ -300,7 +310,7 @@ public class PaletteLoader {
 					if (adaptedPromotion1 != null) { paletteMap.put(promoted1, adaptedPromotion1); }
 					
 				} else {
-					Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newClassID, referencePalettes);
+					Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newClassID, referencePalettes, customMap);
 					paletteMap.clear();
 					if (adaptedBase != null) {
 						paletteMap.put(newClassID, adaptedBase);
@@ -313,13 +323,13 @@ public class PaletteLoader {
 		case UNPROMOTED:
 			fe8Mapper.setUnpromotedClass(newClassID, charID, !isBoss);
 			if (originalClassHadPromotions) {
-				Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, referencePalettes);
+				Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, referencePalettes, customMap);
 				
 				paletteMap.clear();
 				if (newClassHasPromotions && !isBoss) {
-					Palette adaptedPromotion1 = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newPromotion1, referencePalettes);
+					Palette adaptedPromotion1 = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newPromotion1, referencePalettes, customMap);
 					if (newPromotion2 != 0) {
-						Palette adaptedPromotion2 = paletteForAdaptingCharacterToClass(charID, originalPromotion2, newPromotion2, referencePalettes);
+						Palette adaptedPromotion2 = paletteForAdaptingCharacterToClass(charID, originalPromotion2, newPromotion2, referencePalettes, customMap);
 						if (adaptedPromotion2 != null) { paletteMap.put(newPromotion2, adaptedPromotion2); }
 					}
 					
@@ -335,7 +345,7 @@ public class PaletteLoader {
 				// This is Tethys's case. she won't have enough palettes to work with because she only starts with 1, and if she needs 3 because of branching paths, then we're screwed.
 				// TODO: Handle this case. We can probably steal some palettes from anybody that became a dancer, but that involves the palette assignment table, which we're not using yet.
 				// Not to mention, if we allow more than lateral movement, then we're really screwed here.
-				Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, referencePalettes);
+				Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, referencePalettes, customMap);
 				if (adaptedBase != null) {
 					paletteMap.put(newClassID, adaptedBase);
 					paletteMap.remove(originalClassID);
@@ -346,7 +356,7 @@ public class PaletteLoader {
 			break;
 		case PROMOTED:
 			fe8Mapper.setPromotedClass(newClassID, charID);
-			Palette adaptedPromotion = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, referencePalettes);
+			Palette adaptedPromotion = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, referencePalettes, customMap);
 			if (adaptedPromotion != null) {
 				paletteMap.put(newClassID, adaptedPromotion);
 				paletteMap.remove(originalClassID);
@@ -357,7 +367,7 @@ public class PaletteLoader {
 		}
 	}
 	
-	private Palette paletteForAdaptingCharacterToClass(int charID, int originalClassID, int newClassID, Palette[] referencePalettes) {
+	private Palette paletteForAdaptingCharacterToClass(int charID, int originalClassID, int newClassID, Palette[] referencePalettes, Map<Integer, Integer> customMap) {
 		Palette originalPalette = getPalette(charID, originalClassID);
 		Palette template = getTemplatePalette(newClassID);
 		
@@ -369,7 +379,7 @@ public class PaletteLoader {
 		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Original palette offset: " + Long.toHexString(originalPalette.getInfo().getOffset()));
 		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Template palette offset: " + Long.toHexString(template.getInfo().getOffset()));
 		
-		Palette adaptedPalette = new Palette(template, originalPalette, referencePalettes);
+		Palette adaptedPalette = new Palette(template, originalPalette, referencePalettes, customMap);
 		return adaptedPalette;
 	}
 	
@@ -404,12 +414,12 @@ public class PaletteLoader {
 			break;
 		}
 		
-		Palette adaptedPalette = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, getAllPalettesForCharacter(charID));
+		Palette adaptedPalette = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, getAllPalettesForCharacter(charID), null);
 		Map<Integer, Palette> paletteMap = characterPalettes.get(charID);
 		
 		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
 		
-		Palette adaptedPromotedPalette = paletteForAdaptingCharacterToClass(charID, originalPromotedClassID, newPromotedClassID, getAllPalettesForCharacter(charID));
+		Palette adaptedPromotedPalette = paletteForAdaptingCharacterToClass(charID, originalPromotedClassID, newPromotedClassID, getAllPalettesForCharacter(charID), null);
 		if (adaptedPromotedPalette != null) {
 			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
 			paletteMap.put(newPromotedClassID, adaptedPromotedPalette);

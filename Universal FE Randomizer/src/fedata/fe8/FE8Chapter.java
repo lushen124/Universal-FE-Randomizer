@@ -54,7 +54,7 @@ public class FE8Chapter implements FEChapter {
 	private Set<Integer> blacklistedClassIDs;
 	private Set<Long> fightEventOffsets;
 	
-	public FE8Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, int[] targetedRewardRecipientsToTrack) {
+	public FE8Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, int[] targetedRewardRecipientsToTrack, long[] additionalUnitOffsets) {
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
 		for (int classID : blacklistedClassIDs) {
@@ -99,6 +99,11 @@ public class FE8Chapter implements FEChapter {
 		
 		loadUnits(handler);
 		loadRewards(handler);
+		
+		for (long unitOffset : additionalUnitOffsets) {
+			DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading auxiliary units from offset 0x" + Long.toHexString(unitOffset));
+			loadUnitsFromAddress(handler, unitOffset);
+		}
 	}
 
 	@Override
@@ -164,8 +169,11 @@ public class FE8Chapter implements FEChapter {
 		// Look in the obvious places first.
 		loadUnitsFromAddress(handler, unitOffset);
 		addressesSearched.add(unitOffset);
-		loadUnitsFromAddress(handler, secondUnitOffset);
-		addressesSearched.add(secondUnitOffset);
+		
+		if (secondUnitOffset != unitOffset) {
+			loadUnitsFromAddress(handler, secondUnitOffset);
+			addressesSearched.add(secondUnitOffset);
+		}
 		
 		Set<Long> eventAddresses = eventAddressesFromTurnEvents(handler);
 		eventAddresses.addAll(eventAddressesFromCharacterEvents(handler));
@@ -267,7 +275,7 @@ public class FE8Chapter implements FEChapter {
 		while (miscCommand[0] != 0x00) {
 			// AREA (0x0B) - 12 bytes, offset 4
 			// AFEV (0x01) - 12 bytes, offset 4
-			if (miscCommand[0] == 0x0B || miscCommand[0] == 0x0D) {
+			if (miscCommand[0] == 0x0B || miscCommand[0] == 0x01) {
 				long address = FileReadHelper.readAddress(handler, currentAddress + 4);
 				if (address != -1) {
 					eventAddresses.add(address);

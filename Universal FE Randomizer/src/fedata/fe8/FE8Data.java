@@ -67,6 +67,9 @@ public class FE8Data {
 	//public static final long DefaultPaletteIndexTableOffset = 0x95EEA4;
 	public static final int BytesPerPaletteIndexTableEntry = 7;
 	
+	public static final int BytesPerBossPalette = 108;
+	public static final int BytesPerPalette = 40;
+	
 	public enum Character {
 		NONE(0x00),
 		
@@ -1227,6 +1230,8 @@ public class FE8Data {
 		
 		public CharacterClass[] blacklistedClasses() {
 			switch(this) {
+			case CHAPTER_2:
+				return new CharacterClass[] {CharacterClass.BRIGAND};
 			default:
 				return new CharacterClass[] {};
 			}
@@ -1265,6 +1270,17 @@ public class FE8Data {
 			}
 			
 			return new Character[] {};
+		}
+		
+		// Because I'm too lazy to figure out who actually loads these units.
+		public long[] additionalUnitOffsets() {
+			switch (this) {
+			case CHAPTER_1: {
+				return new long[] {0x8B43D0L};
+			}
+			default:
+				return new long[] {};
+			}
 		}
 	}
 	
@@ -1548,9 +1564,9 @@ public class FE8Data {
 			defaultPaletteForClass.put(CharacterClass.CLERIC.ID, CLERIC_NATASHA.info);
 			defaultPaletteForClass.put(CharacterClass.FIGHTER.ID, FIGHTER_GARCIA.info);
 			defaultPaletteForClass.put(CharacterClass.BRIGAND.ID, BRIGAND_BAZBA.info);
-			defaultPaletteForClass.put(CharacterClass.WARRIOR.ID, WARRIOR_BINKS.info);
+			defaultPaletteForClass.put(CharacterClass.WARRIOR.ID, WARRIOR_GARCIA.info);
 			defaultPaletteForClass.put(CharacterClass.BERSERKER.ID, BERSERKER_DOZLA.info);
-			defaultPaletteForClass.put(CharacterClass.RANGER.ID, RANGER_BERAN.info);
+			defaultPaletteForClass.put(CharacterClass.RANGER.ID, RANGER_GERIK.info);
 			defaultPaletteForClass.put(CharacterClass.RANGER_F.ID, RANGER_NEIMI.info);
 			defaultPaletteForClass.put(CharacterClass.CAVALIER.ID, CAVALIER_FRANZ.info);
 			defaultPaletteForClass.put(CharacterClass.CAVALIER_F.ID, CAVALIER_AMELIA.info);
@@ -1558,13 +1574,13 @@ public class FE8Data {
 			defaultPaletteForClass.put(CharacterClass.PALADIN_F.ID, PALADIN_AMELIA.info);
 			defaultPaletteForClass.put(CharacterClass.KNIGHT.ID, KNIGHT_GILLIAM.info);
 			defaultPaletteForClass.put(CharacterClass.KNIGHT_F.ID, KNIGHT_AMELIA.info);
-			defaultPaletteForClass.put(CharacterClass.GENERAL.ID, GENERAL_FADO.info);
+			defaultPaletteForClass.put(CharacterClass.GENERAL.ID, GENERAL_GILLIAM.info);
 			defaultPaletteForClass.put(CharacterClass.GENERAL_F.ID, GENERAL_AMELIA.info);
 			defaultPaletteForClass.put(CharacterClass.GREAT_KNIGHT.ID, GREAT_KNIGHT_DUESSEL.info);
 			defaultPaletteForClass.put(CharacterClass.GREAT_KNIGHT_F.ID, GREAT_KNIGHT_AMELIA.info);
 			defaultPaletteForClass.put(CharacterClass.WYVERN_RIDER.ID, WYVERN_RIDER_CORMAG.info);
-			defaultPaletteForClass.put(CharacterClass.WYVERN_LORD.ID, WYVERN_LORD_GLEN.info);
-			defaultPaletteForClass.put(CharacterClass.WYVERN_KNIGHT.ID, WYVERN_KNIGHT_VALTER.info);
+			defaultPaletteForClass.put(CharacterClass.WYVERN_LORD.ID, WYVERN_LORD_CORMAG.info);
+			defaultPaletteForClass.put(CharacterClass.WYVERN_KNIGHT.ID, WYVERN_KNIGHT_CORMAG.info);
 			defaultPaletteForClass.put(CharacterClass.WYVERN_KNIGHT_F.ID, WYVERN_KNIGHT_TANA.info);
 			defaultPaletteForClass.put(CharacterClass.PEGASUS_KNIGHT.ID, PEGASUS_KNIGHT_VANESSA.info);
 			defaultPaletteForClass.put(CharacterClass.FALCON_KNIGHT.ID, FALCON_KNIGHT_SYRENE.info);
@@ -1573,11 +1589,11 @@ public class FE8Data {
 			defaultPaletteForClass.put(CharacterClass.SAGE.ID, SAGE_SALEH.info);
 			defaultPaletteForClass.put(CharacterClass.SAGE_F.ID, SAGE_LUTE.info);
 			defaultPaletteForClass.put(CharacterClass.MAGE_KNIGHT.ID, MAGE_KNIGHT_EWAN.info);
-			defaultPaletteForClass.put(CharacterClass.MAGE_KNIGHT_F.ID, MAGE_KNIGHT_SELENA.info);
+			defaultPaletteForClass.put(CharacterClass.MAGE_KNIGHT_F.ID, MAGE_KNIGHT_LARACHEL.info);
 			defaultPaletteForClass.put(CharacterClass.SHAMAN.ID, SHAMAN_KNOLL.info);
 			defaultPaletteForClass.put(CharacterClass.DRUID.ID, DRUID_KNOLL.info);
 			defaultPaletteForClass.put(CharacterClass.SUMMONER.ID, SUMMONER_KNOLL.info);
-			defaultPaletteForClass.put(CharacterClass.BISHOP.ID, BISHOP_RIEV.info);
+			defaultPaletteForClass.put(CharacterClass.BISHOP.ID, BISHOP_MOULDER.info);
 			defaultPaletteForClass.put(CharacterClass.BISHOP_F.ID, BISHOP_NATASHA.info);
 			defaultPaletteForClass.put(CharacterClass.TROUBADOUR.ID, TROUBADOUR_LARACHEL.info);
 			defaultPaletteForClass.put(CharacterClass.VALKYRIE.ID, VALKYRIE_LARACHEL.info);
@@ -1709,20 +1725,20 @@ public class FE8Data {
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 11, 25, 16, 27, 29}, new int[] {});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {23, 25, 27, 29}, new int[] {20}, new int[] {16, 11, 13}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {23, 25, 27, 29}, new int[] {20}, new int[] {16, 11, 14}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
 					break;
 				case PALADIN_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27}, new int[] {16, 11, 13}); // Hair also affects shield. Secondary is mane + shield crest.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27}, new int[] {16, 11, 14}); // Hair also affects shield. Secondary is mane + shield crest.
 					break;
 				case KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 13, 16, 11, 9, 7}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 14, 16, 11, 9, 7}, new int[] {});
 					break;
 				case KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 13, 9, 7}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 14, 9, 7}, new int[] {});
 					break;
 				case GENERAL:
 				case GENERAL_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {13, 16, 20});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {14, 16, 20});
 					break;
 				case GREAT_KNIGHT:
 				case GREAT_KNIGHT_F:
@@ -1815,6 +1831,64 @@ public class FE8Data {
 			if (map == null) { return new PaletteInfo[] {}; }
 			List<PaletteInfo> list = new ArrayList<PaletteInfo>(map.values());
 			return list.toArray(new PaletteInfo[list.size()]);
+		}
+		
+		public static int paletteSizeForCharacter(int characterID) {
+			FE8Data.Character character = FE8Data.Character.valueOf(characterID);
+			if (FE8Data.Character.allBossCharacters.contains(character)) {
+				return BytesPerBossPalette;
+			}
+			
+			return BytesPerPalette;
+		}
+		
+		public static Map<Integer, Integer> customMappingForCharacter(int characterID) {
+			FE8Data.Character character = FE8Data.Character.valueOf(characterID);
+			if (FE8Data.Character.allPlayableCharacters.contains(character)) { return null; }
+			switch (character) {
+			case ONEILL: {
+				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+				map.put(32, 45);
+				map.put(33, 46);
+				map.put(34, 47);
+				map.put(35, 48);
+				map.put(36, 49);
+				map.put(37, 50);
+				return map;
+			}
+			case BREGUET: {
+				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+				map.put(5, 41);
+				map.put(6, 42);
+				map.put(7, 43);
+				map.put(8, 44);
+				map.put(9, 45);
+				map.put(10, 46);
+				map.put(11, 47);
+				map.put(12, 48);
+				
+				map.put(14, 50);
+				map.put(15, 51);
+				map.put(16, 52);
+				map.put(17, 53);
+				map.put(18, 54);
+				map.put(19, 55);
+				map.put(20, 56);
+				map.put(21, 57);
+				
+				map.put(23, 59);
+				map.put(24, 60);
+				map.put(25, 61);
+				map.put(26, 62);
+				
+				map.put(32, 65);
+				map.put(33, 66);
+				
+				return map;
+			}
+			default:
+				return null;
+			}
 		}
 		
 		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {
