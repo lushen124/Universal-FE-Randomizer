@@ -67,7 +67,7 @@ public class FE8Data {
 	//public static final long DefaultPaletteIndexTableOffset = 0x95EEA4;
 	public static final int BytesPerPaletteIndexTableEntry = 7;
 	
-	public static final int BytesPerBossPalette = 108;
+	public static final int BytesPerBossPalette = 80; // Play around with this. Hopefully it doesn't collide with another palette.
 	public static final int BytesPerPalette = 40;
 	
 	public enum Character {
@@ -1835,11 +1835,14 @@ public class FE8Data {
 		
 		public static int paletteSizeForCharacter(int characterID) {
 			FE8Data.Character character = FE8Data.Character.valueOf(characterID);
-			if (FE8Data.Character.allBossCharacters.contains(character)) {
+			switch (character) {
+			case ONEILL:
+			case BREGUET:
+				// Only return this if we're sure.
 				return BytesPerBossPalette;
+			default:
+				return BytesPerPalette;
 			}
-			
-			return BytesPerPalette;
 		}
 		
 		public static Map<Integer, Integer> customMappingForCharacter(int characterID) {

@@ -298,16 +298,17 @@ public class PaletteLoader {
 					int promoted2 = newPromotion2;
 					Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newClassID, referencePalettes, customMap);
 					Palette adaptedPromotion1 = paletteForAdaptingCharacterToClass(charID, oldPromoted1, promoted1, referencePalettes, customMap);
+					Palette adaptedPromotion2 = null;
+					
+					if (promoted2 != 0) {
+						adaptedPromotion2 = paletteForAdaptingCharacterToClass(charID, oldPromoted2, promoted2, referencePalettes, customMap);
+					}
 					
 					paletteMap.clear();
 					
-					if (promoted2 != 0) {
-						Palette adaptedPromotion2 = paletteForAdaptingCharacterToClass(charID, oldPromoted2, promoted2, referencePalettes, customMap);
-						if (adaptedPromotion2 != null) { paletteMap.put(promoted2, adaptedPromotion2); }
-					}
-					
 					if (adaptedBase != null) { paletteMap.put(newClassID, adaptedBase); }
 					if (adaptedPromotion1 != null) { paletteMap.put(promoted1, adaptedPromotion1); }
+					if (adaptedPromotion2 != null) { paletteMap.put(promoted2, adaptedPromotion2); }
 					
 				} else {
 					Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newClassID, referencePalettes, customMap);
@@ -324,17 +325,19 @@ public class PaletteLoader {
 			fe8Mapper.setUnpromotedClass(newClassID, charID, !isBoss);
 			if (originalClassHadPromotions) {
 				Palette adaptedBase = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, referencePalettes, customMap);
+				Palette adaptedPromotion1 = null;
+				Palette adaptedPromotion2 = null;
+				
+				if (newClassHasPromotions && !isBoss) {
+					adaptedPromotion1 = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newPromotion1, referencePalettes, customMap);
+					if (newPromotion2 != 0) {
+						adaptedPromotion2 = paletteForAdaptingCharacterToClass(charID, originalPromotion2, newPromotion2, referencePalettes, customMap);	
+					}
+				}
 				
 				paletteMap.clear();
-				if (newClassHasPromotions && !isBoss) {
-					Palette adaptedPromotion1 = paletteForAdaptingCharacterToClass(charID, originalPromotion1, newPromotion1, referencePalettes, customMap);
-					if (newPromotion2 != 0) {
-						Palette adaptedPromotion2 = paletteForAdaptingCharacterToClass(charID, originalPromotion2, newPromotion2, referencePalettes, customMap);
-						if (adaptedPromotion2 != null) { paletteMap.put(newPromotion2, adaptedPromotion2); }
-					}
-					
-					if (adaptedPromotion1 != null) { paletteMap.put(newPromotion1, adaptedPromotion1); }
-				}
+				if (adaptedPromotion1 != null) { paletteMap.put(newPromotion1, adaptedPromotion1); }
+				if (adaptedPromotion2 != null) { paletteMap.put(newPromotion2, adaptedPromotion2); }
 				
 				if (adaptedBase != null) {
 					paletteMap.put(newClassID, adaptedBase);
@@ -372,7 +375,12 @@ public class PaletteLoader {
 		Palette template = getTemplatePalette(newClassID);
 		
 		if (originalPalette == null) {
-			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No palette found for character 0x" + Integer.toHexString(charID));
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No palette found for character 0x" + Integer.toHexString(charID) + " class 0x" + Integer.toHexString(originalClassID));
+			return null;
+		}
+		
+		if (template == null) {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No template found for class 0x" + Integer.toHexString(newClassID));
 			return null;
 		}
 		

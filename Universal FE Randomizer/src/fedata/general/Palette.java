@@ -9,6 +9,7 @@ import io.FileHandler;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
+import util.WhyDoesJavaNotHaveThese;
 
 public class Palette {
 	
@@ -362,6 +363,7 @@ public class Palette {
 	}
 	
 	public void commitPalette(DiffCompiler compiler) {
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Comitting palette at offset 0x" + Long.toHexString(info.paletteOffset));
 		if (fullUpdate) {
 			byte[] dataToWrite = Arrays.copyOfRange(rawData, 0, rawData.length);
 			for (int i = 0; i < hair.size(); i++) {
@@ -394,6 +396,7 @@ public class Palette {
 			}
 			
 			compiler.addDiff(new Diff(info.paletteOffset, dataToWrite.length, dataToWrite, null));
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Data: " + WhyDoesJavaNotHaveThese.displayStringForBytes(dataToWrite));
 		} else {
 			if (hairModified) {
 				for (int i = 0; i < hair.size(); i++) {
