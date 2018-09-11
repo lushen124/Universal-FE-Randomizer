@@ -11,6 +11,8 @@ import java.util.Random;
 import java.util.Set;
 
 import fedata.FEBase;
+import fedata.FECharacter;
+import fedata.FEBase.GameType;
 import fedata.FEClass;
 import fedata.FEItem;
 import fedata.FESpellAnimationCollection;
@@ -875,6 +877,28 @@ private FEBase.GameType gameType;
 		}
 	}
 	
+	public Boolean isWeapon(FEItem item) {
+		switch (gameType) {
+		case FE6:
+		case FE7:
+			return item != null && item.getType() != WeaponType.NOT_A_WEAPON;
+		case FE8:
+			// The same check works for normal weapons, but monster weapons need to be included too so that they can be replaced.
+			if (item != null) {
+				if (item.getType() != WeaponType.NOT_A_WEAPON) {
+					return true;
+				} else {
+					// Cross reference FE8's monster weapon list.
+					return FE8Data.Item.allMonsterWeapons.contains(FE8Data.Item.valueOf(item.getID()));
+				}
+			} else {
+				return false;
+			}
+		default:
+			return false;
+		}
+	}
+	
 	public Boolean isBasicWeapon(int itemID) {
 		switch (gameType) {
 		case FE6:
@@ -927,15 +951,15 @@ private FEBase.GameType gameType;
 	public FEItem[] itemsOfTypeAndBelowRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean requiresMelee) {
 		switch (gameType) {
 		case FE6: {
-			FE6Data.Item[] weapons = FE6Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
+			FE6Data.Item[] weapons = FE6Data.Item.weaponsOfTypeAndRank(type, WeaponRank.NONE, rank, rangedOnly);
 			return itemsFromFE6Items(weapons);
 		}
 		case FE7: {
-			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
+			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, WeaponRank.NONE, rank, rangedOnly);
 			return itemsFromFE7Items(weapons);
 		}
 		case FE8: {
-			FE8Data.Item[] weapons = FE8Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly, requiresMelee);
+			FE8Data.Item[] weapons = FE8Data.Item.weaponsOfTypeAndRank(type, WeaponRank.NONE, rank, rangedOnly, requiresMelee);
 			return itemsFromFE8Items(weapons);
 		}
 		default:
@@ -990,7 +1014,7 @@ private FEBase.GameType gameType;
 			if (type == WeaponType.DARK && rank == WeaponRank.E) { rank = WeaponRank.D; } // There is no E rank dark tome, so we need to set a floor of D.
 			FE6Data.Item[] weapons = FE6Data.Item.weaponsOfTypeAndRank(type, rank, rank, rangedOnly);
 			if ((weapons == null || weapons.length == 0) && allowLower) {
-				weapons = FE6Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
+				weapons = FE6Data.Item.weaponsOfTypeAndRank(type, WeaponRank.NONE, rank, rangedOnly);
 			}
 			return itemsFromFE6Items(weapons);
 		}
@@ -998,7 +1022,7 @@ private FEBase.GameType gameType;
 			if (type == WeaponType.DARK && rank == WeaponRank.E) { rank = WeaponRank.D; } // There is no E rank dark tome, so we need to set a floor of D.
 			FE7Data.Item[] weapons = FE7Data.Item.weaponsOfTypeAndRank(type, rank, rank, rangedOnly);
 			if ((weapons == null || weapons.length == 0) && allowLower) {
-				weapons = FE7Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly);
+				weapons = FE7Data.Item.weaponsOfTypeAndRank(type, WeaponRank.NONE, rank, rangedOnly);
 			}
 			return itemsFromFE7Items(weapons);
 		}
@@ -1006,7 +1030,7 @@ private FEBase.GameType gameType;
 			if (type == WeaponType.DARK && rank == WeaponRank.E) { rank = WeaponRank.D; } // There is no E rank dark tome, so we need to set a floor of D.
 			FE8Data.Item[] weapons = FE8Data.Item.weaponsOfTypeAndRank(type, rank, rank, rangedOnly, requiresMelee);
 			if ((weapons == null || weapons.length == 0) && allowLower) {
-				weapons = FE8Data.Item.weaponsOfTypeAndRank(type, null, rank, rangedOnly, requiresMelee);
+				weapons = FE8Data.Item.weaponsOfTypeAndRank(type, WeaponRank.NONE, rank, rangedOnly, requiresMelee);
 			}
 			return itemsFromFE8Items(weapons);
 		}
@@ -1210,6 +1234,106 @@ private FEBase.GameType gameType;
 		default:
 			return null;
 		}
+	}
+	
+	public FEItem getBasicWeaponForCharacter(FECharacter character, Boolean ranged, Boolean mustAttack, Random rng) {
+		if (character.getSwordRank() > 0) { return basicItemOfType(WeaponType.SWORD); }
+		if (character.getLanceRank() > 0) { return basicItemOfType(WeaponType.LANCE); }
+		if (character.getAxeRank() > 0) { return basicItemOfType(WeaponType.AXE); }
+		if (character.getBowRank() > 0) { return basicItemOfType(WeaponType.BOW); }
+		if (character.getAnimaRank() > 0) { return basicItemOfType(WeaponType.ANIMA); }
+		if (character.getLightRank() > 0) { return basicItemOfType(WeaponType.LIGHT); }
+		if (character.getDarkRank() > 0) { return basicItemOfType(WeaponType.DARK); }
+		if (character.getStaffRank() > 0 && !mustAttack) { return basicItemOfType(WeaponType.STAFF); }
+		
+		if (gameType == GameType.FE8) {
+			if (FE8Data.CharacterClass.allMonsterClasses.contains(FE8Data.CharacterClass.valueOf(character.getClassID()))) {
+				FE8Data.Item basicWeapon = FE8Data.Item.basicMonsterWeapon(character.getClassID());
+				if (basicWeapon != null) { return itemWithID(basicWeapon.ID); }
+			}
+		}
+		
+		return null;
+	}
+	
+	public FEItem getSidegradeWeapon(FEClass targetClass, FEItem originalWeapon, Random rng) {
+		if (!isWeapon(originalWeapon)) {
+			return null;
+		}
+		
+		FEItem[] potentialItems = comparableWeaponsForClass(targetClass, originalWeapon);
+		if (potentialItems == null || potentialItems.length < 1) {
+			if (gameType == GameType.FE8) {
+				// FE8 has to deal with monster items.
+				if (FE8Data.CharacterClass.allMonsterClasses.contains(FE8Data.CharacterClass.valueOf(targetClass.getID()))) {
+					FE8Data.Item equivalentWeapon = FE8Data.Item.equivalentMonsterWeapon(originalWeapon.getID(), targetClass.getID());
+					if (equivalentWeapon != null) { return itemWithID(equivalentWeapon.ID); }
+				}
+			}
+			return null;
+		}
+		
+		int index = rng.nextInt(potentialItems.length);
+		return potentialItems[index];
+	}
+	
+	public FEItem[] comparableWeaponsForClass(FEClass characterClass, FEItem referenceItem) {
+		ArrayList<FEItem> items = new ArrayList<FEItem>();
+		
+		if (characterClass.getSwordRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndEqualRank(WeaponType.SWORD, referenceItem.getWeaponRank(), false, true, true))); }
+		if (characterClass.getLanceRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndEqualRank(WeaponType.LANCE, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
+		if (characterClass.getAxeRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndEqualRank(WeaponType.AXE, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
+		if (characterClass.getBowRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndEqualRank(WeaponType.BOW, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, false, true))); }
+		if (characterClass.getAnimaRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndEqualRank(WeaponType.ANIMA, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
+		if (characterClass.getLightRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndEqualRank(WeaponType.LIGHT, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
+		if (characterClass.getDarkRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndEqualRank(WeaponType.DARK, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
+		if (characterClass.getStaffRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndEqualRank(WeaponType.STAFF, referenceItem.getWeaponRank(), false, false, true))); }
+		
+		FEItem[] prfWeapons = prfWeaponsForClass(characterClass.getID());
+		if (prfWeapons != null) {
+			items.addAll(Arrays.asList(prfWeapons));
+		}
+		
+		FEItem[] classWeapons = lockedWeaponsToClass(characterClass.getID());
+		if (classWeapons != null) {
+			items.addAll(Arrays.asList(classWeapons));
+		}
+		
+		return items.toArray(new FEItem[items.size()]);
+	}
+	
+	public FEItem getRandomWeaponForCharacter(FECharacter character, Boolean ranged, Boolean melee, Random rng) {
+		FEItem[] potentialItems = usableWeaponsForCharacter(character, ranged, melee);
+		if (potentialItems == null || potentialItems.length < 1) {
+			if (gameType == GameType.FE8) {
+				// Monster weapons...
+				if (FE8Data.CharacterClass.allMonsterClasses.contains(FE8Data.CharacterClass.valueOf(character.getClassID()))) {
+					FE8Data.Item basicMonsterWeapon = FE8Data.Item.equivalentMonsterWeapon(0, character.getClassID());
+					if (basicMonsterWeapon != null) { return itemWithID(basicMonsterWeapon.ID); }
+				}
+			}
+			return null;
+		}
+		
+		int index = rng.nextInt(potentialItems.length);
+		return potentialItems[index];
+	}
+	
+	
+	
+	private FEItem[] usableWeaponsForCharacter(FECharacter character, Boolean ranged, Boolean melee) {
+		ArrayList<FEItem> items = new ArrayList<FEItem>();
+		
+		if (character.getSwordRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.SWORD, character.getSwordRank(), ranged, melee))); }
+		if (character.getLanceRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.LANCE, character.getLanceRank(), ranged, melee))); }
+		if (character.getAxeRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.AXE, character.getAxeRank(), ranged, melee))); }
+		if (character.getBowRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.BOW, character.getBowRank(), ranged, melee))); }
+		if (character.getAnimaRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.ANIMA, character.getAnimaRank(), ranged, melee))); }
+		if (character.getLightRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.LIGHT, character.getLightRank(), ranged, melee))); }
+		if (character.getDarkRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.DARK, character.getDarkRank(), ranged, melee))); }
+		if (character.getStaffRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.STAFF, character.getStaffRank(), ranged, melee))); }
+		
+		return items.toArray(new FEItem[items.size()]);
 	}
 	
 	public FEItem[] formerThiefInventory() {

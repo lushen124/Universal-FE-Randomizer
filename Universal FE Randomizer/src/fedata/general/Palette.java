@@ -2,6 +2,8 @@ package fedata.general;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -114,9 +116,26 @@ public class Palette {
 			tertiary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
 		}
 		
+		List<Palette> orderedPalettesBySaturation = new ArrayList<Palette>(Arrays.asList(allReferencePalettes));
+		
 		if (hair.size() > 0) {
 			Boolean hairSet = false;
-			for (Palette otherPalette : allReferencePalettes) {
+			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+				@Override
+				public int compare(Palette arg0, Palette arg1) {
+					if (arg0.getHairColors().length > 0 && arg1.getHairColors().length > 0) {
+						double arg0Saturation = arg0.getHairColors()[0].getSaturation();
+						double arg1Saturation = arg1.getHairColors()[0].getSaturation();
+						if (arg0Saturation > arg1Saturation) { return -1; }
+						else if (arg0Saturation < arg1Saturation) { return 1; }
+						else { return 0; }
+					} else {
+						return 0;
+					}
+				}
+			});
+			
+			for (Palette otherPalette : orderedPalettesBySaturation) {
 				if (otherPalette.getHairColors().length > 0) {
 					setHairColors(PaletteColor.coerceColors(otherPalette.getHairColors(), hair.size()));
 					hairSet = true;
@@ -130,7 +149,21 @@ public class Palette {
 			}
 			
 			if (!hairSet) {
-				for (Palette otherPalette : allReferencePalettes) {
+				Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+					@Override
+					public int compare(Palette arg0, Palette arg1) {
+						if (arg0.getPrimaryColors().length > 0 && arg1.getPrimaryColors().length > 0) {
+							double arg0Saturation = arg0.getPrimaryColors()[0].getSaturation();
+							double arg1Saturation = arg1.getPrimaryColors()[0].getSaturation();
+							if (arg0Saturation > arg1Saturation) { return -1; }
+							else if (arg0Saturation < arg1Saturation) { return 1; }
+							else { return 0; }
+						} else {
+							return 0;
+						}
+					}
+				});
+				for (Palette otherPalette : orderedPalettesBySaturation) {
 					if (otherPalette.getPrimaryColors().length > 0) {
 						setHairColors(PaletteColor.coerceColors(otherPalette.getPrimaryColors(), primary.size()));
 						break;
@@ -140,7 +173,21 @@ public class Palette {
 		}
 		
 		if (primary.size() > 0) {
-			for (Palette otherPalette : allReferencePalettes) {
+			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+				@Override
+				public int compare(Palette arg0, Palette arg1) {
+					if (arg0.getPrimaryColors().length > 0 && arg1.getPrimaryColors().length > 0) {
+						double arg0Saturation = arg0.getPrimaryColors()[0].getSaturation();
+						double arg1Saturation = arg1.getPrimaryColors()[0].getSaturation();
+						if (arg0Saturation > arg1Saturation) { return -1; }
+						else if (arg0Saturation < arg1Saturation) { return 1; }
+						else { return 0; }
+					} else {
+						return 0;
+					}
+				}
+			});
+			for (Palette otherPalette : orderedPalettesBySaturation) {
 				if (otherPalette.getPrimaryColors().length > 0) {
 					setPrimaryColors(PaletteColor.coerceColors(otherPalette.getPrimaryColors(), primary.size()));
 					break;
@@ -149,7 +196,21 @@ public class Palette {
 		}
 		
 		if (secondary.size() > 0) {
-			for (Palette otherPalette : allReferencePalettes) {
+			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+				@Override
+				public int compare(Palette arg0, Palette arg1) {
+					if (arg0.getSecondaryColors().length > 0 && arg1.getSecondaryColors().length > 0) {
+						double arg0Saturation = arg0.getSecondaryColors()[0].getSaturation();
+						double arg1Saturation = arg1.getSecondaryColors()[0].getSaturation();
+						if (arg0Saturation > arg1Saturation) { return -1; }
+						else if (arg0Saturation < arg1Saturation) { return 1; }
+						else { return 0; }
+					} else {
+						return 0;
+					}
+				}
+			});
+			for (Palette otherPalette : orderedPalettesBySaturation) {
 				if (otherPalette.getSecondaryColors().length > 0) {
 					setSecondaryColors(PaletteColor.coerceColors(otherPalette.getSecondaryColors(), secondary.size()));
 					break;
@@ -158,7 +219,21 @@ public class Palette {
 		}
 		
 		if (tertiary.size() > 0) {
-			for (Palette otherPalette : allReferencePalettes) {
+			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+				@Override
+				public int compare(Palette arg0, Palette arg1) {
+					if (arg0.getTertiaryColors().length > 0 && arg1.getTertiaryColors().length > 0) {
+						double arg0Saturation = arg0.getTertiaryColors()[0].getSaturation();
+						double arg1Saturation = arg1.getTertiaryColors()[0].getSaturation();
+						if (arg0Saturation > arg1Saturation) { return -1; }
+						else if (arg0Saturation < arg1Saturation) { return 1; }
+						else { return 0; }
+					} else {
+						return 0;
+					}
+				}
+			});
+			for (Palette otherPalette : orderedPalettesBySaturation) {
 				if (otherPalette.getTertiaryColors().length > 0) {
 					setTertiaryColors(PaletteColor.coerceColors(otherPalette.getTertiaryColors(), tertiary.size()));
 					break;

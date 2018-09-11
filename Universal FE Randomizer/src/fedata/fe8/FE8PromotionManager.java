@@ -85,6 +85,10 @@ public class FE8PromotionManager {
 			int index = currentClass.ID;
 			promotionBranches.put(currentClass, new PromotionBranch(handler, address + (index * FE8Data.BytesPerPromotionBranchEntry)));
 		}
+		
+		// Override Soldiers to promote.
+		setFirstPromotionOptionForClass(FE8Data.CharacterClass.SOLDIER.ID, FE8Data.CharacterClass.GENERAL.ID);
+		setSecondPromotionOptionForClass(FE8Data.CharacterClass.SOLDIER.ID, FE8Data.CharacterClass.PALADIN.ID);
 	}
 	
 	public Boolean hasPromotions(int baseClassID) {

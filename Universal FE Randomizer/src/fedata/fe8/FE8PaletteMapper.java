@@ -1,10 +1,11 @@
 package fedata.fe8;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import fedata.fe8.FE8Data.Palette;
 import util.DebugPrinter;
@@ -13,7 +14,6 @@ import util.DiffCompiler;
 import util.FileReadHelper;
 
 import io.FileHandler;
-import random.exc.NotReached;
 
 // FE8 uses two auxiliary tables to map palettes based on class.
 // The first tells us which classes a character can be, and the second
@@ -373,19 +373,23 @@ public class FE8PaletteMapper {
 			charactersThatNeedPalettes.put(character, palettesNeeded);
 		}
 		
+		Set<Integer> paletteIDsInUse = new HashSet<Integer>();
+		Set<Integer> unusedPaletteIDs = new HashSet<Integer>();
+		
 		for (FE8Data.Character linked : FE8Data.Character.allLinkedCharactersFor(character)) {
 			ClassMapEntry map = paletteClassMap.get(linked);
 			PaletteMapEntry paletteMap = paletteIndexMap.get(linked);
 			
 			map.setTraineeClassID(0);
 			if (paletteMap.getTraineePaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getTraineePaletteID());
+				unusedPaletteIDs.add(paletteMap.getTraineePaletteID());
 				paletteMap.setTraineePaletteID(0);
 			}
 			map.setBaseClassID(unpromotedClassID);
+			paletteIDsInUse.add(paletteMap.getBasePaletteID());
 			map.setSecondaryBaseClassID(0);
 			if (paletteMap.getSecondaryBasePaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getSecondaryBasePaletteID());
+				unusedPaletteIDs.add(paletteMap.getSecondaryBasePaletteID());
 				paletteMap.setSecondaryBasePaletteID(0);
 			}
 			
@@ -394,13 +398,14 @@ public class FE8PaletteMapper {
 					FE8Data.CharacterClass primaryPromotionClass = FE8Data.CharacterClass.valueOf(primaryPromotionID);
 					if (primaryPromotionClass != null) {
 						map.setFirstPromotionClassID(primaryPromotionID);
+						paletteIDsInUse.add(paletteMap.getFirstPromotionPaletteID());
 					} else {
 						System.err.println("Invalid class detected in promotion branch (Base Class: " + unpromotedClass.toString() + ").");
 					}
 				} else {
 					map.setFirstPromotionClassID(0);
 					if (paletteMap.getFirstPromotionPaletteID() != 0) {
-						markPaletteIDAsFree(paletteMap.getFirstPromotionPaletteID());
+						unusedPaletteIDs.add(paletteMap.getFirstPromotionPaletteID());
 						paletteMap.setFirstPromotionPaletteID(0);
 					}
 				}
@@ -409,13 +414,14 @@ public class FE8PaletteMapper {
 					FE8Data.CharacterClass secondaryPromotionClass = FE8Data.CharacterClass.valueOf(secondaryPromotionID);
 					if (secondaryPromotionClass != null) {
 						map.setSecondaryPromotionClassID(secondaryPromotionID);
+						paletteIDsInUse.add(paletteMap.getSecondaryPromotionPaletteID());
 					} else {
 						System.err.println("Invalid class detected in promotion branch (Base Class: " + unpromotedClass.toString() + ").");
 					}
 				} else {
 					map.setSecondaryPromotionClassID(0);
 					if (paletteMap.getSecondaryPromotionPaletteID() != 0) {
-						markPaletteIDAsFree(paletteMap.getSecondaryPromotionPaletteID());
+						unusedPaletteIDs.add(paletteMap.getSecondaryPromotionPaletteID());
 						paletteMap.setSecondaryPromotionPaletteID(0);
 					}
 				}
@@ -424,13 +430,19 @@ public class FE8PaletteMapper {
 				map.setFourthPromotionClassID(0);
 				
 				if (paletteMap.getThirdPromotionPaletteID() != 0) {
-					markPaletteIDAsFree(paletteMap.getThirdPromotionPaletteID());
+					unusedPaletteIDs.add(paletteMap.getThirdPromotionPaletteID());
 					paletteMap.setThirdPromotionPaletteID(0);
 				}
 				if (paletteMap.getFourthPromotionPaletteID() != 0) {
-					markPaletteIDAsFree(paletteMap.getFourthPromotionPaletteID());
+					unusedPaletteIDs.add(paletteMap.getFourthPromotionPaletteID());
 					paletteMap.setFourthPromotionPaletteID(0);
 				}
+			}
+			
+			// Some characters use the same palette for more than one promotion path (i.e. Amelia has Great Knight as an option in both Cavalier and Knight.)
+			unusedPaletteIDs.removeAll(paletteIDsInUse);
+			for (int paletteID : unusedPaletteIDs) {
+				markPaletteIDAsFree(paletteID);
 			}
 		}
 	}

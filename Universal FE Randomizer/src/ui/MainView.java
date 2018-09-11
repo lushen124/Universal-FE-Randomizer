@@ -76,7 +76,7 @@ public class MainView implements FileFlowDelegate {
 		super();
 		
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.RESIZE & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (fe8-support)");
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (fe8-support QC01)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
 		 mainShell = shell;
@@ -136,7 +136,7 @@ public class MainView implements FileFlowDelegate {
 		  fieldData.left = new FormAttachment(romFileLabel, 5);
 		  fieldData.top = new FormAttachment(0, 5);
 		  fieldData.right = new FormAttachment(button, -5);
-		  fieldData.width = 300;
+		  fieldData.width = 400;
 		  field.setLayoutData(fieldData);
 		  
 		  FormData buttonData = new FormData();

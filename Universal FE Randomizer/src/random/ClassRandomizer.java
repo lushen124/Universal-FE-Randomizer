@@ -247,7 +247,8 @@ public class ClassRandomizer {
 		for (FEChapter chapter : chapterData.allChapters()) {
 			FEChapterItem reward = chapter.chapterItemGivenToCharacter(character.getID());
 			if (reward != null) {
-				reward.setItemID(getRandomWeaponForCharacter(character, ranged, melee, itemData, rng).getID());
+				FEItem item = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+				reward.setItemID(item.getID());
 			}
 			
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
@@ -256,7 +257,7 @@ public class ClassRandomizer {
 						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass());
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
-					validateCharacterInventory(character, targetClass, chapterUnit, ranged, melee, itemData, textData, forceBasicWeapons, rng);
+					validateCharacterInventory(character, targetClass, chapterUnit, ranged, melee, classData, itemData, textData, forceBasicWeapons, rng);
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
@@ -322,9 +323,9 @@ public class ClassRandomizer {
 		if (unitClass != null) {
 			int item1ID = chapterUnit.getItem1();
 			FEItem item1 = itemData.itemWithID(item1ID);
-			if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON && item1.getWeaponRank() != WeaponRank.NONE) {
-				if (!canClassUseItem(unitClass, item1, itemData)) {
-					FEItem replacementItem = getSidegradeWeapon(unitClass, item1, itemData, rng);
+			if (itemData.isWeapon(item1)) {
+				if (!classData.canClassUseItem(item1ID, unitClass)) {
+					FEItem replacementItem = itemData.getSidegradeWeapon(unitClass, item1, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem1(replacementItem.getID());
 					} else {
@@ -335,9 +336,9 @@ public class ClassRandomizer {
 			
 			int item2ID = chapterUnit.getItem2();
 			FEItem item2 = itemData.itemWithID(item2ID);
-			if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON && item2.getWeaponRank() != WeaponRank.NONE) {
-				if (!canClassUseItem(unitClass, item2, itemData)) {
-					FEItem replacementItem = getSidegradeWeapon(unitClass, item2, itemData, rng);
+			if (itemData.isWeapon(item2)) {
+				if (!classData.canClassUseItem(item2ID, unitClass)) {
+					FEItem replacementItem = itemData.getSidegradeWeapon(unitClass, item2, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem2(replacementItem.getID());
 					} else {
@@ -348,9 +349,9 @@ public class ClassRandomizer {
 			
 			int item3ID = chapterUnit.getItem3();
 			FEItem item3 = itemData.itemWithID(item3ID);
-			if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON && item3.getWeaponRank() != WeaponRank.NONE) {
-				if (!canClassUseItem(unitClass, item3, itemData)) {
-					FEItem replacementItem = getSidegradeWeapon(unitClass, item3, itemData, rng);
+			if (itemData.isWeapon(item3)) {
+				if (!classData.canClassUseItem(item3ID, unitClass)) {
+					FEItem replacementItem = itemData.getSidegradeWeapon(unitClass, item3, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem3(replacementItem.getID());
 					} else {
@@ -361,9 +362,9 @@ public class ClassRandomizer {
 			
 			int item4ID = chapterUnit.getItem4();
 			FEItem item4 = itemData.itemWithID(item4ID);
-			if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON && item4.getWeaponRank() != WeaponRank.NONE) {
-				if (!canClassUseItem(unitClass, item4, itemData)) {
-					FEItem replacementItem = getSidegradeWeapon(unitClass, item4, itemData, rng);
+			if (itemData.isWeapon(item1)) {
+				if (!classData.canClassUseItem(item4ID, unitClass)) {
+					FEItem replacementItem = itemData.getSidegradeWeapon(unitClass, item4, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem4(replacementItem.getID());
 					} else {
@@ -374,7 +375,7 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void validateCharacterInventory(FECharacter character, FEClass charClass, FEChapterUnit chapterUnit, Boolean ranged, Boolean melee, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, Random rng) {
+	private static void validateCharacterInventory(FECharacter character, FEClass charClass, FEChapterUnit chapterUnit, Boolean ranged, Boolean melee, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, Random rng) {
 		int item1ID = chapterUnit.getItem1();
 		FEItem item1 = itemData.itemWithID(item1ID);
 		int item2ID = chapterUnit.getItem2();
@@ -393,12 +394,15 @@ public class ClassRandomizer {
 		Boolean isHealerClass = charClass.getStaffRank() > 0;
 		Boolean hasAtLeastOneHealingStaff = false;
 		
+		Boolean classCanAttack = classData.canClassAttack(charClass.getID());
+		Boolean hasAtLeastOneWeapon = false;
+		
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Validating inventory for character 0x" + Integer.toHexString(character.getID()) + " (" + textData.getStringAtIndex(character.getNameIndex()) +") in class 0x" + Integer.toHexString(charClass.getID()) + " (" + textData.getStringAtIndex(charClass.getNameIndex()) + ")");
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Original Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex()) + ")") + "]");
 		
-		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
+		if (itemData.isWeapon(item1)) {
 			if (!canCharacterUseItem(character, item1, itemData) || (item1.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item1ID))) {
-				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, melee, itemData, rng);
+				FEItem replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item1.getWeaponRank() == WeaponRank.S) {
 					FEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
 					if (topWeapons.length > 0) {
@@ -407,16 +411,20 @@ public class ClassRandomizer {
 				}
 				if (replacementItem != null) {
 					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
+					else { hasAtLeastOneWeapon = hasAtLeastOneWeapon || itemData.isWeapon(replacementItem); }
 					chapterUnit.setItem1(replacementItem.getID());
 				} else {
 					chapterUnit.setItem1(0);
 				}
+			} else {
+				if (item1.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(item1.getID()); }
+				else { hasAtLeastOneWeapon = hasAtLeastOneWeapon || itemData.isWeapon(item1); }
 			}
 		}
 		
-		if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
+		if (itemData.isWeapon(item2)) {
 			if (!canCharacterUseItem(character, item2, itemData) || (item2.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item2ID))) {
-				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, melee, itemData, rng);
+				FEItem replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item2.getWeaponRank() == WeaponRank.S) {
 					FEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
 					if (topWeapons.length > 0) {
@@ -425,16 +433,20 @@ public class ClassRandomizer {
 				}
 				if (replacementItem != null) {
 					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
+					else { hasAtLeastOneWeapon = hasAtLeastOneWeapon || itemData.isWeapon(replacementItem); }
 					chapterUnit.setItem2(replacementItem.getID());
 				} else {
 					chapterUnit.setItem2(0);
 				}
+			} else {
+				if (item2.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(item2.getID()); }
+				else { hasAtLeastOneWeapon = hasAtLeastOneWeapon || itemData.isWeapon(item2); }
 			}
 		}
 		
-		if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
+		if (itemData.isWeapon(item3)) {
 			if (!canCharacterUseItem(character, item3, itemData) || (item3.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item3ID))) {
-				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, melee, itemData, rng);
+				FEItem replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item3.getWeaponRank() == WeaponRank.S) {
 					FEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
 					if (topWeapons.length > 0) {
@@ -443,16 +455,20 @@ public class ClassRandomizer {
 				}
 				if (replacementItem != null) {
 					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
+					else { hasAtLeastOneWeapon = hasAtLeastOneWeapon || itemData.isWeapon(replacementItem); }
 					chapterUnit.setItem3(replacementItem.getID());
 				} else {
 					chapterUnit.setItem3(0);
 				}
+			} else {
+				if (item3.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(item3.getID()); }
+				else { hasAtLeastOneWeapon = hasAtLeastOneWeapon || itemData.isWeapon(item3); }
 			}
 		}
 		
-		if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
+		if (itemData.isWeapon(item4)) {
 			if (!canCharacterUseItem(character, item4, itemData) || (item4.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item4ID))) {
-				FEItem replacementItem = forceBasic ? getBasicWeaponForCharacter(character, ranged, itemData, rng) : getRandomWeaponForCharacter(character, ranged, melee, itemData, rng);
+				FEItem replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item4.getWeaponRank() == WeaponRank.S) {
 					FEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
 					if (topWeapons.length > 0) {
@@ -461,15 +477,22 @@ public class ClassRandomizer {
 				}
 				if (replacementItem != null) {
 					if (replacementItem.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(replacementItem.getID()); }
+					else { hasAtLeastOneWeapon = hasAtLeastOneWeapon || itemData.isWeapon(replacementItem); }
 					chapterUnit.setItem4(replacementItem.getID());
 				} else {
 					chapterUnit.setItem4(0);
 				}
+			} else {
+				if (item4.getType() == WeaponType.STAFF) { hasAtLeastOneHealingStaff = hasAtLeastOneHealingStaff || itemData.isHealingStaff(item4.getID()); }
+				else { hasAtLeastOneWeapon = hasAtLeastOneWeapon || itemData.isWeapon(item4); }
 			}
 		}
 		
 		if (isHealerClass && !hasAtLeastOneHealingStaff) {
 			chapterUnit.giveItems(new int[] {itemData.getRandomHealingStaff(itemData.weaponRankFromValue(character.getStaffRank()), rng).getID()});
+		}
+		if (classCanAttack && !hasAtLeastOneWeapon) {
+			chapterUnit.giveItems(new int[] {itemData.getBasicWeaponForCharacter(character, ranged, true, rng).getID()});
 		}
 		
 		item1ID = chapterUnit.getItem1();
@@ -482,58 +505,6 @@ public class ClassRandomizer {
 		item4 = itemData.itemWithID(item4ID);
 		
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Final Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex()) + ")") + "]");
-	}
-	
-	private static FEItem getRandomWeaponForCharacter(FECharacter character, Boolean ranged, Boolean melee, ItemDataLoader itemData, Random rng) {
-		FEItem[] potentialItems = usableWeaponsForCharacter(character, ranged, melee, itemData);
-		if (potentialItems == null || potentialItems.length < 1) {
-			return null;
-		}
-		
-		int index = rng.nextInt(potentialItems.length);
-		return potentialItems[index];
-	}
-	
-	private static FEItem getBasicWeaponForCharacter(FECharacter character, Boolean ranged, ItemDataLoader itemData, Random rng) {
-		if (character.getSwordRank() > 0) { return itemData.basicItemOfType(WeaponType.SWORD); }
-		if (character.getLanceRank() > 0) { return itemData.basicItemOfType(WeaponType.LANCE); }
-		if (character.getAxeRank() > 0) { return itemData.basicItemOfType(WeaponType.AXE); }
-		if (character.getBowRank() > 0) { return itemData.basicItemOfType(WeaponType.BOW); }
-		if (character.getAnimaRank() > 0) { return itemData.basicItemOfType(WeaponType.ANIMA); }
-		if (character.getLightRank() > 0) { return itemData.basicItemOfType(WeaponType.LIGHT); }
-		if (character.getDarkRank() > 0) { return itemData.basicItemOfType(WeaponType.DARK); }
-		if (character.getStaffRank() > 0) { return itemData.basicItemOfType(WeaponType.STAFF); }
-		
-		return null;
-	}
-	
-	private static FEItem getSidegradeWeapon(FEClass targetClass, FEItem originalWeapon, ItemDataLoader itemData, Random rng) {
-		if (originalWeapon.getType() == WeaponType.NOT_A_WEAPON) {
-			return null;
-		}
-		
-		FEItem[] potentialItems = comparableWeaponsForClass(targetClass, originalWeapon, itemData);
-		if (potentialItems == null || potentialItems.length < 1) {
-			return null;
-		}
-		
-		int index = rng.nextInt(potentialItems.length);
-		return potentialItems[index];
-	}
-	
-	private static FEItem[] usableWeaponsForCharacter(FECharacter character, Boolean ranged, Boolean melee, ItemDataLoader itemData) {
-		ArrayList<FEItem> items = new ArrayList<FEItem>();
-		
-		if (character.getSwordRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.SWORD, character.getSwordRank(), ranged, melee))); }
-		if (character.getLanceRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.LANCE, character.getLanceRank(), ranged, melee))); }
-		if (character.getAxeRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.AXE, character.getAxeRank(), ranged, melee))); }
-		if (character.getBowRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.BOW, character.getBowRank(), ranged, melee))); }
-		if (character.getAnimaRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.ANIMA, character.getAnimaRank(), ranged, melee))); }
-		if (character.getLightRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.LIGHT, character.getLightRank(), ranged, melee))); }
-		if (character.getDarkRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.DARK, character.getDarkRank(), ranged, melee))); }
-		if (character.getStaffRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndBelowRankValue(WeaponType.STAFF, character.getStaffRank(), ranged, melee))); }
-		
-		return items.toArray(new FEItem[items.size()]);
 	}
 	
 	private static FEItem[] topRankWeaponsForClass(FEClass characterClass, ItemDataLoader itemData) {
@@ -550,31 +521,6 @@ public class ClassRandomizer {
 		return items.toArray(new FEItem[items.size()]);
 	}
 	
-	private static FEItem[] comparableWeaponsForClass(FEClass characterClass, FEItem referenceItem, ItemDataLoader itemData) {
-		ArrayList<FEItem> items = new ArrayList<FEItem>();
-		
-		if (characterClass.getSwordRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.SWORD, referenceItem.getWeaponRank(), false, true, true))); }
-		if (characterClass.getLanceRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.LANCE, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
-		if (characterClass.getAxeRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.AXE, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
-		if (characterClass.getBowRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.BOW, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, false, true))); }
-		if (characterClass.getAnimaRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.ANIMA, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
-		if (characterClass.getLightRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.LIGHT, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
-		if (characterClass.getDarkRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.DARK, referenceItem.getWeaponRank(), referenceItem.getMaxRange() > 1, true, true))); }
-		if (characterClass.getStaffRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.STAFF, referenceItem.getWeaponRank(), false, false, true))); }
-		
-		FEItem[] prfWeapons = itemData.prfWeaponsForClass(characterClass.getID());
-		if (prfWeapons != null) {
-			items.addAll(Arrays.asList(prfWeapons));
-		}
-		
-		FEItem[] classWeapons = itemData.lockedWeaponsToClass(characterClass.getID());
-		if (classWeapons != null) {
-			items.addAll(Arrays.asList(classWeapons));
-		}
-		
-		return items.toArray(new FEItem[items.size()]);
-	}
-	
 	private static Boolean canCharacterUseItem(FECharacter character, FEItem weapon, ItemDataLoader itemData) {
 		int weaponRankValue = itemData.weaponRankValueForRank(weapon.getWeaponRank());
 		if ((weapon.getType() == WeaponType.SWORD && character.getSwordRank() >= weaponRankValue) ||
@@ -585,22 +531,6 @@ public class ClassRandomizer {
 				(weapon.getType() == WeaponType.LIGHT && character.getLightRank() >= weaponRankValue) ||
 				(weapon.getType() == WeaponType.DARK && character.getDarkRank() >= weaponRankValue) ||
 				(weapon.getType() == WeaponType.STAFF && character.getStaffRank() >= weaponRankValue)) {
-			return true;
-		}
-		
-		return false;
-	}
-	
-	private static Boolean canClassUseItem(FEClass characterClass, FEItem weapon, ItemDataLoader itemData) {
-		int weaponRankValue = itemData.weaponRankValueForRank(weapon.getWeaponRank());
-		if ((weapon.getType() == WeaponType.SWORD && characterClass.getSwordRank() >= weaponRankValue) ||
-				(weapon.getType() == WeaponType.LANCE && characterClass.getLanceRank() >= weaponRankValue) ||
-				(weapon.getType() == WeaponType.AXE && characterClass.getAxeRank() >= weaponRankValue) ||
-				(weapon.getType() == WeaponType.BOW && characterClass.getBowRank() >= weaponRankValue) ||
-				(weapon.getType() == WeaponType.ANIMA && characterClass.getAnimaRank() >= weaponRankValue) ||
-				(weapon.getType() == WeaponType.LIGHT && characterClass.getLightRank() >= weaponRankValue) ||
-				(weapon.getType() == WeaponType.DARK && characterClass.getDarkRank() >= weaponRankValue) ||
-				(weapon.getType() == WeaponType.STAFF && characterClass.getStaffRank() >= weaponRankValue)) {
 			return true;
 		}
 		

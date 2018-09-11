@@ -146,7 +146,7 @@ public class FE8Data {
 		public static Set<Character> allBossCharacters = new HashSet<Character>(Arrays.asList(ORSON, SELENA, SELENA_10B_13B, VALTER, VALTER_CH15, VALTER_PROLOGUE, RIEV, CAELLACH, BREGUET, BONE, BAZBA, MUMMY_CH4,
 				SAAR, NOVALA, MURRAY, TIRADO, BINKS, PABLO, MACDAIRE_12A, AIAS, CARLYLE, CAELLACH_CH15, PABLO_13A, GORGON_CH18,
 				RIEV_CH19_CH20, GHEB, BERAN, CYCLOPS_CH12B, HELLBONE_11A, DEATHGOYLE_11B, ONEILL, GLEN_CUTSCENE, ZONTA, VIGARDE, ORSON_CH16));
-		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE));
+		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE, BONE));
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(COLM, RENNAC));
@@ -891,7 +891,7 @@ public class FE8Data {
 		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(AUDHULMA, VIDOFNIR, GARM, NIDHOGG, LATONA, EXCALIBUR, IVALDI, GLEIPNIR, NAGLFAR));
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(REGINLEIF, RAPIER, SIEGMUND, SIEGLINDE));
 		
-		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, FIRE, LIGHTNING, FLUX, ROTTEN_CLAW, FIERY_FANG));
+		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, FIRE, LIGHTNING, FLUX, ROTTEN_CLAW, FIERY_FANG, EVIL_EYE));
 		
 		public static Item[] basicItemsOfType(WeaponType type) {
 			Set<Item> set = new HashSet<Item>();
@@ -1065,11 +1065,59 @@ public class FE8Data {
 			}
 		}
 		
+		public static Boolean canMonsterClassUseItem(int itemID, int classID) {
+			CharacterClass charClass = CharacterClass.valueOf(classID);
+			if (!CharacterClass.allMonsterClasses.contains(charClass)) { return false; }
+			Item item = valueOf(itemID);
+			switch (charClass) {
+			case REVENANT:
+			case ENTOMBED:
+			case BAEL:
+			case ELDER_BAEL:
+			case ELDER_BAEL_2:
+				return new HashSet<Item>(Arrays.asList(POISON_CLAW, FETID_CLAW, ROTTEN_CLAW, LETHAL_TALON, SHARP_CLAW)).contains(item);
+			case MAUTHE_DOOG:
+			case GWYLLGI:
+				return new HashSet<Item>(Arrays.asList(FIERY_FANG, HELLFANG)).contains(item);
+			case MOGALL:
+			case ARCH_MOGALL:
+				return new HashSet<Item>(Arrays.asList(EVIL_EYE, CRIMSON_EYE, SHADOWSHOT)).contains(item);
+			case GORGON:
+				return new HashSet<Item>(Arrays.asList(DEMON_SURGE, SHADOWSHOT, STONE)).contains(item);
+			default:
+				return false;
+			}
+		}
+		
+		public static Item basicMonsterWeapon(int classID) {
+			CharacterClass userClass = CharacterClass.valueOf(classID);
+			switch (userClass) {
+			case REVENANT:
+			case ENTOMBED:
+			case BAEL:
+			case ELDER_BAEL:
+			case ELDER_BAEL_2:
+				return POISON_CLAW;
+			case MAUTHE_DOOG:
+			case GWYLLGI:
+				return FIERY_FANG;
+			case MOGALL:
+			case ARCH_MOGALL:
+				return EVIL_EYE;
+			case GORGON:
+				return DEMON_SURGE;
+			default:
+				return null;
+			}
+		}
+		
 		public static Item equivalentMonsterWeapon(int baseItemID, int userClassID) {
-			FE8Data.CharacterClass userClass = FE8Data.CharacterClass.valueOf(userClassID);
+			CharacterClass userClass = CharacterClass.valueOf(userClassID);
 			Item baseItem = valueOf(baseItemID);
 			if (userClass == null) { return baseItem; }
-			if (baseItem == null) {
+			if (!CharacterClass.allMonsterClasses.contains(userClass)) { return baseItem; }
+			
+			if (baseItem == null || baseItem == NONE) {
 				switch (userClass) {
 				case REVENANT: return POISON_CLAW;
 				case ENTOMBED: return FETID_CLAW;
@@ -1084,8 +1132,6 @@ public class FE8Data {
 				default: return null;
 				}
 			}
-			
-			if (!FE8Data.CharacterClass.allMonsterClasses.contains(userClass)) { return baseItem; }
 			
 			switch (userClass) {
 			case REVENANT:
@@ -1118,13 +1164,17 @@ public class FE8Data {
 				return null;
 			}
 			
+			if (min == null || max == null) {
+				return null;
+			}
+			
 			FE8WeaponRank minRank = FE8WeaponRank.E;
-			if (min != null) {
+			if (min != WeaponRank.NONE) {
 				minRank = FE8WeaponRank.rankFromGeneralRank(min);
 			}
 			
 			FE8WeaponRank maxRank = FE8WeaponRank.S;
-			if (max != null) {
+			if (max != WeaponRank.NONE) {
 				maxRank = FE8WeaponRank.rankFromGeneralRank(max);
 			}
 			
@@ -1230,8 +1280,6 @@ public class FE8Data {
 		
 		public CharacterClass[] blacklistedClasses() {
 			switch(this) {
-			case CHAPTER_2:
-				return new CharacterClass[] {CharacterClass.BRIGAND};
 			default:
 				return new CharacterClass[] {};
 			}
@@ -1592,7 +1640,7 @@ public class FE8Data {
 			defaultPaletteForClass.put(CharacterClass.MAGE_KNIGHT_F.ID, MAGE_KNIGHT_LARACHEL.info);
 			defaultPaletteForClass.put(CharacterClass.SHAMAN.ID, SHAMAN_KNOLL.info);
 			defaultPaletteForClass.put(CharacterClass.DRUID.ID, DRUID_KNOLL.info);
-			defaultPaletteForClass.put(CharacterClass.SUMMONER.ID, SUMMONER_KNOLL.info);
+			defaultPaletteForClass.put(CharacterClass.SUMMONER.ID, SUMMONER_EWAN.info);
 			defaultPaletteForClass.put(CharacterClass.BISHOP.ID, BISHOP_MOULDER.info);
 			defaultPaletteForClass.put(CharacterClass.BISHOP_F.ID, BISHOP_NATASHA.info);
 			defaultPaletteForClass.put(CharacterClass.TROUBADOUR.ID, TROUBADOUR_LARACHEL.info);

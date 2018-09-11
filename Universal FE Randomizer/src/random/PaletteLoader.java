@@ -2,13 +2,10 @@ package random;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import fedata.FEBase;
 import fedata.FEBase.GameType;
-import fedata.FECharacter;
-import fedata.FEClass;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
 import fedata.fe8.FE8Data;
