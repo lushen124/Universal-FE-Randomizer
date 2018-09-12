@@ -400,12 +400,12 @@ public class FE6Item implements FEItem {
 		if ((getAbility1() & Ability1Mask.MAGICDAMAGE.ID) != 0) { traitStrings.add("Fixed damage at range"); shortStrings.put("Fixed damage at range", "Magic"); }
 		
 		if ((getAbility2() & Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) != 0) {
-			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs. Lances"); shortStrings.put("Strong vs. Lances", "Bests lances"); }
-			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs. Axes"); shortStrings.put("Strong vs. Axes", "Bests axes"); }
-			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong vs. Swords"); shortStrings.put("Strong vs. Swords", "Bests Swords"); }
-			else if (getType() == WeaponType.ANIMA) { traitStrings.add("Strong vs. Dark Magic"); shortStrings.put("Strong vs. Dark Magic", "Bests Dark"); }
-			else if (getType() == WeaponType.LIGHT) { traitStrings.add("Strong vs. Anima Magic"); shortStrings.put("Strong vs. Anima Magic", "Bests Anima"); }
-			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong vs. Light Magic"); shortStrings.put("Strong vs. Light Magic", "Bests Light"); }
+			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs Lances"); shortStrings.put("Strong vs Lances", "Bests lances"); }
+			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs Axes"); shortStrings.put("Strong vs Axes", "Bests axes"); }
+			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong vs Swords"); shortStrings.put("Strong vs Swords", "Bests Swords"); }
+			else if (getType() == WeaponType.ANIMA) { traitStrings.add("Strong vs Dark"); shortStrings.put("Strong vs Dark", "Bests Dark"); }
+			else if (getType() == WeaponType.LIGHT) { traitStrings.add("Strong vs Anima"); shortStrings.put("Strong vs Anima", "Bests Anima"); }
+			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong vs Light"); shortStrings.put("Strong vs Light", "Bests Light"); }
 		}
 		
 		if (getWeaponEffect() == FE6Data.Item.WeaponEffect.POISON.ID) { traitStrings.add("Poisons on hit"); shortStrings.put("Poisons on hit", "Poison"); }
