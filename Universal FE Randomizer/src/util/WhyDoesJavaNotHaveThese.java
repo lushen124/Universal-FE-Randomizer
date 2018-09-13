@@ -89,4 +89,16 @@ public class WhyDoesJavaNotHaveThese {
 		String remainder = input.substring(1).replace('_', ' ');
 		return firstLetter.toUpperCase() + remainder.toLowerCase();
 	}
+	
+	public static byte[] gbaAddressFromOffset(long offset) {
+		byte[] result = new byte[4];
+		long actualOffset = offset + 0x08000000;
+		
+		result[0] = (byte)(actualOffset & 0xFF);
+		result[1] = (byte)((actualOffset >> 8) & 0xFF);
+		result[2] = (byte)((actualOffset >> 16) & 0xFF);
+		result[3] = (byte)((actualOffset >> 24) & 0xFF);
+		
+		return result;
+	}
 }

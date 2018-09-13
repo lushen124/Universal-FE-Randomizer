@@ -67,6 +67,10 @@ public class FE8Data {
 	//public static final long DefaultPaletteIndexTableOffset = 0x95EEA4;
 	public static final int BytesPerPaletteIndexTableEntry = 7;
 	
+	public static final long SummonerTablePointer = 0x2442C;
+	//public static final long DefaultSummonerTableOffset = 0x95F5A4;
+	public static final int BytesPerSummonerEntry = 2;
+	
 	public static final int BytesPerBossPalette = 80; // Play around with this. Hopefully it doesn't collide with another palette.
 	public static final int BytesPerPalette = 40;
 	

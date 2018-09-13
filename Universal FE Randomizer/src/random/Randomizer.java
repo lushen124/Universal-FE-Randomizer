@@ -4,15 +4,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
+import java.util.Set;
 
 import org.eclipse.swt.widgets.Display;
 
 import fedata.FEBase;
 import fedata.FEBase.GameType;
+import fedata.FECharacter;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
+import fedata.fe8.FE8Data;
 import fedata.fe8.FE8PaletteMapper;
 import fedata.fe8.FE8PromotionManager;
+import fedata.fe8.FE8SummonerModule;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
@@ -55,6 +59,7 @@ public class Randomizer extends Thread {
 	// FE8 only
 	private FE8PaletteMapper fe8_paletteMapper;
 	private FE8PromotionManager fe8_promotionManager;
+	private FE8SummonerModule fe8_summonerModule;
 	
 	private String seedString;
 	
@@ -173,6 +178,9 @@ public class Randomizer extends Thread {
 		if (gameType == GameType.FE8) {
 			fe8_paletteMapper.commitChanges(diffCompiler);
 			fe8_promotionManager.compileDiffs(diffCompiler);
+			
+			fe8_summonerModule.validateSummoners(charData, new Random(SeedGenerator.generateSeedValue(seed, 0)));
+			fe8_summonerModule.commitChanges(diffCompiler, freeSpace);
 		}
 		
 		freeSpace.commitChanges(diffCompiler);
@@ -314,9 +322,14 @@ public class Randomizer extends Thread {
 		updateProgress(0.40);
 		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler);
 		
+		updateStatusString("Loading Summoner Module...");
+		updateProgress(0.45);
+		fe8_summonerModule = new FE8SummonerModule(handler);
+		
 		updateStatusString("Loading Palette Mapper...");
 		updateProgress(0.50);
 		fe8_paletteMapper = paletteData.setupFE8SpecialManagers(handler, fe8_promotionManager);
+		
 		
 		handler.clearAppliedDiffs();
 	}
