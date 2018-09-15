@@ -21,12 +21,8 @@ public class DebugPrinter {
 	
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
-		case PALETTE:
-		case PALETTE_RECYCLER:
-		case CLASS_RANDOMIZER:
-		case DIFF:
 		case RANDOM:
-		case FE8_SUMMONER_MODULE:
+		case PALETTE:
 			return true;
 		default:
 			return false;

@@ -421,9 +421,6 @@ public class PaletteLoader {
 		
 		Palette adaptedPalette = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, getAllPalettesForCharacter(charID), null);
 		Map<Integer, Palette> paletteMap = characterPalettes.get(charID);
-		
-		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
-		
 		Palette adaptedPromotedPalette = paletteForAdaptingCharacterToClass(charID, originalPromotedClassID, newPromotedClassID, getAllPalettesForCharacter(charID), null);
 		if (adaptedPromotedPalette != null) {
 			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
@@ -431,6 +428,7 @@ public class PaletteLoader {
 			paletteMap.remove(originalPromotedClassID);
 		}
 		if (adaptedPalette != null) {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
 			paletteMap.put(newClassID, adaptedPalette);
 			paletteMap.remove(originalClassID);
 		}

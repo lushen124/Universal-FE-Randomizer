@@ -173,10 +173,6 @@ public class ClassRandomizer {
 				continue;
 			}
 			
-			if (character.getID() == 0x46) {
-				System.out.println("Debugging Breguet");
-			}
-			
 			for (FECharacter linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
@@ -492,7 +488,10 @@ public class ClassRandomizer {
 			chapterUnit.giveItems(new int[] {itemData.getRandomHealingStaff(itemData.weaponRankFromValue(character.getStaffRank()), rng).getID()});
 		}
 		if (classCanAttack && !hasAtLeastOneWeapon) {
-			chapterUnit.giveItems(new int[] {itemData.getBasicWeaponForCharacter(character, ranged, true, rng).getID()});
+			FEItem basicWeapon = itemData.getBasicWeaponForCharacter(character, ranged, true, rng);
+			if (basicWeapon != null) {
+				chapterUnit.giveItems(new int[] {basicWeapon.getID()});
+			}
 		}
 		
 		item1ID = chapterUnit.getItem1();

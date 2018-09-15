@@ -2,6 +2,7 @@ package fedata.fe6;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import fedata.fe8.FE8Data.Character;
 import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 import fedata.general.WeaponRank;
@@ -107,6 +107,10 @@ public class FE6Data {
 			return idArray;
 		}
 		
+		public static Comparator<Character> characterIDComparator() {
+			return new Comparator<Character>() { public int compare(Character o1, Character o2) { return Integer.compare(o1.ID, o2.ID); } };
+		}
+		
 		public static int canonicalIDForCharacterID(int characterID) {
 			Character character = valueOf(characterID);
 			if (character == null) { return 0; }
@@ -176,41 +180,41 @@ public class FE6Data {
 			return counterMap;
 		}
 		
-		public static Character[] allLinkedCharactersFor(Character character) {
+		public static Set<Character> allLinkedCharactersFor(Character character) {
 			switch (character) {
 			case DAYAN:
 			case DAYAN_NPC:
-				return new Character[] {DAYAN, DAYAN_NPC};
+				return new HashSet<Character>(Arrays.asList(DAYAN, DAYAN_NPC));
 			case DOUGLAS:
 			case DOUGLAS_NPC:
-				return new Character[] {DOUGLAS, DOUGLAS_NPC};
+				return new HashSet<Character>(Arrays.asList(DOUGLAS, DOUGLAS_NPC));
 			case YODEL:
 			case YODEL_NPC:
-				return new Character[] {YODEL, YODEL_NPC};
+				return new HashSet<Character>(Arrays.asList(YODEL, YODEL_NPC));
 			case BARTRE:
 			case BARTRE_NPC:
-				return new Character[] {BARTRE, BARTRE_NPC};
+				return new HashSet<Character>(Arrays.asList(BARTRE, BARTRE_NPC));
 			case NIIME:
 			case NIIME_NPC:
-				return new Character[] {NIIME, NIIME_NPC};
+				return new HashSet<Character>(Arrays.asList(NIIME, NIIME_NPC));
 			case YUNNO:
 			case YUNNO_NPC:
-				return new Character[] {YUNNO, YUNNO_NPC};
+				return new HashSet<Character>(Arrays.asList(YUNNO, YUNNO_NPC));
 			case THITO:
 			case THITO_NPC:
 			case THITO_ENEMY:
-				return new Character[] {THITO, THITO_NPC, THITO_ENEMY};
+				return new HashSet<Character>(Arrays.asList(THITO, THITO_NPC, THITO_ENEMY));
 			case GONZALES:
 			case GONZALES_NPC:
-				return new Character[] {GONZALES, GONZALES_NPC};
+				return new HashSet<Character>(Arrays.asList(GONZALES, GONZALES_NPC));
 			case ECHIDNA:
 			case ECHIDNA_NPC:
-				return new Character[] {ECHIDNA, ECHIDNA_NPC};
+				return new HashSet<Character>(Arrays.asList(ECHIDNA, ECHIDNA_NPC));
 			case GEESE:
 			case GEESE_NPC:
-				return new Character[] {GEESE, GEESE_NPC};
+				return new HashSet<Character>(Arrays.asList(GEESE, GEESE_NPC));
 			default:
-				return new Character[] {character};
+				return new HashSet<Character>(Arrays.asList(character));
 			}
 		}
 	}
@@ -252,6 +256,10 @@ public class FE6Data {
 			return map.get(classId);
 		}
 		
+		public static Comparator<CharacterClass> classIDComparator() {
+			return new Comparator<CharacterClass>() { public int compare(CharacterClass o1, CharacterClass o2) { return Integer.compare(o1.ID, o2.ID); } };
+		}
+		
 		public static int[] classIDsForClassArray(CharacterClass[] classArray) {
 			int[] idArray = new int[classArray.length];
 			for (int i = 0; i < classArray.length; i++) {
@@ -285,7 +293,7 @@ public class FE6Data {
 			return allPromotedClasses.contains(sourceClass);
 		}
 		
-		public static CharacterClass[] classesThatLoseToClass(CharacterClass originalClass, CharacterClass winningClass, Boolean excludeLords, Boolean excludeThieves) {
+		public static Set<CharacterClass> classesThatLoseToClass(CharacterClass originalClass, CharacterClass winningClass, Boolean excludeLords, Boolean excludeThieves) {
 			Set<CharacterClass> classList = new HashSet<CharacterClass>();
 			
 			switch (winningClass) {
@@ -353,11 +361,11 @@ public class FE6Data {
 				break;
 			}
 			
-			return classList.toArray(new CharacterClass[classList.size()]);
+			return classList;
 		}
 		
-		public static CharacterClass[] targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
-			CharacterClass[] limited = limitedClassesForRandomization(sourceClass);
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
+			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass);
 			if (limited != null && applyRestrictions) {
 				return limited;
 			}
@@ -395,27 +403,27 @@ public class FE6Data {
 				classList.removeAll(allMeleeLockedClasses);
 			}
 			
-			return classList.toArray(new CharacterClass[classList.size()]);
+			return classList;
 		}
 		
-		private static CharacterClass[] limitedClassesForRandomization(CharacterClass sourceClass) {
+		private static Set<CharacterClass> limitedClassesForRandomization(CharacterClass sourceClass) {
 			switch(sourceClass) {
 			case LORD: // Special case for Roy to be able to always use swords (and have promotions)
-				return new CharacterClass[] {LORD, MYRMIDON, MERCENARY, MYRMIDON_F, CAVALIER, PEGASUS_KNIGHT, NOMAD};
+				return new HashSet<CharacterClass>(Arrays.asList(LORD, MYRMIDON, MERCENARY, MYRMIDON_F, CAVALIER, PEGASUS_KNIGHT, NOMAD));
 			case WYVERN_RIDER:
 			case WYVERN_RIDER_F:
 			case PEGASUS_KNIGHT:
-				return new CharacterClass[] {WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT};
+				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
 			case WYVERN_KNIGHT:
 			case WYVERN_KNIGHT_F:
 			case FALCON_KNIGHT:
-				return new CharacterClass[] {WYVERN_KNIGHT, WYVERN_KNIGHT_F, FALCON_KNIGHT};
+				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_KNIGHT, WYVERN_KNIGHT_F, FALCON_KNIGHT));
 			case PIRATE:
-				return new CharacterClass[] {PIRATE, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT};
+				return new HashSet<CharacterClass>(Arrays.asList(PIRATE, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
 			case BRIGAND:
-				return new CharacterClass[] {BRIGAND, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT};
+				return new HashSet<CharacterClass>(Arrays.asList(BRIGAND, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
 			case BERSERKER:
-				return new CharacterClass[] {BERSERKER, WYVERN_KNIGHT, WYVERN_KNIGHT_F, FALCON_KNIGHT};
+				return new HashSet<CharacterClass>(Arrays.asList(BERSERKER, WYVERN_KNIGHT, WYVERN_KNIGHT_F, FALCON_KNIGHT));
 			default:
 				return null;
 			}
@@ -491,6 +499,10 @@ public class FE6Data {
 			}
 			
 			return idArray;
+		}
+		
+		public static Comparator<Item> itemIDComparator() {
+			return new Comparator<Item>() { public int compare(Item o1, Item o2) { return Integer.compare(o1.ID, o2.ID); } };
 		}
 		
 		public enum FE6WeaponRank {
@@ -750,49 +762,53 @@ public class FE6Data {
 		
 		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, FIRE, LIGHTNING, FLUX));
 		
-		public static Item[] basicItemsOfType(WeaponType type) {
+		public static Set<Item> basicItemsOfType(WeaponType type) {
 			Set<Item> set = new HashSet<Item>();
-			set.addAll(Arrays.asList(weaponsOfType(type)));
+			set.addAll(weaponsOfType(type));
 			set.retainAll(allBasicWeapons);
-			return set.toArray(new Item[set.size()]);
+			return set;
 		}
 		
-		public static Item[] formerThiefKit() {
-			return new Item[] {CHEST_KEY_5, DOOR_KEY, DOOR_KEY};
+		public static Set<Item> formerThiefKit() {
+			return new HashSet<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, DOOR_KEY));
 		}
 		
-		public static Item[] specialClassKit(int classID, Random rng) {
+		public static Set<Item> itemsToRemoveFromFormerThief() {
+			return new HashSet<Item>(Arrays.asList(LOCKPICK));
+		}
+		
+		public static Set<Item> specialClassKit(int classID, Random rng) {
 			if (classID == FE6Data.CharacterClass.MANAKETE.ID) {
-				return new Item[] {FIRE_DRAGON_STONE};
+				return new HashSet<Item>(Arrays.asList(FIRE_DRAGON_STONE));
 			} else if (classID == FE6Data.CharacterClass.MANAKETE_F.ID) {
-				return new Item[] {DIVINE_DRAGON_STONE};
+				return new HashSet<Item>(Arrays.asList(DIVINE_DRAGON_STONE));
 			} else if (classID == FE6Data.CharacterClass.THIEF.ID || classID == FE6Data.CharacterClass.THIEF_F.ID) {
-				return new Item[] {LOCKPICK};
+				return new HashSet<Item>(Arrays.asList(LOCKPICK));
 			} else if (classID == FE6Data.CharacterClass.DANCER.ID || classID == FE6Data.CharacterClass.BARD.ID) {
-				return new Item[] {ELIXIR};
+				return new HashSet<Item>(Arrays.asList(ELIXIR));
 			}
 			
 			return null;
 		}
 		
-		public static Item[] prfWeaponsForClassID(int classID) {
+		public static Set<Item> prfWeaponsForClassID(int classID) {
 			if (classID == FE6Data.CharacterClass.LORD.ID || classID == FE6Data.CharacterClass.MASTER_LORD.ID) {
-				return new Item[] {RAPIER};
+				return new HashSet<Item>(Arrays.asList(RAPIER));
 			}
 			
 			return null;
 		}
 		
-		public static Item[] lockedWeaponsToClassID(int classID) {
+		public static Set<Item> lockedWeaponsToClassID(int classID) {
 			if (classID == FE6Data.CharacterClass.MYRMIDON.ID || classID == FE6Data.CharacterClass.MYRMIDON_F.ID ||
 					classID == FE6Data.CharacterClass.SWORDMASTER.ID || classID == FE6Data.CharacterClass.SWORDMASTER_F.ID) {
-				return new Item[] {WO_DAO};
+				return new HashSet<Item>(Arrays.asList(WO_DAO));
 			}
 			
 			return null;
 		}
 		
-		public static Item[] weaponsOfType(WeaponType type) {
+		public static Set<Item> weaponsOfType(WeaponType type) {
 			Set<Item> list = new HashSet<Item>();
 			
 			switch (type) {
@@ -824,10 +840,10 @@ public class FE6Data {
 				break;
 			}
 			
-			return list.toArray(new Item[list.size()]);
+			return list;
 		}
 		
-		public static Item[] weaponsOfRank(WeaponRank rank) {
+		public static Set<Item> weaponsOfRank(WeaponRank rank) {
 			Set<Item> list = new HashSet<Item>();
 			
 			switch (rank) {
@@ -853,7 +869,7 @@ public class FE6Data {
 				break;
 			}
 			
-			return list.toArray(new Item[list.size()]);
+			return list;
 		}
 		
 		public static Boolean isStatBooster(int itemID) {
@@ -871,24 +887,29 @@ public class FE6Data {
 			return allBasicWeapons.contains(valueOf(itemID));
 		}
 		
-		public static Item[] weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange) {
+		public static Set<Item> weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange) {
 			if (min == WeaponRank.PRF || max == WeaponRank.PRF) {
 				return null;
 			}
 			
+			if (min == null || max == null) {
+				return null;
+			}
+			
 			FE6WeaponRank minRank = FE6WeaponRank.E;
-			if (min != null) {
+			if (min != WeaponRank.NONE) {
 				minRank = FE6WeaponRank.rankFromGeneralRank(min);
 			}
 			
 			FE6WeaponRank maxRank = FE6WeaponRank.S;
-			if (max != null) {
+			if (max != WeaponRank.NONE) {
 				maxRank = FE6WeaponRank.rankFromGeneralRank(max);
 			}
 			
 			if (minRank.isHigherThanRank(maxRank)) {
 				return null;
 			}
+			
 			Set<Item> list = new HashSet<Item>();
 			
 			switch (type) {
@@ -959,7 +980,7 @@ public class FE6Data {
 				list.retainAll(allRangedWeapons);
 			}
 			
-			return list.toArray(new Item[list.size()]);
+			return list;
 		}
 	}
 	
@@ -1053,6 +1074,7 @@ public class FE6Data {
 		
 		BRIGAND_GONZALES(Character.GONZALES.ID, CharacterClass.BRIGAND.ID, 0x7FCB38),
 		BRIGAND_DORY(Character.DORY.ID, CharacterClass.BRIGAND.ID, 0x7FEB80),
+		BRIGAND_DAMAS(Character.DAMAS.ID, CharacterClass.BRIGAND.ID, 0x7FEB30), // FE6 is so busted. The classes in the class table are straight up wrong for some characters.
 		
 		BISHOP_ELEN(Character.ELEN.ID, CharacterClass.BISHOP_F.ID, 0x7FCB90),
 		BISHOP_YODEL(Character.YODEL.ID, CharacterClass.BISHOP.ID, 0x7FCBF8),
@@ -1066,6 +1088,7 @@ public class FE6Data {
 		DANCER_LALAM(Character.LALAM.ID, CharacterClass.DANCER.ID, 0x7FCE88),
 		
 		WYVERN_RIDER_MILEDY(Character.MILEDY.ID, CharacterClass.WYVERN_RIDER_F.ID, 0x7FCEE0),
+		WYVERN_RIDER_ZEISS(Character.ZEISS.ID, CharacterClass.WYVERN_RIDER.ID, 0x77144C),
 		
 		DRUID_REI(Character.REI.ID, CharacterClass.DRUID.ID, 0x7FCF60),
 		DRUID_NIIME(Character.NIIME.ID, CharacterClass.DRUID_F.ID, 0x7FCFBC),
@@ -1370,7 +1393,7 @@ public class FE6Data {
 					break;
 				case WYVERN_RIDER:
 				case WYVERN_RIDER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {27, 29, 32, 34}, new int[] {16, 14, 18}, new int[] {25}); // Primary is Wyvern Body, Secondary is Mount, Tertiary is Wyvern's Wingspan
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 9}, new int[] {27, 29, 32, 34}, new int[] {25}); // Primary is Armor, Secondary is Wyvern Body, Tertiary is Wyvern's Wingspan
 					break;
 				case WYVERN_KNIGHT:
 				case WYVERN_KNIGHT_F:

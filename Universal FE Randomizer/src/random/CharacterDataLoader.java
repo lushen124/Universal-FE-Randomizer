@@ -1,6 +1,10 @@
 package random;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,6 +13,7 @@ import fedata.FECharacter;
 import fedata.FEClass;
 import fedata.fe6.FE6Character;
 import fedata.fe6.FE6Data;
+import fedata.fe6.FE6Data.Character;
 import fedata.fe7.FE7Character;
 import fedata.fe7.FE7Data;
 import fedata.fe8.FE8Character;
@@ -81,14 +86,11 @@ public class CharacterDataLoader {
 	public FECharacter[] playableCharacters() {
 		switch (gameType) {
 		case FE6:
-				Set<FE6Data.Character> fe6Characters = FE6Data.Character.allPlayableCharacters;
-				return fe6CharactersFromList(fe6Characters.toArray(new FE6Data.Character[fe6Characters.size()]));
+				return fe6CharactersFromList(FE6Data.Character.allPlayableCharacters);
 			case FE7:
-				Set<FE7Data.Character> fe7Characters = FE7Data.Character.allPlayableCharacters;
-				return fe7CharactersFromList(fe7Characters.toArray(new FE7Data.Character[fe7Characters.size()]));
+				return fe7CharactersFromList(FE7Data.Character.allPlayableCharacters);
 			case FE8:
-				Set<FE8Data.Character> fe8Characters = FE8Data.Character.allPlayableCharacters;
-				return fe8CharactersFromList(fe8Characters.toArray(new FE8Data.Character[fe8Characters.size()]));
+				return fe8CharactersFromList(FE8Data.Character.allPlayableCharacters);
 			default:
 				return new FECharacter[] {};
 		}
@@ -97,14 +99,11 @@ public class CharacterDataLoader {
 	public FECharacter[] bossCharacters() {
 		switch (gameType) {
 		case FE6:
-			Set<FE6Data.Character> fe6Characters = FE6Data.Character.allBossCharacters;
-			return fe6CharactersFromList(fe6Characters.toArray(new FE6Data.Character[fe6Characters.size()]));
+			return fe6CharactersFromList(FE6Data.Character.allBossCharacters);
 		case FE7:
-			Set<FE7Data.Character> fe7Characters = FE7Data.Character.allBossCharacters;
-			return fe7CharactersFromList(fe7Characters.toArray(new FE7Data.Character[fe7Characters.size()]));
+			return fe7CharactersFromList(FE7Data.Character.allBossCharacters);
 		case FE8:
-			Set<FE8Data.Character> fe8Characters = FE8Data.Character.allBossCharacters;
-			return fe8CharactersFromList(fe8Characters.toArray(new FE8Data.Character[fe8Characters.size()]));
+			return fe8CharactersFromList(FE8Data.Character.allBossCharacters);
 		default:
 			return new FECharacter[] {};
 		}
@@ -316,14 +315,11 @@ public class CharacterDataLoader {
 	public FECharacter[] linkedCharactersForCharacter(FECharacter character) {
 		switch (gameType) {
 		case FE6:
-			FE6Data.Character fe6Characters[] = FE6Data.Character.allLinkedCharactersFor(FE6Data.Character.valueOf(character.getID()));
-			return fe6CharactersFromList(fe6Characters);
+			return fe6CharactersFromList(FE6Data.Character.allLinkedCharactersFor(FE6Data.Character.valueOf(character.getID())));
 		case FE7:
-			FE7Data.Character fe7Characters[] = FE7Data.Character.allLinkedCharactersFor(FE7Data.Character.valueOf(character.getID()));
-			return fe7CharactersFromList(fe7Characters);
+			return fe7CharactersFromList(FE7Data.Character.allLinkedCharactersFor(FE7Data.Character.valueOf(character.getID())));
 		case FE8:
-			FE8Data.Character fe8Characters[] = FE8Data.Character.allLinkedCharactersFor(FE8Data.Character.valueOf(character.getID()));
-			return fe8CharactersFromList(fe8Characters);
+			return fe8CharactersFromList(FE8Data.Character.allLinkedCharactersFor(FE8Data.Character.valueOf(character.getID())));
 		default:
 			return new FECharacter[] {character};
 		}
@@ -358,37 +354,46 @@ public class CharacterDataLoader {
 		}
 	}
 	
-	private FECharacter[] fe7CharactersFromList(FE7Data.Character[] characters) {
-		int charCount = characters.length;
-		FECharacter[] result = new FECharacter[charCount];
-		for (int i = 0; i < charCount; i++) {
-			FECharacter character = characterMap.get(characters[i].ID);
-			result[i] = character;
+	private FECharacter[] fe7CharactersFromList(Set<FE7Data.Character> characters) {
+		List<FE7Data.Character> orderedCharacters = new ArrayList<FE7Data.Character>(characters);
+		Collections.sort(orderedCharacters, new Comparator<FE7Data.Character>() {
+			public int compare(fedata.fe7.FE7Data.Character arg0, fedata.fe7.FE7Data.Character arg1) { return Integer.compare(arg0.ID, arg1.ID); }
+		});
+		
+		FECharacter[] characterList = new FECharacter[orderedCharacters.size()];
+		for (int i = 0; i < orderedCharacters.size(); i++) {
+			characterList[i] = characterWithID(orderedCharacters.get(i).ID);
 		}
 		
-		return result;
+		return characterList;
 	}
 	
-	private FECharacter[] fe6CharactersFromList(FE6Data.Character[] characters) {
-		int charCount = characters.length;
-		FECharacter[] result = new FECharacter[charCount];
-		for (int i = 0; i < charCount; i++) {
-			FECharacter character = characterMap.get(characters[i].ID);
-			result[i] = character;
+	private FECharacter[] fe6CharactersFromList(Set<FE6Data.Character> characters) {
+		List<FE6Data.Character> orderedCharacters = new ArrayList<FE6Data.Character>(characters);
+		Collections.sort(orderedCharacters, new Comparator<FE6Data.Character>() {
+			public int compare(fedata.fe6.FE6Data.Character arg0, fedata.fe6.FE6Data.Character arg1) { return Integer.compare(arg0.ID, arg1.ID); }
+		});
+		
+		FECharacter[] characterList = new FECharacter[orderedCharacters.size()];
+		for (int i = 0; i < orderedCharacters.size(); i++) {
+			characterList[i] = characterWithID(orderedCharacters.get(i).ID);
 		}
 		
-		return result;
+		return characterList;
 	}
 	
-	private FECharacter[] fe8CharactersFromList(FE8Data.Character[] characters) {
-		int charCount = characters.length;
-		FECharacter[] result = new FECharacter[charCount];
-		for (int i = 0; i < charCount; i++) {
-			FECharacter character = characterMap.get(characters[i].ID);
-			result[i] = character;
+	private FECharacter[] fe8CharactersFromList(Set<FE8Data.Character> characters) {
+		List<FE8Data.Character> orderedCharacters = new ArrayList<FE8Data.Character>(characters);
+		Collections.sort(orderedCharacters, new Comparator<FE8Data.Character>() {
+			public int compare(fedata.fe8.FE8Data.Character arg0, fedata.fe8.FE8Data.Character arg1) { return Integer.compare(arg0.ID, arg1.ID); }
+		});
+		
+		FECharacter[] characterList = new FECharacter[orderedCharacters.size()];
+		for (int i = 0; i < orderedCharacters.size(); i++) {
+			characterList[i] = characterWithID(orderedCharacters.get(i).ID);
 		}
 		
-		return result;
+		return characterList;
 	}
 	
 	public void recordCharacters(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, TextLoader textData) {

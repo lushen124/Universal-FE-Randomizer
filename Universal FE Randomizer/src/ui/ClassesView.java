@@ -115,6 +115,8 @@ public class ClassesView extends Composite {
 			separateMonsterClasses.setLayoutData(monsterData);
 			
 			hasMonsterOption = true;
+		} else {
+			hasMonsterOption = false;
 		}
 	}
 	

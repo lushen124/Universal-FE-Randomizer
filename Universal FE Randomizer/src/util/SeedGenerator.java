@@ -114,17 +114,12 @@ public class SeedGenerator {
 	}
 	
 	public static long generateSeedValue(String seedString, int seedSalt) {
-		Boolean isOdd = seedSalt % 2 == 1;
 		StringBuilder sb = new StringBuilder(seedString);
 		while (sb.length() < 2) {
 			sb.append(seedString);
 		}
 		
-		String finalSeed = sb.toString();
-		long counter = 0;
-		for (int i = (isOdd ? 0 : 1); i < finalSeed.length(); i += 2) {
-			counter += (seedSalt * (int)finalSeed.charAt(i));
-		}
+		long counter = sb.toString().hashCode() + seedSalt;
 		
 		DebugPrinter.log(DebugPrinter.Key.RANDOM, "Previewing Seed \"" + seedString + "\" with salt " + seedSalt);
 		Random rng = new Random(counter);
@@ -132,5 +127,4 @@ public class SeedGenerator {
 		
 		return counter;
 	}
-
 }

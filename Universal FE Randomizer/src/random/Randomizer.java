@@ -138,6 +138,7 @@ public class Randomizer extends Thread {
 			updateStatusString("Loading Data...");
 			updateProgress(0.01);
 			generateFE7DataLoaders();
+			break;
 		case FE8:
 			updateStatusString("Loading Data...");
 			updateProgress(0.01);

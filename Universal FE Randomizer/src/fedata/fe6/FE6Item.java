@@ -181,16 +181,14 @@ public class FE6Item implements FEItem {
 			return;
 		}
 		
-		Set<WeaponEffects> effectPool = effectsAvailable();
-		effectPool.retainAll(allowedEffects);
+		List<WeaponEffects> effectPool = effectsAvailable(allowedEffects);
 		
 		if (effectPool.isEmpty()) {
 			return;
 		}
 		
 		int randomEffect = rng.nextInt(effectPool.size());
-		WeaponEffects[] effectList = effectPool.toArray(new WeaponEffects[effectPool.size()]);
-		WeaponEffects selectedEffect = effectList[randomEffect];
+		WeaponEffects selectedEffect = effectPool.get(randomEffect);
 		applyEffect(selectedEffect, itemData, spellAnimations, rng);
 		if (selectedEffect != WeaponEffects.NONE) {
 			String updatedDescription = ingameDescriptionString(itemData);
@@ -231,42 +229,42 @@ public class FE6Item implements FEItem {
 		return originalOffset;
 	}
 	
-	private Set<WeaponEffects> effectsAvailable() {
+	private List<WeaponEffects> effectsAvailable(Set<WeaponEffects> allowedEffects) {
 		
-		Set<WeaponEffects> effects = new HashSet<WeaponEffects>();
+		List<WeaponEffects> effects = new ArrayList<WeaponEffects>();
 		
-		effects.add(WeaponEffects.NONE);
+		if (allowedEffects.contains(WeaponEffects.NONE)) { effects.add(WeaponEffects.NONE); }
 		
 		if (getStatBonusPointer() == 0) {
-			effects.add(WeaponEffects.STAT_BOOSTS);
+			if (allowedEffects.contains(WeaponEffects.STAT_BOOSTS)) { effects.add(WeaponEffects.STAT_BOOSTS); }
 		}
 		if (getEffectivenessPointer() == 0) {
-			effects.add(WeaponEffects.EFFECTIVENESS);
+			if (allowedEffects.contains(WeaponEffects.EFFECTIVENESS)) { effects.add(WeaponEffects.EFFECTIVENESS); }
 		}
 		if (getCritical() < 10) {
-			effects.add(WeaponEffects.HIGH_CRITICAL);
+			if (allowedEffects.contains(WeaponEffects.HIGH_CRITICAL)) { effects.add(WeaponEffects.HIGH_CRITICAL); }
 		}
 		if ((getMinRange() == 2 || getMaxRange() == 1) && getType() != WeaponType.AXE) { // Ranged axes are stupid to implement. They require modifying animation pointers for each class.
-			effects.add(WeaponEffects.EXTEND_RANGE);
+			if (allowedEffects.contains(WeaponEffects.EXTEND_RANGE)) { effects.add(WeaponEffects.EXTEND_RANGE); }
 		}
 
 		if ((getAbility1() & FE6Data.Item.Ability1Mask.UNBREAKABLE.ID) == 0) {
-			effects.add(WeaponEffects.UNBREAKABLE);
+			if (allowedEffects.contains(WeaponEffects.UNBREAKABLE)) { effects.add(WeaponEffects.UNBREAKABLE); }
 		}
 		if ((getAbility1() & FE6Data.Item.Ability1Mask.BRAVE.ID) == 0) {
-			effects.add(WeaponEffects.BRAVE);
+			if (allowedEffects.contains(WeaponEffects.BRAVE)) { effects.add(WeaponEffects.BRAVE); }
 		}
 		if ((getAbility1() & FE6Data.Item.Ability1Mask.MAGICDAMAGE.ID) == 0 && (getAbility1() & FE6Data.Item.Ability1Mask.MAGIC.ID) == 0 && getType() != WeaponType.AXE) {
-			effects.add(WeaponEffects.MAGIC_DAMAGE);
+			if (allowedEffects.contains(WeaponEffects.MAGIC_DAMAGE)) { effects.add(WeaponEffects.MAGIC_DAMAGE); }
 		}
 		
 		if ((getAbility2() & FE6Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
-			effects.add(WeaponEffects.REVERSE_TRIANGLE);
+			if (allowedEffects.contains(WeaponEffects.REVERSE_TRIANGLE)) { effects.add(WeaponEffects.REVERSE_TRIANGLE); }
 		}
 		
 		if (getWeaponEffect() == 0) {
-			effects.add(WeaponEffects.POISON);
-			effects.add(WeaponEffects.DEVIL);
+			if (allowedEffects.contains(WeaponEffects.POISON)) { effects.add(WeaponEffects.POISON); }
+			if (allowedEffects.contains(WeaponEffects.DEVIL)) { effects.add(WeaponEffects.DEVIL); }
 		}
 		
 		return effects;

@@ -2,6 +2,7 @@ package random;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -107,23 +108,11 @@ private FEBase.GameType gameType;
 	public FEClass[] allClasses() {
 		switch (gameType) {
 		case FE6:
-			List<FEClass> classes = new ArrayList<FEClass>();
-			for (FE6Data.CharacterClass charClass : FE6Data.CharacterClass.allValidClasses) {
-				classes.add(classMap.get(charClass.ID));
-			}
-			return classes.toArray(new FEClass[classes.size()]);
+			return classesFromFE6Classes(FE6Data.CharacterClass.allValidClasses);
 		case FE7:
-			classes = new ArrayList<FEClass>();
-			for (FE7Data.CharacterClass charClass : FE7Data.CharacterClass.allValidClasses) {
-				classes.add(classMap.get(charClass.ID));
-			}
-			return classes.toArray(new FEClass[classes.size()]);
+			return classesFromFE7Classes(FE7Data.CharacterClass.allValidClasses);
 		case FE8:
-			classes = new ArrayList<FEClass>();
-			for (FE8Data.CharacterClass charClass : FE8Data.CharacterClass.allValidClasses) {
-				classes.add(classMap.get(charClass.ID));
-			}
-			return classes.toArray(new FEClass[classes.size()]);
+			return classesFromFE8Classes(FE8Data.CharacterClass.allValidClasses);
 		default:
 			return new FEClass[] {};
 		}
@@ -181,37 +170,29 @@ private FEBase.GameType gameType;
 		switch (gameType) {
 		case FE6: {
 			FE6Data.CharacterClass sourceCharClass = FE6Data.CharacterClass.valueOf(sourceClass.getID());
-			FE6Data.CharacterClass[] targetClasses = null;
+			Set<FE6Data.CharacterClass> targetClasses = null;
 			if (mustLoseToClass != null) {
 				targetClasses = FE6Data.CharacterClass.classesThatLoseToClass(sourceCharClass, FE6Data.CharacterClass.valueOf(mustLoseToClass.getID()), excludeLords, excludeThieves);
 			} 
 			
-			if (targetClasses == null || targetClasses.length == 0) {
+			if (targetClasses == null || targetClasses.size() == 0) {
 				targetClasses = FE6Data.CharacterClass.targetClassesForRandomization(sourceCharClass, excludeSource, excludeLords, excludeThieves, requireAttack, requireRange, applyRestrictions);
 			}
-			FEClass[] result = new FEClass[targetClasses.length];
-			for (int i = 0; i < targetClasses.length; i++) {
-				result[i] = classMap.get(targetClasses[i].ID);
-			}
 			
-			return result;
+			return classesFromFE6Classes(targetClasses);
 		}
 		case FE7: {
 			FE7Data.CharacterClass sourceCharClass = FE7Data.CharacterClass.valueOf(sourceClass.getID());
-			FE7Data.CharacterClass[] targetClasses = null;
+			Set<FE7Data.CharacterClass> targetClasses = null;
 			if (mustLoseToClass != null) {
 				targetClasses = FE7Data.CharacterClass.classesThatLoseToClass(sourceCharClass, FE7Data.CharacterClass.valueOf(mustLoseToClass.getID()), excludeLords, excludeThieves);
 			} 
 			
-			if (targetClasses == null || targetClasses.length == 0) {
+			if (targetClasses == null || targetClasses.size() == 0) {
 				targetClasses = FE7Data.CharacterClass.targetClassesForRandomization(sourceCharClass, excludeSource, excludeLords, excludeThieves, requireAttack, requireRange, applyRestrictions);
 			}
-			FEClass[] result = new FEClass[targetClasses.length];
-			for (int i = 0; i < targetClasses.length; i++) {
-				result[i] = classMap.get(targetClasses[i].ID);
-			}
 			
-			return result;
+			return classesFromFE7Classes(targetClasses);
 		}
 		case FE8: {
 			NotReached.trigger("FE8 should use the variant of this method that includes the separateMonsters parameter.");
@@ -225,20 +206,16 @@ private FEBase.GameType gameType;
 	switch (gameType) {
 		case FE8:
 			FE8Data.CharacterClass sourceCharClass = FE8Data.CharacterClass.valueOf(sourceClass.getID());
-			FE8Data.CharacterClass[] targetClasses = null;
+			Set<FE8Data.CharacterClass> targetClasses = null;
 			if (mustLoseToClass != null) {
 				targetClasses = FE8Data.CharacterClass.classesThatLoseToClass(sourceCharClass, FE8Data.CharacterClass.valueOf(mustLoseToClass.getID()), excludeLords, excludeThieves);
 			} 
 			
-			if (targetClasses == null || targetClasses.length == 0) {
+			if (targetClasses == null || targetClasses.size() == 0) {
 				targetClasses = FE8Data.CharacterClass.targetClassesForRandomization(sourceCharClass, excludeSource, excludeLords, excludeThieves, separateMonsters, requireAttack, requireRange, requireMelee, applyRestrictions);
 			}
-			FEClass[] result = new FEClass[targetClasses.length];
-			for (int i = 0; i < targetClasses.length; i++) {
-				result[i] = classMap.get(targetClasses[i].ID);
-			}
 			
-			return result;
+			return classesFromFE8Classes(targetClasses);
 		default:
 			NotReached.trigger("This method is only intended for FE8.");
 			return new FEClass[] {};
@@ -284,42 +261,78 @@ private FEBase.GameType gameType;
 		}
 	}
 	
+	public FEClass[] classesFromFE6Classes(Set<FE6Data.CharacterClass> classes) {
+		List<FE6Data.CharacterClass> charClasses = new ArrayList<FE6Data.CharacterClass>(classes);
+		Collections.sort(charClasses, FE6Data.CharacterClass.classIDComparator());
+
+		FEClass[] classList = new FEClass[charClasses.size()];
+		for (int i = 0; i < charClasses.size(); i++) {
+			classList[i] = classForID(charClasses.get(i).ID);
+		}
+		
+		return classList;
+	}
+	
+	public FEClass[] classesFromFE7Classes(Set<FE7Data.CharacterClass> classes) {
+		List<FE7Data.CharacterClass> charClasses = new ArrayList<FE7Data.CharacterClass>(classes);
+		Collections.sort(charClasses, FE7Data.CharacterClass.classIDComparator());
+
+		FEClass[] classList = new FEClass[charClasses.size()];
+		for (int i = 0; i < charClasses.size(); i++) {
+			classList[i] = classForID(charClasses.get(i).ID);
+		}
+		
+		return classList;
+	}
+	
+	public FEClass[] classesFromFE8Classes(Set<FE8Data.CharacterClass> classes) {
+		List<FE8Data.CharacterClass> charClasses = new ArrayList<FE8Data.CharacterClass>(classes);
+		Collections.sort(charClasses, FE8Data.CharacterClass.classIDComparator());
+		
+		FEClass[] classList = new FEClass[charClasses.size()];
+		for (int i = 0; i < charClasses.size(); i++) {
+			classList[i] = classForID(charClasses.get(i).ID);
+		}
+		
+		return classList;
+	}
+	
 	public Boolean canClassUseItem(int itemID, FEClass characterClass) {
 		switch (gameType) {
 		case FE6: {
 			Set<FE6Data.Item> fe6Items = new HashSet<FE6Data.Item>();
-			if (characterClass.getSwordRank() > 0) { fe6Items.addAll(Arrays.asList(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.SWORD, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getSwordRank()).toGeneralRank(), false))); }
-			if (characterClass.getLanceRank() > 0) { fe6Items.addAll(Arrays.asList(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.LANCE, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getLanceRank()).toGeneralRank(), false))); }
-			if (characterClass.getAxeRank() > 0) { fe6Items.addAll(Arrays.asList(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.AXE, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getAxeRank()).toGeneralRank(), false))); }
-			if (characterClass.getBowRank() > 0) { fe6Items.addAll(Arrays.asList(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.BOW, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getBowRank()).toGeneralRank(), false))); }
-			if (characterClass.getAnimaRank() > 0) { fe6Items.addAll(Arrays.asList(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.ANIMA, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getAnimaRank()).toGeneralRank(), false))); }
-			if (characterClass.getLightRank() > 0) { fe6Items.addAll(Arrays.asList(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.LIGHT, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getLightRank()).toGeneralRank(), false))); }
-			if (characterClass.getDarkRank() > 0) { fe6Items.addAll(Arrays.asList(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.DARK, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getDarkRank()).toGeneralRank(), false))); }
-			if (characterClass.getStaffRank() > 0) { fe6Items.addAll(Arrays.asList(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.STAFF, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getStaffRank()).toGeneralRank(), false))); }
+			if (characterClass.getSwordRank() > 0) { fe6Items.addAll(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.SWORD, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getSwordRank()).toGeneralRank(), false)); }
+			if (characterClass.getLanceRank() > 0) { fe6Items.addAll(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.LANCE, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getLanceRank()).toGeneralRank(), false)); }
+			if (characterClass.getAxeRank() > 0) { fe6Items.addAll(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.AXE, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getAxeRank()).toGeneralRank(), false)); }
+			if (characterClass.getBowRank() > 0) { fe6Items.addAll(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.BOW, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getBowRank()).toGeneralRank(), false)); }
+			if (characterClass.getAnimaRank() > 0) { fe6Items.addAll(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.ANIMA, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getAnimaRank()).toGeneralRank(), false)); }
+			if (characterClass.getLightRank() > 0) { fe6Items.addAll(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.LIGHT, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getLightRank()).toGeneralRank(), false)); }
+			if (characterClass.getDarkRank() > 0) { fe6Items.addAll(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.DARK, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getDarkRank()).toGeneralRank(), false)); }
+			if (characterClass.getStaffRank() > 0) { fe6Items.addAll(FE6Data.Item.weaponsOfTypeAndRank(WeaponType.STAFF, WeaponRank.E, FE6Data.Item.FE6WeaponRank.valueOf(characterClass.getStaffRank()).toGeneralRank(), false)); }
 			return fe6Items.contains(FE6Data.Item.valueOf(itemID));
 		}
 		case FE7: {
 			Set<FE7Data.Item> fe7Items = new HashSet<FE7Data.Item>();
-			if (characterClass.getSwordRank() > 0) { fe7Items.addAll(Arrays.asList(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.SWORD, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getSwordRank()).toGeneralRank(), false))); }
-			if (characterClass.getLanceRank() > 0) { fe7Items.addAll(Arrays.asList(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.LANCE, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getLanceRank()).toGeneralRank(), false))); }
-			if (characterClass.getAxeRank() > 0) { fe7Items.addAll(Arrays.asList(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.AXE, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getAxeRank()).toGeneralRank(), false))); }
-			if (characterClass.getBowRank() > 0) { fe7Items.addAll(Arrays.asList(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.BOW, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getBowRank()).toGeneralRank(), false))); }
-			if (characterClass.getAnimaRank() > 0) { fe7Items.addAll(Arrays.asList(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.ANIMA, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getAnimaRank()).toGeneralRank(), false))); }
-			if (characterClass.getLightRank() > 0) { fe7Items.addAll(Arrays.asList(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.LIGHT, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getLightRank()).toGeneralRank(), false))); }
-			if (characterClass.getDarkRank() > 0) { fe7Items.addAll(Arrays.asList(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.DARK, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getDarkRank()).toGeneralRank(), false))); }
-			if (characterClass.getStaffRank() > 0) { fe7Items.addAll(Arrays.asList(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.STAFF, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getStaffRank()).toGeneralRank(), false))); }
+			if (characterClass.getSwordRank() > 0) { fe7Items.addAll(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.SWORD, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getSwordRank()).toGeneralRank(), false)); }
+			if (characterClass.getLanceRank() > 0) { fe7Items.addAll(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.LANCE, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getLanceRank()).toGeneralRank(), false)); }
+			if (characterClass.getAxeRank() > 0) { fe7Items.addAll(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.AXE, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getAxeRank()).toGeneralRank(), false)); }
+			if (characterClass.getBowRank() > 0) { fe7Items.addAll(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.BOW, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getBowRank()).toGeneralRank(), false)); }
+			if (characterClass.getAnimaRank() > 0) { fe7Items.addAll(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.ANIMA, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getAnimaRank()).toGeneralRank(), false)); }
+			if (characterClass.getLightRank() > 0) { fe7Items.addAll(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.LIGHT, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getLightRank()).toGeneralRank(), false)); }
+			if (characterClass.getDarkRank() > 0) { fe7Items.addAll(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.DARK, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getDarkRank()).toGeneralRank(), false)); }
+			if (characterClass.getStaffRank() > 0) { fe7Items.addAll(FE7Data.Item.weaponsOfTypeAndRank(WeaponType.STAFF, WeaponRank.E, FE7Data.Item.FE7WeaponRank.valueOf(characterClass.getStaffRank()).toGeneralRank(), false)); }
 			return fe7Items.contains(FE7Data.Item.valueOf(itemID));
 		}
 		case FE8: {
 			Set<FE8Data.Item> fe8Items = new HashSet<FE8Data.Item>();
-			if (characterClass.getSwordRank() > 0) { fe8Items.addAll(Arrays.asList(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.SWORD, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getSwordRank()).toGeneralRank(), false, false))); }
-			if (characterClass.getLanceRank() > 0) { fe8Items.addAll(Arrays.asList(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.LANCE, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getLanceRank()).toGeneralRank(), false, false))); }
-			if (characterClass.getAxeRank() > 0) { fe8Items.addAll(Arrays.asList(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.AXE, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getAxeRank()).toGeneralRank(), false, false))); }
-			if (characterClass.getBowRank() > 0) { fe8Items.addAll(Arrays.asList(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.BOW, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getBowRank()).toGeneralRank(), false, false))); }
-			if (characterClass.getAnimaRank() > 0) { fe8Items.addAll(Arrays.asList(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.ANIMA, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getAnimaRank()).toGeneralRank(), false, false))); }
-			if (characterClass.getLightRank() > 0) { fe8Items.addAll(Arrays.asList(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.LIGHT, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getLightRank()).toGeneralRank(), false, false))); }
-			if (characterClass.getDarkRank() > 0) { fe8Items.addAll(Arrays.asList(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.DARK, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getDarkRank()).toGeneralRank(), false, false))); }
-			if (characterClass.getStaffRank() > 0) { fe8Items.addAll(Arrays.asList(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.STAFF, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getStaffRank()).toGeneralRank(), false, false))); }
+			if (characterClass.getSwordRank() > 0) { fe8Items.addAll(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.SWORD, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getSwordRank()).toGeneralRank(), false, false)); }
+			if (characterClass.getLanceRank() > 0) { fe8Items.addAll(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.LANCE, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getLanceRank()).toGeneralRank(), false, false)); }
+			if (characterClass.getAxeRank() > 0) { fe8Items.addAll(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.AXE, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getAxeRank()).toGeneralRank(), false, false)); }
+			if (characterClass.getBowRank() > 0) { fe8Items.addAll(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.BOW, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getBowRank()).toGeneralRank(), false, false)); }
+			if (characterClass.getAnimaRank() > 0) { fe8Items.addAll(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.ANIMA, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getAnimaRank()).toGeneralRank(), false, false)); }
+			if (characterClass.getLightRank() > 0) { fe8Items.addAll(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.LIGHT, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getLightRank()).toGeneralRank(), false, false)); }
+			if (characterClass.getDarkRank() > 0) { fe8Items.addAll(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.DARK, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getDarkRank()).toGeneralRank(), false, false)); }
+			if (characterClass.getStaffRank() > 0) { fe8Items.addAll(FE8Data.Item.weaponsOfTypeAndRank(WeaponType.STAFF, WeaponRank.E, FE8Data.Item.FE8WeaponRank.valueOf(characterClass.getStaffRank()).toGeneralRank(), false, false)); }
 			
 			if (fe8Items.contains(FE8Data.Item.valueOf(itemID))) {
 				return true;
