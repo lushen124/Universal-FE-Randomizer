@@ -40,6 +40,11 @@ public class ClassRandomizer {
 		for (FECharacter character : allPlayableCharacters) {
 			
 			Boolean isLordCharacter = charactersData.isLordCharacterID(character.getID());
+			Boolean isThiefCharacter = charactersData.isThiefCharacterID(character.getID());
+			
+			if (isLordCharacter && !includeLords) { continue; }
+			if (isThiefCharacter && !includeThieves) { continue; }
+			
 			Boolean characterRequiresRange = charactersData.characterIDRequiresRange(character.getID());
 			
 			int originalClassID = character.getClassID();
