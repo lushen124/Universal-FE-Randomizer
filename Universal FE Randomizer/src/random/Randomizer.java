@@ -525,6 +525,9 @@ public class Randomizer extends Thread {
 		case FE7:
 			gameTitle = FE7Data.FriendlyName;
 			break;
+		case FE8:
+			gameTitle = FE8Data.FriendlyName;
+			break;
 		default:
 			gameTitle = "Unknown Game";
 			break;
@@ -652,6 +655,13 @@ public class Randomizer extends Thread {
 			rk.addHeaderItem("Randomize Minions", "YES");
 		} else {
 			rk.addHeaderItem("Randomize Minions", "NO");
+		}
+		if (gameType == GameType.FE8) {
+			if (classes.separateMonsters) {
+				rk.addHeaderItem("Mix Monster and Human Classes", "NO");
+			} else {
+				rk.addHeaderItem("Mix Monster and Human Classes", "YES");
+			}
 		}
 		
 		switch (enemies.mode) {

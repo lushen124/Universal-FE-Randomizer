@@ -27,7 +27,7 @@ public class ClassesView extends Composite {
 	private Button randomizeBossesButton;
 	
 	private Boolean hasMonsterOption;
-	private Button separateMonsterClasses;
+	private Button mixMonsterClasses;
 
 	public ClassesView(Composite parent, int style, GameType type) {
 		super(parent, style);
@@ -105,14 +105,14 @@ public class ClassesView extends Composite {
 		//////////////////////////////////////////////////////////////////
 		
 		if (type == GameType.FE8) {
-			separateMonsterClasses = new Button(container, SWT.CHECK);
-			separateMonsterClasses.setText("Separate Monster Classes");
-			separateMonsterClasses.setToolTipText("If enabled, ensures that units that were monsters remain monsters and units that were human remain humans when randomizing classes.\nIf disabled, allows cross-assignment of classes between humans and monsters.\nHas no effect unless another class randomization option is enabled.");
+			mixMonsterClasses = new Button(container, SWT.CHECK);
+			mixMonsterClasses.setText("Mix Monster Classes");
+			mixMonsterClasses.setToolTipText("If enabled, allows cross-assignment of classes between humans and monsters.\nIf disabled, ensures that units that were monsters remain monsters and units that were human remain humans when randomizing classes.\nHas no effect unless another class randomization option is enabled.");
 			
 			FormData monsterData = new FormData();
 			monsterData.left = new FormAttachment(randomizeBossesButton, 0, SWT.LEFT);
 			monsterData.top = new FormAttachment(randomizeBossesButton, 10);
-			separateMonsterClasses.setLayoutData(monsterData);
+			mixMonsterClasses.setLayoutData(monsterData);
 			
 			hasMonsterOption = true;
 		} else {
@@ -130,7 +130,7 @@ public class ClassesView extends Composite {
 		}
 		
 		if (hasMonsterOption) {
-			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, separateMonsterClasses.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection());
+			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, !mixMonsterClasses.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection());
 		} else {
 			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection());
 		}
