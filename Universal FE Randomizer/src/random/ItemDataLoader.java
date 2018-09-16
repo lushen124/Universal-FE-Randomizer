@@ -1097,6 +1097,7 @@ private FEBase.GameType gameType;
 			} else {
 				items.addAll(FE6Data.Item.weaponsOfRank(item.getWeaponRank()));
 				items.addAll(FE6Data.Item.weaponsOfType(item.getType()));
+				items.removeAll(FE6Data.Item.allSRank);
 			}
 			
 			items.removeIf(i-> i.ID == itemID);
@@ -1120,6 +1121,7 @@ private FEBase.GameType gameType;
 			} else {
 				items.addAll(FE7Data.Item.weaponsOfRank(item.getWeaponRank()));
 				items.addAll(FE7Data.Item.weaponsOfType(item.getType()));
+				items.removeAll(FE7Data.Item.allSRank);
 			}
 			
 			items.removeIf(i-> i.ID == itemID);
@@ -1143,6 +1145,7 @@ private FEBase.GameType gameType;
 			} else {
 				items.addAll(FE8Data.Item.weaponsOfRank(item.getWeaponRank()));
 				items.addAll(FE8Data.Item.weaponsOfType(item.getType()));
+				items.removeAll(FE8Data.Item.allSRank);
 			}
 			
 			items.removeIf(i-> i.ID == itemID);
