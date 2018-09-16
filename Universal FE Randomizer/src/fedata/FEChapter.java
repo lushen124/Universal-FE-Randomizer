@@ -19,5 +19,7 @@ public interface FEChapter {
 	
 	public Boolean shouldBeSimplified();
 	
+	public void applyNudges();
+	
 	public FEChapterItem chapterItemGivenToCharacter(int characterID);
 }

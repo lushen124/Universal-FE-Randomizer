@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import fedata.general.CharacterNudge;
 import fedata.general.PaletteColor;
 import fedata.general.PaletteInfo;
 import fedata.general.WeaponRank;
@@ -1301,8 +1302,19 @@ public class FE8Data {
 		
 		public CharacterClass[] blacklistedClasses() {
 			switch(this) {
+			case CHAPTER_5X:
+				return new CharacterClass[] {CharacterClass.WYVERN_RIDER, CharacterClass.WYVERN_RIDER_F}; // The cutscene after the chapter has wyvern riders flying on screen. Keep those the same.
 			default:
 				return new CharacterClass[] {};
+			}
+		}
+		
+		public CharacterNudge[] nudgesRequired() {
+			switch(this) {
+			case CHAPTER_9_EIRIKA:
+				return new CharacterNudge[] {new CharacterNudge(Character.TANA.ID, 0, 2, 0, 5) }; // Tana flies onscreen for a scene. This allows us to keep her class from being locked into flying classes.
+			default:
+				return new CharacterNudge[] {};
 			}
 		}
 		
@@ -1691,7 +1703,7 @@ public class FE8Data {
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20, 23}, new int[] {25, 27, 29}, new int[] {32, 34, 36});
 					break;
 				case EPHRAIM_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {25, 27}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {}, new int[] {32, 34, 36});
 					break;
 				case EPHRAIM_MASTER_LORD:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {23, 25}, new int[] {34, 36});

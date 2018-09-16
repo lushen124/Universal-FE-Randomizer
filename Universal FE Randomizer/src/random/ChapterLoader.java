@@ -13,6 +13,7 @@ import fedata.fe7.FE7Chapter;
 import fedata.fe7.FE7Data;
 import fedata.fe8.FE8Chapter;
 import fedata.fe8.FE8Data;
+import fedata.general.CharacterNudge;
 import io.FileHandler;
 import util.DebugPrinter;
 import util.Diff;
@@ -82,9 +83,11 @@ public class ChapterLoader {
 					for (int index = 0; index < chapter.targetedRewardRecipientsToTrack().length; index++) {
 						trackedRewardRecipients[index] = chapter.targetedRewardRecipientsToTrack()[index].ID;
 					}
+					
+					CharacterNudge[] nudges = chapter.nudgesRequired();
 					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE8Chapter fe8Chapter = new FE8Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy(), trackedRewardRecipients, chapter.additionalUnitOffsets()); 
+					FE8Chapter fe8Chapter = new FE8Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy(), trackedRewardRecipients, chapter.additionalUnitOffsets(), nudges); 
 					chapters[i++] = fe8Chapter;
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe8Chapter.allUnits().length + " characters and " + fe8Chapter.allRewards().length + " rewards");
 				}
@@ -107,6 +110,7 @@ public class ChapterLoader {
 	
 	public void commit() {
 		for (FEChapter chapter : chapters) {
+			chapter.applyNudges();
 			FEChapterUnit[] units = chapter.allUnits();
 			for (FEChapterUnit unit : units) {
 				unit.commitChanges();
@@ -124,6 +128,7 @@ public class ChapterLoader {
 	
 	public void compileDiffs(DiffCompiler compiler) {
 		for (FEChapter chapter : chapters) {
+			chapter.applyNudges();
 			FEChapterUnit[] units = chapter.allUnits();
 			for (FEChapterUnit unit : units) {
 				unit.commitChanges();

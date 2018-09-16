@@ -14,6 +14,9 @@ public interface FEChapterUnit extends FEModifiableObject {
 	public int getStartingX();
 	public int getStartingY();
 	
+	public void setStartingX(int newX);
+	public void setStartingY(int newY);
+	
 	public int getItem1();
 	public void setItem1(int itemID);	
 	public int getItem2();

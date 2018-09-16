@@ -15,6 +15,7 @@ import fedata.FEChapterUnit;
 import fedata.fe6.FE6ChapterItem;
 import fedata.fe6.FE6ChapterUnit;
 import fedata.fe6.FE6Data;
+import fedata.general.CharacterNudge;
 import io.FileHandler;
 import util.DebugPrinter;
 import util.FileReadHelper;
@@ -54,7 +55,9 @@ public class FE8Chapter implements FEChapter {
 	private Set<Integer> blacklistedClassIDs;
 	private Set<Long> fightEventOffsets;
 	
-	public FE8Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, int[] targetedRewardRecipientsToTrack, long[] additionalUnitOffsets) {
+	private CharacterNudge[] nudges;
+	
+	public FE8Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, int[] targetedRewardRecipientsToTrack, long[] additionalUnitOffsets, CharacterNudge[] nudgesRequired) {
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
 		for (int classID : blacklistedClassIDs) {
@@ -96,6 +99,8 @@ public class FE8Chapter implements FEChapter {
 		targetedChapterRewards = new HashMap<Integer, FE8ChapterItem>();
 		
 		fightEventOffsets = new HashSet<Long>();
+		
+		nudges = nudgesRequired;
 		
 		loadUnits(handler);
 		loadRewards(handler);
@@ -162,6 +167,18 @@ public class FE8Chapter implements FEChapter {
 	@Override
 	public Boolean shouldBeSimplified() {
 		return shouldBeSimplified;
+	}
+	
+	public void applyNudges() {
+		for (CharacterNudge nudge : nudges) {
+			for (FEChapterUnit unit : allUnits()) {
+				if (unit.getCharacterNumber() == nudge.getCharacterID() && unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getStartingX() + ", " + unit.getStartingY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+					unit.setStartingX(nudge.getNewX());
+					unit.setStartingY(nudge.getNewY());
+				}
+			}
+		}
 	}
 	
 	private void loadUnits(FileHandler handler) {

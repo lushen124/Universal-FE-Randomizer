@@ -46,12 +46,36 @@ public class FE8ChapterUnit implements FEChapterUnit {
 		return 0; // FE8 doesn't use this.
 	}
 	
+	// FE8 does things a bit differently. Each position is only 6 bits instead of 8 bits. We need to read bytes 4, 5 to get the data.
 	public int getStartingX() {
-		return data[4] & 0xFF;
+		// Little endian means the least significant bits are in the latter byte.
+		// In terms of bit layout: 5555 5555 4444 4444
+		// The only bits that matter are the latter 12 bits: 5555 4444 4444
+		// Now we just split it down the middle, 6 bits each: 555544 444444
+		// X is the second piece, Y is the first piece. yyyyyy xxxxxx
+		int positionData = (((data[5] & 0xFF) << 8) | (data[4] & 0xFF)) & 0xFFF;
+		return positionData & 0x3F;
 	}
 	
 	public int getStartingY() {
-		return data[5] & 0xFF;
+		int positionData = (((data[5] & 0xFF) << 8) | (data[4] & 0xFF)) & 0xFFF;
+		return (positionData >> 6) & 0x3F;
+	}
+	
+	public void setStartingX(int newX) {
+		int startingY = getStartingY();
+		int positionData = (startingY << 6) | (newX & 0x3F);
+		data[5] = (byte)((positionData & 0xF00) >> 8);
+		data[4] = (byte)(positionData & 0xFF);
+		wasModified = true;
+	}
+	
+	public void setStartingY(int newY) {
+		int startingX = getStartingX();
+		int positionData = (newY << 6) | (startingX & 0x3F);
+		data[5] = (byte)((positionData & 0xF00) >> 8);
+		data[4] = (byte)(positionData & 0xFF);
+		wasModified = true;
 	}
 	
 	// Presumably the Reinforcement pointer defines any movement necessary, not that we care that much.
