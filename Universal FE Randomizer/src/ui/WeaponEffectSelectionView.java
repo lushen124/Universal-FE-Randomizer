@@ -170,7 +170,11 @@ public class WeaponEffectSelectionView extends Composite {
 		
 		devilCheckBox = new Button(this, SWT.CHECK);
 		devilCheckBox.setText("Devil");
-		devilCheckBox.setToolTipText("Allows random weapons to occasionally deal damage to its user instead of its target.");
+		if (type == GameType.FE6) {
+			devilCheckBox.setToolTipText("Allows random weapons to occasionally deal damage to its user instead of its target. Might is automatically improved by at least 5.");
+		} else {
+			devilCheckBox.setToolTipText("Allows random weapons to occasionally deal damage to its user instead of its target. Might is automatically improved by at least 5 and weapon experience gained per use is increased.");
+		}
 		devilCheckBox.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {

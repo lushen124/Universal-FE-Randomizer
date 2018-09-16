@@ -377,6 +377,8 @@ public class FE8Item implements FEItem {
 			data[31] = (byte)(effectValue & 0xFF);
 			int currentMight = getMight();
 			setMight(Math.max((int)(currentMight * 1.5), currentMight + 5));
+			// Also boost weapon experience to 8.
+			data[32] = 0x08;
 			wasModified = true;
 			break;
 		default:
