@@ -118,8 +118,9 @@ public class Palette {
 		
 		List<Palette> orderedPalettesBySaturation = new ArrayList<Palette>(Arrays.asList(allReferencePalettes));
 		
+		Boolean hairSet = false;
+		
 		if (hair.size() > 0) {
-			Boolean hairSet = false;
 			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
 				@Override
 				public int compare(Palette arg0, Palette arg1) {
@@ -173,6 +174,7 @@ public class Palette {
 		}
 		
 		if (primary.size() > 0) {
+			Boolean primarySet = false;
 			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
 				@Override
 				public int compare(Palette arg0, Palette arg1) {
@@ -190,8 +192,14 @@ public class Palette {
 			for (Palette otherPalette : orderedPalettesBySaturation) {
 				if (otherPalette.getPrimaryColors().length > 0) {
 					setPrimaryColors(PaletteColor.coerceColors(otherPalette.getPrimaryColors(), primary.size()));
+					primarySet = true;
 					break;
 				}
+			}
+			
+			if (!primarySet && hairSet) {
+				// Go back to hair if no primary is found.
+				setPrimaryColors(PaletteColor.coerceColors(PaletteColor.darkenColors(getHairColors()), primary.size()));
 			}
 		}
 		
@@ -443,36 +451,35 @@ public class Palette {
 			byte[] dataToWrite = Arrays.copyOfRange(rawData, 0, rawData.length);
 			for (int i = 0; i < hair.size(); i++) {
 				int offset = info.hairColorOffsets[i];
-				int mappedOffset = indexOf(offset);
 				byte[] tuple = hair.get(i).toColorTuple();
-				dataToWrite[mappedOffset] = tuple[0];
-				dataToWrite[mappedOffset + 1] = tuple[1];
+				dataToWrite[indexOf(offset)] = tuple[0];
+				dataToWrite[indexOf(offset + 1)] = tuple[1];
 			}
 			for (int i = 0; i < primary.size(); i++) {
 				int offset = info.primaryColorOffsets[i];
-				int mappedOffset = indexOf(offset);
 				byte[] tuple = primary.get(i).toColorTuple();
-				dataToWrite[mappedOffset] = tuple[0];
-				dataToWrite[mappedOffset + 1] = tuple[1];
+				dataToWrite[indexOf(offset)] = tuple[0];
+				dataToWrite[indexOf(offset + 1)] = tuple[1];
 			}
 			for (int i = 0; i < secondary.size(); i++) {
 				int offset = info.secondaryColorOffsets[i];
-				int mappedOffset = indexOf(offset);
 				byte[] tuple = secondary.get(i).toColorTuple();
-				dataToWrite[mappedOffset] = tuple[0];
-				dataToWrite[mappedOffset + 1] = tuple[1];
+				dataToWrite[indexOf(offset)] = tuple[0];
+				dataToWrite[indexOf(offset + 1)] = tuple[1];
 			}
 			for (int i = 0; i < tertiary.size(); i++) {
 				int offset = info.tertiaryColorOffsets[i];
-				int mappedOffset = indexOf(offset);
 				byte[] tuple = tertiary.get(i).toColorTuple();
-				dataToWrite[mappedOffset] = tuple[0];
-				dataToWrite[mappedOffset + 1] = tuple[1];
+				dataToWrite[indexOf(offset)] = tuple[0];
+				dataToWrite[indexOf(offset + 1)] = tuple[1];
 			}
 			
 			compiler.addDiff(new Diff(info.paletteOffset, dataToWrite.length, dataToWrite, null));
 			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Data: " + WhyDoesJavaNotHaveThese.displayStringForBytes(dataToWrite));
 		} else {
+			// We might not need it for non-full updates, but some bosses don't necessarily have
+			// colors in consistent blocks. The Knight and Brigand bosses in FE8 do weird stuff (or anything with custom mapping)
+			// but we might need to be more specific in the offsets we use here.
 			if (hairModified) {
 				for (int i = 0; i < hair.size(); i++) {
 					int mappedOffset = indexOf(info.hairColorOffsets[i]);

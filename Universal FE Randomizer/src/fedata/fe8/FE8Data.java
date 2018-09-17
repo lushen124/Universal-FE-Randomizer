@@ -1703,10 +1703,10 @@ public class FE8Data {
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20, 23}, new int[] {25, 27, 29}, new int[] {32, 34, 36});
 					break;
 				case EPHRAIM_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {}, new int[] {25, 27}, new int[] {32, 34, 36});
 					break;
 				case EPHRAIM_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {23, 25}, new int[] {34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {}, new int[] {23, 25}, new int[] {34, 36});
 					break;
 				case TRAINEE:
 				case TRAINEE_2:

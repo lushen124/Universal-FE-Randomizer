@@ -65,6 +65,15 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		}
 	}
 	
+	public static PaletteColor[] darkenColors(PaletteColor[] colors) {
+		PaletteColor[] newColors = new PaletteColor[colors.length];
+		for (int i = 0; i < colors.length; i++) {
+			newColors[i] = darkerColor(colors[i]);
+		}
+		
+		return newColors;
+	}
+	
 	private static PaletteColor[] reduceColors(PaletteColor[] colors, int numberOfColors) {
 		int numberOfColorsToRemove = colors.length - numberOfColors;
 		int indexDelta = colors.length / (numberOfColorsToRemove + 1);
@@ -80,12 +89,12 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	}
 	
 	private static PaletteColor darkerColor(PaletteColor referenceColor) {
-		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation - 0.2, 0.0), Math.max(referenceColor.brightness * 0.5, 0.0));
+		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation - 0.1, 0.0), Math.max(referenceColor.brightness * 0.8, 0.0));
 	}
 	
 	private static PaletteColor lighterColor(PaletteColor referenceColor) {
 		double distanceToMax = 1.0 - referenceColor.brightness;
-		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation + 0.2, 0.0), Math.max(referenceColor.brightness + distanceToMax * 0.5, 0.0));
+		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation + 0.1, 0.0), Math.max(referenceColor.brightness + distanceToMax * 0.2, 0.0));
 	}
 	
 	private static PaletteColor[] interpolateColors(PaletteColor[] colors, int numberOfColors) {
