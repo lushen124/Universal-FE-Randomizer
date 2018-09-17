@@ -175,6 +175,7 @@ public class FE7Chapter implements FEChapter {
 	}
 	
 	public void applyNudges() {
+		if (nudges == null) { return; }
 		for (CharacterNudge nudge : nudges) {
 			for (FEChapterUnit unit : allUnits()) {
 				if (unit.getCharacterNumber() == nudge.getCharacterID() && unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
