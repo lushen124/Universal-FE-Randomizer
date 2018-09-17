@@ -46,6 +46,27 @@ public class WhyDoesJavaNotHaveThese {
 		return true;
 	}
 	
+	public static Boolean byteArrayHasPrefix(byte[] array, byte[] prefix) {
+		if (prefix.length > array.length) { return false; }
+		for (int i = 0; i < prefix.length; i++) {
+			if (prefix[i] != array[i]) { return false; }
+		}
+		
+		return true;
+	}
+	
+	public static Boolean byteArrayMatchesFormat(byte[] array, List<Byte> format) {
+		if (format.size() > array.length) { return false; }
+		for (int i = 0; i < format.size(); i++) {
+			Byte currentFormatByte = format.get(i);
+			if (currentFormatByte == null) { continue; }
+			byte formatByteValue = currentFormatByte.byteValue();
+			if (array[i] != formatByteValue) { return false; }
+		}
+		
+		return true;
+	}
+	
 	public static byte[] bytesFromAddress(long address) {
 		if (address <= 0x8000000) {
 			address += 0x8000000;
@@ -67,5 +88,17 @@ public class WhyDoesJavaNotHaveThese {
 		String firstLetter = input.substring(0, 1);
 		String remainder = input.substring(1).replace('_', ' ');
 		return firstLetter.toUpperCase() + remainder.toLowerCase();
+	}
+	
+	public static byte[] gbaAddressFromOffset(long offset) {
+		byte[] result = new byte[4];
+		long actualOffset = offset + 0x08000000;
+		
+		result[0] = (byte)(actualOffset & 0xFF);
+		result[1] = (byte)((actualOffset >> 8) & 0xFF);
+		result[2] = (byte)((actualOffset >> 16) & 0xFF);
+		result[3] = (byte)((actualOffset >> 24) & 0xFF);
+		
+		return result;
 	}
 }

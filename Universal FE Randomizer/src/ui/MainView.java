@@ -27,6 +27,7 @@ import application.Main;
 import fedata.FEBase.GameType;
 import fedata.fe6.FE6Data;
 import fedata.fe7.FE7Data;
+import fedata.fe8.FE8Data;
 import io.FileHandler;
 import random.Randomizer;
 import random.RandomizerListener;
@@ -75,7 +76,7 @@ public class MainView implements FileFlowDelegate {
 		super();
 		
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.RESIZE & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.5.2.1)");
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.6.0)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
 		 mainShell = shell;
@@ -135,7 +136,7 @@ public class MainView implements FileFlowDelegate {
 		  fieldData.left = new FormAttachment(romFileLabel, 5);
 		  fieldData.top = new FormAttachment(0, 5);
 		  fieldData.right = new FormAttachment(button, -5);
-		  fieldData.width = 300;
+		  fieldData.width = 400;
 		  field.setLayoutData(fieldData);
 		  
 		  FormData buttonData = new FormData();
@@ -283,7 +284,7 @@ public class MainView implements FileFlowDelegate {
 		weaponData.bottom = new FormAttachment(100, -10);
 		weaponView.setLayoutData(weaponData);
 		  
-		classView = new ClassesView(mainShell, SWT.NONE);
+		classView = new ClassesView(mainShell, SWT.NONE, type);
 		classView.setSize(200, 200);
 		classView.setVisible(false);
 		  
@@ -363,6 +364,10 @@ public class MainView implements FileFlowDelegate {
 			else if (handler.getCRC32() == FE7Data.CleanCRC32) { 
 				type = GameType.FE7;
 				friendlyName.setText("Display Name: " + FE7Data.FriendlyName);
+			}
+			else if (handler.getCRC32() == FE8Data.CleanCRC32) {
+				type = GameType.FE8;
+				friendlyName.setText("Display Name: " + FE8Data.FriendlyName);
 			}
 			else { 
 				type = GameType.UNKNOWN;

@@ -2,12 +2,16 @@ package fedata.general;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import io.FileHandler;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
+import util.WhyDoesJavaNotHaveThese;
 
 public class Palette {
 	
@@ -27,58 +31,262 @@ public class Palette {
 	
 	private List<PaletteColor> supplementalHairColor = null;
 	
+	private Map<Integer, Integer> customMapping;
+	
 	private Boolean fullUpdate = false;
 	
-	public Palette(FileHandler handler, PaletteInfo info, int paletteSize) {
+	private int indexOf(int index) {
+		if (customMapping == null) {
+			return index;
+		}
+		
+		if (customMapping.containsKey(index)) {
+			return customMapping.get(index);
+		}
+		
+		return index;
+	}
+	
+	public Palette(FileHandler handler, PaletteInfo info, int paletteSize, Map<Integer, Integer> customMap) {
 		this.info = info;
+		customMapping = customMap;
 		
 		rawData = handler.readBytesAtOffset(info.paletteOffset, paletteSize);
 		
 		hair = new ArrayList<PaletteColor>();
 		for (int offset : info.hairColorOffsets) {
-			hair.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+			int mappedOffset = indexOf(offset);
+			hair.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
 		}
 		
 		primary = new ArrayList<PaletteColor>();
 		for (int offset : info.primaryColorOffsets) {
-			primary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+			int mappedOffset = indexOf(offset);
+			primary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
 		}
 		
 		secondary = new ArrayList<PaletteColor>();
 		for (int offset : info.secondaryColorOffsets) {
-			secondary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+			int mappedOffset = indexOf(offset);
+			secondary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
 		}
 		
 		tertiary = new ArrayList<PaletteColor>();
 		for (int offset : info.tertiaryColorOffsets) {
-			tertiary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+			int mappedOffset = indexOf(offset);
+			tertiary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
 		}
 	}
 	
-	public Palette(Palette template, Palette originalPalette, Palette alternatePalette) {
+	public Palette(Palette template, Palette targetPalette, Palette[] allReferencePalettes, Map<Integer, Integer> customMap) {
 		info = new PaletteInfo(template.info);
-		info.paletteOffset = originalPalette.info.paletteOffset;
-		rawData = template.rawData.clone();
+		info.paletteOffset = targetPalette.info.paletteOffset;
+		customMapping = customMap;
+		if (targetPalette.rawData.length > template.rawData.length) {
+			rawData = targetPalette.rawData.clone();
+			for (int i = 0; i < template.rawData.length; i++) {
+				rawData[indexOf(i)] = template.rawData[i];
+			}
+		} else {
+			rawData = template.rawData.clone();
+		}
 		fullUpdate = true;
 		
 		hair = new ArrayList<PaletteColor>();
 		for (int offset : info.hairColorOffsets) {
-			hair.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+			int mappedOffset = indexOf(offset);
+			hair.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
 		}
 		
 		primary = new ArrayList<PaletteColor>();
 		for (int offset : info.primaryColorOffsets) {
-			primary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+			int mappedOffset = indexOf(offset);
+			primary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
 		}
 		
 		secondary = new ArrayList<PaletteColor>();
 		for (int offset : info.secondaryColorOffsets) {
-			secondary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+			int mappedOffset = indexOf(offset);
+			secondary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
 		}
 		
 		tertiary = new ArrayList<PaletteColor>();
 		for (int offset : info.tertiaryColorOffsets) {
-			tertiary.add(new PaletteColor(Arrays.copyOfRange(rawData, offset, offset + 2)));
+			int mappedOffset = indexOf(offset);
+			tertiary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
+		}
+		
+		List<Palette> orderedPalettesBySaturation = new ArrayList<Palette>(Arrays.asList(allReferencePalettes));
+		
+		Boolean hairSet = false;
+		
+		if (hair.size() > 0) {
+			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+				@Override
+				public int compare(Palette arg0, Palette arg1) {
+					if (arg0.getHairColors().length > 0 && arg1.getHairColors().length > 0) {
+						double arg0Saturation = arg0.getHairColors()[0].getSaturation();
+						double arg1Saturation = arg1.getHairColors()[0].getSaturation();
+						if (arg0Saturation > arg1Saturation) { return -1; }
+						else if (arg0Saturation < arg1Saturation) { return 1; }
+						else { return 0; }
+					} else {
+						return 0;
+					}
+				}
+			});
+			
+			for (Palette otherPalette : orderedPalettesBySaturation) {
+				if (otherPalette.getHairColors().length > 0) {
+					setHairColors(PaletteColor.coerceColors(otherPalette.getHairColors(), hair.size()));
+					hairSet = true;
+					break;
+				} else if (otherPalette.supplementalHairColor != null && !otherPalette.supplementalHairColor.isEmpty()) {
+					List<PaletteColor> supplementalList = otherPalette.supplementalHairColor;
+					setHairColors(PaletteColor.coerceColors(supplementalList.toArray(new PaletteColor[supplementalList.size()]), hair.size()));
+					hairSet = true;
+					break;
+				}
+			}
+			
+			if (!hairSet) {
+				Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+					@Override
+					public int compare(Palette arg0, Palette arg1) {
+						if (arg0.getPrimaryColors().length > 0 && arg1.getPrimaryColors().length > 0) {
+							double arg0Saturation = arg0.getPrimaryColors()[0].getSaturation();
+							double arg1Saturation = arg1.getPrimaryColors()[0].getSaturation();
+							if (arg0Saturation > arg1Saturation) { return -1; }
+							else if (arg0Saturation < arg1Saturation) { return 1; }
+							else { return 0; }
+						} else {
+							return 0;
+						}
+					}
+				});
+				for (Palette otherPalette : orderedPalettesBySaturation) {
+					if (otherPalette.getPrimaryColors().length > 0) {
+						setHairColors(PaletteColor.coerceColors(otherPalette.getPrimaryColors(), primary.size()));
+						break;
+					}
+				}
+			}
+		}
+		
+		if (primary.size() > 0) {
+			Boolean primarySet = false;
+			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+				@Override
+				public int compare(Palette arg0, Palette arg1) {
+					if (arg0.getPrimaryColors().length > 0 && arg1.getPrimaryColors().length > 0) {
+						double arg0Saturation = arg0.getPrimaryColors()[0].getSaturation();
+						double arg1Saturation = arg1.getPrimaryColors()[0].getSaturation();
+						if (arg0Saturation > arg1Saturation) { return -1; }
+						else if (arg0Saturation < arg1Saturation) { return 1; }
+						else { return 0; }
+					} else {
+						return 0;
+					}
+				}
+			});
+			for (Palette otherPalette : orderedPalettesBySaturation) {
+				if (otherPalette.getPrimaryColors().length > 0) {
+					setPrimaryColors(PaletteColor.coerceColors(otherPalette.getPrimaryColors(), primary.size()));
+					primarySet = true;
+					break;
+				}
+			}
+			
+			if (!primarySet && hairSet) {
+				// Go back to hair if no primary is found.
+				setPrimaryColors(PaletteColor.coerceColors(PaletteColor.darkenColors(getHairColors()), primary.size()));
+			}
+		}
+		
+		if (secondary.size() > 0) {
+			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+				@Override
+				public int compare(Palette arg0, Palette arg1) {
+					if (arg0.getSecondaryColors().length > 0 && arg1.getSecondaryColors().length > 0) {
+						double arg0Saturation = arg0.getSecondaryColors()[0].getSaturation();
+						double arg1Saturation = arg1.getSecondaryColors()[0].getSaturation();
+						if (arg0Saturation > arg1Saturation) { return -1; }
+						else if (arg0Saturation < arg1Saturation) { return 1; }
+						else { return 0; }
+					} else {
+						return 0;
+					}
+				}
+			});
+			for (Palette otherPalette : orderedPalettesBySaturation) {
+				if (otherPalette.getSecondaryColors().length > 0) {
+					setSecondaryColors(PaletteColor.coerceColors(otherPalette.getSecondaryColors(), secondary.size()));
+					break;
+				}
+			}
+		}
+		
+		if (tertiary.size() > 0) {
+			Collections.sort(orderedPalettesBySaturation, new Comparator<Palette>() {
+				@Override
+				public int compare(Palette arg0, Palette arg1) {
+					if (arg0.getTertiaryColors().length > 0 && arg1.getTertiaryColors().length > 0) {
+						double arg0Saturation = arg0.getTertiaryColors()[0].getSaturation();
+						double arg1Saturation = arg1.getTertiaryColors()[0].getSaturation();
+						if (arg0Saturation > arg1Saturation) { return -1; }
+						else if (arg0Saturation < arg1Saturation) { return 1; }
+						else { return 0; }
+					} else {
+						return 0;
+					}
+				}
+			});
+			for (Palette otherPalette : orderedPalettesBySaturation) {
+				if (otherPalette.getTertiaryColors().length > 0) {
+					setTertiaryColors(PaletteColor.coerceColors(otherPalette.getTertiaryColors(), tertiary.size()));
+					break;
+				}
+			}
+		}
+	}
+	
+	public Palette(Palette template, Palette originalPalette, Palette alternatePalette, Map<Integer, Integer> customMap) {
+		info = new PaletteInfo(template.info);
+		info.paletteOffset = originalPalette.info.paletteOffset;
+		customMapping = customMap;
+		
+		if (originalPalette.rawData.length > template.rawData.length) {
+			rawData = originalPalette.rawData.clone();
+			for (int i = 0; i < template.rawData.length; i++) {
+				rawData[indexOf(i)] = template.rawData[i];
+			}
+		} else {
+			rawData = template.rawData.clone();
+		}
+		fullUpdate = true;
+		
+		hair = new ArrayList<PaletteColor>();
+		for (int offset : info.hairColorOffsets) {
+			int mappedOffset = indexOf(offset);
+			hair.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
+		}
+		
+		primary = new ArrayList<PaletteColor>();
+		for (int offset : info.primaryColorOffsets) {
+			int mappedOffset = indexOf(offset);
+			primary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
+		}
+		
+		secondary = new ArrayList<PaletteColor>();
+		for (int offset : info.secondaryColorOffsets) {
+			int mappedOffset = indexOf(offset);
+			secondary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
+		}
+		
+		tertiary = new ArrayList<PaletteColor>();
+		for (int offset : info.tertiaryColorOffsets) {
+			int mappedOffset = indexOf(offset);
+			tertiary.add(new PaletteColor(Arrays.copyOfRange(rawData, mappedOffset, mappedOffset + 2)));
 		}
 		
 		PaletteColor[] originalHairColors = originalPalette.getHairColors();
@@ -238,53 +446,62 @@ public class Palette {
 	}
 	
 	public void commitPalette(DiffCompiler compiler) {
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Comitting palette at offset 0x" + Long.toHexString(info.paletteOffset));
 		if (fullUpdate) {
 			byte[] dataToWrite = Arrays.copyOfRange(rawData, 0, rawData.length);
 			for (int i = 0; i < hair.size(); i++) {
 				int offset = info.hairColorOffsets[i];
 				byte[] tuple = hair.get(i).toColorTuple();
-				dataToWrite[offset] = tuple[0];
-				dataToWrite[offset + 1] = tuple[1];
+				dataToWrite[indexOf(offset)] = tuple[0];
+				dataToWrite[indexOf(offset + 1)] = tuple[1];
 			}
 			for (int i = 0; i < primary.size(); i++) {
 				int offset = info.primaryColorOffsets[i];
 				byte[] tuple = primary.get(i).toColorTuple();
-				dataToWrite[offset] = tuple[0];
-				dataToWrite[offset + 1] = tuple[1];
+				dataToWrite[indexOf(offset)] = tuple[0];
+				dataToWrite[indexOf(offset + 1)] = tuple[1];
 			}
 			for (int i = 0; i < secondary.size(); i++) {
 				int offset = info.secondaryColorOffsets[i];
 				byte[] tuple = secondary.get(i).toColorTuple();
-				dataToWrite[offset] = tuple[0];
-				dataToWrite[offset + 1] = tuple[1];
+				dataToWrite[indexOf(offset)] = tuple[0];
+				dataToWrite[indexOf(offset + 1)] = tuple[1];
 			}
 			for (int i = 0; i < tertiary.size(); i++) {
 				int offset = info.tertiaryColorOffsets[i];
 				byte[] tuple = tertiary.get(i).toColorTuple();
-				dataToWrite[offset] = tuple[0];
-				dataToWrite[offset + 1] = tuple[1];
+				dataToWrite[indexOf(offset)] = tuple[0];
+				dataToWrite[indexOf(offset + 1)] = tuple[1];
 			}
 			
 			compiler.addDiff(new Diff(info.paletteOffset, dataToWrite.length, dataToWrite, null));
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Data: " + WhyDoesJavaNotHaveThese.displayStringForBytes(dataToWrite));
 		} else {
+			// We might not need it for non-full updates, but some bosses don't necessarily have
+			// colors in consistent blocks. The Knight and Brigand bosses in FE8 do weird stuff (or anything with custom mapping)
+			// but we might need to be more specific in the offsets we use here.
 			if (hairModified) {
 				for (int i = 0; i < hair.size(); i++) {
-					compiler.addDiff(new Diff(info.paletteOffset + info.hairColorOffsets[i], 2, hair.get(i).toColorTuple(), null));
+					int mappedOffset = indexOf(info.hairColorOffsets[i]);
+					compiler.addDiff(new Diff(info.paletteOffset + mappedOffset, 2, hair.get(i).toColorTuple(), null));
 				}
 			}
 			if (primaryModified) {
 				for (int i = 0; i < primary.size(); i++) {
-					compiler.addDiff(new Diff(info.paletteOffset + info.primaryColorOffsets[i], 2, primary.get(i).toColorTuple(), null));
+					int mappedOffset = indexOf(info.primaryColorOffsets[i]);
+					compiler.addDiff(new Diff(info.paletteOffset + mappedOffset, 2, primary.get(i).toColorTuple(), null));
 				}
 			}
 			if (secondaryModified) {
 				for (int i = 0; i < secondary.size(); i++) {
-					compiler.addDiff(new Diff(info.paletteOffset + info.secondaryColorOffsets[i], 2, secondary.get(i).toColorTuple(), null));
+					int mappedOffset = indexOf(info.secondaryColorOffsets[i]);
+					compiler.addDiff(new Diff(info.paletteOffset + mappedOffset, 2, secondary.get(i).toColorTuple(), null));
 				}
 			}
 			if (tertiaryModified) {
 				for (int i = 0; i < tertiary.size(); i++) {
-					compiler.addDiff(new Diff(info.paletteOffset + info.tertiaryColorOffsets[i], 2, tertiary.get(i).toColorTuple(), null));
+					int mappedOffset = indexOf(info.tertiaryColorOffsets[i]);
+					compiler.addDiff(new Diff(info.paletteOffset + mappedOffset, 2, tertiary.get(i).toColorTuple(), null));
 				}
 			}
 		}

@@ -3,7 +3,8 @@ package util;
 public class DebugPrinter {
 	
 	public enum Key {
-		PALETTE("Palette"), CHAPTER_LOADER("ChapterLoader"), DIFF("Diff"), HUFFMAN("Huffman"), RANDOM("Random"), FREESPACE("Free Space"), WEAPONS("Weapon Effect"), UPS("UPS"), CLASS_RANDOMIZER("Class Random");
+		PALETTE("Palette"), CHAPTER_LOADER("ChapterLoader"), DIFF("Diff"), HUFFMAN("Huffman"), TEXT_LOADING("Text"), RANDOM("Random"), FREESPACE("Free Space"), WEAPONS("Weapon Effect"), UPS("UPS"), CLASS_RANDOMIZER("Class Random"),
+		PALETTE_RECYCLER("Palette Recycling"), FE8_SUMMONER_MODULE("Summoner");
 		
 		String label;
 		
@@ -20,8 +21,8 @@ public class DebugPrinter {
 	
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
-		case CHAPTER_LOADER:
-		case CLASS_RANDOMIZER:
+		case RANDOM:
+		case PALETTE:
 			return true;
 		default:
 			return false;

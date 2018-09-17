@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import fedata.FEBase.GameType;
@@ -55,6 +56,32 @@ public class SeedGenerator {
 			"Uh-oh! That bandit's spotted me! He's coming this way! Let's close in and attack!"
 		};
 	
+	static String[] fe8Quotes = new String[] {
+			"We charge down these cliffs, and the only thing we'll be rushing to is death.",
+			"If you have lied to me today, I will hound you to the very grave itself.",
+			"Rise and rage, my precious children of darkness.",
+			"Trust me. I don't pick fights I cannot win.",
+			"To think I'd lose a fight not to a man's sword but to a woman's words.",
+			"You will move from that place. That is my father's seat. It is his throne... You've no right to sit there.",
+			"I am here on a mission. One that I swore to my brother I would fulfill.",
+			"You're just a corpse who does not know he is dead.",
+			"Do you truly think you can take us with those numbers? Imbecile! You'll learn the error of your ways.",
+			"I thought to catch a little bird in my net, and it seems instead I've snared a hawk.",
+			"You should be happy to fight, kill, and die in my service!",
+			"It's not over yet. Victory still hands in the balance.",
+			"I know the path I'm given is foolish. Yet I am a knight, and I have no other.",
+			"I told myself I could be happy simply serving you as your most loyal knight.",
+			"You're a stepping-stone... And I'm moving up. Don't take it personally.",
+			"I'm stronger than I used to be. No offence, but you're not in my league anymore.",
+			"For the one I love... I betrayed everything. My country, my lord and master... Everything...",
+			"You humans are so inconstant. You've forgotten what it is to fear me.",
+			"Merely serving me must be the greatest pleasure man can know.",
+			"If I were not a holy woman, I would beat you senseless.",
+			"Trying to trap me is a mistake. Failing, an expensive one. I think it's time for you to learn how expensive.",
+			"Gambling's what I live for. Even when I lose, I never want to stop."
+			
+	};
+	
 	public static String generateRandomSeed(GameType type) {
 		switch (type) {
 		case FE6: {
@@ -65,35 +92,39 @@ public class SeedGenerator {
 			int quoteCount = fe7Quotes.length;
 			return fe7Quotes[ThreadLocalRandom.current().nextInt(quoteCount)];
 		}
+		case FE8: {
+			int quoteCount = fe8Quotes.length;
+			return fe8Quotes[ThreadLocalRandom.current().nextInt(quoteCount)];
+		}
 		default:
 			return generateRandomSeed();
 		}
 	}
 	public static String generateRandomSeed() {
-		int gameSelect = ThreadLocalRandom.current().nextInt(2);
+		int gameSelect = ThreadLocalRandom.current().nextInt(3);
 		if (gameSelect == 0) {
 			return generateRandomSeed(GameType.FE6);
 		} else if (gameSelect == 1) {
 			return generateRandomSeed(GameType.FE7);
+		} else if (gameSelect == 2) {
+			return generateRandomSeed(GameType.FE8);
 		}
 		
 		return "Type something in!";
 	}
 	
 	public static long generateSeedValue(String seedString, int seedSalt) {
-		Boolean isOdd = seedSalt % 2 == 1;
 		StringBuilder sb = new StringBuilder(seedString);
 		while (sb.length() < 2) {
 			sb.append(seedString);
 		}
 		
-		String finalSeed = sb.toString();
-		long counter = 0;
-		for (int i = (isOdd ? 0 : 1); i < finalSeed.length(); i += 2) {
-			counter += (seedSalt * (int)finalSeed.charAt(i));
-		}
+		long counter = sb.toString().hashCode() + seedSalt;
+		
+		DebugPrinter.log(DebugPrinter.Key.RANDOM, "Previewing Seed \"" + seedString + "\" with salt " + seedSalt);
+		Random rng = new Random(counter);
+		DebugPrinter.log(DebugPrinter.Key.RANDOM, "" + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + ", " + rng.nextInt(100) + "" );
 		
 		return counter;
 	}
-
 }

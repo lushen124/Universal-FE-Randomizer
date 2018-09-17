@@ -181,16 +181,14 @@ public class FE6Item implements FEItem {
 			return;
 		}
 		
-		Set<WeaponEffects> effectPool = effectsAvailable();
-		effectPool.retainAll(allowedEffects);
+		List<WeaponEffects> effectPool = effectsAvailable(allowedEffects);
 		
 		if (effectPool.isEmpty()) {
 			return;
 		}
 		
 		int randomEffect = rng.nextInt(effectPool.size());
-		WeaponEffects[] effectList = effectPool.toArray(new WeaponEffects[effectPool.size()]);
-		WeaponEffects selectedEffect = effectList[randomEffect];
+		WeaponEffects selectedEffect = effectPool.get(randomEffect);
 		applyEffect(selectedEffect, itemData, spellAnimations, rng);
 		if (selectedEffect != WeaponEffects.NONE) {
 			String updatedDescription = ingameDescriptionString(itemData);
@@ -231,42 +229,42 @@ public class FE6Item implements FEItem {
 		return originalOffset;
 	}
 	
-	private Set<WeaponEffects> effectsAvailable() {
+	private List<WeaponEffects> effectsAvailable(Set<WeaponEffects> allowedEffects) {
 		
-		Set<WeaponEffects> effects = new HashSet<WeaponEffects>();
+		List<WeaponEffects> effects = new ArrayList<WeaponEffects>();
 		
-		effects.add(WeaponEffects.NONE);
+		if (allowedEffects.contains(WeaponEffects.NONE)) { effects.add(WeaponEffects.NONE); }
 		
 		if (getStatBonusPointer() == 0) {
-			effects.add(WeaponEffects.STAT_BOOSTS);
+			if (allowedEffects.contains(WeaponEffects.STAT_BOOSTS)) { effects.add(WeaponEffects.STAT_BOOSTS); }
 		}
 		if (getEffectivenessPointer() == 0) {
-			effects.add(WeaponEffects.EFFECTIVENESS);
+			if (allowedEffects.contains(WeaponEffects.EFFECTIVENESS)) { effects.add(WeaponEffects.EFFECTIVENESS); }
 		}
 		if (getCritical() < 10) {
-			effects.add(WeaponEffects.HIGH_CRITICAL);
+			if (allowedEffects.contains(WeaponEffects.HIGH_CRITICAL)) { effects.add(WeaponEffects.HIGH_CRITICAL); }
 		}
 		if ((getMinRange() == 2 || getMaxRange() == 1) && getType() != WeaponType.AXE) { // Ranged axes are stupid to implement. They require modifying animation pointers for each class.
-			effects.add(WeaponEffects.EXTEND_RANGE);
+			if (allowedEffects.contains(WeaponEffects.EXTEND_RANGE)) { effects.add(WeaponEffects.EXTEND_RANGE); }
 		}
 
 		if ((getAbility1() & FE6Data.Item.Ability1Mask.UNBREAKABLE.ID) == 0) {
-			effects.add(WeaponEffects.UNBREAKABLE);
+			if (allowedEffects.contains(WeaponEffects.UNBREAKABLE)) { effects.add(WeaponEffects.UNBREAKABLE); }
 		}
 		if ((getAbility1() & FE6Data.Item.Ability1Mask.BRAVE.ID) == 0) {
-			effects.add(WeaponEffects.BRAVE);
+			if (allowedEffects.contains(WeaponEffects.BRAVE)) { effects.add(WeaponEffects.BRAVE); }
 		}
 		if ((getAbility1() & FE6Data.Item.Ability1Mask.MAGICDAMAGE.ID) == 0 && (getAbility1() & FE6Data.Item.Ability1Mask.MAGIC.ID) == 0 && getType() != WeaponType.AXE) {
-			effects.add(WeaponEffects.MAGIC_DAMAGE);
+			if (allowedEffects.contains(WeaponEffects.MAGIC_DAMAGE)) { effects.add(WeaponEffects.MAGIC_DAMAGE); }
 		}
 		
 		if ((getAbility2() & FE6Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
-			effects.add(WeaponEffects.REVERSE_TRIANGLE);
+			if (allowedEffects.contains(WeaponEffects.REVERSE_TRIANGLE)) { effects.add(WeaponEffects.REVERSE_TRIANGLE); }
 		}
 		
 		if (getWeaponEffect() == 0) {
-			effects.add(WeaponEffects.POISON);
-			effects.add(WeaponEffects.DEVIL);
+			if (allowedEffects.contains(WeaponEffects.POISON)) { effects.add(WeaponEffects.POISON); }
+			if (allowedEffects.contains(WeaponEffects.DEVIL)) { effects.add(WeaponEffects.DEVIL); }
 		}
 		
 		return effects;
@@ -400,12 +398,12 @@ public class FE6Item implements FEItem {
 		if ((getAbility1() & Ability1Mask.MAGICDAMAGE.ID) != 0) { traitStrings.add("Fixed damage at range"); shortStrings.put("Fixed damage at range", "Magic"); }
 		
 		if ((getAbility2() & Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) != 0) {
-			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs. Lances"); shortStrings.put("Strong vs. Lances", "Bests lances"); }
-			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs. Axes"); shortStrings.put("Strong vs. Axes", "Bests axes"); }
-			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong vs. Swords"); shortStrings.put("Strong vs. Swords", "Bests Swords"); }
-			else if (getType() == WeaponType.ANIMA) { traitStrings.add("Strong vs. Dark Magic"); shortStrings.put("Strong vs. Dark Magic", "Bests Dark"); }
-			else if (getType() == WeaponType.LIGHT) { traitStrings.add("Strong vs. Anima Magic"); shortStrings.put("Strong vs. Anima Magic", "Bests Anima"); }
-			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong vs. Light Magic"); shortStrings.put("Strong vs. Light Magic", "Bests Light"); }
+			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs Lances"); shortStrings.put("Strong vs Lances", "Bests lances"); }
+			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs Axes"); shortStrings.put("Strong vs Axes", "Bests axes"); }
+			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong vs Swords"); shortStrings.put("Strong vs Swords", "Bests Swords"); }
+			else if (getType() == WeaponType.ANIMA) { traitStrings.add("Strong vs Dark"); shortStrings.put("Strong vs Dark", "Bests Dark"); }
+			else if (getType() == WeaponType.LIGHT) { traitStrings.add("Strong vs Anima"); shortStrings.put("Strong vs Anima", "Bests Anima"); }
+			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong vs Light"); shortStrings.put("Strong vs Light", "Bests Light"); }
 		}
 		
 		if (getWeaponEffect() == FE6Data.Item.WeaponEffect.POISON.ID) { traitStrings.add("Poisons on hit"); shortStrings.put("Poisons on hit", "Poison"); }

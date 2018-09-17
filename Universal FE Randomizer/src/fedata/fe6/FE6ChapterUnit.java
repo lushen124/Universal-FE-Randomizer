@@ -57,6 +57,16 @@ public class FE6ChapterUnit implements FEChapterUnit {
 	public int getStartingY() {
 		return data[7] & 0xFF;
 	}
+	
+	public void setStartingX(int newX) {
+		data[6] = (byte)(newX & 0xFF);
+		wasModified = true;
+	}
+	
+	public void setStartingY(int newY) {
+		data[7] = (byte)(newY & 0xFF);
+		wasModified = true;
+	}
 
 	public int getItem1() {
 		return data[8] & 0xFF;

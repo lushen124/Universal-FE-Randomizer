@@ -8,6 +8,7 @@ import java.util.Set;
 import fedata.FEChapter;
 import fedata.FEChapterItem;
 import fedata.FEChapterUnit;
+import fedata.general.CharacterNudge;
 import io.FileHandler;
 import util.DebugPrinter;
 import util.FileReadHelper;
@@ -40,6 +41,8 @@ public class FE6Chapter implements FEChapter {
 	private Set<Integer> knownEnemyIDs;
 	private int probableLordID = 0;
 	private int probableBossID = 0;
+	
+	private CharacterNudge[] nudges;
 	
 	public FE6Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple) {
 		this.friendlyName = friendlyName;
@@ -106,6 +109,10 @@ public class FE6Chapter implements FEChapter {
 	public FEChapterItem[] allRewards() {
 		return allChapterRewards.toArray(new FEChapterItem[allChapterRewards.size()]);
 	}
+	
+	public FEChapterItem[] allTargetedRewards() {
+		return new FEChapterItem[] {};
+	}
 
 	@Override
 	public long[] getFightAddresses() {
@@ -133,6 +140,18 @@ public class FE6Chapter implements FEChapter {
 	@Override
 	public Boolean shouldBeSimplified() {
 		return shouldBeSimplified;
+	}
+	
+	public void applyNudges() {
+		for (CharacterNudge nudge : nudges) {
+			for (FEChapterUnit unit : allUnits()) {
+				if (unit.getCharacterNumber() == nudge.getCharacterID() && unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getStartingX() + ", " + unit.getStartingY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+					unit.setStartingX(nudge.getNewX());
+					unit.setStartingY(nudge.getNewY());
+				}
+			}
+		}
 	}
 	
 	private void loadUnits(FileHandler handler) {
@@ -441,4 +460,5 @@ public class FE6Chapter implements FEChapter {
 		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Finished searching for rewards at 0x" + Long.toHexString(currentAddress));
 	}
 
+	public FEChapterItem chapterItemGivenToCharacter(int characterID) { return null; }
 }

@@ -133,7 +133,7 @@ public class EnemyBuffer {
 		
 		ArrayList<FEItem> items = new ArrayList<FEItem>();
 		
-		FEItem[] improvedItems = itemData.itemsOfTypeAndEqualRank(type, rank, false, true);
+		FEItem[] improvedItems = itemData.itemsOfTypeAndEqualRank(type, rank, false, false, true);
 		items.addAll(Arrays.asList(improvedItems));
 		
 		FEItem[] prfWeapons = itemData.prfWeaponsForClass(characterClass.getID());
