@@ -407,7 +407,7 @@ public class FE8Item implements FEItem {
 		else if (isOnlyRanged && getMinRange() < 2) { traitStrings.add("Usable at close range"); shortStrings.put("Usable at close range", "Melee"); }
 		
 		if ((getAbility1() & Ability1Mask.BRAVE.ID) != 0) { traitStrings.add("Strikes twice"); shortStrings.put("Strikes twice", "Brave"); }
-		if ((getAbility1() & Ability1Mask.MAGIC_DAMAGE.ID) != 0) { traitStrings.add("Targets RES"); shortStrings.put("Targets Res", "Magic"); }
+		if ((getAbility1() & Ability1Mask.MAGIC_DAMAGE.ID) != 0) { traitStrings.add("Targets Res"); shortStrings.put("Targets Res", "Magic"); }
 		
 		if ((getAbility2() & Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) != 0) {
 			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs Lances"); shortStrings.put("Strong vs Lances", "Bests lances"); }
