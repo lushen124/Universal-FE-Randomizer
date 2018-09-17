@@ -1304,6 +1304,8 @@ public class FE8Data {
 			switch(this) {
 			case CHAPTER_5X:
 				return new CharacterClass[] {CharacterClass.WYVERN_RIDER, CharacterClass.WYVERN_RIDER_F}; // The cutscene after the chapter has wyvern riders flying on screen. Keep those the same.
+			case CHAPTER_6:
+				return new CharacterClass[] {CharacterClass.BAEL}; // Give the player some chance of getting here in time.
 			default:
 				return new CharacterClass[] {};
 			}
@@ -1919,6 +1921,9 @@ public class FE8Data {
 			switch (character) {
 			case ONEILL:
 			case BREGUET:
+			case SAAR:
+			case BONE:
+			case BAZBA:
 				// Only return this if we're sure.
 				return BytesPerBossPalette;
 			default:
@@ -1940,7 +1945,8 @@ public class FE8Data {
 				map.put(37, 50);
 				return map;
 			}
-			case BREGUET: {
+			case BREGUET:
+			case SAAR: {
 				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
 				map.put(5, 41);
 				map.put(6, 42);
@@ -1967,6 +1973,39 @@ public class FE8Data {
 				
 				map.put(32, 65);
 				map.put(33, 66);
+				
+				return map;
+			}
+			case BONE:
+			case BAZBA: {
+				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+				map.put(9, 43);
+				map.put(10, 44);
+				map.put(11, 45);
+				map.put(12, 46);
+				
+				map.put(14, 47);
+				map.put(15, 48);
+				map.put(16, 49);
+				map.put(17, 51);
+				
+				map.put(23, 54);
+				map.put(24, 55);
+				map.put(25, 56);
+				map.put(26, 57);
+				map.put(27, 58);
+				map.put(28, 59);
+				map.put(29, 61);
+				map.put(30, 62);
+				
+				map.put(32, 63);
+				map.put(33, 64);
+				map.put(34, 65);
+				map.put(35, 66);
+				map.put(36, 67);
+				map.put(37, 68);
+				map.put(38, 70);
+				map.put(39, 71);
 				
 				return map;
 			}
