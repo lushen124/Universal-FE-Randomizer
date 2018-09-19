@@ -60,7 +60,7 @@ $ java -jar Yune\ -\ GTK(x86_64).jar
 ...or something like that. Tested with Ubuntu 16.04.4.
 
 ## Compatability
-At time of writing, the randomizer supports two games: Fire Emblem: Binding Blade (aka FE6 or ファイアーエムブレム　封印の剣) and Fire Emblem: Blazing Sword (aka FE7 or ファイアーエムブレム 烈火の剣). In the case of the former, the randomizer expects a clean JP ROM and will give the option to apply the english patch on top of it. In the case of the latter, only the US version of the game is supported. I plan to add support for FE7JP and FE8 soon. Afterwards, it'll take a while, but I'll look into either the SFC games (FE3 ~ FE5) or the Tellius games (FE9 ~ FE10) depending on whether I want to learn more about how FE3 ~ FE5 work or if I want to learn how to decode ISO files.
+At time of writing, the randomizer supports three games: Fire Emblem: Binding Blade (aka FE6 or ファイアーエムブレム　封印の剣), Fire Emblem: Blazing Sword (aka FE7 or ファイアーエムブレム 烈火の剣), and Fire Emblem: The Sacred Stones (aka FE8 or ファイアーエムブレム 聖魔の光石). In the case of FE6, the randomizer expects a clean JP ROM and will give the option to apply the english patch on top of it. In the case of FE7 and FE8, only the US version of the game is supported. I plan to add support for FE7JP and FE8JP soon. Afterwards, it'll take a while, but I'll look into either the SFC games (FE3 ~ FE5) or the Tellius games (FE9 ~ FE10) depending on whether I want to learn more about how FE3 ~ FE5 work or if I want to learn how to decode ISO files.
 
 ## Randomization Options
 
@@ -143,6 +143,8 @@ There's a new option under this to have safe basic weapons. This ensures that ba
   <i>You can turn on all three!</i>
 </p>
 
+**Mix Monster Classes (FE8 only)** - By default, without this option, class randomization will stay divided between monsters and humans. Any human characters and minions will remain as a human class and any monster bosses and minions will remain as a monster class. If this box is checked, then it allows humans to randomize into monster classes and monsters to randomize into human classes.
+
 ### Enemy Buffs
 Thought the game was too easy?
 
@@ -160,17 +162,22 @@ Thought the game was too easy?
 ### Miscellaneous Options
 Random stuff that may be funny.
 
+**Apply English Patch (FE6 Only)** - This option applies the English patch from Serenes Forest (https://serenesforest.net/forums/index.php?/topic/41095-fe6-localization-patch-v10-seriously-we-did-something/) onto the Japanese FE6 ROM.
+
 **Randomize Rewards** - Rewards include chests and village items. This encapsultes any item you can get from villages and chests, but does not include villages that grant you gold. Also does not affect any items that are given specifically to a character (e.g. Mani Katti). 50% of the time, the item will be replaced with a related item, and the other 50% of the time will be a completely random item. Possible items include weapons, stat boosters, promotion items, and any other consumable items. Related items for non-weapons are those that fit into the same category (i.e. stat boosters or promotion item). Related items for weapons are those weapons with either the same rank or the same type.
 
 **Randomize Recruitment Order (WIP)** - A weird option from the original randomizer which more or less replaces character data completely with another, simulating a randomized recruitment order. Not sure if I'll make any changes to this or not.
 
 ## Sample Screenshots
-![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/FixedPalettes.png)
-![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/RandomMinions.png)
-![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MorePalettes.png)
-![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/MoreText.png)
-![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE6.png)
-![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE6_2.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/RandomClasses.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/CustomPalettes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/WeaponEffects.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/Minions.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/CustomPalettes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS/WeaponDescription.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/Classes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/CustomPalettes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/WeaponDescriptions.png)
 
 ## Nice-to-have Features
 * ~~Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.~~ This is actually done now. It mostly works, though it occasionally gives an odd color.
@@ -183,7 +190,7 @@ Random stuff that may be funny.
 ## Next Steps (Kind of in order)
 * ~~Add in FE6 support.~~ Done!
 * Add in regional support outside of North America. (Should also be straightforward)
-* Add in FE8 support. (Lower on the priority list since FE8 Auto Randomizer exists)
+* ~~Add in FE8 support.~~ Done!
 * Add in FE4 support. (For the lulz, and mostly because it's possible and I have some fun ideas)
 
 ## Wishful thinking (probably not happening any time soon)
