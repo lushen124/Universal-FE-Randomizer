@@ -160,6 +160,7 @@ public class FE8Data {
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(COLM, RENNAC));
+		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(MORVA, LYON, LYON_CH17, LYON_FINAL, DEMON_KING, DARA, KLIMT));
 		
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList(SETH)); // The prologue scripted battle.
@@ -178,6 +179,10 @@ public class FE8Data {
 		
 		public Boolean isPlayableCharacter() {
 			return allPlayableCharacters.contains(this);
+		}
+		
+		public Boolean canChange() {
+			return !doNotChange.contains(this);
 		}
 		
 		public Boolean requiresRange() {
@@ -918,8 +923,8 @@ public class FE8Data {
 			return set;
 		}
 		
-		public static Set<Item> formerThiefKit() {
-			return new HashSet<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, DOOR_KEY));
+		public static List<Item> formerThiefKit() {
+			return new ArrayList<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, DOOR_KEY));
 		}
 		
 		public static Set<Item> itemsToRemoveFromFormerThief() {

@@ -80,7 +80,7 @@ public class FE6Data {
 		NARSHEN(0x59), RANDY(0x5A), ROSE(0x5B), MAGGIE(0x5C), RAETH(0x5D), ARCARD(0x5E), MARTEL(0x5F), SIGUNE(0x60), ROARTZ(0x61), MURDOCK(0x62), BRUNYA(0x63), ZINC(0x68), MONKE(0x69), GEL(0x6A),
 		SCOLLAN(0xB6), GRERO(0xB8), OHTZ(0xB9), TECK(0xBA), THORIL(0xBE), BRAKUL(0xBF), KUDOKA(0xC0), MARRAL(0xC1), KABUL(0xC2), CHAN(0xC3), PERETH(0xC4), WINDAM(0xC6), MORGAN(0xC8),
 		
-		ZEPHIEL(0x64), YAHN(0x67);
+		ZEPHIEL(0x64), IDOUN(0x66), YAHN(0x67);
 		
 		public int ID;
 		
@@ -143,6 +143,7 @@ public class FE6Data {
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(ROY));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(CHAD, ASTOL, CASS));
+		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(ZEPHIEL, YAHN, IDOUN, MERLINUS));
 		
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
@@ -161,6 +162,10 @@ public class FE6Data {
 		
 		public Boolean isPlayableCharacter() {
 			return allPlayableCharacters.contains(this);
+		}
+		
+		public Boolean canChange() {
+			return !doNotChange.contains(this);
 		}
 		
 		public Boolean requiresRange() {
@@ -769,8 +774,8 @@ public class FE6Data {
 			return set;
 		}
 		
-		public static Set<Item> formerThiefKit() {
-			return new HashSet<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, DOOR_KEY));
+		public static List<Item> formerThiefKit() {
+			return new ArrayList<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, DOOR_KEY));
 		}
 		
 		public static Set<Item> itemsToRemoveFromFormerThief() {

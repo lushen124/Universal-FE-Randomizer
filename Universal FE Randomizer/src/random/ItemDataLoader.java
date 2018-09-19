@@ -3,6 +3,7 @@ package random;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1422,7 +1423,7 @@ private FEBase.GameType gameType;
 		}
 	}
 	
-	private FEItem[] itemsFromFE7Items(Set<FE7Data.Item> fe7Items) {
+	private FEItem[] itemsFromFE7Items(Collection<FE7Data.Item> fe7Items) {
 		if (fe7Items == null) {
 			return new FEItem[] {};
 		}
@@ -1436,7 +1437,7 @@ private FEBase.GameType gameType;
 		 return items;
 	}
 	
-	private FEItem[] itemsFromFE6Items(Set<FE6Data.Item> fe6Items) {
+	private FEItem[] itemsFromFE6Items(Collection<FE6Data.Item> fe6Items) {
 		if (fe6Items == null) {
 			return new FEItem[] {};
 		}
@@ -1450,7 +1451,7 @@ private FEBase.GameType gameType;
 		 return items;
 	}
 	
-	private FEItem[] itemsFromFE8Items(Set<FE8Data.Item> fe8Items) {
+	private FEItem[] itemsFromFE8Items(Collection<FE8Data.Item> fe8Items) {
 		if (fe8Items == null) {
 			return new FEItem[] {};
 		}

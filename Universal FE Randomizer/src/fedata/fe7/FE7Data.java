@@ -153,6 +153,7 @@ public class FE7Data {
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(ELIWOOD, HECTOR, LYN, LYN_TUTORIAL));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(MATTHEW, LEGAULT, JAFFAR));
+		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(NERGAL, DRAGON, KISHUNA, FARGUS, MERLINUS, UTHER, ELENORA, LEILA, BRAMIMOND, ZEPHIEL, ELBERT, NATALIE, TACTICIAN));
 		
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList(ERK, RATH, RATH_TUTORIAL));
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
@@ -171,6 +172,10 @@ public class FE7Data {
 		
 		public Boolean isPlayableCharacter() {
 			return allPlayableCharacters.contains(this);
+		}
+		
+		public Boolean canChange() {
+			return !doNotChange.contains(this);
 		}
 		
 		public Boolean requiresRange() {
@@ -839,8 +844,8 @@ public class FE7Data {
 			return set;
 		}
 		
-		public static Set<Item> formerThiefKit() {
-			return new HashSet<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, DOOR_KEY));
+		public static List<Item> formerThiefKit() {
+			return new ArrayList<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, DOOR_KEY));
 		}
 		
 		public static Set<Item> itemsToRemoveFromFormerThief() {
@@ -1033,6 +1038,7 @@ public class FE7Data {
 			
 			list.removeAll(allPrfRank);
 			list.remove(WO_DAO); // This one is special. It must be added in only if we're certain the class asking for the item can use it.
+			list.remove(UBER_SPEAR); // We probably shouldn't have this randomly show up.
 			
 			if (FE7WeaponRank.S.isHigherThanRank(maxRank)) {
 				list.removeAll(allSRank);

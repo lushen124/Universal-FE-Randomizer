@@ -52,9 +52,11 @@ public class ClassRandomizer {
 			
 			Boolean isLordCharacter = charactersData.isLordCharacterID(character.getID());
 			Boolean isThiefCharacter = charactersData.isThiefCharacterID(character.getID());
+			Boolean canChange = charactersData.canChangeCharacterID(character.getID());
 			
 			if (isLordCharacter && !includeLords) { continue; }
 			if (isThiefCharacter && !includeThieves) { continue; }
+			if (!canChange) { continue; }
 			
 			Boolean characterRequiresRange = charactersData.characterIDRequiresRange(character.getID());
 			Boolean characterRequiresMelee = charactersData.characterIDRequiresMelee(character.getID());
@@ -139,6 +141,9 @@ public class ClassRandomizer {
 		
 		for (FECharacter character : allBossCharacters) {
 			
+			Boolean canChange = charactersData.canChangeCharacterID(character.getID());
+			if (!canChange) { continue; }
+			
 			Boolean characterRequiresRange = charactersData.characterIDRequiresRange(character.getID());
 			Boolean characterRequiresMelee = charactersData.characterIDRequiresMelee(character.getID());
 			
@@ -207,10 +212,14 @@ public class ClassRandomizer {
 			for (FEChapterUnit chapterUnit : chapter.allUnits()) {
 				int leaderID = chapterUnit.getLeaderID();
 				int characterID = chapterUnit.getCharacterNumber();
+				int classID = chapterUnit.getStartingClass();
 				// It's safe to check for boss leader ID in the case of FE7, but FE6 tends to put other IDs there (kind of like squad captains).
 				// We're going to remove this safety check in the meantime, but we should be wary of any accidental changes.
-				if (!charactersData.isBossCharacterID(characterID) && /*charactersData.isBossCharacterID(leaderID) &&*/ !charactersData.isPlayableCharacterID(characterID)) {
-					FEClass originalClass = classData.classForID(chapterUnit.getStartingClass());
+				// Also check to make sure it's not any character we definitely don't want to change.
+				// Finally, also make sure the starting class is valid. Classes we don't recognize, we shouldn't touch.
+				if (!charactersData.isBossCharacterID(characterID) && /*charactersData.isBossCharacterID(leaderID) &&*/ !charactersData.isPlayableCharacterID(characterID) && 
+						charactersData.canChangeCharacterID(characterID) && classData.isValidClass(classID)) {
+					FEClass originalClass = classData.classForID(classID);
 					if (originalClass == null) {
 						continue;
 					}

@@ -165,6 +165,24 @@ public class CharacterDataLoader {
 		}
 	}
 	
+	// Generally used for minions, whose character IDs we don't track, so nulls are probably pointing to minion characters.
+	// Those are generally safe to change.
+	public Boolean canChangeCharacterID(int characterID) {
+		switch (gameType) {
+		case FE6:
+			FE6Data.Character fe6Character = FE6Data.Character.valueOf(characterID);
+			return fe6Character == null ? true : fe6Character.canChange();
+		case FE7:
+			FE7Data.Character fe7Character = FE7Data.Character.valueOf(characterID);
+			return fe7Character == null ? true : fe7Character.canChange();
+		case FE8:
+			FE8Data.Character fe8Character = FE8Data.Character.valueOf(characterID);
+			return fe8Character == null ? true : fe8Character.canChange();
+		default:
+			return false;
+		}
+	}
+	
 	public Boolean isLordCharacterID(int characterID) {
 		switch (gameType) {
 		case FE6:
