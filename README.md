@@ -10,6 +10,8 @@ And hey, name change! It's actually perfect in a lot of ways because it encapsul
   <i>That's Yune!</i>
 </p>
 
+## Latest Version: 0.6.1
+
 ## Installation
 Executables are found in the above executables folder and are separated by platform. The raw JAR file is available if you want to run it directly, but MacOS and Windows users also have the option of using an executable that generally makes things easier to launch.
 
@@ -31,7 +33,11 @@ Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20MacOS.jar
 
 App Bundle:
-https://github.com/lushen124/Universal-FE-Randomizer/tree/master/Executables/MacOS - The ZIP file will extract an actual bundle that can be double clicked and run like usual (after any security settings that may try to stop you). If you don't know, MacOS apps are actually a folder in disguise, which is why Github shows it like one. 
+https://github.com/lushen124/Universal-FE-Randomizer/tree/master/Executables/MacOS - The ZIP file will extract an actual bundle that can be double clicked and run like usual (after any security settings that may try to stop you). If you don't know, MacOS apps are actually a folder in disguise, which is why Github shows it like one. If, for some reason, you want to run the raw JAR, you need to specify the `-XstartOnFirstThread` flag. For example:
+
+```
+java -jar -XstartOnFirstThread Yune\ -\ MacOS.jar
+```
 
 **Requirements**: Like Windows, you need a JRE to run it, though most versions of MacOS have one included that should be sufficient. If it doesn't work, go ahead and grab the newest one at http://www.oracle.com/technetwork/java/javase/downloads/index.html. Tested with OS X 10.13 (High Sierra).
 
