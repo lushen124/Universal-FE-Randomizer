@@ -2,9 +2,9 @@ package fedata.gba.fe6;
 
 import java.util.ArrayList;
 
-import fedata.gba.GBAFEChapterUnit;
+import fedata.gba.GBAFEChapterUnitData;
 
-public class FE6ChapterUnit implements GBAFEChapterUnit {
+public class FE6ChapterUnit implements GBAFEChapterUnitData {
 	
 	private byte[] originalData;
 	private byte[] data;

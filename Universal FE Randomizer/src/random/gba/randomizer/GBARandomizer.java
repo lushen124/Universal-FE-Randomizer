@@ -248,7 +248,7 @@ public class GBARandomizer extends Thread {
 		
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.20);
-		charData = new CharacterDataLoader(FEBase.GameType.FE7, handler);
+		charData = new CharacterDataLoader(FE7Data.characterProvider, handler);
 		updateStatusString("Loading Class Data...");
 		updateProgress(0.25);
 		classData = new ClassDataLoader(FEBase.GameType.FE7, handler);
@@ -280,7 +280,7 @@ public class GBARandomizer extends Thread {
 		
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.30);
-		charData = new CharacterDataLoader(FEBase.GameType.FE6, handler);
+		charData = new CharacterDataLoader(FE6Data.characterProvider, handler);
 		updateStatusString("Loading Class Data...");
 		updateProgress(0.33);
 		classData = new ClassDataLoader(FEBase.GameType.FE6, handler);
@@ -314,7 +314,7 @@ public class GBARandomizer extends Thread {
 		
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
-		charData = new CharacterDataLoader(FEBase.GameType.FE8, handler);
+		charData = new CharacterDataLoader(FE8Data.characterProvider, handler);
 		updateStatusString("Loading Class Data...");
 		updateProgress(0.15);
 		classData = new ClassDataLoader(FEBase.GameType.FE8, handler);

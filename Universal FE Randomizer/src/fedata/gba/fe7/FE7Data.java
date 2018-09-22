@@ -11,13 +11,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import fedata.gba.GBAFECharacterData;
+import fedata.gba.general.GBAFECharacter;
+import fedata.gba.general.GBAFECharacterProvider;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE7Data {
+public class FE7Data implements GBAFECharacterProvider {
 
 	public static final String FriendlyName = "Fire Emblem: Blazing Sword";
 	public static final String GameCode = "AE7E";
@@ -60,7 +63,11 @@ public class FE7Data {
 	public static final int OceanSealAddressPointer = 0x27574; // ???
 	public static final int OceanSealDefaultAddress = 0xC97F24;
 	
-	public enum Character {
+	private static final FE7Data sharedInstance = new FE7Data();
+	
+	public static final GBAFECharacterProvider characterProvider = sharedInstance;
+	
+	public enum Character implements GBAFECharacter {
 		NONE(0x00),
 		
 		ELIWOOD(0x01), HECTOR(0x02), RAVEN(0x04), GEITZ(0x05), GUY(0x06), KAREL(0x07), DORCAS(0x08), BARTRE(0x09), OSWIN(0x0B), REBECCA(0x0E), LOUISE(0x0F), LUCIUS(0x10), SERRA(0x11), 
@@ -108,6 +115,11 @@ public class FE7Data {
 			}
 			
 			return idArray;
+		}
+		
+		@Override
+		public int getID() {
+			return ID;
 		}
 		
 		public static Comparator<Character> characterIDComparator() {
@@ -170,7 +182,7 @@ public class FE7Data {
 			return allBossCharacters.contains(this);
 		}
 		
-		public Boolean isPlayableCharacter() {
+		public Boolean isPlayable() {
 			return allPlayableCharacters.contains(this);
 		}
 		
@@ -186,15 +198,8 @@ public class FE7Data {
 			return charactersThatRequireMelee.contains(this);
 		}
 		
-		public Boolean hasLimitedClasses() {
+		public Boolean isClassLimited() {
 			return restrictedClassCharacters.contains(this);
-		}
-		
-		public static Map<Integer, Character> getCharacterCounters() {
-			Map<Integer, Character> counterMap = new HashMap<Integer, Character>();
-			counterMap.put(BATTA.ID, LYN_TUTORIAL);
-			counterMap.put(WIRE.ID, HECTOR);
-			return counterMap;
 		}
 		
 		public static Set<Character> allLinkedCharactersFor(Character character) {
@@ -1560,5 +1565,76 @@ public class FE7Data {
 		public static PaletteInfo defaultPaletteForClass(int classID) {
 			return defaultPaletteForClass.get(classID);
 		}
+	}
+	
+	// Character Provider Methods
+
+	@Override
+	public long characterDataTablePointer() {
+		return CharacterTablePointer;
+	}
+
+	@Override
+	public int numberOfCharacters() {
+		return NumberOfCharacters;
+	}
+
+	@Override
+	public int bytesPerCharacter() {
+		return BytesPerCharacter;
+	}
+
+	@Override
+	public GBAFECharacter[] allCharacters() {
+		return Character.values();
+	}
+
+	@Override
+	public Map<Integer, GBAFECharacter> counters() {
+		Map<Integer, GBAFECharacter> counterMap = new HashMap<Integer, GBAFECharacter>();
+		counterMap.put(Character.BATTA.ID, Character.LYN_TUTORIAL);
+		counterMap.put(Character.WIRE.ID, Character.HECTOR);
+		return counterMap;
+	}
+
+	@Override
+	public Set<GBAFECharacter> allPlayableCharacters() {
+		return new HashSet<GBAFECharacter>(Character.allPlayableCharacters);
+	}
+
+	@Override
+	public Set<GBAFECharacter> allBossCharacters() {
+		return new HashSet<GBAFECharacter>(Character.allBossCharacters);
+	}
+
+	@Override
+	public Set<GBAFECharacter> linkedCharacters(int characterID) {
+		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
+	}
+	
+	@Override
+	public GBAFECharacter characterWithID(int characterID) {
+		return Character.valueOf(characterID);
+	}
+
+	@Override
+	public int[] affinityValues() {
+		int[] values = new int[FE7Character.Affinity.values().length];
+		int i = 0;
+		for (FE7Character.Affinity affinity : FE7Character.Affinity.values()) {
+			values[i++] = affinity.value;
+		}
+		
+		return values;
+	}
+
+	@Override
+	public int canonicalID(int characterID) {
+		return Character.canonicalIDForCharacterID(characterID);
+	}
+
+	@Override
+	public GBAFECharacterData characterDataWithData(byte[] data, long offset, Boolean hasLimitedClasses) {
+		return new FE7Character(data, offset, hasLimitedClasses);
 	}
 }

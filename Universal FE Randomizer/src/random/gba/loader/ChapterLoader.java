@@ -1,11 +1,11 @@
 package random.gba.loader;
 
-import fedata.gba.GBAFEChapter;
-import fedata.gba.GBAFEChapterItem;
-import fedata.gba.GBAFEChapterUnit;
-import fedata.gba.GBAFECharacter;
-import fedata.gba.GBAFEClass;
-import fedata.gba.GBAFEItem;
+import fedata.gba.GBAFEChapterData;
+import fedata.gba.GBAFEChapterItemData;
+import fedata.gba.GBAFEChapterUnitData;
+import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEItemData;
 import fedata.gba.fe6.FE6Chapter;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Chapter;
@@ -26,7 +26,7 @@ public class ChapterLoader {
 	
 	private FEBase.GameType gameType;
 	
-	private GBAFEChapter[] chapters;
+	private GBAFEChapterData[] chapters;
 	
 	public static final String RecordKeeperCategoryKey = "Chapters";
 
@@ -37,7 +37,7 @@ public class ChapterLoader {
 		switch (gameType) {
 			case FE6:
 				int numberOfChapters = FE6Data.ChapterPointer.values().length;
-				chapters = new GBAFEChapter[numberOfChapters];
+				chapters = new GBAFEChapterData[numberOfChapters];
 				int i = 0;
 				long baseAddress = FileReadHelper.readAddress(handler, FE6Data.ChapterTablePointer);
 				for (FE6Data.ChapterPointer chapter : FE6Data.ChapterPointer.values()) {
@@ -54,7 +54,7 @@ public class ChapterLoader {
 				break;
 			case FE7:
 				numberOfChapters = FE7Data.ChapterPointer.values().length;
-				chapters = new GBAFEChapter[numberOfChapters];
+				chapters = new GBAFEChapterData[numberOfChapters];
 				i = 0;
 				baseAddress = FileReadHelper.readAddress(handler, FE7Data.ChapterTablePointer);
 				for (FE7Data.ChapterPointer chapter : FE7Data.ChapterPointer.values()) {
@@ -71,7 +71,7 @@ public class ChapterLoader {
 				break;
 			case FE8:
 				numberOfChapters = FE8Data.ChapterPointer.values().length;
-				chapters = new GBAFEChapter[numberOfChapters];
+				chapters = new GBAFEChapterData[numberOfChapters];
 				i = 0;
 				baseAddress = FileReadHelper.readAddress(handler, FE8Data.ChapterTablePointer);
 				for (FE8Data.ChapterPointer chapter : FE8Data.ChapterPointer.values()) {
@@ -84,10 +84,15 @@ public class ChapterLoader {
 						trackedRewardRecipients[index] = chapter.targetedRewardRecipientsToTrack()[index].ID;
 					}
 					
+					int[] unarmedCharacterIDs = new int[chapter.unarmedUnits().length];
+					for (int index = 0; index < chapter.unarmedUnits().length; index++) {
+						unarmedCharacterIDs[index] = chapter.unarmedUnits()[index].ID;
+					}
+					
 					CharacterNudge[] nudges = chapter.nudgesRequired();
 					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE8Chapter fe8Chapter = new FE8Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy(), trackedRewardRecipients, chapter.additionalUnitOffsets(), nudges); 
+					FE8Chapter fe8Chapter = new FE8Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy(), trackedRewardRecipients, unarmedCharacterIDs, chapter.additionalUnitOffsets(), nudges); 
 					chapters[i++] = fe8Chapter;
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe8Chapter.allUnits().length + " characters and " + fe8Chapter.allRewards().length + " rewards");
 				}
@@ -97,40 +102,40 @@ public class ChapterLoader {
 		}
 	}
 	
-	public GBAFEChapter[] allChapters() {
+	public GBAFEChapterData[] allChapters() {
 		switch (gameType) {
 			case FE6:
 			case FE7:
 			case FE8:
 				return chapters;
 			default:
-				return new GBAFEChapter[] {};
+				return new GBAFEChapterData[] {};
 		}
 	}
 	
 	public void commit() {
-		for (GBAFEChapter chapter : chapters) {
+		for (GBAFEChapterData chapter : chapters) {
 			chapter.applyNudges();
-			GBAFEChapterUnit[] units = chapter.allUnits();
-			for (GBAFEChapterUnit unit : units) {
+			GBAFEChapterUnitData[] units = chapter.allUnits();
+			for (GBAFEChapterUnitData unit : units) {
 				unit.commitChanges();
 			}
-			GBAFEChapterItem[] rewards = chapter.allRewards();
-			for (GBAFEChapterItem item : rewards) {
+			GBAFEChapterItemData[] rewards = chapter.allRewards();
+			for (GBAFEChapterItemData item : rewards) {
 				item.commitChanges();
 			}
-			GBAFEChapterItem[] targetedRewards = chapter.allTargetedRewards();
-			for (GBAFEChapterItem item : targetedRewards) {
+			GBAFEChapterItemData[] targetedRewards = chapter.allTargetedRewards();
+			for (GBAFEChapterItemData item : targetedRewards) {
 				item.commitChanges();
 			}
 		}
 	}
 	
 	public void compileDiffs(DiffCompiler compiler) {
-		for (GBAFEChapter chapter : chapters) {
+		for (GBAFEChapterData chapter : chapters) {
 			chapter.applyNudges();
-			GBAFEChapterUnit[] units = chapter.allUnits();
-			for (GBAFEChapterUnit unit : units) {
+			GBAFEChapterUnitData[] units = chapter.allUnits();
+			for (GBAFEChapterUnitData unit : units) {
 				unit.commitChanges();
 				if (unit.hasCommittedChanges()) {
 					byte[] unitData = unit.getData();
@@ -139,8 +144,8 @@ public class ChapterLoader {
 				}
 			}
 			
-			GBAFEChapterItem[] rewards = chapter.allRewards();
-			for (GBAFEChapterItem item : rewards) {
+			GBAFEChapterItemData[] rewards = chapter.allRewards();
+			for (GBAFEChapterItemData item : rewards) {
 				item.commitChanges();
 				if (item.hasCommittedChanges()) {
 					byte[] rewardData = item.getData();
@@ -149,8 +154,8 @@ public class ChapterLoader {
 				}
 			}
 			
-			GBAFEChapterItem[] targetedRewards = chapter.allTargetedRewards();
-			for (GBAFEChapterItem item : targetedRewards) {
+			GBAFEChapterItemData[] targetedRewards = chapter.allTargetedRewards();
+			for (GBAFEChapterItemData item : targetedRewards) {
 				item.commitChanges();
 				if (item.hasCommittedChanges()) {
 					byte[] rewardData = item.getData();
@@ -169,16 +174,16 @@ public class ChapterLoader {
 	}
 	
 	public void recordChapters(RecordKeeper rk, Boolean isInitial, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
-		for (GBAFEChapter chapter : allChapters()) {
+		for (GBAFEChapterData chapter : allChapters()) {
 			recordChapter(rk, isInitial, chapter, charData, classData, itemData, textData);
 		}
 	}
 	
-	private void recordChapter(RecordKeeper rk, Boolean isInitial, GBAFEChapter chapter, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
+	private void recordChapter(RecordKeeper rk, Boolean isInitial, GBAFEChapterData chapter, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
 		String chapterName = WhyDoesJavaNotHaveThese.stringByCapitalizingFirstLetter(chapter.getFriendlyName());
 		
 		int unitCounter = 1;
-		for (GBAFEChapterUnit unit : chapter.allUnits()) {
+		for (GBAFEChapterUnitData unit : chapter.allUnits()) {
 			if (isInitial) {
 				rk.recordOriginalEntry(RecordKeeperCategoryKey, chapterName, "Unit #" + unitCounter, markupForUnit(rk, unit, charData, classData, itemData, textData));
 			} else {
@@ -189,9 +194,9 @@ public class ChapterLoader {
 		
 		int chestCounter = 1;
 		int villageCounter = 1;
-		for (GBAFEChapterItem reward : chapter.allRewards()) {
+		for (GBAFEChapterItemData reward : chapter.allRewards()) {
 			String key;
-			if (reward.getRewardType() == GBAFEChapterItem.Type.CHES) { 
+			if (reward.getRewardType() == GBAFEChapterItemData.Type.CHES) { 
 				key = "Chest #" + chestCounter;
 				chestCounter++;
 			} else {
@@ -199,7 +204,7 @@ public class ChapterLoader {
 				villageCounter++;
 			}
 			
-			GBAFEItem item = itemData.itemWithID(reward.getItemID());
+			GBAFEItemData item = itemData.itemWithID(reward.getItemID());
 			
 			if (isInitial) {
 				rk.recordOriginalEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex()) : "Unknown (0x" + Integer.toHexString(reward.getItemID()).toUpperCase() + ")"));
@@ -208,9 +213,9 @@ public class ChapterLoader {
 			}
 		}
 		
-		for (GBAFEChapterItem targetedReward : chapter.allTargetedRewards()) {
+		for (GBAFEChapterItemData targetedReward : chapter.allTargetedRewards()) {
 			String key = "Targeted Item";
-			GBAFEItem item = itemData.itemWithID(targetedReward.getItemID());
+			GBAFEItemData item = itemData.itemWithID(targetedReward.getItemID());
 			if (isInitial) {
 				rk.recordOriginalEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex()) : "Unknown (0x" + Integer.toHexString(targetedReward.getItemID()).toUpperCase() + ")"));
 			} else {
@@ -219,10 +224,10 @@ public class ChapterLoader {
 		}
 	}
 	
-	private String markupForUnit(RecordKeeper rk, GBAFEChapterUnit chapterUnit, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
+	private String markupForUnit(RecordKeeper rk, GBAFEChapterUnitData chapterUnit, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
 		int characterID = chapterUnit.getCharacterNumber();
-		GBAFECharacter character = charData.characterWithID(characterID);
-		GBAFEClass charClass = classData.classForID(chapterUnit.getStartingClass());
+		GBAFECharacterData character = charData.characterWithID(characterID);
+		GBAFEClassData charClass = classData.classForID(chapterUnit.getStartingClass());
 		StringBuilder sb = new StringBuilder();
 		sb.append("<table>\n");
 		if (character == null) {
@@ -236,10 +241,10 @@ public class ChapterLoader {
 		sb.append("<tr><td>Class</td><td>" + (charClass != null ? textData.getStringAtIndex(charClass.getNameIndex()) + (classData.isFemale(charClass.getID()) ? " (F)" : "") : "Unknown (0x" + Integer.toHexString(chapterUnit.getStartingClass()) + ")") + "</td></tr>\n");
 		sb.append("<tr><td>Loading Coordinates</td><td>(" + chapterUnit.getLoadingX() + ", " + chapterUnit.getLoadingY() + ")</td></tr>\n");
 		sb.append("<tr><td>Starting Coordinates</td><td>(" + chapterUnit.getStartingX() + ", " + chapterUnit.getStartingY() + ")</td></tr>\n");
-		GBAFEItem item1 = itemData.itemWithID(chapterUnit.getItem1());
-		GBAFEItem item2 = itemData.itemWithID(chapterUnit.getItem2());
-		GBAFEItem item3 = itemData.itemWithID(chapterUnit.getItem3());
-		GBAFEItem item4 = itemData.itemWithID(chapterUnit.getItem4());
+		GBAFEItemData item1 = itemData.itemWithID(chapterUnit.getItem1());
+		GBAFEItemData item2 = itemData.itemWithID(chapterUnit.getItem2());
+		GBAFEItemData item3 = itemData.itemWithID(chapterUnit.getItem3());
+		GBAFEItemData item4 = itemData.itemWithID(chapterUnit.getItem4());
 		
 		sb.append("<tr><td>Item 1</td><td>" + (item1 != null ? textData.getStringAtIndex(item1.getNameIndex()) : (chapterUnit.getItem1() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem1()).toUpperCase() + ")" : "")) + "</td></tr>\n");
 		sb.append("<tr><td>Item 2</td><td>" + (item2 != null ? textData.getStringAtIndex(item2.getNameIndex()) : (chapterUnit.getItem2() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem2()).toUpperCase() + ")" : "")) + "</td></tr>\n");

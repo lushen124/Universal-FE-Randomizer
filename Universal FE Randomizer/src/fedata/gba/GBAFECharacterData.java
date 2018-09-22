@@ -1,6 +1,6 @@
 package fedata.gba;
 
-public interface GBAFECharacter extends GBAFEModifiableObject {
+public interface GBAFECharacterData extends GBAFEModifiableData {
 	
 	public Boolean isClassRestricted();
 	

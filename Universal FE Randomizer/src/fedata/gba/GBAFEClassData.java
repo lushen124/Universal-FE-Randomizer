@@ -2,7 +2,7 @@ package fedata.gba;
 
 import fedata.gba.general.WeaponRank;
 
-public interface GBAFEClass extends GBAFEModifiableObject {
+public interface GBAFEClassData extends GBAFEModifiableData {
 	
 	// Info
 	

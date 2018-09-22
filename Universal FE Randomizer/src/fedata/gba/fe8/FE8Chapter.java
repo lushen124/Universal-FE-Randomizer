@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fedata.gba.GBAFEChapter;
-import fedata.gba.GBAFEChapterItem;
-import fedata.gba.GBAFEChapterUnit;
+import fedata.gba.GBAFEChapterData;
+import fedata.gba.GBAFEChapterItemData;
+import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.general.CharacterNudge;
 import io.FileHandler;
 import util.DebugPrinter;
 import util.FileReadHelper;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE8Chapter implements GBAFEChapter {
+public class FE8Chapter implements GBAFEChapterData {
 	
 	private String friendlyName;
 	
@@ -50,13 +50,15 @@ public class FE8Chapter implements GBAFEChapter {
 	private Map<Integer, FE8ChapterItem> targetedChapterRewards;
 	private Set<Integer> targetRewardRecipients;
 	
+	private Set<Integer> unarmedCharacterIDs;
+	
 	private Set<Integer> blacklistedClassIDs;
 	@SuppressWarnings("unused")
 	private Set<Long> fightEventOffsets;
 	
 	private CharacterNudge[] nudges;
 	
-	public FE8Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, int[] targetedRewardRecipientsToTrack, long[] additionalUnitOffsets, CharacterNudge[] nudgesRequired) {
+	public FE8Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, int[] targetedRewardRecipientsToTrack, int[] unarmedCharacters, long[] additionalUnitOffsets, CharacterNudge[] nudgesRequired) {
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
 		for (int classID : blacklistedClassIDs) {
@@ -67,6 +69,9 @@ public class FE8Chapter implements GBAFEChapter {
 		
 		targetRewardRecipients = new HashSet<Integer>();
 		for (int recipient : targetedRewardRecipientsToTrack) { targetRewardRecipients.add(recipient); }
+		
+		unarmedCharacterIDs = new HashSet<Integer>();
+		for (int unarmedChar : unarmedCharacters) { unarmedCharacterIDs.add(unarmedChar); }
 				
 		// We need one jump.
 		long pointerTableOffset = FileReadHelper.readAddress(handler, pointer);
@@ -121,8 +126,8 @@ public class FE8Chapter implements GBAFEChapter {
 	}
 
 	@Override
-	public GBAFEChapterUnit[] allUnits() {
-		return allChapterUnits.toArray(new GBAFEChapterUnit[allChapterUnits.size()]);
+	public GBAFEChapterUnitData[] allUnits() {
+		return allChapterUnits.toArray(new GBAFEChapterUnitData[allChapterUnits.size()]);
 	}
 
 	@Override
@@ -131,11 +136,11 @@ public class FE8Chapter implements GBAFEChapter {
 	}
 
 	@Override
-	public GBAFEChapterItem[] allRewards() {
-		return allChapterRewards.toArray(new GBAFEChapterItem[allChapterRewards.size()]);
+	public GBAFEChapterItemData[] allRewards() {
+		return allChapterRewards.toArray(new GBAFEChapterItemData[allChapterRewards.size()]);
 	}
 	
-	public GBAFEChapterItem[] allTargetedRewards() {
+	public GBAFEChapterItemData[] allTargetedRewards() {
 		Collection<FE8ChapterItem> collection = targetedChapterRewards.values();
 		return collection.toArray(new FE8ChapterItem[collection.size()]);
 	}
@@ -168,10 +173,15 @@ public class FE8Chapter implements GBAFEChapter {
 		return shouldBeSimplified;
 	}
 	
+	@Override
+	public Boolean shouldCharacterBeUnarmed(int characterID) {
+		return unarmedCharacterIDs.contains(characterID);
+	}
+	
 	public void applyNudges() {
 		if (nudges == null) { return; }
 		for (CharacterNudge nudge : nudges) {
-			for (GBAFEChapterUnit unit : allUnits()) {
+			for (GBAFEChapterUnitData unit : allUnits()) {
 				if (unit.getCharacterNumber() == nudge.getCharacterID() && unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getStartingX() + ", " + unit.getStartingY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
 					unit.setStartingX(nudge.getNewX());
@@ -515,7 +525,7 @@ public class FE8Chapter implements GBAFEChapter {
 		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Finished searching for rewards at 0x" + Long.toHexString(currentAddress));
 	}
 	
-	public GBAFEChapterItem chapterItemGivenToCharacter(int characterID) {
+	public GBAFEChapterItemData chapterItemGivenToCharacter(int characterID) {
 		return targetedChapterRewards.get(characterID);
 	}
 }

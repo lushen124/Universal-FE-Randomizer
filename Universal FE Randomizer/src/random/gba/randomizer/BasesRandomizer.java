@@ -2,8 +2,8 @@ package random.gba.randomizer;
 
 import java.util.Random;
 
-import fedata.gba.GBAFECharacter;
-import fedata.gba.GBAFEClass;
+import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEClassData;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import util.WhyDoesJavaNotHaveThese;
@@ -13,13 +13,13 @@ public class BasesRandomizer {
 	public static int rngSalt = 9001;
 	
 	public static void randomizeBasesByRedistribution(int variance, CharacterDataLoader charactersData, ClassDataLoader classData, Random rng) {
-		GBAFECharacter[] allPlayableCharacters = charactersData.playableCharacters();
-		for (GBAFECharacter character : allPlayableCharacters) {
+		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
+		for (GBAFECharacterData character : allPlayableCharacters) {
 			int baseTotal = character.getBaseHP() + character.getBaseSTR() + character.getBaseSKL() + character.getBaseSPD() + character.getBaseDEF() +
 					character.getBaseRES() + character.getBaseLCK();
 			
 			int classID = character.getClassID();
-			GBAFEClass charClass = classData.classForID(classID);
+			GBAFEClassData charClass = classData.classForID(classID);
 			
 			int randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
@@ -115,11 +115,11 @@ public class BasesRandomizer {
 	}
 	
 	public static void randomizeBasesByRandomDelta(int maxDelta, CharacterDataLoader charactersData, ClassDataLoader classData, Random rng) {
-		GBAFECharacter[] allPlayableCharacters = charactersData.playableCharacters();
-		for (GBAFECharacter character : allPlayableCharacters) {
+		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
+		for (GBAFECharacterData character : allPlayableCharacters) {
 			
 			int classID = character.getClassID();
-			GBAFEClass charClass = classData.classForID(classID);
+			GBAFEClassData charClass = classData.classForID(classID);
 			
 			int newHPBase = character.getBaseHP();
 			int newSTRBase = character.getBaseSTR();

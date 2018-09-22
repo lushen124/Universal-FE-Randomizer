@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import fedata.gba.GBAFEItem;
+import fedata.gba.GBAFEItemData;
 import fedata.gba.general.WeaponEffects;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
@@ -16,9 +16,9 @@ public class WeaponsRandomizer {
 	static final int rngSalt = 64;
 	
 	public static void randomizeMights(int minMT, int maxMT, int variance, ItemDataLoader itemsData, Random rng) {
-		GBAFEItem[] allWeapons = itemsData.getAllWeapons();
+		GBAFEItemData[] allWeapons = itemsData.getAllWeapons();
 		
-		for (GBAFEItem weapon : allWeapons) {
+		for (GBAFEItemData weapon : allWeapons) {
 			int originalMight = weapon.getMight();
 			int newMight = originalMight;
 			int randomNum = rng.nextInt(2);
@@ -35,9 +35,9 @@ public class WeaponsRandomizer {
 	}
 	
 	public static void randomizeHit(int minHit, int maxHit, int variance, ItemDataLoader itemsData, Random rng) {
-		GBAFEItem[] allWeapons = itemsData.getAllWeapons();
+		GBAFEItemData[] allWeapons = itemsData.getAllWeapons();
 		
-		for (GBAFEItem weapon : allWeapons) {
+		for (GBAFEItemData weapon : allWeapons) {
 			int originalHit = weapon.getHit();
 			int newHit = originalHit;
 			int randomNum = rng.nextInt(2);
@@ -54,9 +54,9 @@ public class WeaponsRandomizer {
 	}
 	
 	public static void randomizeDurability(int minDurability, int maxDurability, int variance, ItemDataLoader itemsData, Random rng) {
-		GBAFEItem[] allWeapons = itemsData.getAllWeapons();
+		GBAFEItemData[] allWeapons = itemsData.getAllWeapons();
 		
-		for (GBAFEItem weapon : allWeapons) {
+		for (GBAFEItemData weapon : allWeapons) {
 			int originalDurability = weapon.getDurability();
 			int newDurability = originalDurability;
 			int randomNum = rng.nextInt(2);
@@ -78,9 +78,9 @@ public class WeaponsRandomizer {
 	}
 	
 	public static void randomizeWeight(int minWT, int maxWT, int variance, ItemDataLoader itemsData, Random rng) {
-		GBAFEItem[] allWeapons = itemsData.getAllWeapons();
+		GBAFEItemData[] allWeapons = itemsData.getAllWeapons();
 		
-		for (GBAFEItem weapon : allWeapons) {
+		for (GBAFEItemData weapon : allWeapons) {
 			int originalWeight = weapon.getWeight();
 			int newWeight = originalWeight;
 			int randomNum = rng.nextInt(2);
@@ -97,7 +97,7 @@ public class WeaponsRandomizer {
 	}
 	
 	public static void randomizeEffects(WeaponEffectOptions effectOptions, ItemDataLoader itemsData, TextLoader textData, Boolean ignoreIronWeapons, Random rng) {
-		GBAFEItem[] allWeapons = itemsData.getAllWeapons();
+		GBAFEItemData[] allWeapons = itemsData.getAllWeapons();
 		
 		Set<WeaponEffects> enabledEffects = new HashSet<WeaponEffects>();
 		
@@ -114,7 +114,7 @@ public class WeaponsRandomizer {
 		if (effectOptions.eclipse) { enabledEffects.add(WeaponEffects.HALF_HP); }
 		if (effectOptions.devil) { enabledEffects.add(WeaponEffects.DEVIL); }
 		
-		for (GBAFEItem weapon : allWeapons) {
+		for (GBAFEItemData weapon : allWeapons) {
 			if (ignoreIronWeapons && itemsData.isBasicWeapon(weapon.getID())) { continue; }
 			weapon.applyRandomEffect(enabledEffects, itemsData, textData, itemsData.spellAnimations, rng);
 		}

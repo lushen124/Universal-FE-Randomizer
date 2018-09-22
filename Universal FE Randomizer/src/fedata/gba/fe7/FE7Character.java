@@ -3,10 +3,10 @@ package fedata.gba.fe7;
 import java.util.HashMap;
 import java.util.Map;
 
-import fedata.gba.GBAFECharacter;
+import fedata.gba.GBAFECharacterData;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE7Character implements GBAFECharacter {
+public class FE7Character implements GBAFECharacterData {
 	
 	public enum Affinity {
 		NONE(0x00), FIRE(0x01), THUNDER(0x02), WIND(0x03), WATER(0x04), DARK(0x05), LIGHT(0x06), ANIMA(0x07);

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import fedata.gba.GBAFEItem;
+import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.fe6.FE6Data.Item.Ability1Mask;
 import fedata.gba.fe6.FE6Data.Item.Ability2Mask;
@@ -21,7 +21,7 @@ import random.gba.loader.TextLoader;
 import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE6Item implements GBAFEItem {
+public class FE6Item implements GBAFEItemData {
 	
 	private byte[] originalData;
 	private byte[] data;

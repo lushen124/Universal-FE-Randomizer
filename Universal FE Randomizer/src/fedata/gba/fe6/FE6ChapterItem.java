@@ -1,8 +1,8 @@
 package fedata.gba.fe6;
 
-import fedata.gba.GBAFEChapterItem;
+import fedata.gba.GBAFEChapterItemData;
 
-public class FE6ChapterItem implements GBAFEChapterItem {
+public class FE6ChapterItem implements GBAFEChapterItemData {
 	
 	private byte[] originalData;
 	private byte[] data;

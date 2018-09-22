@@ -1,10 +1,10 @@
 package fedata.gba.fe7;
 
-import fedata.gba.GBAFEClass;
+import fedata.gba.GBAFEClassData;
 import fedata.gba.general.WeaponRank;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE7Class implements GBAFEClass {
+public class FE7Class implements GBAFEClassData {
 	
 	private byte[] originalData;
 	private byte[] data;

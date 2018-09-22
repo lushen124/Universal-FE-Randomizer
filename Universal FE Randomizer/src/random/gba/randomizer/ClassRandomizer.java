@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import fedata.gba.GBAFEChapter;
-import fedata.gba.GBAFEChapterItem;
-import fedata.gba.GBAFEChapterUnit;
-import fedata.gba.GBAFECharacter;
-import fedata.gba.GBAFEClass;
-import fedata.gba.GBAFEItem;
+import fedata.gba.GBAFEChapterData;
+import fedata.gba.GBAFEChapterItemData;
+import fedata.gba.GBAFEChapterUnitData;
+import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEItemData;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase.GameType;
@@ -32,8 +32,8 @@ public class ClassRandomizer {
 	static final int rngSalt = 874;
 	
 	public static void randomizeClassMovement(int minMOV, int maxMOV, ClassDataLoader classData, Random rng) {
-		GBAFEClass[] allClasses = classData.allClasses();
-		for (GBAFEClass currentClass : allClasses) {
+		GBAFEClassData[] allClasses = classData.allClasses();
+		for (GBAFEClassData currentClass : allClasses) {
 			if (currentClass.getMOV() > 0) {
 				int randomMOV = rng.nextInt(maxMOV - minMOV) + minMOV;
 				currentClass.setMOV(randomMOV);
@@ -42,8 +42,8 @@ public class ClassRandomizer {
 	}
 	
 	public static void randomizePlayableCharacterClasses(ClassOptions options, GameType type, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData, TextLoader textData, Random rng) {
-		GBAFECharacter[] allPlayableCharacters = charactersData.playableCharacters();
-		Map<Integer, GBAFEClass> determinedClasses = new HashMap<Integer, GBAFEClass>();
+		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
+		Map<Integer, GBAFEClassData> determinedClasses = new HashMap<Integer, GBAFEClassData>();
 		
 		Boolean includeLords = options.includeLords;
 		Boolean includeThieves = options.includeThieves;
@@ -54,7 +54,7 @@ public class ClassRandomizer {
 			separateMonsters = options.separateMonsters;
 		}
 		
-		for (GBAFECharacter character : allPlayableCharacters) {
+		for (GBAFECharacterData character : allPlayableCharacters) {
 			
 			Boolean isLordCharacter = charactersData.isLordCharacterID(character.getID());
 			Boolean isThiefCharacter = charactersData.isThiefCharacterID(character.getID());
@@ -68,14 +68,14 @@ public class ClassRandomizer {
 			Boolean characterRequiresMelee = charactersData.characterIDRequiresMelee(character.getID());
 			
 			int originalClassID = character.getClassID();
-			GBAFEClass originalClass = classData.classForID(originalClassID);
+			GBAFEClassData originalClass = classData.classForID(originalClassID);
 			
-			GBAFEClass targetClass = null;
+			GBAFEClassData targetClass = null;
 			
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {
-				GBAFEClass[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
+				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
 					classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null);
 				if (possibleClasses.length == 0) {
 					continue;
@@ -91,7 +91,7 @@ public class ClassRandomizer {
 			
 			DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Assigning character 0x" + Integer.toHexString(character.getID()).toUpperCase() + " (" + textData.getStringAtIndex(character.getNameIndex()) + ") to class 0x" + Integer.toHexString(targetClass.getID()) + " (" + textData.getStringAtIndex(targetClass.getNameIndex()) + ")");
 			
-			for (GBAFECharacter linked : charactersData.linkedCharactersForCharacter(character)) {
+			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, false, rng);
 				if (isLordCharacter) {
@@ -132,7 +132,7 @@ public class ClassRandomizer {
 	}
 	
 	public static void randomizeBossCharacterClasses(ClassOptions options, GameType type, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData, TextLoader textData, Random rng) {
-		GBAFECharacter[] allBossCharacters = charactersData.bossCharacters();
+		GBAFECharacterData[] allBossCharacters = charactersData.bossCharacters();
 		
 		Boolean includeLords = false;
 		Boolean includeThieves = false;
@@ -143,9 +143,9 @@ public class ClassRandomizer {
 			separateMonsters = options.separateMonsters;
 		}
 		
-		Map<Integer, GBAFEClass> determinedClasses = new HashMap<Integer, GBAFEClass>();
+		Map<Integer, GBAFEClassData> determinedClasses = new HashMap<Integer, GBAFEClassData>();
 		
-		for (GBAFECharacter character : allBossCharacters) {
+		for (GBAFECharacterData character : allBossCharacters) {
 			
 			Boolean canChange = charactersData.canChangeCharacterID(character.getID());
 			if (!canChange) { continue; }
@@ -154,27 +154,27 @@ public class ClassRandomizer {
 			Boolean characterRequiresMelee = charactersData.characterIDRequiresMelee(character.getID());
 			
 			int originalClassID = character.getClassID();
-			GBAFEClass originalClass = classData.classForID(originalClassID);
+			GBAFEClassData originalClass = classData.classForID(originalClassID);
 			if (originalClass == null) {
 				System.err.println("Invalid Class found: Class ID = " + Integer.toHexString(originalClassID));
 				continue;
 			}
 			
-			GBAFEClass targetClass = null;
+			GBAFEClassData targetClass = null;
 			
 			Boolean forceBasicWeaponry = false;
 			
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {			
-				GBAFECharacter mustLoseToCharacter = charactersData.characterRequiresCounterToCharacter(character);
-				GBAFEClass mustLoseToClass = null;
+				GBAFECharacterData mustLoseToCharacter = charactersData.characterRequiresCounterToCharacter(character);
+				GBAFEClassData mustLoseToClass = null;
 				if (mustLoseToCharacter != null) {
 					mustLoseToClass = classData.classForID(mustLoseToCharacter.getClassID());
 					forceBasicWeaponry = true;
 				}
 				
-				GBAFEClass[] possibleClasses = hasMonsters ? 
+				GBAFEClassData[] possibleClasses = hasMonsters ? 
 						classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass) :
 					classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass);
 				if (possibleClasses.length == 0) {
@@ -189,7 +189,7 @@ public class ClassRandomizer {
 				continue;
 			}
 			
-			for (GBAFECharacter linked : charactersData.linkedCharactersForCharacter(character)) {
+			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
 			}
@@ -212,10 +212,10 @@ public class ClassRandomizer {
 			separateMonsters = options.separateMonsters;
 		}
 		
-		for (GBAFEChapter chapter : chapterData.allChapters()) {
-			GBAFECharacter lordCharacter = charactersData.characterWithID(chapter.lordLeaderID());
-			GBAFEClass lordClass = classData.classForID(lordCharacter.getClassID());
-			for (GBAFEChapterUnit chapterUnit : chapter.allUnits()) {
+		for (GBAFEChapterData chapter : chapterData.allChapters()) {
+			GBAFECharacterData lordCharacter = charactersData.characterWithID(chapter.lordLeaderID());
+			GBAFEClassData lordClass = classData.classForID(lordCharacter.getClassID());
+			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
 				// int leaderID = chapterUnit.getLeaderID();
 				int characterID = chapterUnit.getCharacterNumber();
 				int classID = chapterUnit.getStartingClass();
@@ -225,7 +225,7 @@ public class ClassRandomizer {
 				// Finally, also make sure the starting class is valid. Classes we don't recognize, we shouldn't touch.
 				if (!charactersData.isBossCharacterID(characterID) && /*charactersData.isBossCharacterID(leaderID) &&*/ !charactersData.isPlayableCharacterID(characterID) && 
 						charactersData.canChangeCharacterID(characterID) && classData.isValidClass(classID)) {
-					GBAFEClass originalClass = classData.classForID(classID);
+					GBAFEClassData originalClass = classData.classForID(classID);
 					if (originalClass == null) {
 						continue;
 					}
@@ -236,8 +236,8 @@ public class ClassRandomizer {
 					
 					Boolean shouldRestrictToSafeClasses = !chapter.isClassSafe();
 					Boolean shouldMakeEasy = chapter.shouldBeSimplified();
-					GBAFEClass loseToClass = shouldMakeEasy ? lordClass : null;
-					GBAFEClass[] possibleClasses = hasMonsters ? 
+					GBAFEClassData loseToClass = shouldMakeEasy ? lordClass : null;
+					GBAFEClassData[] possibleClasses = hasMonsters ? 
 							classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, false, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
 						classData.potentialClasses(originalClass, false, false, false, true, false, false, shouldRestrictToSafeClasses, loseToClass);
 					if (possibleClasses.length == 0) {
@@ -245,7 +245,7 @@ public class ClassRandomizer {
 					}
 					
 					int randomIndex = rng.nextInt(possibleClasses.length);
-					GBAFEClass targetClass = possibleClasses[randomIndex];
+					GBAFEClassData targetClass = possibleClasses[randomIndex];
 					
 					updateMinionToClass(chapterUnit, targetClass, classData, itemData, rng);
 				}
@@ -253,21 +253,21 @@ public class ClassRandomizer {
 		}
 	}
 
-	private static void updateCharacterToClass(GBAFECharacter character, GBAFEClass sourceClass, GBAFEClass targetClass, Boolean ranged, Boolean melee, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasicWeapons, Random rng) {
+	private static void updateCharacterToClass(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Boolean ranged, Boolean melee, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasicWeapons, Random rng) {
 		
 		character.prepareForClassRandomization();
 		character.setClassID(targetClass.getID());
 		transferWeaponLevels(character, sourceClass, targetClass, rng);
 		applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
 		
-		for (GBAFEChapter chapter : chapterData.allChapters()) {
-			GBAFEChapterItem reward = chapter.chapterItemGivenToCharacter(character.getID());
+		for (GBAFEChapterData chapter : chapterData.allChapters()) {
+			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(character.getID());
 			if (reward != null) {
-				GBAFEItem item = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+				GBAFEItemData item = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				reward.setItemID(item.getID());
 			}
 			
-			for (GBAFEChapterUnit chapterUnit : chapter.allUnits()) {
+			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
 				if (chapterUnit.getCharacterNumber() == character.getID()) {
 					if (chapterUnit.getStartingClass() != sourceClass.getID()) {
 						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass());
@@ -283,7 +283,7 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void applyBaseCorrectionForCharacter(GBAFECharacter character, GBAFEClass sourceClass, GBAFEClass targetClass) {
+	private static void applyBaseCorrectionForCharacter(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass) {
 		int hpDelta = sourceClass.getBaseHP() - targetClass.getBaseHP();
 		character.setBaseHP(character.getBaseHP() + hpDelta);
 		int strDelta = sourceClass.getBaseSTR() - targetClass.getBaseSTR();
@@ -298,7 +298,7 @@ public class ClassRandomizer {
 		character.setBaseRES(character.getBaseRES() + resDelta);
 	}
 	
-	private static void updateMinionToClass(GBAFEChapterUnit chapterUnit, GBAFEClass targetClass, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
+	private static void updateMinionToClass(GBAFEChapterUnitData chapterUnit, GBAFEClassData targetClass, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Updating minion from class 0x" + Integer.toHexString(chapterUnit.getStartingClass()) + " to class 0x" + Integer.toHexString(targetClass.getID()));
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Starting Inventory: [0x" + Integer.toHexString(chapterUnit.getItem1()) + ", 0x" + Integer.toHexString(chapterUnit.getItem2()) + ", 0x" + Integer.toHexString(chapterUnit.getItem3()) + ", 0x" + Integer.toHexString(chapterUnit.getItem4()) + "]");
 		chapterUnit.setStartingClass(targetClass.getID());
@@ -306,26 +306,26 @@ public class ClassRandomizer {
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Minion update complete. Inventory: [0x" + Integer.toHexString(chapterUnit.getItem1()) + ", 0x" + Integer.toHexString(chapterUnit.getItem2()) + ", 0x" + Integer.toHexString(chapterUnit.getItem3()) + ", 0x" + Integer.toHexString(chapterUnit.getItem4()) + "]");
 	}
 	
-	private static void validateFormerThiefInventory(GBAFEChapterUnit chapterUnit, ItemDataLoader itemData) {
-		GBAFEItem[] requiredItems = itemData.formerThiefInventory();
+	private static void validateFormerThiefInventory(GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData) {
+		GBAFEItemData[] requiredItems = itemData.formerThiefInventory();
 		if (requiredItems != null) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);
 		}
 		
-		GBAFEItem[] thiefItemsToRemove = itemData.thiefItemsToRemove();
-		for (GBAFEItem item : thiefItemsToRemove) {
+		GBAFEItemData[] thiefItemsToRemove = itemData.thiefItemsToRemove();
+		for (GBAFEItemData item : thiefItemsToRemove) {
 			chapterUnit.removeItem(item.getID());
 		}
 	}
 	
-	private static void validateSpecialClassInventory(GBAFECharacter character, GBAFEChapterUnit chapterUnit, ItemDataLoader itemData, Random rng) {
-		GBAFEItem[] requiredItems = itemData.specialInventoryForClass(chapterUnit.getStartingClass(), rng);
+	private static void validateSpecialClassInventory(GBAFECharacterData character, GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData, Random rng) {
+		GBAFEItemData[] requiredItems = itemData.specialInventoryForClass(chapterUnit.getStartingClass(), rng);
 		if (requiredItems != null && requiredItems.length > 0) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);
 		}
 	}
 	
-	private static void giveItemsToChapterUnit(GBAFEChapterUnit chapterUnit, GBAFEItem[] items) {
+	private static void giveItemsToChapterUnit(GBAFEChapterUnitData chapterUnit, GBAFEItemData[] items) {
 		int[] requiredItemIDs = new int[items.length];
 		for (int i = 0; i < items.length; i++) {
 			requiredItemIDs[i] = items[i].getID();
@@ -333,15 +333,15 @@ public class ClassRandomizer {
 		chapterUnit.giveItems(requiredItemIDs);
 	}
 	
-	private static void validateMinionInventory(GBAFEChapterUnit chapterUnit, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
+	private static void validateMinionInventory(GBAFEChapterUnitData chapterUnit, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
 		int classID = chapterUnit.getStartingClass();
-		GBAFEClass unitClass = classData.classForID(classID);
+		GBAFEClassData unitClass = classData.classForID(classID);
 		if (unitClass != null) {
 			int item1ID = chapterUnit.getItem1();
-			GBAFEItem item1 = itemData.itemWithID(item1ID);
+			GBAFEItemData item1 = itemData.itemWithID(item1ID);
 			if (itemData.isWeapon(item1)) {
 				if (!classData.canClassUseItem(item1ID, unitClass)) {
-					GBAFEItem replacementItem = itemData.getSidegradeWeapon(unitClass, item1, rng);
+					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item1, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem1(replacementItem.getID());
 					} else {
@@ -351,10 +351,10 @@ public class ClassRandomizer {
 			}
 			
 			int item2ID = chapterUnit.getItem2();
-			GBAFEItem item2 = itemData.itemWithID(item2ID);
+			GBAFEItemData item2 = itemData.itemWithID(item2ID);
 			if (itemData.isWeapon(item2)) {
 				if (!classData.canClassUseItem(item2ID, unitClass)) {
-					GBAFEItem replacementItem = itemData.getSidegradeWeapon(unitClass, item2, rng);
+					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item2, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem2(replacementItem.getID());
 					} else {
@@ -364,10 +364,10 @@ public class ClassRandomizer {
 			}
 			
 			int item3ID = chapterUnit.getItem3();
-			GBAFEItem item3 = itemData.itemWithID(item3ID);
+			GBAFEItemData item3 = itemData.itemWithID(item3ID);
 			if (itemData.isWeapon(item3)) {
 				if (!classData.canClassUseItem(item3ID, unitClass)) {
-					GBAFEItem replacementItem = itemData.getSidegradeWeapon(unitClass, item3, rng);
+					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item3, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem3(replacementItem.getID());
 					} else {
@@ -377,10 +377,10 @@ public class ClassRandomizer {
 			}
 			
 			int item4ID = chapterUnit.getItem4();
-			GBAFEItem item4 = itemData.itemWithID(item4ID);
+			GBAFEItemData item4 = itemData.itemWithID(item4ID);
 			if (itemData.isWeapon(item1)) {
 				if (!classData.canClassUseItem(item4ID, unitClass)) {
-					GBAFEItem replacementItem = itemData.getSidegradeWeapon(unitClass, item4, rng);
+					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item4, rng);
 					if (replacementItem != null) {
 						chapterUnit.setItem4(replacementItem.getID());
 					} else {
@@ -391,19 +391,19 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void validateCharacterInventory(GBAFECharacter character, GBAFEClass charClass, GBAFEChapterUnit chapterUnit, Boolean ranged, Boolean melee, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, Random rng) {
+	private static void validateCharacterInventory(GBAFECharacterData character, GBAFEClassData charClass, GBAFEChapterUnitData chapterUnit, Boolean ranged, Boolean melee, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, Random rng) {
 		int item1ID = chapterUnit.getItem1();
-		GBAFEItem item1 = itemData.itemWithID(item1ID);
+		GBAFEItemData item1 = itemData.itemWithID(item1ID);
 		int item2ID = chapterUnit.getItem2();
-		GBAFEItem item2 = itemData.itemWithID(item2ID);
+		GBAFEItemData item2 = itemData.itemWithID(item2ID);
 		int item3ID = chapterUnit.getItem3();
-		GBAFEItem item3 = itemData.itemWithID(item3ID);
+		GBAFEItemData item3 = itemData.itemWithID(item3ID);
 		int item4ID = chapterUnit.getItem4();
-		GBAFEItem item4 = itemData.itemWithID(item4ID);
+		GBAFEItemData item4 = itemData.itemWithID(item4ID);
 		
-		GBAFEItem[] prfWeapons = itemData.prfWeaponsForClass(character.getClassID());
+		GBAFEItemData[] prfWeapons = itemData.prfWeaponsForClass(character.getClassID());
 		Set<Integer> prfIDs = new HashSet<Integer>();
-		for (GBAFEItem prfWeapon : prfWeapons) {
+		for (GBAFEItemData prfWeapon : prfWeapons) {
 			prfIDs.add(prfWeapon.getID());
 		}
 		
@@ -418,9 +418,9 @@ public class ClassRandomizer {
 		
 		if (itemData.isWeapon(item1)) {
 			if (!canCharacterUseItem(character, item1, itemData) || (item1.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item1ID))) {
-				GBAFEItem replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+				GBAFEItemData replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item1.getWeaponRank() == WeaponRank.S) {
-					GBAFEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
+					GBAFEItemData[] topWeapons = topRankWeaponsForClass(charClass, itemData);
 					if (topWeapons.length > 0) {
 						replacementItem = topWeapons[rng.nextInt(topWeapons.length)];
 					}
@@ -440,9 +440,9 @@ public class ClassRandomizer {
 		
 		if (itemData.isWeapon(item2)) {
 			if (!canCharacterUseItem(character, item2, itemData) || (item2.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item2ID))) {
-				GBAFEItem replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+				GBAFEItemData replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item2.getWeaponRank() == WeaponRank.S) {
-					GBAFEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
+					GBAFEItemData[] topWeapons = topRankWeaponsForClass(charClass, itemData);
 					if (topWeapons.length > 0) {
 						replacementItem = topWeapons[rng.nextInt(topWeapons.length)];
 					}
@@ -462,9 +462,9 @@ public class ClassRandomizer {
 		
 		if (itemData.isWeapon(item3)) {
 			if (!canCharacterUseItem(character, item3, itemData) || (item3.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item3ID))) {
-				GBAFEItem replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+				GBAFEItemData replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item3.getWeaponRank() == WeaponRank.S) {
-					GBAFEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
+					GBAFEItemData[] topWeapons = topRankWeaponsForClass(charClass, itemData);
 					if (topWeapons.length > 0) {
 						replacementItem = topWeapons[rng.nextInt(topWeapons.length)];
 					}
@@ -484,9 +484,9 @@ public class ClassRandomizer {
 		
 		if (itemData.isWeapon(item4)) {
 			if (!canCharacterUseItem(character, item4, itemData) || (item4.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item4ID))) {
-				GBAFEItem replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+				GBAFEItemData replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item4.getWeaponRank() == WeaponRank.S) {
-					GBAFEItem[] topWeapons = topRankWeaponsForClass(charClass, itemData);
+					GBAFEItemData[] topWeapons = topRankWeaponsForClass(charClass, itemData);
 					if (topWeapons.length > 0) {
 						replacementItem = topWeapons[rng.nextInt(topWeapons.length)];
 					}
@@ -508,7 +508,7 @@ public class ClassRandomizer {
 			chapterUnit.giveItems(new int[] {itemData.getRandomHealingStaff(itemData.weaponRankFromValue(character.getStaffRank()), rng).getID()});
 		}
 		if (classCanAttack && !hasAtLeastOneWeapon) {
-			GBAFEItem basicWeapon = itemData.getBasicWeaponForCharacter(character, ranged, true, rng);
+			GBAFEItemData basicWeapon = itemData.getBasicWeaponForCharacter(character, ranged, true, rng);
 			if (basicWeapon != null) {
 				chapterUnit.giveItems(new int[] {basicWeapon.getID()});
 			}
@@ -526,8 +526,8 @@ public class ClassRandomizer {
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Final Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex()) + ")") + "]");
 	}
 	
-	private static GBAFEItem[] topRankWeaponsForClass(GBAFEClass characterClass, ItemDataLoader itemData) {
-		ArrayList<GBAFEItem> items = new ArrayList<GBAFEItem>();
+	private static GBAFEItemData[] topRankWeaponsForClass(GBAFEClassData characterClass, ItemDataLoader itemData) {
+		ArrayList<GBAFEItemData> items = new ArrayList<GBAFEItemData>();
 		if (characterClass.getSwordRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.SWORD, WeaponRank.S, false, false, true))); }
 		if (characterClass.getLanceRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.LANCE, WeaponRank.S, false, false, true))); }
 		if (characterClass.getAxeRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.AXE, WeaponRank.S, false, false, true))); }
@@ -537,10 +537,10 @@ public class ClassRandomizer {
 		if (characterClass.getDarkRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.DARK, WeaponRank.S, false, false, true))); }
 		if (characterClass.getStaffRank() > 0) { items.addAll(Arrays.asList(itemData.itemsOfTypeAndEqualRank(WeaponType.STAFF, WeaponRank.S, false, false, true))); }
 		
-		return items.toArray(new GBAFEItem[items.size()]);
+		return items.toArray(new GBAFEItemData[items.size()]);
 	}
 	
-	private static Boolean canCharacterUseItem(GBAFECharacter character, GBAFEItem weapon, ItemDataLoader itemData) {
+	private static Boolean canCharacterUseItem(GBAFECharacterData character, GBAFEItemData weapon, ItemDataLoader itemData) {
 		int weaponRankValue = itemData.weaponRankValueForRank(weapon.getWeaponRank());
 		if ((weapon.getType() == WeaponType.SWORD && character.getSwordRank() >= weaponRankValue) ||
 				(weapon.getType() == WeaponType.LANCE && character.getLanceRank() >= weaponRankValue) ||
@@ -556,7 +556,7 @@ public class ClassRandomizer {
 		return false;
 	}
 	
-	private static void transferWeaponLevels(GBAFECharacter character, GBAFEClass sourceClass, GBAFEClass targetClass, Random rng) {
+	private static void transferWeaponLevels(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Random rng) {
 		ArrayList<Integer> ranks = new ArrayList<Integer>();
 		
 		if (character.getSwordRank() > 0) { ranks.add(character.getSwordRank()); }

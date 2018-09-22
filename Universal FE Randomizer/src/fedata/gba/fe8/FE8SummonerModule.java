@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import fedata.gba.GBAFECharacter;
-import fedata.gba.GBAFEModifiableObject;
+import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEModifiableData;
 import io.FileHandler;
 import random.gba.loader.CharacterDataLoader;
 import util.DebugPrinter;
@@ -48,7 +48,7 @@ public class FE8SummonerModule {
 		}
 	}
 	
-	private class SummonerEntry implements GBAFEModifiableObject {
+	private class SummonerEntry implements GBAFEModifiableData {
 		byte[] originalData;
 		byte[] data;
 		
@@ -185,7 +185,7 @@ public class FE8SummonerModule {
 		DebugPrinter.log(DebugPrinter.Key.FE8_SUMMONER_MODULE, "Validating summoners...");
 		Set<Integer> oldSummonerCharacterIDSet = new HashSet<Integer>(getAllSummonerIDs());
 		for (int characterID : oldSummonerCharacterIDSet) {
-			GBAFECharacter character = charData.characterWithID(characterID);
+			GBAFECharacterData character = charData.characterWithID(characterID);
 			FE8Data.CharacterClass charClass = FE8Data.CharacterClass.valueOf(character.getClassID());
 			if (!(charClass == FE8Data.CharacterClass.SUMMONER || charClass == FE8Data.CharacterClass.SUMMONER_F || 
 					charClass == FE8Data.CharacterClass.SHAMAN || charClass == FE8Data.CharacterClass.SHAMAN_F || 
@@ -196,7 +196,7 @@ public class FE8SummonerModule {
 			}
 		}
 		
-		for (GBAFECharacter character : charData.playableCharacters()) {
+		for (GBAFECharacterData character : charData.playableCharacters()) {
 			FE8Data.CharacterClass charClass = FE8Data.CharacterClass.valueOf(character.getClassID());
 			if ((charClass == FE8Data.CharacterClass.SUMMONER || charClass == FE8Data.CharacterClass.SUMMONER_F || 
 					charClass == FE8Data.CharacterClass.SHAMAN || charClass == FE8Data.CharacterClass.SHAMAN_F || 

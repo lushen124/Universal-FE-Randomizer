@@ -10,14 +10,17 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import fedata.gba.GBAFECharacterData;
 import fedata.gba.general.CharacterNudge;
+import fedata.gba.general.GBAFECharacter;
+import fedata.gba.general.GBAFECharacterProvider;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE8Data {
+public class FE8Data implements GBAFECharacterProvider {
 	public static final String FriendlyName = "Fire Emblem: The Sacred Stones";
 	public static final String GameCode = "BE8E";
 
@@ -76,7 +79,11 @@ public class FE8Data {
 	public static final int BytesPerBossPalette = 80; // Play around with this. Hopefully it doesn't collide with another palette.
 	public static final int BytesPerPalette = 40;
 	
-	public enum Character {
+	private static final FE8Data sharedInstance = new FE8Data();
+	
+	public static final GBAFECharacterProvider characterProvider = sharedInstance;
+	
+	public enum Character implements GBAFECharacter {
 		NONE(0x00),
 		
 		EIRIKA(0x01), SETH(0x02), GILLIAM(0x03), FRANZ(0x04), MOULDER(0x05), VANESSA(0x06), ROSS(0x07), NEIMI(0x08), COLM(0x09), GARCIA(0x0A), INNES(0x0B), LUTE(0x0C), NATASHA(0x0D), CORMAG(0x0E),
@@ -120,6 +127,10 @@ public class FE8Data {
 		
 		public static Comparator<Character> characterIDComparator() {
 			return new Comparator<Character>() { public int compare(Character o1, Character o2) { return Integer.compare(o1.ID, o2.ID); } };
+		}
+		
+		public int getID() {
+			return this.ID;
 		}
 		
 		public static int canonicalIDForCharacterID(int characterID) {
@@ -177,7 +188,7 @@ public class FE8Data {
 			return allBossCharacters.contains(this);
 		}
 		
-		public Boolean isPlayableCharacter() {
+		public Boolean isPlayable() {
 			return allPlayableCharacters.contains(this);
 		}
 		
@@ -193,13 +204,8 @@ public class FE8Data {
 			return charactersThatRequireMelee.contains(this);
 		}
 		
-		public Boolean hasLimitedClasses() {
+		public Boolean isClassLimited() {
 			return restrictedClassCharacters.contains(this);
-		}
-		
-		public static Map<Integer, Character> getCharacterCounters() {
-			Map<Integer, Character> counterMap = new HashMap<Integer, Character>();
-			return counterMap;
 		}
 		
 		public static Set<Character> allLinkedCharactersFor(Character character) {
@@ -1360,6 +1366,21 @@ public class FE8Data {
 			return new Character[] {};
 		}
 		
+		public Character[] unarmedUnits() {
+			switch (this) {
+			case PROLOGUE: {
+				return new Character[] {Character.EIRIKA}; // Seth gives Eirika a weapon.
+			}
+			case CHAPTER_9_EPHRAIM: {
+				return new Character[] {Character.TANA}; // Tana starts off captured.
+			}
+			default:
+				break;
+			}
+			
+			return new Character[] {};
+		}
+		
 		// Because I'm too lazy to figure out who actually loads these units.
 		public long[] additionalUnitOffsets() {
 			switch (this) {
@@ -2057,5 +2078,74 @@ public class FE8Data {
 		public static PaletteInfo defaultPaletteForClass(int classID) {
 			return defaultPaletteForClass.get(classID);
 		}
+	}
+	
+	// Character Provider Methods
+
+	@Override
+	public long characterDataTablePointer() {
+		return CharacterTablePointer;
+	}
+
+	@Override
+	public int numberOfCharacters() {
+		return NumberOfCharacters;
+	}
+
+	@Override
+	public int bytesPerCharacter() {
+		return BytesPerCharacter;
+	}
+
+	@Override
+	public GBAFECharacter[] allCharacters() {
+		return Character.values();
+	}
+
+	@Override
+	public Map<Integer, GBAFECharacter> counters() {
+		Map<Integer, GBAFECharacter> counterMap = new HashMap<Integer, GBAFECharacter>();
+		return counterMap;
+	}
+
+	@Override
+	public Set<GBAFECharacter> allPlayableCharacters() {
+		return new HashSet<GBAFECharacter>(Character.allPlayableCharacters);
+	}
+
+	@Override
+	public Set<GBAFECharacter> allBossCharacters() {
+		return new HashSet<GBAFECharacter>(Character.allBossCharacters);
+	}
+
+	@Override
+	public Set<GBAFECharacter> linkedCharacters(int characterID) {
+		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
+	}
+	
+	@Override
+	public GBAFECharacter characterWithID(int characterID) {
+		return Character.valueOf(characterID);
+	}
+
+	@Override
+	public int[] affinityValues() {
+		int[] values = new int[FE8Character.Affinity.values().length];
+		int i = 0;
+		for (FE8Character.Affinity affinity : FE8Character.Affinity.values()) {
+			values[i++] = affinity.value;
+		}
+		
+		return values;
+	}
+
+	@Override
+	public int canonicalID(int characterID) {
+		return Character.canonicalIDForCharacterID(characterID);
+	}
+
+	@Override
+	public GBAFECharacterData characterDataWithData(byte[] data, long offset, Boolean hasLimitedClasses) {
+		return new FE8Character(data, offset, hasLimitedClasses);
 	}
 }

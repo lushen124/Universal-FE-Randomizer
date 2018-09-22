@@ -10,13 +10,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import fedata.gba.GBAFECharacterData;
+import fedata.gba.general.GBAFECharacter;
+import fedata.gba.general.GBAFECharacterProvider;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE6Data {
+public class FE6Data implements GBAFECharacterProvider {
 	public static final String FriendlyName = "ファイアーエムブレム　封印の剣";
 	public static final String GameCode = "AFEJ";
 
@@ -58,7 +61,11 @@ public class FE6Data {
 	
 	public static final long PromotionItemTablePointer = 0x237AC; // Hero's Crest (0), Knights Crest (1), Orion Bolt (2), Elysian Whip (3), Guiding Ring (8)
 	
-	public enum Character {
+	private static final FE6Data sharedInstance = new FE6Data();
+	
+	public static final GBAFECharacterProvider characterProvider = sharedInstance;
+	
+	public enum Character implements GBAFECharacter {
 		NONE(0x00),
 		
 		ROY(0x01), CLARINE(0x02), FA(0x03), SHIN(0x04), SUE(0x05), DAYAN(0x06), BARTH(0x08), BORS(0x09), WENDY(0x0A), DOUGLAS(0x0B), 
@@ -105,6 +112,11 @@ public class FE6Data {
 			}
 			
 			return idArray;
+		}
+		
+		@Override
+		public int getID() {
+			return ID;
 		}
 		
 		public static Comparator<Character> characterIDComparator() {
@@ -160,7 +172,7 @@ public class FE6Data {
 			return allBossCharacters.contains(this);
 		}
 		
-		public Boolean isPlayableCharacter() {
+		public Boolean isPlayable() {
 			return allPlayableCharacters.contains(this);
 		}
 		
@@ -176,13 +188,8 @@ public class FE6Data {
 			return charactersThatRequireMelee.contains(this);
 		}
 		
-		public Boolean hasLimitedClasses() {
+		public Boolean isClassLimited() {
 			return restrictedClassCharacters.contains(this);
-		}
-		
-		public static Map<Integer, Character> getCharacterCounters() {
-			Map<Integer, Character> counterMap = new HashMap<Integer, Character>();
-			return counterMap;
 		}
 		
 		public static Set<Character> allLinkedCharactersFor(Character character) {
@@ -1456,5 +1463,74 @@ public class FE6Data {
 		public static PaletteInfo defaultPaletteForClass(int classID) {
 			return defaultPaletteForClass.get(classID);
 		}
+	}
+	
+	// Character Provider Methods
+
+	@Override
+	public long characterDataTablePointer() {
+		return CharacterTablePointer;
+	}
+
+	@Override
+	public int numberOfCharacters() {
+		return NumberOfCharacters;
+	}
+
+	@Override
+	public int bytesPerCharacter() {
+		return BytesPerCharacter;
+	}
+
+	@Override
+	public GBAFECharacter[] allCharacters() {
+		return Character.values();
+	}
+
+	@Override
+	public Map<Integer, GBAFECharacter> counters() {
+		Map<Integer, GBAFECharacter> counterMap = new HashMap<Integer, GBAFECharacter>();
+		return counterMap;
+	}
+
+	@Override
+	public Set<GBAFECharacter> allPlayableCharacters() {
+		return new HashSet<GBAFECharacter>(Character.allPlayableCharacters);
+	}
+
+	@Override
+	public Set<GBAFECharacter> allBossCharacters() {
+		return new HashSet<GBAFECharacter>(Character.allBossCharacters);
+	}
+
+	@Override
+	public Set<GBAFECharacter> linkedCharacters(int characterID) {
+		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
+	}
+	
+	@Override
+	public GBAFECharacter characterWithID(int characterID) {
+		return Character.valueOf(characterID);
+	}
+
+	@Override
+	public int[] affinityValues() {
+		int[] values = new int[FE6Character.Affinity.values().length];
+		int i = 0;
+		for (FE6Character.Affinity affinity : FE6Character.Affinity.values()) {
+			values[i++] = affinity.value;
+		}
+		
+		return values;
+	}
+
+	@Override
+	public int canonicalID(int characterID) {
+		return Character.canonicalIDForCharacterID(characterID);
+	}
+
+	@Override
+	public GBAFECharacterData characterDataWithData(byte[] data, long offset, Boolean hasLimitedClasses) {
+		return new FE6Character(data, offset, hasLimitedClasses);
 	}
 }

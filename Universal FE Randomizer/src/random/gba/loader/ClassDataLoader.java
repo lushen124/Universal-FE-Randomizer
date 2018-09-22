@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fedata.gba.GBAFEClass;
+import fedata.gba.GBAFEClassData;
 import fedata.gba.fe6.FE6Class;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Class;
@@ -29,10 +29,10 @@ public class ClassDataLoader {
 
 private FEBase.GameType gameType;
 	
-	private Map<Integer, GBAFEClass> classMap = new HashMap<Integer, GBAFEClass>();
+	private Map<Integer, GBAFEClassData> classMap = new HashMap<Integer, GBAFEClassData>();
 	
-	private Map<Integer, GBAFEClass> lordMap = new HashMap<Integer, GBAFEClass>();
-	private Map<Integer, GBAFEClass> thiefMap = new HashMap<Integer, GBAFEClass>();
+	private Map<Integer, GBAFEClassData> lordMap = new HashMap<Integer, GBAFEClassData>();
+	private Map<Integer, GBAFEClassData> thiefMap = new HashMap<Integer, GBAFEClassData>();
 	
 	public static final String RecordKeeperCategoryKey = "Classes";
 
@@ -102,7 +102,7 @@ private FEBase.GameType gameType;
 		}
 	}
 	
-	public GBAFEClass[] allClasses() {
+	public GBAFEClassData[] allClasses() {
 		switch (gameType) {
 		case FE6:
 			return classesFromFE6Classes(FE6Data.CharacterClass.allValidClasses);
@@ -111,11 +111,11 @@ private FEBase.GameType gameType;
 		case FE8:
 			return classesFromFE8Classes(FE8Data.CharacterClass.allValidClasses);
 		default:
-			return new GBAFEClass[] {};
+			return new GBAFEClassData[] {};
 		}
 	}
 	
-	public GBAFEClass classForID(int classID) {
+	public GBAFEClassData classForID(int classID) {
 		switch (gameType) {
 			case FE6:
 			case FE7:
@@ -127,13 +127,13 @@ private FEBase.GameType gameType;
 	}
 	
 	public void commit() {
-		for (GBAFEClass charClass : classMap.values()) {
+		for (GBAFEClassData charClass : classMap.values()) {
 			charClass.commitChanges();
 		}
 	}
 	
 	public void compileDiffs(DiffCompiler compiler) {
-		for (GBAFEClass charClass : classMap.values()) {
+		for (GBAFEClassData charClass : classMap.values()) {
 			charClass.commitChanges();
 			if (charClass.hasCommittedChanges()) {
 				Diff charDiff = new Diff(charClass.getAddressOffset(), charClass.getData().length, charClass.getData(), null);
@@ -163,7 +163,7 @@ private FEBase.GameType gameType;
 		}
 	}
 	
-	public GBAFEClass[] potentialClasses(GBAFEClass sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requiresMelee, Boolean applyRestrictions, GBAFEClass mustLoseToClass) {
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requiresMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
 		switch (gameType) {
 		case FE6: {
 			FE6Data.CharacterClass sourceCharClass = FE6Data.CharacterClass.valueOf(sourceClass.getID());
@@ -195,11 +195,11 @@ private FEBase.GameType gameType;
 			NotReached.trigger("FE8 should use the variant of this method that includes the separateMonsters parameter.");
 		}
 		default:
-			return new GBAFEClass[] {};
+			return new GBAFEClassData[] {};
 		}
 	}
 	
-	public GBAFEClass[] potentialClasses(GBAFEClass sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClass mustLoseToClass) {
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
 	switch (gameType) {
 		case FE8:
 			FE8Data.CharacterClass sourceCharClass = FE8Data.CharacterClass.valueOf(sourceClass.getID());
@@ -215,7 +215,7 @@ private FEBase.GameType gameType;
 			return classesFromFE8Classes(targetClasses);
 		default:
 			NotReached.trigger("This method is only intended for FE8.");
-			return new GBAFEClass[] {};
+			return new GBAFEClassData[] {};
 		}
 	}
 	
@@ -258,11 +258,11 @@ private FEBase.GameType gameType;
 		}
 	}
 	
-	public GBAFEClass[] classesFromFE6Classes(Set<FE6Data.CharacterClass> classes) {
+	public GBAFEClassData[] classesFromFE6Classes(Set<FE6Data.CharacterClass> classes) {
 		List<FE6Data.CharacterClass> charClasses = new ArrayList<FE6Data.CharacterClass>(classes);
 		Collections.sort(charClasses, FE6Data.CharacterClass.classIDComparator());
 
-		GBAFEClass[] classList = new GBAFEClass[charClasses.size()];
+		GBAFEClassData[] classList = new GBAFEClassData[charClasses.size()];
 		for (int i = 0; i < charClasses.size(); i++) {
 			classList[i] = classForID(charClasses.get(i).ID);
 		}
@@ -270,11 +270,11 @@ private FEBase.GameType gameType;
 		return classList;
 	}
 	
-	public GBAFEClass[] classesFromFE7Classes(Set<FE7Data.CharacterClass> classes) {
+	public GBAFEClassData[] classesFromFE7Classes(Set<FE7Data.CharacterClass> classes) {
 		List<FE7Data.CharacterClass> charClasses = new ArrayList<FE7Data.CharacterClass>(classes);
 		Collections.sort(charClasses, FE7Data.CharacterClass.classIDComparator());
 
-		GBAFEClass[] classList = new GBAFEClass[charClasses.size()];
+		GBAFEClassData[] classList = new GBAFEClassData[charClasses.size()];
 		for (int i = 0; i < charClasses.size(); i++) {
 			classList[i] = classForID(charClasses.get(i).ID);
 		}
@@ -282,11 +282,11 @@ private FEBase.GameType gameType;
 		return classList;
 	}
 	
-	public GBAFEClass[] classesFromFE8Classes(Set<FE8Data.CharacterClass> classes) {
+	public GBAFEClassData[] classesFromFE8Classes(Set<FE8Data.CharacterClass> classes) {
 		List<FE8Data.CharacterClass> charClasses = new ArrayList<FE8Data.CharacterClass>(classes);
 		Collections.sort(charClasses, FE8Data.CharacterClass.classIDComparator());
 		
-		GBAFEClass[] classList = new GBAFEClass[charClasses.size()];
+		GBAFEClassData[] classList = new GBAFEClassData[charClasses.size()];
 		for (int i = 0; i < charClasses.size(); i++) {
 			classList[i] = classForID(charClasses.get(i).ID);
 		}
@@ -294,7 +294,7 @@ private FEBase.GameType gameType;
 		return classList;
 	}
 	
-	public Boolean canClassUseItem(int itemID, GBAFEClass characterClass) {
+	public Boolean canClassUseItem(int itemID, GBAFEClassData characterClass) {
 		switch (gameType) {
 		case FE6: {
 			Set<FE6Data.Item> fe6Items = new HashSet<FE6Data.Item>();
@@ -344,13 +344,13 @@ private FEBase.GameType gameType;
 	}
 	
 	public void recordClasses(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, TextLoader textData) {
-		for (GBAFEClass charClass : allClasses()) {
+		for (GBAFEClassData charClass : allClasses()) {
 			if (!isValidClass(charClass.getID())) { continue; }
 			recordClass(rk, charClass, isInitial, textData);
 		}
 	}
 	
-	private void recordClass(RecordKeeper rk, GBAFEClass charClass, Boolean isInitial, TextLoader textData) {
+	private void recordClass(RecordKeeper rk, GBAFEClassData charClass, Boolean isInitial, TextLoader textData) {
 		int nameIndex = charClass.getNameIndex();
 		String name = textData.getStringAtIndex(nameIndex).trim();
 		

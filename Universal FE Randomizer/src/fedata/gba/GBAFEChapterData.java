@@ -1,15 +1,15 @@
 package fedata.gba;
 
-public interface GBAFEChapter {
+public interface GBAFEChapterData {
 	
 	public int lordLeaderID();
 	public int bossLeaderID();
 	
-	public GBAFEChapterUnit[] allUnits();
+	public GBAFEChapterUnitData[] allUnits();
 	public Boolean isClassSafe();
 	
-	public GBAFEChapterItem[] allRewards();
-	public GBAFEChapterItem[] allTargetedRewards();
+	public GBAFEChapterItemData[] allRewards();
+	public GBAFEChapterItemData[] allTargetedRewards();
 	
 	public long[] getFightAddresses();
 	public int fightCommandLength();
@@ -18,8 +18,9 @@ public interface GBAFEChapter {
 	public String getFriendlyName();
 	
 	public Boolean shouldBeSimplified();
+	public Boolean shouldCharacterBeUnarmed(int characterID);
 	
 	public void applyNudges();
 	
-	public GBAFEChapterItem chapterItemGivenToCharacter(int characterID);
+	public GBAFEChapterItemData chapterItemGivenToCharacter(int characterID);
 }

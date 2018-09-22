@@ -1,6 +1,6 @@
 package fedata.gba;
 
-public interface GBAFEChapterUnit extends GBAFEModifiableObject {
+public interface GBAFEChapterUnitData extends GBAFEModifiableData {
 	public int getCharacterNumber();
 	
 	public int getStartingClass();

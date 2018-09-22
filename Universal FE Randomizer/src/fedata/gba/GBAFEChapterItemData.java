@@ -1,6 +1,6 @@
 package fedata.gba;
 
-public interface GBAFEChapterItem extends GBAFEModifiableObject {
+public interface GBAFEChapterItemData extends GBAFEModifiableData {
 
 	public enum Type {
 		CHES, ITGV

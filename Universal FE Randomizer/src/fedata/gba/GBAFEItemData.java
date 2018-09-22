@@ -9,7 +9,7 @@ import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
 
-public interface GBAFEItem extends GBAFEModifiableObject {
+public interface GBAFEItemData extends GBAFEModifiableData {
 	
 	// Info
 	public int getNameIndex();
