@@ -216,7 +216,7 @@ public class ClassRandomizer {
 			GBAFECharacter lordCharacter = charactersData.characterWithID(chapter.lordLeaderID());
 			GBAFEClass lordClass = classData.classForID(lordCharacter.getClassID());
 			for (GBAFEChapterUnit chapterUnit : chapter.allUnits()) {
-				int leaderID = chapterUnit.getLeaderID();
+				// int leaderID = chapterUnit.getLeaderID();
 				int characterID = chapterUnit.getCharacterNumber();
 				int classID = chapterUnit.getStartingClass();
 				// It's safe to check for boss leader ID in the case of FE7, but FE6 tends to put other IDs there (kind of like squad captains).

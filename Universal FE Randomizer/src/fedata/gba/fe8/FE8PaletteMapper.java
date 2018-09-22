@@ -108,6 +108,7 @@ public class FE8PaletteMapper {
 			wasModified = true;
 		}
 		
+		@SuppressWarnings("unused")
 		public void reset() {
 			data = originalData.clone();
 			wasModified = false;

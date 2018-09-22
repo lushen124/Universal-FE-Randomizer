@@ -77,6 +77,7 @@ public class FE6SpellAnimationCollection implements GBAFESpellAnimationCollectio
 			return Animation.animationWithID(getAnimationRaw());
 		}
 		
+		@SuppressWarnings("unused")
 		public int getFlashColor() {
 			return data[14] & 0xFF;
 		}

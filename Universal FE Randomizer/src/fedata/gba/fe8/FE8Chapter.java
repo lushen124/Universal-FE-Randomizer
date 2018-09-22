@@ -12,9 +12,6 @@ import java.util.Set;
 import fedata.gba.GBAFEChapter;
 import fedata.gba.GBAFEChapterItem;
 import fedata.gba.GBAFEChapterUnit;
-import fedata.gba.fe6.FE6ChapterItem;
-import fedata.gba.fe6.FE6ChapterUnit;
-import fedata.gba.fe6.FE6Data;
 import fedata.gba.general.CharacterNudge;
 import io.FileHandler;
 import util.DebugPrinter;
@@ -25,6 +22,7 @@ public class FE8Chapter implements GBAFEChapter {
 	
 	private String friendlyName;
 	
+	@SuppressWarnings("unused")
 	private Boolean removeFightScenes;
 	
 	private Boolean isClassSafe;
@@ -53,6 +51,7 @@ public class FE8Chapter implements GBAFEChapter {
 	private Set<Integer> targetRewardRecipients;
 	
 	private Set<Integer> blacklistedClassIDs;
+	@SuppressWarnings("unused")
 	private Set<Long> fightEventOffsets;
 	
 	private CharacterNudge[] nudges;

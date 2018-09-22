@@ -12,7 +12,6 @@ import fedata.gba.GBAFECharacter;
 import fedata.gba.GBAFEClass;
 import fedata.gba.fe6.FE6Character;
 import fedata.gba.fe6.FE6Data;
-import fedata.gba.fe6.FE6Data.Character;
 import fedata.gba.fe7.FE7Character;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Character;

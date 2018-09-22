@@ -1,7 +1,6 @@
 package fedata.gba.fe7;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,8 +27,12 @@ public class FE7Chapter implements GBAFEChapter {
 	private long characterBasedEventsOffset = 0;
 	private long locationBasedEventsOffset = 0;
 	private long miscEventsOffset = 0;
+	
+	@SuppressWarnings("unused")
 	private long trapsEliwoodOffset = 0;
+	@SuppressWarnings("unused")
 	private long trapsHectorOffset = 0;
+	
 	private long enemiesOffsetENM = 0;
 	private long enemiesOffsetEHM = 0;
 	private long enemiesOffsetHNM = 0;

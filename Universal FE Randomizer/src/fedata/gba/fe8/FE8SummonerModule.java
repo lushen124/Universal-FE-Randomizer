@@ -12,7 +12,6 @@ import fedata.gba.GBAFECharacter;
 import fedata.gba.GBAFEModifiableObject;
 import io.FileHandler;
 import random.gba.loader.CharacterDataLoader;
-import random.gba.loader.ClassDataLoader;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;

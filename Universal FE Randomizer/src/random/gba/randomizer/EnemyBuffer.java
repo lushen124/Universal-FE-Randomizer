@@ -2,9 +2,7 @@ package random.gba.randomizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 import fedata.gba.GBAFEChapter;
 import fedata.gba.GBAFEChapterUnit;

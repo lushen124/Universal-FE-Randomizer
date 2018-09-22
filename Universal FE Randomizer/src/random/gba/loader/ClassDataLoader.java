@@ -1,7 +1,6 @@
 package random.gba.loader;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,11 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fedata.gba.GBAFECharacter;
 import fedata.gba.GBAFEClass;
 import fedata.gba.fe6.FE6Class;
 import fedata.gba.fe6.FE6Data;
-import fedata.gba.fe6.FE6Data.Item.FE6WeaponRank;
 import fedata.gba.fe7.FE7Class;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Class;

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import fedata.gba.GBAFECharacter;
-import fedata.gba.fe6.FE6Character.Affinity;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE7Character implements GBAFECharacter {

@@ -4,11 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
-import java.util.Set;
 
 import org.eclipse.swt.widgets.Display;
 
-import fedata.gba.GBAFECharacter;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;

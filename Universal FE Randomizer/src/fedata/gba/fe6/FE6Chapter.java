@@ -18,6 +18,7 @@ public class FE6Chapter implements GBAFEChapter {
 	
 	private String friendlyName;
 	
+	@SuppressWarnings("unused")
 	private Boolean removeFightScenes;
 	
 	private Boolean isClassSafe;

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import random.exc.NotReached;
 import util.WhyDoesJavaNotHaveThese;
 
 public class PaletteColor implements Comparable<PaletteColor> {
