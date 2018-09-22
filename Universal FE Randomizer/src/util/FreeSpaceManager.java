@@ -3,7 +3,7 @@ package util;
 import java.util.HashMap;
 import java.util.Map;
 
-import fedata.FEBase;
+import fedata.general.FEBase;
 
 public class FreeSpaceManager {
 	

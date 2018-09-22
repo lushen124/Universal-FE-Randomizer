@@ -3,7 +3,7 @@ package util;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import fedata.FEBase.GameType;
+import fedata.general.FEBase.GameType;
 
 public class SeedGenerator {
 	

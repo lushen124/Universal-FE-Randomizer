@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fedata.FEBase;
+import fedata.general.FEBase;
 import io.FileHandler;
 
 public class HuffmanHelper {
