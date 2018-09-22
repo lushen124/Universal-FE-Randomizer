@@ -1614,7 +1614,12 @@ public class FE7Data implements GBAFECharacterProvider {
 	
 	@Override
 	public GBAFECharacter characterWithID(int characterID) {
-		return Character.valueOf(characterID);
+		GBAFECharacter character = Character.valueOf(characterID);
+		if (character == null) {
+			character = Character.NONE;
+		}
+		
+		return character;
 	}
 
 	@Override
