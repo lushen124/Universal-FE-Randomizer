@@ -1,7 +1,9 @@
 package fedata.gba.fe7;
 
 import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEItemData;
 import fedata.gba.general.WeaponRank;
+import fedata.gba.general.WeaponType;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE7Class implements GBAFEClassData {
@@ -387,5 +389,31 @@ public class FE7Class implements GBAFEClassData {
 	
 	public long getAddressOffset() {
 		return originalOffset;
+	}
+	
+	public Boolean canUseWeapon(GBAFEItemData weapon) {
+		if (weapon == null) { return false; }
+		
+		WeaponType type = weapon.getType();
+		return getRankForType(type) != WeaponRank.NONE;
+	}
+	
+	private WeaponRank getRankForType(WeaponType type) {
+		int rankValue = 0;
+		switch (type) {
+		case SWORD: rankValue = getSwordRank(); break;
+		case LANCE: rankValue = getLanceRank(); break;
+		case AXE: rankValue = getAxeRank(); break;
+		case BOW: rankValue = getBowRank(); break;
+		case ANIMA: rankValue = getAnimaRank(); break;
+		case LIGHT: rankValue = getLightRank(); break;
+		case DARK: rankValue = getDarkRank(); break;
+		case STAFF: rankValue = getStaffRank(); break;
+		default: rankValue = 0;
+		}
+		
+		if (rankValue == 0) { return WeaponRank.NONE; }
+		
+		return FE7Data.Item.FE7WeaponRank.valueOf(rankValue).toGeneralRank();
 	}
 }

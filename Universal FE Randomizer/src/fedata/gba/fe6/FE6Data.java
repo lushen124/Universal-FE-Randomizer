@@ -11,15 +11,18 @@ import java.util.Random;
 import java.util.Set;
 
 import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEClassData;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
+import fedata.gba.general.GBAFEClass;
+import fedata.gba.general.GBAFEClassProvider;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE6Data implements GBAFECharacterProvider {
+public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider {
 	public static final String FriendlyName = "ファイアーエムブレム　封印の剣";
 	public static final String GameCode = "AFEJ";
 
@@ -64,6 +67,7 @@ public class FE6Data implements GBAFECharacterProvider {
 	private static final FE6Data sharedInstance = new FE6Data();
 	
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
+	public static final GBAFEClassProvider classProvider = sharedInstance;
 	
 	public enum Character implements GBAFECharacter {
 		NONE(0x00),
@@ -231,7 +235,7 @@ public class FE6Data implements GBAFECharacterProvider {
 		}
 	}
 	
-	public enum CharacterClass {
+	public enum CharacterClass implements GBAFEClass {
 		NONE(0x00),
 		
 		LORD(0x01), MERCENARY(0x02), MYRMIDON(0x06), FIGHTER(0x0A), KNIGHT(0x0C), ARCHER(0x10), PRIEST(0x14), MAGE(0x18), SHAMAN(0x1C),  
@@ -279,6 +283,10 @@ public class FE6Data implements GBAFECharacterProvider {
 			}
 			
 			return idArray;
+		}
+		
+		public int getID() {
+			return ID;
 		}
 		
 		public static Set<CharacterClass> allMaleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, PRIEST, MAGE, SHAMAN, 
@@ -439,6 +447,26 @@ public class FE6Data implements GBAFECharacterProvider {
 			default:
 				return null;
 			}
+		}
+		
+		public Boolean isLord() {
+			return CharacterClass.allLordClasses.contains(this);
+		}
+		
+		public Boolean isThief() {
+			return CharacterClass.allThiefClasses.contains(this);
+		}
+		
+		public Boolean isFemale() {
+			return CharacterClass.allFemaleClasses.contains(this);
+		}
+		
+		public Boolean isPromoted() {
+			return CharacterClass.allPromotedClasses.contains(this);
+		}
+		
+		public Boolean canAttack() {
+			return !CharacterClass.allPacifistClasses.contains(this);
 		}
 	}
 	
@@ -1467,48 +1495,39 @@ public class FE6Data implements GBAFECharacterProvider {
 	
 	// Character Provider Methods
 
-	@Override
 	public long characterDataTablePointer() {
 		return CharacterTablePointer;
 	}
 
-	@Override
 	public int numberOfCharacters() {
 		return NumberOfCharacters;
 	}
 
-	@Override
 	public int bytesPerCharacter() {
 		return BytesPerCharacter;
 	}
 
-	@Override
 	public GBAFECharacter[] allCharacters() {
 		return Character.values();
 	}
 
-	@Override
 	public Map<Integer, GBAFECharacter> counters() {
 		Map<Integer, GBAFECharacter> counterMap = new HashMap<Integer, GBAFECharacter>();
 		return counterMap;
 	}
 
-	@Override
 	public Set<GBAFECharacter> allPlayableCharacters() {
 		return new HashSet<GBAFECharacter>(Character.allPlayableCharacters);
 	}
 
-	@Override
 	public Set<GBAFECharacter> allBossCharacters() {
 		return new HashSet<GBAFECharacter>(Character.allBossCharacters);
 	}
 
-	@Override
 	public Set<GBAFECharacter> linkedCharacters(int characterID) {
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
-	@Override
 	public GBAFECharacter characterWithID(int characterID) {
 		GBAFECharacter character = Character.valueOf(characterID);
 		if (character == null) {
@@ -1518,7 +1537,6 @@ public class FE6Data implements GBAFECharacterProvider {
 		return character;
 	}
 
-	@Override
 	public int[] affinityValues() {
 		int[] values = new int[FE6Character.Affinity.values().length];
 		int i = 0;
@@ -1529,13 +1547,77 @@ public class FE6Data implements GBAFECharacterProvider {
 		return values;
 	}
 
-	@Override
 	public int canonicalID(int characterID) {
 		return Character.canonicalIDForCharacterID(characterID);
 	}
 
-	@Override
 	public GBAFECharacterData characterDataWithData(byte[] data, long offset, Boolean hasLimitedClasses) {
 		return new FE6Character(data, offset, hasLimitedClasses);
+	}
+	
+	// Class Provider Methods
+
+	public long classDataTablePointer() {
+		return ClassTablePointer;
+	}
+
+	public int numberOfClasses() {
+		return NumberOfClasses;
+	}
+
+	public int bytesPerClass() {
+		return BytesPerClass;
+	}
+
+	public GBAFEClass[] allClasses() {
+		return CharacterClass.values();
+	}
+
+	public Set<GBAFEClass> allValidClasses() {
+		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+	}
+
+	public GBAFEClass classWithID(int classID) {
+		return CharacterClass.valueOf(classID);
+	}
+
+	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass,
+			Map<String, Boolean> options) {
+		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);
+		if (excludeLords == null) { excludeLords = false; }
+		Boolean excludeThieves = options.get(GBAFEClassProvider.optionKeyExcludeThieves);
+		if (excludeThieves == null) { excludeThieves = false; }
+		return new HashSet<GBAFEClass>(CharacterClass.classesThatLoseToClass(CharacterClass.valueOf(sourceClass.getID()), 
+				CharacterClass.valueOf(winningClass.getID()), excludeLords, excludeThieves));
+	}
+
+	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, Map<String, Boolean> options) {
+		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);
+		if (excludeLords == null) { excludeLords = false; }
+		Boolean excludeThieves = options.get(GBAFEClassProvider.optionKeyExcludeThieves);
+		if (excludeThieves == null) { excludeThieves = false; }
+		Boolean excludeSource = options.get(GBAFEClassProvider.optionKeyExcludeSource);
+		if (excludeSource == null) { excludeSource = false; }
+		Boolean requireAttack = options.get(GBAFEClassProvider.optionKeyRequireAttack);
+		if (requireAttack == null) { requireAttack = false; }
+		Boolean requiresRange = options.get(GBAFEClassProvider.optionKeyRequireRange);
+		if (requiresRange == null) { requiresRange = false; }
+		Boolean applyRestrictions = options.get(GBAFEClassProvider.optionKeyApplyRestrictions);
+		if (applyRestrictions == null) { applyRestrictions = false; }
+		
+		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), 
+				excludeSource, excludeLords, excludeThieves, requireAttack, requiresRange, applyRestrictions));
+	}
+	
+	public void prepareForClassRandomization(Map<Integer, GBAFEClassData> classMap) {
+		GBAFEClassData soldierData = classMap.get(CharacterClass.SOLDIER.ID);
+		if (soldierData != null) {
+			soldierData.setTargetPromotionID(CharacterClass.GENERAL.ID);
+		}
+	}
+
+	@Override
+	public GBAFEClassData classDataWithData(byte[] data, long offset) {
+		return new FE6Class(data, offset);
 	}
 }

@@ -83,4 +83,7 @@ public interface GBAFEClassData extends GBAFEModifiableData {
 	public int getMOV();
 	public void setMOV(int newMOV);
 	public int getCON();
+	
+	// Helpers
+	public Boolean canUseWeapon(GBAFEItemData weapon);
 }
