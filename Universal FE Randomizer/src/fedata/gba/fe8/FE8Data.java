@@ -2,6 +2,7 @@ package fedata.gba.fe8;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,18 +13,23 @@ import java.util.Set;
 
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEItemData;
+import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
+import fedata.gba.general.GBAFEItem;
+import fedata.gba.general.GBAFEItemProvider;
+import fedata.gba.general.GBAFEPromotionItem;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider {
+public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
 	public static final String FriendlyName = "Fire Emblem: The Sacred Stones";
 	public static final String GameCode = "BE8E";
 
@@ -567,7 +573,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider {
 		}
 	}
 	
-	public enum Item {
+	public enum Item implements GBAFEItem {
 		NONE(0x00),
 		
 		IRON_SWORD(0x01), SLIM_SWORD(0x02), STEEL_SWORD(0x03), SILVER_SWORD(0x04), IRON_BLADE(0x05), STEEL_BLADE(0x06), SILVER_BLADE(0x07), POISON_SWORD(0x08), RAPIER(0x09),
@@ -1243,35 +1249,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider {
 				return null;
 			}
 			Set<Item> list = new HashSet<Item>();
-			
-			switch (type) {
-			case SWORD:
-				list.addAll(allSwords);
-				break;
-			case LANCE:
-				list.addAll(allLances);
-				break;
-			case AXE:
-				list.addAll(allAxes);
-				break;
-			case BOW:
-				list.addAll(allBows);
-				break;
-			case ANIMA:
-				list.addAll(allAnima);
-				break;
-			case LIGHT:
-				list.addAll(allLight);
-				break;
-			case DARK:
-				list.addAll(allDark);
-				break;
-			case STAFF:
-				list.addAll(allStaves);
-				break;
-			default:
-				break;
-			}
+			list.addAll(weaponsOfType(type));
 			
 			if (FE8WeaponRank.E.isLowerThanRank(minRank)) {
 				list.removeAll(allERank);
@@ -1316,6 +1294,54 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider {
 			}
 			
 			return list;
+		}
+		
+		public int getID() {
+			return ID;
+		}
+
+		public Boolean isWeapon() {
+			return allWeapons.contains(this);
+		}
+
+		public Boolean isBasicWeapon() {
+			return allBasicWeapons.contains(this);
+		}
+
+		public Boolean isStatBooster() {
+			return allStatBoosters.contains(this);
+		}
+
+		public Boolean isPromotionItem() {
+			return allPromotionItems.contains(this);
+		}
+
+		public WeaponType getType() {
+			if (allSwords.contains(this)) { return WeaponType.SWORD; }
+			if (allLances.contains(this)) { return WeaponType.LANCE; }
+			if (allAxes.contains(this)) { return WeaponType.AXE; }
+			if (allBows.contains(this)) { return WeaponType.BOW; }
+			if (allAnima.contains(this)) { return WeaponType.ANIMA; }
+			if (allLight.contains(this)) { return WeaponType.LIGHT; }
+			if (allDark.contains(this)) { return WeaponType.DARK; }
+			if (allStaves.contains(this)) { return WeaponType.STAFF; }
+			
+			return WeaponType.NOT_A_WEAPON;
+		}
+
+		public WeaponRank getRank() {
+			if (allSRank.contains(this)) { return WeaponRank.S; }
+			if (allARank.contains(this)) { return WeaponRank.A; }
+			if (allBRank.contains(this)) { return WeaponRank.B; }
+			if (allCRank.contains(this)) { return WeaponRank.C; }
+			if (allDRank.contains(this)) { return WeaponRank.D; }
+			if (allERank.contains(this)) { return WeaponRank.E; }
+			
+			return WeaponRank.NONE;
+		}
+
+		public Boolean isHealingStaff() {
+			return allHealingStaves.contains(this);
 		}
 	}
 
@@ -1421,7 +1447,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider {
 		}
 	}
 	
-	public enum PromotionItem {
+	public enum PromotionItem implements GBAFEPromotionItem {
 		// Ocean Seal is missing, but I can't find it in this table.
 		// It's pointer can be found at 0x29408. (Direct Read)
 		// Remember that the actual address of the class IDs starts at byte 4 after the jump.
@@ -1436,6 +1462,18 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider {
 		
 		public long getPointerAddress() {
 			return (offset * 4) + PromotionItemTablePointer;
+		}
+		
+		public long getListAddress() {
+			return getPointerAddress();
+		}
+		
+		public Boolean isIndirected() {
+			return true;
+		}
+		
+		public String itemName() {
+			return this.toString();
 		}
 	}
 	
@@ -2233,5 +2271,362 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider {
 
 	public GBAFEClassData classDataWithData(byte[] data, long offset) {
 		return new FE8Class(data, offset);
+	}
+	
+	// Item Provider Methods
+
+	public long itemTablePointer() {
+		return ItemTablePointer;
+	}
+
+	public int numberOfItems() {
+		return NumberOfItems;
+	}
+
+	public int bytesPerItem() {
+		return BytesPerItem;
+	}
+
+	public GBAFEItem[] allItems() {
+		return Item.values();
+	}
+	
+	public GBAFEItem itemWithID(int itemID) {
+		return Item.valueOf(itemID);
+	}
+	
+	public GBAFEItem basicWeaponOfType(WeaponType type) {
+		Set<Item> basicWeapons = Item.basicItemsOfType(type);
+		return Collections.min(basicWeapons, Item.itemIDComparator());
+	}
+	
+	public WeaponRank rankWithValue(int value) {
+		Item.FE8WeaponRank fe8Rank = Item.FE8WeaponRank.valueOf(value);
+		if (fe8Rank != null) { return fe8Rank.toGeneralRank(); }
+		return WeaponRank.NONE;
+	}
+	
+	public int rankValueForRank(WeaponRank rank) {
+		Item.FE8WeaponRank fe8Rank = Item.FE8WeaponRank.rankFromGeneralRank(rank);
+		if (fe8Rank != null) { return fe8Rank.value; }
+		return 0;
+	}
+	
+	public int getHighestWeaponRankValue() {
+		return Item.FE8WeaponRank.S.value;
+	}
+	
+	public Set<GBAFEItem> allWeapons() {
+		return new HashSet<GBAFEItem>(Item.allWeapons);
+	}
+	
+	public Set<GBAFEItem> weaponsWithStatBoosts() {
+		return new HashSet<GBAFEItem>(Arrays.asList(
+				Item.EXCALIBUR,
+				Item.GLEIPNIR,
+				Item.SIEGLINDE,
+				Item.IVALDI,
+				Item.VIDOFNIR,
+				Item.AUDHULMA,
+				Item.SIEGMUND,
+				Item.GARM,
+				Item.NIDHOGG
+				));
+	}
+	
+	public Set<GBAFEItem> weaponsWithEffectiveness() {
+		return new HashSet<GBAFEItem>(Arrays.asList(
+				Item.RAPIER,
+				Item.ARMORSLAYER,
+				Item.WYRMSLAYER,
+				Item.ZANBATO,
+				Item.SWORDSLAYER,
+				Item.IRON_BOW,
+				Item.SHADOWKILLER,
+				Item.BEACON_BOW
+				));
+	}
+	
+	public Set<GBAFEItem> weaponsOfTypeUpToRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean requiresMelee) {
+		if (type == Item.FE8WeaponType.DARK.toGeneralType() && rank == Item.FE8WeaponRank.E.toGeneralRank()) {
+			rank = WeaponRank.D;
+		}
+		return new HashSet<GBAFEItem>(Item.weaponsOfTypeAndRank(type, WeaponRank.E, rank, rangedOnly, requiresMelee));
+	}
+	
+	public Set<GBAFEItem> weaponsOfTypeAndEqualRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean requiresMelee, Boolean allowLower) {
+		if (type == Item.FE8WeaponType.DARK.toGeneralType() && rank == Item.FE8WeaponRank.E.toGeneralRank()) {
+			rank = WeaponRank.D;
+		}
+		
+		Set<Item> equalRankWeapons = Item.weaponsOfTypeAndRank(type, rank, rank, rangedOnly, requiresMelee);
+		if (equalRankWeapons.isEmpty() && allowLower) {
+			return weaponsOfTypeUpToRank(type, rank, rangedOnly, requiresMelee);
+		}
+		
+		return new HashSet<GBAFEItem>(equalRankWeapons);
+	}
+	
+	public Set<GBAFEItem> prfWeaponsForClassID(int classID) {
+		return new HashSet<GBAFEItem>(Item.prfWeaponsForClassID(classID));
+	}
+	
+	public Set<GBAFEItem> allPotentialChestRewards() {
+		return new HashSet<GBAFEItem>(Item.allPotentialRewards);
+	}
+	
+	public Set<GBAFEItem> relatedItemsToItem(GBAFEItem item) {
+		if (item == null) { return new HashSet<GBAFEItem>(); }
+		
+		Set<GBAFEItem> relatedItems;
+		if (item.isWeapon()) {
+			Set<GBAFEItem> relatedWeapons = new HashSet<GBAFEItem>();
+			relatedWeapons.addAll(Item.weaponsOfRank(item.getRank()));
+			relatedWeapons.addAll(Item.weaponsOfType(item.getType()));
+			relatedWeapons.removeAll(Item.allSRank);
+			relatedItems = relatedWeapons;
+		} else if (item.isStatBooster()) {
+			relatedItems = new HashSet<GBAFEItem>(Item.allStatBoosters);
+		} else if (item.isPromotionItem()) {
+			relatedItems = new HashSet<GBAFEItem>(Item.allPromotionItems);
+		} else {
+			relatedItems = new HashSet<GBAFEItem>();
+		}
+		
+		relatedItems.remove(item);
+		
+		return relatedItems;
+	}
+	
+	public Set<GBAFEItem> weaponsLockedToClass(int classID) {
+		return new HashSet<GBAFEItem>(Item.lockedWeaponsToClassID(classID));
+	}
+	
+	public String statBoostStringForWeapon(GBAFEItem weapon) {
+		if (weapon == Item.EXCALIBUR || weapon == Item.GARM) { return "+5 Speed"; }
+		if (weapon == Item.GLEIPNIR) { return "+5 Skill"; }
+		if (weapon == Item.SIEGLINDE || weapon == Item.SIEGMUND) { return "+5 Strength"; }
+		if (weapon == Item.IVALDI || weapon == Item.VIDOFNIR) { return "+5 Defense"; }
+		if (weapon == Item.AUDHULMA) { return "+5 Resistance"; }
+		if (weapon == Item.NIDHOGG) { return "+5 Luck"; }
+		
+		return null;
+	}
+	
+	public String effectivenessStringForWeapon(GBAFEItem weapon, Boolean shortString) {
+		if (weapon == Item.RAPIER) { return shortString ? "Eff. Infantry" : "Effective against infantry"; }
+		if (weapon == Item.ARMORSLAYER) { return shortString ? "Eff. Knights" : "Effective against knights"; }
+		if (weapon == Item.WYRMSLAYER) { return shortString ? "Eff. Dragons" : "Effective against dragons"; }
+		if (weapon == Item.ZANBATO) { return shortString ? "Eff. Cavalry" : "Effective against cavalry"; }
+		if (weapon == Item.SWORDSLAYER) { return shortString ? "Eff. Swordfighters" : "Effective against swordfighters"; }
+		if (weapon == Item.IRON_BOW) { return shortString ? "Eff. Fliers" : "Effective against fliers"; }
+		// Group Beacon Bow with Shadowkiller. It should be obvious that all bows are effective against fliers by default.
+		if (weapon == Item.SHADOWKILLER || weapon == Item.BEACON_BOW) { return shortString ? "Eff. Monsters" : "Effective against monsters"; }
+		
+		return null;
+	}
+	
+	public GBAFEItemData itemDataWithData(byte[] data, long offset, int itemID) {
+		return new FE8Item(data, offset, itemID);
+	}
+
+	public List<GBAFEClass> knightCavEffectivenessClasses() {
+		return new ArrayList<GBAFEClass>(Arrays.asList(
+				CharacterClass.CAVALIER,
+				CharacterClass.CAVALIER_F,
+				CharacterClass.PALADIN,
+				CharacterClass.PALADIN_F,
+				CharacterClass.GREAT_KNIGHT,
+				CharacterClass.GREAT_KNIGHT_F,
+				CharacterClass.KNIGHT,
+				CharacterClass.KNIGHT_F,
+				CharacterClass.GENERAL,
+				CharacterClass.GENERAL_F,
+				CharacterClass.RANGER,
+				CharacterClass.RANGER_F,
+				CharacterClass.TROUBADOUR,
+				CharacterClass.VALKYRIE,
+				CharacterClass.MAGE_KNIGHT,
+				CharacterClass.MAGE_KNIGHT_F,
+				CharacterClass.EIRIKA_MASTER_LORD,
+				CharacterClass.EPHRAIM_MASTER_LORD,
+				CharacterClass.TARVOS,
+				CharacterClass.MAELDUIN
+				));
+	}
+
+	public List<GBAFEClass> knightEffectivenessClasses() {
+		return new ArrayList<GBAFEClass>(Arrays.asList(
+				CharacterClass.GREAT_KNIGHT,
+				CharacterClass.GREAT_KNIGHT_F,
+				CharacterClass.KNIGHT,
+				CharacterClass.KNIGHT_F,
+				CharacterClass.GENERAL,
+				CharacterClass.GENERAL_F
+				));
+	}
+
+	public List<GBAFEClass> cavalryEffectivenessClasses() {
+		return new ArrayList<GBAFEClass>(Arrays.asList(
+				CharacterClass.CAVALIER,
+				CharacterClass.CAVALIER_F,
+				CharacterClass.PALADIN,
+				CharacterClass.PALADIN_F,
+				CharacterClass.GREAT_KNIGHT,
+				CharacterClass.GREAT_KNIGHT_F,
+				CharacterClass.RANGER,
+				CharacterClass.RANGER_F,
+				CharacterClass.TROUBADOUR,
+				CharacterClass.VALKYRIE,
+				CharacterClass.MAGE_KNIGHT,
+				CharacterClass.MAGE_KNIGHT_F,
+				CharacterClass.EIRIKA_MASTER_LORD,
+				CharacterClass.EPHRAIM_MASTER_LORD,
+				CharacterClass.TARVOS,
+				CharacterClass.MAELDUIN
+				));
+	}
+
+	public List<GBAFEClass> dragonEffectivenessClasses() {
+		return new ArrayList<GBAFEClass>(Arrays.asList(
+				CharacterClass.DRACOZOMBIE,
+				CharacterClass.MANAKETE,
+				CharacterClass.MANAKETE_2,
+				CharacterClass.MANAKETE_F,
+				CharacterClass.WYVERN_RIDER,
+				CharacterClass.WYVERN_RIDER_F,
+				CharacterClass.WYVERN_KNIGHT,
+				CharacterClass.WYVERN_KNIGHT_F,
+				CharacterClass.WYVERN_LORD,
+				CharacterClass.WYVERN_LORD_F
+				));
+	}
+
+	public List<GBAFEClass> flierEffectivenessClasses() {
+		return new ArrayList<GBAFEClass>(Arrays.asList(
+				CharacterClass.PEGASUS_KNIGHT,
+				CharacterClass.FALCON_KNIGHT,
+				CharacterClass.WYVERN_KNIGHT,
+				CharacterClass.WYVERN_KNIGHT_F,
+				CharacterClass.WYVERN_RIDER,
+				CharacterClass.WYVERN_RIDER_F,
+				CharacterClass.WYVERN_LORD,
+				CharacterClass.WYVERN_LORD_F,
+				CharacterClass.GARGOYLE,
+				CharacterClass.DEATHGOYLE,
+				CharacterClass.MANAKETE,
+				CharacterClass.MANAKETE_2,
+				CharacterClass.MANAKETE_F,
+				CharacterClass.DRACOZOMBIE
+				));
+	}
+
+	public List<GBAFEClass> myrmidonEffectivenessClasses() {
+		return new ArrayList<GBAFEClass>(Arrays.asList(
+				CharacterClass.MYRMIDON,
+				CharacterClass.MYRMIDON_F,
+				CharacterClass.SWORDMASTER,
+				CharacterClass.SWORDMASTER_F,
+				CharacterClass.MERCENARY,
+				CharacterClass.MERCENARY_F,
+				CharacterClass.HERO,
+				CharacterClass.HERO_F
+				));
+	}
+
+	public List<GBAFEClass> monsterEffectivenessClasses() {
+		return new ArrayList<GBAFEClass>(Arrays.asList(
+				CharacterClass.REVENANT,
+				CharacterClass.ENTOMBED,
+				CharacterClass.BONEWALKER,
+				CharacterClass.BONEWALKER_BOW,
+				CharacterClass.WIGHT,
+				CharacterClass.WIGHT_BOW,
+				CharacterClass.BAEL,
+				CharacterClass.ELDER_BAEL,
+				CharacterClass.ELDER_BAEL_2,
+				CharacterClass.CYCLOPS,
+				CharacterClass.CYCLOPS_2,
+				CharacterClass.MAUTHE_DOOG,
+				CharacterClass.GWYLLGI,
+				CharacterClass.TARVOS,
+				CharacterClass.MAELDUIN,
+				CharacterClass.MOGALL,
+				CharacterClass.ARCH_MOGALL,
+				CharacterClass.GORGON,
+				CharacterClass.GORGON_EGG,
+				CharacterClass.GARGOYLE,
+				CharacterClass.DEATHGOYLE,
+				CharacterClass.DRACOZOMBIE,
+				CharacterClass.DEMON_KING,
+				CharacterClass.MANAKETE,
+				CharacterClass.GHOST_FIGHTER
+				));
+	}
+
+	public GBAFEPromotionItem[] allPromotionItems() {
+		return PromotionItem.values();
+	}
+
+	public List<GBAFEClass> additionalClassesForPromotionItem(GBAFEPromotionItem promotionItem,
+			List<Byte> existingClassIDs) {
+		if (promotionItem == PromotionItem.KNIGHT_CREST) {
+			return new ArrayList<GBAFEClass>(Arrays.asList(
+					CharacterClass.EIRIKA_LORD,
+					CharacterClass.EPHRAIM_LORD,
+					CharacterClass.SOLDIER,
+					CharacterClass.BAEL,
+					CharacterClass.TARVOS
+					));
+		}
+		if (promotionItem == PromotionItem.HERO_CREST) {
+			return new ArrayList<GBAFEClass>(Arrays.asList(
+					CharacterClass.REVENANT,
+					CharacterClass.BONEWALKER,
+					CharacterClass.MAUTHE_DOOG
+					));
+		}
+		if (promotionItem == PromotionItem.ELYSIAN_WHIP) {
+			return new ArrayList<GBAFEClass>(Arrays.asList(CharacterClass.GARGOYLE));
+		}
+		if (promotionItem == PromotionItem.ORION_BOLT) {
+			return new ArrayList<GBAFEClass>(Arrays.asList(CharacterClass.BONEWALKER_BOW));
+		}
+		if (promotionItem == PromotionItem.GUIDING_RING) {
+			return new ArrayList<GBAFEClass>(Arrays.asList(CharacterClass.MOGALL));
+		}
+		if (promotionItem == PromotionItem.MASTER_SEAL) {
+			return new ArrayList<GBAFEClass>(Arrays.asList(
+					CharacterClass.EPHRAIM_LORD,
+					CharacterClass.EIRIKA_LORD,
+					CharacterClass.SOLDIER,
+					CharacterClass.BAEL,
+					CharacterClass.TARVOS,
+					CharacterClass.REVENANT,
+					CharacterClass.BONEWALKER,
+					CharacterClass.MAUTHE_DOOG,
+					CharacterClass.GARGOYLE,
+					CharacterClass.BONEWALKER_BOW,
+					CharacterClass.MOGALL
+					));
+		}
+		
+		return new ArrayList<GBAFEClass>();
+	}
+
+	public long spellAnimationTablePointer() {
+		return SpellAnimationTablePointer;
+	}
+
+	public int numberOfAnimations() {
+		return NumberOfSpellAnimations;
+	}
+
+	public int bytesPerAnimation() {
+		return BytesPerSpellAnimation;
+	}
+
+	public GBAFESpellAnimationCollection spellAnimationCollectionAtAddress(byte[] data, long offset) {
+		return new FE8SpellAnimationCollection(data, offset);
 	}
 }
