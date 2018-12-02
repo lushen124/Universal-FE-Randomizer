@@ -1756,7 +1756,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public Set<GBAFEItem> prfWeaponsForClassID(int classID) {
-		return new HashSet<GBAFEItem>(Item.prfWeaponsForClassID(classID));
+		Set<Item> weapons = Item.prfWeaponsForClassID(classID);
+		 if (weapons == null) { return new HashSet<GBAFEItem>(); }
+		return new HashSet<GBAFEItem>(weapons);
 	}
 	
 	public Set<GBAFEItem> allPotentialChestRewards() {
@@ -1791,7 +1793,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public Set<GBAFEItem> weaponsLockedToClass(int classID) {
-		return new HashSet<GBAFEItem>(Item.lockedWeaponsToClassID(classID));
+		Set<Item> lockedWeapons = Item.lockedWeaponsToClassID(classID);
+		if (lockedWeapons == null) { return new HashSet<GBAFEItem>(); }
+		return new HashSet<GBAFEItem>(lockedWeapons);
 	}
 
 	public Set<GBAFEItem> weaponsForClass(int classID) {
@@ -1946,7 +1950,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng) {
-		return new HashSet<GBAFEItem>(Item.specialClassKit(classID, rng));
+		Set<Item> kit = Item.specialClassKit(classID, rng);
+		if (kit == null) { return new HashSet<GBAFEItem>(); }
+		return new HashSet<GBAFEItem>(kit);
 	}
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon) {
