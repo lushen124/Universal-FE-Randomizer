@@ -437,6 +437,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			switch(sourceClass) {
 			case LORD: // Special case for Roy to be able to always use swords (and have promotions)
 				return new HashSet<CharacterClass>(Arrays.asList(LORD, MYRMIDON, MERCENARY, MYRMIDON_F, CAVALIER, PEGASUS_KNIGHT, NOMAD));
+			case THIEF_F: // Temporary fix to make sure the game is playable. Thief AI tends to lock up the game if they're randomized to something else. The only relevent thief for us is Cath.
+				return new HashSet<CharacterClass>(Arrays.asList(THIEF_F));
 			case WYVERN_RIDER:
 			case WYVERN_RIDER_F:
 			case PEGASUS_KNIGHT:
