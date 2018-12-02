@@ -13,8 +13,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
-import fedata.FEBase.GameType;
+import fedata.general.FEBase.GameType;
 import ui.WeaponEffectSelectionView.WeaponEffectSelectionViewListener;
+import ui.general.MinMaxControl;
 import ui.model.MinMaxVarOption;
 import ui.model.WeaponOptions;
 

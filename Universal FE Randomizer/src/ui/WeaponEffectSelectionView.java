@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import fedata.FEBase.GameType;
+import fedata.general.FEBase.GameType;
 import ui.model.WeaponEffectOptions;
 
 public class WeaponEffectSelectionView extends Composite {

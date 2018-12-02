@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
-import fedata.FEBase.GameType;
+import fedata.general.FEBase.GameType;
 import ui.model.ClassOptions;
 
 public class ClassesView extends Composite {

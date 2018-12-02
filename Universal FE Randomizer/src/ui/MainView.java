@@ -24,15 +24,17 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import application.Main;
-import fedata.FEBase.GameType;
-import fedata.fe6.FE6Data;
-import fedata.fe7.FE7Data;
-import fedata.fe8.FE8Data;
+import fedata.gba.fe6.FE6Data;
+import fedata.gba.fe7.FE7Data;
+import fedata.gba.fe8.FE8Data;
+import fedata.general.FEBase.GameType;
 import io.FileHandler;
-import random.Randomizer;
-import random.RandomizerListener;
+import random.gba.randomizer.GBARandomizer;
+import random.general.RandomizerListener;
+import ui.general.FileFlowDelegate;
 import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
+import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
 import util.DiffCompiler;
 import util.SeedGenerator;
@@ -433,7 +435,7 @@ public class MainView implements FileFlowDelegate {
 								}
 							}
 							
-							Randomizer randomizer = new Randomizer(pathToFile, writePath, gameType, compiler, 
+							GBARandomizer randomizer = new GBARandomizer(pathToFile, writePath, gameType, compiler, 
 									growthView.getGrowthOptions(),
 									baseView.getBaseOptions(),
 									classView.getClassOptions(),

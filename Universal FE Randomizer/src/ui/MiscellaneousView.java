@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
-import fedata.FEBase.GameType;
+import fedata.general.FEBase.GameType;
 import ui.model.MiscellaneousOptions;
 
 public class MiscellaneousView extends Composite {

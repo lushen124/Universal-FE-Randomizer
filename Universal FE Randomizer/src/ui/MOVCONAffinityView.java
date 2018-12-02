@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
+import ui.general.MinMaxControl;
 import ui.model.MinMaxOption;
 import ui.model.MinVarOption;
 import ui.model.OtherCharacterOptions;

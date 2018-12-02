@@ -2,12 +2,10 @@ package util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import fedata.FEBase;
+import fedata.general.FEBase;
 import io.FileHandler;
 
 public class HuffmanHelper {
@@ -87,6 +85,7 @@ public class HuffmanHelper {
 		public Boolean isTerminal;
 		public long nodeValue;
 		
+		@SuppressWarnings("unused")
 		public CacheEntry parent;
 		public CacheEntry left;
 		public CacheEntry right;
@@ -139,13 +138,11 @@ public class HuffmanHelper {
 	}
 	
 	private class EncoderEntry {
-		public char character;
 		public Bitstream stream;
 		
 		public Map<Character, EncoderEntry> followups;
 		
-		public EncoderEntry(char character, Bitstream stream) {
-			this.character = character;
+		public EncoderEntry(Bitstream stream) {
 			if (stream != null) {
 				this.stream = new Bitstream(stream);
 			}
@@ -181,16 +178,16 @@ public class HuffmanHelper {
 				EncoderEntry entry = encoder[index];
 				if (entry == null) {
 					if (root.value.hasValue2 && root.value.value2 >= 0x20 && root.value.value2 <= 0x7E) {
-						entry = new EncoderEntry((char)root.value.value1, null);
+						entry = new EncoderEntry(null);
 						encoder[index] = entry;
-						entry.followups.put((char)root.value.value2, new EncoderEntry((char)root.value.value2, root.value.stream));
+						entry.followups.put((char)root.value.value2, new EncoderEntry(root.value.stream));
 					} else {
-						entry = new EncoderEntry((char)root.value.value1, root.value.stream);
+						entry = new EncoderEntry(root.value.stream);
 						encoder[index] = entry;
 					}
 				} else {
 					if (root.value.hasValue2 && root.value.value2 >= 0x20 && root.value.value2 <= 0x7E) {
-						entry.followups.put((char)root.value.value2, new EncoderEntry((char)root.value.value2, root.value.stream));
+						entry.followups.put((char)root.value.value2, new EncoderEntry(root.value.stream));
 					} else {
 						if (entry.stream == null) {
 							entry.stream = new Bitstream(root.value.stream);
@@ -224,7 +221,7 @@ public class HuffmanHelper {
 		
 		Boolean isMarked = (textAddress & 0x80000000) != 0;
 		long maskedAddress = textAddress & 0x7FFFFFFF;
-		if (isMarked) { maskedAddress -= 0x8000000; }
+		if (maskedAddress > 0x08000000) { maskedAddress -= 0x8000000; }
 		
 		byte currentByte = 0;
 		
