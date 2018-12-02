@@ -74,6 +74,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
+	public static final GBAFEItemProvider itemProvider = sharedInstance;
 	
 	public enum Character implements GBAFECharacter {
 		NONE(0x00),
@@ -806,6 +807,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(DURANDAL, MALTET, ARMADS, MURGLEIS, FORBLAZE, APOCALYPSE, HOLY_MAIDEN, AUREOLA));
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(RAPIER, BINDING_BLADE, ECKESACHS));
 		
+		public static Set<Item> allRestrictedWeapons = new HashSet<Item>(Arrays.asList(WO_DAO));
+		
 		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, FIRE, LIGHTNING, FLUX));
 		
 		public static Set<Item> basicItemsOfType(WeaponType type) {
@@ -935,6 +938,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<Item> weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange) {
 			if (min == WeaponRank.PRF || max == WeaponRank.PRF) {
+				return null;
+			}
+			
+			if (min == WeaponRank.NONE && max == WeaponRank.NONE) {
 				return null;
 			}
 			
@@ -1754,8 +1761,12 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEItem>(Item.allPotentialRewards);
 	}
 	
-	public Set<GBAFEItem> relatedItemsToItem(GBAFEItem item) {
+	public Set<GBAFEItem> relatedItemsToItem(GBAFEItemData itemData) {
+		if (itemData == null) { return new HashSet<GBAFEItem>(); }
+		
+		Item item = Item.valueOf(itemData.getID());
 		if (item == null) { return new HashSet<GBAFEItem>(); }
+		
 		Set<GBAFEItem> relatedItems;
 		
 		if (item.isWeapon()) {
@@ -1779,6 +1790,161 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> weaponsLockedToClass(int classID) {
 		return new HashSet<GBAFEItem>(Item.lockedWeaponsToClassID(classID));
+	}
+
+	public Set<GBAFEItem> weaponsForClass(int classID) {
+		CharacterClass charClass = CharacterClass.valueOf(classID);
+		if (charClass == null) { return new HashSet<GBAFEItem>(); }
+		
+		Set<GBAFEItem> usableItems = new HashSet<GBAFEItem>();
+		
+		switch (charClass) {
+		case MYRMIDON:
+		case MYRMIDON_F:
+		case SWORDMASTER:
+		case SWORDMASTER_F:
+		case MERCENARY:
+		case MERCENARY_F:
+		case LORD:
+		case MASTER_LORD:
+		case THIEF:
+		case THIEF_F:
+			usableItems.addAll(Item.allSwords);
+			break;
+		case FIGHTER:
+		case BERSERKER:
+		case PIRATE:
+		case BRIGAND:
+			usableItems.addAll(Item.allAxes);
+			break;
+		case KNIGHT:
+		case KNIGHT_F:
+		case WYVERN_RIDER:
+		case WYVERN_RIDER_F:
+		case SOLDIER:
+		case PEGASUS_KNIGHT:
+			usableItems.addAll(Item.allLances);
+			break;
+		case ARCHER:
+		case ARCHER_F:
+		case SNIPER:
+		case SNIPER_F:
+		case NOMAD:
+		case NOMAD_F:
+			usableItems.addAll(Item.allBows);
+			break;
+		case MAGE:
+		case MAGE_F:
+		case VALKYRIE:
+		case SAGE:
+		case SAGE_F:
+			usableItems.addAll(Item.allAnima);
+			break;
+		case SHAMAN:
+		case SHAMAN_F:
+		case DRUID:
+		case DRUID_F:
+			usableItems.addAll(Item.allDark);
+			break;
+		case BISHOP:
+		case BISHOP_F:
+			usableItems.addAll(Item.allLight);
+			break;
+		case CAVALIER:
+		case CAVALIER_F:
+		case FALCON_KNIGHT:
+		case WYVERN_KNIGHT:
+		case WYVERN_KNIGHT_F:
+			usableItems.addAll(Item.allSwords);
+			usableItems.addAll(Item.allLances);
+			break;
+		case HERO:
+		case HERO_F:
+			usableItems.addAll(Item.allSwords);
+			usableItems.addAll(Item.allAxes);
+			break;
+		case WARRIOR:
+			usableItems.addAll(Item.allAxes);
+			usableItems.addAll(Item.allBows);
+			break;
+		case GENERAL:
+		case GENERAL_F:
+			usableItems.addAll(Item.allLances);
+			usableItems.addAll(Item.allAxes);
+			break;
+		case NOMAD_TROOPER:
+		case NOMAD_TROOPER_F:
+			usableItems.addAll(Item.allSwords);
+			usableItems.addAll(Item.allBows);
+			break;
+		case PALADIN:
+		case PALADIN_F:
+			usableItems.addAll(Item.allSwords);
+			usableItems.addAll(Item.allLances);
+			usableItems.addAll(Item.allAxes);
+			break;
+		default:
+			break;
+		}
+		
+		usableItems.removeAll(Item.allRestrictedWeapons);
+		usableItems.removeAll(Item.allPrfRank);
+		usableItems.addAll(weaponsLockedToClass(classID));
+		usableItems.addAll(prfWeaponsForClassID(classID));
+		
+		return usableItems;
+	}
+	
+	public Set<GBAFEItem> basicWeaponsForClass(int classID) {
+		Set<GBAFEItem> itemsUsableByClass = new HashSet<GBAFEItem>(weaponsForClass(classID));
+		itemsUsableByClass.retainAll(Item.allBasicWeapons);
+		return itemsUsableByClass;
+	}
+
+	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem) {
+		if (originalItem == null) { return new HashSet<GBAFEItem>(); }
+		Item item = Item.valueOf(originalItem.getID());
+		if (item == null) { return new HashSet<GBAFEItem>(); }
+		
+		Set<GBAFEItem> itemsUsableByClass = new HashSet<GBAFEItem>(weaponsForClass(classID));
+		
+		switch (item.getRank()) {
+		case E:
+			itemsUsableByClass.retainAll(Item.allERank);
+			break;
+		case D:
+			itemsUsableByClass.retainAll(Item.allDRank);
+			break;
+		case C:
+			itemsUsableByClass.retainAll(Item.allCRank);
+			break;
+		case B:
+			itemsUsableByClass.retainAll(Item.allBRank);
+			break;
+		case A:
+			itemsUsableByClass.retainAll(Item.allARank);
+			break;
+		case S:
+			itemsUsableByClass.retainAll(Item.allSRank);
+			break;
+		default:
+			itemsUsableByClass.clear();
+			break;
+		}
+		
+		return itemsUsableByClass;
+	}
+
+	public Set<GBAFEItem> formerThiefInventory() {
+		return new HashSet<GBAFEItem>(Item.formerThiefKit());
+	}
+
+	public Set<GBAFEItem> thiefItemsToRemove() {
+		return new HashSet<GBAFEItem>(Item.itemsToRemoveFromFormerThief());
+	}
+
+	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng) {
+		return new HashSet<GBAFEItem>(Item.specialClassKit(classID, rng));
 	}
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon) {

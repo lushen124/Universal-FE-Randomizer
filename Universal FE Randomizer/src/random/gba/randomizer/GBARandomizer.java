@@ -257,7 +257,7 @@ public class GBARandomizer extends Thread {
 		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
 		updateStatusString("Loading Item Data...");
 		updateProgress(0.45);
-		itemData = new ItemDataLoader(FEBase.GameType.FE7, handler, freeSpace);
+		itemData = new ItemDataLoader(FE7Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.50);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
@@ -289,7 +289,7 @@ public class GBARandomizer extends Thread {
 		chapterData = new ChapterLoader(FEBase.GameType.FE6, handler);
 		updateStatusString("Loading Item Data...");
 		updateProgress(0.45);
-		itemData = new ItemDataLoader(FEBase.GameType.FE6, handler, freeSpace);
+		itemData = new ItemDataLoader(FE6Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.50);
 		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler);
@@ -323,7 +323,7 @@ public class GBARandomizer extends Thread {
 		chapterData = new ChapterLoader(FEBase.GameType.FE8, handler);
 		updateStatusString("Loading Item Data...");
 		updateProgress(0.35);
-		itemData = new ItemDataLoader(FEBase.GameType.FE8, handler, freeSpace);
+		itemData = new ItemDataLoader(FE8Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.40);
 		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler);

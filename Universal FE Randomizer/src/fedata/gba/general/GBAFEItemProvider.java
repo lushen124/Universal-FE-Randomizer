@@ -1,6 +1,7 @@
 package fedata.gba.general;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import fedata.gba.GBAFEItemData;
@@ -31,8 +32,12 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> allPotentialChestRewards();
 	public Set<GBAFEItem> relatedItemsToItem(GBAFEItemData item);
 	public Set<GBAFEItem> weaponsLockedToClass(int classID);
+	public Set<GBAFEItem> weaponsForClass(int classID);
 	public Set<GBAFEItem> basicWeaponsForClass(int classID);
 	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem);
+	public Set<GBAFEItem> formerThiefInventory();
+	public Set<GBAFEItem> thiefItemsToRemove();
+	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng);
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon);
 	public String effectivenessStringForWeapon(GBAFEItem weapon, Boolean shortString);

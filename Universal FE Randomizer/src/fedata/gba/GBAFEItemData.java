@@ -20,10 +20,21 @@ public interface GBAFEItemData extends GBAFEModifiableData {
 	
 	public WeaponType getType();
 	
+	public boolean hasAbility1();
 	public int getAbility1();
+	public String getAbility1Description(String delimiter);
+	
+	public boolean hasAbility2();
 	public int getAbility2();
+	public String getAbility2Description(String delimiter);
+	
+	public boolean hasAbility3();
 	public int getAbility3();
+	public String getAbility3Description(String delimiter);
+	
+	public boolean hasAbility4();
 	public int getAbility4();
+	public String getAbility4Description(String delimiter);
 	
 	public long getStatBonusPointer();
 	public long getEffectivenessPointer();
@@ -38,7 +49,10 @@ public interface GBAFEItemData extends GBAFEModifiableData {
 	public int getMaxRange();
 	
 	public WeaponRank getWeaponRank();
+	
+	public boolean hasWeaponEffect();
 	public int getWeaponEffect();
+	public String getWeaponEffectDescription();
 	
 	public void setDurability(int durability);
 	public void setMight(int might);

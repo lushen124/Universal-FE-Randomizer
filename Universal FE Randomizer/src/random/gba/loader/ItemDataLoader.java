@@ -3,10 +3,8 @@ package random.gba.loader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -16,23 +14,12 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
-import fedata.gba.fe6.FE6Data;
-import fedata.gba.fe6.FE6Item;
-import fedata.gba.fe6.FE6SpellAnimationCollection;
-import fedata.gba.fe7.FE7Data;
-import fedata.gba.fe7.FE7Item;
-import fedata.gba.fe7.FE7SpellAnimationCollection;
-import fedata.gba.fe8.FE8Data;
-import fedata.gba.fe8.FE8Item;
-import fedata.gba.fe8.FE8SpellAnimationCollection;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEItem;
 import fedata.gba.general.GBAFEItemProvider;
 import fedata.gba.general.GBAFEPromotionItem;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
-import fedata.general.FEBase;
-import fedata.general.FEBase.GameType;
 import io.FileHandler;
 import util.Diff;
 import util.DiffCompiler;
@@ -351,21 +338,16 @@ public class ItemDataLoader {
 	public GBAFEItemData getRandomWeaponForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, Random rng) {
 		GBAFEItemData[] potentialItems = usableWeaponsForCharacter(character, ranged, melee);
 		if (potentialItems == null || potentialItems.length < 1) {
-			if (gameType == GameType.FE8) {
-				// Monster weapons...
-				if (FE8Data.CharacterClass.allMonsterClasses.contains(FE8Data.CharacterClass.valueOf(character.getClassID()))) {
-					FE8Data.Item basicMonsterWeapon = FE8Data.Item.equivalentMonsterWeapon(0, character.getClassID());
-					if (basicMonsterWeapon != null) { return itemWithID(basicMonsterWeapon.ID); }
-				}
+			// Check class specific weapons (e.g. FE8 monsters)
+			potentialItems = feItemsFromItemSet(provider.weaponsForClass(character.getClassID()));
+			if (potentialItems == null || potentialItems.length < 1) {
+				return null;
 			}
-			return null;
 		}
 		
 		int index = rng.nextInt(potentialItems.length);
 		return potentialItems[index];
 	}
-	
-	
 	
 	private GBAFEItemData[] usableWeaponsForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee) {
 		ArrayList<GBAFEItemData> items = new ArrayList<GBAFEItemData>();
@@ -383,59 +365,15 @@ public class ItemDataLoader {
 	}
 	
 	public GBAFEItemData[] formerThiefInventory() {
-		switch (gameType) {
-		case FE6:
-			return itemsFromFE6Items(FE6Data.Item.formerThiefKit());
-		case FE7:
-			return itemsFromFE7Items(FE7Data.Item.formerThiefKit());
-		case FE8:
-			return itemsFromFE8Items(FE8Data.Item.formerThiefKit());
-		default:
-			return new GBAFEItemData[] {};
-		}
+		return feItemsFromItemSet(provider.formerThiefInventory());
 	}
 	
 	public GBAFEItemData[] thiefItemsToRemove() {
-		switch (gameType) {
-		case FE6:
-			return itemsFromFE6Items(FE6Data.Item.itemsToRemoveFromFormerThief());
-		case FE7:
-			return itemsFromFE7Items(FE7Data.Item.itemsToRemoveFromFormerThief());
-		case FE8:
-			return itemsFromFE8Items(FE8Data.Item.itemsToRemoveFromFormerThief());
-		default:
-			return new GBAFEItemData[] {};
-		}
+		return feItemsFromItemSet(provider.thiefItemsToRemove());
 	}
 	
 	public GBAFEItemData[] specialInventoryForClass(int classID, Random rng) {
-		switch (gameType) {
-		case FE6: {
-			Set<FE6Data.Item> items = FE6Data.Item.specialClassKit(classID, rng);
-			if (items != null) {
-				return itemsFromFE6Items(items);
-			}
-			break;
-		}
-		case FE7: {
-			Set<FE7Data.Item> items = FE7Data.Item.specialClassKit(classID, rng);
-			if (items != null) {
-				return itemsFromFE7Items(items);
-			}
-			break;
-		}
-		case FE8: {
-			Set<FE8Data.Item> items = FE8Data.Item.specialClassKit(classID, rng);
-			if (items != null) {
-				return itemsFromFE8Items(items);
-			}
-			break;
-		}
-		default:
-			break;
-		}
-		
-		return new GBAFEItemData[] {};
+		return feItemsFromItemSet(provider.itemKitForSpecialClass(classID, rng));
 	}
 	
 	public void commit() {
@@ -465,48 +403,6 @@ public class ItemDataLoader {
 				compiler.addDiff(new Diff(targetOffset, addressByteArray.length, addressByteArray, null));
 			}
 		}
-	}
-	
-	private GBAFEItemData[] itemsFromFE7Items(Collection<FE7Data.Item> fe7Items) {
-		if (fe7Items == null) {
-			return new GBAFEItemData[] {};
-		}
-		
-		List<FE7Data.Item> itemList = new ArrayList<FE7Data.Item>(fe7Items);
-		Collections.sort(itemList, FE7Data.Item.itemIDComparator());
-		 GBAFEItemData[] items = new GBAFEItemData[itemList.size()];
-		 for (int i = 0; i < itemList.size(); i++) {
-			 items[i] = itemWithID(itemList.get(i).ID);
-		 }
-		 return items;
-	}
-	
-	private GBAFEItemData[] itemsFromFE6Items(Collection<FE6Data.Item> fe6Items) {
-		if (fe6Items == null) {
-			return new GBAFEItemData[] {};
-		}
-		
-		List<FE6Data.Item> itemList = new ArrayList<FE6Data.Item>(fe6Items);
-		Collections.sort(itemList, FE6Data.Item.itemIDComparator());
-		GBAFEItemData[] items = new GBAFEItemData[itemList.size()];
-		 for (int i = 0; i < itemList.size(); i++) {
-			 items[i] = itemWithID(itemList.get(i).ID);
-		 }		
-		 return items;
-	}
-	
-	private GBAFEItemData[] itemsFromFE8Items(Collection<FE8Data.Item> fe8Items) {
-		if (fe8Items == null) {
-			return new GBAFEItemData[] {};
-		}
-		
-		List<FE8Data.Item> itemList = new ArrayList<FE8Data.Item>(fe8Items);
-		Collections.sort(itemList, FE8Data.Item.itemIDComparator());
-		GBAFEItemData[] items = new GBAFEItemData[itemList.size()];
-		 for (int i = 0; i < itemList.size(); i++) {
-			 items[i] = itemWithID(itemList.get(i).ID);
-		 }		
-		 return items;
 	}
 	
 	private GBAFEItemData[] feItemsFromItemSet(Set<GBAFEItem> itemSet) {
@@ -597,24 +493,20 @@ public class ItemDataLoader {
 				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "None");
 			}
 			
-			int ability1Value = item.getAbility1();
-			int ability2Value = item.getAbility2();
-			int ability3Value = item.getAbility3();
-			int effectValue = item.getWeaponEffect();
-			switch(gameType) {
-			case FE6:
-				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", FE6Data.Item.Ability1Mask.stringOfActiveAbilities(ability1Value, "<br>"));
-				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", FE6Data.Item.Ability2Mask.stringOfActiveAbilities(ability2Value, "<br>"));
-				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effect", FE6Data.Item.WeaponEffect.stringOfActiveEffect(effectValue));
-				break;
-			case FE7:
-				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", FE7Data.Item.Ability1Mask.stringOfActiveAbilities(ability1Value, "<br>"));
-				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", FE7Data.Item.Ability2Mask.stringOfActiveAbilities(ability2Value, "<br>"));
-				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 3", FE7Data.Item.Ability3Mask.stringOfActiveAbilities(ability3Value, "<br>"));
-				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effect", FE7Data.Item.WeaponEffect.stringOfActiveEffect(effectValue));
-				break;
-			default:
-				break;
+			if (item.hasAbility1()) {
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", item.getAbility1Description("<br>"));
+			}
+			if (item.hasAbility2()) {
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", item.getAbility2Description("<br>"));
+			}
+			if (item.hasAbility3()) {
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 3", item.getAbility3Description("<br>"));
+			}
+			if (item.hasAbility4()) {
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Ability 4", item.getAbility4Description("<br>"));
+			}
+			if (item.hasWeaponEffect()) {
+				rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effect", item.getWeaponEffectDescription());
 			}
 			
 			rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Range", String.format("%d ~ %d", item.getMinRange(), item.getMaxRange()));
@@ -683,24 +575,20 @@ public class ItemDataLoader {
 				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "None");
 			}
 			
-			int ability1Value = item.getAbility1();
-			int ability2Value = item.getAbility2();
-			int ability3Value = item.getAbility3();
-			int effectValue = item.getWeaponEffect();
-			switch(gameType) {
-			case FE6:
-				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", FE6Data.Item.Ability1Mask.stringOfActiveAbilities(ability1Value, "<br>"));
-				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", FE6Data.Item.Ability2Mask.stringOfActiveAbilities(ability2Value, "<br>"));
-				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effect", FE6Data.Item.WeaponEffect.stringOfActiveEffect(effectValue));
-				break;
-			case FE7:
-				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", FE7Data.Item.Ability1Mask.stringOfActiveAbilities(ability1Value, "<br>"));
-				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", FE7Data.Item.Ability2Mask.stringOfActiveAbilities(ability2Value, "<br>"));
-				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 3", FE7Data.Item.Ability3Mask.stringOfActiveAbilities(ability3Value, "<br>"));
-				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effect", FE7Data.Item.WeaponEffect.stringOfActiveEffect(effectValue));
-				break;
-			default:
-				break;
+			if (item.hasAbility1()) {
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 1", item.getAbility1Description("<br>"));
+			}
+			if (item.hasAbility2()) {
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 2", item.getAbility2Description("<br>"));
+			}
+			if (item.hasAbility3()) {
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 3", item.getAbility3Description("<br>"));
+			}
+			if (item.hasAbility4()) {
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Ability 4", item.getAbility4Description("<br>"));
+			}
+			if (item.hasWeaponEffect()) {
+				rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effect", item.getWeaponEffectDescription());
 			}
 			
 			rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Range", String.format("%d ~ %d", item.getMinRange(), item.getMaxRange()));

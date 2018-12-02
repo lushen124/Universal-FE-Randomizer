@@ -92,6 +92,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
+	public static final GBAFEItemProvider itemProvider = sharedInstance;
 	
 	public enum Character implements GBAFECharacter {
 		NONE(0x00),
@@ -897,6 +898,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allDark = new HashSet<Item>(Arrays.asList(FLUX, LUNA, NOSFERATU, ECLIPSE, FENRIR, GLEIPNIR, NAGLFAR));
 		public static Set<Item> allMonsterWeapons = new HashSet<Item>(Arrays.asList(SHARP_CLAW, WRETCHED_AIR, DRAGONSTONE, DEMON_SURGE, SHADOWSHOT, ROTTEN_CLAW, FETID_CLAW, POISON_CLAW, LETHAL_TALON,
 		FIERY_FANG, HELLFANG, EVIL_EYE, CRIMSON_EYE, STONE));
+		
 		public static Set<Item> allHealingStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, LATONA));
 		public static Set<Item> allSupportStaves = new HashSet<Item>(Arrays.asList(RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER));
 		public static Set<Item> allStatusStaves = new HashSet<Item>(Arrays.asList(SILENCE, SLEEP, BERSERK));
@@ -953,6 +955,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allARank = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, SILVER_AXE, TOMAHAWK, SILVER_BOW, FORTIFY, WARP, FIMBULVETR, AURA, FENRIR));
 		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(AUDHULMA, VIDOFNIR, GARM, NIDHOGG, LATONA, EXCALIBUR, IVALDI, GLEIPNIR, NAGLFAR));
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(REGINLEIF, RAPIER, SIEGMUND, SIEGLINDE));
+		
+		public static Set<Item> allRestrictedWeapons = new HashSet<Item>(Arrays.asList(SHAMSHIR));
 		
 		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, FIRE, LIGHTNING, FLUX, ROTTEN_CLAW, FIERY_FANG, EVIL_EYE));
 		
@@ -1132,28 +1136,63 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			}
 		}
 		
-		public static Boolean canMonsterClassUseItem(int itemID, int classID) {
+		public static Set<Item> monsterWeaponsForMonsterClass(int classID) {
 			CharacterClass charClass = CharacterClass.valueOf(classID);
-			if (!CharacterClass.allMonsterClasses.contains(charClass)) { return false; }
-			Item item = valueOf(itemID);
+			if (!CharacterClass.allMonsterClasses.contains(charClass)) { return new HashSet<Item>(); }
 			switch (charClass) {
 			case REVENANT:
 			case ENTOMBED:
 			case BAEL:
 			case ELDER_BAEL:
 			case ELDER_BAEL_2:
-				return new HashSet<Item>(Arrays.asList(POISON_CLAW, FETID_CLAW, ROTTEN_CLAW, LETHAL_TALON, SHARP_CLAW)).contains(item);
+				return new HashSet<Item>(Arrays.asList(POISON_CLAW, FETID_CLAW, ROTTEN_CLAW, LETHAL_TALON, SHARP_CLAW));
 			case MAUTHE_DOOG:
 			case GWYLLGI:
-				return new HashSet<Item>(Arrays.asList(FIERY_FANG, HELLFANG)).contains(item);
+				return new HashSet<Item>(Arrays.asList(FIERY_FANG, HELLFANG));
 			case MOGALL:
 			case ARCH_MOGALL:
-				return new HashSet<Item>(Arrays.asList(EVIL_EYE, CRIMSON_EYE, SHADOWSHOT)).contains(item);
+				return new HashSet<Item>(Arrays.asList(EVIL_EYE, CRIMSON_EYE, SHADOWSHOT));
 			case GORGON:
-				return new HashSet<Item>(Arrays.asList(DEMON_SURGE, SHADOWSHOT, STONE)).contains(item);
+				return new HashSet<Item>(Arrays.asList(DEMON_SURGE, SHADOWSHOT, STONE));
 			default:
-				return false;
+				return new HashSet<Item>();
+			}	
+		}
+		
+		public static WeaponRank relativeRankForMonsterWeapon(int itemID) {
+			Item monsterWeapon = Item.valueOf(itemID);
+			if (monsterWeapon == null) { return WeaponRank.NONE; }
+			if (allMonsterWeapons.contains(monsterWeapon)) {
+				switch (monsterWeapon) {
+				case ROTTEN_CLAW:
+					return WeaponRank.E;
+				case FIERY_FANG:
+				case POISON_CLAW:
+					return WeaponRank.D;
+				case LETHAL_TALON:
+				case EVIL_EYE:
+				case DEMON_SURGE:
+					return WeaponRank.C;
+				case FETID_CLAW:
+				case HELLFANG:
+				case STONE:
+					return WeaponRank.B;
+				case CRIMSON_EYE:
+				case SHARP_CLAW:
+				case SHADOWSHOT:
+					return WeaponRank.A;
+				default:
+					return WeaponRank.E;
+				}
+			} else {
+				return monsterWeapon.getRank();
 			}
+		}
+		
+		public static Boolean canMonsterClassUseItem(int itemID, int classID) {
+			Item item = valueOf(itemID);
+			if (item == null) { return false; }
+			return monsterWeaponsForMonsterClass(classID).contains(item);
 		}
 		
 		public static Item basicMonsterWeapon(int classID) {
@@ -1228,6 +1267,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<Item> weaponsOfTypeAndRank(WeaponType type, WeaponRank min, WeaponRank max, Boolean requiresRange, Boolean requiresMelee) {
 			if (min == WeaponRank.PRF || max == WeaponRank.PRF) {
+				return null;
+			}
+			
+			if (min == WeaponRank.NONE && max == WeaponRank.NONE) {
 				return null;
 			}
 			
@@ -2375,7 +2418,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEItem>(Item.allPotentialRewards);
 	}
 	
-	public Set<GBAFEItem> relatedItemsToItem(GBAFEItem item) {
+	public Set<GBAFEItem> relatedItemsToItem(GBAFEItemData itemData) {
+		if (itemData == null) { return new HashSet<GBAFEItem>(); }
+		Item item = Item.valueOf(itemData.getID());
 		if (item == null) { return new HashSet<GBAFEItem>(); }
 		
 		Set<GBAFEItem> relatedItems;
@@ -2400,6 +2445,222 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> weaponsLockedToClass(int classID) {
 		return new HashSet<GBAFEItem>(Item.lockedWeaponsToClassID(classID));
+	}
+	
+	public Set<GBAFEItem> weaponsForClass(int classID) {
+		CharacterClass charClass = CharacterClass.valueOf(classID);
+		if (charClass == null) { return new HashSet<GBAFEItem>(); }
+		
+		Set<GBAFEItem> usableItems = new HashSet<GBAFEItem>();
+		
+		switch (charClass) {
+		case EIRIKA_LORD:
+		case EIRIKA_MASTER_LORD:
+		case MYRMIDON:
+		case MYRMIDON_F:
+		case SWORDMASTER:
+		case SWORDMASTER_F:
+		case MERCENARY:
+		case MERCENARY_F:
+		case THIEF:
+		case ASSASSIN:
+		case ASSASSIN_F:
+		case ROGUE:
+			usableItems.addAll(Item.allSwords);
+			break;
+		case TRAINEE:
+		case SUPER_TRAINEE:
+		case TRAINEE_2:
+		case FIGHTER:
+		case BERSERKER:
+		case PIRATE:
+		case BRIGAND:
+		case TARVOS:
+		case CYCLOPS:
+		case CYCLOPS_2:
+		case GHOST_FIGHTER:
+			usableItems.addAll(Item.allAxes);
+			break;
+		case EPHRAIM_LORD:
+		case EPHRAIM_MASTER_LORD:
+		case RECRUIT:
+		case RECRUIT_2:
+		case SUPER_RECRUIT:
+		case KNIGHT:
+		case KNIGHT_F:
+		case WYVERN_RIDER:
+		case WYVERN_RIDER_F:
+		case SOLDIER:
+		case PEGASUS_KNIGHT:
+		case WYVERN_KNIGHT:
+		case WYVERN_KNIGHT_F:
+		case GARGOYLE:
+		case DEATHGOYLE:
+			usableItems.addAll(Item.allLances);
+			break;
+		case ARCHER:
+		case ARCHER_F:
+		case SNIPER:
+		case SNIPER_F:
+		case BONEWALKER_BOW:
+		case WIGHT_BOW:
+			usableItems.addAll(Item.allBows);
+			break;
+		case PUPIL:
+		case PUPIL_2:
+		case MAGE:
+		case MAGE_F:
+		case MAGE_KNIGHT:
+		case MAGE_KNIGHT_F:
+			usableItems.addAll(Item.allAnima);
+			break;
+		case SAGE:
+		case SAGE_F:
+			usableItems.addAll(Item.allAnima);
+			usableItems.addAll(Item.allLight);
+			break;
+		case SUPER_PUPIL:
+			usableItems.addAll(Item.allAnima);
+			usableItems.addAll(Item.allLight);
+			usableItems.addAll(Item.allDark);
+			break;
+		case SHAMAN:
+		case SHAMAN_F:
+		case SUMMONER:
+		case SUMMONER_F:
+		case NECROMANCER:
+			usableItems.addAll(Item.allDark);
+			break;
+		case DRUID:
+		case DRUID_F:
+			usableItems.addAll(Item.allDark);
+			usableItems.addAll(Item.allAnima);
+			break;
+		case MONK:
+		case VALKYRIE:
+		case BISHOP:
+		case BISHOP_F:
+			usableItems.addAll(Item.allLight);
+			break;
+		case CAVALIER:
+		case CAVALIER_F:
+		case PALADIN:
+		case PALADIN_F:
+		case FALCON_KNIGHT:
+		case WYVERN_LORD:
+		case WYVERN_LORD_F:
+		case BONEWALKER:
+		case WIGHT:
+			usableItems.addAll(Item.allSwords);
+			usableItems.addAll(Item.allLances);
+			break;
+		case HERO:
+		case HERO_F:
+			usableItems.addAll(Item.allSwords);
+			usableItems.addAll(Item.allAxes);
+			break;
+		case WARRIOR:
+		case MAELDUIN:
+			usableItems.addAll(Item.allAxes);
+			usableItems.addAll(Item.allBows);
+			break;
+		case GENERAL:
+		case GENERAL_F:
+		case GREAT_KNIGHT:
+		case GREAT_KNIGHT_F:
+			usableItems.addAll(Item.allLances);
+			usableItems.addAll(Item.allAxes);
+			usableItems.addAll(Item.allSwords);
+			break;
+		case RANGER:
+		case RANGER_F:
+			usableItems.addAll(Item.allSwords);
+			usableItems.addAll(Item.allBows);
+			break;
+		case REVENANT:
+		case ENTOMBED:
+		case BAEL:
+		case ELDER_BAEL:
+		case ELDER_BAEL_2:
+		case MAUTHE_DOOG:
+		case GWYLLGI:
+		case MOGALL:
+		case ARCH_MOGALL:
+		case GORGON:
+			usableItems.addAll(Item.monsterWeaponsForMonsterClass(classID));
+			break;
+		default:
+			break;
+		}
+		
+		usableItems.removeAll(Item.allRestrictedWeapons);
+		usableItems.removeAll(Item.allPrfRank);
+		usableItems.addAll(weaponsLockedToClass(classID));
+		usableItems.addAll(prfWeaponsForClassID(classID));
+		
+		return usableItems;
+	}
+	
+	public Set<GBAFEItem> basicWeaponsForClass(int classID) {
+		Set<GBAFEItem> itemsUsableByClass = new HashSet<GBAFEItem>(weaponsForClass(classID));
+		itemsUsableByClass.retainAll(Item.allBasicWeapons);
+		return itemsUsableByClass;
+	}
+	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem) {
+		if (originalItem == null) { return new HashSet<GBAFEItem>(); }
+		Item item = Item.valueOf(originalItem.getID());
+		if (item == null) { return new HashSet<GBAFEItem>(); }
+		
+		CharacterClass charClass = CharacterClass.valueOf(classID);
+		if (CharacterClass.allMonsterClasses.contains(charClass)) {
+			return new HashSet<GBAFEItem>(Arrays.asList(Item.equivalentMonsterWeapon(item.ID, classID)));
+		}
+		
+		WeaponRank rank = item.getRank();
+		
+		if (Item.allMonsterWeapons.contains(item)) {
+			rank = Item.relativeRankForMonsterWeapon(item.ID);
+		}
+		
+		Set<GBAFEItem> itemsUsableByClass = new HashSet<GBAFEItem>(weaponsForClass(classID));
+		
+		switch (rank) {
+		case E:
+			itemsUsableByClass.retainAll(Item.allERank);
+			break;
+		case D:
+			itemsUsableByClass.retainAll(Item.allDRank);
+			break;
+		case C:
+			itemsUsableByClass.retainAll(Item.allCRank);
+			break;
+		case B:
+			itemsUsableByClass.retainAll(Item.allBRank);
+			break;
+		case A:
+			itemsUsableByClass.retainAll(Item.allARank);
+			break;
+		case S:
+			itemsUsableByClass.retainAll(Item.allSRank);
+			break;
+		default:
+			itemsUsableByClass.clear();
+			break;
+		}
+		
+		return itemsUsableByClass;
+	}
+	
+	public Set<GBAFEItem> formerThiefInventory() {
+		return new HashSet<GBAFEItem>(Item.formerThiefKit());
+	}
+
+	public Set<GBAFEItem> thiefItemsToRemove() {
+		return new HashSet<GBAFEItem>(Item.itemsToRemoveFromFormerThief());
+	}
+
+	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng) {
+		return new HashSet<GBAFEItem>(Item.specialClassKit(classID, rng));
 	}
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon) {

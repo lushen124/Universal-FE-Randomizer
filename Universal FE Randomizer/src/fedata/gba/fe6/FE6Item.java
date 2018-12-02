@@ -58,21 +58,53 @@ public class FE6Item implements GBAFEItemData {
 		FE6WeaponType type = FE6WeaponType.valueOf(data[7] & 0xFF);
 		return type.toGeneralType();
 	}
+	
+	public boolean hasAbility1() {
+		return true;
+	}
 
 	public int getAbility1() {
 		return data[8] & 0xFF;
+	}
+	
+	public String getAbility1Description(String delimiter) {
+		return FE6Data.Item.Ability1Mask.stringOfActiveAbilities(getAbility1(), delimiter);
+	}
+	
+	public boolean hasAbility2() {
+		return true;
 	}
 
 	public int getAbility2() {
 		return data[9] & 0xFF;
 	}
+	
+	public String getAbility2Description(String delimiter) {
+		return FE6Data.Item.Ability2Mask.stringOfActiveAbilities(getAbility2(), delimiter);
+	}
+	
+	public boolean hasAbility3() {
+		return false;
+	}
 
 	public int getAbility3() {
 		return 0; // Unused
 	}
+	
+	public String getAbility3Description(String delimiter) {
+		return "N/A";
+	}
+	
+	public boolean hasAbility4() {
+		return false;
+	}
 
 	public int getAbility4() {
 		return 0; // Unused
+	}
+	
+	public String getAbility4Description(String delimiter) {
+		return "N/A";
 	}
 
 	public long getStatBonusPointer() {
@@ -126,8 +158,16 @@ public class FE6Item implements GBAFEItemData {
 		}
 	}
 
+	public boolean hasWeaponEffect() {
+		return true;
+	}
+	
 	public int getWeaponEffect() {
 		return data[31];
+	}
+	
+	public String getWeaponEffectDescription() {
+		return FE6Data.Item.WeaponEffect.stringOfActiveEffect(getWeaponEffect());
 	}
 	
 	public void setDurability(int durability) {
