@@ -252,6 +252,7 @@ public class ItemDataLoader {
 	}
 	
 	public Boolean isWeapon(GBAFEItemData item) {
+		if (item == null) { return false; }
 		return provider.itemWithID(item.getID()).isWeapon();
 	}
 	
@@ -330,6 +331,14 @@ public class ItemDataLoader {
 		}
 		
 		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), originalWeapon);
+		if (potentialItems.isEmpty()) { 
+			potentialItems = provider.basicWeaponsForClass(targetClass.getID());
+			
+			if (potentialItems.isEmpty()) {
+				return null;
+			}
+		}
+		
 		GBAFEItem[] itemsArray = potentialItems.toArray(new GBAFEItem[potentialItems.size()]);
 		int index = rng.nextInt(potentialItems.size());
 		return itemMap.get(itemsArray[index].getID());
@@ -408,7 +417,7 @@ public class ItemDataLoader {
 	private GBAFEItemData[] feItemsFromItemSet(Set<GBAFEItem> itemSet) {
 		if (itemSet == null) { return new GBAFEItemData[] {}; }
 		
-		List<GBAFEItem> itemList = new ArrayList<GBAFEItem>();
+		List<GBAFEItem> itemList = new ArrayList<GBAFEItem>(itemSet);
 		Collections.sort(itemList, GBAFEItem.defaultComparator());
 		GBAFEItemData[] items = new GBAFEItemData[itemList.size()];
 		for (int i = 0; i < itemList.size(); i++) {
