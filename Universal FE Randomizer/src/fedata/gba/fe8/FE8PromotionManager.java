@@ -3,7 +3,7 @@ package fedata.gba.fe8;
 import java.util.HashMap;
 import java.util.Map;
 
-import fedata.gba.GBAFEModifiableData;
+import fedata.general.FEModifiableData;
 import io.FileHandler;
 import util.Diff;
 import util.DiffCompiler;
@@ -11,7 +11,7 @@ import util.FileReadHelper;
 
 public class FE8PromotionManager {
 	
-	private class PromotionBranch implements GBAFEModifiableData {
+	private class PromotionBranch implements FEModifiableData {
 		byte[] originalData;
 		byte[] data;
 		

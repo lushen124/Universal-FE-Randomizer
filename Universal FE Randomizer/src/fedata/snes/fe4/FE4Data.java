@@ -506,4 +506,129 @@ public class FE4Data {
 			return result;
 		}
 	}
+	
+	public enum HolyBloodSlot1 {
+		MINOR_BALDR(0x1), MAJOR_BALDR(0x2), 
+		MINOR_NAGA(0x4), MAJOR_NAGA(0x8),
+		MINOR_DAIN(0x10), MAJOR_DAIN(0x20),
+		MINOR_NJORUN(0x40), MAJOR_NJORUN(0x80);
+		
+		public int mask;
+		
+		private HolyBloodSlot1(final int mask) { this.mask = mask; }
+		
+		public static List<HolyBloodSlot1> slot1HolyBlood(int holyBloodSlot1Value) {
+			List<HolyBloodSlot1> blood = new ArrayList<HolyBloodSlot1>();
+			for(HolyBloodSlot1 holyBlood : HolyBloodSlot1.values()) {
+				if ((holyBloodSlot1Value & holyBlood.mask) != 0) {
+					blood.add(holyBlood);
+				}
+			}
+			
+			return blood;
+		}
+		
+		public static byte valueForSlot1HolyBlood(List<HolyBloodSlot1> blood) {
+			byte result = 0;
+			if (blood == null) { return 0; }
+			for (HolyBloodSlot1 holyBlood : blood) {
+				result |= (holyBlood.mask & 0xFF);
+			}
+			
+			return result;
+		}
+	}
+	
+	public enum HolyBloodSlot2 {
+		MINOR_OD(0x1), MAJOR_OD(0x2), 
+		MINOR_ULIR(0x4), MAJOR_ULIR(0x8),
+		MINOR_NEIR(0x10), MAJOR_NEIR(0x20),
+		MINOR_FJALAR(0x40), MAJOR_FJALAR(0x80);
+		
+		public int mask;
+		
+		private HolyBloodSlot2(final int mask) { this.mask = mask; }
+		
+		public static List<HolyBloodSlot2> slot2HolyBlood(int holyBloodSlot2Value) {
+			List<HolyBloodSlot2> blood = new ArrayList<HolyBloodSlot2>();
+			for(HolyBloodSlot2 holyBlood : HolyBloodSlot2.values()) {
+				if ((holyBloodSlot2Value & holyBlood.mask) != 0) {
+					blood.add(holyBlood);
+				}
+			}
+			
+			return blood;
+		}
+		
+		public static byte valueForSlot2HolyBlood(List<HolyBloodSlot2> blood) {
+			byte result = 0;
+			if (blood == null) { return 0; }
+			for (HolyBloodSlot2 holyBlood : blood) {
+				result |= (holyBlood.mask & 0xFF);
+			}
+			
+			return result;
+		}
+	}
+	
+	public enum HolyBloodSlot3 {
+		MINOR_THRUD(0x1), MAJOR_THRUD(0x2), 
+		MINOR_FORSETI(0x4), MAJOR_FORSETI(0x8),
+		MINOR_BRAGI(0x10), MAJOR_BRAGI(0x20),
+		MINOR_HEZUL(0x40), MAJOR_HEZUL(0x80);
+		
+		public int mask;
+		
+		private HolyBloodSlot3(final int mask) { this.mask = mask; }
+		
+		public static List<HolyBloodSlot3> slot3HolyBlood(int holyBloodSlot3Value) {
+			List<HolyBloodSlot3> blood = new ArrayList<HolyBloodSlot3>();
+			for(HolyBloodSlot3 holyBlood : HolyBloodSlot3.values()) {
+				if ((holyBloodSlot3Value & holyBlood.mask) != 0) {
+					blood.add(holyBlood);
+				}
+			}
+			
+			return blood;
+		}
+		
+		public static byte valueForSlot3HolyBlood(List<HolyBloodSlot3> blood) {
+			byte result = 0;
+			if (blood == null) { return 0; }
+			for (HolyBloodSlot3 holyBlood : blood) {
+				result |= (holyBlood.mask & 0xFF);
+			}
+			
+			return result;
+		}
+	}
+	
+	public enum HolyBloodSlot4 {
+		MINOR_LOPTOUS(0x1), MAJOR_LOPTOUS(0x2);
+		
+		public int mask;
+		
+		private HolyBloodSlot4(final int mask) { this.mask = mask; }
+		
+		public static List<HolyBloodSlot4> slot4HolyBlood(int holyBloodSlot4Value) {
+			List<HolyBloodSlot4> blood = new ArrayList<HolyBloodSlot4>();
+			for(HolyBloodSlot4 holyBlood : HolyBloodSlot4.values()) {
+				if ((holyBloodSlot4Value & holyBlood.mask) != 0) {
+					blood.add(holyBlood);
+				}
+			}
+			
+			return blood;
+		}
+		
+		public static byte valueForSlot4HolyBlood(List<HolyBloodSlot4> blood) {
+			byte result = 0;
+			if (blood == null) { return 0; }
+			for (HolyBloodSlot4 holyBlood : blood) {
+				result |= (holyBlood.mask & 0xFF);
+			}
+			
+			return result;
+		}
+	}
 }

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import fedata.gba.GBAFEModifiableData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.general.FEModifiableData;
 import util.Diff;
 import util.DiffCompiler;
 
@@ -41,7 +41,7 @@ public class FE8SpellAnimationCollection implements GBAFESpellAnimationCollectio
 		}
 	}
 
-	private class SpellAnimationEntry implements GBAFEModifiableData {
+	private class SpellAnimationEntry implements FEModifiableData {
 		private byte[] originalData;
 		private byte[] data;
 		

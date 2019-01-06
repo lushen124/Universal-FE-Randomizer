@@ -1,6 +1,6 @@
-package fedata.gba;
+package fedata.general;
 
-public interface GBAFEModifiableData {
+public interface FEModifiableData {
 	public void resetData();
 	public void commitChanges();
 	public byte[] getData();

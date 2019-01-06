@@ -6,10 +6,11 @@ import java.util.Set;
 import fedata.gba.general.WeaponEffects;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
+import fedata.general.FEModifiableData;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
 
-public interface GBAFEItemData extends GBAFEModifiableData {
+public interface GBAFEItemData extends FEModifiableData {
 	
 	// Info
 	public int getNameIndex();
