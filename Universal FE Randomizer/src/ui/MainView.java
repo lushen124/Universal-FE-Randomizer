@@ -306,6 +306,17 @@ public class MainView implements FileFlowDelegate {
 			classData.left = new FormAttachment(skillsView, 5);
 			classData.right = new FormAttachment(100, -5);
 			classView.setLayoutData(classData);
+			
+			miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
+			miscView.setSize(200, 200);
+			miscView.setVisible(false);
+			  
+			FormData miscData = new FormData();
+			miscData.top = new FormAttachment(classView, 5);
+			miscData.left = new FormAttachment(classView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(classView, 0, SWT.RIGHT);
+			miscView.setLayoutData(miscData);
+			
 		} else {
 			otherCharOptionView = new MOVCONAffinityView(mainShell, SWT.NONE);
 			otherCharOptionView.setSize(200, 200);
@@ -337,27 +348,27 @@ public class MainView implements FileFlowDelegate {
 			classData.left = new FormAttachment(weaponView, 5);
 			classData.right = new FormAttachment(100, -5);
 			classView.setLayoutData(classData);
+			
+			enemyView = new EnemyBuffsView(mainShell, SWT.NONE);
+			enemyView.setSize(200, 200);
+			enemyView.setVisible(false);
+			  
+			FormData enemyData = new FormData();
+			enemyData.top = new FormAttachment(classView, 5);
+			enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
+			enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
+			enemyView.setLayoutData(enemyData);
+			  
+			miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
+			miscView.setSize(200, 200);
+			miscView.setVisible(false);
+			  
+			FormData miscData = new FormData();
+			miscData.top = new FormAttachment(enemyView, 5);
+			miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
+			miscView.setLayoutData(miscData);
 		}
-		  
-		enemyView = new EnemyBuffsView(mainShell, SWT.NONE);
-		enemyView.setSize(200, 200);
-		enemyView.setVisible(false);
-		  
-		FormData enemyData = new FormData();
-		enemyData.top = new FormAttachment(classView, 5);
-		enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
-		enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
-		enemyView.setLayoutData(enemyData);
-		  
-		miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
-		miscView.setSize(200, 200);
-		miscView.setVisible(false);
-		  
-		FormData miscData = new FormData();
-		miscData.top = new FormAttachment(enemyView, 5);
-		miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
-		miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
-		miscView.setLayoutData(miscData);
 		  
 		randomizeButton = new Button(mainShell, SWT.PUSH);
 		randomizeButton.setText("Randomize!");
@@ -417,6 +428,8 @@ public class MainView implements FileFlowDelegate {
 			else if (handler.getCRC32() == FE4Data.CleanHeaderedCRC32 || handler.getCRC32() == FE4Data.CleanUnheaderedCRC32) {
 				type = GameType.FE4;
 				friendlyName.setText("Display Name: " + FE4Data.FriendlyName);
+				romName.setText("ROM Name: " + FE4Data.InternalName);
+				romCode.setText("ROM Code: --");
 			}
 			else { 
 				type = GameType.UNKNOWN;
@@ -440,8 +453,9 @@ public class MainView implements FileFlowDelegate {
 				} else {
 					otherCharOptionView.setVisible(true);
 					weaponView.setVisible(true);
+					enemyView.setVisible(true);
 				}
-				enemyView.setVisible(true);
+		
 				miscView.setVisible(true);
 				randomizeButton.setVisible(true);
 				
