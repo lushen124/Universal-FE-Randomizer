@@ -2,8 +2,9 @@ package fedata.snes.fe4;
 
 import fedata.general.FEModifiableData;
 
-// Only for use for playable characters that do not inherit anything (i.e. Gen 1, non-child Gen 2, and Gen 2 replacements)
-public class FE4StaticPlayableCharacter implements FEModifiableData {
+// Only for use for playable characters that do not inherit anything (i.e. Gen 1, non-child Gen 2, and Gen 2 replacements).
+// Also used for Boss characters with holy blood (major bosses with skills).
+public class FE4StaticCharacter implements FEModifiableData {
 
 	private byte[] originalData;
 	private byte[] data;
@@ -13,7 +14,7 @@ public class FE4StaticPlayableCharacter implements FEModifiableData {
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
-	public FE4StaticPlayableCharacter(byte[] data, long originalOffset) {
+	public FE4StaticCharacter(byte[] data, long originalOffset) {
 		super();
 		this.originalData = data;
 		this.data = data;

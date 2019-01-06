@@ -28,7 +28,7 @@ public class FE4Data {
 	// This is only for Playable Characters in Gen 1.
 	public static final long Gen1CharacterTableOffset = 0x3B467;
 	public static final int Gen1CharacterCount = 24;
-	public static final int PlayableCharacterSize = 38;
+	public static final int StaticCharacterSize = 38;
 	
 	// Static characters are those that don't do inheritance.
 	public static final long Gen2StaticCharacterTable1Offset = 0x3B803;

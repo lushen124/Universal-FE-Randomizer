@@ -78,8 +78,8 @@ public class SkillsView extends Composite {
 		});
 		
 		FormData retainCountData = new FormData();
-		retainCountData.left = new FormAttachment(enableButton, 0, SWT.LEFT);
-		retainCountData.top = new FormAttachment(enableButton, 5);
+		retainCountData.left = new FormAttachment(enableButton, 10, SWT.LEFT);
+		retainCountData.top = new FormAttachment(enableButton, 10);
 		retainSkillCountsButton.setLayoutData(retainCountData);
 		
 		shuffleButton = new Button(container, SWT.RADIO);
@@ -96,7 +96,7 @@ public class SkillsView extends Composite {
 		
 		FormData optionData = new FormData();
 		optionData.left = new FormAttachment(retainSkillCountsButton, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(retainSkillCountsButton, 5);
+		optionData.top = new FormAttachment(retainSkillCountsButton, 10);
 		shuffleButton.setLayoutData(optionData);
 		
 		randomizeButton = new Button(container, SWT.RADIO);

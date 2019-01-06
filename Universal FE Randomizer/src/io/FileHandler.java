@@ -112,6 +112,7 @@ public class FileHandler {
 			System.err.println("Failed to get file pointer.");
 			return null;
 		}
+		
 		byte[] outputBytes = new byte[numBytes];
 		
 		try {
@@ -139,7 +140,7 @@ public class FileHandler {
 		do {
 			long initialReadOffset = nextReadOffset;
 			int numBytes = Math.min(1024, (int)(maxOffset - initialReadOffset - 1));
-			if (numBytes == 0) {
+			if (numBytes <= 0) {
 				break;
 			}
 			

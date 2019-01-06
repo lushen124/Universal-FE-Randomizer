@@ -86,14 +86,23 @@ public class MiscellaneousView extends Composite {
 	}
 
 	public MiscellaneousOptions getMiscellaneousOptions() {
-		switch (type) {
-		case FE6:
-			return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
-		case FE7:
-		default:
-			return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), false);
-			
+		if (type.isGBA()) {
+			switch (type) {
+			case FE6:
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
+			case FE7:
+			default:
+				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), false);
+			}
+		} else if (type.isSFC()) {
+			switch (type) {
+			case FE4:
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), false, false);
+			default:
+				return new MiscellaneousOptions(false, false, false);
+			}
 		}
 		
+		return new MiscellaneousOptions(false, false, false);
 	}
 }

@@ -31,7 +31,10 @@ import fedata.general.FEBase.GameType;
 import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
 import random.gba.randomizer.GBARandomizer;
+import random.general.Randomizer;
 import random.general.RandomizerListener;
+import random.snes.fe4.randomizer.FE4Randomizer;
+import ui.fe4.FE4ClassesView;
 import ui.fe4.HolyBloodView;
 import ui.fe4.SkillsView;
 import ui.general.FileFlowDelegate;
@@ -75,6 +78,7 @@ public class MainView implements FileFlowDelegate {
 	// FE4
 	private SkillsView skillsView;
 	private HolyBloodView holyBloodView;
+	private FE4ClassesView fe4ClassView;
 	
 	private Button randomizeButton;
 	
@@ -200,6 +204,7 @@ public class MainView implements FileFlowDelegate {
 		
 		if (skillsView != null) { skillsView.dispose(); }
 		if (holyBloodView != null) { holyBloodView.dispose(); }
+		if (fe4ClassView != null) { fe4ClassView.dispose(); }
 		
 		mainShell.layout();
 		final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
@@ -297,24 +302,24 @@ public class MainView implements FileFlowDelegate {
 			skillsData.bottom = new FormAttachment(100, -10);
 			skillsView.setLayoutData(skillsData);
 			
-			classView = new ClassesView(mainShell, SWT.NONE, type);
-			classView.setSize(200, 200);
-			classView.setVisible(false);
+			fe4ClassView = new FE4ClassesView(mainShell, SWT.NONE);
+			fe4ClassView.setSize(200, 200);
+			fe4ClassView.setVisible(false);
 			  
 			FormData classData = new FormData();
 			classData.top = new FormAttachment(skillsView, 0, SWT.TOP);
 			classData.left = new FormAttachment(skillsView, 5);
 			classData.right = new FormAttachment(100, -5);
-			classView.setLayoutData(classData);
+			fe4ClassView.setLayoutData(classData);
 			
 			miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
 			miscView.setSize(200, 200);
 			miscView.setVisible(false);
 			  
 			FormData miscData = new FormData();
-			miscData.top = new FormAttachment(classView, 5);
-			miscData.left = new FormAttachment(classView, 0, SWT.LEFT);
-			miscData.right = new FormAttachment(classView, 0, SWT.RIGHT);
+			miscData.top = new FormAttachment(fe4ClassView, 5);
+			miscData.left = new FormAttachment(fe4ClassView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(fe4ClassView, 0, SWT.RIGHT);
 			miscView.setLayoutData(miscData);
 			
 		} else {
@@ -445,12 +450,14 @@ public class MainView implements FileFlowDelegate {
 			if (type != GameType.UNKNOWN) {
 				growthView.setVisible(true);
 				baseView.setVisible(true);
-				classView.setVisible(true);
 				
 				if (type == GameType.FE4) {
+					fe4ClassView.setVisible(true);
 					holyBloodView.setVisible(true);
 					skillsView.setVisible(true);
+					
 				} else {
+					classView.setVisible(true);
 					otherCharOptionView.setVisible(true);
 					weaponView.setVisible(true);
 					enemyView.setVisible(true);
@@ -482,7 +489,11 @@ public class MainView implements FileFlowDelegate {
 					@Override
 					public void handleEvent(Event event) {
 						FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
-						openDialog.setFilterExtensions(new String[] {"*.gba"});
+						if (gameType.isGBA()) {
+							openDialog.setFilterExtensions(new String[] {"*.gba"});
+						} else if (gameType.isSFC()) {
+							openDialog.setFilterExtensions(new String[] {".smc"});
+						}
 						String writePath = openDialog.open();
 						
 						if (writePath != null && writePath.length() > 0) {
@@ -502,15 +513,26 @@ public class MainView implements FileFlowDelegate {
 								}
 							}
 							
-							GBARandomizer randomizer = new GBARandomizer(pathToFile, writePath, gameType, compiler, 
-									growthView.getGrowthOptions(),
-									baseView.getBaseOptions(),
-									classView.getClassOptions(),
-									weaponView.getWeaponOptions(),
-									otherCharOptionView.getOtherCharacterOptions(),
-									enemyView.getEnemyOptions(),
-									miscView.getMiscellaneousOptions(),
-									seedField.getText());
+							Randomizer randomizer = null;
+							
+							if (gameType.isGBA()) {
+								randomizer = new GBARandomizer(pathToFile, writePath, gameType, compiler, 
+										growthView.getGrowthOptions(),
+										baseView.getBaseOptions(),
+										classView.getClassOptions(),
+										weaponView.getWeaponOptions(),
+										otherCharOptionView.getOtherCharacterOptions(),
+										enemyView.getEnemyOptions(),
+										miscView.getMiscellaneousOptions(),
+										seedField.getText());
+							} else if (gameType.isSFC()) {
+								if (gameType == GameType.FE4) {
+									boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
+									randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, 
+											miscView.getMiscellaneousOptions(), 
+											seedField.getText());
+								}
+							}
 							
 							randomizer.setListener(new RandomizerListener() {
 
