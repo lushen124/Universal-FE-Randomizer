@@ -1,9 +1,12 @@
 package fedata.snes.fe4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class FE4Data {
 	
@@ -223,7 +226,7 @@ public class FE4Data {
 		DACCAR(0x00C6),
 		MAHNYA(0x00C7), // 0xC8 = MAHNYA SQUAD
 		PAMELA(0x00C9), // 0xCA = PAMELA SQUAD
-		ANDREY_CH4(0x00CB), // 0xCC = BEIG RITTER, 0xCD - 0xCE = CIVILIAN
+		ANDOREY_CH4(0x00CB), // 0xCC = BEIG RITTER, 0xCD - 0xCE = CIVILIAN
 		DONOVAN(0x00CF), // 0xD0 - 0xD4 = ZAXON ARMY
 		LAMIA(0x00D5), // 0xD6 - 0xDA = MERCENARY
 		
@@ -319,7 +322,7 @@ public class FE4Data {
 		// CH 7
 		KUTUZOV(0x0114), // 0x115 - 0x116 = YIED MAGE, 0x117 = MERCENARY, 0x118 = YIED MAGE, 0x119 = COMMANDER, 0x11A - 0x11B = ALSTER ARMY, 0x11C = THIEF
 		BLOOM_CH7(0x011D), // 0x11E = ALSTER ARMY, 0x11F = DARNA ARMY
-		ISHTOR(0x0120), // 0x121 = MELGAN ARMY
+		ISHTORE(0x0120), // 0x121 = MELGAN ARMY
 		LIZA(0x0122), // 0x123 - 0x128 = MELGAN ARMY
 		JAVARRO(0x0129), // 0x12A - 0x12B = MERCENARY
 		BRAMSEL(0x012C), // 0x12D - DARNA ARMY, 0x12E = COMMANDER, 0x12F - 0x130 = ALSTER ARMY
@@ -557,6 +560,31 @@ public class FE4Data {
 		// There's a bunch of duplicates beyond this point of major characters/bosses. I'm not listing them here unless we need them later.
 		;
 		
+		
+		private static final Set<Character> Gen1PlayableCharacters = new HashSet<Character>(Arrays.asList(SIGURD, NAOISE, ALEC, ARDEN, FINN_GEN_1, QUAN, MIDIR, LEWYN, CHULAINN, AZELLE,
+				JAMKE, CLAUD, BEOWOLF, LEX, DEW, DEIRDRE, ETHLYN, LACHESIS, AYRA, ERINYS, TAILTIU, SILVIA, EDAIN, BRIGID));
+		private static final Set<Character> Gen2StaticCharacters = new HashSet<Character>(Arrays.asList(SHANNAN, IUCHAR, FINN_GEN_2, HANNIBAL, ARES, OIFEY, IUCHARBA));
+		private static final Set<Character> Gen2ChildCharacters = new HashSet<Character>(Arrays.asList(SELIPH, LEIF, JULIA, ALTENA, ULSTER, FEBAIL, COIRPRE, CED, DIARMUID, LESTER, ARTHUR, 
+				PATTY, LARCEI, LANA, FEE, TINE, LENE, NANNA));
+		private static final Set<Character> Gen2SubstituteCharacters = new HashSet<Character>(Arrays.asList(DALVIN, ASAELLO, CHARLOT, HAWK, TRISTAN, DEIMNE, AMID, DAISY, CREIDNE, MUIRNE,
+				HERMINA, LINDA, LAYLEA, JEANNE));
+		
+		private static final Set<Character> Gen1Bosses = new HashSet<Character>(Arrays.asList(
+				DIMAGGIO, GERRARD,
+				CIMBAETH, MUNNIR, SANDIMA,
+				ELLIOT_CH2, PHILLIP, BOLDOR, MACBETH, VOLTZ, CLEMENT, ZYNE, CHAGALL_CH2,
+				JACOBAN, ELDIGAN_CH3, CHAGALL_CH3, PAPILION, PIZARL, DOBARL,
+				CUVULI, DEETVAR, MAIOS, PAMELA, DONOVAN, LAMIA, DACCAR,
+				SLAYDER, ANDOREY_CH5, LOMBARD, MAGORN, VAHA, REPTOR));
+		
+		private static final Set<Character> Gen2Bosses = new HashSet<Character>(Arrays.asList(
+				HAROLD, SCHMIDT, DANANN,
+				KUTUZOV, LIZA, ISHTORE, JAVARRO, BRAMSEL, VAMPA_CH7, FETRA_CH7, ELIU_CH7, BLOOM_CH7,
+				MUHAMMAD, OVO, VAMPA_CH8, FETRA_CH8, ELIU_CH8, ISHTAR_CH8, BLOOM_CH8, CORUTA, MAIKOV,
+				KANATZ, DISLER, TRAVANT_CH9, MUSAR, JUDAH, ARION_CH9,
+				RIDALE, HILDA_CH10, MORRIGAN, ISHTAR_CH10, JULIUS_CH10, ZAGAM, ARVIS_CH10,
+				ROBERT, BOYCE, RODAN, YUPHEEL, FISHER, BRIAN, DAGGON, SCIPIO, HILDA_FINAL, BARAN, MENG, BLEG, MAYBELL, ISHTAR_FINAL, ARION_FINAL, MANFROY, MUS, BOVIS, TIGRIS, LEPUS, DRACO, ANGUILLA, EQUUS, OVIS, SIMIA, GALLUS, CANIS, PORCUS, JULIUS_FINAL));
+
 		public int ID;
 		
 		private static Map<Integer, Character> map = new HashMap<Integer, Character>();
@@ -573,6 +601,34 @@ public class FE4Data {
 			return map.get(characterId);
 		}
 		
+		public boolean isPlayable() {
+			return Gen1PlayableCharacters.contains(this) || Gen2StaticCharacters.contains(this) || Gen2ChildCharacters.contains(this) || Gen2SubstituteCharacters.contains(this);
+		}
+		
+		public boolean isGen1() {
+			String name = this.toString();
+			boolean isGen1Minion = name.startsWith("PROLOGUE") || name.startsWith("CH1") || name.startsWith("CH2") || name.startsWith("CH3") || name.startsWith("CH4") || name.startsWith("CH5");
+			return Gen1PlayableCharacters.contains(this) || Gen1Bosses.contains(this) || isGen1Minion;
+		}
+		
+		public boolean isGen2() {
+			String name = this.toString();
+			boolean isGen2Minion = name.startsWith("CH6") || name.startsWith("CH7") || name.startsWith("CH8") || name.startsWith("CH9") || name.startsWith("CH10") || name.startsWith("ENDGAME");
+			return Gen2StaticCharacters.contains(this) || Gen2ChildCharacters.contains(this) || Gen2SubstituteCharacters.contains(this) || Gen2Bosses.contains(this) || isGen2Minion;
+		}
+		
+		public boolean isStatic() {
+			return Gen1PlayableCharacters.contains(this) || Gen2StaticCharacters.contains(this) || Gen2SubstituteCharacters.contains(this);
+		}
+		
+		public boolean isChild() {
+			return Gen2ChildCharacters.contains(this);
+		}
+		
+		public boolean isSubstitute() {
+			return Gen2SubstituteCharacters.contains(this);
+		}
+		
 		public boolean isMinion() {
 			String name = this.toString();
 			return name.startsWith("PROLOGUE") || name.startsWith("CH1") || name.startsWith("CH2") || name.startsWith("CH3") || name.startsWith("CH4") || name.startsWith("CH5") ||
@@ -582,6 +638,10 @@ public class FE4Data {
 		public boolean isArena() {
 			String name = this.toString();
 			return name.startsWith("ARENA");
+		}
+		
+		public boolean isBoss() {
+			return Gen1Bosses.contains(this) || Gen2Bosses.contains(this);
 		}
 	}
 
@@ -641,7 +701,7 @@ public class FE4Data {
 		FORREST_KNIGHT(0x0C), // Ranger
 		MAGE_KNIGHT(0x0D),
 		GREAT_KNIGHT(0x0E), // Axe Pal.
-		FALCON_KNIGHT(0x10),
+		FALCON_KNIGHT(0x11),
 		DRAGON_MASTER(0x14),
 		SWORD_MASTER(0x17), // Swordmaster_F
 		SNIPER(0x18),
