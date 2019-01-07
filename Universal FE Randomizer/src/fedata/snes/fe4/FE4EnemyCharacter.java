@@ -36,6 +36,19 @@ public class FE4EnemyCharacter implements FEModifiableData {
 		return data[6] == 0x01;
 	}
 	
+	public int getLevel() {
+		return data[7] & 0xFF;
+	}
+	
+	public void setLevel(int newLevel) {
+		data[7] = (byte)(Math.max(1, Math.min(30, newLevel)) & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getLeadership() {
+		return data[8] & 0xFF;
+	}
+	
 	public int getEquipment1() {
 		return data[10] & 0xFF;
 	}
