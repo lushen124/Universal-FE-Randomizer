@@ -10,6 +10,7 @@ import io.FileHandler;
 import io.UPSPatcher;
 import random.general.Randomizer;
 import random.snes.fe4.loader.CharacterDataLoader;
+import random.snes.fe4.loader.ItemMapper;
 import ui.model.MiscellaneousOptions;
 import util.DiffCompiler;
 import util.recordkeeper.RecordKeeper;
@@ -23,6 +24,7 @@ public class FE4Randomizer extends Randomizer {
 	private MiscellaneousOptions miscOptions;
 	
 	CharacterDataLoader charData;
+	ItemMapper itemMapper;
 	
 	private String seedString;
 	
@@ -118,6 +120,10 @@ public class FE4Randomizer extends Randomizer {
 			}
 		}
 		
+		charData.recordCharacters(recordKeeper, false, itemMapper);
+		
+		recordKeeper.sortKeysInCategoryAndSubcategories(CharacterDataLoader.RecordKeeperCategoryKey);
+		
 		updateStatusString("Done!");
 		updateProgress(1);
 		notifyCompletion(recordKeeper);
@@ -125,6 +131,7 @@ public class FE4Randomizer extends Randomizer {
 
 	private void generateDataLoaders() {
 		charData = new CharacterDataLoader(handler, isHeadered);
+		itemMapper = new ItemMapper(handler, isHeadered);
 	}
 	
 	public RecordKeeper initializeRecordKeeper() {
@@ -135,6 +142,8 @@ public class FE4Randomizer extends Randomizer {
 		RecordKeeper rk = new RecordKeeper(title);
 		
 		rk.addHeaderItem("Game Title", gameTitle);
+		
+		charData.recordCharacters(rk, true, itemMapper);
 		
 		return rk;
 	}
