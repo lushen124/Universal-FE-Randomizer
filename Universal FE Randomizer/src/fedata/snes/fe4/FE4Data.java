@@ -561,15 +561,15 @@ public class FE4Data {
 		;
 		
 		
-		private static final Set<Character> Gen1PlayableCharacters = new HashSet<Character>(Arrays.asList(SIGURD, NAOISE, ALEC, ARDEN, FINN_GEN_1, QUAN, MIDIR, LEWYN, CHULAINN, AZELLE,
+		public static final Set<Character> Gen1PlayableCharacters = new HashSet<Character>(Arrays.asList(SIGURD, NAOISE, ALEC, ARDEN, FINN_GEN_1, QUAN, MIDIR, LEWYN, CHULAINN, AZELLE,
 				JAMKE, CLAUD, BEOWOLF, LEX, DEW, DEIRDRE, ETHLYN, LACHESIS, AYRA, ERINYS, TAILTIU, SILVIA, EDAIN, BRIGID));
-		private static final Set<Character> Gen2StaticCharacters = new HashSet<Character>(Arrays.asList(SHANNAN, IUCHAR, FINN_GEN_2, HANNIBAL, ARES, OIFEY, IUCHARBA));
-		private static final Set<Character> Gen2ChildCharacters = new HashSet<Character>(Arrays.asList(SELIPH, LEIF, JULIA, ALTENA, ULSTER, FEBAIL, COIRPRE, CED, DIARMUID, LESTER, ARTHUR, 
+		public static final Set<Character> Gen2StaticCharacters = new HashSet<Character>(Arrays.asList(SHANNAN, IUCHAR, FINN_GEN_2, HANNIBAL, ARES, OIFEY, IUCHARBA));
+		public static final Set<Character> Gen2ChildCharacters = new HashSet<Character>(Arrays.asList(SELIPH, LEIF, JULIA, ALTENA, ULSTER, FEBAIL, COIRPRE, CED, DIARMUID, LESTER, ARTHUR, 
 				PATTY, LARCEI, LANA, FEE, TINE, LENE, NANNA));
-		private static final Set<Character> Gen2SubstituteCharacters = new HashSet<Character>(Arrays.asList(DALVIN, ASAELLO, CHARLOT, HAWK, TRISTAN, DEIMNE, AMID, DAISY, CREIDNE, MUIRNE,
+		public static final Set<Character> Gen2SubstituteCharacters = new HashSet<Character>(Arrays.asList(DALVIN, ASAELLO, CHARLOT, HAWK, TRISTAN, DEIMNE, AMID, DAISY, CREIDNE, MUIRNE,
 				HERMINA, LINDA, LAYLEA, JEANNE));
 		
-		private static final Set<Character> Gen1Bosses = new HashSet<Character>(Arrays.asList(
+		public static final Set<Character> Gen1Bosses = new HashSet<Character>(Arrays.asList(
 				DIMAGGIO, GERRARD,
 				CIMBAETH, MUNNIR, SANDIMA,
 				ELLIOT_CH2, PHILLIP, BOLDOR, MACBETH, VOLTZ, CLEMENT, ZYNE, CHAGALL_CH2,
@@ -577,7 +577,7 @@ public class FE4Data {
 				CUVULI, DEETVAR, MAIOS, PAMELA, DONOVAN, LAMIA, DACCAR,
 				SLAYDER, ANDOREY_CH5, LOMBARD, MAGORN, VAHA, REPTOR));
 		
-		private static final Set<Character> Gen2Bosses = new HashSet<Character>(Arrays.asList(
+		public static final Set<Character> Gen2Bosses = new HashSet<Character>(Arrays.asList(
 				HAROLD, SCHMIDT, DANANN,
 				KUTUZOV, LIZA, ISHTORE, JAVARRO, BRAMSEL, VAMPA_CH7, FETRA_CH7, ELIU_CH7, BLOOM_CH7,
 				MUHAMMAD, OVO, VAMPA_CH8, FETRA_CH8, ELIU_CH8, ISHTAR_CH8, BLOOM_CH8, CORUTA, MAIKOV,
@@ -599,6 +599,41 @@ public class FE4Data {
 		
 		public static Character valueOf(int characterId) {
 			return map.get(characterId);
+		}
+		
+		public Character[] getChildren() {
+			switch (this) {
+			case ETHLYN: return new Character[] {LEIF, ALTENA};
+			case EDAIN: return new Character[] {LANA, LESTER};
+			case AYRA: return new Character[] {LARCEI, ULSTER};
+			case LACHESIS: return new Character[] {DIARMUID, NANNA};
+			case ERINYS: return new Character[] {FEE, CED};
+			case SILVIA: return new Character[] {LENE, COIRPRE};
+			case TAILTIU: return new Character[] {ARTHUR, TINE};
+			case BRIGID: return new Character[] {PATTY, FEBAIL};
+			case DEIRDRE: return new Character[] {SELIPH, JULIA};
+			default: return new Character[] {};
+			}
+		}
+		
+		public Character getGen1Analogue() {
+			switch (this) {
+			case LANA: return EDAIN;
+			case LESTER: return MIDIR;
+			case LARCEI: return AYRA;
+			case ULSTER: return CHULAINN;
+			case DIARMUID: return BEOWOLF;
+			case NANNA: return ETHLYN;
+			case FEE: return ERINYS;
+			case CED: return LEWYN;
+			case LENE: return SILVIA;
+			case COIRPRE: return CLAUD;
+			case ARTHUR: return AZELLE;
+			case TINE: return TAILTIU;
+			case PATTY: return DEW;
+			case FEBAIL: return BRIGID;
+			default: return null;
+			}
 		}
 		
 		public boolean isPlayable() {
@@ -659,6 +694,7 @@ public class FE4Data {
 		DRAGON_KNIGHT(0x13), // Altena uses this class.
 		BOW_FIGHTER(0x15), // Archer
 		SWORD_FIGHTER(0x16), // Myrmidon
+		ARMOR(0x22), // LANCE_ARMOR
 		AXE_ARMOR(0x23),
 		BOW_ARMOR(0x24),
 		SWORD_ARMOR(0x25),
@@ -672,6 +708,7 @@ public class FE4Data {
 		THUNDER_MAGE(0x36),
 		WIND_MAGE(0x37),
 		BARD(0x3A),
+		LIGHT_PRIESTESS(0x3C), // Deirdre and Julia's class.
 		THIEF(0x3F),
 		
 		// Enemy Only
@@ -688,8 +725,6 @@ public class FE4Data {
 		//AXE_SOLDIER(0x1F),
 		//ARCHER(0x20),
 		//SWORD_SOLDIER(0x21),
-		//ARMOR(0x22),
-		//SHAMAN(0x3C),
 		
 		// Promoted
 		LORD_KNIGHT(0x06), 
@@ -724,6 +759,71 @@ public class FE4Data {
 		// Special
 		DANCER(0x32),
 		;
+		
+		public enum GenderType {
+			ANY, MALE_ONLY, FEMALE_ONLY;
+		}
+		
+		public static final Set<CharacterClass> unpromotedClasses = new HashSet<CharacterClass>(Arrays.asList(SOCIAL_KNIGHT, LANCE_KNIGHT, ARCH_KNIGHT, AXE_KNIGHT, FREE_KNIGHT, TROUBADOUR, 
+				PEGASUS_KNIGHT, DRAGON_RIDER, DRAGON_KNIGHT, BOW_FIGHTER, SWORD_FIGHTER, ARMOR, AXE_ARMOR, BOW_ARMOR, SWORD_ARMOR, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
+				FIRE_MAGE, THUNDER_MAGE, WIND_MAGE, BARD, THIEF, BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, DANCER));
+		public static final Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, EMPEROR, BARON, QUEEN, BISHOP, DARK_BISHOP));
+		public static final Set<CharacterClass> promotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, DUKE_KNIGHT, MASTER_KNIGHT, PALADIN, PALADIN_F, BOW_KNIGHT, FORREST_KNIGHT,
+				MAGE_KNIGHT, GREAT_KNIGHT, FALCON_KNIGHT, DRAGON_MASTER, SWORD_MASTER, SNIPER, FORREST, GENERAL, WARRIOR, MAGE_FIGHTER, MAGE_FIGHTER_F, HIGH_PRIEST, SAGE, THIEF_FIGHTER, EMPEROR,
+				BARON, QUEEN, BISHOP, DARK_BISHOP));
+		
+		public static final Set<CharacterClass> swordUsers = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, PRINCESS, MASTER_KNIGHT, SWORD_FIGHTER, SWORD_MASTER, FORREST, THIEF,
+				THIEF_FIGHTER, DANCER, SOCIAL_KNIGHT, PALADIN, TROUBADOUR, PALADIN_F, FREE_KNIGHT, FORREST_KNIGHT, SWORD_ARMOR, GENERAL, BARON, EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_RIDER,
+				DRAGON_KNIGHT, DRAGON_MASTER, MAGE_FIGHTER, MAGE_FIGHTER_F, MAGE_KNIGHT));
+		public static final Set<CharacterClass> lanceUsers = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, MASTER_KNIGHT, SOCIAL_KNIGHT, PALADIN, PALADIN_F, LANCE_KNIGHT, DUKE_KNIGHT, ARMOR, GENERAL, BARON,
+				EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_RIDER, DRAGON_KNIGHT, DRAGON_MASTER));
+		public static final Set<CharacterClass> axeUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, AXE_FIGHTER, WARRIOR, MOUNTAIN_THIEF, BARBARIAN, PIRATE, AXE_KNIGHT, GREAT_KNIGHT, AXE_ARMOR, GENERAL,
+				BARON, EMPEROR));
+		public static final Set<CharacterClass> bowUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, WARRIOR, BOW_FIGHTER, SNIPER, HUNTER, ARCH_KNIGHT, BOW_KNIGHT, BOW_ARMOR, GENERAL, BARON, EMPEROR));
+		public static final Set<CharacterClass> fireUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, FIRE_MAGE, MAGE_FIGHTER, MAGE_FIGHTER_F, MAGE, MAGE_KNIGHT, BARD, SAGE, HIGH_PRIEST,
+				BISHOP, QUEEN, DARK_BISHOP));
+		public static final Set<CharacterClass> thunderUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, THUNDER_MAGE, MAGE_FIGHTER, MAGE_FIGHTER_F, MAGE, MAGE_KNIGHT, BARD, SAGE,
+				HIGH_PRIEST, BISHOP, QUEEN, DARK_BISHOP));
+		public static final Set<CharacterClass> windUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, WIND_MAGE, MAGE_FIGHTER, MAGE_FIGHTER_F, MAGE, MAGE_KNIGHT, BARD, SAGE, HIGH_PRIEST,
+				BISHOP, QUEEN, DARK_BISHOP));
+		public static final Set<CharacterClass> lightUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARD, LIGHT_PRIESTESS, SAGE));
+		public static final Set<CharacterClass> darkUsers = new HashSet<CharacterClass>(Arrays.asList(DARK_MAGE, DARK_BISHOP));
+		public static final Set<CharacterClass> staffUsers = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, MASTER_KNIGHT, TROUBADOUR, PALADIN_F, BARON, EMPEROR, FALCON_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS, SAGE,
+				PRIEST, HIGH_PRIEST, BISHOP, QUEEN, DARK_MAGE, DARK_BISHOP));
+		
+		public static final Set<CharacterClass> B_swordUsers = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, PRINCESS, MASTER_KNIGHT, SWORD_FIGHTER, SWORD_MASTER, FORREST,
+				THIEF_FIGHTER, SOCIAL_KNIGHT, PALADIN, TROUBADOUR, PALADIN_F, FREE_KNIGHT, FORREST_KNIGHT, SWORD_ARMOR, GENERAL, BARON, EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_RIDER,
+				DRAGON_KNIGHT, DRAGON_MASTER, MAGE_KNIGHT));
+		public static final Set<CharacterClass> B_lanceUsers = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, MASTER_KNIGHT, PALADIN, LANCE_KNIGHT, DUKE_KNIGHT, ARMOR, GENERAL, BARON,
+				EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_RIDER, DRAGON_KNIGHT, DRAGON_MASTER));
+		public static final Set<CharacterClass> B_axeUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, AXE_FIGHTER, WARRIOR, MOUNTAIN_THIEF, BARBARIAN, PIRATE, AXE_KNIGHT, GREAT_KNIGHT, AXE_ARMOR, GENERAL,
+				BARON, EMPEROR));
+		public static final Set<CharacterClass> B_bowUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, WARRIOR, BOW_FIGHTER, SNIPER, HUNTER, ARCH_KNIGHT, BOW_KNIGHT, BOW_ARMOR, GENERAL, BARON, EMPEROR));
+		public static final Set<CharacterClass> B_fireUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, FIRE_MAGE, MAGE_FIGHTER, MAGE_FIGHTER_F, MAGE_KNIGHT, SAGE, BISHOP, QUEEN, DARK_BISHOP));
+		public static final Set<CharacterClass> B_thunderUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, THUNDER_MAGE, MAGE_FIGHTER, MAGE_FIGHTER_F, MAGE_KNIGHT, SAGE, BISHOP, QUEEN, DARK_BISHOP));
+		public static final Set<CharacterClass> B_windUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, WIND_MAGE, MAGE_FIGHTER, MAGE_FIGHTER_F, MAGE_KNIGHT, SAGE,
+				BISHOP, QUEEN, DARK_BISHOP));
+		public static final Set<CharacterClass> B_lightUsers = new HashSet<CharacterClass>(Arrays.asList(LIGHT_PRIESTESS, SAGE));
+		public static final Set<CharacterClass> B_darkUsers = new HashSet<CharacterClass>(Arrays.asList(DARK_MAGE, DARK_BISHOP));
+		public static final Set<CharacterClass> B_staffUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, MAGE_FIGHTER_F, LIGHT_PRIESTESS, SAGE, PRIEST, HIGH_PRIEST, BISHOP, QUEEN, DARK_MAGE, 
+				DARK_BISHOP));
+		
+		public static final Set<CharacterClass> A_swordUsers = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, PRINCE, MASTER_KNIGHT, SWORD_FIGHTER, SWORD_MASTER, FORREST, THIEF_FIGHTER, FORREST_KNIGHT, GENERAL, 
+				BARON, EMPEROR, FALCON_KNIGHT, DRAGON_MASTER));
+		public static final Set<CharacterClass> A_lanceUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, DUKE_KNIGHT, GENERAL, BARON, EMPEROR, FALCON_KNIGHT, DRAGON_MASTER));
+		public static final Set<CharacterClass> A_axeUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, AXE_FIGHTER, WARRIOR, GREAT_KNIGHT, AXE_ARMOR, BARON, EMPEROR));
+		public static final Set<CharacterClass> A_bowUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BOW_FIGHTER, SNIPER, BOW_KNIGHT, BARON, EMPEROR));
+		public static final Set<CharacterClass> A_fireUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, QUEEN, DARK_BISHOP));
+		public static final Set<CharacterClass> A_thunderUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, QUEEN, DARK_BISHOP));
+		public static final Set<CharacterClass> A_windUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, QUEEN, DARK_BISHOP));
+		public static final Set<CharacterClass> A_lightUsers = new HashSet<CharacterClass>(Arrays.asList(LIGHT_PRIESTESS));
+		public static final Set<CharacterClass> A_darkUsers = new HashSet<CharacterClass>(Arrays.asList(DARK_BISHOP));
+		public static final Set<CharacterClass> A_staffUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, HIGH_PRIEST, BISHOP, QUEEN, DARK_BISHOP));
+		
+		public static final Set<CharacterClass> maleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, AXE_FIGHTER, WARRIOR, BARBARIAN, PIRATE, HUNTER, SWORD_ARMOR, ARMOR, 
+				AXE_ARMOR, BOW_ARMOR, GENERAL, MAGE_FIGHTER, BARD));
+		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS));
+		
 		public int ID;
 		
 		private static Map<Integer, CharacterClass> map = new HashMap<Integer, CharacterClass>();
@@ -738,6 +838,53 @@ public class FE4Data {
 		
 		public static CharacterClass valueOf(int classId) {
 			return map.get(classId);
+		}
+		
+		// Note that sameWeapon will result in a class that has at least one weapon shared with the current class.
+		// e.g. Calling this on SOCIAL_KNIGHT is going to result in all classes that can use Swords OR Lances.
+		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale) {
+			// Don't touch these. These are generally for bandits raiding villages. 
+			if (this == MOUNTAIN_THIEF) {
+				return new CharacterClass[] {};
+			}
+			
+			Set<CharacterClass> workingSet = new HashSet<CharacterClass>();
+			if (promotedClasses.contains(this)) { workingSet.addAll(promotedClasses); }
+			else { workingSet.addAll(unpromotedClasses); }
+			
+			if (!isEnemy) { workingSet.removeAll(enemyOnlyClasses); }
+			
+			if (!allowSame) { workingSet.remove(this); }
+			
+			if (sameWeapon) {
+				Set<CharacterClass> crossSet = new HashSet<CharacterClass>();
+				if (swordUsers.contains(this)) { crossSet.retainAll(swordUsers); }
+				if (lanceUsers.contains(this)) { crossSet.retainAll(lanceUsers); }
+				if (axeUsers.contains(this)) { crossSet.retainAll(axeUsers); }
+				if (bowUsers.contains(this)) { crossSet.retainAll(bowUsers); }
+				if (fireUsers.contains(this)) { crossSet.retainAll(fireUsers); }
+				if (thunderUsers.contains(this)) { crossSet.retainAll(thunderUsers); }
+				if (windUsers.contains(this)) { crossSet.retainAll(windUsers); }
+				if (lightUsers.contains(this)) { crossSet.retainAll(lightUsers); }
+				if (darkUsers.contains(this)) { crossSet.retainAll(darkUsers); }
+				if (staffUsers.contains(this)) { crossSet.retainAll(staffUsers); }
+				
+				workingSet.retainAll(crossSet);
+			}
+			
+			if (isFemale) {
+				workingSet.removeAll(maleOnlyClasses);
+			} else {
+				workingSet.removeAll(femaleOnlyClasses);
+			}
+			
+			return workingSet.toArray(new CharacterClass[workingSet.size()]);
+		}
+		
+		public GenderType getGenderType() {
+			if (maleOnlyClasses.contains(this)) { return GenderType.MALE_ONLY; }
+			if (femaleOnlyClasses.contains(this)) { return GenderType.FEMALE_ONLY; }
+			return GenderType.ANY;
 		}
 	}
 	
@@ -788,6 +935,36 @@ public class FE4Data {
 		
 		CIRCLET(0x89)
 		;
+		
+		public static final Set<Item> swords = new HashSet<Item>(Arrays.asList(IRON_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, MIRACLE_SWORD,
+				THIEF_SWORD, BARRIER_BLADE, BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD,
+				SAFEGUARD, FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, MYSTLETAINN, TYRFING,
+				BALMUNG, ARMORSLAYER, WING_CLIPPER));
+		public static final Set<Item> lances = new HashSet<Item>(Arrays.asList(IRON_LANCE, STEEL_LANCE, SILVER_LANCE, JAVELIN, HORSESLAYER, BRAVE_LANCE, SLIM_LANCE,
+				GUNGNIR, GAE_BOLG));
+		public static final Set<Item> axes = new HashSet<Item>(Arrays.asList(IRON_AXE, STEEL_AXE, SILVER_AXE, BRAVE_AXE, HELSWATH, HAND_AXE));
+		public static final Set<Item> bows = new HashSet<Item>(Arrays.asList(IRON_BOW, STEEL_BOW, SILVER_BOW, BRAVE_BOW, KILLER_BOW, YEWFELLE));
+		public static final Set<Item> fireMagic = new HashSet<Item>(Arrays.asList(FIRE, ELFIRE, BOLGANONE, VALFLAME, METEOR));
+		public static final Set<Item> thunderMagic = new HashSet<Item>(Arrays.asList(THUNDER, ELTHUNDER, THORON, MJOLNIR, BOLTING));
+		public static final Set<Item> windMagic = new HashSet<Item>(Arrays.asList(WIND, ELWIND, TORNADO, FORSETI, BLIZZARD));
+		public static final Set<Item> lightMagic = new HashSet<Item>(Arrays.asList(LIGHT, NOSFERATU, AURA, NAGA));
+		public static final Set<Item> darkMagic = new HashSet<Item>(Arrays.asList(YOTSMUNGAND, FENRIR, HEL, LOPTYR));
+		public static final Set<Item> staves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RETURN, WARP, RESCUE, RESTORE, VALKYRIE, SILENCE, SLEEP, BERSERK));
+		
+		public static final Set<Item> siegeTomes = new HashSet<Item>(Arrays.asList(METEOR, BOLTING, BLIZZARD, FENRIR));
+		
+		public static final Set<Item> rings = new HashSet<Item>(Arrays.asList(LIFE_RING, ELITE_RING, THIEF_RING, PRAYER_RING, PURSUIT_RING, RECOVER_RING, BARGAIN_RING, 
+				KNIGHT_RING, RETURN_RING, SPEED_RING, MAGIC_RING, POWER_RING, SHIELD_RING, BARRIER_RING, LEG_RING, SKILL_RING));
+		
+		public static final Set<Item> cWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, MIRACLE_SWORD, THIEF_SWORD, BARRIER_BLADE, BERSERK_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD, SAFEGUARD, FLAME_SWORD,
+				EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, IRON_LANCE, JAVELIN, HORSESLAYER, SLIM_LANCE, IRON_AXE, HAND_AXE, IRON_BOW, KILLER_BOW, FIRE, METEOR, THUNDER, BOLTING, WIND, BLIZZARD, LIGHT, YOTSMUNGAND,
+				HEAL, MEND, RETURN));
+		public static final Set<Item> bWeapons = new HashSet<Item>(Arrays.asList(STEEL_SWORD, BRAVE_SWORD, ARMORSLAYER, WING_CLIPPER, STEEL_LANCE, BRAVE_LANCE, STEEL_AXE, BRAVE_AXE, STEEL_BOW, BRAVE_BOW, ELFIRE, 
+				ELTHUNDER, ELWIND, FENRIR, HEL, RECOVER, PHYSIC, WARP, RESTORE, SILENCE, SLEEP, BERSERK));
+		public static final Set<Item> aWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, SILVER_LANCE, SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, NOSFERATU,
+				AURA, FORTIFY, RESCUE));
+		public static final Set<Item> holyWeapons = new HashSet<Item>(Arrays.asList(MYSTLETAINN, TYRFING, BALMUNG, GUNGNIR, GAE_BOLG, HELSWATH, YEWFELLE, VALFLAME, MJOLNIR, FORSETI, NAGA, LOPTYR, VALKYRIE));
+		
 		public int ID;
 		
 		private static Map<Integer, Item> map = new HashMap<Integer, Item>();
@@ -802,6 +979,90 @@ public class FE4Data {
 		
 		public static Item valueOf(int itemId) {
 			return map.get(itemId);
+		}
+		
+		public enum WeaponRank {
+			NONE, C, B, A, PRF
+		}
+		
+		public enum ItemType {
+			NONE, RING, SWORD, LANCE, AXE, BOW, FIRE_MAGIC, THUNDER_MAGIC, WIND_MAGIC, LIGHT_MAGIC, DARK_MAGIC, STAFF
+		}
+		
+		public enum HolyBloodType {
+			NONE, HEZUL, BALDR, OD, NJORUN, DAIN, NEIR, ULIR, FJALAR, THRUD, FORSETI, NAGA, LOPTOUS, BRAGI;
+			
+			public ItemType primaryWeaponType() {
+				switch (this) {
+				case HEZUL:
+				case BALDR:
+				case OD:
+					return ItemType.SWORD;
+				case NJORUN:
+				case DAIN:
+					return ItemType.LANCE;
+				case NEIR:
+					return ItemType.AXE;
+				case ULIR:
+					return ItemType.BOW;
+				case FJALAR:
+					return ItemType.FIRE_MAGIC;
+				case THRUD:
+					return ItemType.THUNDER_MAGIC;
+				case FORSETI:
+					return ItemType.WIND_MAGIC;
+				case NAGA:
+					return ItemType.LIGHT_MAGIC;
+				case LOPTOUS:
+					return ItemType.DARK_MAGIC;
+				case BRAGI:
+					return ItemType.STAFF;
+				default:
+					return ItemType.NONE;
+				}
+			}
+		}
+		
+		public ItemType getType() {
+			if (swords.contains(this)) { return ItemType.SWORD; }
+			if (lances.contains(this)) { return ItemType.LANCE; }
+			if (axes.contains(this)) { return ItemType.AXE; }
+			if (bows.contains(this)) { return ItemType.BOW; }
+			if (fireMagic.contains(this)) { return ItemType.FIRE_MAGIC; }
+			if (thunderMagic.contains(this)) { return ItemType.THUNDER_MAGIC; }
+			if (windMagic.contains(this)) { return ItemType.WIND_MAGIC; }
+			if (lightMagic.contains(this)) { return ItemType.LIGHT_MAGIC; }
+			if (darkMagic.contains(this)) { return ItemType.DARK_MAGIC; }
+			if (staves.contains(this)) { return ItemType.STAFF; }
+			if (rings.contains(this)) { return ItemType.RING; }
+			return ItemType.NONE;
+		}
+		
+		public WeaponRank getRank() {
+			if (cWeapons.contains(this)) { return WeaponRank.C; }
+			if (bWeapons.contains(this)) { return WeaponRank.B; }
+			if (aWeapons.contains(this)) { return WeaponRank.A; }
+			if (holyWeapons.contains(this)) { return WeaponRank.PRF; }
+			return WeaponRank.NONE;
+		}
+		
+		public HolyBloodType holyBloodForHolyWeapon() {
+			switch(this) {
+			case TYRFING: return HolyBloodType.BALDR;
+			case MYSTLETAINN: return HolyBloodType.HEZUL;
+			case BALMUNG: return HolyBloodType.OD;
+			case GAE_BOLG: return HolyBloodType.NJORUN;
+			case GUNGNIR: return HolyBloodType.DAIN;
+			case HELSWATH: return HolyBloodType.NEIR;
+			case YEWFELLE: return HolyBloodType.ULIR;
+			case VALFLAME: return HolyBloodType.FJALAR;
+			case MJOLNIR: return HolyBloodType.THRUD;
+			case FORSETI: return HolyBloodType.FORSETI;
+			case NAGA: return HolyBloodType.NAGA;
+			case LOPTYR: return HolyBloodType.LOPTOUS;
+			case VALKYRIE: return HolyBloodType.BRAGI;
+			default: return HolyBloodType.NONE;
+			}
 		}
 	}
 	

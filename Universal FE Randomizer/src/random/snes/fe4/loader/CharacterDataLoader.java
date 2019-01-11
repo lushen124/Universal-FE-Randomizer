@@ -1,5 +1,6 @@
 package random.snes.fe4.loader;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,69 @@ public class CharacterDataLoader {
 		initializeEnemyAndArenaCharacters(handler);
 		
 		initializeHolyBossCharacters(handler);
+	}
+	
+	public List<FE4StaticCharacter> getGen1Characters() {
+		List<FE4StaticCharacter> characters = new ArrayList<FE4StaticCharacter>();
+		for (FE4Data.Character fe4Char : staticPlayableCharacters.keySet()) {
+			if (fe4Char.isGen1() && fe4Char.isPlayable()) {
+				characters.add(staticPlayableCharacters.get(fe4Char));
+			}
+		}
+		
+		return characters;
+	}
+	
+	public List<FE4ChildCharacter> getChildrenForMother(FE4StaticCharacter mother) {
+		FE4Data.Character fe4Char = FE4Data.Character.valueOf(mother.getCharacterID());
+		if (fe4Char != null) {
+			List<FE4ChildCharacter> children = new ArrayList<FE4ChildCharacter>();
+			for (FE4Data.Character fe4Child : fe4Char.getChildren()) {
+				children.add(childCharacters.get(fe4Child));
+			}
+			
+			return children;
+		}
+		
+		return new ArrayList<FE4ChildCharacter>();
+	}
+	
+	public List<FE4StaticCharacter> getGen2CommonCharacters() {
+		List<FE4StaticCharacter> characters = new ArrayList<FE4StaticCharacter>();
+		for (FE4Data.Character fe4Char : staticPlayableCharacters.keySet()) {
+			if (fe4Char.isGen2() && fe4Char.isPlayable() && !fe4Char.isChild() && !fe4Char.isSubstitute()) {
+				characters.add(staticPlayableCharacters.get(fe4Char));
+			}
+		}
+		
+		return characters;
+	}
+	
+	public List<FE4StaticCharacter> getGen2SubstituteCharacters() {
+		List<FE4StaticCharacter> subs = new ArrayList<FE4StaticCharacter>();
+		for (FE4Data.Character fe4Char : staticPlayableCharacters.keySet()) {
+			if (fe4Char.isSubstitute()) {
+				subs.add(staticPlayableCharacters.get(fe4Char));
+			}
+		}
+		
+		return subs;
+	}
+	
+	public List<FE4EnemyCharacter> getMinions() {
+		return new ArrayList<FE4EnemyCharacter>(enemyCharacters.values());
+	}
+	
+	public List<FE4EnemyCharacter> getArenaCombatants() {
+		return new ArrayList<FE4EnemyCharacter>(arenaCharacters.values());
+	}
+	
+	public List<FE4EnemyCharacter> getPlainBossCharacters() {
+		return new ArrayList<FE4EnemyCharacter>(bossCharacters.values());
+	}
+	
+	public List<FE4StaticCharacter> getHolyBossCharacters() {
+		return new ArrayList<FE4StaticCharacter>(holyBloodBossCharacters.values());
 	}
 	
 	private void initializeStaticPlayableCharacters(FileHandler handler) {
