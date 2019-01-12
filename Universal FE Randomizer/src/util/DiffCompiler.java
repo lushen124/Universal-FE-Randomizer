@@ -20,6 +20,10 @@ public class DiffCompiler {
 	}
 	
 	public void addDiffsFromFile(String diffName) throws IOException {
+		addDiffsFromFile(diffName, 0);
+	}
+	
+	public void addDiffsFromFile(String diffName, long addressOffset) throws IOException {
 		InputStream stream = DiffApplicator.class.getClassLoader().getResourceAsStream(diffName + ".diff");
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
 		String currentLine = bufferedReader.readLine();
@@ -30,7 +34,7 @@ public class DiffCompiler {
 			int existingValue = scanner.nextInt(16);
 			int newValue = scanner.nextInt(16);
 			
-			addDiff(new Diff(nextAddress, 1, new byte[] {(byte)(newValue & 0xFF)}, new byte[] {(byte)(existingValue & 0xFF)}));
+			addDiff(new Diff(nextAddress + addressOffset, 1, new byte[] {(byte)(newValue & 0xFF)}, new byte[] {(byte)(existingValue & 0xFF)}));
 			scanner.close();
 			currentLine = bufferedReader.readLine();
 		}
