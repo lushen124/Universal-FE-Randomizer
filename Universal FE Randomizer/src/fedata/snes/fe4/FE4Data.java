@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fedata.snes.fe4.FE4Data.Item.ItemType;
+import fedata.snes.fe4.FE4Data.Item.WeaponRank;
+
 public class FE4Data {
 	
 	public static final String FriendlyName = "ファイアーエムブレム　聖戦の系譜";
@@ -67,6 +70,67 @@ public class FE4Data {
 	public static final int PlayerItemMappingTableItemSize = 1; // Each item is a byte, representing the item ID in that slot. The index is how the items are referred to afterwards.
 	
 	public static final int EnemyDataSize = 13;
+	
+	// Lex's hero axe event checks for an item to be in his inventory. We should try to match this to his starting equipment. Note this uses Item ID, not inventory ID.
+	public static final long LexHeroAxeEventItemRequirementOffset = 0x108ED7L;
+	public static final byte LexHeroAxeEventItemRequirementOldID = 0x28;
+	
+	// Since we enable all weapons to be inherited, we cannot let Seliph start with his, whatever it might be.
+	public static final long SeliphHolyWeaponInheritenceBanOffset = 0x7AD56L;
+	public static final byte SeliphHolyWeaponInheritenceBanOldID = 0x4B; // Was Forseti, which is normally allowed. Since we flipped the logic to allow all EXCEPT these, this becomes an exclusion list (uses item IDs).
+	public static final long SeliphHolyWeaponInheritenceBanOffset2 = 0x7AD59L; // This byte also needs to be set appropriately.
+	public static final long SeliphHolyWeaponInheritenceBanOldValue = 0x18;
+	public static final long SeliphHolyWeaponInheritenceBanNewValue = 0x1E;
+	
+	public static final Set<Integer> Chapter1ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x1D, 0x2F, 0x38, 0x41));
+	public static final Set<Integer> Chapter2ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x33, 0x55, 0x10, 0x4A));
+	public static final Set<Integer> Chapter3ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x0B, 0x36, 0x44, 0x4B, 0x52));
+	public static final Set<Integer> Chapter4ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x58, 0x68, 0x83));
+	// Gen 2 shops recycle a lot of weapons not passed down. We only list the ones that aren't found in Gen 1 so that we don't clobber anything from Gen 1.
+	public static final Set<Integer> Chapter6ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList());
+	public static final Set<Integer> Chapter7ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x21, 0x51, 0x69));
+	public static final Set<Integer> Chapter8ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x34));
+	public static final Set<Integer> Chapter9ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList());
+	public static final Set<Integer> Chapter10ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList());
+	
+	public static final Map<Character, Integer> EventItemInventoryIDsByRecipient = createEventItemMap();
+	private static Map<Character, Integer> createEventItemMap() {
+		Map<Character, Integer> map = new HashMap<Character, Integer>();
+		map.put(Character.LACHESIS, 0x16); // Thief Sword
+		map.put(Character.LACHESIS, 0x22); // Earth Sword
+		map.put(Character.ETHLYN, 0x25); // Light Brand
+		map.put(Character.AYRA, 0x19); // Brave Sword (Technically needs to work for Coruta (boss) as well...)
+		map.put(Character.SILVIA, 0x20); // Defender
+		map.put(Character.DEW, 0x24); // Wind Sword
+		map.put(Character.SIGURD, 0x0A); // Silver Sword (Technically needs to work for Seliph too...)
+		map.put(Character.SIGURD, 0x27); // Tyrfing
+		map.put(Character.FINN_GEN_1, 0x3B); // Brave Lance
+		map.put(Character.QUAN, 0x3E); // Gae Bolg
+		map.put(Character.LEX, 0x45); // Brave Axe
+		map.put(Character.MIDIR, 0x4D); // Brave Bow (Technically needs to work for Jamke too...)
+		map.put(Character.BRIGID, 0x4F); // Yewfelle
+		map.put(Character.LEWYN, 0x5C); // Forseti
+		map.put(Character.ETHLYN, 0x6D); // Return Staff
+		map.put(Character.EDAIN, 0x6E); // Warp Staff
+		map.put(Character.EDAIN, 0x6F); // Rescue Staff
+		
+		map.put(Character.LAYLEA, 0x17); // Barrier Sword
+		map.put(Character.SELIPH, 0x1A); // Hero Sword
+		map.put(Character.SHANNAN, 0x28); // Balmung
+		map.put(Character.JULIA, 0x5E); // Lightning
+		// Aura should be here, but it's shared with Deirdre, so they have to use the same weapon type.
+		map.put(Character.JULIA, 0x5F); // Nosferatu
+		map.put(Character.JULIA, 0x61); // Naga
+		map.put(Character.JULIA, 0x66); // Mend Staff
+		map.put(Character.CHARLOT, 0x74); // Berserk Staff
+		return map;
+	}
+	
+	// 0x7B is shared with Johan's inventory. (Speed Ring)
+	// 0x88 is received from an event (Knight ring from saving Lachesis' bodyguards.)
+	// 0x89 is received from the Arden event (Pursuit Ring)
+	public static final Set<Integer> VillageItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x29, 0x2B, 0x70, 0x7B, 0x88, 0x89,
+			0x76, 0x78, 0x7A, 0x7C, 0x7E, 0x80, 0x8B)); 
 	
 	public enum Character {
 		NONE(0x0000),
@@ -678,6 +742,89 @@ public class FE4Data {
 		public boolean isBoss() {
 			return Gen1Bosses.contains(this) || Gen2Bosses.contains(this);
 		}
+		
+		public Character[] linkedCharacters() {
+			switch (this) {
+			case FINN_GEN_1:
+			case FINN_GEN_2:
+				return new Character[] {FINN_GEN_1, FINN_GEN_2};
+			case ELLIOT_CH1_SCENE:
+			case ELLIOT_CH2:
+				return new Character[] {ELLIOT_CH1_SCENE, ELLIOT_CH2};
+			case ELDIGAN_CH1_SCENE:
+			case ELDIGAN_CH3:
+				return new Character[] {ELDIGAN_CH1_SCENE, ELDIGAN_CH3};
+			case CHAGALL_CH2:
+			case CHAGALL_CH3:
+				return new Character[] {CHAGALL_CH2, CHAGALL_CH3};
+			case ANDOREY_CH4:
+			case ANDOREY_CH5:
+				return new Character[] {ANDOREY_CH4, ANDOREY_CH5};
+			case LOMBARD_CH3_SCENE:
+			case LOMBARD:
+				return new Character[] {LOMBARD, LOMBARD_CH3_SCENE};
+			case REPTOR_CH3_SCENE:
+			case REPTOR:
+				return new Character[] {REPTOR, REPTOR_CH3_SCENE};
+			case VAMPA_CH7:
+			case VAMPA_CH8:
+				return new Character[] {VAMPA_CH7, VAMPA_CH8};
+			case FETRA_CH7:
+			case FETRA_CH8:
+				return new Character[] {FETRA_CH7, FETRA_CH8};
+			case ELIU_CH7:
+			case ELIU_CH8:
+				return new Character[] {ELIU_CH7, ELIU_CH8};
+			case BLOOM_CH7:
+			case BLOOM_CH8:
+				return new Character[] {BLOOM_CH7, BLOOM_CH8};
+			case ISHTAR_CH8:
+			case ISHTAR_CH10:
+			case ISHTAR_FINAL:
+				return new Character[] {ISHTAR_CH8, ISHTAR_CH10, ISHTAR_FINAL};
+			case TRAVANT_CH5:
+			case TRAVANT_CH9:
+				return new Character [] {TRAVANT_CH5, TRAVANT_CH9};
+			case ARION_CH9:
+			case ARION_FINAL:
+				return new Character[] {ARION_CH9, ARION_FINAL};
+			case HILDA_CH10:
+			case HILDA_FINAL:
+				return new Character[] {HILDA_CH10, HILDA_FINAL};
+			case ARVIS_CH3_SCENE:
+			case ARVIS_CH5:
+			case ARVIS_CH10:
+				return new Character[] {ARVIS_CH3_SCENE, ARVIS_CH5, ARVIS_CH10};
+			case JULIUS_CH10:
+			case JULIUS_FINAL:
+				return new Character[] {JULIUS_CH10, JULIUS_FINAL};
+			case MAHNYA:
+			case MAHNYA_CH3_SCENE:
+				return new Character[] {MAHNYA, MAHNYA_CH3_SCENE};
+			default:
+				return new Character[] {};
+			}
+		}
+		
+		public Character substituteForChild() {
+			switch (this) {
+			case LANA: return MUIRNE;
+			case LESTER: return DEIMNE;
+			case LARCEI: return CREIDNE;
+			case ULSTER: return DALVIN;
+			case NANNA: return JEANNE;
+			case DIARMUID: return TRISTAN;
+			case LENE: return LAYLEA;
+			case COIRPRE: return CHARLOT;
+			case FEE: return HERMINA;
+			case CED: return HAWK;
+			case TINE: return LINDA;
+			case ARTHUR: return AMID;
+			case PATTY: return DAISY;
+			case FEBAIL: return ASAELLO;
+			default: return null;
+			}
+		}
 	}
 
 	public enum CharacterClass {
@@ -766,7 +913,7 @@ public class FE4Data {
 		
 		public static final Set<CharacterClass> unpromotedClasses = new HashSet<CharacterClass>(Arrays.asList(SOCIAL_KNIGHT, LANCE_KNIGHT, ARCH_KNIGHT, AXE_KNIGHT, FREE_KNIGHT, TROUBADOUR, 
 				PEGASUS_KNIGHT, DRAGON_RIDER, DRAGON_KNIGHT, BOW_FIGHTER, SWORD_FIGHTER, ARMOR, AXE_ARMOR, BOW_ARMOR, SWORD_ARMOR, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
-				FIRE_MAGE, THUNDER_MAGE, WIND_MAGE, BARD, THIEF, BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, DANCER));
+				FIRE_MAGE, THUNDER_MAGE, WIND_MAGE, BARD, LIGHT_PRIESTESS, THIEF, BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, DANCER));
 		public static final Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, EMPEROR, BARON, QUEEN, BISHOP, DARK_BISHOP));
 		public static final Set<CharacterClass> promotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, DUKE_KNIGHT, MASTER_KNIGHT, PALADIN, PALADIN_F, BOW_KNIGHT, FORREST_KNIGHT,
 				MAGE_KNIGHT, GREAT_KNIGHT, FALCON_KNIGHT, DRAGON_MASTER, SWORD_MASTER, SNIPER, FORREST, GENERAL, WARRIOR, MAGE_FIGHTER, MAGE_FIGHTER_F, HIGH_PRIEST, SAGE, THIEF_FIGHTER, EMPEROR,
@@ -824,6 +971,17 @@ public class FE4Data {
 				AXE_ARMOR, BOW_ARMOR, GENERAL, MAGE_FIGHTER, BARD));
 		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS));
 		
+		public static final Set<CharacterClass> noWeaknessClasses = new HashSet<CharacterClass>(Arrays.asList(BOW_FIGHTER, SWORD_FIGHTER, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
+				FIRE_MAGE, THUNDER_MAGE, WIND_MAGE, BARD, LIGHT_PRIESTESS, THIEF, BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, DANCER, SWORD_MASTER, SNIPER, FORREST, WARRIOR, MAGE_FIGHTER, MAGE_FIGHTER_F, HIGH_PRIEST, 
+				SAGE, THIEF_FIGHTER, QUEEN, BISHOP, DARK_BISHOP));
+		
+		public static final Set<CharacterClass> pacifistClasses = new HashSet<CharacterClass>(Arrays.asList(PRIEST, DANCER));
+		
+		public static final Set<CharacterClass> horsebackClasses = new HashSet<CharacterClass>(Arrays.asList(SOCIAL_KNIGHT, LANCE_KNIGHT, ARCH_KNIGHT, AXE_KNIGHT, FREE_KNIGHT, TROUBADOUR, 
+				LORD_KNIGHT, DUKE_KNIGHT, MASTER_KNIGHT, PALADIN, PALADIN_F, BOW_KNIGHT, FORREST_KNIGHT, MAGE_KNIGHT, GREAT_KNIGHT));
+		public static final Set<CharacterClass> fliers = new HashSet<CharacterClass>(Arrays.asList(PEGASUS_KNIGHT, DRAGON_RIDER, DRAGON_KNIGHT, FALCON_KNIGHT, DRAGON_MASTER));
+		public static final Set<CharacterClass> armoredClasses = new HashSet<CharacterClass>(Arrays.asList(ARMOR, AXE_ARMOR, BOW_ARMOR, SWORD_ARMOR, GENERAL, EMPEROR, BARON));
+		
 		public int ID;
 		
 		private static Map<Integer, CharacterClass> map = new HashMap<Integer, CharacterClass>();
@@ -840,9 +998,69 @@ public class FE4Data {
 			return map.get(classId);
 		}
 		
+		public boolean isHorseback() { return horsebackClasses.contains(this); }
+		public boolean isFlier() { return fliers.contains(this); }
+		public boolean isPacifist() { return pacifistClasses.contains(this); }
+		public boolean isArmored() { return armoredClasses.contains(this); }
+		
+		public boolean canUseWeapon(Item weapon) {
+			if (weapon.getType() == ItemType.SWORD) {
+				if (weapon.getRank() == WeaponRank.C) { return swordUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_swordUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_swordUsers.contains(this); }
+			}
+			else if (weapon.getType() == ItemType.LANCE) {
+				if (weapon.getRank() == WeaponRank.C) { return lanceUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_lanceUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_lanceUsers.contains(this); }
+			}
+			else if (weapon.getType() == ItemType.AXE) {
+				if (weapon.getRank() == WeaponRank.C) { return axeUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_axeUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_axeUsers.contains(this); }
+			}
+			else if (weapon.getType() == ItemType.BOW) {
+				if (weapon.getRank() == WeaponRank.C) { return bowUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_bowUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_bowUsers.contains(this); }
+			}
+			else if (weapon.getType() == ItemType.FIRE_MAGIC) {
+				if (weapon.getRank() == WeaponRank.C) { return fireUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_fireUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_fireUsers.contains(this); }
+			}
+			else if (weapon.getType() == ItemType.THUNDER_MAGIC) {
+				if (weapon.getRank() == WeaponRank.C) { return thunderUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_thunderUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_thunderUsers.contains(this); }
+			}
+			else if (weapon.getType() == ItemType.WIND_MAGIC) {
+				if (weapon.getRank() == WeaponRank.C) { return windUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_windUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_windUsers.contains(this); }
+			}
+			else if (weapon.getType() == ItemType.LIGHT_MAGIC) {
+				if (weapon.getRank() == WeaponRank.C) { return lightUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_lightUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_lightUsers.contains(this); }
+			}
+			else if (weapon.getType() == ItemType.DARK_MAGIC) {
+				if (weapon.getRank() == WeaponRank.C) { return darkUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_darkUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_darkUsers.contains(this); }
+			}
+			else if (weapon.getType() == ItemType.STAFF) {
+				if (weapon.getRank() == WeaponRank.C) { return staffUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_staffUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.A) { return A_staffUsers.contains(this); }
+			}
+			
+			return false;
+		}
+		
 		// Note that sameWeapon will result in a class that has at least one weapon shared with the current class.
 		// e.g. Calling this on SOCIAL_KNIGHT is going to result in all classes that can use Swords OR Lances.
-		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale) {
+		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale, boolean requireWeakness, boolean requireAttack, boolean requireHorse, Item mustUseWeapon) {
 			// Don't touch these. These are generally for bandits raiding villages. 
 			if (this == MOUNTAIN_THIEF) {
 				return new CharacterClass[] {};
@@ -878,13 +1096,86 @@ public class FE4Data {
 				workingSet.removeAll(femaleOnlyClasses);
 			}
 			
+			if (requireWeakness) {
+				workingSet.removeAll(noWeaknessClasses);
+			}
+			
+			if (requireAttack) {
+				workingSet.removeAll(pacifistClasses);
+			}
+			
+			// Lock fliers to flying classes, to make sure we don't blow anything up.
+			if (fliers.contains(this)) { workingSet.retainAll(fliers); }
+			
+			if (requireHorse) { workingSet.retainAll(horsebackClasses); }
+			
+			if (mustUseWeapon != null && (mustUseWeapon.isWeapon() || mustUseWeapon.getType() == Item.ItemType.STAFF)) {
+				Set<CharacterClass> weaponFilter = new HashSet<CharacterClass>();
+				for (CharacterClass charClass : workingSet) {
+					if (charClass.canUseWeapon(mustUseWeapon)) { weaponFilter.add(charClass); }
+				}
+				
+				workingSet = weaponFilter;
+			}
+			
 			return workingSet.toArray(new CharacterClass[workingSet.size()]);
+		}
+		
+		public Item[] criticalWeaknessWeapons() {
+			Set<Item> workingSet = new HashSet<Item>();
+			if (fliers.contains(this)) { workingSet.addAll(Item.bows); workingSet.add(Item.WING_CLIPPER); }
+			if (horsebackClasses.contains(this)) { workingSet.add(Item.HORSESLAYER); }
+			if (armoredClasses.contains(this)) { workingSet.add(Item.ARMORSLAYER); }
+			return workingSet.toArray(new Item[workingSet.size()]);
 		}
 		
 		public GenderType getGenderType() {
 			if (maleOnlyClasses.contains(this)) { return GenderType.MALE_ONLY; }
 			if (femaleOnlyClasses.contains(this)) { return GenderType.FEMALE_ONLY; }
 			return GenderType.ANY;
+		}
+		
+		public CharacterClass[] promotionClasses() {
+			if (promotedClasses.contains(this)) { return new CharacterClass[] {}; }
+			switch (this) {
+			case SOCIAL_KNIGHT: return new CharacterClass[] {PALADIN};
+			case LANCE_KNIGHT: return new CharacterClass[] {DUKE_KNIGHT}; 
+			case ARCH_KNIGHT: return new CharacterClass[] {BOW_KNIGHT}; 
+			case AXE_KNIGHT: return new CharacterClass[] {GREAT_KNIGHT};
+			case FREE_KNIGHT: return new CharacterClass[] {FORREST_KNIGHT};
+			case TROUBADOUR: return new CharacterClass[] {PALADIN_F}; 
+			case PEGASUS_KNIGHT: return new CharacterClass[] {FALCON_KNIGHT};
+			case DRAGON_RIDER:
+			case DRAGON_KNIGHT:
+				return new CharacterClass[] {DRAGON_MASTER};
+			case BOW_FIGHTER: return new CharacterClass[] {SNIPER};
+			case SWORD_FIGHTER: return new CharacterClass[] {SWORD_MASTER};
+			case ARMOR:
+			case AXE_ARMOR:
+			case BOW_ARMOR:
+			case SWORD_ARMOR:
+				return new CharacterClass[] {GENERAL};
+			case AXE_FIGHTER: return new CharacterClass[] {WARRIOR};
+			case JUNIOR_LORD: return new CharacterClass[] {LORD_KNIGHT};
+			case PRINCE:
+			case PRINCESS:
+				return new CharacterClass[] {MASTER_KNIGHT};
+			case PRIEST: return new CharacterClass[] {HIGH_PRIEST};
+			case MAGE:
+			case FIRE_MAGE:
+			case THUNDER_MAGE:
+			case WIND_MAGE:
+				return new CharacterClass[] {MAGE_KNIGHT, MAGE_FIGHTER};
+			case BARD: return new CharacterClass[] {SAGE}; 
+			case THIEF: return new CharacterClass[] {THIEF_FIGHTER};
+			case BARBARIAN:
+			case MOUNTAIN_THIEF:
+			case PIRATE:
+			case HUNTER:
+				return new CharacterClass[] {WARRIOR};
+			case DARK_MAGE: return new CharacterClass[] {DARK_BISHOP};
+			default: return new CharacterClass[] {};
+			}
 		}
 	}
 	
@@ -1036,6 +1327,12 @@ public class FE4Data {
 			if (staves.contains(this)) { return ItemType.STAFF; }
 			if (rings.contains(this)) { return ItemType.RING; }
 			return ItemType.NONE;
+		}
+		
+		public boolean isWeapon() {
+			return swords.contains(this) || lances.contains(this) || axes.contains(this) || bows.contains(this) ||
+					fireMagic.contains(this) || thunderMagic.contains(this) || windMagic.contains(this) ||
+					lightMagic.contains(this) || darkMagic.contains(this);
 		}
 		
 		public WeaponRank getRank() {

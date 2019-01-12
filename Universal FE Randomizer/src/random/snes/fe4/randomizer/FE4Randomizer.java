@@ -12,6 +12,7 @@ import random.general.Randomizer;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.ItemMapper;
 import ui.model.MiscellaneousOptions;
+import util.Diff;
 import util.DiffCompiler;
 import util.recordkeeper.RecordKeeper;
 
@@ -88,6 +89,7 @@ public class FE4Randomizer extends Randomizer {
 		
 		updateStatusString("Loading Data...");
 		updateProgress(0.1);
+		addUniversalDiffs(isHeadered);
 		generateDataLoaders();
 		
 		RecordKeeper recordKeeper = initializeRecordKeeper();
@@ -127,6 +129,73 @@ public class FE4Randomizer extends Randomizer {
 		updateStatusString("Done!");
 		updateProgress(1);
 		notifyCompletion(recordKeeper);
+	}
+	
+	private void addUniversalDiffs(boolean isHeadered) {
+		if (isHeadered) {
+			// Diffs for allowing Sigurd/Seliph to sieze, regardless of their class.
+			diffCompiler.addDiff(new Diff(0x5E63CL, 4, new byte[] {(byte)0x22, (byte)0x33, (byte)0xA3, (byte)0x84}, new byte[] {(byte)0x22, (byte)0x2D, (byte)0xA0, (byte)0x84}));
+			diffCompiler.addDiff(new Diff(0x5E641L, 1, new byte[] {(byte)0x01}, new byte[] {(byte)0x06}));
+			diffCompiler.addDiff(new Diff(0x5E646L, 1, new byte[] {(byte)0x19}, new byte[] {(byte)0x2C}));
+			
+			// Diffs to make all holy weapon inheritable by default.
+			diffCompiler.addDiff(new Diff(0x7AD6C, 1, new byte[] {(byte)0x05}, new byte[] {(byte)0x0B}));
+			
+			// Diffs to allow sword skills to be usable by any weapon type.
+			try {
+				diffCompiler.addDiffsFromFile("fe4_swordSkills");
+			} catch (IOException e) {
+				System.err.println("Failed to apply patch for Universal FE4 Sword Skill usage.");
+			}
+			
+			// Diffs to allow sword skills to be inheritable.
+			// Table starts at 0x7AB75L and goes to 0x7ABE9 (each entry is 3 bytes).
+			diffCompiler.addDiff(new Diff(0x7AB76L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7AB82L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABAFL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABC4L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABC7L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABCAL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABCDL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABD0L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABD3L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABDCL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABDFL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABE2L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7ABE8L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			
+		} else {
+			// Diffs for allowing Sigurd/Seliph to sieze, regardless of their class.
+			diffCompiler.addDiff(new Diff(0x5E43CL, 4, new byte[] {(byte)0x22, (byte)0x33, (byte)0xA3, (byte)0x84}, new byte[] {(byte)0x22, (byte)0x2D, (byte)0xA0, (byte)0x84}));
+			diffCompiler.addDiff(new Diff(0x5E441L, 1, new byte[] {(byte)0x01}, new byte[] {(byte)0x06}));
+			diffCompiler.addDiff(new Diff(0x5E446L, 1, new byte[] {(byte)0x19}, new byte[] {(byte)0x2C}));
+			
+			// Diffs to make all holy weapon inheritable by default.
+			diffCompiler.addDiff(new Diff(0x7AB6C, 1, new byte[] {(byte)0x05}, new byte[] {(byte)0x0B}));
+			
+			// Diffs to allow sword skills to be usable by any weapon type.
+			try {
+				diffCompiler.addDiffsFromFile("fe4_swordSkills", -1 * 0x200);
+			} catch (IOException e) {
+				System.err.println("Failed to apply patch for Universal FE4 Sword Skill usage.");
+			}
+			
+			// Diffs to allow sword skills to be inheritable.
+			// Table starts at 0x7AB75L and goes to 0x7ABE9 (each entry is 3 bytes).
+			diffCompiler.addDiff(new Diff(0x7A976L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A982L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9AFL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9C4L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9C7L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9CAL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9CDL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9D0L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9D3L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9DCL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9DFL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9E2L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
+			diffCompiler.addDiff(new Diff(0x7A9E8L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));			
+		}
 	}
 
 	private void generateDataLoaders() {
