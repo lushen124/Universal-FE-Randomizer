@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
 import ui.fe4.FE4ClassOptions.ChildOptions;
+import ui.fe4.FE4ClassOptions.ShopOptions;
 
 public class FE4ClassesView extends Composite {
 	private Group container;
@@ -20,9 +21,13 @@ public class FE4ClassesView extends Composite {
 	private Button includeLords;
 	private Button includeThieves;
 	private Button includeDancers;
-	private Button adjustChildren;
+	private Button adjustChildrenStrict;
+	private Button adjustChildrenLoose;
 	private Button randomizeChildren;
 	private Button randomizeBlood;
+	private Button adjustShops;
+	private Button randomizeShops;
+	private Button adjustConvoItems;
 	
 	private Button randomizeMinions;
 	
@@ -61,10 +66,16 @@ public class FE4ClassesView extends Composite {
 				includeThieves.setEnabled(enabled);
 				includeDancers.setEnabled(enabled);
 				
-				adjustChildren.setEnabled(enabled);
+				adjustChildrenStrict.setEnabled(enabled);
+				adjustChildrenLoose.setEnabled(enabled);
 				randomizeChildren.setEnabled(enabled);
 				
 				randomizeBlood.setEnabled(enabled);
+				
+				adjustShops.setEnabled(enabled);
+				randomizeShops.setEnabled(enabled);
+				
+				adjustConvoItems.setEnabled(enabled);
 			}
 		});
 		
@@ -123,26 +134,37 @@ public class FE4ClassesView extends Composite {
 		childGroup.setLayoutData(groupData);
 		
 		{
-			adjustChildren = new Button(childGroup, SWT.RADIO);
-			adjustChildren.setText("Match Parents");
-			adjustChildren.setToolTipText("Sets the classes of the child characters to match parent equivalents. In cases where children for a mother are different classes, the analogue from generation 1 is used.\n\nSubstitute characters are not included, and will always be randomized independently.\n\nFor example, Edain's Children will be assigned classes matching Edain for Lana and matching Midir for Lester.");
-			adjustChildren.setEnabled(false);
-			adjustChildren.setSelection(true);
+			adjustChildrenStrict = new Button(childGroup, SWT.RADIO);
+			adjustChildrenStrict.setText("Match Parents (Strict)");
+			adjustChildrenStrict.setToolTipText("Sets the classes of the child characters to match parent equivalents. In cases where children for a mother are different classes, the analogue from generation 1 is used.\n\nSubstitute characters match exactly with their child counterparts.\n\nFor example, Edain's Children will be assigned classes matching Edain for Lana and matching Midir for Lester.");
+			adjustChildrenStrict.setEnabled(false);
+			adjustChildrenStrict.setSelection(true);
 			
 			optionData = new FormData();
 			optionData.left = new FormAttachment(0, 0);
 			optionData.top = new FormAttachment(0, 0);
-			adjustChildren.setLayoutData(optionData);
+			adjustChildrenStrict.setLayoutData(optionData);
+			
+			adjustChildrenLoose = new Button(childGroup, SWT.RADIO);
+			adjustChildrenLoose.setText("Match Parents (Loose)");
+			adjustChildrenLoose.setToolTipText("Sets the classes of the child characters to classes that match at least one weapon.\n\nSubstitute characters will match the children in weapon usage.\n\nFor example, if Edain randomized as an Axe Knight and Midir randomized as a Myrmidon, Lana will randomize as somebody that can use an axe and Lester will randomize as somebody that can use a sword.");
+			adjustChildrenLoose.setEnabled(false);
+			adjustChildrenLoose.setSelection(false);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(adjustChildrenStrict, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(adjustChildrenStrict, 5);
+			adjustChildrenLoose.setLayoutData(optionData);
 			
 			randomizeChildren = new Button(childGroup, SWT.RADIO);
 			randomizeChildren.setText("Randomize");
-			randomizeChildren.setToolTipText("Randomly assigns the classes of child characters.");
+			randomizeChildren.setToolTipText("Randomly assigns the classes of child characters.\n\nSubstitute characters will match the children in weapon usage.");
 			randomizeChildren.setEnabled(false);
 			randomizeChildren.setSelection(false);
 			
 			optionData = new FormData();
-			optionData.left = new FormAttachment(adjustChildren, 0, SWT.LEFT);
-			optionData.top = new FormAttachment(adjustChildren, 5);
+			optionData.left = new FormAttachment(adjustChildrenLoose, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(adjustChildrenLoose, 5);
 			randomizeChildren.setLayoutData(optionData);
 		}
 		
@@ -157,6 +179,57 @@ public class FE4ClassesView extends Composite {
 		optionData.top = new FormAttachment(childGroup, 5);
 		randomizeBlood.setLayoutData(optionData);
 		
+		Group shopGroup = new Group(container, SWT.NONE);
+		shopGroup.setText("Shop Options");
+		
+		FormLayout shopLayout = new FormLayout();
+		shopLayout.marginLeft = 5;
+		shopLayout.marginRight = 5;
+		shopLayout.marginTop = 5;
+		shopLayout.marginBottom = 5;
+		shopGroup.setLayout(shopLayout);
+		
+		FormData shopData = new FormData();
+		shopData.left = new FormAttachment(randomizeBlood, 0, SWT.LEFT);
+		shopData.top = new FormAttachment(randomizeBlood, 5);
+		shopData.right = new FormAttachment(100, -5);
+		shopGroup.setLayoutData(shopData);
+		
+		{
+			adjustShops = new Button(shopGroup, SWT.RADIO);
+			adjustShops.setText("Adjust to Party");
+			adjustShops.setToolTipText("Changes shop items to reflect classes randomized for party.");
+			adjustShops.setEnabled(false);
+			adjustShops.setSelection(true);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(0, 0);
+			optionData.top = new FormAttachment(0, 0);
+			adjustShops.setLayoutData(optionData);
+			
+			randomizeShops = new Button(shopGroup, SWT.RADIO);
+			randomizeShops.setText("Randomize");
+			randomizeShops.setToolTipText("Randomize new shop items for every chapter.");
+			randomizeShops.setEnabled(false);
+			randomizeShops.setSelection(false);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(adjustShops, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(adjustShops, 5);
+			randomizeShops.setLayoutData(optionData);
+		}
+		
+		adjustConvoItems = new Button(container, SWT.CHECK);
+		adjustConvoItems.setText("Adjust Conversation Gifts");
+		adjustConvoItems.setToolTipText("Updates the weapons received from conversations to weapons usable by the recipient.\n\nFor example, Lex/Chulainn normally give Ayra a Brave Sword. This option will change the Brave Sword to a weapon Ayra can use (assuming she can't use swords).");
+		adjustConvoItems.setEnabled(false);
+		adjustConvoItems.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(shopGroup, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(shopGroup, 5);
+		adjustConvoItems.setLayoutData(optionData);
+		
 		randomizeMinions = new Button(container, SWT.CHECK);
 		randomizeMinions.setText("Randomize Regular Enemies");
 		randomizeMinions.setToolTipText("Randomizes the classes for regular enemies. Due to how the game was coded and how many enemies are copy/pasted, randomizations are done in batches.");
@@ -165,7 +238,7 @@ public class FE4ClassesView extends Composite {
 		
 		optionData = new FormData();
 		optionData.left = new FormAttachment(randomizePCs, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(randomizeBlood, 10);
+		optionData.top = new FormAttachment(adjustConvoItems, 10);
 		randomizeMinions.setLayoutData(optionData);
 		
 		randomizeArenas = new Button(container, SWT.CHECK);
@@ -209,10 +282,14 @@ public class FE4ClassesView extends Composite {
 	}
 	
 	public FE4ClassOptions getClassOptions() {
-		ChildOptions childOptions = ChildOptions.ADJUST_TO_MATCH;
-		if (randomizeChildren.getSelection()) { childOptions = ChildOptions.RANDOM_CLASS; }
+		ChildOptions childOptions = ChildOptions.MATCH_STRICT;
+		if (adjustChildrenLoose.getSelection()) { childOptions = ChildOptions.MATCH_LOOSE; }
+		else if (randomizeChildren.getSelection()) { childOptions = ChildOptions.RANDOM_CLASS; }
 		
-		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), 
+		ShopOptions shopOptions = ShopOptions.ADJUST_TO_MATCH;
+		if (randomizeShops.getSelection()) { shopOptions = ShopOptions.RANDOMIZE; }
+		
+		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), 
 				randomizeMinions.getSelection(), randomizeArenas.getSelection(), randomizeBosses.getSelection(), randomizeBossBlood.getSelection());
 	}
 }

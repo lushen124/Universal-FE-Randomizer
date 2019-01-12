@@ -132,6 +132,10 @@ public class FE4Data {
 	public static final Set<Integer> VillageItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x29, 0x2B, 0x70, 0x7B, 0x88, 0x89,
 			0x76, 0x78, 0x7A, 0x7C, 0x7E, 0x80, 0x8B)); 
 	
+	public static final long HolyBloodDataOffset = 0x38BE3L;
+	public static final int HolyBloodDataCount = 13;
+	public static final int HolyBloodDataSize = 16;
+	
 	public enum Character {
 		NONE(0x0000),
 		
@@ -1117,6 +1121,9 @@ public class FE4Data {
 				
 				workingSet = weaponFilter;
 			}
+			
+			// Never return dancer from this.
+			workingSet.remove(DANCER);
 			
 			return workingSet.toArray(new CharacterClass[workingSet.size()]);
 		}
