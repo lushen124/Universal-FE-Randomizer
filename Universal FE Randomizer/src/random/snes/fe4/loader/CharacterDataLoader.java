@@ -1,6 +1,8 @@
 package random.snes.fe4.loader;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,8 @@ import fedata.snes.fe4.FE4EnemyCharacter;
 import fedata.snes.fe4.FE4StaticCharacter;
 import io.FileHandler;
 import util.DebugPrinter;
+import util.Diff;
+import util.DiffCompiler;
 import util.recordkeeper.RecordKeeper;
 
 public class CharacterDataLoader {
@@ -55,6 +59,23 @@ public class CharacterDataLoader {
 		initializeHolyBossCharacters(handler);
 	}
 	
+	public FE4StaticCharacter getStaticCharacter(FE4Data.Character staticChar) {
+		if (staticPlayableCharacters.containsKey(staticChar)) { return staticPlayableCharacters.get(staticChar); }
+		if (holyBloodBossCharacters.containsKey(staticChar)) { return holyBloodBossCharacters.get(staticChar); }
+		return null;
+	}
+	
+	public FE4ChildCharacter getChildCharacter(FE4Data.Character childChar) {
+		return childCharacters.get(childChar);
+	}
+	
+	public FE4EnemyCharacter getEnemyCharacter(FE4Data.Character enemyChar) {
+		if (enemyCharacters.containsKey(enemyChar)) { return enemyCharacters.get(enemyChar); }
+		if (arenaCharacters.containsKey(enemyChar)) { return arenaCharacters.get(enemyChar); }
+		if (bossCharacters.containsKey(enemyChar)) { return bossCharacters.get(enemyChar); }
+		return null;
+	}
+	
 	public List<FE4StaticCharacter> getGen1Characters() {
 		List<FE4StaticCharacter> characters = new ArrayList<FE4StaticCharacter>();
 		for (FE4Data.Character fe4Char : staticPlayableCharacters.keySet()) {
@@ -62,6 +83,14 @@ public class CharacterDataLoader {
 				characters.add(staticPlayableCharacters.get(fe4Char));
 			}
 		}
+		
+		Collections.sort(characters, new Comparator<FE4StaticCharacter>() {
+			@Override
+			public int compare(FE4StaticCharacter o1, FE4StaticCharacter o2) {
+				if (o1.getCharacterID() == o2.getCharacterID()) { return 0; }
+				return o1.getCharacterID() > o2.getCharacterID() ? 1 : -1;
+			}
+		});
 		
 		return characters;
 	}
@@ -73,6 +102,14 @@ public class CharacterDataLoader {
 			for (FE4Data.Character fe4Child : fe4Char.getChildren()) {
 				children.add(childCharacters.get(fe4Child));
 			}
+			
+			Collections.sort(children, new Comparator<FE4ChildCharacter>() {
+				@Override
+				public int compare(FE4ChildCharacter o1, FE4ChildCharacter o2) {
+					if (o1.getCharacterID() == o2.getCharacterID()) { return 0; }
+					return o1.getCharacterID() > o2.getCharacterID() ? 1 : -1;
+				}
+			});
 			
 			return children;
 		}
@@ -88,6 +125,14 @@ public class CharacterDataLoader {
 			}
 		}
 		
+		Collections.sort(characters, new Comparator<FE4StaticCharacter>() {
+			@Override
+			public int compare(FE4StaticCharacter o1, FE4StaticCharacter o2) {
+				if (o1.getCharacterID() == o2.getCharacterID()) { return 0; }
+				return o1.getCharacterID() > o2.getCharacterID() ? 1 : -1;
+			}
+		});
+		
 		return characters;
 	}
 	
@@ -99,7 +144,34 @@ public class CharacterDataLoader {
 			}
 		}
 		
+		Collections.sort(subs, new Comparator<FE4StaticCharacter>() {
+			@Override
+			public int compare(FE4StaticCharacter o1, FE4StaticCharacter o2) {
+				if (o1.getCharacterID() == o2.getCharacterID()) { return 0; }
+				return o1.getCharacterID() > o2.getCharacterID() ? 1 : -1;
+			}
+		});
+		
 		return subs;
+	}
+	
+	public List<FE4ChildCharacter> getAllChildren() {
+		List<FE4ChildCharacter> characters = new ArrayList<FE4ChildCharacter>();
+		for (FE4Data.Character fe4Char : FE4Data.Character.Gen2ChildCharacters) {
+			if (childCharacters.get(fe4Char) != null) {
+				characters.add(childCharacters.get(fe4Char));
+			}
+		}
+		
+		Collections.sort(characters, new Comparator<FE4ChildCharacter>() {
+			@Override
+			public int compare(FE4ChildCharacter o1, FE4ChildCharacter o2) {
+				if (o1.getCharacterID() == o2.getCharacterID()) { return 0; }
+				return o1.getCharacterID() > o2.getCharacterID() ? 1 : -1;
+			}
+		});
+		
+		return characters;
 	}
 	
 	public List<FE4EnemyCharacter> getMinions() {
@@ -330,6 +402,80 @@ public class CharacterDataLoader {
 		}
 		
 		DebugPrinter.log(DebugPrinter.Key.FE4_CHARACTER_LOADER, "Finished loading bosses with holy blood!");
+	}
+	
+	public void commit() {
+		for (FE4StaticCharacter staticChar : staticPlayableCharacters.values()) {
+			staticChar.commitChanges();
+		}
+		for (FE4ChildCharacter childChar : childCharacters.values()) {
+			childChar.commitChanges();
+		}
+		
+		for (FE4EnemyCharacter enemyChar : enemyCharacters.values()) {
+			enemyChar.commitChanges();
+		}
+		
+		for (FE4EnemyCharacter arenaChar : arenaCharacters.values()) {
+			arenaChar.commitChanges();
+		}
+		
+		for (FE4EnemyCharacter bossChar : bossCharacters.values()) {
+			bossChar.commitChanges();
+		}
+		
+		for (FE4StaticCharacter holyBoss : holyBloodBossCharacters.values()) {
+			holyBoss.commitChanges();
+		}
+	}
+	
+	public void compileDiffs(DiffCompiler compiler) {
+		for (FE4StaticCharacter staticChar : staticPlayableCharacters.values()) {
+			staticChar.commitChanges();
+			if (staticChar.hasCommittedChanges()) {
+				Diff staticDiff = new Diff(staticChar.getAddressOffset(), staticChar.getData().length, staticChar.getData(), null);
+				compiler.addDiff(staticDiff);
+			}
+		}
+		for (FE4ChildCharacter childChar : childCharacters.values()) {
+			childChar.commitChanges();
+			if (childChar.hasCommittedChanges()) {
+				Diff childDiff = new Diff(childChar.getAddressOffset(), childChar.getData().length, childChar.getData(), null);
+				compiler.addDiff(childDiff);
+			}
+		}
+		
+		for (FE4EnemyCharacter enemyChar : enemyCharacters.values()) {
+			enemyChar.commitChanges();
+			if (enemyChar.hasCommittedChanges()) {
+				Diff enemyDiff = new Diff(enemyChar.getAddressOffset(), enemyChar.getData().length, enemyChar.getData(), null);
+				compiler.addDiff(enemyDiff);
+			}
+		}
+		
+		for (FE4EnemyCharacter arenaChar : arenaCharacters.values()) {
+			arenaChar.commitChanges();
+			if (arenaChar.hasCommittedChanges()) {
+				Diff arenaDiff = new Diff(arenaChar.getAddressOffset(), arenaChar.getData().length, arenaChar.getData(), null);
+				compiler.addDiff(arenaDiff);
+			}
+		}
+		
+		for (FE4EnemyCharacter bossChar : bossCharacters.values()) {
+			bossChar.commitChanges();
+			if (bossChar.hasCommittedChanges()) {
+				Diff bossDiff = new Diff(bossChar.getAddressOffset(), bossChar.getData().length, bossChar.getData(), null);
+				compiler.addDiff(bossDiff);
+			}
+		}
+		
+		for (FE4StaticCharacter holyBoss : holyBloodBossCharacters.values()) {
+			holyBoss.commitChanges();
+			if (holyBoss.hasCommittedChanges()) {
+				Diff holyDiff = new Diff(holyBoss.getAddressOffset(), holyBoss.getData().length, holyBoss.getData(), null);
+				compiler.addDiff(holyDiff);
+			}
+		}
 	}
 
 	public void recordCharacters(RecordKeeper rk, Boolean isInitial, ItemMapper itemMap) {

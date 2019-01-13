@@ -19,6 +19,7 @@ public class FE4ClassesView extends Composite {
 	
 	private Button randomizePCs;
 	private Button includeLords;
+	private Button retainHealers;
 	private Button includeThieves;
 	private Button includeDancers;
 	private Button adjustChildrenStrict;
@@ -63,6 +64,7 @@ public class FE4ClassesView extends Composite {
 			public void handleEvent(Event event) {
 				boolean enabled = randomizePCs.getSelection();
 				includeLords.setEnabled(enabled);
+				retainHealers.setEnabled(enabled);
 				includeThieves.setEnabled(enabled);
 				includeDancers.setEnabled(enabled);
 				
@@ -117,6 +119,17 @@ public class FE4ClassesView extends Composite {
 		optionData.top = new FormAttachment(includeThieves, 5);
 		includeDancers.setLayoutData(optionData);
 		
+		retainHealers = new Button(container, SWT.CHECK);
+		retainHealers.setText("Retain Healers");
+		retainHealers.setToolTipText("Ensures Edain, Claud, Lana, Muirne, Coirpre, and Charlot can all still use staves.");
+		retainHealers.setEnabled(false);
+		retainHealers.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(includeDancers, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(includeDancers, 5);
+		retainHealers.setLayoutData(optionData);
+		
 		Group childGroup = new Group(container, SWT.NONE);
 		childGroup.setText("Children Options");
 		
@@ -128,8 +141,8 @@ public class FE4ClassesView extends Composite {
 		childGroup.setLayout(groupLayout);
 		
 		FormData groupData = new FormData();
-		groupData.left = new FormAttachment(includeDancers, 0, SWT.LEFT);
-		groupData.top = new FormAttachment(includeDancers, 5);
+		groupData.left = new FormAttachment(retainHealers, 0, SWT.LEFT);
+		groupData.top = new FormAttachment(retainHealers, 5);
 		groupData.right = new FormAttachment(100, -5);
 		childGroup.setLayoutData(groupData);
 		
@@ -289,7 +302,7 @@ public class FE4ClassesView extends Composite {
 		ShopOptions shopOptions = ShopOptions.ADJUST_TO_MATCH;
 		if (randomizeShops.getSelection()) { shopOptions = ShopOptions.RANDOMIZE; }
 		
-		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), 
+		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), 
 				randomizeMinions.getSelection(), randomizeArenas.getSelection(), randomizeBosses.getSelection(), randomizeBossBlood.getSelection());
 	}
 }

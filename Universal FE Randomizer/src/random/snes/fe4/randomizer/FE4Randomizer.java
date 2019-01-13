@@ -3,6 +3,7 @@ package random.snes.fe4.randomizer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Random;
 
 import fedata.snes.fe4.FE4Data;
 import io.DiffApplicator;
@@ -11,9 +12,11 @@ import io.UPSPatcher;
 import random.general.Randomizer;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.ItemMapper;
+import ui.fe4.FE4ClassOptions;
 import ui.model.MiscellaneousOptions;
 import util.Diff;
 import util.DiffCompiler;
+import util.SeedGenerator;
 import util.recordkeeper.RecordKeeper;
 
 public class FE4Randomizer extends Randomizer {
@@ -22,6 +25,7 @@ public class FE4Randomizer extends Randomizer {
 	private boolean isHeadered;
 	private String targetPath;
 	
+	private FE4ClassOptions classOptions;
 	private MiscellaneousOptions miscOptions;
 	
 	CharacterDataLoader charData;
@@ -33,7 +37,7 @@ public class FE4Randomizer extends Randomizer {
 	
 	private FileHandler handler;
 	
-	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, MiscellaneousOptions miscOptions, String seed) {
+	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -43,6 +47,7 @@ public class FE4Randomizer extends Randomizer {
 		this.seedString = seed;
 		this.diffCompiler = diffs;
 		
+		this.classOptions = classOptions;
 		this.miscOptions = miscOptions;
 	}
 	
@@ -96,9 +101,13 @@ public class FE4Randomizer extends Randomizer {
 		recordKeeper.addHeaderItem("Randomizer Seed Phrase", seed);
 		
 		updateStatusString("Randomizing...");
+		randomizeClassesIfNecessary(seed);
+		updateProgress(0.55);
 		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
+		charData.compileDiffs(diffCompiler);
+		itemMapper.compileDiff(diffCompiler);
 		
 		updateStatusString("Applying changes...");
 		updateProgress(0.99);
@@ -199,8 +208,23 @@ public class FE4Randomizer extends Randomizer {
 	}
 
 	private void generateDataLoaders() {
+		updateStatusString("Loading Character Data...");
+		updateProgress(0.10);
 		charData = new CharacterDataLoader(handler, isHeadered);
+		
+		updateStatusString("Loading Item Map...");
+		updateProgress(0.20);
 		itemMapper = new ItemMapper(handler, isHeadered);
+	}
+	
+	private void randomizeClassesIfNecessary(String seed) {
+		if (classOptions != null) {
+			if (classOptions.randomizePlayableCharacters) {
+				updateStatusString("Randomizing player classes...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 1));
+				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, charData, itemMapper, rng);
+			}
+		}
 	}
 	
 	public RecordKeeper initializeRecordKeeper() {

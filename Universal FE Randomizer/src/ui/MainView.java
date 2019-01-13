@@ -529,6 +529,7 @@ public class MainView implements FileFlowDelegate {
 								if (gameType == GameType.FE4) {
 									boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
 									randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, 
+											fe4ClassView.getClassOptions(),
 											miscView.getMiscellaneousOptions(), 
 											seedField.getText());
 								}

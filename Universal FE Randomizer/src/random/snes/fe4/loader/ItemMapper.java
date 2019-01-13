@@ -6,6 +6,8 @@ import java.util.Map;
 import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
 import util.DebugPrinter;
+import util.Diff;
+import util.DiffCompiler;
 
 public class ItemMapper {
 	
@@ -74,4 +76,20 @@ public class ItemMapper {
 		DebugPrinter.log(DebugPrinter.Key.FE4_ITEM_MAPPER, "Finished reading item map!");
 	}
 
+	public void commitChanges() {
+		
+	}
+	
+	public void compileDiff(DiffCompiler compiler) {
+		long baseOffset = FE4Data.PlayerItemMappingTableOffset;
+		
+		for (int i : playerEquipmentIDToItem.keySet()) {
+			long offset = baseOffset + (i * FE4Data.PlayerItemMappingTableItemSize);
+			if (!isHeadered) {
+				offset -= 0x200;
+			}
+			FE4Data.Item item = playerEquipmentIDToItem.get(i);
+			compiler.addDiff(new Diff(offset, FE4Data.PlayerItemMappingTableItemSize, new byte[] {(byte)item.ID}, null));
+		}
+	}
 }

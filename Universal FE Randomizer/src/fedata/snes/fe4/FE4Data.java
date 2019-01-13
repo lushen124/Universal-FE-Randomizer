@@ -2,6 +2,7 @@ package fedata.snes.fe4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -102,7 +103,7 @@ public class FE4Data {
 		map.put(Character.AYRA, 0x19); // Brave Sword (Technically needs to work for Coruta (boss) as well...)
 		map.put(Character.SILVIA, 0x20); // Defender
 		map.put(Character.DEW, 0x24); // Wind Sword
-		map.put(Character.SIGURD, 0x0A); // Silver Sword (Technically needs to work for Seliph too...)
+		map.put(Character.SIGURD, 0x0A); // Silver Sword
 		map.put(Character.SIGURD, 0x27); // Tyrfing
 		map.put(Character.FINN_GEN_1, 0x3B); // Brave Lance
 		map.put(Character.QUAN, 0x3E); // Gae Bolg
@@ -123,6 +124,36 @@ public class FE4Data {
 		map.put(Character.JULIA, 0x61); // Naga
 		map.put(Character.JULIA, 0x66); // Mend Staff
 		map.put(Character.CHARLOT, 0x74); // Berserk Staff
+		return map;
+	}
+	
+	// These characters need to at least share one weapon type if their class is randomized.
+	public static final Map<Character, Character> WeaklyLinkedCharacters = createWeakLinkMap();
+	private static Map<Character, Character> createWeakLinkMap() {
+		Map<Character, Character> map = new HashMap<Character, Character>();
+		// Reflective relationships makes this easier.
+		map.put(Character.AYRA, Character.CORUTA);
+		map.put(Character.CORUTA, Character.AYRA);
+		
+		map.put(Character.MIDIR, Character.JAMKE);
+		map.put(Character.JAMKE, Character.MIDIR);
+	
+		map.put(Character.JULIA, Character.DEIRDRE);
+		map.put(Character.DEIRDRE, Character.JULIA);
+		
+		return map;
+	}
+	
+	public static final Map<Item, Integer> HolyWeaponInventoryIDs = createHolyWeaponMap();
+	private static Map<Item, Integer> createHolyWeaponMap() {
+		Map<Item, Integer> map = new HashMap<Item, Integer>();
+		map.put(Item.TYRFING, 0x27); // Tyrfing
+		map.put(Item.GAE_BOLG, 0x3E); // Gae Bolg
+		map.put(Item.YEWFELLE, 0x4F); // Yewfelle
+		map.put(Item.FORSETI, 0x5C); // Forseti
+		
+		map.put(Item.BALMUNG, 0x28); // Balmung
+		map.put(Item.NAGA, 0x61); // Naga
 		return map;
 	}
 	
@@ -628,6 +659,14 @@ public class FE4Data {
 		// There's a bunch of duplicates beyond this point of major characters/bosses. I'm not listing them here unless we need them later.
 		;
 		
+		public static final Set<Character> LordCharacters = new HashSet<Character>(Arrays.asList(SIGURD, SELIPH));
+		public static final Set<Character> ThiefCharacters = new HashSet<Character>(Arrays.asList(DEW, PATTY, DAISY));
+		public static final Set<Character> DancerCharacters = new HashSet<Character>(Arrays.asList(SILVIA, LENE, LAYLEA));
+		public static final Set<Character> HealerCharacters = new HashSet<Character>(Arrays.asList(EDAIN, CLAUD, LANA, MUIRNE, COIRPRE, CHARLOT));
+		
+		public static final Set<Character> MustLose1 = new HashSet<Character>(Arrays.asList(ELLIOT_CH1_SCENE, CH1_HEIRHEIN_ARMY)); // Must lose to Eldigan and his Cross Knights
+		public static final Set<Character> MustLose2 = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN, CH5_LEONSTER_ARMY)); // Must lose to Travant and his Squad
+		public static final Set<Character> MustLose3 = new HashSet<Character>(Arrays.asList(MAHNYA, CH4_MAHNYA_SQUAD)); // Must lose to Andorey and the Beige Ritter
 		
 		public static final Set<Character> Gen1PlayableCharacters = new HashSet<Character>(Arrays.asList(SIGURD, NAOISE, ALEC, ARDEN, FINN_GEN_1, QUAN, MIDIR, LEWYN, CHULAINN, AZELLE,
 				JAMKE, CLAUD, BEOWOLF, LEX, DEW, DEIRDRE, ETHLYN, LACHESIS, AYRA, ERINYS, TAILTIU, SILVIA, EDAIN, BRIGID));
@@ -652,6 +691,9 @@ public class FE4Data {
 				KANATZ, DISLER, TRAVANT_CH9, MUSAR, JUDAH, ARION_CH9,
 				RIDALE, HILDA_CH10, MORRIGAN, ISHTAR_CH10, JULIUS_CH10, ZAGAM, ARVIS_CH10,
 				ROBERT, BOYCE, RODAN, YUPHEEL, FISHER, BRIAN, DAGGON, SCIPIO, HILDA_FINAL, BARAN, MENG, BLEG, MAYBELL, ISHTAR_FINAL, ARION_FINAL, MANFROY, MUS, BOVIS, TIGRIS, LEPUS, DRACO, ANGUILLA, EQUUS, OVIS, SIMIA, GALLUS, CANIS, PORCUS, JULIUS_FINAL));
+		
+		// Midir will make the game confused if he can't attack in his opening scene.
+		public static final Set<Character> CharactersThatMustBeAbleToAttack = new HashSet<Character>(Arrays.asList(SIGURD, SELIPH, MIDIR));
 
 		public int ID;
 		
@@ -700,8 +742,16 @@ public class FE4Data {
 			case TINE: return TAILTIU;
 			case PATTY: return DEW;
 			case FEBAIL: return BRIGID;
+			
+			case SELIPH: return SIGURD;
+			case LEIF: return ETHLYN;
+			case ALTENA: return QUAN;
 			default: return null;
 			}
+		}
+		
+		public boolean requiresAttack() {
+			return CharactersThatMustBeAbleToAttack.contains(this);
 		}
 		
 		public boolean isPlayable() {
@@ -732,6 +782,22 @@ public class FE4Data {
 			return Gen2SubstituteCharacters.contains(this);
 		}
 		
+		public boolean isLord() {
+			return LordCharacters.contains(this);
+		}
+		
+		public boolean isThief() {
+			return ThiefCharacters.contains(this);
+		}
+		
+		public boolean isDancer() {
+			return DancerCharacters.contains(this);
+		}
+		
+		public boolean isHealer() {
+			return HealerCharacters.contains(this);
+		}
+		
 		public boolean isMinion() {
 			String name = this.toString();
 			return name.startsWith("PROLOGUE") || name.startsWith("CH1") || name.startsWith("CH2") || name.startsWith("CH3") || name.startsWith("CH4") || name.startsWith("CH5") ||
@@ -745,6 +811,39 @@ public class FE4Data {
 		
 		public boolean isBoss() {
 			return Gen1Bosses.contains(this) || Gen2Bosses.contains(this);
+		}
+		
+		public Character[] mustLoseToCharacters() {
+			if (MustLose1.contains(this)) {
+				// Elliot and his Squad
+				// Must lose to Eldigan and the Cross Knights in Ch. 1.
+				return new Character[] {ELDIGAN_CH1_SCENE, CH1_CROSS_KNIGHTS};
+			} else if (MustLose2.contains(this)) {
+				// Quan, Ethlyn, and Leonster Squad
+				// Must lose to Travant, Magorn and Thracia Squad
+				return new Character[] {TRAVANT_CH5, MAGORN, CH5_THRACIA_ARMY};
+			} else if (MustLose3.contains(this)) {
+				// Mahnya and her Squad
+				// Must lose to Andorey and the Beige Ritter
+				return new Character[] {ANDOREY_CH4, CH4_BEIGE_RITTER};
+			}
+			
+			return new Character[] {};
+		}
+		
+		public Character[] sharedWeaknesses() {
+			Set<Character> charSet = new HashSet<Character>();
+			if (MustLose1.contains(this)) {
+				charSet.addAll(MustLose1);
+			} else if (MustLose2.contains(this)) {
+				charSet.addAll(MustLose2);
+			} else if (MustLose3.contains(this)) {
+				charSet.addAll(MustLose3);
+			}
+			
+			charSet.remove(this);
+			
+			return charSet.toArray(new Character[charSet.size()]);
 		}
 		
 		public Character[] linkedCharacters() {
@@ -858,7 +957,7 @@ public class FE4Data {
 		FIRE_MAGE(0x35),
 		THUNDER_MAGE(0x36),
 		WIND_MAGE(0x37),
-		BARD(0x3A),
+		BARD(0x3B),
 		LIGHT_PRIESTESS(0x3C), // Deirdre and Julia's class.
 		THIEF(0x3F),
 		
@@ -906,6 +1005,7 @@ public class FE4Data {
 		QUEEN(0x31),
 		BISHOP(0x39),
 		DARK_BISHOP(0x3E),
+		// DARK_PRINCE(0x47),
 		
 		// Special
 		DANCER(0x32),
@@ -1007,7 +1107,147 @@ public class FE4Data {
 		public boolean isPacifist() { return pacifistClasses.contains(this); }
 		public boolean isArmored() { return armoredClasses.contains(this); }
 		
+		public Item[] usableItems(List<HolyBloodSlot1> slot1Blood, List<HolyBloodSlot2> slot2Blood, List<HolyBloodSlot3> slot3Blood) {
+			Set<Item> items = new HashSet<Item>();
+			
+			if (swordUsers.contains(this)) {
+				boolean hasMajorBlood = slot1Blood.contains(HolyBloodSlot1.MAJOR_BALDR) || slot2Blood.contains(HolyBloodSlot2.MAJOR_OD) || slot3Blood.contains(HolyBloodSlot3.MAJOR_HEZUL);
+				boolean hasMinorBlood = slot1Blood.contains(HolyBloodSlot1.MINOR_BALDR) || slot2Blood.contains(HolyBloodSlot2.MINOR_OD) || slot3Blood.contains(HolyBloodSlot3.MINOR_HEZUL);
+				addItemsOfTypeAndRank(items, ItemType.SWORD, hasMajorBlood, hasMinorBlood);
+			}
+			if (lanceUsers.contains(this)) {
+				boolean hasMajorBlood = slot1Blood.contains(HolyBloodSlot1.MAJOR_DAIN) || slot1Blood.contains(HolyBloodSlot1.MAJOR_NJORUN);
+				boolean hasMinorBlood = slot1Blood.contains(HolyBloodSlot1.MINOR_DAIN) || slot1Blood.contains(HolyBloodSlot1.MINOR_NJORUN);
+				addItemsOfTypeAndRank(items, ItemType.LANCE, hasMajorBlood, hasMinorBlood);
+			}
+			if (axeUsers.contains(this)) {
+				boolean hasMajorBlood = slot2Blood.contains(HolyBloodSlot2.MAJOR_NEIR);
+				boolean hasMinorBlood = slot2Blood.contains(HolyBloodSlot2.MINOR_NEIR);
+				addItemsOfTypeAndRank(items, ItemType.AXE, hasMajorBlood, hasMinorBlood);
+			}
+			if (bowUsers.contains(this)) {
+				boolean hasMajorBlood = slot2Blood.contains(HolyBloodSlot2.MAJOR_ULIR);
+				boolean hasMinorBlood = slot2Blood.contains(HolyBloodSlot2.MINOR_ULIR);
+				addItemsOfTypeAndRank(items, ItemType.BOW, hasMajorBlood, hasMinorBlood);
+			}
+			if (fireUsers.contains(this)) {
+				boolean hasMajorBlood = slot2Blood.contains(HolyBloodSlot2.MAJOR_FJALAR);
+				boolean hasMinorBlood = slot2Blood.contains(HolyBloodSlot2.MINOR_FJALAR);
+				addItemsOfTypeAndRank(items, ItemType.FIRE_MAGIC, hasMajorBlood, hasMinorBlood);
+			}
+			if (thunderUsers.contains(this)) {
+				boolean hasMajorBlood = slot3Blood.contains(HolyBloodSlot3.MAJOR_THRUD);
+				boolean hasMinorBlood = slot3Blood.contains(HolyBloodSlot3.MINOR_THRUD);
+				addItemsOfTypeAndRank(items, ItemType.THUNDER_MAGIC, hasMajorBlood, hasMinorBlood);
+			}
+			if (windUsers.contains(this)) {
+				boolean hasMajorBlood = slot3Blood.contains(HolyBloodSlot3.MAJOR_FORSETI);
+				boolean hasMinorBlood = slot3Blood.contains(HolyBloodSlot3.MINOR_FORSETI);
+				addItemsOfTypeAndRank(items, ItemType.WIND_MAGIC, hasMajorBlood, hasMinorBlood);
+			}
+			if (lightUsers.contains(this)) {
+				boolean hasMajorBlood = slot1Blood.contains(HolyBloodSlot1.MAJOR_NAGA);
+				boolean hasMinorBlood = slot1Blood.contains(HolyBloodSlot1.MINOR_NAGA);
+				addItemsOfTypeAndRank(items, ItemType.LIGHT_MAGIC, hasMajorBlood, hasMinorBlood);
+			}
+			if (darkUsers.contains(this)) {
+				addItemsOfTypeAndRank(items, ItemType.DARK_MAGIC, false, false);
+			}
+			if (staffUsers.contains(this)) {
+				boolean hasMajorBlood = slot3Blood.contains(HolyBloodSlot3.MAJOR_BRAGI);
+				boolean hasMinorBlood = slot3Blood.contains(HolyBloodSlot3.MINOR_BRAGI);
+				addItemsOfTypeAndRank(items, ItemType.STAFF, hasMajorBlood, hasMinorBlood);
+			}
+			
+			return items.toArray(new Item[items.size()]);
+		}
+		
+		private void addItemsOfTypeAndRank(Set<Item> items, ItemType type, boolean hasMajorBlood, boolean hasMinorBlood) {
+			if (hasMajorBlood) {
+				Collections.addAll(items, Item.weaponsOfTypeAndRank(type, WeaponRank.PRF, true));
+			} else {
+				if (classSetForTypeAndRank(type, WeaponRank.A).contains(this) || (classSetForTypeAndRank(type, WeaponRank.B).contains(this) && hasMinorBlood)) {
+					Collections.addAll(items, Item.weaponsOfTypeAndRank(type, WeaponRank.A, true));
+				} else if (classSetForTypeAndRank(type, WeaponRank.B).contains(this) || hasMinorBlood) {
+					Collections.addAll(items, Item.weaponsOfTypeAndRank(type, WeaponRank.B, true));
+				} else {
+					Collections.addAll(items, Item.weaponsOfTypeAndRank(type, WeaponRank.C, true));
+				}
+			}
+		}
+		
+		private Set<CharacterClass> classSetForTypeAndRank(ItemType type, WeaponRank rank) {
+			switch (type) {
+			case SWORD:
+				switch (rank) {
+				case A: return A_swordUsers;
+				case B: return B_swordUsers;
+				default: return swordUsers;
+				}
+			case LANCE:
+				switch (rank) {
+				case A: return A_lanceUsers;
+				case B: return B_lanceUsers;
+				default: return lanceUsers;
+				}
+			case AXE:
+				switch (rank) {
+				case A: return A_axeUsers;
+				case B: return B_axeUsers;
+				default: return axeUsers;
+				}
+			case BOW:
+				switch (rank) {
+				case A: return A_bowUsers;
+				case B: return B_bowUsers;
+				default: return bowUsers;
+				}
+			case FIRE_MAGIC:
+				switch (rank) {
+				case A: return A_fireUsers;
+				case B: return B_fireUsers;
+				default: return fireUsers;
+				}
+			case THUNDER_MAGIC:
+				switch (rank) {
+				case A: return A_thunderUsers;
+				case B: return B_thunderUsers;
+				default: return thunderUsers;
+				}
+			case WIND_MAGIC:
+				switch (rank) {
+				case A: return A_windUsers;
+				case B: return B_windUsers;
+				default: return windUsers;
+				}
+			case LIGHT_MAGIC:
+				switch (rank) {
+				case A: return A_lightUsers;
+				case B: return B_lightUsers;
+				default: return lightUsers;
+				}
+			case DARK_MAGIC:
+				switch (rank) {
+				case A: return A_darkUsers;
+				case B: return B_darkUsers;
+				default: return darkUsers;
+				}
+			case STAFF:
+				switch (rank) {
+				case A: return A_staffUsers;
+				case B: return B_staffUsers;
+				default: return staffUsers;
+				}
+			default: return null;
+			}
+		}
+		
 		public boolean canUseWeapon(Item weapon) {
+			if (weapon.getType() == ItemType.RING) {
+				// Everybody can use rings.
+				return true;
+			}
+			
 			if (weapon.getType() == ItemType.SWORD) {
 				if (weapon.getRank() == WeaponRank.C) { return swordUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_swordUsers.contains(this); }
@@ -1064,7 +1304,7 @@ public class FE4Data {
 		
 		// Note that sameWeapon will result in a class that has at least one weapon shared with the current class.
 		// e.g. Calling this on SOCIAL_KNIGHT is going to result in all classes that can use Swords OR Lances.
-		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale, boolean requireWeakness, boolean requireAttack, boolean requireHorse, Item mustUseWeapon) {
+		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale, boolean requireWeakness, boolean requireAttack, boolean requireHorse, Item mustUseWeapon, Item mustBeWeakAgainstWeapon) {
 			// Don't touch these. These are generally for bandits raiding villages. 
 			if (this == MOUNTAIN_THIEF) {
 				return new CharacterClass[] {};
@@ -1092,6 +1332,30 @@ public class FE4Data {
 				if (staffUsers.contains(this)) { crossSet.retainAll(staffUsers); }
 				
 				workingSet.retainAll(crossSet);
+			}
+			
+			if (mustBeWeakAgainstWeapon != null) {
+				if (Item.bows.contains(mustBeWeakAgainstWeapon) || mustBeWeakAgainstWeapon == Item.WING_CLIPPER) {
+					workingSet.retainAll(fliers);
+				} else if (mustBeWeakAgainstWeapon == Item.HORSESLAYER) {
+					workingSet.retainAll(horsebackClasses);
+				} else if (mustBeWeakAgainstWeapon == Item.ARMORSLAYER) {
+					workingSet.retainAll(armoredClasses);
+				} else if (Item.swords.contains(mustBeWeakAgainstWeapon)) {
+					workingSet.retainAll(axeUsers);
+				} else if (Item.lances.contains(mustBeWeakAgainstWeapon)) {
+					workingSet.retainAll(swordUsers);
+				} else if (Item.axes.contains(mustBeWeakAgainstWeapon)) {
+					workingSet.retainAll(lanceUsers);
+				} else if (Item.fireMagic.contains(mustBeWeakAgainstWeapon)) {
+					workingSet.retainAll(windUsers);
+				} else if (Item.thunderMagic.contains(mustBeWeakAgainstWeapon)) {
+					workingSet.retainAll(fireUsers);
+				} else if (Item.windMagic.contains(mustBeWeakAgainstWeapon)) {
+					workingSet.retainAll(thunderUsers);
+				} else if (Item.lightMagic.contains(mustBeWeakAgainstWeapon)) {
+					workingSet.retainAll(darkUsers);
+				}
 			}
 			
 			if (isFemale) {
@@ -1128,6 +1392,35 @@ public class FE4Data {
 			return workingSet.toArray(new CharacterClass[workingSet.size()]);
 		}
 		
+		public boolean isPromoted() {
+			return promotedClasses.contains(this);
+		}
+		
+		public boolean canBeMale() {
+			return !femaleOnlyClasses.contains(this);
+		}
+		
+		public boolean canBeFemale() {
+			return !maleOnlyClasses.contains(this);
+		}
+		
+		public static CharacterClass[] filteredClasses(CharacterClass[] classArray, boolean promoted, boolean isFemale) {
+			Set<CharacterClass> classSet = new HashSet<CharacterClass>(Arrays.asList(classArray));
+			if (promoted) {
+				classSet.removeAll(unpromotedClasses);
+			} else {
+				classSet.removeAll(promotedClasses);
+			}
+			
+			if (isFemale) {
+				classSet.removeAll(maleOnlyClasses);
+			} else {
+				classSet.removeAll(femaleOnlyClasses);
+			}
+			
+			return classSet.toArray(new CharacterClass[classSet.size()]);
+		}
+		
 		public Item[] criticalWeaknessWeapons() {
 			Set<Item> workingSet = new HashSet<Item>();
 			if (fliers.contains(this)) { workingSet.addAll(Item.bows); workingSet.add(Item.WING_CLIPPER); }
@@ -1142,7 +1435,62 @@ public class FE4Data {
 			return GenderType.ANY;
 		}
 		
-		public CharacterClass[] promotionClasses() {
+		public HolyBlood[] majorBloodOptions() {
+			Set<HolyBlood> bloodSet = new HashSet<HolyBlood>();
+			if (canUseWeapon(Item.IRON_SWORD)) { bloodSet.add(HolyBlood.BALDR); bloodSet.add(HolyBlood.HEZUL); bloodSet.add(HolyBlood.OD); }
+			if (canUseWeapon(Item.IRON_LANCE)) { bloodSet.add(HolyBlood.NJORUN); bloodSet.add(HolyBlood.DAIN); }
+			if (canUseWeapon(Item.IRON_AXE)) { bloodSet.add(HolyBlood.NEIR); }
+			if (canUseWeapon(Item.IRON_BOW)) { bloodSet.add(HolyBlood.ULIR); }
+			if (canUseWeapon(Item.FIRE)) { bloodSet.add(HolyBlood.FJALAR); }
+			if (canUseWeapon(Item.THUNDER)) { bloodSet.add(HolyBlood.THRUD); }
+			if (canUseWeapon(Item.WIND)) { bloodSet.add(HolyBlood.FORSETI); }
+			if (canUseWeapon(Item.LIGHT)) { bloodSet.add(HolyBlood.NAGA); }
+			if (canUseWeapon(Item.HEAL)) { bloodSet.add(HolyBlood.BRAGI); }
+			
+			return bloodSet.toArray(new HolyBlood[bloodSet.size()]);
+		}
+		
+		public CharacterClass[] demotedClasses(boolean isFemale) {
+			if (unpromotedClasses.contains(this)) { return new CharacterClass[] {}; }
+			switch (this) {
+			case LORD_KNIGHT: return new CharacterClass[] {JUNIOR_LORD};
+			case DUKE_KNIGHT: return new CharacterClass[] {LANCE_KNIGHT};
+			case MASTER_KNIGHT:
+				if (isFemale) {
+					return new CharacterClass[] {PRINCESS};
+				} else {
+					return new CharacterClass[] {PRINCE};
+				}
+			case PALADIN: return new CharacterClass[] {SOCIAL_KNIGHT};
+			case PALADIN_F: return new CharacterClass[] {TROUBADOUR};
+			case BOW_KNIGHT: return new CharacterClass[] {ARCH_KNIGHT};
+			case FORREST_KNIGHT: return new CharacterClass[] {FREE_KNIGHT};
+			case MAGE_KNIGHT: return new CharacterClass[] {MAGE};
+			case GREAT_KNIGHT: return new CharacterClass[] {AXE_KNIGHT};
+			case FALCON_KNIGHT: return new CharacterClass[] {PEGASUS_KNIGHT};
+			case DRAGON_MASTER: return new CharacterClass[] {DRAGON_RIDER, DRAGON_KNIGHT};
+			case SWORD_MASTER: 
+			case FORREST:
+				return new CharacterClass[] {SWORD_FIGHTER};
+			case SNIPER: return new CharacterClass[] {BOW_FIGHTER};
+			case GENERAL:
+				return new CharacterClass[] {ARMOR, SWORD_ARMOR, AXE_ARMOR, BOW_ARMOR};
+			case WARRIOR:
+				return new CharacterClass[] {HUNTER, BARBARIAN, MOUNTAIN_THIEF, PIRATE};
+			case MAGE_FIGHTER:
+			case MAGE_FIGHTER_F:
+				return new CharacterClass[] {MAGE, FIRE_MAGE, THUNDER_MAGE, WIND_MAGE};
+			case HIGH_PRIEST:
+			case BISHOP:
+				return new CharacterClass[] {PRIEST};
+			case SAGE: return new CharacterClass[] {BARD, LIGHT_PRIESTESS};
+			case THIEF_FIGHTER: return new CharacterClass[] {THIEF};
+			case DARK_BISHOP: return new CharacterClass[] {DARK_MAGE};
+			default: return new CharacterClass[] {};
+			}
+		}
+		
+		public CharacterClass[] promotionClasses(boolean isFemale) {
 			if (promotedClasses.contains(this)) { return new CharacterClass[] {}; }
 			switch (this) {
 			case SOCIAL_KNIGHT: return new CharacterClass[] {PALADIN};
@@ -1156,7 +1504,7 @@ public class FE4Data {
 			case DRAGON_KNIGHT:
 				return new CharacterClass[] {DRAGON_MASTER};
 			case BOW_FIGHTER: return new CharacterClass[] {SNIPER};
-			case SWORD_FIGHTER: return new CharacterClass[] {SWORD_MASTER};
+			case SWORD_FIGHTER: return new CharacterClass[] {SWORD_MASTER, FORREST};
 			case ARMOR:
 			case AXE_ARMOR:
 			case BOW_ARMOR:
@@ -1172,8 +1520,13 @@ public class FE4Data {
 			case FIRE_MAGE:
 			case THUNDER_MAGE:
 			case WIND_MAGE:
-				return new CharacterClass[] {MAGE_KNIGHT, MAGE_FIGHTER};
+				if (isFemale) {
+					return new CharacterClass[] {MAGE_KNIGHT, MAGE_FIGHTER_F};	
+				} else {
+					return new CharacterClass[] {MAGE_KNIGHT, MAGE_FIGHTER};
+				}
 			case BARD: return new CharacterClass[] {SAGE}; 
+			case LIGHT_PRIESTESS: return new CharacterClass[] {SAGE};
 			case THIEF: return new CharacterClass[] {THIEF_FIGHTER};
 			case BARBARIAN:
 			case MOUNTAIN_THIEF:
@@ -1284,7 +1637,23 @@ public class FE4Data {
 		}
 		
 		public enum ItemType {
-			NONE, RING, SWORD, LANCE, AXE, BOW, FIRE_MAGIC, THUNDER_MAGIC, WIND_MAGIC, LIGHT_MAGIC, DARK_MAGIC, STAFF
+			NONE, RING, SWORD, LANCE, AXE, BOW, FIRE_MAGIC, THUNDER_MAGIC, WIND_MAGIC, LIGHT_MAGIC, DARK_MAGIC, STAFF;
+			
+			public Item getBasic() {
+				switch (this) {
+				case SWORD: return IRON_SWORD;
+				case LANCE: return IRON_LANCE;
+				case AXE: return IRON_AXE;
+				case BOW: return IRON_BOW;
+				case FIRE_MAGIC: return FIRE;
+				case THUNDER_MAGIC: return THUNDER;
+				case WIND_MAGIC: return WIND;
+				case LIGHT_MAGIC: return LIGHT;
+				case DARK_MAGIC: return YOTSMUNGAND;
+				case STAFF: return HEAL;
+				default: return null;
+				}
+			}
 		}
 		
 		public enum HolyBloodType {
@@ -1319,6 +1688,78 @@ public class FE4Data {
 					return ItemType.NONE;
 				}
 			}
+		}
+		
+		public static Item[] weaponsOfTypeAndRank(ItemType type, WeaponRank rank, boolean includeLowerRank) {
+			if (type == null || rank == null || rank == WeaponRank.NONE) { return new Item[] {}; }
+			Set<Item> items = new HashSet<Item>();
+			switch (type) {
+			case SWORD:
+				items.addAll(swords);
+				break;
+			case LANCE:
+				items.addAll(lances);
+				break;
+			case AXE:
+				items.addAll(axes);
+				break;
+			case BOW:
+				items.addAll(bows);
+				break;
+			case FIRE_MAGIC:
+				items.addAll(fireMagic);
+				break;
+			case THUNDER_MAGIC:
+				items.addAll(thunderMagic);
+				break;
+			case WIND_MAGIC:
+				items.addAll(windMagic);
+				break;
+			case LIGHT_MAGIC:
+				items.addAll(lightMagic);
+				break;
+			case DARK_MAGIC:
+				items.addAll(darkMagic);
+				break;
+			case STAFF:
+				items.addAll(staves);
+				break;
+			default: 
+				break;
+			}
+			
+			switch (rank) {
+			case C:
+				items.removeAll(bWeapons);
+				items.removeAll(aWeapons);
+				items.removeAll(holyWeapons);
+				break;
+			case B:
+				if (!includeLowerRank) { items.removeAll(cWeapons); }
+				items.removeAll(aWeapons);
+				items.removeAll(holyWeapons);
+				break;
+			case A:
+				if (!includeLowerRank) {
+					items.removeAll(cWeapons);
+					items.removeAll(bWeapons);
+				}
+				items.removeAll(holyWeapons);
+				break;
+			case PRF:
+				if (!includeLowerRank) {
+					items.removeAll(cWeapons);
+					items.removeAll(bWeapons);
+					items.removeAll(aWeapons);
+				}
+				break;
+			default:
+				break;
+			}
+			
+			items.removeAll(siegeTomes); // Don't give out these.
+			
+			return items.toArray(new Item[items.size()]);
 		}
 		
 		public ItemType getType() {
@@ -1460,6 +1901,32 @@ public class FE4Data {
 		}
 	}
 	
+	public enum HolyBlood {
+		BALDR(Item.TYRFING, Item.ItemType.SWORD), 
+		OD(Item.BALMUNG, Item.ItemType.SWORD), 
+		HEZUL(Item.MYSTLETAINN, Item.ItemType.SWORD), 
+		NJORUN(Item.GAE_BOLG, Item.ItemType.LANCE), 
+		DAIN(Item.GUNGNIR, Item.ItemType.LANCE), 
+		NEIR(Item.HELSWATH, Item.ItemType.AXE), 
+		ULIR(Item.YEWFELLE, Item.ItemType.BOW), 
+		FJALAR(Item.VALFLAME, Item.ItemType.FIRE_MAGIC), 
+		THRUD(Item.MJOLNIR, Item.ItemType.THUNDER_MAGIC), 
+		FORSETI(Item.FORSETI, Item.ItemType.WIND_MAGIC), 
+		NAGA(Item.NAGA, Item.ItemType.LIGHT_MAGIC), 
+		LOPTOUS(Item.LOPTYR, Item.ItemType.DARK_MAGIC), 
+		BRAGI(Item.VALKYRIE, Item.ItemType.STAFF);
+		
+		public Item holyWeapon;
+		public Item.ItemType weaponType;
+		
+		private HolyBlood(Item weapon, Item.ItemType type) { this.holyWeapon = weapon; this.weaponType = type; }
+		
+		// They're not IDs because they're not referenced this way, but they are stored in data in this order.
+		public static HolyBlood[] orderedByDataTable() {
+			return new HolyBlood[] {BALDR, NAGA, DAIN, NJORUN, OD, ULIR, NEIR, FJALAR, THRUD, FORSETI, BRAGI, HEZUL, LOPTOUS};
+		}
+	}
+	
 	public enum HolyBloodSlot1 {
 		MINOR_BALDR(0x1), MAJOR_BALDR(0x2), 
 		MINOR_NAGA(0x4), MAJOR_NAGA(0x8),
@@ -1489,6 +1956,47 @@ public class FE4Data {
 			}
 			
 			return result;
+		}
+		
+		public static HolyBloodSlot1 blood(HolyBlood type, boolean isMajor) {
+			switch (type) {
+			case BALDR: return isMajor ? MAJOR_BALDR : MINOR_BALDR;
+			case NAGA: return isMajor ? MAJOR_NAGA : MINOR_NAGA;
+			case DAIN: return isMajor ? MAJOR_DAIN : MINOR_DAIN;
+			case NJORUN: return isMajor ? MAJOR_NJORUN : MINOR_NJORUN;
+			default: return null;
+			}
+		}
+		
+		public HolyBlood bloodType() {
+			switch (this) {
+			case MINOR_BALDR:
+			case MAJOR_BALDR:
+				return HolyBlood.BALDR;
+			case MINOR_NAGA:
+			case MAJOR_NAGA:
+				return HolyBlood.NAGA;
+			case MINOR_DAIN:
+			case MAJOR_DAIN:
+				return HolyBlood.DAIN;
+			case MINOR_NJORUN:
+			case MAJOR_NJORUN:
+				return HolyBlood.NJORUN;
+			default:
+				return null;
+			}
+		}
+		
+		public boolean isMajor() {
+			switch (this) {
+			case MAJOR_BALDR:
+			case MAJOR_NAGA:
+			case MAJOR_DAIN:
+			case MAJOR_NJORUN:
+				return true;
+			default:
+				return false;
+			}
 		}
 	}
 	
@@ -1522,6 +2030,47 @@ public class FE4Data {
 			
 			return result;
 		}
+		
+		public static HolyBloodSlot2 blood(HolyBlood type, boolean isMajor) {
+			switch (type) {
+			case OD: return isMajor ? MAJOR_OD : MINOR_OD;
+			case ULIR: return isMajor ? MAJOR_ULIR : MINOR_ULIR;
+			case NEIR: return isMajor ? MAJOR_NEIR : MINOR_NEIR;
+			case FJALAR: return isMajor ? MAJOR_FJALAR : MINOR_FJALAR;
+			default: return null;
+			}
+		}
+		
+		public HolyBlood bloodType() {
+			switch (this) {
+			case MINOR_OD:
+			case MAJOR_OD:
+				return HolyBlood.OD;
+			case MINOR_ULIR:
+			case MAJOR_ULIR:
+				return HolyBlood.ULIR;
+			case MINOR_NEIR:
+			case MAJOR_NEIR:
+				return HolyBlood.NEIR;
+			case MINOR_FJALAR:
+			case MAJOR_FJALAR:
+				return HolyBlood.FJALAR;
+			default:
+				return null;
+			}
+		}
+		
+		public boolean isMajor() {
+			switch (this) {
+			case MAJOR_OD:
+			case MAJOR_ULIR:
+			case MAJOR_NEIR:
+			case MAJOR_FJALAR:
+				return true;
+			default:
+				return false;
+			}
+		}
 	}
 	
 	public enum HolyBloodSlot3 {
@@ -1554,6 +2103,47 @@ public class FE4Data {
 			
 			return result;
 		}
+		
+		public static HolyBloodSlot3 blood(HolyBlood type, boolean isMajor) {
+			switch (type) {
+			case THRUD: return isMajor ? MAJOR_THRUD : MINOR_THRUD;
+			case FORSETI: return isMajor ? MAJOR_FORSETI : MINOR_FORSETI;
+			case BRAGI: return isMajor ? MAJOR_BRAGI : MINOR_BRAGI;
+			case HEZUL: return isMajor ? MAJOR_HEZUL : MINOR_HEZUL;
+			default: return null;
+			}
+		}
+		
+		public HolyBlood bloodType() {
+			switch (this) {
+			case MINOR_THRUD:
+			case MAJOR_THRUD:
+				return HolyBlood.THRUD;
+			case MINOR_FORSETI:
+			case MAJOR_FORSETI:
+				return HolyBlood.FORSETI;
+			case MINOR_BRAGI:
+			case MAJOR_BRAGI:
+				return HolyBlood.BRAGI;
+			case MINOR_HEZUL:
+			case MAJOR_HEZUL:
+				return HolyBlood.HEZUL;
+			default:
+				return null;
+			}
+		}
+		
+		public boolean isMajor() {
+			switch (this) {
+			case MAJOR_THRUD:
+			case MAJOR_FORSETI:
+			case MAJOR_BRAGI:
+			case MAJOR_HEZUL:
+				return true;
+			default:
+				return false;
+			}
+		}
 	}
 	
 	public enum HolyBloodSlot4 {
@@ -1582,6 +2172,26 @@ public class FE4Data {
 			}
 			
 			return result;
+		}
+		
+		public static HolyBloodSlot4 blood(HolyBlood type, boolean isMajor) {
+			switch (type) {
+			case LOPTOUS: return isMajor ? MAJOR_LOPTOUS : MINOR_LOPTOUS;
+			default: return null;
+			}
+		}
+		
+		public HolyBlood bloodType() {
+			return HolyBlood.LOPTOUS;
+		}
+		
+		public boolean isMajor() {
+			switch (this) {
+			case MAJOR_LOPTOUS:
+				return true;
+			default:
+				return false;
+			}
 		}
 	}
 	
