@@ -905,7 +905,7 @@ public class FE4Data {
 			case MAHNYA_CH3_SCENE:
 				return new Character[] {MAHNYA, MAHNYA_CH3_SCENE};
 			default:
-				return new Character[] {};
+				return new Character[] {this};
 			}
 		}
 		
@@ -1811,6 +1811,37 @@ public class FE4Data {
 		}
 	}
 	
+	public enum Skill {
+		WRATH, PURSUIT, ADEPT, CHARM, NIHIL, MIRACLE,
+		CRITICAL, VANTAGE, CHARGE, ASTRA, LUNA, SOL,
+		RENEWAL, PARAGON, BARGAIN;
+		
+		public int slot() {
+			switch (this) {
+			case WRATH:
+			case PURSUIT:
+			case ADEPT:
+			case CHARM:
+			case NIHIL:
+			case MIRACLE:
+				return 1;
+			case CRITICAL:
+			case VANTAGE:
+			case CHARGE:
+			case ASTRA:
+			case LUNA:
+			case SOL:
+				return 2;
+			case RENEWAL:
+			case PARAGON:
+			case BARGAIN:
+				return 3;
+			}
+			
+			return 0;
+		}
+	}
+	
 	public enum SkillSlot1 {
 		WRATH(0x1), PURSUIT(0x2), ADEPT(0x4),
 		CHARM(0x10), NIHIL(0x40), MIRACLE(0x80);
@@ -1838,6 +1869,30 @@ public class FE4Data {
 			}
 			
 			return result;
+		}
+		
+		public Skill generalSkill() {
+			switch (this) {
+			case WRATH: return Skill.WRATH;
+			case PURSUIT: return Skill.PURSUIT;
+			case ADEPT: return Skill.ADEPT;
+			case CHARM: return Skill.CHARM;
+			case NIHIL: return Skill.NIHIL;
+			case MIRACLE: return Skill.MIRACLE;
+			default: return null;
+			}
+		}
+		
+		public static SkillSlot1 skill(Skill genericSkill) {
+			switch (genericSkill) {
+			case WRATH: return WRATH;
+			case PURSUIT: return PURSUIT;
+			case ADEPT: return ADEPT;
+			case CHARM: return CHARM;
+			case NIHIL: return NIHIL;
+			case MIRACLE: return MIRACLE;
+			default: return null;
+			}
 		}
 	}
 	
@@ -1869,6 +1924,30 @@ public class FE4Data {
 			
 			return result;
 		}
+		
+		public static SkillSlot2 skill(Skill genericSkill) {
+			switch (genericSkill) {
+			case CRITICAL: return CRITICAL;
+			case VANTAGE: return VANTAGE;
+			case CHARGE: return CHARGE;
+			case ASTRA: return ASTRA;
+			case LUNA: return LUNA;
+			case SOL: return SOL;
+			default: return null;
+			}
+		}
+		
+		public Skill generalSkill() {
+			switch (this) {
+			case CRITICAL: return Skill.CRITICAL;
+			case VANTAGE: return Skill.VANTAGE;
+			case CHARGE: return Skill.CHARGE;
+			case ASTRA: return Skill.ASTRA;
+			case LUNA: return Skill.LUNA;
+			case SOL: return Skill.SOL;
+			default: return null;
+			}
+		}
 	}
 	
 	public enum SkillSlot3 {
@@ -1898,6 +1977,24 @@ public class FE4Data {
 			}
 			
 			return result;
+		}
+		
+		public static SkillSlot3 skill(Skill genericSkill) {
+			switch (genericSkill) {
+			case RENEWAL: return RENEWAL;
+			case PARAGON: return PARAGON;
+			case BARGAIN: return BARGAIN;
+			default: return null;
+			}
+		}
+		
+		public Skill generalSkill() {
+			switch (this) {
+			case RENEWAL: return Skill.RENEWAL;
+			case PARAGON: return Skill.PARAGON;
+			case BARGAIN: return Skill.BARGAIN;
+			default: return null;
+			}
 		}
 	}
 	

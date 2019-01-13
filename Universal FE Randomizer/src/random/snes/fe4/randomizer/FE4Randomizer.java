@@ -13,6 +13,8 @@ import random.general.Randomizer;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.ItemMapper;
 import ui.fe4.FE4ClassOptions;
+import ui.fe4.SkillsOptions;
+import ui.fe4.SkillsOptions.Mode;
 import ui.model.MiscellaneousOptions;
 import util.Diff;
 import util.DiffCompiler;
@@ -25,6 +27,7 @@ public class FE4Randomizer extends Randomizer {
 	private boolean isHeadered;
 	private String targetPath;
 	
+	private SkillsOptions skillsOptions;
 	private FE4ClassOptions classOptions;
 	private MiscellaneousOptions miscOptions;
 	
@@ -37,7 +40,7 @@ public class FE4Randomizer extends Randomizer {
 	
 	private FileHandler handler;
 	
-	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, SkillsOptions skillOptions, FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -47,6 +50,7 @@ public class FE4Randomizer extends Randomizer {
 		this.seedString = seed;
 		this.diffCompiler = diffs;
 		
+		this.skillsOptions = skillOptions;
 		this.classOptions = classOptions;
 		this.miscOptions = miscOptions;
 	}
@@ -103,6 +107,8 @@ public class FE4Randomizer extends Randomizer {
 		updateStatusString("Randomizing...");
 		randomizeClassesIfNecessary(seed);
 		updateProgress(0.55);
+		randomizeSkillsIfNecessary(seed);
+		updateProgress(0.65);
 		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
@@ -223,6 +229,20 @@ public class FE4Randomizer extends Randomizer {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 1));
 				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, charData, itemMapper, rng);
+			}
+		}
+	}
+	
+	private void randomizeSkillsIfNecessary(String seed) {
+		if (skillsOptions != null) {
+			if (skillsOptions.mode == Mode.RANDOMIZE) {
+				updateStatusString("Randomizing Skills...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4SkillsRandomizer.rngSalt + 1));
+				FE4SkillsRandomizer.randomizePlayableCharacterSkills(skillsOptions, charData, rng);
+			} else if (skillsOptions.mode == Mode.SHUFFLE) {
+				updateStatusString("Shuffling Skills...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4SkillsRandomizer.rngSalt + 2));
+				FE4SkillsRandomizer.shufflePlayableCharacterSkills(skillsOptions, charData, rng);
 			}
 		}
 	}

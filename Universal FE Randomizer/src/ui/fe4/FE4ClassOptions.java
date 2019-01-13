@@ -9,6 +9,7 @@ public class FE4ClassOptions {
 	}
 	
 	public enum ShopOptions {
+		DO_NOT_ADJUST,
 		ADJUST_TO_MATCH,
 		RANDOMIZE
 	}

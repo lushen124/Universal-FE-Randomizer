@@ -26,6 +26,7 @@ public class FE4ClassesView extends Composite {
 	private Button adjustChildrenLoose;
 	private Button randomizeChildren;
 	private Button randomizeBlood;
+	private Button retainShops;
 	private Button adjustShops;
 	private Button randomizeShops;
 	private Button adjustConvoItems;
@@ -74,6 +75,7 @@ public class FE4ClassesView extends Composite {
 				
 				randomizeBlood.setEnabled(enabled);
 				
+				retainShops.setEnabled(enabled);
 				adjustShops.setEnabled(enabled);
 				randomizeShops.setEnabled(enabled);
 				
@@ -209,15 +211,26 @@ public class FE4ClassesView extends Composite {
 		shopGroup.setLayoutData(shopData);
 		
 		{
-			adjustShops = new Button(shopGroup, SWT.RADIO);
-			adjustShops.setText("Adjust to Party");
-			adjustShops.setToolTipText("Changes shop items to reflect classes randomized for party.");
-			adjustShops.setEnabled(false);
-			adjustShops.setSelection(true);
+			retainShops = new Button(shopGroup, SWT.RADIO);
+			retainShops.setText("No Change");
+			retainShops.setToolTipText("Retains shop items.");
+			retainShops.setEnabled(false);
+			retainShops.setSelection(true);
 			
 			optionData = new FormData();
 			optionData.left = new FormAttachment(0, 0);
 			optionData.top = new FormAttachment(0, 0);
+			retainShops.setLayoutData(optionData);
+			
+			adjustShops = new Button(shopGroup, SWT.RADIO);
+			adjustShops.setText("Adjust to Party");
+			adjustShops.setToolTipText("Changes shop items to reflect classes randomized for party.");
+			adjustShops.setEnabled(false);
+			adjustShops.setSelection(false);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(retainShops, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(retainShops, 5);
 			adjustShops.setLayoutData(optionData);
 			
 			randomizeShops = new Button(shopGroup, SWT.RADIO);

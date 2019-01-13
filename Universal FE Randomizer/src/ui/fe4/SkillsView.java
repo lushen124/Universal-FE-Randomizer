@@ -22,6 +22,7 @@ public class SkillsView extends Composite {
 	private Button retainSkillCountsButton;
 	
 	private Button shuffleButton;
+	private Button separateByGeneration;
 	
 	private Button randomizeButton;
 	private SkillCountView skillCountView;
@@ -35,7 +36,7 @@ public class SkillsView extends Composite {
 		container = new Group(this, SWT.NONE);
 		
 		container.setText("Skills");
-		container.setToolTipText("Randomizes the personal skills of playable characters.");
+		container.setToolTipText("Randomizes the personal skills of playable characters. Child characters are not affected by any settings and continue to rely on inheritence from parents.");
 		
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.marginLeft = 5;
@@ -67,7 +68,7 @@ public class SkillsView extends Composite {
 		
 		retainSkillCountsButton = new Button(container, SWT.CHECK);
 		retainSkillCountsButton.setText("Retain Number of Skills");
-		retainSkillCountsButton.setToolTipText("Retains each character's normal number of skills. e.g. A character with 2 personal skills will continue to have 2 personal skills after shuffling or randomization.");
+		retainSkillCountsButton.setToolTipText("Retains each character's normal number of skills.\n\ne.g. A character with 2 personal skills will continue to have 2 personal skills after shuffling or randomization.");
 		retainSkillCountsButton.setEnabled(false);
 		retainSkillCountsButton.setSelection(true);
 		retainSkillCountsButton.addListener(SWT.Selection, new Listener() {
@@ -99,6 +100,17 @@ public class SkillsView extends Composite {
 		optionData.top = new FormAttachment(retainSkillCountsButton, 10);
 		shuffleButton.setLayoutData(optionData);
 		
+		separateByGeneration = new Button(container, SWT.CHECK);
+		separateByGeneration.setText("Separate Pools by Generation");
+		separateByGeneration.setToolTipText("Shuffles Generation 1 character skills separately from Generation 2 Common Characters and Substitutes.");
+		separateByGeneration.setEnabled(true);
+		separateByGeneration.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(shuffleButton, 10, SWT.LEFT);
+		optionData.top = new FormAttachment(shuffleButton, 5);
+		separateByGeneration.setLayoutData(optionData);
+		
 		randomizeButton = new Button(container, SWT.RADIO);
 		randomizeButton.setText("Randomize");
 		randomizeButton.setToolTipText("Randomizes all skills on all playable characters.");
@@ -113,7 +125,7 @@ public class SkillsView extends Composite {
 		
 		optionData = new FormData();
 		optionData.left = new FormAttachment(shuffleButton, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(shuffleButton, 5);
+		optionData.top = new FormAttachment(separateByGeneration, 10);
 		randomizeButton.setLayoutData(optionData);
 		
 		skillCountView = new SkillCountView(container, SWT.NONE);
@@ -142,10 +154,14 @@ public class SkillsView extends Composite {
 		if (skillsEnabled) {
 			switch (mode) {
 			case SHUFFLE:
+				separateByGeneration.setEnabled(true);
+				
 				skillCountView.setEnabled(false);
 				skillWeightView.setEnabled(false);
 				break;
 			case RANDOMIZE:
+				separateByGeneration.setEnabled(false);
+				
 				skillCountView.setEnabled(!retainSkillCountsButton.getSelection());
 				skillWeightView.setEnabled(true);
 				break;
@@ -154,6 +170,6 @@ public class SkillsView extends Composite {
 	}
 	
 	public SkillsOptions getSkillOptions() {
-		return new SkillsOptions(currentMode, retainSkillCountsButton.getSelection(), skillCountView.getSkillCountDistribution(), skillWeightView.getSkillWeights());
+		return new SkillsOptions(currentMode, retainSkillCountsButton.getSelection(), separateByGeneration.getSelection(), skillCountView.getSkillCountDistribution(), skillWeightView.getSkillWeights());
 	}
 }
