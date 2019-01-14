@@ -648,6 +648,32 @@ public class FE4Data {
 		// There's a bunch of duplicates beyond this point of major characters/bosses. I'm not listing them here unless we need them later.
 		;
 		
+		public static final Set<Character> RangedOnlyArenaCharacters = new HashSet<Character>(Arrays.asList(
+				ARENA_HOOD, 
+				ARENA_MILLET, ARENA_MARILYN_CH2, 
+				ARENA_RIP_CH3, ARENA_GELLER, ARENA_MARIO_CH3,
+				ARENA_KEITH, ARENA_NENE,
+				ARENA_RIP_CH5, ARENA_HAWKS,
+				ARENA_KASHIM,
+				ARENA_HESTE, ARENA_JACKSON_CH8,
+				ARENA_NIETZCHE, ARENA_SHIRON,
+				ARENA_KROSROY, ARENA_GLORIA,
+				ARENA_MARILYN_FINAL, ARENA_JACKSON_FINAL, ARENA_MARIO_FINAL
+				));
+		
+		public static final Set<Character> MeleeOnlyArenaCharacters = new HashSet<Character>(Arrays.asList(
+				ARENA_SHARK, 
+				ARENA_BARKNIN, ARENA_KEIMOS_CH2,
+				ARENA_TYLER, ARENA_TREVICK, ARENA_TORTON_CH3,
+				ARENA_KALEDIN, ARENA_NIKITA,
+				ARENA_SHACKAL, ARENA_SHISIEL,
+				ARENA_MANSTEIN,
+				ARENA_LOUIS, ARENA_XENON_CH8,
+				ARENA_INDRA_CH9, ARENA_MIRIA,
+				ARENA_GLANZ, ARENA_RIVA,
+				ARENA_KEIMOS_FINAL, ARENA_XENON_FINAL, ARENA_TORTON_FINAL
+				));
+		
 		public static final Set<Character> LordCharacters = new HashSet<Character>(Arrays.asList(SIGURD, SELIPH));
 		public static final Set<Character> ThiefCharacters = new HashSet<Character>(Arrays.asList(DEW, PATTY, DAISY));
 		public static final Set<Character> DancerCharacters = new HashSet<Character>(Arrays.asList(SILVIA, LENE, LAYLEA));
@@ -721,6 +747,37 @@ public class FE4Data {
 			}
 		}
 		
+		public Character primaryParent() {
+			switch (this) {
+			case LEIF: return ETHLYN;
+			case ALTENA: return QUAN;
+			case SELIPH: return SIGURD;
+			case JULIA: return DEIRDRE;
+			case LANA: 
+			case LESTER: 
+				return EDAIN;
+			case DIARMUID:
+			case NANNA:
+				return LACHESIS;
+			case LARCEI:
+			case ULSTER:
+				return AYRA;
+			case FEE:
+			case CED:
+				return ERINYS;
+			case LENE:
+			case COIRPRE:
+				return SILVIA;
+			case ARTHUR:
+			case TINE:
+				return TAILTIU;
+			case PATTY:
+			case FEBAIL:
+				return BRIGID;
+			default: return null;
+			}
+		}
+		
 		public Character getGen1Analogue() {
 			switch (this) {
 			case LANA: return EDAIN;
@@ -749,6 +806,14 @@ public class FE4Data {
 			switch (this) {
 			case MUNNIR: return Item.HAND_AXE;
 			default: return null;
+			}
+		}
+		
+		public HolyBlood[] limitedHolyBloodSelection() {
+			switch (this) {
+			case QUAN: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN}; // Mostly due to Altena needing to fly (and therefore locked to lances and swords).
+			default: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
+					HolyBlood.NEIR, HolyBlood.ULIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA, HolyBlood.BRAGI};
 			}
 		}
 		
@@ -851,6 +916,14 @@ public class FE4Data {
 		public boolean isArena() {
 			String name = this.toString();
 			return name.startsWith("ARENA");
+		}
+		
+		public boolean requiresMelee() {
+			return !RangedOnlyArenaCharacters.contains(this);
+		}
+		
+		public boolean requiresRange() {
+			return !MeleeOnlyArenaCharacters.contains(this);
 		}
 		
 		public boolean isBoss() {
@@ -1136,6 +1209,8 @@ public class FE4Data {
 		public static final Set<CharacterClass> fliers = new HashSet<CharacterClass>(Arrays.asList(PEGASUS_KNIGHT, DRAGON_RIDER, DRAGON_KNIGHT, FALCON_KNIGHT, DRAGON_MASTER));
 		public static final Set<CharacterClass> armoredClasses = new HashSet<CharacterClass>(Arrays.asList(ARMOR, AXE_ARMOR, BOW_ARMOR, SWORD_ARMOR, GENERAL, EMPEROR, BARON));
 		
+		public static final Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCH_KNIGHT, BOW_KNIGHT, HUNTER, BOW_ARMOR, BOW_FIGHTER, SNIPER));
+		
 		public int ID;
 		
 		private static Map<Integer, CharacterClass> map = new HashMap<Integer, CharacterClass>();
@@ -1157,7 +1232,26 @@ public class FE4Data {
 		public boolean isPacifist() { return pacifistClasses.contains(this); }
 		public boolean isArmored() { return armoredClasses.contains(this); }
 		
+		public HolyBlood[] supportedHolyBlood() {
+			Set<HolyBlood> bloodSet = new HashSet<HolyBlood>();
+			if (swordUsers.contains(this)) { bloodSet.add(HolyBlood.BALDR); bloodSet.add(HolyBlood.OD); bloodSet.add(HolyBlood.HEZUL); }
+			if (lanceUsers.contains(this)) { bloodSet.add(HolyBlood.DAIN); bloodSet.add(HolyBlood.NJORUN); }
+			if (axeUsers.contains(this)) { bloodSet.add(HolyBlood.NEIR); }
+			if (bowUsers.contains(this)) { bloodSet.add(HolyBlood.ULIR); }
+			if (fireUsers.contains(this)) { bloodSet.add(HolyBlood.FJALAR); }
+			if (thunderUsers.contains(this)) { bloodSet.add(HolyBlood.THRUD); }
+			if (windUsers.contains(this)) { bloodSet.add(HolyBlood.FORSETI); }
+			if (lightUsers.contains(this)) { bloodSet.add(HolyBlood.NAGA); }
+			if (darkUsers.contains(this)) { bloodSet.add(HolyBlood.LOPTOUS); }
+			if (staffUsers.contains(this)) { bloodSet.add(HolyBlood.BRAGI); }
+			return bloodSet.toArray(new HolyBlood[bloodSet.size()]);
+		}
+		
 		public Item[] usableItems(List<HolyBloodSlot1> slot1Blood, List<HolyBloodSlot2> slot2Blood, List<HolyBloodSlot3> slot3Blood) {
+			if (slot1Blood == null) { slot1Blood = new ArrayList<HolyBloodSlot1>(); }
+			if (slot2Blood == null) { slot2Blood = new ArrayList<HolyBloodSlot2>(); }
+			if (slot3Blood == null) { slot3Blood = new ArrayList<HolyBloodSlot3>(); }
+			
 			Set<Item> items = new HashSet<Item>();
 			
 			if (swordUsers.contains(this)) {
@@ -1292,51 +1386,89 @@ public class FE4Data {
 			}
 		}
 		
-		public boolean canUseWeapon(Item weapon) {
+		public boolean primaryAttackIsMagic() {
+			return fireUsers.contains(this) || thunderUsers.contains(this) || windUsers.contains(this) || lightUsers.contains(this) || darkUsers.contains(this);
+		}
+		public boolean primaryAttackIsStrength() {
+			return swordUsers.contains(this) || lanceUsers.contains(this) || axeUsers.contains(this) || bowUsers.contains(this);
+		}
+		
+		public boolean canUseWeapon(Item weapon, List<HolyBloodSlot1> blood1, List<HolyBloodSlot2> blood2, List<HolyBloodSlot3> blood3) {
+			if (blood1 == null) { blood1 = new ArrayList<HolyBloodSlot1>(); }
+			if (blood2 == null) { blood2 = new ArrayList<HolyBloodSlot2>(); }
+			if (blood3 == null) { blood3 = new ArrayList<HolyBloodSlot3>(); }
+			
+			boolean majorSwordBlood = blood1.contains(HolyBloodSlot1.MAJOR_BALDR) || blood2.contains(HolyBloodSlot2.MAJOR_OD) || blood3.contains(HolyBloodSlot3.MAJOR_HEZUL);
+			boolean minorSwordBlood = blood1.contains(HolyBloodSlot1.MINOR_BALDR) || blood2.contains(HolyBloodSlot2.MINOR_OD) || blood3.contains(HolyBloodSlot3.MINOR_HEZUL);
+			boolean majorLanceBlood = blood1.contains(HolyBloodSlot1.MAJOR_DAIN) || blood1.contains(HolyBloodSlot1.MAJOR_NJORUN);
+			boolean minorLanceBlood = blood1.contains(HolyBloodSlot1.MINOR_DAIN) || blood1.contains(HolyBloodSlot1.MINOR_NJORUN);
+			boolean majorAxeBlood = blood2.contains(HolyBloodSlot2.MAJOR_NEIR);
+			boolean minorAxeBlood = blood2.contains(HolyBloodSlot2.MINOR_NEIR);
+			boolean majorBowBlood = blood2.contains(HolyBloodSlot2.MAJOR_ULIR);
+			boolean minorBowBlood = blood2.contains(HolyBloodSlot2.MINOR_ULIR);
+			boolean majorFireBlood = blood2.contains(HolyBloodSlot2.MAJOR_FJALAR);
+			boolean minorFireBlood = blood2.contains(HolyBloodSlot2.MINOR_FJALAR);
+			boolean majorThunderBlood = blood3.contains(HolyBloodSlot3.MAJOR_THRUD);
+			boolean minorThunderBlood = blood3.contains(HolyBloodSlot3.MINOR_THRUD);
+			boolean majorWindBlood = blood3.contains(HolyBloodSlot3.MAJOR_FORSETI);
+			boolean minorWindBlood = blood3.contains(HolyBloodSlot3.MINOR_FORSETI);
+			boolean majorLightBlood = blood1.contains(HolyBloodSlot1.MAJOR_NAGA);
+			boolean minorLightBlood = blood1.contains(HolyBloodSlot1.MINOR_NAGA);
+			boolean majorStaffBlood = blood3.contains(HolyBloodSlot3.MAJOR_BRAGI);
+			boolean minorStaffBlood = blood3.contains(HolyBloodSlot3.MINOR_BRAGI);
+			
 			if (weapon.getType() == ItemType.RING) {
 				// Everybody can use rings.
 				return true;
 			}
 			
 			if (weapon.getType() == ItemType.SWORD) {
+				if (majorSwordBlood && swordUsers.contains(this)) { return true; }
 				if (weapon.getRank() == WeaponRank.C) { return swordUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.B) { return B_swordUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.A) { return A_swordUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_swordUsers.contains(this) || (swordUsers.contains(this) && minorSwordBlood); }
+				if (weapon.getRank() == WeaponRank.A) { return A_swordUsers.contains(this) || (B_swordUsers.contains(this) && minorSwordBlood); }
 			}
 			else if (weapon.getType() == ItemType.LANCE) {
+				if (majorLanceBlood && lanceUsers.contains(this)) { return true; }
 				if (weapon.getRank() == WeaponRank.C) { return lanceUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.B) { return B_lanceUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.A) { return A_lanceUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_lanceUsers.contains(this) || (lanceUsers.contains(this) && minorLanceBlood); }
+				if (weapon.getRank() == WeaponRank.A) { return A_lanceUsers.contains(this) || (B_lanceUsers.contains(this) && minorLanceBlood); }
 			}
 			else if (weapon.getType() == ItemType.AXE) {
+				if (majorAxeBlood && axeUsers.contains(this)) { return true; }
 				if (weapon.getRank() == WeaponRank.C) { return axeUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.B) { return B_axeUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.A) { return A_axeUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_axeUsers.contains(this) || (axeUsers.contains(this) && minorAxeBlood); }
+				if (weapon.getRank() == WeaponRank.A) { return A_axeUsers.contains(this) || (B_axeUsers.contains(this) && minorAxeBlood); }
 			}
 			else if (weapon.getType() == ItemType.BOW) {
+				if (majorBowBlood && bowUsers.contains(this)) { return true; }
 				if (weapon.getRank() == WeaponRank.C) { return bowUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.B) { return B_bowUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.A) { return A_bowUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_bowUsers.contains(this) || (bowUsers.contains(this) && minorBowBlood); }
+				if (weapon.getRank() == WeaponRank.A) { return A_bowUsers.contains(this) || (B_bowUsers.contains(this) && minorBowBlood); }
 			}
 			else if (weapon.getType() == ItemType.FIRE_MAGIC) {
-				if (weapon.getRank() == WeaponRank.C) { return fireUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.B) { return B_fireUsers.contains(this); }
+				if (majorFireBlood && fireUsers.contains(this)) { return true; }
+				if (weapon.getRank() == WeaponRank.C) { return fireUsers.contains(this) || (fireUsers.contains(this) && minorFireBlood); }
+				if (weapon.getRank() == WeaponRank.B) { return B_fireUsers.contains(this) || (B_fireUsers.contains(this) && minorFireBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_fireUsers.contains(this); }
 			}
 			else if (weapon.getType() == ItemType.THUNDER_MAGIC) {
+				if (majorThunderBlood && thunderUsers.contains(this)) { return true; }
 				if (weapon.getRank() == WeaponRank.C) { return thunderUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.B) { return B_thunderUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.A) { return A_thunderUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_thunderUsers.contains(this) || (thunderUsers.contains(this) && minorThunderBlood); }
+				if (weapon.getRank() == WeaponRank.A) { return A_thunderUsers.contains(this) || (B_thunderUsers.contains(this) && minorThunderBlood); }
 			}
 			else if (weapon.getType() == ItemType.WIND_MAGIC) {
+				if (majorWindBlood && windUsers.contains(this)) { return true; }
 				if (weapon.getRank() == WeaponRank.C) { return windUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.B) { return B_windUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.A) { return A_windUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_windUsers.contains(this) || (windUsers.contains(this) && minorWindBlood); }
+				if (weapon.getRank() == WeaponRank.A) { return A_windUsers.contains(this) || (B_windUsers.contains(this) && minorWindBlood); }
 			}
 			else if (weapon.getType() == ItemType.LIGHT_MAGIC) {
+				if (majorLightBlood && lightUsers.contains(this)) { return true; }
 				if (weapon.getRank() == WeaponRank.C) { return lightUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.B) { return B_lightUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.A) { return A_lightUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_lightUsers.contains(this) || (lightUsers.contains(this) && minorLightBlood); }
+				if (weapon.getRank() == WeaponRank.A) { return A_lightUsers.contains(this) || (B_lightUsers.contains(this) && minorLightBlood); }
 			}
 			else if (weapon.getType() == ItemType.DARK_MAGIC) {
 				if (weapon.getRank() == WeaponRank.C) { return darkUsers.contains(this); }
@@ -1344,9 +1476,10 @@ public class FE4Data {
 				if (weapon.getRank() == WeaponRank.A) { return A_darkUsers.contains(this); }
 			}
 			else if (weapon.getType() == ItemType.STAFF) {
+				if (majorStaffBlood && staffUsers.contains(this)) { return true; }
 				if (weapon.getRank() == WeaponRank.C) { return staffUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.B) { return B_staffUsers.contains(this); }
-				if (weapon.getRank() == WeaponRank.A) { return A_staffUsers.contains(this); }
+				if (weapon.getRank() == WeaponRank.B) { return B_staffUsers.contains(this) || (staffUsers.contains(this) && minorStaffBlood); }
+				if (weapon.getRank() == WeaponRank.A) { return A_staffUsers.contains(this) || (B_staffUsers.contains(this) && minorStaffBlood); }
 			}
 			
 			return false;
@@ -1370,16 +1503,16 @@ public class FE4Data {
 			
 			if (sameWeapon) {
 				Set<CharacterClass> crossSet = new HashSet<CharacterClass>();
-				if (swordUsers.contains(this)) { crossSet.retainAll(swordUsers); }
-				if (lanceUsers.contains(this)) { crossSet.retainAll(lanceUsers); }
-				if (axeUsers.contains(this)) { crossSet.retainAll(axeUsers); }
-				if (bowUsers.contains(this)) { crossSet.retainAll(bowUsers); }
-				if (fireUsers.contains(this)) { crossSet.retainAll(fireUsers); }
-				if (thunderUsers.contains(this)) { crossSet.retainAll(thunderUsers); }
-				if (windUsers.contains(this)) { crossSet.retainAll(windUsers); }
-				if (lightUsers.contains(this)) { crossSet.retainAll(lightUsers); }
-				if (darkUsers.contains(this)) { crossSet.retainAll(darkUsers); }
-				if (staffUsers.contains(this)) { crossSet.retainAll(staffUsers); }
+				if (swordUsers.contains(this)) { crossSet.addAll(swordUsers); }
+				if (lanceUsers.contains(this)) { crossSet.addAll(lanceUsers); }
+				if (axeUsers.contains(this)) { crossSet.addAll(axeUsers); }
+				if (bowUsers.contains(this)) { crossSet.addAll(bowUsers); }
+				if (fireUsers.contains(this)) { crossSet.addAll(fireUsers); }
+				if (thunderUsers.contains(this)) { crossSet.addAll(thunderUsers); }
+				if (windUsers.contains(this)) { crossSet.addAll(windUsers); }
+				if (lightUsers.contains(this)) { crossSet.addAll(lightUsers); }
+				if (darkUsers.contains(this)) { crossSet.addAll(darkUsers); }
+				if (staffUsers.contains(this)) { crossSet.addAll(staffUsers); }
 				
 				workingSet.retainAll(crossSet);
 			}
@@ -1430,7 +1563,7 @@ public class FE4Data {
 			if (mustUseWeapon != null && (mustUseWeapon.isWeapon() || mustUseWeapon.getType() == Item.ItemType.STAFF)) {
 				Set<CharacterClass> weaponFilter = new HashSet<CharacterClass>();
 				for (CharacterClass charClass : workingSet) {
-					if (charClass.canUseWeapon(mustUseWeapon)) { weaponFilter.add(charClass); }
+					if (charClass.canUseWeapon(mustUseWeapon, null, null, null)) { weaponFilter.add(charClass); }
 				}
 				
 				workingSet = weaponFilter;
@@ -1483,21 +1616,6 @@ public class FE4Data {
 			if (maleOnlyClasses.contains(this)) { return GenderType.MALE_ONLY; }
 			if (femaleOnlyClasses.contains(this)) { return GenderType.FEMALE_ONLY; }
 			return GenderType.ANY;
-		}
-		
-		public HolyBlood[] majorBloodOptions() {
-			Set<HolyBlood> bloodSet = new HashSet<HolyBlood>();
-			if (canUseWeapon(Item.IRON_SWORD)) { bloodSet.add(HolyBlood.BALDR); bloodSet.add(HolyBlood.HEZUL); bloodSet.add(HolyBlood.OD); }
-			if (canUseWeapon(Item.IRON_LANCE)) { bloodSet.add(HolyBlood.NJORUN); bloodSet.add(HolyBlood.DAIN); }
-			if (canUseWeapon(Item.IRON_AXE)) { bloodSet.add(HolyBlood.NEIR); }
-			if (canUseWeapon(Item.IRON_BOW)) { bloodSet.add(HolyBlood.ULIR); }
-			if (canUseWeapon(Item.FIRE)) { bloodSet.add(HolyBlood.FJALAR); }
-			if (canUseWeapon(Item.THUNDER)) { bloodSet.add(HolyBlood.THRUD); }
-			if (canUseWeapon(Item.WIND)) { bloodSet.add(HolyBlood.FORSETI); }
-			if (canUseWeapon(Item.LIGHT)) { bloodSet.add(HolyBlood.NAGA); }
-			if (canUseWeapon(Item.HEAL)) { bloodSet.add(HolyBlood.BRAGI); }
-			
-			return bloodSet.toArray(new HolyBlood[bloodSet.size()]);
 		}
 		
 		public CharacterClass[] demotedClasses(boolean isFemale) {
@@ -1654,8 +1772,28 @@ public class FE4Data {
 		
 		public static final Set<Item> siegeTomes = new HashSet<Item>(Arrays.asList(METEOR, BOLTING, BLIZZARD, FENRIR));
 		
+		public static final Set<Item> meleeWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, MIRACLE_SWORD, THIEF_SWORD, BARRIER_BLADE,
+				BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD, SAFEGUARD, FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, MYSTLETAINN, TYRFING, BALMUNG, ARMORSLAYER, WING_CLIPPER,
+				IRON_LANCE, STEEL_LANCE, SILVER_LANCE, JAVELIN, HORSESLAYER, BRAVE_LANCE, SLIM_LANCE, GUNGNIR, GAE_BOLG,
+				IRON_AXE, STEEL_AXE, SILVER_AXE, BRAVE_AXE, HELSWATH, HAND_AXE,
+				FIRE, ELFIRE, BOLGANONE, VALFLAME,
+				THUNDER, ELTHUNDER, THORON, MJOLNIR,
+				WIND, ELWIND, TORNADO, FORSETI,
+				LIGHT, NOSFERATU, AURA, NAGA,
+				YOTSMUNGAND
+				));
+		public static final Set<Item> rangedWeapons = new HashSet<Item>(Arrays.asList(FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, JAVELIN, HAND_AXE, HELSWATH, IRON_BOW, STEEL_BOW, SILVER_BOW,
+				BRAVE_BOW, KILLER_BOW, YEWFELLE,
+				FIRE, ELFIRE, BOLGANONE, VALFLAME,
+				THUNDER, ELTHUNDER, THORON, MJOLNIR,
+				WIND, ELWIND, TORNADO, FORSETI,
+				LIGHT, NOSFERATU, AURA, NAGA,
+				YOTSMUNGAND));
+		
 		public static final Set<Item> rings = new HashSet<Item>(Arrays.asList(LIFE_RING, ELITE_RING, THIEF_RING, PRAYER_RING, PURSUIT_RING, RECOVER_RING, BARGAIN_RING, 
 				KNIGHT_RING, RETURN_RING, SPEED_RING, MAGIC_RING, POWER_RING, SHIELD_RING, BARRIER_RING, LEG_RING, SKILL_RING));
+		
+		public static final Set<Item> statRings = new HashSet<Item>(Arrays.asList(SPEED_RING, MAGIC_RING, POWER_RING, SHIELD_RING, BARRIER_RING, SKILL_RING));
 		
 		public static final Set<Item> cWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, MIRACLE_SWORD, THIEF_SWORD, BARRIER_BLADE, BERSERK_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD, SAFEGUARD, FLAME_SWORD,
 				EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, IRON_LANCE, JAVELIN, HORSESLAYER, SLIM_LANCE, IRON_AXE, HAND_AXE, IRON_BOW, KILLER_BOW, FIRE, METEOR, THUNDER, BOLTING, WIND, BLIZZARD, LIGHT, YOTSMUNGAND,

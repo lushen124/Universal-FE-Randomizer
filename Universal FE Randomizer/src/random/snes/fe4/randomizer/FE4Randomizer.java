@@ -230,6 +230,7 @@ public class FE4Randomizer extends Randomizer {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 1));
 				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, charData, itemMapper, rng);
 				charData.commit();
+				itemMapper.commitChanges();
 			}
 			if (classOptions.randomizeMinions) {
 				updateStatusString("Randomizing minions...");
@@ -243,6 +244,12 @@ public class FE4Randomizer extends Randomizer {
 				FE4ClassRandomizer.randomizeBosses(classOptions, charData, rng);
 				charData.commit();
 			}
+			if (classOptions.randomizeArena) {
+				updateStatusString("Randomizing arena combatants...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 4));
+				FE4ClassRandomizer.randomizeArena(classOptions, charData, rng);
+				charData.commit();
+			}
 		}
 	}
 	
@@ -252,10 +259,12 @@ public class FE4Randomizer extends Randomizer {
 				updateStatusString("Randomizing Skills...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4SkillsRandomizer.rngSalt + 1));
 				FE4SkillsRandomizer.randomizePlayableCharacterSkills(skillsOptions, charData, rng);
+				charData.commit();
 			} else if (skillsOptions.mode == Mode.SHUFFLE) {
 				updateStatusString("Shuffling Skills...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4SkillsRandomizer.rngSalt + 2));
 				FE4SkillsRandomizer.shufflePlayableCharacterSkills(skillsOptions, charData, rng);
+				charData.commit();
 			}
 		}
 	}
