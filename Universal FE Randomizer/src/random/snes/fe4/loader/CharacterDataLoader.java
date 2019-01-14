@@ -487,6 +487,7 @@ public class CharacterDataLoader {
 		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryBoss1);
 		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryBoss2);
 		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryHolyBoss);
+		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryEnemy);
 		
 		for (FE4Data.Character fe4Char : staticPlayableCharacters.keySet()) {
 			if (fe4Char.isGen1() && fe4Char.isPlayable()) {
@@ -513,6 +514,10 @@ public class CharacterDataLoader {
 		for (FE4Data.Character fe4Char : holyBloodBossCharacters.keySet()) {
 			// Bosses don't have an item map because none of their items are tracked.
 			recordStaticCharacter(rk, isInitial, fe4Char, holyBloodBossCharacters.get(fe4Char), RecordKeeperSubcategoryHolyBoss, null);
+		}
+		
+		for (FE4Data.Character fe4Char : enemyCharacters.keySet()) {
+			recordEnemy(rk, isInitial, fe4Char, enemyCharacters.get(fe4Char), RecordKeeperSubcategoryEnemy, itemMap);
 		}
 	}
 	

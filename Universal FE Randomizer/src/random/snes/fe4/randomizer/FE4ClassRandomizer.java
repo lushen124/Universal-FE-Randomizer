@@ -19,10 +19,12 @@ import fedata.snes.fe4.FE4Data.HolyBloodSlot1;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot2;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot3;
 import fedata.snes.fe4.FE4Data.Item;
+import fedata.snes.fe4.FE4EnemyCharacter;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.ItemMapper;
 import ui.fe4.FE4ClassOptions;
 import ui.fe4.FE4ClassOptions.ChildOptions;
+import ui.fe4.FE4ClassOptions.ShopOptions;
 
 public class FE4ClassRandomizer {
 	
@@ -158,7 +160,7 @@ public class FE4ClassRandomizer {
 			if (fe4Char.isHealer() && options.retainHealers) {
 				Collections.addAll(potentialClasses, originalClass.getClassPool(true, false, true, staticChar.isFemale(), false, false, false, FE4Data.Item.HEAL, null));
 			} else {
-				FE4Data.Item mustUseItem = null;
+				FE4Data.Item mustUseItem = fe4Char.requiresWeapon();
 				if (!options.randomizeBlood) {
 					// Limit classes if this option is disabled for those with major holy blood (Sigurd, Quan, Brigid, Lewyn (and technically Claud)).
 					int blood1Value = staticChar.getHolyBlood1Value();
@@ -234,20 +236,20 @@ public class FE4ClassRandomizer {
 				
 				if (currentClass.isFlier()) {
 					// Override for Altena, who needs to remain flying to not break stuff.
-					FE4Data.CharacterClass[] classPool = currentClass.getClassPool(true, false, true, child.isFemale(), false, fe4Char.requiresAttack(), false, null, null);
+					FE4Data.CharacterClass[] classPool = currentClass.getClassPool(true, false, true, child.isFemale(), false, fe4Char.requiresAttack(), false, fe4Char.requiresWeapon(), null);
 					if (classPool.length > 0) {
 						targetClass = classPool[rng.nextInt(classPool.length)];
 					}
 				}
 			} else if (options.childOption == ChildOptions.MATCH_LOOSE) {
 				FE4Data.CharacterClass referenceClass = predeterminedClasses.get(referenceCharacter);
-				FE4Data.CharacterClass[] pool = referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), false, restrictedHealer ? Item.HEAL : null, null);
+				FE4Data.CharacterClass[] pool = referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), false, restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null);
 				if (pool.length > 0) {
 					targetClass = pool[rng.nextInt(pool.length)];
 				}
 			} else {
 				FE4Data.CharacterClass referenceClass = FE4Data.CharacterClass.valueOf(child.getClassID());
-				FE4Data.CharacterClass[] pool = referenceClass.getClassPool(false, false, false, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), false, restrictedHealer ? Item.HEAL : null, null);
+				FE4Data.CharacterClass[] pool = referenceClass.getClassPool(false, false, false, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), false, restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null);
 				if (pool.length > 0) {
 					targetClass = pool[rng.nextInt(pool.length)];
 				}
@@ -267,7 +269,7 @@ public class FE4ClassRandomizer {
 				if (sub != null) {
 					FE4StaticCharacter subChar = charData.getStaticCharacter(sub);
 					if (subChar != null) {
-						FE4Data.CharacterClass[] pool = referenceClass.getClassPool(true, false, true, subChar.isFemale(), requiresWeakness, fe4Char.requiresAttack(), false, restrictedHealer ? Item.HEAL : null, null);
+						FE4Data.CharacterClass[] pool = referenceClass.getClassPool(true, false, true, subChar.isFemale(), requiresWeakness, fe4Char.requiresAttack(), false, restrictedHealer ? Item.HEAL : sub.requiresWeapon(), null);
 						FE4Data.CharacterClass subClass = referenceClass; // Use this as a fallback.
 						if (pool.length > 0) {
 							 subClass = pool[rng.nextInt(pool.length)];
@@ -281,6 +283,422 @@ public class FE4ClassRandomizer {
 				
 			} else {
 				System.err.println("No classes in the class pool for Child " + fe4Char.toString());
+			}
+		}
+		
+		List<FE4Data.HolyBloodSlot1> fullMinor1 = new ArrayList<FE4Data.HolyBloodSlot1>(Arrays.asList(FE4Data.HolyBloodSlot1.MINOR_BALDR, FE4Data.HolyBloodSlot1.MINOR_DAIN, FE4Data.HolyBloodSlot1.MINOR_NAGA, FE4Data.HolyBloodSlot1.MINOR_NJORUN));
+		List<FE4Data.HolyBloodSlot2> fullMinor2 = new ArrayList<FE4Data.HolyBloodSlot2>(Arrays.asList(FE4Data.HolyBloodSlot2.MINOR_FJALAR, FE4Data.HolyBloodSlot2.MINOR_NEIR, FE4Data.HolyBloodSlot2.MINOR_OD, FE4Data.HolyBloodSlot2.MINOR_ULIR));
+		List<FE4Data.HolyBloodSlot3> fullMinor3 = new ArrayList<FE4Data.HolyBloodSlot3>(Arrays.asList(FE4Data.HolyBloodSlot3.MINOR_BRAGI, FE4Data.HolyBloodSlot3.MINOR_FORSETI, FE4Data.HolyBloodSlot3.MINOR_HEZUL, FE4Data.HolyBloodSlot3.MINOR_THRUD));
+		if (options.shopOption == ShopOptions.ADJUST_TO_MATCH) {
+			Set<Integer> inventoryIndices = FE4Data.Shops.CHAPTER_1.inventoryIDs;
+			Set<FE4Data.Item> possibleWeapons =  new HashSet<FE4Data.Item>();
+			
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 0) { 
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3))); 
+				}
+			}
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+			
+			inventoryIndices = FE4Data.Shops.CHAPTER_2.inventoryIDs;
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 1) {
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3)));
+				}
+			}
+			
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+			
+			inventoryIndices = FE4Data.Shops.CHAPTER_3.inventoryIDs;
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 2) {
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3)));
+				}
+			}
+			
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+			
+			inventoryIndices = FE4Data.Shops.CHAPTER_4.inventoryIDs;
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 3) {
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3)));
+				}
+			}
+			
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+			
+			inventoryIndices = FE4Data.Shops.CHAPTER_5.inventoryIDs;
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 4) {
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3)));
+				}
+			}
+			
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+			
+			inventoryIndices = FE4Data.Shops.CHAPTER_6.inventoryIDs;
+			possibleWeapons.clear();
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 6) {
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3)));
+				}
+			}
+			
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+			
+			inventoryIndices = FE4Data.Shops.CHAPTER_7.inventoryIDs;
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 7) {
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3)));
+				}
+			}
+			
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+			
+			inventoryIndices = FE4Data.Shops.CHAPTER_8.inventoryIDs;
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 8) {
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3)));
+				}
+			}
+			
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+			
+			inventoryIndices = FE4Data.Shops.CHAPTER_9.inventoryIDs;
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 9) {
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3)));
+				}
+			}
+			
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+			
+			inventoryIndices = FE4Data.Shops.CHAPTER_10.inventoryIDs;
+			for (FE4Data.Character fe4Char : predeterminedClasses.keySet()) {
+				if (fe4Char.joinChapter() == 10) {
+					FE4Data.CharacterClass charClass = predeterminedClasses.get(fe4Char);
+					possibleWeapons.addAll(Arrays.asList(charClass.usableItems(fullMinor1, fullMinor2, fullMinor3)));
+				}
+			}
+			
+			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			
+			if (!possibleWeapons.isEmpty()) {
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				for (Integer i : inventoryIndices) {
+					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+					itemMap.setItemAtIndex(i, randomItem);
+				}
+			}
+		} else if (options.shopOption == ShopOptions.RANDOMIZE) {
+			List<Integer> inventoryIndices = new ArrayList<Integer>();
+			for (FE4Data.Shops shop : FE4Data.Shops.values()) {
+				inventoryIndices.addAll(shop.inventoryIDs);
+			}
+			
+			List<FE4Data.Item> weapons = new ArrayList<FE4Data.Item>();
+			weapons.addAll(FE4Data.Item.cWeapons);
+			weapons.addAll(FE4Data.Item.bWeapons);
+			weapons.addAll(FE4Data.Item.aWeapons);
+			
+			for (int index : inventoryIndices) {
+				int randomIndex = rng.nextInt(weapons.size());
+				FE4Data.Item randomWeapon = weapons.get(randomIndex);
+				itemMap.setItemAtIndex(index, randomWeapon);
+			}
+		}
+	}
+	
+	// Should be run after randomizing playable characters.
+	public static void randomizeMinions(FE4ClassOptions options, CharacterDataLoader charData, Random rng) {
+		List<FE4EnemyCharacter> enemies = charData.getMinions();
+		randomizeEnemies(options, enemies, charData, rng);
+	}
+	
+	// Should be run after randomizing enemies.
+	public static void randomizeBosses(FE4ClassOptions options, CharacterDataLoader charData, Random rng) {
+		List<FE4EnemyCharacter> bosses = charData.getPlainBossCharacters();
+		randomizeEnemies(options, bosses, charData, rng);
+	}
+	
+	private static void randomizeEnemies(FE4ClassOptions options, List<FE4EnemyCharacter> enemies, CharacterDataLoader charData, Random rng) {
+		Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses = new HashMap<FE4Data.Character, FE4Data.CharacterClass>();
+		
+		List<FE4EnemyCharacter> deferredEnemies = new ArrayList<FE4EnemyCharacter>();
+		Map<FE4Data.Character, FE4Data.Item> weaponsBeatingCharacter = new HashMap<FE4Data.Character, FE4Data.Item>(); 
+		Map<FE4Data.Character, FE4EnemyCharacter> setEnemies = new HashMap<FE4Data.Character, FE4EnemyCharacter>();
+		
+		for (FE4EnemyCharacter enemy : enemies) {
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(enemy.getCharacterID());
+			
+			if (predeterminedClasses.containsKey(fe4Char)) {
+				FE4Data.Item mustUseItem = null;
+				if (fe4Char.mustBeatCharacter().length > 0) {
+					for (FE4Data.Character loser : fe4Char.mustBeatCharacter()) {
+						if (weaponsBeatingCharacter.containsKey(loser)) {
+							mustUseItem = weaponsBeatingCharacter.get(loser);
+							break;
+						}
+					}
+				}
+				if (mustUseItem != null) {
+					setEnemyCharacterToClass(options, enemy, predeterminedClasses.get(fe4Char), mustUseItem);
+				} else { 
+					setEnemyCharacterToClass(options, enemy, predeterminedClasses.get(fe4Char), rng);
+				}
+				continue;
+			}
+			
+			FE4Data.Item mustUseItem = fe4Char.requiresWeapon();
+			if (fe4Char.mustBeatCharacter().length > 0) {
+				FE4Data.Character loser = fe4Char.mustBeatCharacter()[0];
+				FE4Data.CharacterClass loserClass = null;
+				if (loser.isPlayable()) {
+					if (loser.isChild()) {
+						FE4ChildCharacter child = charData.getChildCharacter(loser);
+						if (child != null) { loserClass = FE4Data.CharacterClass.valueOf(child.getClassID()); }
+					} else {
+						FE4StaticCharacter staticChar = charData.getStaticCharacter(loser);
+						if (staticChar != null) { loserClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID()); }
+					}
+				} else {
+					if (predeterminedClasses.containsKey(loser)) {
+						loserClass = predeterminedClasses.get(loser);
+					} else {
+						FE4EnemyCharacter loserEnemy = charData.getEnemyCharacter(loser);
+						if (loserEnemy != null && loserEnemy.hasCommittedChanges()) {
+							loserClass = FE4Data.CharacterClass.valueOf(loserEnemy.getClassID());
+						}
+					}
+				}
+				if (loserClass == null) {
+					// Wait until we've done all the other enemies before doing this one.
+					deferredEnemies.add(enemy);
+					continue;
+				} else {
+					FE4Data.Item[] weaponPool = loserClass.criticalWeaknessWeapons();
+					if (weaponPool.length > 0) {
+						mustUseItem = weaponPool[rng.nextInt(weaponPool.length)];
+					}
+				}
+			}
+			
+			FE4Data.CharacterClass currentClass = FE4Data.CharacterClass.valueOf(enemy.getClassID());
+			if (currentClass == null) { continue; }
+			
+			List<FE4Data.CharacterClass> classPool = new ArrayList<FE4Data.CharacterClass>();
+			FE4Data.Item mustLoseToWeapon = null;
+			if (fe4Char.sharedWeaknesses().length > 0) {
+				for (FE4Data.Character weakChar : fe4Char.sharedWeaknesses()) {
+					if (weakChar == fe4Char) { continue; }
+					if (weaponsBeatingCharacter.containsKey(weakChar)) {
+						mustLoseToWeapon = weaponsBeatingCharacter.get(weakChar);
+						break;
+					}
+				}
+			}
+			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, fe4Char.mustLoseToCharacters().length > 0, true, false, mustUseItem, mustLoseToWeapon));
+			
+			if (classPool.isEmpty()) {
+				setEnemies.put(fe4Char, enemy);
+				continue;
+			}
+			
+			FE4Data.CharacterClass targetClass = classPool.get(rng.nextInt(classPool.size()));
+			// Put reduced weight on fliers, since they're maybe a bit too powerful. Re-randomize once if they get fliers the first time
+			if (targetClass.isFlier()) { 
+				targetClass = classPool.get(rng.nextInt(classPool.size()));
+			}
+			
+			if (fe4Char.mustLoseToCharacters().length > 0) {
+				FE4Data.Item[] winningWeapons = targetClass.criticalWeaknessWeapons();
+				if (winningWeapons.length > 0) {
+					weaponsBeatingCharacter.put(fe4Char, weaponsBeatingCharacter.put(fe4Char, winningWeapons[rng.nextInt(winningWeapons.length)]));
+				}
+			}
+			
+			setEnemies.put(fe4Char, enemy);
+			if (mustUseItem != null) {
+				setEnemyCharacterToClass(options, enemy, targetClass, mustUseItem);
+			} else {
+				setEnemyCharacterToClass(options, enemy, targetClass, rng);
+			}
+		}
+		
+		for (FE4EnemyCharacter deferred : deferredEnemies) {
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(deferred.getCharacterID());
+			
+			if (predeterminedClasses.containsKey(fe4Char)) {
+				FE4Data.Item mustUseItem = null;
+				if (fe4Char.mustBeatCharacter().length > 0) {
+					for (FE4Data.Character loser : fe4Char.mustBeatCharacter()) {
+						if (weaponsBeatingCharacter.containsKey(loser)) {
+							mustUseItem = weaponsBeatingCharacter.get(loser);
+							break;
+						}
+					}
+				}
+				if (mustUseItem != null) {
+					setEnemyCharacterToClass(options, deferred, predeterminedClasses.get(fe4Char), mustUseItem);
+				} else {
+					setEnemyCharacterToClass(options, deferred, predeterminedClasses.get(fe4Char), rng);
+				}
+				continue;
+			}
+			
+			FE4Data.Item mustUseItem = fe4Char.requiresWeapon();
+			if (fe4Char.mustBeatCharacter().length > 0) {
+				FE4Data.Character loser = fe4Char.mustBeatCharacter()[0];
+				FE4Data.CharacterClass loserClass = null;
+				if (loser.isPlayable()) {
+					if (loser.isChild()) {
+						FE4ChildCharacter child = charData.getChildCharacter(loser);
+						if (child != null) { loserClass = FE4Data.CharacterClass.valueOf(child.getClassID()); }
+					} else {
+						FE4StaticCharacter staticChar = charData.getStaticCharacter(loser);
+						if (staticChar != null) { loserClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID()); }
+					}
+				} else {
+					if (predeterminedClasses.containsKey(loser)) {
+						loserClass = predeterminedClasses.get(loser);
+					} else {
+						FE4EnemyCharacter loserEnemy = charData.getEnemyCharacter(loser);
+						if (loserEnemy != null && loserEnemy.hasCommittedChanges()) {
+							loserClass = FE4Data.CharacterClass.valueOf(loserEnemy.getClassID());
+						}
+					}
+					
+				}
+				if (loserClass == null) {
+					// This shouldn't happen again...
+					// But if it does, just go ahead and randomize it.
+				} else {
+					FE4Data.Item[] weaponPool = loserClass.criticalWeaknessWeapons();
+					if (weaponPool.length > 0) {
+						mustUseItem = weaponPool[rng.nextInt(weaponPool.length)];
+					}
+				}
+			}
+			
+			FE4Data.CharacterClass currentClass = FE4Data.CharacterClass.valueOf(deferred.getClassID());
+			if (currentClass == null) { continue; }
+			
+			List<FE4Data.CharacterClass> classPool = new ArrayList<FE4Data.CharacterClass>();
+			FE4Data.Item mustLoseToWeapon = null;
+			if (fe4Char.sharedWeaknesses().length > 0) {
+				for (FE4Data.Character weakChar : fe4Char.sharedWeaknesses()) {
+					if (weakChar == fe4Char) { continue; }
+					if (weaponsBeatingCharacter.containsKey(weakChar)) {
+						mustLoseToWeapon = weaponsBeatingCharacter.get(weakChar);
+						break;
+					}
+				}
+			}
+			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, fe4Char.mustLoseToCharacters().length > 0, true, false, mustUseItem, mustLoseToWeapon));
+			
+			if (classPool.isEmpty()) {
+				setEnemies.put(fe4Char, deferred);
+				continue;
+			}
+			
+			FE4Data.CharacterClass targetClass = classPool.get(rng.nextInt(classPool.size()));
+			// Put reduced weight on fliers, since they're maybe a bit too powerful. Re-randomize once if they get fliers the first time
+			if (targetClass.isFlier()) { 
+				targetClass = classPool.get(rng.nextInt(classPool.size()));
+			}
+			if (fe4Char.mustLoseToCharacters().length > 0) {
+				FE4Data.Item[] winningWeapons = targetClass.criticalWeaknessWeapons();
+				if (winningWeapons.length > 0) {
+					weaponsBeatingCharacter.put(fe4Char, weaponsBeatingCharacter.put(fe4Char, winningWeapons[rng.nextInt(winningWeapons.length)]));
+				}
+			}
+			
+			setEnemies.put(fe4Char, deferred);
+			if (mustUseItem != null) {
+				setEnemyCharacterToClass(options, deferred, targetClass, mustUseItem);
+			} else {
+				setEnemyCharacterToClass(options, deferred, targetClass, rng);
 			}
 		}
 	}
@@ -572,4 +990,42 @@ public class FE4ClassRandomizer {
 		}
 	}
 
+	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, Random rng) {
+		enemy.setClassID(targetClass.ID);
+		
+		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(new ArrayList<FE4Data.HolyBloodSlot1>(), new ArrayList<FE4Data.HolyBloodSlot2>(), new ArrayList<FE4Data.HolyBloodSlot3>())));
+		
+		int item1ID = enemy.getEquipment1();
+		FE4Data.Item item1 = FE4Data.Item.valueOf(item1ID);
+		if (item1 != null && item1 != Item.NONE) {
+			if (!targetClass.canUseWeapon(item1)) {
+				List<FE4Data.Item> usableWeapons = new ArrayList<Item>(usableItems);
+				usableWeapons.stream().filter(item -> (item.isWeapon()));
+				if (!usableWeapons.isEmpty()) {
+					FE4Data.Item weapon = usableWeapons.get(rng.nextInt(usableWeapons.size()));
+					enemy.setEquipment1(weapon.ID);
+					usableItems.remove(weapon);
+				}
+			}
+		}
+		
+		int item2ID = enemy.getEquipment2();
+		FE4Data.Item item2 = FE4Data.Item.valueOf(item2ID);
+		if (item2 != null && item2 != Item.NONE) {
+			if (!targetClass.canUseWeapon(item2)) {
+				if (!usableItems.isEmpty()) {
+					FE4Data.Item item = usableItems.get(rng.nextInt(usableItems.size()));
+					enemy.setEquipment2(item.ID);
+				} else {
+					enemy.setEquipment2(Item.NONE.ID);
+				}
+			}
+		}
+	}
+	
+	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, FE4Data.Item weapon) {
+		enemy.setClassID(targetClass.ID);
+		enemy.setEquipment1(weapon.ID);
+		enemy.setEquipment2(FE4Data.Item.NONE.ID);
+	}
 }

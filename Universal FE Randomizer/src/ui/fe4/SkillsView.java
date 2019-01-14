@@ -170,6 +170,7 @@ public class SkillsView extends Composite {
 	}
 	
 	public SkillsOptions getSkillOptions() {
+		if (!skillsEnabled) { return null; }
 		return new SkillsOptions(currentMode, retainSkillCountsButton.getSelection(), separateByGeneration.getSelection(), skillCountView.getSkillCountDistribution(), skillWeightView.getSkillWeights());
 	}
 }

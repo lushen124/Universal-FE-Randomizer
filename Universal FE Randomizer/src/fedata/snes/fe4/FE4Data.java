@@ -83,17 +83,6 @@ public class FE4Data {
 	public static final long SeliphHolyWeaponInheritenceBanOldValue = 0x18;
 	public static final long SeliphHolyWeaponInheritenceBanNewValue = 0x1E;
 	
-	public static final Set<Integer> Chapter1ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x1D, 0x2F, 0x38, 0x41));
-	public static final Set<Integer> Chapter2ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x33, 0x55, 0x10, 0x4A));
-	public static final Set<Integer> Chapter3ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x0B, 0x36, 0x44, 0x4B, 0x52));
-	public static final Set<Integer> Chapter4ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x58, 0x68, 0x83));
-	// Gen 2 shops recycle a lot of weapons not passed down. We only list the ones that aren't found in Gen 1 so that we don't clobber anything from Gen 1.
-	public static final Set<Integer> Chapter6ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList());
-	public static final Set<Integer> Chapter7ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x21, 0x51, 0x69));
-	public static final Set<Integer> Chapter8ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x34));
-	public static final Set<Integer> Chapter9ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList());
-	public static final Set<Integer> Chapter10ShopItemInventoryIDs = new HashSet<Integer>(Arrays.asList());
-	
 	public static final Map<Character, Integer> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, Integer> createEventItemMap() {
 		Map<Character, Integer> map = new HashMap<Character, Integer>();
@@ -664,9 +653,15 @@ public class FE4Data {
 		public static final Set<Character> DancerCharacters = new HashSet<Character>(Arrays.asList(SILVIA, LENE, LAYLEA));
 		public static final Set<Character> HealerCharacters = new HashSet<Character>(Arrays.asList(EDAIN, CLAUD, LANA, MUIRNE, COIRPRE, CHARLOT));
 		
-		public static final Set<Character> MustLose1 = new HashSet<Character>(Arrays.asList(ELLIOT_CH1_SCENE, CH1_HEIRHEIN_ARMY)); // Must lose to Eldigan and his Cross Knights
-		public static final Set<Character> MustLose2 = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN, CH5_LEONSTER_ARMY)); // Must lose to Travant and his Squad
-		public static final Set<Character> MustLose3 = new HashSet<Character>(Arrays.asList(MAHNYA, CH4_MAHNYA_SQUAD)); // Must lose to Andorey and the Beige Ritter
+		// Elliot and his squad must lose to Eldigan and his Cross Knights.
+		public static final Set<Character> MustWin1 = new HashSet<Character>(Arrays.asList(ELDIGAN_CH1_SCENE, CH1_CROSS_KNIGHTS));
+		public static final Set<Character> MustLose1 = new HashSet<Character>(Arrays.asList(ELLIOT_CH1_SCENE, CH1_HEIRHEIN_ARMY));
+		// Quan and Ethlyn (and their squad) must lose to Travant (and Magorn) and his squad.
+		public static final Set<Character> MustWin2 = new HashSet<Character>(Arrays.asList(TRAVANT_CH5, CH5_THRACIA_ARMY, MAGORN));
+		public static final Set<Character> MustLose2 = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN, CH5_LEONSTER_ARMY));
+		// Mahnya and her Squad must lose to Andorey and the Beige Ritter.
+		public static final Set<Character> MustWin3 = new HashSet<Character>(Arrays.asList(ANDOREY_CH4, CH4_BEIGE_RITTER));
+		public static final Set<Character> MustLose3 = new HashSet<Character>(Arrays.asList(MAHNYA, CH4_MAHNYA_SQUAD));
 		
 		public static final Set<Character> Gen1PlayableCharacters = new HashSet<Character>(Arrays.asList(SIGURD, NAOISE, ALEC, ARDEN, FINN_GEN_1, QUAN, MIDIR, LEWYN, CHULAINN, AZELLE,
 				JAMKE, CLAUD, BEOWOLF, LEX, DEW, DEIRDRE, ETHLYN, LACHESIS, AYRA, ERINYS, TAILTIU, SILVIA, EDAIN, BRIGID));
@@ -750,6 +745,13 @@ public class FE4Data {
 			}
 		}
 		
+		public Item requiresWeapon() {
+			switch (this) {
+			case MUNNIR: return Item.HAND_AXE;
+			default: return null;
+			}
+		}
+		
 		public boolean requiresAttack() {
 			return CharactersThatMustBeAbleToAttack.contains(this);
 		}
@@ -804,6 +806,48 @@ public class FE4Data {
 					name.startsWith("CH6") || name.startsWith("CH7") || name.startsWith("CH8") || name.startsWith("CH9") || name.startsWith("CH10") || name.startsWith("ENDGAME");
 		}
 		
+		public int joinChapter() {
+			switch (this) {
+			case SIGURD: case NAOISE: case ALEC: case ARDEN: case QUAN: case ETHLYN: case FINN_GEN_1: case LEX: case AZELLE: case MIDIR:
+				return 0;
+			case EDAIN: case AYRA: case DEW: case JAMKE: case DEIRDRE:
+				return 1;
+			case CHULAINN: case LACHESIS: case LEWYN: case SILVIA: case BEOWOLF: case ERINYS:
+				return 2;
+			case BRIGID: case TAILTIU: case CLAUD:
+				return 3;
+			case SELIPH: case LANA: case MUIRNE: case LARCEI: case ULSTER: case CREIDNE: case DALVIN:case LESTER: case DEIMNE: case OIFEY: case DIARMUID:
+			case TRISTAN: case JULIA: case FEE: case HERMINA: case ARTHUR: case AMID: case IUCHAR: case IUCHARBA:
+				return 6;
+			case SHANNAN: case PATTY: case DAISY: case LEIF: case NANNA: case JEANNE: case FINN_GEN_2: case ARES: case LENE: case LAYLEA: case TINE: case LINDA:
+				return 7;
+			case FEBAIL: case ASAELLO: case CED: case HAWK:
+				return 8;
+			case HANNIBAL: case COIRPRE: case CHARLOT: case ALTENA:
+				return 9;
+			default:
+				return 0;
+			}
+		}
+		
+		public int minionChapter() {
+			String name = this.toString();
+			if (name.startsWith("PROLOGUE")) { return 0; }
+			else if (name.startsWith("CH1")) { return 1; }
+			else if (name.startsWith("CH2")) { return 2; } 
+			else if (name.startsWith("CH3")) { return 3; }
+			else if (name.startsWith("CH4")) { return 4; }
+			else if (name.startsWith("CH5")) { return 5; }
+			else if (name.startsWith("CH6")) { return 6; }
+			else if (name.startsWith("CH7")) { return 7; }
+			else if (name.startsWith("CH8")) { return 8; }
+			else if (name.startsWith("CH9")) { return 9; }
+			else if (name.startsWith("CH10")) { return 10; }
+			else if (name.startsWith("ENDGAME")) { return 11; }
+			
+			return 0;
+		}
+		
 		public boolean isArena() {
 			String name = this.toString();
 			return name.startsWith("ARENA");
@@ -815,17 +859,23 @@ public class FE4Data {
 		
 		public Character[] mustLoseToCharacters() {
 			if (MustLose1.contains(this)) {
-				// Elliot and his Squad
-				// Must lose to Eldigan and the Cross Knights in Ch. 1.
-				return new Character[] {ELDIGAN_CH1_SCENE, CH1_CROSS_KNIGHTS};
+				return MustWin1.toArray(new Character[MustWin1.size()]);
 			} else if (MustLose2.contains(this)) {
-				// Quan, Ethlyn, and Leonster Squad
-				// Must lose to Travant, Magorn and Thracia Squad
-				return new Character[] {TRAVANT_CH5, MAGORN, CH5_THRACIA_ARMY};
+				return MustWin2.toArray(new Character[MustWin2.size()]);
 			} else if (MustLose3.contains(this)) {
-				// Mahnya and her Squad
-				// Must lose to Andorey and the Beige Ritter
-				return new Character[] {ANDOREY_CH4, CH4_BEIGE_RITTER};
+				return MustWin3.toArray(new Character[MustWin3.size()]);
+			}
+			
+			return new Character[] {};
+		}
+		
+		public Character[] mustBeatCharacter() {
+			if (MustWin1.contains(this)) {
+				return MustLose1.toArray(new Character[MustLose1.size()]);
+			} else if (MustWin2.contains(this)) {
+				return MustLose2.toArray(new Character[MustLose2.size()]);
+			} else if (MustWin3.contains(this)) {
+				return MustLose3.toArray(new Character[MustLose3.size()]);
 			}
 			
 			return new Character[] {};
@@ -2368,5 +2418,22 @@ public class FE4Data {
 		public int count;
 		
 		private HolyEnemyTable(final long offset, final int count) { this.offset = offset; this.count = count; }
+	}
+	
+	public enum Shops {
+		CHAPTER_1(new HashSet<Integer>(Arrays.asList(0x1D, 0x2F, 0x38, 0x41))), 
+		CHAPTER_2(new HashSet<Integer>(Arrays.asList(0x33, 0x55, 0x10, 0x4A))), 
+		CHAPTER_3(new HashSet<Integer>(Arrays.asList(0x0B, 0x36, 0x44, 0x4B, 0x52))), 
+		CHAPTER_4(new HashSet<Integer>(Arrays.asList(0x58, 0x68, 0x83))), 
+		CHAPTER_5(new HashSet<Integer>(Arrays.asList())), 
+		CHAPTER_6(new HashSet<Integer>(Arrays.asList())), 
+		CHAPTER_7(new HashSet<Integer>(Arrays.asList(0x21, 0x51, 0x69))), 
+		CHAPTER_8(new HashSet<Integer>(Arrays.asList(0x34))), 
+		CHAPTER_9(new HashSet<Integer>(Arrays.asList())), 
+		CHAPTER_10(new HashSet<Integer>(Arrays.asList()));
+		
+		public Set<Integer> inventoryIDs;
+		
+		private Shops(Set<Integer> inventoryIDs) { this.inventoryIDs = inventoryIDs; }
 	}
 }

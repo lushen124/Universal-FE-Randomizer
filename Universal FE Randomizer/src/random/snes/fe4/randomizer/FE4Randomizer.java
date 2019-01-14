@@ -229,6 +229,19 @@ public class FE4Randomizer extends Randomizer {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 1));
 				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, charData, itemMapper, rng);
+				charData.commit();
+			}
+			if (classOptions.randomizeMinions) {
+				updateStatusString("Randomizing minions...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 2));
+				FE4ClassRandomizer.randomizeMinions(classOptions, charData, rng);
+				charData.commit();
+			}
+			if (classOptions.randomizeBosses) {
+				updateStatusString("Randomizing bosses...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 3));
+				FE4ClassRandomizer.randomizeBosses(classOptions, charData, rng);
+				charData.commit();
 			}
 		}
 	}

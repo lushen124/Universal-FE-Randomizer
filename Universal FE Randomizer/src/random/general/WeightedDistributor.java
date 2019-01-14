@@ -29,6 +29,7 @@ public class WeightedDistributor<T> {
 		for (int i = 0 ; i < weight; i++) {
 			itemList.add(item);
 		}
+		itemSet.add(item);
 	}
 	
 	public void removeItem(T itemToRemove) {
