@@ -11,10 +11,13 @@ import io.FileHandler;
 import io.UPSPatcher;
 import random.general.Randomizer;
 import random.snes.fe4.loader.CharacterDataLoader;
+import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
 import ui.fe4.FE4ClassOptions;
+import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
 import ui.fe4.SkillsOptions.Mode;
+import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
 import util.Diff;
 import util.DiffCompiler;
@@ -27,10 +30,13 @@ public class FE4Randomizer extends Randomizer {
 	private boolean isHeadered;
 	private String targetPath;
 	
+	private GrowthOptions growthOptions;
+	private HolyBloodOptions bloodOptions;
 	private SkillsOptions skillsOptions;
 	private FE4ClassOptions classOptions;
 	private MiscellaneousOptions miscOptions;
 	
+	HolyBloodLoader bloodData;
 	CharacterDataLoader charData;
 	ItemMapper itemMapper;
 	
@@ -40,7 +46,7 @@ public class FE4Randomizer extends Randomizer {
 	
 	private FileHandler handler;
 	
-	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, SkillsOptions skillOptions, FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions, FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -50,6 +56,8 @@ public class FE4Randomizer extends Randomizer {
 		this.seedString = seed;
 		this.diffCompiler = diffs;
 		
+		this.growthOptions = growthOptions;
+		this.bloodOptions = bloodOptions;
 		this.skillsOptions = skillOptions;
 		this.classOptions = classOptions;
 		this.miscOptions = miscOptions;
@@ -106,9 +114,15 @@ public class FE4Randomizer extends Randomizer {
 		
 		updateStatusString("Randomizing...");
 		randomizeClassesIfNecessary(seed);
-		updateProgress(0.55);
+		updateProgress(0.60);
 		randomizeSkillsIfNecessary(seed);
 		updateProgress(0.65);
+		randomizeGrowthsIfNecessary(seed);
+		updateProgress(0.70);
+		randomizeBloodIfNecessary(seed);
+		updateProgress(0.75);
+		randomizeRingsIfNecessary(seed);
+		updateProgress(0.80);
 		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
@@ -138,6 +152,8 @@ public class FE4Randomizer extends Randomizer {
 		}
 		
 		charData.recordCharacters(recordKeeper, false, itemMapper);
+		bloodData.recordHolyBlood(recordKeeper, false);
+		itemMapper.recordRingMap(recordKeeper, false);
 		
 		recordKeeper.sortKeysInCategoryAndSubcategories(CharacterDataLoader.RecordKeeperCategoryKey);
 		
@@ -221,6 +237,47 @@ public class FE4Randomizer extends Randomizer {
 		updateStatusString("Loading Item Map...");
 		updateProgress(0.20);
 		itemMapper = new ItemMapper(handler, isHeadered);
+		
+		updateStatusString("Loading Holy Blood Data...");
+		updateProgress(0.30);
+		bloodData = new HolyBloodLoader(handler, isHeadered);
+	}
+	
+	private void randomizeGrowthsIfNecessary(String seed) {
+		if (growthOptions != null) {
+			updateStatusString("Randomizing growths...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4GrowthRandomizer.rngSalt));
+			switch (growthOptions.mode) {
+			case REDISTRIBUTE:
+				FE4GrowthRandomizer.randomizeGrowthsByRedistribution(growthOptions.redistributionOption.variance, growthOptions.adjustHP, growthOptions.adjustSTRMAGSplit, charData, rng);
+				charData.commit();
+				break;
+			case DELTA:
+				FE4GrowthRandomizer.randomizeGrowthsByRandomDelta(growthOptions.deltaOption.variance, growthOptions.adjustHP, growthOptions.adjustSTRMAGSplit, charData, rng);
+				charData.commit();
+				break;
+			case FULL:
+				FE4GrowthRandomizer.fullyRandomizeGrowthsWithRange(growthOptions.fullOption.minValue, growthOptions.fullOption.maxValue, growthOptions.adjustHP, growthOptions.adjustSTRMAGSplit, charData, rng);
+				charData.commit();
+				break;
+			}
+		}
+	}
+	
+	private void randomizeBloodIfNecessary(String seed) {
+		if (bloodOptions != null) {
+			if (bloodOptions.randomizeGrowthBonuses) {
+				updateStatusString("Randomizing Holy Blood Growth Bonuses...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 1));
+				FE4BloodRandomizer.randomizeHolyBloodGrowthBonuses(bloodOptions.growthTotal, bloodData, rng);
+				bloodData.commit();
+			}
+			if (bloodOptions.randomizeWeaponBonuses) {
+				updateStatusString("Randomizing Holy Weapon Bonuses...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 2));
+				FE4BloodRandomizer.randomizeHolyWeaponBonuses(bloodData, rng);
+			}
+		}
 	}
 	
 	private void randomizeClassesIfNecessary(String seed) {
@@ -269,6 +326,15 @@ public class FE4Randomizer extends Randomizer {
 		}
 	}
 	
+	private void randomizeRingsIfNecessary(String seed) {
+		if (miscOptions.randomizeRewards) {
+			updateStatusString("Randomizing Rings...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4RingRandomizer.rngSalt + 1));
+			FE4RingRandomizer.randomizeRings(itemMapper, rng);
+			itemMapper.commitChanges();
+		}
+	}
+	
 	public RecordKeeper initializeRecordKeeper() {
 		int index = Math.max(targetPath.lastIndexOf('/'), targetPath.lastIndexOf('\\'));
 		String title =  targetPath.substring(index + 1);
@@ -279,6 +345,8 @@ public class FE4Randomizer extends Randomizer {
 		rk.addHeaderItem("Game Title", gameTitle);
 		
 		charData.recordCharacters(rk, true, itemMapper);
+		bloodData.recordHolyBlood(rk, true);
+		itemMapper.recordRingMap(rk, true);
 		
 		return rk;
 	}

@@ -24,5 +24,24 @@ public class FEBase {
 				return false;
 			}
 		}
+		
+		public boolean hasSTRMAGSplit() {
+			switch(this) {
+			case FE4:
+				return true;
+			default:
+				return false;
+			}
+		}
+		
+		public boolean hasEnglishPatch() {
+			switch (this) {
+			case FE4:
+			case FE6:
+				return true;
+			default:
+				return false;
+			}
+		}
 	}
 }

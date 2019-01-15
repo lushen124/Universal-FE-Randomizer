@@ -982,6 +982,24 @@ public class FE4ClassRandomizer {
 	}
 	
 	private static void setHolyBossToClass(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Random rng) {
+		FE4Data.CharacterClass oldClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
+		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
+		boolean wasMAGBased = oldClass.primaryAttackIsMagic();
+		
+		boolean isSTRBased = targetClass.primaryAttackIsStrength();
+		boolean isMAGBased = targetClass.primaryAttackIsMagic();
+		
+		if ((wasSTRBased && !wasMAGBased && isMAGBased && !isSTRBased) || (wasMAGBased && !wasMAGBased && isSTRBased && !isMAGBased)) {
+			// Swap in the case that we've randomized across the STR/MAG split.
+			int oldSTR = holyBoss.getSTRGrowth();
+			holyBoss.setSTRGrowth(holyBoss.getMAGGrowth());
+			holyBoss.setMAGGrowth(oldSTR);
+			
+			oldSTR = holyBoss.getBaseSTR();
+			holyBoss.setBaseSTR(holyBoss.getBaseMAG());
+			holyBoss.setBaseMAG(oldSTR);
+		}
+		
 		holyBoss.setClassID(targetClass.ID);
 		
 		int blood1Value = holyBoss.getHolyBlood1Value();
@@ -1120,6 +1138,24 @@ public class FE4ClassRandomizer {
 	}
 	
 	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, ItemMapper itemMap, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.Character, FE4Data.Item> requiredItems, Random rng) {
+		FE4Data.CharacterClass oldClass = FE4Data.CharacterClass.valueOf(character.getClassID());
+		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
+		boolean wasMAGBased = oldClass.primaryAttackIsMagic();
+		
+		boolean isSTRBased = targetClass.primaryAttackIsStrength();
+		boolean isMAGBased = targetClass.primaryAttackIsMagic();
+		
+		if ((wasSTRBased && !wasMAGBased && isMAGBased && !isSTRBased) || (wasMAGBased && !wasMAGBased && isSTRBased && !isMAGBased)) {
+			// Swap in the case that we've randomized across the STR/MAG split.
+			int oldSTR = character.getSTRGrowth();
+			character.setSTRGrowth(character.getMAGGrowth());
+			character.setMAGGrowth(oldSTR);
+			
+			oldSTR = character.getBaseSTR();
+			character.setBaseSTR(character.getBaseMAG());
+			character.setBaseMAG(oldSTR);
+		}
+		
 		character.setClassID(targetClass.ID);
 		
 		int blood1Value = character.getHolyBlood1Value();

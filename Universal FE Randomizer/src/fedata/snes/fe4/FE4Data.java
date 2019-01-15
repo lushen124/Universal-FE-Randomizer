@@ -59,6 +59,10 @@ public class FE4Data {
 	public static final long Gen2ChildrenCharacterTable3Offset = 0x3BB5F;
 	public static final int Gen2ChildrenCharacterTable3Count = 14; // Everybody else. In order: Ulster, Febail, Coirpre, Ced, Diarmuid, Lester, Arthur, Patty, Larcei, Lana, Fee, Tine, Lynn, and Nanna.
 	
+	public static final long ClassTableOffset = 0x391C5L;
+	public static final int ClassTableCount = 72;
+	public static final int ClassTableItemSize = 31;
+	
 	// Promotions are separated out and are defined individually. Two characters of the same class could go to different promotions.
 	public static final long PromotionTableOffset = 0x3853C;
 	public static final int PromotionTableCount = 63;
@@ -1387,7 +1391,7 @@ public class FE4Data {
 		}
 		
 		public boolean primaryAttackIsMagic() {
-			return fireUsers.contains(this) || thunderUsers.contains(this) || windUsers.contains(this) || lightUsers.contains(this) || darkUsers.contains(this);
+			return fireUsers.contains(this) || thunderUsers.contains(this) || windUsers.contains(this) || lightUsers.contains(this) || darkUsers.contains(this) || (staffUsers.contains(this) && !primaryAttackIsStrength());
 		}
 		public boolean primaryAttackIsStrength() {
 			return swordUsers.contains(this) || lanceUsers.contains(this) || axeUsers.contains(this) || bowUsers.contains(this);
@@ -1844,40 +1848,6 @@ public class FE4Data {
 			}
 		}
 		
-		public enum HolyBloodType {
-			NONE, HEZUL, BALDR, OD, NJORUN, DAIN, NEIR, ULIR, FJALAR, THRUD, FORSETI, NAGA, LOPTOUS, BRAGI;
-			
-			public ItemType primaryWeaponType() {
-				switch (this) {
-				case HEZUL:
-				case BALDR:
-				case OD:
-					return ItemType.SWORD;
-				case NJORUN:
-				case DAIN:
-					return ItemType.LANCE;
-				case NEIR:
-					return ItemType.AXE;
-				case ULIR:
-					return ItemType.BOW;
-				case FJALAR:
-					return ItemType.FIRE_MAGIC;
-				case THRUD:
-					return ItemType.THUNDER_MAGIC;
-				case FORSETI:
-					return ItemType.WIND_MAGIC;
-				case NAGA:
-					return ItemType.LIGHT_MAGIC;
-				case LOPTOUS:
-					return ItemType.DARK_MAGIC;
-				case BRAGI:
-					return ItemType.STAFF;
-				default:
-					return ItemType.NONE;
-				}
-			}
-		}
-		
 		public static Item[] weaponsOfTypeAndRank(ItemType type, WeaponRank rank, boolean includeLowerRank) {
 			if (type == null || rank == null || rank == WeaponRank.NONE) { return new Item[] {}; }
 			Set<Item> items = new HashSet<Item>();
@@ -1971,6 +1941,10 @@ public class FE4Data {
 					lightMagic.contains(this) || darkMagic.contains(this);
 		}
 		
+		public boolean isRing() {
+			return rings.contains(this);
+		}
+		
 		public WeaponRank getRank() {
 			if (cWeapons.contains(this)) { return WeaponRank.C; }
 			if (bWeapons.contains(this)) { return WeaponRank.B; }
@@ -1979,22 +1953,22 @@ public class FE4Data {
 			return WeaponRank.NONE;
 		}
 		
-		public HolyBloodType holyBloodForHolyWeapon() {
+		public HolyBlood holyBloodForHolyWeapon() {
 			switch(this) {
-			case TYRFING: return HolyBloodType.BALDR;
-			case MYSTLETAINN: return HolyBloodType.HEZUL;
-			case BALMUNG: return HolyBloodType.OD;
-			case GAE_BOLG: return HolyBloodType.NJORUN;
-			case GUNGNIR: return HolyBloodType.DAIN;
-			case HELSWATH: return HolyBloodType.NEIR;
-			case YEWFELLE: return HolyBloodType.ULIR;
-			case VALFLAME: return HolyBloodType.FJALAR;
-			case MJOLNIR: return HolyBloodType.THRUD;
-			case FORSETI: return HolyBloodType.FORSETI;
-			case NAGA: return HolyBloodType.NAGA;
-			case LOPTYR: return HolyBloodType.LOPTOUS;
-			case VALKYRIE: return HolyBloodType.BRAGI;
-			default: return HolyBloodType.NONE;
+			case TYRFING: return HolyBlood.BALDR;
+			case MYSTLETAINN: return HolyBlood.HEZUL;
+			case BALMUNG: return HolyBlood.OD;
+			case GAE_BOLG: return HolyBlood.NJORUN;
+			case GUNGNIR: return HolyBlood.DAIN;
+			case HELSWATH: return HolyBlood.NEIR;
+			case YEWFELLE: return HolyBlood.ULIR;
+			case VALFLAME: return HolyBlood.FJALAR;
+			case MJOLNIR: return HolyBlood.THRUD;
+			case FORSETI: return HolyBlood.FORSETI;
+			case NAGA: return HolyBlood.NAGA;
+			case LOPTYR: return HolyBlood.LOPTOUS;
+			case VALKYRIE: return HolyBlood.BRAGI;
+			default: return HolyBlood.NONE;
 			}
 		}
 	}
@@ -2187,6 +2161,7 @@ public class FE4Data {
 	}
 	
 	public enum HolyBlood {
+		NONE(Item.NONE, Item.ItemType.NONE),
 		BALDR(Item.TYRFING, Item.ItemType.SWORD), 
 		OD(Item.BALMUNG, Item.ItemType.SWORD), 
 		HEZUL(Item.MYSTLETAINN, Item.ItemType.SWORD), 

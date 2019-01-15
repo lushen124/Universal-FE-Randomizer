@@ -261,7 +261,7 @@ public class MainView implements FileFlowDelegate {
 		generateData.width = 100;
 		button.setLayoutData(generateData);
 		
-		growthView = new GrowthsView(mainShell, SWT.NONE);
+		growthView = new GrowthsView(mainShell, SWT.NONE, type.hasSTRMAGSplit());
 		growthView.setSize(200, 200);
 		growthView.setVisible(false);
 		  
@@ -529,6 +529,8 @@ public class MainView implements FileFlowDelegate {
 								if (gameType == GameType.FE4) {
 									boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
 									randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, 
+											growthView.getGrowthOptions(),
+											holyBloodView.getHolyBloodOptions(),
 											skillsView.getSkillOptions(),
 											fe4ClassView.getClassOptions(),
 											miscView.getMiscellaneousOptions(), 

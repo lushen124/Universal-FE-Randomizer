@@ -1,5 +1,8 @@
 package fedata.snes.fe4;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import fedata.general.FEModifiableData;
 
 public class FE4HolyBlood implements FEModifiableData {
@@ -11,11 +14,54 @@ public class FE4HolyBlood implements FEModifiableData {
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
+	public enum WeaponType {
+		SWORD(0x0), LANCE(0x1), AXE(0x2), BOW(0x3), 
+		STAFF(0x4), FIRE(0x5), THUNDER(0x6), WIND(0x7), LIGHT(0x8), DARK(0x9);
+		
+		int value;
+		
+		private static Map<Integer, WeaponType> map;
+		static {
+			map = new HashMap<Integer, WeaponType>();
+			for (WeaponType type : values()) {
+				map.put(type.value, type);
+			}
+		}
+		
+		private WeaponType(int value) { this.value = value; }
+		
+		public static WeaponType valueOf(int value) {
+			return map.get(value);
+		}
+		
+		public boolean isPhysical() {
+			switch (this) {
+			case SWORD:
+			case LANCE:
+			case AXE:
+			case BOW:
+				return true;
+			default:
+				return false;
+			}
+		}
+	}
+	
 	public FE4HolyBlood(byte[] data, long originalOffset) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
+	}
+	
+	public WeaponType getWeaponType() {
+		int value = data[0] & 0xFF;
+		WeaponType type = WeaponType.valueOf(value);
+		return type;
+	}
+	
+	public int getHolyWeaponID() {
+		return data[1] & 0xFF;
 	}
 	
 	public int getHPGrowthBonus() {

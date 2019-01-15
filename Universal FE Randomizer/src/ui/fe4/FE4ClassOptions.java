@@ -23,6 +23,7 @@ public class FE4ClassOptions {
 	public final boolean randomizeBlood;
 	public final ShopOptions shopOption;
 	public final boolean adjustConversationWeapons;
+	public final boolean adjustSTRMAG;
 	
 	public final boolean randomizeMinions;
 	
@@ -31,7 +32,7 @@ public class FE4ClassOptions {
 	public final boolean randomizeBosses;
 	public final boolean randomizeBossBlood;
 	
-	public FE4ClassOptions(boolean pcs, boolean lords, boolean healers, boolean thieves, boolean dancers, ChildOptions children, boolean blood, ShopOptions shops, boolean adjustConvoWeapons, boolean minions, boolean arena, boolean bosses, boolean bossBlood) {
+	public FE4ClassOptions(boolean pcs, boolean lords, boolean healers, boolean thieves, boolean dancers, ChildOptions children, boolean blood, ShopOptions shops, boolean adjustConvoWeapons, boolean adjustSTRMAG, boolean minions, boolean arena, boolean bosses, boolean bossBlood) {
 		super();
 		this.randomizePlayableCharacters = pcs;
 		this.includeLords = lords;
@@ -42,6 +43,7 @@ public class FE4ClassOptions {
 		this.randomizeBlood = blood;
 		this.shopOption = shops;
 		this.adjustConversationWeapons = adjustConvoWeapons;
+		this.adjustSTRMAG = adjustSTRMAG;
 		
 		this.randomizeMinions = minions;
 		

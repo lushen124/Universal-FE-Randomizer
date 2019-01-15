@@ -44,7 +44,7 @@ public class MiscellaneousView extends Composite {
 		
 		//////////////////////////////////////////////////////////////////
 		
-		if (gameType == GameType.FE6 || gameType == GameType.FE4) {
+		if (gameType.hasEnglishPatch()) {
 			applyEnglishPatch = new Button(container, SWT.CHECK);
 			applyEnglishPatch.setText("Apply English Patch");
 			applyEnglishPatch.setToolTipText("Given a raw Japanese version of the game, apply the localization patch from Serenes Forest on it. The result is an English version of the game.");
@@ -57,22 +57,28 @@ public class MiscellaneousView extends Composite {
 		
 		//////////////////////////////////////////////////////////////////
 		
-		if (gameType != GameType.FE4) {
-			randomizeChestVillageRewards = new Button(container, SWT.CHECK);
+		
+		randomizeChestVillageRewards = new Button(container, SWT.CHECK);
+		if (gameType == GameType.FE4) {
+			randomizeChestVillageRewards.setText("Randomize Rings");
+			randomizeChestVillageRewards.setToolTipText("Every instance of obtainable ring is randomized to a different kind of ring.");
+		} else {
 			randomizeChestVillageRewards.setText("Randomize Rewards");
 			randomizeChestVillageRewards.setToolTipText("Rewards from chests, villages, and story events will now give out random rewards. Plot-important promotion items are excluded.");
-			
-			FormData chestVillageData = new FormData();
-			chestVillageData.left = new FormAttachment(0, 5);
-			if (gameType == GameType.FE6) {
-				chestVillageData.top = new FormAttachment(applyEnglishPatch, 5);
-			} else {
-				chestVillageData.top = new FormAttachment(0, 5);
-			}
-			randomizeChestVillageRewards.setLayoutData(chestVillageData);
+		}
+		
+		FormData chestVillageData = new FormData();
+		chestVillageData.left = new FormAttachment(0, 5);
+		if (gameType.hasEnglishPatch()) {
+			chestVillageData.top = new FormAttachment(applyEnglishPatch, 5);
+		} else {
+			chestVillageData.top = new FormAttachment(0, 5);
+		}
+		randomizeChestVillageRewards.setLayoutData(chestVillageData);
+
+		//////////////////////////////////////////////////////////////////
 	
-			//////////////////////////////////////////////////////////////////
-	
+		if (gameType != GameType.FE4) {
 			randomizeRecruitmentOrder = new Button(container, SWT.CHECK);
 			randomizeRecruitmentOrder.setText("Randomize Recruitment Order");
 			randomizeRecruitmentOrder.setToolTipText("Mixes up the order in which characters join the party.");
@@ -97,7 +103,7 @@ public class MiscellaneousView extends Composite {
 		} else if (type.isSFC()) {
 			switch (type) {
 			case FE4:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), false, false);
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
 			default:
 				return new MiscellaneousOptions(false, false, false);
 			}

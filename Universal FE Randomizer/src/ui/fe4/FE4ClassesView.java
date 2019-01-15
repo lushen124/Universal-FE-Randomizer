@@ -30,6 +30,7 @@ public class FE4ClassesView extends Composite {
 	private Button adjustShops;
 	private Button randomizeShops;
 	private Button adjustConvoItems;
+	private Button adjustSTRMAG;
 	
 	private Button randomizeMinions;
 	
@@ -80,6 +81,7 @@ public class FE4ClassesView extends Composite {
 				randomizeShops.setEnabled(enabled);
 				
 				adjustConvoItems.setEnabled(enabled);
+				adjustSTRMAG.setEnabled(enabled);
 			}
 		});
 		
@@ -256,6 +258,17 @@ public class FE4ClassesView extends Composite {
 		optionData.top = new FormAttachment(shopGroup, 5);
 		adjustConvoItems.setLayoutData(optionData);
 		
+		adjustSTRMAG = new Button(container, SWT.CHECK);
+		adjustSTRMAG.setText("Adjust STR/MAG Growths and Bases");
+		adjustSTRMAG.setToolTipText("Swaps STR and MAG if a character randomizes to a class that uses the opposite attacking type.\n\nFor those that randomize from or into classes that use both, their growths will not be altered.");
+		adjustSTRMAG.setEnabled(false);
+		adjustSTRMAG.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(adjustConvoItems, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(adjustConvoItems, 5);
+		adjustSTRMAG.setLayoutData(optionData);
+		
 		randomizeMinions = new Button(container, SWT.CHECK);
 		randomizeMinions.setText("Randomize Regular Enemies");
 		randomizeMinions.setToolTipText("Randomizes the classes for regular enemies. Due to how the game was coded and how many enemies are copy/pasted, randomizations are done in batches.");
@@ -264,7 +277,7 @@ public class FE4ClassesView extends Composite {
 		
 		optionData = new FormData();
 		optionData.left = new FormAttachment(randomizePCs, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(adjustConvoItems, 10);
+		optionData.top = new FormAttachment(adjustSTRMAG, 10);
 		randomizeMinions.setLayoutData(optionData);
 		
 		randomizeArenas = new Button(container, SWT.CHECK);
@@ -315,7 +328,7 @@ public class FE4ClassesView extends Composite {
 		ShopOptions shopOptions = ShopOptions.ADJUST_TO_MATCH;
 		if (randomizeShops.getSelection()) { shopOptions = ShopOptions.RANDOMIZE; }
 		
-		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), 
+		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(),
 				randomizeMinions.getSelection(), randomizeArenas.getSelection(), randomizeBosses.getSelection(), randomizeBossBlood.getSelection());
 	}
 }
