@@ -260,7 +260,7 @@ public class FE4ClassesView extends Composite {
 		
 		adjustSTRMAG = new Button(container, SWT.CHECK);
 		adjustSTRMAG.setText("Adjust STR/MAG Growths and Bases");
-		adjustSTRMAG.setToolTipText("Swaps STR and MAG if a character randomizes to a class that uses the opposite attacking type.\n\nFor those that randomize from or into classes that use both, their growths will not be altered.");
+		adjustSTRMAG.setToolTipText("Swaps STR and MAG if a character randomizes to a class that uses the opposite attacking type.\n\nFor those that randomize from or into classes that use both, their growths and bases will not be altered.");
 		adjustSTRMAG.setEnabled(false);
 		adjustSTRMAG.setSelection(false);
 		

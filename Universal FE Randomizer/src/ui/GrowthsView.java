@@ -210,7 +210,7 @@ public class GrowthsView extends Composite {
 		if (hasSTRMAGSplit) {
 			adjustSTRMAGSplit = new Button(container, SWT.CHECK);
 			adjustSTRMAGSplit.setText("Adjust STR/MAG by Class");
-			adjustSTRMAGSplit.setToolTipText("Ensures that characters that primarily use magic randomize a higher or equal magic stat than strength and that\ncharacters that primarily use physical attacks randomize a higher or equal strength stat than magic.\n\nWhen randomizing by delta, STR and MAG are swapped if necessary prior to randomization (the higher stat is not guaranteed in this case).\n\nCharacters that use both will not be weighted in either direction.");
+			adjustSTRMAGSplit.setToolTipText("Ensures that characters that primarily use magic randomize a higher or equal magic growth than strength and that\ncharacters that primarily use physical attacks randomize a higher or equal strength growth than magic.\n\nCharacters that use both will not be weighted in either direction.");
 			adjustSTRMAGSplit.setEnabled(false);
 			
 			optionData = new FormData();
@@ -241,19 +241,16 @@ public class GrowthsView extends Composite {
 				varianceSpinner.setEnabled(true);
 				deltaSpinner.setEnabled(false);
 				growthRangeControl.setEnabled(false);
-				if (adjustSTRMAGSplit != null) { adjustSTRMAGSplit.setEnabled(true); }
 				break;
 			case DELTA: 
 				varianceSpinner.setEnabled(false);
 				deltaSpinner.setEnabled(true);
 				growthRangeControl.setEnabled(false);
-				if (adjustSTRMAGSplit != null) { adjustSTRMAGSplit.setEnabled(false); }
 				break;
 			case FULL:
 				varianceSpinner.setEnabled(false);
 				deltaSpinner.setEnabled(false);
 				growthRangeControl.setEnabled(true);
-				if (adjustSTRMAGSplit != null) { adjustSTRMAGSplit.setEnabled(true); }
 				break;
 			}
 		}

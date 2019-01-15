@@ -84,8 +84,8 @@ public class FE4Data {
 	public static final long SeliphHolyWeaponInheritenceBanOffset = 0x7AD56L;
 	public static final byte SeliphHolyWeaponInheritenceBanOldID = 0x4B; // Was Forseti, which is normally allowed. Since we flipped the logic to allow all EXCEPT these, this becomes an exclusion list (uses item IDs).
 	public static final long SeliphHolyWeaponInheritenceBanOffset2 = 0x7AD59L; // This byte also needs to be set appropriately.
-	public static final long SeliphHolyWeaponInheritenceBanOldValue = 0x18;
-	public static final long SeliphHolyWeaponInheritenceBanNewValue = 0x1E;
+	public static final byte SeliphHolyWeaponInheritenceBanOldValue = 0x18;
+	public static final byte SeliphHolyWeaponInheritenceBanNewValue = 0x1E;
 	
 	public static final Map<Character, Integer> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, Integer> createEventItemMap() {

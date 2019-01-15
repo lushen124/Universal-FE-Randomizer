@@ -30,8 +30,10 @@ public class BasesView extends Composite {
 	
 	private Button byDeltaOption;
 	private Spinner deltaSpinner;
+	
+	private Button adjustSTRMAG;
 
-	public BasesView(Composite parent, int style) {
+	public BasesView(Composite parent, int style, boolean hasSTRMAGSplit) {
 		super(parent, style);
 		
 		FillLayout layout = new FillLayout();
@@ -159,6 +161,18 @@ public class BasesView extends Composite {
 		paramContainerData.left = new FormAttachment(byDeltaOption, 0, SWT.LEFT);
 		paramContainerData.right = new FormAttachment(100, -5);
 		deltaParamContainer.setLayoutData(paramContainerData);
+		
+		if (hasSTRMAGSplit) {
+			adjustSTRMAG = new Button(container, SWT.CHECK);
+			adjustSTRMAG.setText("Adjust STR/MAG by Class");
+			adjustSTRMAG.setToolTipText("Ensures that characters that primarily use magic randomize a higher or equal magic base than strength and that\ncharacters that primarily use physical attacks randomize a higher or equal strength base than magic.\\n\\nCharacters that use both will not be weighted in either direction.");
+			adjustSTRMAG.setEnabled(false);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(byDeltaOption, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(deltaParamContainer, 10);
+			adjustSTRMAG.setLayoutData(optionData);
+		}
 	}
 	
 	private void setEnableBases(Boolean enabled) {
@@ -166,6 +180,7 @@ public class BasesView extends Composite {
 		byDeltaOption.setEnabled(enabled);
 		varianceSpinner.setEnabled(enabled && currentMode == BaseOptions.Mode.REDISTRIBUTE);
 		deltaSpinner.setEnabled(enabled && currentMode == BaseOptions.Mode.DELTA);
+		if (adjustSTRMAG != null) { adjustSTRMAG.setEnabled(enabled); }
 		
 		isEnabled = enabled;
 	}
@@ -201,7 +216,9 @@ public class BasesView extends Composite {
 			break;
 		}
 		
-		return new BaseOptions(currentMode, redistributionOption, deltaOption);
+		boolean adjustSTRMAGBases = adjustSTRMAG != null ? adjustSTRMAG.getSelection() : false;
+		
+		return new BaseOptions(currentMode, redistributionOption, deltaOption, adjustSTRMAGBases);
 	}
 
 }

@@ -50,19 +50,23 @@ public class SkillsView extends Composite {
 		enableButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				retainSkillCountsButton.setEnabled(enableButton.getSelection());
-				shuffleButton.setEnabled(enableButton.getSelection());
-				randomizeButton.setEnabled(enableButton.getSelection());
+				skillsEnabled = enableButton.getSelection();
 				
-				if (enableButton.getSelection()) {
+				retainSkillCountsButton.setEnabled(skillsEnabled);
+				shuffleButton.setEnabled(skillsEnabled);
+				randomizeButton.setEnabled(skillsEnabled);
+				
+				if (skillsEnabled) {
 					skillCountView.setEnabled(randomizeButton.getSelection() && !retainSkillCountsButton.getSelection());
 					skillWeightView.setEnabled(randomizeButton.getSelection());
+					
+					separateByGeneration.setEnabled(shuffleButton.getSelection());
 				} else {
 					skillCountView.setEnabled(false);
 					skillWeightView.setEnabled(false);
+					
+					separateByGeneration.setEnabled(false);
 				}
-				
-				skillsEnabled = enableButton.getSelection();
 			}
 		});
 		
@@ -103,7 +107,7 @@ public class SkillsView extends Composite {
 		separateByGeneration = new Button(container, SWT.CHECK);
 		separateByGeneration.setText("Separate Pools by Generation");
 		separateByGeneration.setToolTipText("Shuffles Generation 1 character skills separately from Generation 2 Common Characters and Substitutes.");
-		separateByGeneration.setEnabled(true);
+		separateByGeneration.setEnabled(false);
 		separateByGeneration.setSelection(false);
 		
 		optionData = new FormData();

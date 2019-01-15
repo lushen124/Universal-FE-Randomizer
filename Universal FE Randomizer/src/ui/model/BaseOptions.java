@@ -11,10 +11,13 @@ public class BaseOptions {
 	public final VarOption redistributionOption;
 	public final VarOption deltaOption;
 	
-	public BaseOptions(Mode mode, VarOption redistributionOption, VarOption deltaOption) {
+	public final boolean adjustSTRMAGByClass;
+	
+	public BaseOptions(Mode mode, VarOption redistributionOption, VarOption deltaOption, boolean adjustSTRMAGByClass) {
 		super();
 		this.mode = mode;
 		this.redistributionOption = redistributionOption;
 		this.deltaOption = deltaOption;
+		this.adjustSTRMAGByClass = adjustSTRMAGByClass;
 	}
 }

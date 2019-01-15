@@ -143,69 +143,69 @@ public class FE4GrowthRandomizer {
 			boolean weightSTR = adjustSTRMAGByClass ? fe4CharClass.primaryAttackIsStrength() : false;
 			boolean weightMAG = adjustSTRMAGByClass ? fe4CharClass.primaryAttackIsMagic() : false;
 			
-			if ((weightSTR && !weightMAG && newSTRGrowth < newMAGGrowth) || (weightMAG && !weightSTR && newMAGGrowth < newSTRGrowth)) {
-				int oldSTR = newSTRGrowth;
-				newSTRGrowth = newMAGGrowth;
-				newMAGGrowth = oldSTR;
-			}
-			
 			int randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
-				newHPGrowth += rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newHPGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
 			} else {
-				newHPGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newHPGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
 				if (adjustHPGrowths) {
-					newHPGrowth += rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+					newHPGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
 				}
 			}
 			
 			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
-				newSTRGrowth += rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newSTRGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
 			} else {
-				newSTRGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newSTRGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
 			}
 			
 			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
-				newMAGGrowth += rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newMAGGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
 			} else {
-				newMAGGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newMAGGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
 			}
 			
 			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
-				newSKLGrowth += rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newSKLGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
 			} else {
-				newSKLGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newSKLGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
 			}
 			
 			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
-				newSPDGrowth += rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newSPDGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
 			} else {
-				newSPDGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newSPDGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
 			}
 			
 			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
-				newLCKGrowth += rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newLCKGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
 			} else {
-				newLCKGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newLCKGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
 			}
 			
 			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
-				newDEFGrowth += rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newDEFGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
 			} else {
-				newDEFGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newDEFGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
 			}
 			
 			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
-				newRESGrowth += rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newRESGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
 			} else {
-				newRESGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5 - 5;
+				newRESGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
+			}
+			
+			if ((weightSTR && !weightMAG && newSTRGrowth < newMAGGrowth) || (weightMAG && !weightSTR && newMAGGrowth < newSTRGrowth)) {
+				int oldSTR = newSTRGrowth;
+				newSTRGrowth = newMAGGrowth;
+				newMAGGrowth = oldSTR;
 			}
 			
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());

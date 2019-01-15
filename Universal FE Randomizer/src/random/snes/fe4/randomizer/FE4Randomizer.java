@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import fedata.snes.fe4.FE4Data;
+import fedata.snes.fe4.FE4StaticCharacter;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
@@ -17,6 +18,7 @@ import ui.fe4.FE4ClassOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
 import ui.fe4.SkillsOptions.Mode;
+import ui.model.BaseOptions;
 import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
 import util.Diff;
@@ -31,6 +33,7 @@ public class FE4Randomizer extends Randomizer {
 	private String targetPath;
 	
 	private GrowthOptions growthOptions;
+	private BaseOptions basesOptions;
 	private HolyBloodOptions bloodOptions;
 	private SkillsOptions skillsOptions;
 	private FE4ClassOptions classOptions;
@@ -46,7 +49,7 @@ public class FE4Randomizer extends Randomizer {
 	
 	private FileHandler handler;
 	
-	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions, FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions, FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -57,6 +60,7 @@ public class FE4Randomizer extends Randomizer {
 		this.diffCompiler = diffs;
 		
 		this.growthOptions = growthOptions;
+		this.basesOptions = basesOptions;
 		this.bloodOptions = bloodOptions;
 		this.skillsOptions = skillOptions;
 		this.classOptions = classOptions;
@@ -119,10 +123,14 @@ public class FE4Randomizer extends Randomizer {
 		updateProgress(0.65);
 		randomizeGrowthsIfNecessary(seed);
 		updateProgress(0.70);
-		randomizeBloodIfNecessary(seed);
+		randomizeBasesIfNecessary(seed);
 		updateProgress(0.75);
-		randomizeRingsIfNecessary(seed);
+		randomizeBloodIfNecessary(seed);
 		updateProgress(0.80);
+		randomizeRingsIfNecessary(seed);
+		updateProgress(0.85);
+		makeFinalAdjustments();
+		updateProgress(0.90);
 		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
@@ -264,6 +272,23 @@ public class FE4Randomizer extends Randomizer {
 		}
 	}
 	
+	private void randomizeBasesIfNecessary(String seed) {
+		if (basesOptions != null) {
+			updateStatusString("Randomizing base stats...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BasesRandomizer.rngSalt));
+			switch (basesOptions.mode) {
+			case REDISTRIBUTE:
+				FE4BasesRandomizer.randomizeBasesByRedistribution(basesOptions.redistributionOption.variance, basesOptions.adjustSTRMAGByClass, charData, rng);
+				charData.commit();
+				break;
+			case DELTA:
+				FE4BasesRandomizer.randomizeBasesByDelta(basesOptions.deltaOption.variance, basesOptions.adjustSTRMAGByClass, charData, rng);
+				charData.commit();
+				break;
+			}
+		}
+	}
+	
 	private void randomizeBloodIfNecessary(String seed) {
 		if (bloodOptions != null) {
 			if (bloodOptions.randomizeGrowthBonuses) {
@@ -332,6 +357,26 @@ public class FE4Randomizer extends Randomizer {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4RingRandomizer.rngSalt + 1));
 			FE4RingRandomizer.randomizeRings(itemMapper, rng);
 			itemMapper.commitChanges();
+		}
+	}
+	
+	// Should be called after all other randomizations.
+	private void makeFinalAdjustments() {
+		updateStatusString("Making final adjustments...");
+		
+		// These only need to be performed if playable character classes were randomized. Otherwise, the default values should still work.
+		if (classOptions.randomizePlayableCharacters) {
+			// Make sure Sigurd does NOT pass his holy weapon to Seliph.
+			// Tyrfing normally sits at inventory ID 0x27. Since we didn't change inventory IDs, this should still be safe.
+			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset, 1, new byte[] {(byte)(itemMapper.getItemAtIndex(0x27).ID & 0xFF)}, new byte[] {(FE4Data.SeliphHolyWeaponInheritenceBanOldID)}));
+			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset2, 1, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanNewValue}, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanOldValue}));
+			
+			// Make sure Lex's Hero Axe event still triggers (the reward should have already been updated if the "Adjust Conversation Items" option was enabled).
+			// Trigger it off of whatever equipment Lex started with.
+			FE4StaticCharacter lex = charData.getStaticCharacter(FE4Data.Character.LEX);
+			int equip1 = lex.getEquipment1();
+			FE4Data.Item item1 = FE4Data.Item.valueOf(equip1);
+			diffCompiler.addDiff(new Diff(FE4Data.LexHeroAxeEventItemRequirementOffset, 1, new byte[] {(byte)item1.ID}, new byte[] {FE4Data.LexHeroAxeEventItemRequirementOldID}));
 		}
 	}
 	

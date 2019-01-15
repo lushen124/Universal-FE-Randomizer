@@ -89,7 +89,7 @@ public class MainView implements FileFlowDelegate {
 		super();
 		
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.RESIZE & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.6.1)");
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.0-alpha)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
 		 mainShell = shell;
@@ -270,7 +270,7 @@ public class MainView implements FileFlowDelegate {
 		growthData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
 		growthView.setLayoutData(growthData);
 		  
-		baseView = new BasesView(mainShell, SWT.NONE);
+		baseView = new BasesView(mainShell, SWT.NONE, type.hasSTRMAGSplit());
 		baseView.setSize(200, 200);
 		baseView.setVisible(false);
 		  
@@ -530,6 +530,7 @@ public class MainView implements FileFlowDelegate {
 									boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
 									randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, 
 											growthView.getGrowthOptions(),
+											baseView.getBaseOptions(),
 											holyBloodView.getHolyBloodOptions(),
 											skillsView.getSkillOptions(),
 											fe4ClassView.getClassOptions(),
