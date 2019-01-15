@@ -139,6 +139,8 @@ public class UPSPatcher {
 			
 			FileHandler resultHandler = new FileHandler(targetFile);
 			long resultCRC = resultHandler.getCRC32();
+			resultHandler.close();
+			resultHandler = null;
 			
 			if (targetCRC != resultCRC) {
 				System.err.println("Resulting checksum is incorrect. Expected: " + Long.toHexString(targetCRC).toUpperCase() + " Actual: " + Long.toHexString(resultCRC).toUpperCase());

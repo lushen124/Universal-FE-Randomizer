@@ -502,6 +502,8 @@ public class GBARandomizer extends Randomizer {
 				rk.addHeaderItem("Randomize Growths", "Full (" + growths.fullOption.minValue + "% ~ " + growths.fullOption.maxValue + "%)");	
 				break;
 			}
+			
+			rk.addHeaderItem("Adjust HP Growths", growths.adjustHP ? "YES" : "NO");
 		} else {
 			rk.addHeaderItem("Randomize Growths", "NO");
 		}

@@ -97,24 +97,24 @@ public class FE4Data {
 		map.put(Character.SILVIA, 0x20); // Defender
 		map.put(Character.DEW, 0x24); // Wind Sword
 		map.put(Character.SIGURD, 0x0A); // Silver Sword
-		map.put(Character.SIGURD, 0x27); // Tyrfing
+		/*map.put(Character.SIGURD, 0x27); // Tyrfing*/
 		map.put(Character.FINN_GEN_1, 0x3B); // Brave Lance
-		map.put(Character.QUAN, 0x3E); // Gae Bolg
+		/*map.put(Character.QUAN, 0x3E); // Gae Bolg*/
 		map.put(Character.LEX, 0x45); // Brave Axe
 		map.put(Character.MIDIR, 0x4D); // Brave Bow (Technically needs to work for Jamke too...)
-		map.put(Character.BRIGID, 0x4F); // Yewfelle
-		map.put(Character.LEWYN, 0x5C); // Forseti
+		/*map.put(Character.BRIGID, 0x4F); // Yewfelle*/
+		/*map.put(Character.LEWYN, 0x5C); // Forseti*/
 		map.put(Character.ETHLYN, 0x6D); // Return Staff
 		map.put(Character.EDAIN, 0x6E); // Warp Staff
 		map.put(Character.EDAIN, 0x6F); // Rescue Staff
 		
 		map.put(Character.LAYLEA, 0x17); // Barrier Sword
 		map.put(Character.SELIPH, 0x1A); // Hero Sword
-		map.put(Character.SHANNAN, 0x28); // Balmung
+		/*map.put(Character.SHANNAN, 0x28); // Balmung*/
 		map.put(Character.JULIA, 0x5E); // Lightning
 		// Aura should be here, but it's shared with Deirdre, so they have to use the same weapon type.
 		map.put(Character.JULIA, 0x5F); // Nosferatu
-		map.put(Character.JULIA, 0x61); // Naga
+		/*map.put(Character.JULIA, 0x61); // Naga*/
 		map.put(Character.JULIA, 0x66); // Mend Staff
 		map.put(Character.CHARLOT, 0x74); // Berserk Staff
 		return map;
@@ -718,7 +718,8 @@ public class FE4Data {
 				ROBERT, BOYCE, RODAN, YUPHEEL, FISHER, BRIAN, DAGGON, SCIPIO, HILDA_FINAL, BARAN, MENG, BLEG, MAYBELL, ISHTAR_FINAL, ARION_FINAL, MANFROY, MUS, BOVIS, TIGRIS, LEPUS, DRACO, ANGUILLA, EQUUS, OVIS, SIMIA, GALLUS, CANIS, PORCUS, JULIUS_FINAL));
 		
 		// Midir will make the game confused if he can't attack in his opening scene.
-		public static final Set<Character> CharactersThatMustBeAbleToAttack = new HashSet<Character>(Arrays.asList(SIGURD, SELIPH, MIDIR));
+		// Seliph *technically* doesn't need to attack.
+		public static final Set<Character> CharactersThatMustBeAbleToAttack = new HashSet<Character>(Arrays.asList(SIGURD, /*SELIPH,*/ MIDIR));
 
 		public int ID;
 		
@@ -789,7 +790,7 @@ public class FE4Data {
 			case LARCEI: return AYRA;
 			case ULSTER: return CHULAINN;
 			case DIARMUID: return BEOWOLF;
-			case NANNA: return ETHLYN;
+			case NANNA: return LACHESIS;
 			case FEE: return ERINYS;
 			case CED: return LEWYN;
 			case LENE: return SILVIA;

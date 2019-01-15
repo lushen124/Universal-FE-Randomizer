@@ -270,7 +270,7 @@ public class MainView implements FileFlowDelegate {
 		growthData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
 		growthView.setLayoutData(growthData);
 		  
-		baseView = new BasesView(mainShell, SWT.NONE, type.hasSTRMAGSplit());
+		baseView = new BasesView(mainShell, SWT.NONE, type);
 		baseView.setSize(200, 200);
 		baseView.setVisible(false);
 		  

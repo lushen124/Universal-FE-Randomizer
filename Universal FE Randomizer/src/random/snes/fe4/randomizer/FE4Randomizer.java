@@ -3,17 +3,22 @@ package random.snes.fe4.randomizer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
+import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4StaticCharacter;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
 import random.general.Randomizer;
+import random.general.WeightedDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
+import random.snes.fe4.loader.PromotionMapper;
 import ui.fe4.FE4ClassOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
@@ -42,6 +47,7 @@ public class FE4Randomizer extends Randomizer {
 	HolyBloodLoader bloodData;
 	CharacterDataLoader charData;
 	ItemMapper itemMapper;
+	PromotionMapper promotionMapper;
 	
 	private String seedString;
 	
@@ -129,13 +135,14 @@ public class FE4Randomizer extends Randomizer {
 		updateProgress(0.80);
 		randomizeRingsIfNecessary(seed);
 		updateProgress(0.85);
-		makeFinalAdjustments();
+		makeFinalAdjustments(seed);
 		updateProgress(0.90);
 		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
 		charData.compileDiffs(diffCompiler);
 		itemMapper.compileDiff(diffCompiler);
+		bloodData.compileDiffs(diffCompiler);
 		
 		updateStatusString("Applying changes...");
 		updateProgress(0.99);
@@ -147,6 +154,9 @@ public class FE4Randomizer extends Randomizer {
 				return;
 			}
 		}
+		
+		handler.close();
+		handler = null;
 		
 		if (tempPath != null) {
 			updateStatusString("Cleaning up...");
@@ -162,6 +172,7 @@ public class FE4Randomizer extends Randomizer {
 		charData.recordCharacters(recordKeeper, false, itemMapper);
 		bloodData.recordHolyBlood(recordKeeper, false);
 		itemMapper.recordRingMap(recordKeeper, false);
+		promotionMapper.recordPromotions(recordKeeper, false);
 		
 		recordKeeper.sortKeysInCategoryAndSubcategories(CharacterDataLoader.RecordKeeperCategoryKey);
 		
@@ -249,6 +260,10 @@ public class FE4Randomizer extends Randomizer {
 		updateStatusString("Loading Holy Blood Data...");
 		updateProgress(0.30);
 		bloodData = new HolyBloodLoader(handler, isHeadered);
+		
+		updateStatusString("Loading Promotion Map...");
+		updateProgress(0.40);
+		promotionMapper = new PromotionMapper(handler, charData, isHeadered);
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
@@ -361,7 +376,7 @@ public class FE4Randomizer extends Randomizer {
 	}
 	
 	// Should be called after all other randomizations.
-	private void makeFinalAdjustments() {
+	private void makeFinalAdjustments(String seed) {
 		updateStatusString("Making final adjustments...");
 		
 		// These only need to be performed if playable character classes were randomized. Otherwise, the default values should still work.
@@ -377,6 +392,40 @@ public class FE4Randomizer extends Randomizer {
 			int equip1 = lex.getEquipment1();
 			FE4Data.Item item1 = FE4Data.Item.valueOf(equip1);
 			diffCompiler.addDiff(new Diff(FE4Data.LexHeroAxeEventItemRequirementOffset, 1, new byte[] {(byte)item1.ID}, new byte[] {FE4Data.LexHeroAxeEventItemRequirementOldID}));
+			
+			// Finalize promotions (which are stored away from the character data).
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, 2));
+			for (FE4Data.Character fe4Char : promotionMapper.allPromotableCharacters()) {
+				int classID = FE4Data.CharacterClass.NONE.ID;
+				boolean isFemale = false;
+				if (fe4Char.isChild()) {
+					FE4ChildCharacter child = charData.getChildCharacter(fe4Char);
+					if (child != null) {
+						classID = child.getClassID();
+						isFemale = child.isFemale();
+					}
+				} else {
+					FE4StaticCharacter staticChar = charData.getStaticCharacter(fe4Char);
+					if (staticChar != null) {
+						classID = staticChar.getClassID();
+						isFemale = staticChar.isFemale();
+					}
+				}
+				
+				if (classID == FE4Data.CharacterClass.NONE.ID) { continue; }
+				
+				FE4Data.CharacterClass fe4CharClass = FE4Data.CharacterClass.valueOf(classID);
+				if (fe4CharClass.isPromoted()) { 
+					promotionMapper.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
+				} else {
+					FE4Data.CharacterClass[] possiblePromotions = fe4CharClass.promotionClasses(isFemale);
+					FE4Data.CharacterClass promotedClass = FE4Data.CharacterClass.NONE;
+					if (possiblePromotions.length > 0) {
+						promotedClass = possiblePromotions[rng.nextInt(possiblePromotions.length)];
+					}
+					promotionMapper.setPromotionForCharacter(fe4Char, promotedClass);
+				}
+			}
 		}
 	}
 	
@@ -389,9 +438,147 @@ public class FE4Randomizer extends Randomizer {
 		
 		rk.addHeaderItem("Game Title", gameTitle);
 		
+		if (growthOptions != null) {
+			switch (growthOptions.mode) {
+			case REDISTRIBUTE:
+				rk.addHeaderItem("Randomize Growths", "Redistribution (" + growthOptions.redistributionOption.variance + "% variance)");
+				break;
+			case DELTA:
+				rk.addHeaderItem("Randomize Growths", "Delta (+/- " + growthOptions.deltaOption.variance + "%)");
+				break;
+			case FULL:
+				rk.addHeaderItem("Randomize Growths", "Full (" + growthOptions.fullOption.minValue + "% ~ " + growthOptions.fullOption.maxValue + "%)");
+				break;
+			}
+			
+			rk.addHeaderItem("Adjust HP Growths", growthOptions.adjustHP ? "YES" : "NO");
+			rk.addHeaderItem("Adjust STR/MAG Growths by Class", growthOptions.adjustSTRMAGSplit ? "YES" : "NO");
+		} else {
+			rk.addHeaderItem("Randomize Growths", "NO");
+		}
+		
+		if (basesOptions != null) {
+			switch (basesOptions.mode) {
+			case REDISTRIBUTE:
+				rk.addHeaderItem("Randomize Bases", "Redistribution (" + basesOptions.redistributionOption.variance + " variance)");
+				break;
+			case DELTA:
+				rk.addHeaderItem("Randomize Bases", "Delta (+/- " + basesOptions.deltaOption.variance + ")");
+				break;
+			}
+			
+			rk.addHeaderItem("Adjust STR/MAG bases by Class", basesOptions.adjustSTRMAGByClass ? "YES" : "NO");
+		} else {
+			rk.addHeaderItem("Randomize Bases", "NO");
+		}
+		
+		if (bloodOptions != null) {
+			rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", bloodOptions.randomizeGrowthBonuses ? "YES (Growth Total: " + bloodOptions.growthTotal + ")" : "NO");
+			rk.addHeaderItem("Randomize Holy Weapon Bonuses", bloodOptions.randomizeWeaponBonuses ? "YES" : "NO");
+		} else {
+			rk.addHeaderItem("Randomize Holy Blood", "NO");
+		}
+		
+		if (skillsOptions != null) {
+			rk.addHeaderItem("Retain Number of Skills", skillsOptions.retainNumberOfSkills ? "YES" : "NO");
+			switch (skillsOptions.mode) {
+			case SHUFFLE:
+				rk.addHeaderItem("Randomize Skills", "Shuffle");
+				rk.addHeaderItem("Separate Pools by Generation", skillsOptions.separatePoolsByGeneration ? "YES" : "NO");
+				break;
+			case RANDOMIZE:
+				rk.addHeaderItem("Randomize Skills", "Randomize");
+				if (!skillsOptions.retainNumberOfSkills) {
+					WeightedDistributor<Integer> skillCountDistributor = FE4SkillsRandomizer.skillCountDistributionFromOptions(skillsOptions);
+					rk.addHeaderItem("Zero Skills Weight", skillsOptions.skillCounts.zeroSkillsChance.enabled ? skillsOptions.skillCounts.zeroSkillsChance.weight.toString() + String.format(" (%.2f%%)", skillCountDistributor.chanceOfResult(0) * 100) : "Disabled");
+					rk.addHeaderItem("One Skill Weight", skillsOptions.skillCounts.oneSkillChance.enabled ? skillsOptions.skillCounts.oneSkillChance.weight.toString() + String.format(" (%.2f%%)", skillCountDistributor.chanceOfResult(1) * 100) : "Disabled");
+					rk.addHeaderItem("Two Skills Weight", skillsOptions.skillCounts.twoSkillChance.enabled ? skillsOptions.skillCounts.twoSkillChance.weight.toString() + String.format(" (%.2f%%)", skillCountDistributor.chanceOfResult(2) * 100) : "Disabled");
+					rk.addHeaderItem("Three Skills Weight", skillsOptions.skillCounts.threeSkillChance.enabled ? skillsOptions.skillCounts.threeSkillChance.weight.toString() + String.format(" (%.2f%%)", skillCountDistributor.chanceOfResult(3) * 100) : "Disabled");
+				}
+				
+				WeightedDistributor<FE4Data.Skill> skillDistributor = FE4SkillsRandomizer.skillDistributionFromOptions(skillsOptions);
+				rk.addHeaderItem("Adept Weight", skillsOptions.skillWeights.adeptWeight.enabled ? skillsOptions.skillWeights.adeptWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.ADEPT) * 100) : "Disabled");
+				rk.addHeaderItem("Astra Weight", skillsOptions.skillWeights.astraWeight.enabled ? skillsOptions.skillWeights.astraWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.ASTRA) * 100) : "Disabled");
+				rk.addHeaderItem("Bargain Weight", skillsOptions.skillWeights.bargainWeight.enabled ? skillsOptions.skillWeights.bargainWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.BARGAIN) * 100) : "Disabled");
+				rk.addHeaderItem("Charge Weight", skillsOptions.skillWeights.chargeWeight.enabled ? skillsOptions.skillWeights.chargeWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.CHARGE) * 100) : "Disabled");
+				rk.addHeaderItem("Charm Weight", skillsOptions.skillWeights.charmWeight.enabled ? skillsOptions.skillWeights.charmWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.CHARM) * 100) : "Disabled");
+				rk.addHeaderItem("Critical Weight", skillsOptions.skillWeights.criticalWeight.enabled ? skillsOptions.skillWeights.criticalWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.CRITICAL) * 100) : "Disabled");
+				rk.addHeaderItem("Luna Weight", skillsOptions.skillWeights.lunaWeight.enabled ? skillsOptions.skillWeights.lunaWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.LUNA) * 100) : "Disabled");
+				rk.addHeaderItem("Miracle Weight", skillsOptions.skillWeights.miracleWeight.enabled ? skillsOptions.skillWeights.miracleWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.MIRACLE) * 100) : "Disabled");
+				rk.addHeaderItem("Nihil Weight", skillsOptions.skillWeights.nihilWeight.enabled ? skillsOptions.skillWeights.nihilWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.NIHIL) * 100) : "Disabled");
+				rk.addHeaderItem("Paragon Weight", skillsOptions.skillWeights.paragonWeight.enabled ? skillsOptions.skillWeights.paragonWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.PARAGON) * 100) : "Disabled");
+				rk.addHeaderItem("Pursuit Weight", skillsOptions.skillWeights.pursuitWeight.enabled ? skillsOptions.skillWeights.pursuitWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.PURSUIT) * 100) : "Disabled");
+				rk.addHeaderItem("Renewal Weight", skillsOptions.skillWeights.renewalWeight.enabled ? skillsOptions.skillWeights.renewalWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.RENEWAL) * 100) : "Disabled");
+				rk.addHeaderItem("Sol Weight", skillsOptions.skillWeights.solWeight.enabled ? skillsOptions.skillWeights.solWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.SOL) * 100) : "Disabled");
+				rk.addHeaderItem("Vantage Weight", skillsOptions.skillWeights.vantageWeight.enabled ? skillsOptions.skillWeights.vantageWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.VANTAGE) * 100) : "Disabled");
+				rk.addHeaderItem("Wrath Weight", skillsOptions.skillWeights.wrathWeight.enabled ? skillsOptions.skillWeights.wrathWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.WRATH) * 100) : "Disabled");
+			}
+			
+		} else {
+			rk.addHeaderItem("Randomize Skills", "NO");
+		}
+		
+		if (classOptions != null) {
+			if (classOptions.randomizePlayableCharacters) {
+				rk.addHeaderItem("Randomize Playable Classes", "YES");
+				rk.addHeaderItem("Include Lords", classOptions.includeLords ? "YES" : "NO");
+				rk.addHeaderItem("Include Thieves", classOptions.includeThieves ? "YES" : "NO");
+				rk.addHeaderItem("Include Dancers", classOptions.includeDancers ? "YES" : "NO");
+				rk.addHeaderItem("Retain Healers", classOptions.retainHealers ? "YES" : "NO");
+				
+				switch (classOptions.childOption) {
+				case MATCH_STRICT:
+					rk.addHeaderItem("Child Randomization", "Match Parent (Strict)");
+					break;
+				case MATCH_LOOSE:
+					rk.addHeaderItem("Child Randomization", "Match Parent (Loose)");
+					break;
+				case RANDOM_CLASS:
+					rk.addHeaderItem("Child Randomization", "Randomize");
+					break;
+				}
+				
+				rk.addHeaderItem("Randomize Holy Blood", classOptions.randomizeBlood ? "YES" : "NO");
+				switch (classOptions.shopOption) {
+				case DO_NOT_ADJUST:
+					rk.addHeaderItem("Shop Items", "No Change");
+					break;
+				case ADJUST_TO_MATCH:
+					rk.addHeaderItem("Shop Items", "Adjust to Party");
+					break;
+				case RANDOMIZE:
+					rk.addHeaderItem("Shop Items", "Randomize");
+					break;
+				}
+				
+				rk.addHeaderItem("Adjust Conversation Gifts", classOptions.adjustConversationWeapons ? "YES" : "NO");
+				rk.addHeaderItem("Adjust STR/MAG Growths and Bases", classOptions.adjustSTRMAG ? "YES" : "NO");
+			} else {
+				rk.addHeaderItem("Randomize Playable Classes", "NO");
+			}
+			
+			rk.addHeaderItem("Randomize Minions", classOptions.randomizeMinions ? "YES" : "NO");
+			rk.addHeaderItem("Randomize Arena", classOptions.randomizeArena ? "YES" : "NO");
+			
+			if (classOptions.randomizeBosses) {
+				rk.addHeaderItem("Randomize Bosses", "YES");
+				rk.addHeaderItem("Randomize Boss Holy Blood", classOptions.randomizeBossBlood ? "YES" : "NO");
+			} else {
+				rk.addHeaderItem("Randomize Bosses", "NO");
+			}
+		} else {
+			rk.addHeaderItem("Randomize Classes", "NO");
+		}
+		
+		if (miscOptions != null) {
+			rk.addHeaderItem("Apply English Patch", miscOptions.applyEnglishPatch ? "YES" : "NO");
+			rk.addHeaderItem("Randomize Rings", miscOptions.randomizeRewards ? "YES" : "NO");
+		}
+		
 		charData.recordCharacters(rk, true, itemMapper);
 		bloodData.recordHolyBlood(rk, true);
 		itemMapper.recordRingMap(rk, true);
+		promotionMapper.recordPromotions(rk, true);
 		
 		return rk;
 	}

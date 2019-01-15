@@ -69,6 +69,15 @@ public class FileHandler {
 		inputStream.close();
 	}
 	
+	public void close() {
+		try {
+			if (inputFile != null) { inputFile.close(); }
+		} catch (IOException e) {
+			
+		}
+		inputFile = null;
+	}
+	
 	public void setAppliedDiffs(DiffCompiler diffs) {
 		appliedDiffs = diffs;
 	}
@@ -82,11 +91,14 @@ public class FileHandler {
 	}
 	
 	public void setNextReadOffset(long newOffset) throws IOException {
-		inputFile.seek(newOffset);
-		nextReadOffset = newOffset;
+		if (inputFile != null) {
+			inputFile.seek(newOffset);
+			nextReadOffset = newOffset;
+		}
 	}
 	
 	public byte continueReadingNextByte() {
+		if (inputFile == null) { return 0; }
 		byte[] outputBytes = new byte[1];
 		try {
 			inputFile.readFully(outputBytes);
@@ -102,6 +114,7 @@ public class FileHandler {
 	}
 	
 	public byte[] continueReadingBytes(int numBytes) {
+		if (inputFile == null) { return new byte[] {}; }
 		try {
 			long remainingBytes = fileLength - inputFile.getFilePointer();
 			if (numBytes > remainingBytes) {
@@ -134,6 +147,8 @@ public class FileHandler {
 	}
 	
 	public byte[] continueReadingBytesUpToNextTerminator(long maxOffset) {
+		if (inputFile == null) { return new byte[] {}; }
+		
 		byte[] result = null;
 		int zeroIndex = -1;
 		
@@ -179,6 +194,8 @@ public class FileHandler {
 	}
 	
 	public byte[] readBytesAtOffset(long offset, int numBytes) {
+		if (inputFile == null) { return new byte[] {}; }
+		
 		long remainingBytes = fileLength - offset;
 		if (numBytes > remainingBytes) {
 			numBytes = (int)remainingBytes;
@@ -215,7 +232,7 @@ public class FileHandler {
 	@Override
 	protected void finalize() throws Throwable {
 		try {
-			inputFile.close();
+			if (inputFile != null) { inputFile.close(); }
 		} finally {
 			super.finalize();
 		}

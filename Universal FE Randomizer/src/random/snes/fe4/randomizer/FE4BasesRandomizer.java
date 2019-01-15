@@ -14,7 +14,7 @@ public class FE4BasesRandomizer {
 	static final int rngSalt = 9999;
 	
 	enum StatArea {
-		HP, STR, MAG, SKL, SPD, LCK, DEF, RES
+		STR, MAG, SKL, SPD, LCK, DEF, RES
 	}
 	
 	public static void randomizeBasesByRedistribution(int variance, boolean adjustSTRMAGByClass, CharacterDataLoader charData, Random rng) {
@@ -24,7 +24,7 @@ public class FE4BasesRandomizer {
 		allChars.addAll(charData.getGen2SubstituteCharacters());
 		
 		for (FE4StaticCharacter staticChar : allChars) {
-			int baseTotal = staticChar.getBaseHP() + staticChar.getBaseSTR() + staticChar.getBaseMAG() + staticChar.getBaseSKL() + staticChar.getBaseSPD() + 
+			int baseTotal = staticChar.getBaseSTR() + staticChar.getBaseMAG() + staticChar.getBaseSKL() + staticChar.getBaseSPD() + 
 					staticChar.getBaseLCK() + staticChar.getBaseDEF() + staticChar.getBaseRES();
 			int randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
@@ -33,7 +33,6 @@ public class FE4BasesRandomizer {
 				baseTotal -= rng.nextInt(variance + 1);
 			}
 			
-			int newBaseHP = 0;
 			int newBaseSTR = 0;
 			int newBaseMAG = 0;
 			int newBaseSKL = 0;
@@ -47,7 +46,6 @@ public class FE4BasesRandomizer {
 			boolean weightMAG = adjustSTRMAGByClass ? fe4CharClass.primaryAttackIsMagic() : false;
 			
 			WeightedDistributor<StatArea> distributor = new WeightedDistributor<StatArea>();
-			distributor.addItem(StatArea.HP, 3);
 			distributor.addItem(StatArea.SKL, 3);
 			distributor.addItem(StatArea.SPD, 3);
 			distributor.addItem(StatArea.LCK, 5); // Since there's no base here, usually.
@@ -69,9 +67,6 @@ public class FE4BasesRandomizer {
 				baseTotal -= 1;
 				StatArea area = distributor.getRandomItem(rng);
 				switch (area) {
-				case HP:
-					newBaseHP++;
-					break;
 				case STR:
 					newBaseSTR++;
 					break;
@@ -96,7 +91,6 @@ public class FE4BasesRandomizer {
 				}
 			}
 			
-			staticChar.setBaseHP(newBaseHP);
 			staticChar.setBaseSTR(newBaseSTR);
 			staticChar.setBaseMAG(newBaseMAG);
 			staticChar.setBaseSKL(newBaseSKL);

@@ -1338,6 +1338,8 @@ public class FE4ClassRandomizer {
 			}
 		}
 		
+		usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
+		
 		// Fix conversation items if necessary.
 		if (options.adjustConversationWeapons) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(character.getCharacterID());

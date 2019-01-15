@@ -486,6 +486,7 @@ public class CharacterDataLoader {
 		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryGen2Child);
 		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryBoss1);
 		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryBoss2);
+		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryArena);
 		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryHolyBoss);
 		rk.registerCategory(RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryEnemy);
 		
@@ -518,6 +519,10 @@ public class CharacterDataLoader {
 		
 		for (FE4Data.Character fe4Char : enemyCharacters.keySet()) {
 			recordEnemy(rk, isInitial, fe4Char, enemyCharacters.get(fe4Char), RecordKeeperSubcategoryEnemy, itemMap);
+		}
+		
+		for (FE4Data.Character fe4Char : arenaCharacters.keySet()) {
+			recordEnemy(rk, isInitial, fe4Char, arenaCharacters.get(fe4Char), RecordKeeperSubcategoryArena, itemMap);
 		}
 	}
 	

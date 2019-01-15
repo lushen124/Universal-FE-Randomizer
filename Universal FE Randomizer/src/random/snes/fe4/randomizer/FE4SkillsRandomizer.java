@@ -292,6 +292,64 @@ public class FE4SkillsRandomizer {
 		DebugPrinter.log(DebugPrinter.Key.FE4_SKILL_RANDOM, String.format("Two Skills: %.2f%%", skillCountDistributor.chanceOfResult(2) * 100));
 		DebugPrinter.log(DebugPrinter.Key.FE4_SKILL_RANDOM, String.format("Three Skills: %.2f%%", skillCountDistributor.chanceOfResult(3) * 100));
 		
+		WeightedDistributor<FE4Data.Skill> skillDistributor = skillDistributionFromOptions(options);
+		
+		DebugPrinter.log(DebugPrinter.Key.FE4_SKILL_RANDOM, "Skill Weights:");
+		for (FE4Data.Skill skill : FE4Data.Skill.values()) {
+			DebugPrinter.log(DebugPrinter.Key.FE4_SKILL_RANDOM, String.format("%s: %.2f%%", skill.toString(), skillDistributor.chanceOfResult(skill) * 100));	
+		}
+		
+		// Gen 1
+		List<FE4StaticCharacter> gen1Characters = charData.getGen1Characters();
+		for (FE4StaticCharacter staticChar : gen1Characters) {
+			int numberOfSkills = 0;
+			if (options.retainNumberOfSkills) {
+				numberOfSkills += FE4Data.SkillSlot1.slot1Skills(staticChar.getSkillSlot1Value()).size();
+				numberOfSkills += FE4Data.SkillSlot2.slot2Skills(staticChar.getSkillSlot2Value()).size();
+				numberOfSkills += FE4Data.SkillSlot3.slot3Skills(staticChar.getSkillSlot3Value()).size();
+			} else {
+				numberOfSkills = skillCountDistributor.getRandomItem(rng);
+			}
+			
+			assignSkillsToStaticCharacter(staticChar, numberOfSkills, skillDistributor, rng);
+		}
+		
+		// Gen 2 (Common and Substitutes only)
+		List<FE4StaticCharacter> gen2Characters = charData.getGen2CommonCharacters();
+		gen2Characters.addAll(charData.getGen2SubstituteCharacters());
+		for (FE4StaticCharacter staticChar : gen2Characters) {
+			int numberOfSkills = 0;
+			if (options.retainNumberOfSkills) {
+				numberOfSkills += FE4Data.SkillSlot1.slot1Skills(staticChar.getSkillSlot1Value()).size();
+				numberOfSkills += FE4Data.SkillSlot2.slot2Skills(staticChar.getSkillSlot2Value()).size();
+				numberOfSkills += FE4Data.SkillSlot3.slot3Skills(staticChar.getSkillSlot3Value()).size();
+			} else {
+				numberOfSkills = skillCountDistributor.getRandomItem(rng);
+			}
+			
+			assignSkillsToStaticCharacter(staticChar, numberOfSkills, skillDistributor, rng);
+		}
+	}
+	
+	public static WeightedDistributor<Integer> skillCountDistributionFromOptions(SkillsOptions options) {
+		WeightedDistributor<Integer> skillCountDistributor = new WeightedDistributor<Integer>();
+		if (options.skillCounts.zeroSkillsChance.enabled) {
+			skillCountDistributor.addItem(0, options.skillCounts.zeroSkillsChance.weight.integerWeightUsingLinearWeight(1, 0));
+		}
+		if (options.skillCounts.oneSkillChance.enabled) {
+			skillCountDistributor.addItem(1, options.skillCounts.oneSkillChance.weight.integerWeightUsingLinearWeight(1, 0));
+		}
+		if (options.skillCounts.twoSkillChance.enabled) {
+			skillCountDistributor.addItem(2, options.skillCounts.twoSkillChance.weight.integerWeightUsingLinearWeight(1, 0));
+		}
+		if (options.skillCounts.threeSkillChance.enabled) {
+			skillCountDistributor.addItem(3, options.skillCounts.threeSkillChance.weight.integerWeightUsingLinearWeight(1, 0));
+		}
+		
+		return skillCountDistributor;
+	}
+	
+	public static WeightedDistributor<FE4Data.Skill> skillDistributionFromOptions(SkillsOptions options) {
 		WeightedDistributor<FE4Data.Skill> skillDistributor = new WeightedDistributor<FE4Data.Skill>();
 		int quadraticBase = 3;
 		double quadraticMultiplier = 1;
@@ -342,59 +400,7 @@ public class FE4SkillsRandomizer {
 			skillDistributor.addItem(FE4Data.Skill.WRATH, options.skillWeights.wrathWeight.weight.integerWeightsUsingQuadraticWeight(quadraticBase, quadraticMultiplier, quadraticOffset));
 		}
 		
-		DebugPrinter.log(DebugPrinter.Key.FE4_SKILL_RANDOM, "Skill Weights:");
-		for (FE4Data.Skill skill : FE4Data.Skill.values()) {
-			DebugPrinter.log(DebugPrinter.Key.FE4_SKILL_RANDOM, String.format("%s: %.2f%%", skill.toString(), skillDistributor.chanceOfResult(skill) * 100));	
-		}
-		
-		// Gen 1
-		List<FE4StaticCharacter> gen1Characters = charData.getGen1Characters();
-		for (FE4StaticCharacter staticChar : gen1Characters) {
-			int numberOfSkills = 0;
-			if (options.retainNumberOfSkills) {
-				numberOfSkills += FE4Data.SkillSlot1.slot1Skills(staticChar.getSkillSlot1Value()).size();
-				numberOfSkills += FE4Data.SkillSlot2.slot2Skills(staticChar.getSkillSlot2Value()).size();
-				numberOfSkills += FE4Data.SkillSlot3.slot3Skills(staticChar.getSkillSlot3Value()).size();
-			} else {
-				numberOfSkills = skillCountDistributor.getRandomItem(rng);
-			}
-			
-			assignSkillsToStaticCharacter(staticChar, numberOfSkills, skillDistributor, rng);
-		}
-		
-		// Gen 2 (Common and Substitutes only)
-		List<FE4StaticCharacter> gen2Characters = charData.getGen2CommonCharacters();
-		gen2Characters.addAll(charData.getGen2SubstituteCharacters());
-		for (FE4StaticCharacter staticChar : gen2Characters) {
-			int numberOfSkills = 0;
-			if (options.retainNumberOfSkills) {
-				numberOfSkills += FE4Data.SkillSlot1.slot1Skills(staticChar.getSkillSlot1Value()).size();
-				numberOfSkills += FE4Data.SkillSlot2.slot2Skills(staticChar.getSkillSlot2Value()).size();
-				numberOfSkills += FE4Data.SkillSlot3.slot3Skills(staticChar.getSkillSlot3Value()).size();
-			} else {
-				numberOfSkills = skillCountDistributor.getRandomItem(rng);
-			}
-			
-			assignSkillsToStaticCharacter(staticChar, numberOfSkills, skillDistributor, rng);
-		}
-	}
-	
-	private static WeightedDistributor<Integer> skillCountDistributionFromOptions(SkillsOptions options) {
-		WeightedDistributor<Integer> skillCountDistributor = new WeightedDistributor<Integer>();
-		if (options.skillCounts.zeroSkillsChance.enabled) {
-			skillCountDistributor.addItem(0, options.skillCounts.zeroSkillsChance.weight.integerWeightUsingLinearWeight(1, 0));
-		}
-		if (options.skillCounts.oneSkillChance.enabled) {
-			skillCountDistributor.addItem(1, options.skillCounts.oneSkillChance.weight.integerWeightUsingLinearWeight(1, 0));
-		}
-		if (options.skillCounts.twoSkillChance.enabled) {
-			skillCountDistributor.addItem(2, options.skillCounts.twoSkillChance.weight.integerWeightUsingLinearWeight(1, 0));
-		}
-		if (options.skillCounts.threeSkillChance.enabled) {
-			skillCountDistributor.addItem(3, options.skillCounts.threeSkillChance.weight.integerWeightUsingLinearWeight(1, 0));
-		}
-		
-		return skillCountDistributor;
+		return skillDistributor;
 	}
 	
 	private static void assignSkillsToStaticCharacter(FE4StaticCharacter staticChar, int numberOfSkills, WeightedDistributor<FE4Data.Skill> skillDistributor, Random rng) {
