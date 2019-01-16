@@ -513,8 +513,7 @@ public class CharacterDataLoader {
 		}
 		
 		for (FE4Data.Character fe4Char : holyBloodBossCharacters.keySet()) {
-			// Bosses don't have an item map because none of their items are tracked.
-			recordStaticCharacter(rk, isInitial, fe4Char, holyBloodBossCharacters.get(fe4Char), RecordKeeperSubcategoryHolyBoss, null);
+			recordStaticCharacter(rk, isInitial, fe4Char, holyBloodBossCharacters.get(fe4Char), RecordKeeperSubcategoryHolyBoss, itemMap);
 		}
 		
 		for (FE4Data.Character fe4Char : enemyCharacters.keySet()) {
@@ -703,12 +702,14 @@ public class CharacterDataLoader {
 			recordData(rk, isInitial, category, name, "Holy Blood Slot 4", sb.toString());
 		}
 		
+		boolean isPlayableCharacter = character.isPlayable();
+		
 		int equipment1 = staticChar.getEquipment1();
-		FE4Data.Item item1 = itemMap != null ? itemMap.getItemAtIndex(equipment1) : FE4Data.Item.valueOf(equipment1);
+		FE4Data.Item item1 = isPlayableCharacter ? itemMap.getItemAtIndex(equipment1) : FE4Data.Item.valueOf(equipment1);
 		if (item1 == null) {
 			recordData(rk, isInitial, category, name, "Equipment 1", "None");
 		} else {
-			if (itemMap != null) {
+			if (isPlayableCharacter) {
 				recordData(rk, isInitial, category, name, "Equipment 1", "[0x" + Integer.toHexString(equipment1).toUpperCase() + "] " + item1.toString());
 			} else {
 				recordData(rk, isInitial, category, name, "Equipment 1", item1.toString());
@@ -716,11 +717,11 @@ public class CharacterDataLoader {
 		}
 		
 		int equipment2 = staticChar.getEquipment2();
-		FE4Data.Item item2 = itemMap != null ? itemMap.getItemAtIndex(equipment2) : FE4Data.Item.valueOf(equipment2);
+		FE4Data.Item item2 = isPlayableCharacter ? itemMap.getItemAtIndex(equipment2) : FE4Data.Item.valueOf(equipment2);
 		if (item2 == null) {
 			recordData(rk, isInitial, category, name, "Equipment 2", "None");
 		} else {
-			if (itemMap != null) {
+			if (isPlayableCharacter) {
 				recordData(rk, isInitial, category, name, "Equipment 2", "[0x" + Integer.toHexString(equipment2).toUpperCase() + "] " + item2.toString());
 			}  else {
 				recordData(rk, isInitial, category, name, "Equipment 2", item2.toString());
@@ -728,15 +729,15 @@ public class CharacterDataLoader {
 		}
 		
 		int equipment3 = staticChar.getEquipment3();
-		FE4Data.Item item3 = itemMap != null ? itemMap.getItemAtIndex(equipment3) : FE4Data.Item.valueOf(equipment3);
+		FE4Data.Item item3 = itemMap.getItemAtIndex(equipment3);
 		if (item3 == null) {
-			recordData(rk, isInitial, category, name, "Equipment 3", "None");
-		} else {
-			if (itemMap != null) {
-				recordData(rk, isInitial, category, name, "Equipment 3", "[0x" + Integer.toHexString(equipment3).toUpperCase() + "] " + item3.toString());
-			}  else {
-				recordData(rk, isInitial, category, name, "Equipment 3", item3.toString());
+			if (isPlayableCharacter) {
+				recordData(rk, isInitial, category, name, "Equipment 3", "None");
+			} else {
+				recordData(rk, isInitial, category, name, "Dropped Item", "None");
 			}
+		} else {
+			recordData(rk, isInitial, category, name, isPlayableCharacter ? "Equipment 3" : "Dropped Item", "[0x" + Integer.toHexString(equipment3).toUpperCase() + "] " + item3.toString());
 		}
 	}
 }

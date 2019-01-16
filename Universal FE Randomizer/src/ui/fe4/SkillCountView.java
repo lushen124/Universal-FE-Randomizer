@@ -1,5 +1,9 @@
 package ui.fe4;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -7,6 +11,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import ui.fe4.WeightView.WeightViewListener;
 import ui.fe4.WeightedOptions.Weight;
 
 public class SkillCountView extends Composite {
@@ -15,6 +20,26 @@ public class SkillCountView extends Composite {
 	private WeightView oneView;
 	private WeightView twoView;
 	private WeightView threeView;
+	
+	private Set<WeightView> allViews;
+	
+	public interface SkillCountListener {
+		public void onAllItemsDisabled();
+	}
+	
+	private SkillCountListener listener;
+	private boolean allItemsDisabled;
+	
+	private void notifyAllItemsDisabled() {
+		allItemsDisabled = true;
+		if (listener != null) {
+			listener.onAllItemsDisabled();
+		}
+	}
+	
+	public void setListener(SkillCountListener listener) {
+		this.listener = listener;
+	}
 	
 	public SkillCountView(Composite parent, int style) {
 		super(parent, style);
@@ -67,6 +92,19 @@ public class SkillCountView extends Composite {
 		moreLikely.setLayoutData(moreData);
 		
 		zeroView = new WeightView("No Skills", Weight.VERY_LOW, this, 0);
+		zeroView.setListener(new WeightViewListener() {
+			@Override
+			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
+			
+			@Override
+			public void onItemEnabled() {}
+			
+			@Override
+			public void onItemDisabled() {
+				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
+				notifyAllItemsDisabled();
+			}
+		});
 		
 		FormData viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -75,6 +113,19 @@ public class SkillCountView extends Composite {
 		zeroView.setLayoutData(viewData);
 		
 		oneView = new WeightView("1 Skill", Weight.HIGH, this, 0);
+		oneView.setListener(new WeightViewListener() {
+			@Override
+			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
+			
+			@Override
+			public void onItemEnabled() {}
+			
+			@Override
+			public void onItemDisabled() {
+				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
+				notifyAllItemsDisabled();
+			}
+		});
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -83,6 +134,19 @@ public class SkillCountView extends Composite {
 		oneView.setLayoutData(viewData);
 		
 		twoView = new WeightView("2 Skills", Weight.NORMAL, this, 0);
+		twoView.setListener(new WeightViewListener() {
+			@Override
+			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
+			
+			@Override
+			public void onItemEnabled() {}
+			
+			@Override
+			public void onItemDisabled() {
+				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
+				notifyAllItemsDisabled();
+			}
+		});
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -91,19 +155,36 @@ public class SkillCountView extends Composite {
 		twoView.setLayoutData(viewData);
 		
 		threeView = new WeightView("3 Skills", Weight.VERY_LOW, this, 0);
+		threeView.setListener(new WeightViewListener() {
+			@Override
+			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
+			
+			@Override
+			public void onItemEnabled() {}
+			
+			@Override
+			public void onItemDisabled() {
+				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
+				notifyAllItemsDisabled();
+			}
+		});
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
 		viewData.top = new FormAttachment(twoView, 0);
 		viewData.right = new FormAttachment(100, -5);
 		threeView.setLayoutData(viewData);
+		
+		allViews = new HashSet<WeightView>(Arrays.asList(zeroView, oneView, twoView, threeView));
 	}
 	
 	public void setEnabled(boolean enabled) {
-		zeroView.setEnabled(enabled);
-		oneView.setEnabled(enabled);
-		twoView.setEnabled(enabled);
-		threeView.setEnabled(enabled);
+		for (WeightView view : allViews) { view.setEnabled(enabled); }
+		
+		if (allItemsDisabled && enabled) {
+			for (WeightView view : allViews) { view.setSelected(true); }
+			allItemsDisabled = false;
+		}
 	}
 	
 	public SkillCountDistributionOptions getSkillCountDistribution() {

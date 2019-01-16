@@ -11,6 +11,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
+import ui.fe4.SkillCountView.SkillCountListener;
+import ui.fe4.SkillWeightView.SkillWeightsListener;
+
 public class SkillsView extends Composite {
 	
 	private boolean skillsEnabled;
@@ -36,7 +39,6 @@ public class SkillsView extends Composite {
 		container = new Group(this, SWT.NONE);
 		
 		container.setText("Skills");
-		container.setToolTipText("Randomizes the personal skills of playable characters. Child characters are not affected by any settings and continue to rely on inheritence from parents.");
 		
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.marginLeft = 5;
@@ -47,6 +49,7 @@ public class SkillsView extends Composite {
 		
 		enableButton = new Button(container, SWT.CHECK);
 		enableButton.setText("Enable Skill Randomization");
+		enableButton.setToolTipText("Randomizes the personal skills of playable characters. Child characters are not affected by any settings and continue to rely on inheritence from parents.");
 		enableButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -134,6 +137,13 @@ public class SkillsView extends Composite {
 		
 		skillCountView = new SkillCountView(container, SWT.NONE);
 		skillCountView.setEnabled(false);
+		skillCountView.setListener(new SkillCountListener() {
+			@Override
+			public void onAllItemsDisabled() {
+				retainSkillCountsButton.setSelection(true);
+				skillCountView.setEnabled(false);
+			}
+		});
 		
 		FormData viewData = new FormData();
 		viewData.left = new FormAttachment(randomizeButton, 0, SWT.LEFT);
@@ -144,6 +154,14 @@ public class SkillsView extends Composite {
 		
 		skillWeightView = new SkillWeightView(container, SWT.NONE);
 		skillWeightView.setEnabled(false);
+		skillWeightView.setListener(new SkillWeightsListener() {
+			@Override
+			public void onAllItemsDisabled() {
+				randomizeButton.setSelection(false);
+				shuffleButton.setSelection(true);
+				setMode(SkillsOptions.Mode.SHUFFLE);
+			}
+		});
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(skillCountView, 0, SWT.LEFT);

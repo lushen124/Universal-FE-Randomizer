@@ -3,8 +3,6 @@ package random.snes.fe4.randomizer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import fedata.snes.fe4.FE4ChildCharacter;
@@ -332,13 +330,13 @@ public class FE4Randomizer extends Randomizer {
 			if (classOptions.randomizeMinions) {
 				updateStatusString("Randomizing minions...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 2));
-				FE4ClassRandomizer.randomizeMinions(classOptions, charData, rng);
+				FE4ClassRandomizer.randomizeMinions(classOptions, charData, itemMapper, rng);
 				charData.commit();
 			}
 			if (classOptions.randomizeBosses) {
 				updateStatusString("Randomizing bosses...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 3));
-				FE4ClassRandomizer.randomizeBosses(classOptions, charData, rng);
+				FE4ClassRandomizer.randomizeBosses(classOptions, charData, itemMapper, rng);
 				charData.commit();
 			}
 			if (classOptions.randomizeArena) {

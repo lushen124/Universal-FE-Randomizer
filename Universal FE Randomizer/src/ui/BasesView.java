@@ -170,7 +170,7 @@ public class BasesView extends Composite {
 		if (type.hasSTRMAGSplit()) {
 			adjustSTRMAG = new Button(container, SWT.CHECK);
 			adjustSTRMAG.setText("Adjust STR/MAG by Class");
-			adjustSTRMAG.setToolTipText("Ensures that characters that primarily use magic randomize a higher or equal magic base than strength and that\ncharacters that primarily use physical attacks randomize a higher or equal strength base than magic.\\n\\nCharacters that use both will not be weighted in either direction.");
+			adjustSTRMAG.setToolTipText("Ensures that characters that primarily use magic randomize a higher or equal magic base than strength and that\ncharacters that primarily use physical attacks randomize a higher or equal strength base than magic.\n\nCharacters that use both will not be weighted in either direction.");
 			adjustSTRMAG.setEnabled(false);
 			
 			optionData = new FormData();

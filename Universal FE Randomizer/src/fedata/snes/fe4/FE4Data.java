@@ -1208,6 +1208,7 @@ public class FE4Data {
 				SAGE, THIEF_FIGHTER, QUEEN, BISHOP, DARK_BISHOP));
 		
 		public static final Set<CharacterClass> pacifistClasses = new HashSet<CharacterClass>(Arrays.asList(PRIEST, DANCER));
+		public static final Set<CharacterClass> healingClasses = new HashSet<CharacterClass>(Arrays.asList(PRIEST, TROUBADOUR, HIGH_PRIEST, PRINCESS));
 		
 		public static final Set<CharacterClass> horsebackClasses = new HashSet<CharacterClass>(Arrays.asList(SOCIAL_KNIGHT, LANCE_KNIGHT, ARCH_KNIGHT, AXE_KNIGHT, FREE_KNIGHT, TROUBADOUR, 
 				LORD_KNIGHT, DUKE_KNIGHT, MASTER_KNIGHT, PALADIN, PALADIN_F, BOW_KNIGHT, FORREST_KNIGHT, MAGE_KNIGHT, GREAT_KNIGHT));
@@ -1238,6 +1239,7 @@ public class FE4Data {
 		public boolean isFlier() { return fliers.contains(this); }
 		public boolean isPacifist() { return pacifistClasses.contains(this); }
 		public boolean isArmored() { return armoredClasses.contains(this); }
+		public boolean isHealer() { return healingClasses.contains(this); }
 		
 		public HolyBlood[] supportedHolyBlood() {
 			Set<HolyBlood> bloodSet = new HashSet<HolyBlood>();
