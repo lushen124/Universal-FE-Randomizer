@@ -363,8 +363,16 @@ public class FE4ClassRandomizer {
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
@@ -383,8 +391,16 @@ public class FE4ClassRandomizer {
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
@@ -403,8 +419,16 @@ public class FE4ClassRandomizer {
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
@@ -423,8 +447,16 @@ public class FE4ClassRandomizer {
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
@@ -443,8 +475,16 @@ public class FE4ClassRandomizer {
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
