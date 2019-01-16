@@ -381,15 +381,15 @@ public class FE4Randomizer extends Randomizer {
 		if (classOptions.randomizePlayableCharacters) {
 			// Make sure Sigurd does NOT pass his holy weapon to Seliph.
 			// Tyrfing normally sits at inventory ID 0x27. Since we didn't change inventory IDs, this should still be safe.
-			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset, 1, new byte[] {(byte)(itemMapper.getItemAtIndex(0x27).ID & 0xFF)}, new byte[] {(FE4Data.SeliphHolyWeaponInheritenceBanOldID)}));
-			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset2, 1, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanNewValue}, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanOldValue}));
+			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)(itemMapper.getItemAtIndex(0x27).ID & 0xFF)}, new byte[] {(FE4Data.SeliphHolyWeaponInheritenceBanOldID)}));
+			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset2 - (isHeadered ? 0 : 0x200), 1, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanNewValue}, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanOldValue}));
 			
 			// Make sure Lex's Hero Axe event still triggers (the reward should have already been updated if the "Adjust Conversation Items" option was enabled).
 			// Trigger it off of whatever equipment Lex started with.
 			FE4StaticCharacter lex = charData.getStaticCharacter(FE4Data.Character.LEX);
 			int equip1 = lex.getEquipment1();
 			FE4Data.Item item1 = FE4Data.Item.valueOf(equip1);
-			diffCompiler.addDiff(new Diff(FE4Data.LexHeroAxeEventItemRequirementOffset, 1, new byte[] {(byte)item1.ID}, new byte[] {FE4Data.LexHeroAxeEventItemRequirementOldID}));
+			diffCompiler.addDiff(new Diff(FE4Data.LexHeroAxeEventItemRequirementOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)item1.ID}, new byte[] {FE4Data.LexHeroAxeEventItemRequirementOldID}));
 			
 			// Finalize promotions (which are stored away from the character data).
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, 2));
