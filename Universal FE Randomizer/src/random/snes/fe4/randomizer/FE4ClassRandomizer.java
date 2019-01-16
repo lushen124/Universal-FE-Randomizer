@@ -361,6 +361,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -379,6 +381,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -397,6 +401,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -415,6 +421,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -433,6 +441,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -452,6 +462,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -470,6 +482,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -488,6 +502,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -506,6 +522,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -524,6 +542,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -540,6 +560,8 @@ public class FE4ClassRandomizer {
 			weapons.addAll(FE4Data.Item.aWeapons);
 			
 			for (int index : inventoryIndices) {
+				FE4Data.Item currentItem = itemMap.getItemAtIndex(index);
+				if (currentItem.isRing()) { continue; }
 				int randomIndex = rng.nextInt(weapons.size());
 				FE4Data.Item randomWeapon = weapons.get(randomIndex);
 				itemMap.setItemAtIndex(index, randomWeapon);
@@ -844,7 +866,10 @@ public class FE4ClassRandomizer {
 			FE4Data.Item mustUseItem = fe4Char.requiresWeapon();
 			// Gen 2 enemies should adjust their class to match any dropped item they might have. (Gen 1 is allowed to be the setter of the item.)
 			if (fe4Char.isGen2() && mustUseItem == null && enemy.getDropableEquipment() != FE4Data.Item.NONE.ID) {
-				mustUseItem = itemMap.getItemAtIndex(enemy.getDropableEquipment());
+				FE4Data.Item droppedItem = itemMap.getItemAtIndex(enemy.getDropableEquipment());
+				if (droppedItem.isWeapon()) {
+					mustUseItem = droppedItem; 
+				}
 			}
 			if (fe4Char.mustBeatCharacter().length > 0) {
 				FE4Data.Character loser = fe4Char.mustBeatCharacter()[0];
@@ -1617,8 +1642,8 @@ public class FE4ClassRandomizer {
 		enemy.setEquipment1(item1 != null ? item1.ID : FE4Data.Item.NONE.ID);
 		enemy.setEquipment2(item2 != null ? item2.ID : FE4Data.Item.NONE.ID);
 		
-		// If we must set the item on this enemy and they also drop a weapon, force that drop to be the item given, just to ensure they can use the dropped item.
-		if (itemMap != null && enemy.getDropableEquipment() != FE4Data.Item.NONE.ID) {
+		// If we must set the item on this enemy and they also drop a weapon, force that drop to be the item given (unless it's a ring), just to ensure they can use the dropped item.
+		if (itemMap != null && enemy.getDropableEquipment() != FE4Data.Item.NONE.ID && !itemMap.getItemAtIndex(enemy.getDropableEquipment()).isRing()) {
 			itemMap.setItemAtIndex(enemy.getDropableEquipment(), item1);
 		}
 	}
