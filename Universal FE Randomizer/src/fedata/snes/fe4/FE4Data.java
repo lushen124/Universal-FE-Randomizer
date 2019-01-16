@@ -1216,6 +1216,8 @@ public class FE4Data {
 		
 		public static final Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCH_KNIGHT, BOW_KNIGHT, HUNTER, BOW_ARMOR, BOW_FIGHTER, SNIPER));
 		
+		public static final Set<CharacterClass> advancedClasses = new HashSet<CharacterClass>(Arrays.asList(EMPEROR, QUEEN));
+		
 		public int ID;
 		
 		private static Map<Integer, CharacterClass> map = new HashMap<Integer, CharacterClass>();
@@ -1775,6 +1777,7 @@ public class FE4Data {
 		public static final Set<Item> darkMagic = new HashSet<Item>(Arrays.asList(YOTSMUNGAND, FENRIR, HEL, LOPTYR));
 		public static final Set<Item> staves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RETURN, WARP, RESCUE, RESTORE, VALKYRIE, SILENCE, SLEEP, BERSERK));
 		
+		public static final Set<Item> healingStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY));
 		public static final Set<Item> siegeTomes = new HashSet<Item>(Arrays.asList(METEOR, BOLTING, BLIZZARD, FENRIR));
 		
 		public static final Set<Item> meleeWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, MIRACLE_SWORD, THIEF_SWORD, BARRIER_BLADE,
@@ -1794,6 +1797,14 @@ public class FE4Data {
 				WIND, ELWIND, TORNADO, FORSETI,
 				LIGHT, NOSFERATU, AURA, NAGA,
 				YOTSMUNGAND));
+		
+		public static final Set<Item> interestingWeapons = new HashSet<Item>(Arrays.asList(MIRACLE_SWORD, THIEF_SWORD,
+				BARRIER_BLADE, BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD, SAFEGUARD,
+				FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, ARMORSLAYER, WING_CLIPPER, BRAVE_AXE, 
+				BRAVE_LANCE, HORSESLAYER, BRAVE_BOW, KILLER_BOW, NOSFERATU));
+		
+		public static final Set<Item> powerfulWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, STEEL_BLADE, SILVER_BLADE, SILVER_LANCE,
+				SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, AURA, HEL));
 		
 		public static final Set<Item> rings = new HashSet<Item>(Arrays.asList(LIFE_RING, ELITE_RING, THIEF_RING, PRAYER_RING, PURSUIT_RING, RECOVER_RING, BARGAIN_RING, 
 				KNIGHT_RING, RETURN_RING, SPEED_RING, MAGIC_RING, POWER_RING, SHIELD_RING, BARRIER_RING, LEG_RING, SKILL_RING));

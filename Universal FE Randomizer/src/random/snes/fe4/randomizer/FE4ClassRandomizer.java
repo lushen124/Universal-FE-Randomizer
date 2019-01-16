@@ -803,7 +803,7 @@ public class FE4ClassRandomizer {
 				if (mustUseItem != null) {
 					setEnemyCharacterToClass(options, enemy, predeterminedClasses.get(fe4Char), mustUseItem);
 				} else { 
-					setEnemyCharacterToClass(options, enemy, predeterminedClasses.get(fe4Char), rng);
+					setEnemyCharacterToClass(options, enemy, fe4Char, predeterminedClasses.get(fe4Char), rng);
 				}
 				continue;
 			}
@@ -858,6 +858,8 @@ public class FE4ClassRandomizer {
 			}
 			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, fe4Char.mustLoseToCharacters().length > 0, true, false, mustUseItem, mustLoseToWeapon));
 			
+			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
+			
 			if (classPool.isEmpty()) {
 				setEnemies.put(fe4Char, enemy);
 				continue;
@@ -880,7 +882,7 @@ public class FE4ClassRandomizer {
 			if (mustUseItem != null) {
 				setEnemyCharacterToClass(options, enemy, targetClass, mustUseItem);
 			} else {
-				setEnemyCharacterToClass(options, enemy, targetClass, rng);
+				setEnemyCharacterToClass(options, enemy, fe4Char, targetClass, rng);
 			}
 		}
 		
@@ -900,7 +902,7 @@ public class FE4ClassRandomizer {
 				if (mustUseItem != null) {
 					setEnemyCharacterToClass(options, deferred, predeterminedClasses.get(fe4Char), mustUseItem);
 				} else {
-					setEnemyCharacterToClass(options, deferred, predeterminedClasses.get(fe4Char), rng);
+					setEnemyCharacterToClass(options, deferred, fe4Char, predeterminedClasses.get(fe4Char), rng);
 				}
 				continue;
 			}
@@ -955,6 +957,7 @@ public class FE4ClassRandomizer {
 			}
 			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, fe4Char.mustLoseToCharacters().length > 0, true, false, mustUseItem, mustLoseToWeapon));
 			
+			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
 			if (classPool.isEmpty()) {
 				setEnemies.put(fe4Char, deferred);
 				continue;
@@ -976,7 +979,7 @@ public class FE4ClassRandomizer {
 			if (mustUseItem != null) {
 				setEnemyCharacterToClass(options, deferred, targetClass, mustUseItem);
 			} else {
-				setEnemyCharacterToClass(options, deferred, targetClass, rng);
+				setEnemyCharacterToClass(options, deferred, fe4Char, targetClass, rng);
 			}
 		}
 	}
@@ -1454,10 +1457,29 @@ public class FE4ClassRandomizer {
 		}
 	}
 
-	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, Random rng) {
+	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.Character enemyChar, FE4Data.CharacterClass targetClass, Random rng) {
 		enemy.setClassID(targetClass.ID);
 		
-		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(new ArrayList<FE4Data.HolyBloodSlot1>(), new ArrayList<FE4Data.HolyBloodSlot2>(), new ArrayList<FE4Data.HolyBloodSlot3>())));
+		Set<FE4Data.Item> blacklistedItems = new HashSet<FE4Data.Item>();
+		int chapter = enemyChar.minionChapter();
+		int effectiveChapter = chapter % 6; // Matches up Prologue with Ch 6, 1 with 7, 2-8, 3-9, 4-10, 5-Endgame
+		// Prologue/Ch6 - 100%
+		// Ch1/Ch7 - 80%
+		// Ch2/Ch8 - 60%
+		// Ch3/Ch9 - 40%
+		// Ch4/Ch10 - 20%
+		// Ch5/Endgame - 0%
+		boolean shouldBlacklist = rng.nextInt(6) >= effectiveChapter; 
+		
+		if (shouldBlacklist) {
+			// Blacklist anything too powerful in the prologue.
+			blacklistedItems.addAll(FE4Data.Item.interestingWeapons);
+			blacklistedItems.addAll(FE4Data.Item.powerfulWeapons);
+		}
+		
+		Set<FE4Data.Item> itemSet = new HashSet<FE4Data.Item>(Arrays.asList(targetClass.usableItems(new ArrayList<FE4Data.HolyBloodSlot1>(), new ArrayList<FE4Data.HolyBloodSlot2>(), new ArrayList<FE4Data.HolyBloodSlot3>())));
+		itemSet.removeAll(blacklistedItems);
+		List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet); 
 		
 		int item1ID = enemy.getEquipment1();
 		FE4Data.Item item1 = FE4Data.Item.valueOf(item1ID);

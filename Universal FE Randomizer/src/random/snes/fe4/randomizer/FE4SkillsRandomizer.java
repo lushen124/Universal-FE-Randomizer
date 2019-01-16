@@ -57,10 +57,13 @@ public class FE4SkillsRandomizer {
 				while (skillList.contains(skill)) {
 					recipient = characterPool.getRandomItem(rng, false);
 					skillList = assignedSkills.get(recipient);
+					if (recipient.mustLoseToCharacters().length > 0 && skill == FE4Data.Skill.NIHIL) {
+						continue; // Nobody that has to lose can have Nihil as a skill.
+					}
 					if (skillList == null) {
 						skillList = new ArrayList<FE4Data.Skill>();
 						assignedSkills.put(recipient, skillList);
-					}	
+					}
 				}
 				
 				skillList.add(skill);
@@ -137,10 +140,13 @@ public class FE4SkillsRandomizer {
 				while (skillList.contains(skill)) {
 					recipient = characterPool.getRandomItem(rng, false);
 					skillList = assignedSkills.get(recipient);
+					if (recipient.mustLoseToCharacters().length > 0 && skill == FE4Data.Skill.NIHIL) {
+						continue; // Nobody that has to lose can have Nihil as a skill.
+					}
 					if (skillList == null) {
 						skillList = new ArrayList<FE4Data.Skill>();
 						assignedSkills.put(recipient, skillList);
-					}	
+					}
 				}
 				
 				skillList.add(skill);
@@ -237,6 +243,9 @@ public class FE4SkillsRandomizer {
 				while (skillList.contains(skill)) {
 					recipient = characterPool.getRandomItem(rng, false);
 					skillList = assignedSkills.get(recipient);
+					if (recipient.mustLoseToCharacters().length > 0 && skill == FE4Data.Skill.NIHIL) {
+						continue; // Nobody that has to lose can have Nihil as a skill.
+					}
 					if (skillList == null) {
 						skillList = new ArrayList<FE4Data.Skill>();
 						assignedSkills.put(recipient, skillList);
@@ -302,6 +311,7 @@ public class FE4SkillsRandomizer {
 		// Gen 1
 		List<FE4StaticCharacter> gen1Characters = charData.getGen1Characters();
 		for (FE4StaticCharacter staticChar : gen1Characters) {
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
 			int numberOfSkills = 0;
 			if (options.retainNumberOfSkills) {
 				numberOfSkills += FE4Data.SkillSlot1.slot1Skills(staticChar.getSkillSlot1Value()).size();
@@ -311,13 +321,14 @@ public class FE4SkillsRandomizer {
 				numberOfSkills = skillCountDistributor.getRandomItem(rng);
 			}
 			
-			assignSkillsToStaticCharacter(staticChar, numberOfSkills, skillDistributor, rng);
+			assignSkillsToStaticCharacter(staticChar, fe4Char, numberOfSkills, skillDistributor, rng);
 		}
 		
 		// Gen 2 (Common and Substitutes only)
 		List<FE4StaticCharacter> gen2Characters = charData.getGen2CommonCharacters();
 		gen2Characters.addAll(charData.getGen2SubstituteCharacters());
 		for (FE4StaticCharacter staticChar : gen2Characters) {
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
 			int numberOfSkills = 0;
 			if (options.retainNumberOfSkills) {
 				numberOfSkills += FE4Data.SkillSlot1.slot1Skills(staticChar.getSkillSlot1Value()).size();
@@ -327,7 +338,7 @@ public class FE4SkillsRandomizer {
 				numberOfSkills = skillCountDistributor.getRandomItem(rng);
 			}
 			
-			assignSkillsToStaticCharacter(staticChar, numberOfSkills, skillDistributor, rng);
+			assignSkillsToStaticCharacter(staticChar, fe4Char, numberOfSkills, skillDistributor, rng);
 		}
 	}
 	
@@ -403,7 +414,7 @@ public class FE4SkillsRandomizer {
 		return skillDistributor;
 	}
 	
-	private static void assignSkillsToStaticCharacter(FE4StaticCharacter staticChar, int numberOfSkills, WeightedDistributor<FE4Data.Skill> skillDistributor, Random rng) {
+	private static void assignSkillsToStaticCharacter(FE4StaticCharacter staticChar, FE4Data.Character fe4Char, int numberOfSkills, WeightedDistributor<FE4Data.Skill> skillDistributor, Random rng) {
 		staticChar.setSkillSlot1Value(0);
 		staticChar.setSkillSlot2Value(0);
 		staticChar.setSkillSlot3Value(0);
@@ -415,6 +426,9 @@ public class FE4SkillsRandomizer {
 		
 		for (int i = 0; i < numberOfSkills; i++) {
 			FE4Data.Skill randomSkill = workingSkillDistributor.getRandomItem(rng);
+			if (fe4Char.mustLoseToCharacters().length > 0 && randomSkill == FE4Data.Skill.NIHIL) {
+				continue; // Nobody that has to lose can have Nihil as a skill.
+			}
 			if (randomSkill == null) { break; }
 			skillsGiven.add(randomSkill);
 			workingSkillDistributor.removeItem(randomSkill);
