@@ -67,7 +67,7 @@ $ java -jar Yune\ -\ GTK(x86_64).jar
 ...or something like that. Tested with Ubuntu 16.04.4.
 
 ## Compatability
-* Fire Emblem: Genealogy of the Holy War (aka FE4 or ファイアーエムブレム　聖戦の系譜) **NEW!**
+* **NEW!** Fire Emblem: Genealogy of the Holy War (aka FE4 or ファイアーエムブレム　聖戦の系譜)
 * Fire Emblem: Binding Blade (aka FE6 or ファイアーエムブレム　封印の剣)
 * Fire Emblem: Blazing Sword (aka FE7 or ファイアーエムブレム 烈火の剣)
 * Fire Emblem: The Sacred Stones (aka FE8 or ファイアーエムブレム 聖魔の光石)
