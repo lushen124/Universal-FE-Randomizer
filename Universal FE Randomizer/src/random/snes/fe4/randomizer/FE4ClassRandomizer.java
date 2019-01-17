@@ -361,8 +361,18 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
@@ -379,8 +389,18 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
@@ -397,8 +417,18 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
@@ -415,8 +445,18 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
@@ -433,8 +473,18 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
-					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
-					itemMap.setItemAtIndex(i, randomItem);
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
+					if (currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).findFirst().isPresent()) {
+						List<FE4Data.Item> healingStaves = currentList.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).collect(Collectors.toList());
+						FE4Data.Item randomItem = healingStaves.get(rng.nextInt(healingStaves.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					} else {
+						FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
+						itemMap.setItemAtIndex(i, randomItem);
+						possibleWeapons.remove(randomItem);
+					}
 				}
 			}
 			
@@ -452,6 +502,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -470,6 +522,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -488,6 +542,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -506,6 +562,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -524,6 +582,8 @@ public class FE4ClassRandomizer {
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
 				for (Integer i : inventoryIndices) {
+					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
+					if (currentItem.isRing()) { continue; }
 					FE4Data.Item randomItem = currentList.get(rng.nextInt(currentList.size()));
 					itemMap.setItemAtIndex(i, randomItem);
 				}
@@ -540,6 +600,8 @@ public class FE4ClassRandomizer {
 			weapons.addAll(FE4Data.Item.aWeapons);
 			
 			for (int index : inventoryIndices) {
+				FE4Data.Item currentItem = itemMap.getItemAtIndex(index);
+				if (currentItem.isRing()) { continue; }
 				int randomIndex = rng.nextInt(weapons.size());
 				FE4Data.Item randomWeapon = weapons.get(randomIndex);
 				itemMap.setItemAtIndex(index, randomWeapon);
@@ -548,18 +610,33 @@ public class FE4ClassRandomizer {
 	}
 	
 	// Should be run after randomizing playable characters.
-	public static void randomizeMinions(FE4ClassOptions options, CharacterDataLoader charData, Random rng) {
+	public static void randomizeMinions(FE4ClassOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		List<FE4EnemyCharacter> enemies = charData.getMinions();
-		randomizeEnemies(options, enemies, charData, rng);
+		randomizeEnemies(options, enemies, charData, itemMap, rng);
+	}
+	
+	private static class BloodArrays {
+		public final List<FE4Data.HolyBloodSlot1> slot1Blood;
+		public final List<FE4Data.HolyBloodSlot2> slot2Blood;
+		public final List<FE4Data.HolyBloodSlot3> slot3Blood;
+		
+		public BloodArrays(FE4StaticCharacter character) {
+			super();
+			slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(character.getHolyBlood1Value());
+			slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(character.getHolyBlood2Value());
+			slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(character.getHolyBlood3Value());
+		}
 	}
 	
 	// Should be run after randomizing enemies.
-	public static void randomizeBosses(FE4ClassOptions options, CharacterDataLoader charData, Random rng) {
+	public static void randomizeBosses(FE4ClassOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		List<FE4EnemyCharacter> bosses = charData.getPlainBossCharacters();
-		randomizeEnemies(options, bosses, charData, rng);
+		randomizeEnemies(options, bosses, charData, itemMap, rng);
 		
 		List<FE4StaticCharacter> holyBosses = charData.getHolyBossCharacters();
 		Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses = new HashMap<FE4Data.Character, FE4Data.CharacterClass>();
+		Map<FE4Data.Character, BloodArrays> predeterminedBlood = new HashMap<FE4Data.Character, BloodArrays>();
+		
 		for (FE4EnemyCharacter boss : bosses) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(boss.getCharacterID());
 			FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(boss.getClassID());
@@ -571,7 +648,12 @@ public class FE4ClassRandomizer {
 			
 			FE4Data.CharacterClass targetClass = predeterminedClasses.get(fe4Char);
 			if (targetClass != null) {
-				setHolyBossToClass(options, holyBoss, targetClass, charData, predeterminedClasses, rng);
+				BloodArrays blood = predeterminedBlood.get(fe4Char);
+				if (blood != null) {
+					setHolyBossToClass(options, holyBoss, targetClass, blood.slot1Blood, blood.slot2Blood, blood.slot3Blood, charData, predeterminedClasses, itemMap, rng);
+				} else {
+					setHolyBossToClass(options, holyBoss, targetClass, null, null, null, charData, predeterminedClasses, itemMap, rng);
+				}
 				continue;
 			}
 			
@@ -643,6 +725,10 @@ public class FE4ClassRandomizer {
 					// Defer to later?
 				}
 				
+				if (mustUseItem == null && fe4Char.isGen2() && holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
+					mustUseItem = itemMap.getItemAtIndex(holyBoss.getEquipment3());
+				}
+				
 				if (referenceClass != null) {
 					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, true, holyBoss.isFemale(), false, fe4Char.requiresAttack(), true, mustUseItem, null));
 				} else {
@@ -671,12 +757,21 @@ public class FE4ClassRandomizer {
 						}
 					}
 				}
+				
+				if (mustUseItem == null && fe4Char.isGen2() && holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
+					mustUseItem = itemMap.getItemAtIndex(holyBoss.getEquipment3());
+				}
+				
 				if (referenceClass != null) {
 					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, true, holyBoss.isFemale(), true, fe4Char.requiresAttack(), true, mustUseItem, loseToWeapon));
 				} else {
 					Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, true, holyBoss.isFemale(), true, fe4Char.requiresAttack(), true, mustUseItem, loseToWeapon));
 				}
 			} else {
+				if (mustUseItem == null && fe4Char.isGen2() && holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
+					mustUseItem = itemMap.getItemAtIndex(holyBoss.getEquipment3());
+				}
+				
 				if (referenceClass != null) {
 					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, false, holyBoss.isFemale(), false, fe4Char.requiresAttack(), false, mustUseItem, null));
 				} else {
@@ -687,10 +782,11 @@ public class FE4ClassRandomizer {
 			if (potentialClasses.isEmpty()) { continue; }
 			
 			targetClass = potentialClasses.get(rng.nextInt(potentialClasses.size()));
-			setHolyBossToClass(options, holyBoss, targetClass, charData, predeterminedClasses, rng);
+			setHolyBossToClass(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng);
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
 				predeterminedClasses.put(linked, targetClass);
+				predeterminedBlood.put(linked, new BloodArrays(holyBoss));
 			}
 			
 			// Set ourselves as predetermined, in the odd case that we run across ourself again.
@@ -832,16 +928,15 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
-			setEnemyCharacterToClass(options, combatant, targetClass, item1, item2);
+			setEnemyCharacterToClass(options, combatant, targetClass, item1, item2, null);
 		}
 	}
 	
-	private static void randomizeEnemies(FE4ClassOptions options, List<FE4EnemyCharacter> enemies, CharacterDataLoader charData, Random rng) {
+	private static void randomizeEnemies(FE4ClassOptions options, List<FE4EnemyCharacter> enemies, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses = new HashMap<FE4Data.Character, FE4Data.CharacterClass>();
 		
 		List<FE4EnemyCharacter> deferredEnemies = new ArrayList<FE4EnemyCharacter>();
-		Map<FE4Data.Character, FE4Data.Item> weaponsBeatingCharacter = new HashMap<FE4Data.Character, FE4Data.Item>(); 
-		Map<FE4Data.Character, FE4EnemyCharacter> setEnemies = new HashMap<FE4Data.Character, FE4EnemyCharacter>();
+		Map<FE4Data.Character, FE4Data.Item> weaponsBeatingCharacter = new HashMap<FE4Data.Character, FE4Data.Item>();
 		
 		for (FE4EnemyCharacter enemy : enemies) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(enemy.getCharacterID());
@@ -857,14 +952,21 @@ public class FE4ClassRandomizer {
 					}
 				}
 				if (mustUseItem != null) {
-					setEnemyCharacterToClass(options, enemy, predeterminedClasses.get(fe4Char), mustUseItem);
+					setEnemyCharacterToClass(options, enemy, predeterminedClasses.get(fe4Char), mustUseItem, itemMap);
 				} else { 
-					setEnemyCharacterToClass(options, enemy, fe4Char, predeterminedClasses.get(fe4Char), rng);
+					setEnemyCharacterToClass(options, enemy, fe4Char, predeterminedClasses.get(fe4Char), itemMap, rng);
 				}
 				continue;
 			}
 			
 			FE4Data.Item mustUseItem = fe4Char.requiresWeapon();
+			// Gen 2 enemies should adjust their class to match any dropped item they might have. (Gen 1 is allowed to be the setter of the item.)
+			if (fe4Char.isGen2() && mustUseItem == null && enemy.getDropableEquipment() != FE4Data.Item.NONE.ID) {
+				FE4Data.Item droppedItem = itemMap.getItemAtIndex(enemy.getDropableEquipment());
+				if (droppedItem.isWeapon()) {
+					mustUseItem = droppedItem; 
+				}
+			}
 			if (fe4Char.mustBeatCharacter().length > 0) {
 				FE4Data.Character loser = fe4Char.mustBeatCharacter()[0];
 				FE4Data.CharacterClass loserClass = null;
@@ -921,7 +1023,6 @@ public class FE4ClassRandomizer {
 			}
 			
 			if (classPool.isEmpty()) {
-				setEnemies.put(fe4Char, enemy);
 				continue;
 			}
 			
@@ -938,11 +1039,14 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
-			setEnemies.put(fe4Char, enemy);
 			if (mustUseItem != null) {
-				setEnemyCharacterToClass(options, enemy, targetClass, mustUseItem);
+				setEnemyCharacterToClass(options, enemy, targetClass, mustUseItem, itemMap);
 			} else {
-				setEnemyCharacterToClass(options, enemy, fe4Char, targetClass, rng);
+				setEnemyCharacterToClass(options, enemy, fe4Char, targetClass, itemMap, rng);
+			}
+			
+			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
+				predeterminedClasses.put(linked, targetClass);
 			}
 		}
 		
@@ -960,9 +1064,9 @@ public class FE4ClassRandomizer {
 					}
 				}
 				if (mustUseItem != null) {
-					setEnemyCharacterToClass(options, deferred, predeterminedClasses.get(fe4Char), mustUseItem);
+					setEnemyCharacterToClass(options, deferred, predeterminedClasses.get(fe4Char), mustUseItem, itemMap);
 				} else {
-					setEnemyCharacterToClass(options, deferred, fe4Char, predeterminedClasses.get(fe4Char), rng);
+					setEnemyCharacterToClass(options, deferred, fe4Char, predeterminedClasses.get(fe4Char), itemMap, rng);
 				}
 				continue;
 			}
@@ -1019,7 +1123,6 @@ public class FE4ClassRandomizer {
 			
 			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
 			if (classPool.isEmpty()) {
-				setEnemies.put(fe4Char, deferred);
 				continue;
 			}
 			
@@ -1035,16 +1138,19 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
-			setEnemies.put(fe4Char, deferred);
 			if (mustUseItem != null) {
-				setEnemyCharacterToClass(options, deferred, targetClass, mustUseItem);
+				setEnemyCharacterToClass(options, deferred, targetClass, mustUseItem, itemMap);
 			} else {
-				setEnemyCharacterToClass(options, deferred, fe4Char, targetClass, rng);
+				setEnemyCharacterToClass(options, deferred, fe4Char, targetClass, itemMap, rng);
+			}
+			
+			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
+				predeterminedClasses.put(linked, targetClass);
 			}
 		}
 	}
 	
-	private static void setHolyBossToClass(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Random rng) {
+	private static void setHolyBossToClass(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, ItemMapper itemMap, Random rng) {
 		FE4Data.CharacterClass oldClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
 		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
 		boolean wasMAGBased = oldClass.primaryAttackIsMagic();
@@ -1155,32 +1261,66 @@ public class FE4ClassRandomizer {
 				bloodOptions.remove(blood);
 			}
 			
-			holyBoss.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
-			holyBoss.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
-			holyBoss.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
+			setHolyBossToClass(options, holyBoss, targetClass, slot1Blood, slot2Blood, slot3Blood, charData, predeterminedClasses, itemMap, rng);
+		}
+	}
+	
+	private static void setHolyBossToClass(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, List<FE4Data.HolyBloodSlot1> slot1Blood, List<FE4Data.HolyBloodSlot2> slot2Blood, List<FE4Data.HolyBloodSlot3> slot3Blood, CharacterDataLoader charData, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, ItemMapper itemMap, Random rng) {
+		
+		FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
+		
+		holyBoss.setClassID(targetClass.ID);
+		
+		if (slot1Blood == null) { slot1Blood = new ArrayList<FE4Data.HolyBloodSlot1>(); }
+		if (slot2Blood == null) { slot2Blood = new ArrayList<FE4Data.HolyBloodSlot2>(); }
+		if (slot3Blood == null) { slot3Blood = new ArrayList<FE4Data.HolyBloodSlot3>(); }
+		
+		holyBoss.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
+		holyBoss.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
+		holyBoss.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
+		
+		boolean hasMajorBlood = false;
+		FE4Data.HolyBlood majorBloodType = null;
+		if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+			majorBloodType = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+			hasMajorBlood = true;
+		}
+		if (!hasMajorBlood && slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+			majorBloodType = slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+			hasMajorBlood = true;
+		}
+		if (!hasMajorBlood && slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+			majorBloodType = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+			hasMajorBlood = true;
 		}
 		
 		// Verify equipment.
 		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
 		usableItems.removeIf(item -> (item.getRank() == FE4Data.Item.WeaponRank.PRF));
 		
+		List<FE4Data.Item> stafflessList = new ArrayList<Item>(usableItems);
+		stafflessList.removeIf(item -> (item.getType() == FE4Data.Item.ItemType.STAFF));
+		
 		int equip1 = holyBoss.getEquipment1();
 		FE4Data.Item item1 = FE4Data.Item.valueOf(equip1);
-		if (item1 != null && targetClass.canUseWeapon(item1, slot1Blood, slot2Blood, slot3Blood) == false) {
+		if (item1 != FE4Data.Item.NONE && targetClass.canUseWeapon(item1, slot1Blood, slot2Blood, slot3Blood) == false) {
 			boolean isHolyWeapon = item1.getRank() == FE4Data.Item.WeaponRank.PRF;
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
 				replacement = majorBloodType.holyWeapon;
+			} else if (!stafflessList.isEmpty()) {
+				replacement = stafflessList.get(rng.nextInt(stafflessList.size()));
 			} else {
 				replacement = usableItems.get(rng.nextInt(usableItems.size()));
 			}
 			holyBoss.setEquipment1(replacement.ID);
 			usableItems.remove(replacement);
+			stafflessList.remove(replacement);
 		}
 		
 		int equip2 = holyBoss.getEquipment2();
 		FE4Data.Item item2 = FE4Data.Item.valueOf(equip2);
-		if (item2 != null && targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false) {
+		if (item2 != FE4Data.Item.NONE && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || item2 == item1)) {
 			boolean isHolyWeapon = item2.getRank() == FE4Data.Item.WeaponRank.PRF;
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
@@ -1189,14 +1329,18 @@ public class FE4ClassRandomizer {
 				replacement = usableItems.get(rng.nextInt(usableItems.size()));
 			}
 			
-			holyBoss.setEquipment1(replacement.ID);
+			holyBoss.setEquipment2(replacement.ID);
 			usableItems.remove(replacement);
 		}
 		
+		// If they drop something and are in Gen 1, we should make sure they can drop something they can use.
 		int equip3 = holyBoss.getEquipment3();
-		FE4Data.Item item3 = FE4Data.Item.valueOf(equip3);
-		if (item3 != null) {
-			// This is actually a drop. Not sure if we should change this.
+		if (equip3 != FE4Data.Item.NONE.ID && fe4Char.isGen1() && itemMap != null) {
+			FE4Data.Item droppedItem = itemMap.getItemAtIndex(equip3);
+			if (!targetClass.canUseWeapon(droppedItem, slot1Blood, slot2Blood, slot3Blood)) {
+				FE4Data.Item replacement = usableItems.get(rng.nextInt(usableItems.size()));
+				itemMap.setItemAtIndex(equip3, replacement);
+			}
 		}
 	}
 	
@@ -1331,6 +1475,10 @@ public class FE4ClassRandomizer {
 		
 		boolean canAttack = usableItems.stream().anyMatch(item -> (item.isWeapon()));
 		boolean hasWeapon = false;
+		boolean isHealer = targetClass.isHealer();
+		
+		Set<FE4Data.Item> healingStaves = new HashSet<Item>(FE4Data.Item.healingStaves);
+		healingStaves.retainAll(usableItems);
 		
 		int equip1 = character.getEquipment1();
 		FE4Data.Item item1 = itemMap.getItemAtIndex(equip1);
@@ -1340,7 +1488,12 @@ public class FE4ClassRandomizer {
 			if (isHolyWeapon) {
 				replacement = majorBloodType.holyWeapon;
 			} else {
-				replacement = usableItems.get(rng.nextInt(usableItems.size()));
+				if (isHealer && !healingStaves.isEmpty()) {
+					List<FE4Data.Item> healStaffList = new ArrayList<FE4Data.Item>(healingStaves); 
+					replacement = healStaffList.get(rng.nextInt(healStaffList.size()));
+				} else {
+					replacement = usableItems.get(rng.nextInt(usableItems.size()));
+				}
 			}
 			
 			itemMap.setItemAtIndex(equip1, replacement);
@@ -1353,7 +1506,7 @@ public class FE4ClassRandomizer {
 		
 		int equip2 = character.getEquipment2();
 		FE4Data.Item item2 = itemMap.getItemAtIndex(equip2);
-		if (item2 != null && targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false) {
+		if (item2 != null && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || item2 == item1)) {
 			boolean isHolyWeapon = item2.getRank() == FE4Data.Item.WeaponRank.PRF;
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
@@ -1371,7 +1524,7 @@ public class FE4ClassRandomizer {
 		
 		int equip3 = character.getEquipment3();
 		FE4Data.Item item3 = itemMap.getItemAtIndex(equip3);
-		if (item3 != null && targetClass.canUseWeapon(item3, slot1Blood, slot2Blood, slot3Blood) == false) {
+		if (item3 != null && (targetClass.canUseWeapon(item3, slot1Blood, slot2Blood, slot3Blood) == false || item3 == item2 || item3 == item1)) {
 			boolean isHolyWeapon = item3.getRank() == FE4Data.Item.WeaponRank.PRF;
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
@@ -1517,7 +1670,7 @@ public class FE4ClassRandomizer {
 		}
 	}
 
-	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.Character enemyChar, FE4Data.CharacterClass targetClass, Random rng) {
+	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.Character enemyChar, FE4Data.CharacterClass targetClass, ItemMapper itemMap, Random rng) {
 		enemy.setClassID(targetClass.ID);
 		
 		Set<FE4Data.Item> blacklistedItems = new HashSet<FE4Data.Item>();
@@ -1537,13 +1690,13 @@ public class FE4ClassRandomizer {
 			blacklistedItems.addAll(FE4Data.Item.powerfulWeapons);
 		}
 		
-		Set<FE4Data.Item> itemSet = new HashSet<FE4Data.Item>(Arrays.asList(targetClass.usableItems(new ArrayList<FE4Data.HolyBloodSlot1>(), new ArrayList<FE4Data.HolyBloodSlot2>(), new ArrayList<FE4Data.HolyBloodSlot3>())));
+		Set<FE4Data.Item> itemSet = new HashSet<FE4Data.Item>(Arrays.asList(targetClass.usableItems(null, null, null)));
 		itemSet.removeAll(blacklistedItems);
 		List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet); 
 		
 		int item1ID = enemy.getEquipment1();
 		FE4Data.Item item1 = FE4Data.Item.valueOf(item1ID);
-		if (item1 != null && item1 != Item.NONE) {
+		if (item1 != Item.NONE) {
 			if (!targetClass.canUseWeapon(item1, null, null, null)) {
 				List<FE4Data.Item> usableWeapons = new ArrayList<Item>(usableItems);
 				usableWeapons = usableWeapons.stream().filter(item -> (item.isWeapon())).collect(Collectors.toList());
@@ -1557,8 +1710,8 @@ public class FE4ClassRandomizer {
 		
 		int item2ID = enemy.getEquipment2();
 		FE4Data.Item item2 = FE4Data.Item.valueOf(item2ID);
-		if (item2 != null && item2 != Item.NONE) {
-			if (!targetClass.canUseWeapon(item2, null, null, null)) {
+		if (item2 != Item.NONE) {
+			if (!targetClass.canUseWeapon(item2, null, null, null) || item2 == item1) {
 				if (!usableItems.isEmpty()) {
 					FE4Data.Item item = usableItems.get(rng.nextInt(usableItems.size()));
 					enemy.setEquipment2(item.ID);
@@ -1567,15 +1720,31 @@ public class FE4ClassRandomizer {
 				}
 			}
 		}
+		
+		// Gen 1 characters can alter their drops to a weapon they can use.
+		int droppedItemInventoryID = enemy.getDropableEquipment();
+		if (droppedItemInventoryID != FE4Data.Item.NONE.ID && enemyChar.isGen1()) {
+			FE4Data.Item droppedItem = itemMap.getItemAtIndex(droppedItemInventoryID);
+			if (!targetClass.canUseWeapon(droppedItem, null, null, null) && !itemSet.isEmpty()) {
+				usableItems = new ArrayList<FE4Data.Item>(itemSet);
+				FE4Data.Item replacement = usableItems.get(rng.nextInt(usableItems.size()));
+				itemMap.setItemAtIndex(droppedItemInventoryID, replacement);
+			}
+		}
 	}
 	
-	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, FE4Data.Item weapon) {
-		setEnemyCharacterToClass(options, enemy, targetClass, weapon, null);
+	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, FE4Data.Item weapon, ItemMapper itemMap) {
+		setEnemyCharacterToClass(options, enemy, targetClass, weapon, null, itemMap);
 	}
 	
-	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, FE4Data.Item item1, FE4Data.Item item2) {
+	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, FE4Data.Item item1, FE4Data.Item item2, ItemMapper itemMap) {
 		enemy.setClassID(targetClass.ID);
 		enemy.setEquipment1(item1 != null ? item1.ID : FE4Data.Item.NONE.ID);
 		enemy.setEquipment2(item2 != null ? item2.ID : FE4Data.Item.NONE.ID);
+		
+		// If we must set the item on this enemy and they also drop a weapon, force that drop to be the item given (unless it's a ring), just to ensure they can use the dropped item.
+		if (itemMap != null && enemy.getDropableEquipment() != FE4Data.Item.NONE.ID && !itemMap.getItemAtIndex(enemy.getDropableEquipment()).isRing()) {
+			itemMap.setItemAtIndex(enemy.getDropableEquipment(), item1);
+		}
 	}
 }
