@@ -639,7 +639,7 @@ public class FE4Data {
 		// CH5 (Shackal and Shisiel are Melee only, Rip and Hawks are Ranged only, Lee, Nazarl and Thief must support both ranges.)
 		ARENA_SHACKAL(0x0204), ARENA_RIP_CH5(0x0205), ARENA_GREIAS(0x0206), ARENA_GEESE(0x0207), ARENA_LEE(0x0208), ARENA_SHISIEL(0x0209), ARENA_HAWKS(0x020A), ARENA_NAZARL(0x020B), ARENA_THIEF(0x020C),
 		// CH7  (Manstein is melee only, Kashim is ranged only, Boshimas must support both ranges.)
-		ARENA_TOLSTOY(0x020D), ARENA_BOSHIMAS(0x020E), ARENA_KRUGE(0x020F), ARENA_MANSTEIN(0x0210), ARENA_KASHIM(0x0211), ARENA_HEPNNER(0x0212), ARENA_RANDOCK(0x0213), ARENA_WOLF(0x0214),
+		ARENA_TOLSTOY(0x020D), ARENA_BOSHIMAS(0x020E), ARENA_KRUGE(0x020F), ARENA_MANSTEIN(0x0210), ARENA_KASHIM(0x0211), ARENA_HEPPNER(0x0212), ARENA_RANDOCK(0x0213), ARENA_WOLF(0x0214),
 		// CH8 (Louis and Xenon are Melee only, Heste and Jackson are Ranged only, Fate and Marda must support both ranges.)
 		ARENA_DEWY(0x0215), ARENA_FATE(0x0216), ARENA_MALSHARK(0x0217), ARENA_LOUIS(0x0218), ARENA_HESTE(0x0219), ARENA_MARDA(0x021A), ARENA_JISMENT(0x021B), ARENA_XENON_CH8(0x021C), ARENA_JACKSON_CH8(0x021D),
 		// CH9 (Indra and Miria are Melee only, Nietzche and Shiron are Ranged only, Slayton and Canaan must support both ranges.)
@@ -651,6 +651,70 @@ public class FE4Data {
 		
 		// There's a bunch of duplicates beyond this point of major characters/bosses. I'm not listing them here unless we need them later.
 		;
+		
+		public int arenaChapter() {
+			switch (this) {
+			case ARENA_GAZACK: case ARENA_CROTOR: case ARENA_WISEMAN: case ARENA_SHARK:
+			case ARENA_HOOD: case ARENA_BACHUS: case ARENA_EMIL: case ARENA_DICE_CH1:
+				return 1;
+			case ARENA_ZERO: case ARENA_MAHATMA: case ARENA_ROWIN: case ARENA_BARKNIN: case ARENA_MILLET:
+			case ARENA_HELTSOK: case ARENA_CHACOF: case ARENA_KEIMOS_CH2: case ARENA_MARILYN_CH2:
+				return 2;
+			case ARENA_TYLER: case ARENA_RIP_CH3: case ARENA_PELIO: case ARENA_TREVICK: case ARENA_GELLER:
+			case ARENA_BAZAN: case ARENA_DUMA: case ARENA_KEHELA: case ARENA_TORTON_CH3: case ARENA_MARIO_CH3:
+				return 3;
+			case ARENA_KEMAL: case ARENA_KALEDIN: case ARENA_KEITH: case ARENA_SENGHOR: case ARENA_NIKITA:
+			case ARENA_NENE: case ARENA_GRAPH: case ARENA_NIKIAS: case ARENA_ATLAS_CH4:
+				return 4;
+			case ARENA_SHACKAL: case ARENA_RIP_CH5: case ARENA_GREIAS: case ARENA_GEESE: case ARENA_LEE:
+			case ARENA_SHISIEL: case ARENA_HAWKS: case ARENA_NAZARL: case ARENA_THIEF:
+				return 5;
+			case ARENA_TOLSTOY: case ARENA_BOSHIMAS: case ARENA_KRUGE: case ARENA_MANSTEIN: 
+			case ARENA_KASHIM: case ARENA_HEPPNER: case ARENA_RANDOCK: case ARENA_WOLF:
+				return 7;
+			case ARENA_DEWY: case ARENA_FATE: case ARENA_MALSHARK: case ARENA_LOUIS: case ARENA_HESTE:
+			case ARENA_MARDA: case ARENA_JISMENT: case ARENA_XENON_CH8: case ARENA_JACKSON_CH8:
+				return 8;
+			case ARENA_INDRA_CH9: case ARENA_NIETZCHE: case ARENA_APOSTOL: case ARENA_MIRIA: case ARENA_SHIRON:
+			case ARENA_KLEIN: case ARENA_SLAYTON: case ARENA_TRIESTA: case ARENA_CANAAN_CH9:
+				return 9;
+			case ARENA_HASMARN: case ARENA_GLANZ: case ARENA_KROSROY: case ARENA_ROLAND: case ARENA_MASSIGLI:
+			case ARENA_RIVA: case ARENA_GLORIA: case ARENA_NOTE: case ARENA_INDRA_CH10:
+				return 10;
+			case ARENA_DICE_FINAL: case ARENA_KEIMOS_FINAL: case ARENA_MARILYN_FINAL: case ARENA_XENON_FINAL:
+			case ARENA_JACKSON_FINAL: case ARENA_TORTON_FINAL: case ARENA_MARIO_FINAL:case ARENA_CANAAN_FINAL:
+			case ARENA_ATLAS_FINAL: case ARENA_ZEUS:
+				return 11;
+			default: return 0;
+			}
+		}
+		
+		public int arenaLevel() {
+			switch (this) {
+			case ARENA_GAZACK: case ARENA_ZERO: case ARENA_TYLER: case ARENA_RIP_CH3: case ARENA_KEMAL: case ARENA_SHACKAL: case ARENA_RIP_CH5:
+			case ARENA_TOLSTOY: case ARENA_DEWY: case ARENA_INDRA_CH9: case ARENA_NIETZCHE: case ARENA_HASMARN: case ARENA_DICE_FINAL:
+				return 1;
+			case ARENA_CROTOR: case ARENA_MAHATMA: case ARENA_PELIO: case ARENA_KALEDIN: case ARENA_KEITH: case ARENA_GREIAS:
+			case ARENA_BOSHIMAS: case ARENA_FATE: case ARENA_APOSTOL: case ARENA_GLANZ: case ARENA_KROSROY: case ARENA_KEIMOS_FINAL: case ARENA_MARILYN_FINAL:
+				return 2;
+			case ARENA_WISEMAN: case ARENA_ROWIN: case ARENA_TREVICK: case ARENA_GELLER: case ARENA_SENGHOR: case ARENA_GEESE:
+			case ARENA_KRUGE: case ARENA_MALSHARK: case ARENA_MIRIA: case ARENA_SHIRON: case ARENA_ROLAND: case ARENA_XENON_FINAL: case ARENA_JACKSON_FINAL:
+				return 3;
+			case ARENA_SHARK: case ARENA_HOOD: case ARENA_BARKNIN: case ARENA_MILLET: case ARENA_BAZAN: case ARENA_NIKITA: case ARENA_NENE: case ARENA_LEE:
+			case ARENA_MANSTEIN: case ARENA_KASHIM: case ARENA_LOUIS: case ARENA_HESTE: case ARENA_KLEIN: case ARENA_MASSIGLI: case ARENA_TORTON_FINAL: case ARENA_MARIO_FINAL:
+				return 4;
+			case ARENA_BACHUS: case ARENA_HELTSOK: case ARENA_DUMA: case ARENA_GRAPH: case ARENA_SHISIEL: case ARENA_HAWKS:
+			case ARENA_HEPPNER: case ARENA_MARDA: case ARENA_SLAYTON: case ARENA_RIVA: case ARENA_GLORIA: case ARENA_CANAAN_FINAL:
+				return 5;
+			case ARENA_EMIL: case ARENA_CHACOF: case ARENA_KEHELA: case ARENA_NIKIAS: case ARENA_NAZARL:
+			case ARENA_RANDOCK: case ARENA_JISMENT: case ARENA_TRIESTA: case ARENA_NOTE: case ARENA_ATLAS_FINAL:
+				return 6;
+			case ARENA_DICE_CH1: case ARENA_KEIMOS_CH2: case ARENA_MARILYN_CH2: case ARENA_TORTON_CH3: case ARENA_MARIO_CH3: case ARENA_ATLAS_CH4: case ARENA_THIEF:
+			case ARENA_WOLF: case ARENA_XENON_CH8: case ARENA_JACKSON_CH8: case ARENA_CANAAN_CH9: case ARENA_INDRA_CH10: case ARENA_ZEUS:
+				return 7;
+			default: return 0;
+			}
+		}
 		
 		public static final Set<Character> RangedOnlyArenaCharacters = new HashSet<Character>(Arrays.asList(
 				ARENA_HOOD, 
@@ -1804,7 +1868,7 @@ public class FE4Data {
 				BRAVE_LANCE, HORSESLAYER, BRAVE_BOW, KILLER_BOW, NOSFERATU));
 		
 		public static final Set<Item> powerfulWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, STEEL_BLADE, SILVER_BLADE, SILVER_LANCE,
-				SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, AURA, HEL));
+				SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, AURA));
 		
 		public static final Set<Item> rings = new HashSet<Item>(Arrays.asList(LIFE_RING, ELITE_RING, THIEF_RING, PRAYER_RING, PURSUIT_RING, RECOVER_RING, BARGAIN_RING, 
 				KNIGHT_RING, RETURN_RING, SPEED_RING, MAGIC_RING, POWER_RING, SHIELD_RING, BARRIER_RING, LEG_RING, SKILL_RING));

@@ -716,6 +716,11 @@ public class FE4ClassRandomizer {
 				possibleClasses.retainAll(FE4Data.CharacterClass.rangedOnlyClasses);
 			}
 			
+			// Don't allow any earlier chapters or earlier waves to use advanced classes.
+			if (arenaCharacter.arenaChapter() % 6 < 4 || arenaCharacter.arenaLevel() < 6) {
+				possibleClasses.removeAll(FE4Data.CharacterClass.advancedClasses);
+			}
+			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(possibleClasses);
 			
 			FE4Data.CharacterClass targetClass = classList.get(rng.nextInt(classList.size()));
@@ -725,11 +730,29 @@ public class FE4ClassRandomizer {
 			boolean hasMelee = false;
 			boolean hasRange = false;
 			
+			boolean allowInterestingWeapons = arenaCharacter.arenaLevel() > 2;
+			boolean allowPowerfulWeapons = arenaCharacter.arenaLevel() > 5;
+			
+			Set<FE4Data.Item> nonBasicWeapons = new HashSet<FE4Data.Item>();
+			nonBasicWeapons.addAll(FE4Data.Item.interestingWeapons);
+			nonBasicWeapons.addAll(FE4Data.Item.powerfulWeapons);
+			
 			if (requiresMelee) {
 				Set<FE4Data.Item> possibleWeapons = new HashSet<FE4Data.Item>(Arrays.asList(targetClass.usableItems(null, null, null)));
 				possibleWeapons.removeAll(FE4Data.Item.staves);
 				possibleWeapons.retainAll(FE4Data.Item.meleeWeapons);
-				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Set<FE4Data.Item> filteredWeapons = new HashSet<FE4Data.Item>(possibleWeapons); 
+				if (allowPowerfulWeapons) {
+					filteredWeapons.retainAll(nonBasicWeapons);
+				} else if (allowInterestingWeapons) {
+					filteredWeapons.retainAll(FE4Data.Item.interestingWeapons);
+				} else {
+					filteredWeapons.removeAll(nonBasicWeapons);
+				}
+				if (filteredWeapons.isEmpty()) {
+					filteredWeapons = possibleWeapons;
+				}
+				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(filteredWeapons);
 				item1 = weaponList.get(rng.nextInt(weaponList.size()));
 				hasMelee = true;
 				hasRange = FE4Data.Item.rangedWeapons.contains(item1);
@@ -738,7 +761,18 @@ public class FE4ClassRandomizer {
 				possibleWeapons.removeAll(FE4Data.Item.staves);
 				possibleWeapons.retainAll(FE4Data.Item.rangedWeapons);
 				possibleWeapons.removeAll(FE4Data.Item.meleeWeapons);
-				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Set<FE4Data.Item> filteredWeapons = new HashSet<FE4Data.Item>(possibleWeapons); 
+				if (allowPowerfulWeapons) {
+					filteredWeapons.retainAll(nonBasicWeapons);
+				} else if (allowInterestingWeapons) {
+					filteredWeapons.retainAll(FE4Data.Item.interestingWeapons);
+				} else {
+					filteredWeapons.removeAll(nonBasicWeapons);
+				}
+				if (filteredWeapons.isEmpty()) {
+					filteredWeapons = possibleWeapons;
+				}
+				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(filteredWeapons);
 				item1 = weaponList.get(rng.nextInt(weaponList.size()));
 				hasRange = true;
 				hasMelee = FE4Data.Item.meleeWeapons.contains(item1);
@@ -749,7 +783,18 @@ public class FE4ClassRandomizer {
 				possibleWeapons.removeAll(FE4Data.Item.staves);
 				possibleWeapons.retainAll(FE4Data.Item.meleeWeapons);
 				possibleWeapons.removeAll(FE4Data.Item.rangedWeapons);
-				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Set<FE4Data.Item> filteredWeapons = new HashSet<FE4Data.Item>(possibleWeapons); 
+				if (allowPowerfulWeapons) {
+					filteredWeapons.retainAll(nonBasicWeapons);
+				} else if (allowInterestingWeapons) {
+					filteredWeapons.retainAll(FE4Data.Item.interestingWeapons);
+				} else {
+					filteredWeapons.removeAll(nonBasicWeapons);
+				}
+				if (filteredWeapons.isEmpty()) {
+					filteredWeapons = possibleWeapons;
+				}
+				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(filteredWeapons);
 				item2 = weaponList.get(rng.nextInt(weaponList.size()));
 				hasMelee = true;
 			}
@@ -757,7 +802,18 @@ public class FE4ClassRandomizer {
 				Set<FE4Data.Item> possibleWeapons = new HashSet<FE4Data.Item>(Arrays.asList(targetClass.usableItems(null, null, null)));
 				possibleWeapons.removeAll(FE4Data.Item.staves);
 				possibleWeapons.retainAll(FE4Data.Item.rangedWeapons);
-				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Set<FE4Data.Item> filteredWeapons = new HashSet<FE4Data.Item>(possibleWeapons); 
+				if (allowPowerfulWeapons) {
+					filteredWeapons.retainAll(nonBasicWeapons);
+				} else if (allowInterestingWeapons) {
+					filteredWeapons.retainAll(FE4Data.Item.interestingWeapons);
+				} else {
+					filteredWeapons.removeAll(nonBasicWeapons);
+				}
+				if (filteredWeapons.isEmpty()) {
+					filteredWeapons = possibleWeapons;
+				}
+				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(filteredWeapons);
 				item2 = weaponList.get(rng.nextInt(weaponList.size()));
 				hasRange = true;
 			} else {
@@ -859,6 +915,10 @@ public class FE4ClassRandomizer {
 			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, fe4Char.mustLoseToCharacters().length > 0, true, false, mustUseItem, mustLoseToWeapon));
 			
 			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
+			if (fe4Char.minionChapter() % 6 < 2) {
+				classPool.remove(FE4Data.CharacterClass.DARK_MAGE);
+				classPool.remove(FE4Data.CharacterClass.DARK_BISHOP);
+			}
 			
 			if (classPool.isEmpty()) {
 				setEnemies.put(fe4Char, enemy);
