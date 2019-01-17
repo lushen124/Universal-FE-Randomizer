@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RecordKeeper {
 	
@@ -65,6 +66,16 @@ public class RecordKeeper {
 		header.keyList.add(title);
 		header.values.put(title, value);
 	}
+	
+	public void registerCategory(String category) {
+		if (allCategories.contains(category)) {
+			return;
+		}
+		
+		EntryMap map = new EntryMap();
+		entriesByCategory.put(category, map);
+		allCategories.add(category);
+	}
 
 	public void recordOriginalEntry(String category, String entryKey, String key, String originalValue) {
 		 EntryMap entryMap = entriesByCategory.get(category);
@@ -111,6 +122,18 @@ public class RecordKeeper {
 		EntryMap entryMap = entriesByCategory.get(category);
 		if (entryMap != null) {
 			Collections.sort(entryMap.keyList);
+		}
+	}
+	
+	public void sortKeysInCategoryAndSubcategories(String category) {
+		Set<String> keys = entriesByCategory.keySet();
+		for (String key : keys) {
+			if (key.startsWith(category)) {
+				EntryMap entryMap = entriesByCategory.get(key);
+				if (entryMap != null) {
+					Collections.sort(entryMap.keyList);
+				}
+			}
 		}
 	}
 	

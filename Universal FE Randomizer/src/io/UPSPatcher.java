@@ -54,6 +54,8 @@ public class UPSPatcher {
 				return false;
 			}
 			
+			long totalBytesWritten = 0;
+			
 			DebugPrinter.log(DebugPrinter.Key.UPS, "Patching UPS file: " + patchFile);
 			DebugPrinter.log(DebugPrinter.Key.UPS, "Input Length:  " + inputLength);
 			DebugPrinter.log(DebugPrinter.Key.UPS, "Expected Result Length: " + outputLength);
@@ -72,6 +74,7 @@ public class UPSPatcher {
 				if (lastWrittenOffset + 1 < inputLength) {
 					byte[] sourceBytes = sourceHandler.readBytesAtOffset(lastWrittenOffset, (int)bytesToSkip);
 					outputStream.write(sourceBytes);
+					totalBytesWritten += sourceBytes.length;
 					sourceBytesLength = sourceBytes.length;
 					DebugPrinter.log(DebugPrinter.Key.UPS, "Read/copied " + sourceBytesLength + " bytes from the source.");
 				}
@@ -82,18 +85,47 @@ public class UPSPatcher {
 						zeros[i] = 0;
 					}
 					outputStream.write(zeros);
+					totalBytesWritten += zeros.length;
 					DebugPrinter.log(DebugPrinter.Key.UPS, "Filled in " + zeros.length + " bytes worth of 0.");
 				}
 				lastWrittenOffset += bytesToSkip;
 				DebugPrinter.log(DebugPrinter.Key.UPS, "Starting diffs from offset 0x" + Long.toHexString(lastWrittenOffset).toUpperCase());
 				
 				byte[] delta = patchHandler.continueReadingBytesUpToNextTerminator((int)patchHandler.getFileLength() - 12);
+				if (delta == null) {
+					DebugPrinter.log(DebugPrinter.Key.UPS, "No more differences found.");
+					if (totalBytesWritten < outputLength) {
+						long differenceRemaining = outputLength - totalBytesWritten;
+						DebugPrinter.log(DebugPrinter.Key.UPS, "Filling in remaining " + differenceRemaining + " bytes with 0s.");
+						while (differenceRemaining > 0) {
+							int chunk = 0;
+							if (differenceRemaining > Integer.MAX_VALUE) {
+								chunk = Integer.MAX_VALUE;
+								differenceRemaining -= Integer.MAX_VALUE;
+							} else {
+								chunk = (int)differenceRemaining;
+								differenceRemaining = 0;
+							}
+							byte[] zeros = new byte[chunk];
+							for (int i = 0; i < chunk; i++) {
+								zeros[i] = 0;
+							}
+							
+							outputStream.write(zeros);
+							totalBytesWritten += zeros.length;
+						}
+					} else if (totalBytesWritten > outputLength) {
+						System.err.println("Warning: Bytes written exceeds expected result size.");
+					}
+					break;
+				}
 				int deltaLength = delta.length;
 				byte[] sourceBytes = lastWrittenOffset + 1 < inputLength ? sourceHandler.readBytesAtOffset(lastWrittenOffset, deltaLength) : new byte[] {};
 				byte[] resultBytes = new byte[deltaLength];
 				for (int i = 0; i < deltaLength; i++) {
 					byte result = (byte)((delta[i] & 0xFF) ^ (i < sourceBytes.length ? (sourceBytes[i] & 0xFF) : 0));
 					outputStream.write(result);
+					totalBytesWritten += 1;
 					resultBytes[i] = result;
 					lastWrittenOffset++;
 				}
@@ -107,9 +139,11 @@ public class UPSPatcher {
 			
 			FileHandler resultHandler = new FileHandler(targetFile);
 			long resultCRC = resultHandler.getCRC32();
+			resultHandler.close();
+			resultHandler = null;
 			
-			if (targetCRC != resultCRC || resultHandler.getFileLength() != outputLength) {
-				System.err.println("Resulting checksum/file length is incorrect.");
+			if (targetCRC != resultCRC) {
+				System.err.println("Resulting checksum is incorrect. Expected: " + Long.toHexString(targetCRC).toUpperCase() + " Actual: " + Long.toHexString(resultCRC).toUpperCase());
 				return false;
 			}
 			
@@ -143,7 +177,7 @@ public class UPSPatcher {
 		
 		for (;;) {
 			byte currentByte = handler.continueReadingNextByte();
-			offset += ((currentByte & 0x7F) * shift) & 0xFFFFFFFFL;
+			offset += ((currentByte & 0x7F) * shift) & 0xFFFFFFFFFFFFFFFFL;
 			if ((currentByte & 0x80) != 0) { break; }
 			shift <<= 7;
 			offset += shift;

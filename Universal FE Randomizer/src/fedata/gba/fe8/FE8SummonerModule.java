@@ -9,7 +9,7 @@ import java.util.Random;
 import java.util.Set;
 
 import fedata.gba.GBAFECharacterData;
-import fedata.gba.GBAFEModifiableData;
+import fedata.general.FEModifiableData;
 import io.FileHandler;
 import random.gba.loader.CharacterDataLoader;
 import util.DebugPrinter;
@@ -48,7 +48,7 @@ public class FE8SummonerModule {
 		}
 	}
 	
-	private class SummonerEntry implements GBAFEModifiableData {
+	private class SummonerEntry implements FEModifiableData {
 		byte[] originalData;
 		byte[] data;
 		

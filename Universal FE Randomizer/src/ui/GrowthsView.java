@@ -35,8 +35,11 @@ public class GrowthsView extends Composite {
 	
 	private Button fullRandomOption;
 	private MinMaxControl growthRangeControl;
+	
+	private Button adjustHPGrowths;
+	private Button adjustSTRMAGSplit;
 
-	public GrowthsView(Composite parent, int style) {
+	public GrowthsView(Composite parent, int style, boolean hasSTRMAGSplit) {
 		super(parent, style);
 
 		FillLayout layout = new FillLayout();
@@ -193,6 +196,28 @@ public class GrowthsView extends Composite {
 		paramContainerData.left = new FormAttachment(fullRandomOption, 0, SWT.LEFT);
 		paramContainerData.right = new FormAttachment(100, -5);
 		growthRangeControl.setLayoutData(paramContainerData);
+		
+		adjustHPGrowths = new Button(container, SWT.CHECK);
+		adjustHPGrowths.setText("Adjust HP Growths");
+		adjustHPGrowths.setToolTipText("Puts extra emphasis on HP growths relative to other stats.");
+		adjustHPGrowths.setEnabled(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(fullRandomOption, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(growthRangeControl, 10);
+		adjustHPGrowths.setLayoutData(optionData);
+		
+		if (hasSTRMAGSplit) {
+			adjustSTRMAGSplit = new Button(container, SWT.CHECK);
+			adjustSTRMAGSplit.setText("Adjust STR/MAG by Class");
+			adjustSTRMAGSplit.setToolTipText("Ensures that characters that primarily use magic randomize a higher or equal magic growth than strength and that\ncharacters that primarily use physical attacks randomize a higher or equal strength growth than magic.\n\nCharacters that use both will not be weighted in either direction.");
+			adjustSTRMAGSplit.setEnabled(false);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(fullRandomOption, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(adjustHPGrowths, 5);
+			adjustSTRMAGSplit.setLayoutData(optionData);
+		}
 	}
 	
 	private void setEnableGrowths(Boolean enabled) {
@@ -202,6 +227,8 @@ public class GrowthsView extends Composite {
 		varianceSpinner.setEnabled(enabled && currentMode == GrowthOptions.Mode.REDISTRIBUTE);
 		deltaSpinner.setEnabled(enabled && currentMode == GrowthOptions.Mode.DELTA);
 		growthRangeControl.setEnabled(enabled && currentMode == GrowthOptions.Mode.FULL);
+		adjustHPGrowths.setEnabled(enabled);
+		if (adjustSTRMAGSplit != null) { adjustSTRMAGSplit.setEnabled(enabled && currentMode != GrowthOptions.Mode.DELTA); }
 		
 		isEnabled = enabled;
 	}
@@ -248,6 +275,8 @@ public class GrowthsView extends Composite {
 			break;
 		}
 		
-		return new GrowthOptions(currentMode, redistributionOption, deltaOption, fullOption);
+		boolean adjustSTRMAG = adjustSTRMAGSplit != null ? adjustSTRMAGSplit.getSelection() : false;
+		
+		return new GrowthOptions(currentMode, redistributionOption, deltaOption, fullOption, adjustHPGrowths.getSelection(), adjustSTRMAG);
 	}
 }

@@ -5,8 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
 
-import org.eclipse.swt.widgets.Display;
-
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
@@ -24,7 +22,7 @@ import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.PaletteLoader;
 import random.gba.loader.TextLoader;
-import random.general.RandomizerListener;
+import random.general.Randomizer;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
@@ -37,7 +35,7 @@ import util.FreeSpaceManager;
 import util.SeedGenerator;
 import util.recordkeeper.RecordKeeper;
 
-public class GBARandomizer extends Thread {
+public class GBARandomizer extends Randomizer {
 	
 	private String sourcePath;
 	private String targetPath;
@@ -71,8 +69,6 @@ public class GBARandomizer extends Thread {
 	private FreeSpaceManager freeSpace;
 	
 	private FileHandler handler;
-	
-	private RandomizerListener listener = null;
 
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
@@ -93,10 +89,6 @@ public class GBARandomizer extends Thread {
 		miscOptions = otherOptions;
 		
 		this.gameType = gameType;
-	}
-	
-	public void setListener(RandomizerListener listener) {
-		this.listener = listener;
 	}
 	
 	public void run() {
@@ -201,6 +193,9 @@ public class GBARandomizer extends Thread {
 				return;
 			}
 		}
+		
+		handler.close();
+		handler = null;
 		
 		if (tempPath != null) {
 			updateStatusString("Cleaning up...");
@@ -346,15 +341,15 @@ public class GBARandomizer extends Thread {
 			switch (growths.mode) {
 			case REDISTRIBUTE:
 				updateStatusString("Redistributing growths...");
-				GrowthsRandomizer.randomizeGrowthsByRedistribution(growths.redistributionOption.variance, charData, rng);
+				GrowthsRandomizer.randomizeGrowthsByRedistribution(growths.redistributionOption.variance, growths.adjustHP, charData, rng);
 				break;
 			case DELTA:
 				updateStatusString("Applying random deltas to growths...");
-				GrowthsRandomizer.randomizeGrowthsByRandomDelta(growths.deltaOption.variance, charData, rng);
+				GrowthsRandomizer.randomizeGrowthsByRandomDelta(growths.deltaOption.variance, growths.adjustHP, charData, rng);
 				break;
 			case FULL:
 				updateStatusString("Randomizing growths...");
-				GrowthsRandomizer.fullyRandomizeGrowthsWithRange(growths.fullOption.minValue, growths.fullOption.maxValue, charData, rng);
+				GrowthsRandomizer.fullyRandomizeGrowthsWithRange(growths.fullOption.minValue, growths.fullOption.maxValue, growths.adjustHP, charData, rng);
 				break;
 			}
 		}
@@ -475,50 +470,6 @@ public class GBARandomizer extends Thread {
 		}
 	}
 	
-	private void updateStatusString(String string) {
-		if (listener != null) {
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					listener.onStatusUpdate(string);	
-				}
-			});
-		}
-	}
-	
-	private void updateProgress(double progress) {
-		if (listener != null) {
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					listener.onProgressUpdate(progress);
-				}
-			});	
-		}
-	}
-	
-	private void notifyError(String errorString) {
-		if (listener != null) {
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					listener.onError(errorString);	
-				}
-			});
-		}
-	}
-	
-	private void notifyCompletion(RecordKeeper rk) {
-		if (listener != null) {
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					listener.onComplete(rk);	
-				}
-			});
-		}
-	}
-	
 	public RecordKeeper initializeRecordKeeper() {
 		int index = Math.max(targetPath.lastIndexOf('/'), targetPath.lastIndexOf('\\'));
 		String title =  targetPath.substring(index + 1);
@@ -554,6 +505,8 @@ public class GBARandomizer extends Thread {
 				rk.addHeaderItem("Randomize Growths", "Full (" + growths.fullOption.minValue + "% ~ " + growths.fullOption.maxValue + "%)");	
 				break;
 			}
+			
+			rk.addHeaderItem("Adjust HP Growths", growths.adjustHP ? "YES" : "NO");
 		} else {
 			rk.addHeaderItem("Randomize Growths", "NO");
 		}

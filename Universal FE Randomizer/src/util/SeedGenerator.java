@@ -7,6 +7,39 @@ import fedata.general.FEBase.GameType;
 
 public class SeedGenerator {
 	
+	static String[] fe4Quotes = new String[] {
+			"Those Pegasus Knights won't pose a problem in the face of the Beige Ritter. Now watch ‘em fall!",
+			"Hrmph. I can live with the strong and reliable part, but leave the slow bit out of it, ok?",
+			"My kindness toward you has run out. I hate to say it, but you're going to die. ",
+			"I've waited for this day! You're going to pay for taking my mother and little sister!",
+			"I will use my power to create a world which is free of prejudice.",
+			"Cross me, and I will pursue you to the very depths of the inferno itself, till I take your head.",
+			"Don't hold this against me. ...it's just how I make a living.",
+			"You drove my mother to her death, remember? Or do I have to remind you!?",
+			"You're a disgrace to the House of Jungby, AND you've tarnished the reputation of the Crusader Ulir!!",
+			"Thracia is not like it used to be... I want to fight for the people!",
+			"It's the powerless citizens who suffer, and I'm not about to let it happen!",
+			"You must keep his dream alive, for you are the only one who can pull it off now.",
+			"Siding with the empire was an absurd idea. And the populace is now in jeopardy as a result!",
+			"Prince Shannan is more handsome than you could ever hope to be!",
+			"What can a little girl like you do to me? I'll send you to hell, just as I did her!",
+			"Still your tongue... And feel the wrath of the goddess of lightning!",
+			"My unremitting love for you is strong enough to cross the bounds of insanity!",
+			"From this point forward we are an army of liberators fighting for love and justice!!",
+			"For the first time in my life I know what I'm here for. And that's to fight...",
+			"I am the heir of Loptous's kin, and the inheritor of his power. This world belongs rightfully to me.",
+			"I need a man the calibre of my dear brother. That's why I'll never marry.",
+			"I've dreamed of killing you with my bare hands, and I've lived to carry it out!!",
+			"We do what we do to survive! So don't hold a grudge over someone else's livelihood.",
+			"Never waste your anger on individuals. Always focus it on the evil within all of us.",
+			"Wherever you go, I shall follow... even to the ends of the continent.",
+			"We were born into the knighthood and are prepared to die fighting!",
+			"It's not something I'm proud of. But the mission awaiting us was a fate worse than death.",
+			"I have the Gáe Bolg with me. I'm not going to fall with this at my side.",
+			"Die! You hyenas! As long as I have the Gáe Bolg, I will not lose to your kind.",
+			"I'll be strong enough to protect everybody here someday!"
+	};
+	
 	static String[] fe6Quotes = new String[] {
 			"Finally, a foe worthy of my axe! Let's show 'em what we're made of!",
 			"I am sorry, Your Highness, but I couldn't leave you in that dank cellar.",
@@ -84,6 +117,10 @@ public class SeedGenerator {
 	
 	public static String generateRandomSeed(GameType type) {
 		switch (type) {
+		case FE4: {
+			int quoteCount = fe4Quotes.length;
+			return fe4Quotes[ThreadLocalRandom.current().nextInt(quoteCount)];
+		}
 		case FE6: {
 			int quoteCount = fe6Quotes.length;
 			return fe6Quotes[ThreadLocalRandom.current().nextInt(quoteCount)];
@@ -101,13 +138,15 @@ public class SeedGenerator {
 		}
 	}
 	public static String generateRandomSeed() {
-		int gameSelect = ThreadLocalRandom.current().nextInt(3);
+		int gameSelect = ThreadLocalRandom.current().nextInt(4);
 		if (gameSelect == 0) {
 			return generateRandomSeed(GameType.FE6);
 		} else if (gameSelect == 1) {
 			return generateRandomSeed(GameType.FE7);
 		} else if (gameSelect == 2) {
 			return generateRandomSeed(GameType.FE8);
+		} else if (gameSelect == 3) {
+			return generateRandomSeed(GameType.FE4);
 		}
 		
 		return "Type something in!";

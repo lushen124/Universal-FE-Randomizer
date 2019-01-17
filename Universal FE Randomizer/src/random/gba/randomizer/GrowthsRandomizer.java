@@ -9,7 +9,7 @@ public class GrowthsRandomizer {
 	
 	static final int rngSalt = 124;
 	
-	public static void randomizeGrowthsByRedistribution(int variance, CharacterDataLoader charactersData, Random rng) {
+	public static void randomizeGrowthsByRedistribution(int variance, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			
@@ -36,7 +36,7 @@ public class GrowthsRandomizer {
 			int newRESGrowth = 0;
 			
 			while (growthTotal > 0) {
-				randomNum = rng.nextInt(8);
+				randomNum = rng.nextInt(adjustHP ? 10 : 8);
 				int amount = Math.min(5,  growthTotal);
 				growthTotal -= amount;
 				switch (randomNum) {
@@ -63,6 +63,7 @@ public class GrowthsRandomizer {
 					newRESGrowth += amount;
 					break;
 				default:
+					newHPGrowth += amount;
 					break;
 				}
 			}
@@ -81,7 +82,7 @@ public class GrowthsRandomizer {
 		charactersData.commit();
 	}
 	
-	public static void randomizeGrowthsByRandomDelta(int maxDelta, CharacterDataLoader charactersData, Random rng) {
+	public static void randomizeGrowthsByRandomDelta(int maxDelta, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			
@@ -102,6 +103,9 @@ public class GrowthsRandomizer {
 				newHPGrowth += rng.nextInt(maxDelta + 1);
 			} else {
 				newHPGrowth -= rng.nextInt(maxDelta + 1);
+				if (adjustHP) {
+					newHPGrowth += rng.nextInt(maxDelta + 1);
+				}
 			}
 			randomNum = rng.nextInt(2);
 			if (randomNum == 0) {
@@ -154,7 +158,7 @@ public class GrowthsRandomizer {
 		charactersData.commit();
 	}
 	
-	public static void fullyRandomizeGrowthsWithRange(int minGrowth, int maxGrowth, CharacterDataLoader charactersData, Random rng) {
+	public static void fullyRandomizeGrowthsWithRange(int minGrowth, int maxGrowth, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			
@@ -171,6 +175,17 @@ public class GrowthsRandomizer {
 			int newLCKGrowth = rng.nextInt(range) + minGrowth;
 			int newDEFGrowth = rng.nextInt(range) + minGrowth;
 			int newRESGrowth = rng.nextInt(range) + minGrowth;
+			
+			if (adjustHP) {
+				int threshold = range / 2 + minGrowth;
+				if (newHPGrowth < threshold) {
+					if (newHPGrowth + threshold <= maxGrowth) {
+						newHPGrowth += threshold;
+					} else {
+						newHPGrowth = maxGrowth;
+					}
+				}
+			}
 			
 			for (GBAFECharacterData thisCharacter : charactersData.linkedCharactersForCharacter(character)) {
 				thisCharacter.setHPGrowth(newHPGrowth);

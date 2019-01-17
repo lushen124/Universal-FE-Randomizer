@@ -28,9 +28,15 @@ import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
 import fedata.general.FEBase.GameType;
+import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
 import random.gba.randomizer.GBARandomizer;
+import random.general.Randomizer;
 import random.general.RandomizerListener;
+import random.snes.fe4.randomizer.FE4Randomizer;
+import ui.fe4.FE4ClassesView;
+import ui.fe4.HolyBloodView;
+import ui.fe4.SkillsView;
 import ui.general.FileFlowDelegate;
 import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
@@ -69,6 +75,11 @@ public class MainView implements FileFlowDelegate {
 	private EnemyBuffsView enemyView; 
 	private MiscellaneousView miscView;
 	
+	// FE4
+	private SkillsView skillsView;
+	private HolyBloodView holyBloodView;
+	private FE4ClassesView fe4ClassView;
+	
 	private Button randomizeButton;
 	
 	private Boolean isShowingModalProgressDialog = false;
@@ -78,7 +89,7 @@ public class MainView implements FileFlowDelegate {
 		super();
 		
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.RESIZE & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.6.1)");
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.0)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
 		 mainShell = shell;
@@ -191,6 +202,10 @@ public class MainView implements FileFlowDelegate {
 		if (generateButton != null) { generateButton.dispose(); }
 		if (seedLabel != null) { seedLabel.dispose(); }
 		
+		if (skillsView != null) { skillsView.dispose(); }
+		if (holyBloodView != null) { holyBloodView.dispose(); }
+		if (fe4ClassView != null) { fe4ClassView.dispose(); }
+		
 		mainShell.layout();
 		final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		mainShell.setSize(newSize);
@@ -246,7 +261,7 @@ public class MainView implements FileFlowDelegate {
 		generateData.width = 100;
 		button.setLayoutData(generateData);
 		
-		growthView = new GrowthsView(mainShell, SWT.NONE);
+		growthView = new GrowthsView(mainShell, SWT.NONE, type.hasSTRMAGSplit());
 		growthView.setSize(200, 200);
 		growthView.setVisible(false);
 		  
@@ -255,7 +270,7 @@ public class MainView implements FileFlowDelegate {
 		growthData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
 		growthView.setLayoutData(growthData);
 		  
-		baseView = new BasesView(mainShell, SWT.NONE);
+		baseView = new BasesView(mainShell, SWT.NONE, type);
 		baseView.setSize(200, 200);
 		baseView.setVisible(false);
 		  
@@ -265,56 +280,100 @@ public class MainView implements FileFlowDelegate {
 		baseData.right = new FormAttachment(growthView, 0, SWT.RIGHT);
 		baseView.setLayoutData(baseData);
 		  
-		otherCharOptionView = new MOVCONAffinityView(mainShell, SWT.NONE);
-		otherCharOptionView.setSize(200, 200);
-		otherCharOptionView.setVisible(false);
+		if (type == GameType.FE4) {
+			holyBloodView = new HolyBloodView(mainShell, SWT.NONE);
+			holyBloodView.setSize(200, 200);
+			holyBloodView.setVisible(false);
+			  
+			FormData holyBloodData = new FormData();
+			holyBloodData.top = new FormAttachment(baseView, 5);
+			holyBloodData.left = new FormAttachment(baseView, 0, SWT.LEFT);
+			holyBloodData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
+			holyBloodData.bottom = new FormAttachment(100, -10);
+			holyBloodView.setLayoutData(holyBloodData);
+			
+			skillsView = new SkillsView(mainShell, SWT.NONE);
+			skillsView.setSize(200, 200);
+			skillsView.setVisible(false);
+			
+			FormData skillsData = new FormData();
+			skillsData.top = new FormAttachment(growthView, 0, SWT.TOP);
+			skillsData.left = new FormAttachment(growthView, 5);
+			skillsData.bottom = new FormAttachment(100, -10);
+			skillsView.setLayoutData(skillsData);
+			
+			fe4ClassView = new FE4ClassesView(mainShell, SWT.NONE);
+			fe4ClassView.setSize(200, 200);
+			fe4ClassView.setVisible(false);
+			  
+			FormData classData = new FormData();
+			classData.top = new FormAttachment(skillsView, 0, SWT.TOP);
+			classData.left = new FormAttachment(skillsView, 5);
+			classData.right = new FormAttachment(100, -5);
+			fe4ClassView.setLayoutData(classData);
+			
+			miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
+			miscView.setSize(200, 200);
+			miscView.setVisible(false);
+			  
+			FormData miscData = new FormData();
+			miscData.top = new FormAttachment(fe4ClassView, 5);
+			miscData.left = new FormAttachment(fe4ClassView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(fe4ClassView, 0, SWT.RIGHT);
+			miscView.setLayoutData(miscData);
+			
+		} else {
+			otherCharOptionView = new MOVCONAffinityView(mainShell, SWT.NONE);
+			otherCharOptionView.setSize(200, 200);
+			otherCharOptionView.setVisible(false);
+			  
+			FormData otherData = new FormData();
+			otherData.top = new FormAttachment(baseView, 5);
+			otherData.left = new FormAttachment(baseView, 0, SWT.LEFT);
+			otherData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
+			otherData.bottom = new FormAttachment(100, -10);
+			otherCharOptionView.setLayoutData(otherData);
+			
+			weaponView = new WeaponsView(mainShell, SWT.NONE, type);
+			weaponView.setSize(200, 200);
+			weaponView.setVisible(false);
 		  
-		FormData otherData = new FormData();
-		otherData.top = new FormAttachment(baseView, 5);
-		otherData.left = new FormAttachment(baseView, 0, SWT.LEFT);
-		otherData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
-		otherData.bottom = new FormAttachment(100, -10);
-		otherCharOptionView.setLayoutData(otherData);
-		  
-		weaponView = new WeaponsView(mainShell, SWT.NONE, type);
-		weaponView.setSize(200, 200);
-		weaponView.setVisible(false);
-		  
-		FormData weaponData = new FormData();
-		weaponData.top = new FormAttachment(growthView, 0, SWT.TOP);
-		weaponData.left = new FormAttachment(growthView, 5);
-		weaponData.bottom = new FormAttachment(100, -10);
-		weaponView.setLayoutData(weaponData);
-		  
-		classView = new ClassesView(mainShell, SWT.NONE, type);
-		classView.setSize(200, 200);
-		classView.setVisible(false);
-		  
-		FormData classData = new FormData();
-		classData.top = new FormAttachment(weaponView, 0, SWT.TOP);
-		classData.left = new FormAttachment(weaponView, 5);
-		classData.right = new FormAttachment(100, -5);
-		classView.setLayoutData(classData);
-		  
-		enemyView = new EnemyBuffsView(mainShell, SWT.NONE);
-		enemyView.setSize(200, 200);
-		enemyView.setVisible(false);
-		  
-		FormData enemyData = new FormData();
-		enemyData.top = new FormAttachment(classView, 5);
-		enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
-		enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
-		enemyView.setLayoutData(enemyData);
-		  
-		miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
-		miscView.setSize(200, 200);
-		miscView.setVisible(false);
-		  
-		FormData miscData = new FormData();
-		miscData.top = new FormAttachment(enemyView, 5);
-		miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
-		miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
-		miscView.setLayoutData(miscData);
+			FormData weaponData = new FormData();
+			weaponData.top = new FormAttachment(growthView, 0, SWT.TOP);
+			weaponData.left = new FormAttachment(growthView, 5);
+			weaponData.bottom = new FormAttachment(100, -10);
+			weaponView.setLayoutData(weaponData);
+			
+			classView = new ClassesView(mainShell, SWT.NONE, type);
+			classView.setSize(200, 200);
+			classView.setVisible(false);
+			  
+			FormData classData = new FormData();
+			classData.top = new FormAttachment(weaponView, 0, SWT.TOP);
+			classData.left = new FormAttachment(weaponView, 5);
+			classData.right = new FormAttachment(100, -5);
+			classView.setLayoutData(classData);
+			
+			enemyView = new EnemyBuffsView(mainShell, SWT.NONE);
+			enemyView.setSize(200, 200);
+			enemyView.setVisible(false);
+			  
+			FormData enemyData = new FormData();
+			enemyData.top = new FormAttachment(classView, 5);
+			enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
+			enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
+			enemyView.setLayoutData(enemyData);
+			  
+			miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
+			miscView.setSize(200, 200);
+			miscView.setVisible(false);
+			  
+			FormData miscData = new FormData();
+			miscData.top = new FormAttachment(enemyView, 5);
+			miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
+			miscView.setLayoutData(miscData);
+		}
 		  
 		randomizeButton = new Button(mainShell, SWT.PUSH);
 		randomizeButton.setText("Randomize!");
@@ -371,6 +430,12 @@ public class MainView implements FileFlowDelegate {
 				type = GameType.FE8;
 				friendlyName.setText("Display Name: " + FE8Data.FriendlyName);
 			}
+			else if (handler.getCRC32() == FE4Data.CleanHeaderedCRC32 || handler.getCRC32() == FE4Data.CleanUnheaderedCRC32) {
+				type = GameType.FE4;
+				friendlyName.setText("Display Name: " + FE4Data.FriendlyName);
+				romName.setText("ROM Name: " + FE4Data.InternalName);
+				romCode.setText("ROM Code: --");
+			}
 			else { 
 				type = GameType.UNKNOWN;
 				friendlyName.setText("Display Name: Unknown");
@@ -385,10 +450,19 @@ public class MainView implements FileFlowDelegate {
 			if (type != GameType.UNKNOWN) {
 				growthView.setVisible(true);
 				baseView.setVisible(true);
-				classView.setVisible(true);
-				otherCharOptionView.setVisible(true);
-				weaponView.setVisible(true);
-				enemyView.setVisible(true);
+				
+				if (type == GameType.FE4) {
+					fe4ClassView.setVisible(true);
+					holyBloodView.setVisible(true);
+					skillsView.setVisible(true);
+					
+				} else {
+					classView.setVisible(true);
+					otherCharOptionView.setVisible(true);
+					weaponView.setVisible(true);
+					enemyView.setVisible(true);
+				}
+		
 				miscView.setVisible(true);
 				randomizeButton.setVisible(true);
 				
@@ -415,7 +489,11 @@ public class MainView implements FileFlowDelegate {
 					@Override
 					public void handleEvent(Event event) {
 						FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
-						openDialog.setFilterExtensions(new String[] {"*.gba"});
+						if (gameType.isGBA()) {
+							openDialog.setFilterExtensions(new String[] {"*.gba"});
+						} else if (gameType.isSFC()) {
+							openDialog.setFilterExtensions(new String[] {".smc"});
+						}
 						String writePath = openDialog.open();
 						
 						if (writePath != null && writePath.length() > 0) {
@@ -435,15 +513,31 @@ public class MainView implements FileFlowDelegate {
 								}
 							}
 							
-							GBARandomizer randomizer = new GBARandomizer(pathToFile, writePath, gameType, compiler, 
-									growthView.getGrowthOptions(),
-									baseView.getBaseOptions(),
-									classView.getClassOptions(),
-									weaponView.getWeaponOptions(),
-									otherCharOptionView.getOtherCharacterOptions(),
-									enemyView.getEnemyOptions(),
-									miscView.getMiscellaneousOptions(),
-									seedField.getText());
+							Randomizer randomizer = null;
+							
+							if (gameType.isGBA()) {
+								randomizer = new GBARandomizer(pathToFile, writePath, gameType, compiler, 
+										growthView.getGrowthOptions(),
+										baseView.getBaseOptions(),
+										classView.getClassOptions(),
+										weaponView.getWeaponOptions(),
+										otherCharOptionView.getOtherCharacterOptions(),
+										enemyView.getEnemyOptions(),
+										miscView.getMiscellaneousOptions(),
+										seedField.getText());
+							} else if (gameType.isSFC()) {
+								if (gameType == GameType.FE4) {
+									boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
+									randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, 
+											growthView.getGrowthOptions(),
+											baseView.getBaseOptions(),
+											holyBloodView.getHolyBloodOptions(),
+											skillsView.getSkillOptions(),
+											fe4ClassView.getClassOptions(),
+											miscView.getMiscellaneousOptions(), 
+											seedField.getText());
+								}
+							}
 							
 							randomizer.setListener(new RandomizerListener() {
 
