@@ -194,6 +194,9 @@ public class GBARandomizer extends Randomizer {
 			}
 		}
 		
+		handler.close();
+		handler = null;
+		
 		if (tempPath != null) {
 			updateStatusString("Cleaning up...");
 			File tempFile = new File(tempPath);
