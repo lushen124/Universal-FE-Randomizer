@@ -67,7 +67,7 @@ $ java -jar Yune\ -\ GTK(x86_64).jar
 ...or something like that. Tested with Ubuntu 16.04.4.
 
 ## Compatability
-* Fire Emblem: Genealogy of the Holy War (aka FE4 or ファイアーエムブレム　聖戦の系譜) **NEW!**
+* **NEW!** Fire Emblem: Genealogy of the Holy War (aka FE4 or ファイアーエムブレム　聖戦の系譜)
 * Fire Emblem: Binding Blade (aka FE6 or ファイアーエムブレム　封印の剣)
 * Fire Emblem: Blazing Sword (aka FE7 or ファイアーエムブレム 烈火の剣)
 * Fire Emblem: The Sacred Stones (aka FE8 or ファイアーエムブレム 聖魔の光石)
@@ -79,6 +79,10 @@ FE7 and FE8 currently require US versions of those games. Like above, a cheksum 
 ## Randomization Options
 
 ### FE4 Additions
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/FE4Windows.png">
+</p>
 
 #### Growths
 Mostly the same as GBA. A character's personal growth rates are redistributed. Note that growth bonuses due to holy blood is added on top of the fact. Two new options have been added as well, one to put extra weight when considering HP growths, and one to make sure growth rates for STR and MAG (since they're separate in FE4) reflect the class. Meaning a class using Magic will make sure their MAG growth is higher than their STR growth, and vice versa with a class using physical weapons. Note that this does NOT guarantee the actual value of those growths. They can still be low overall, but their primary attacking stat will be guaranteed to grow better than their other stat. Characters that can use both physical and magic are not weighted specially in either direction.
@@ -98,8 +102,17 @@ This option takes all of the skills from every character and then randomly doles
 ##### Randomize
 This option takes up most of the space and will randomly assign skills based on a weighted distribution set using the controls for each skill. A skill can be disabled entirely to remove it from the pool, or it can choose from 5 levels of likelyhood. Note that the likelyhood is all relative, as they must add up to 100%, so putting everything on Least Likely is equivalent to putting everything on Most Likely. If the option to retain the number of skills is enabled, a character's original number of skills is used to determine how many skills they are randomized and the controls for distributing number of skills is disabled. If the option to retain the number of skills is disabled, the skill count distribution controls are enabled and, in a similar way, the number of skills to give each character can be customized (in more or less the same way).
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/Windows/FE4Skills.png">
+</p>
+
 #### Classes
 This section grew drastically, mostly due to how many safeguards you might need to make sure the game is still enjoyable. As usaul, the randomize playable characters, enemies, and bosses are back, and for enemies, not much has changed, though an option to randomize arena fights has also been added since it's possible and slightly entertaining. Bosses also have another option to randomize holy blood for the bosses that have it, should you want to expand the pool of classes for bosses later in the game. This option is also available for playable classes, and for the same reason. If this option is disabled, the class pool for those characters that have major holy blood is reduced to make sure they can still use their holy weapon. If this option is enabled, then characters will have their major blood be determined by what kind of weapons their class can actually use. For example, if Sigurd randomizes into a Bow Knight, then he will also have Major Ulir blood. Byron in Chapter 5 will also deliver him Yewfelle instead of Tyrfing.
+
+<p align="center" float="left">
+  <img width="45%" src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/Windows/FE4Enemies.png">
+  <img width="45%" src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/Windows/FE4Classes.png">
+</p>
 
 For children, there are three options on how they are assigned their class. When matching strictly, children derive their class from their closest Gen 1 analogue, determined by their class equivalency in the original game (so since Lester is an Arch Knight, and Midir is an Arch Knight, Lester will match Midir's class). When matching loosely, children get a randomized class, but are limited to classes that share weapon usage for at least one weapon with their Gen 1 analogue. Using the above example, if Midir randomized into an Axe Fighter, then Lester will randomize into a class that can use axes (i.e. Axe Fighter, Barbarian, Pirate, Axe Armor, or Axe Knight).
 
