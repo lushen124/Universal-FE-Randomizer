@@ -22,6 +22,10 @@ public class HolyBloodView extends Composite {
 	
 	private Button randomizeHolyWeaponBonusesButton;
 	
+	private Button giveHolyBlood;
+	private Button matchClass;
+	private Spinner majorBloodChance;
+	
 	public HolyBloodView(Composite parent, int style) {
 		super(parent, style);
 		
@@ -95,11 +99,73 @@ public class HolyBloodView extends Composite {
 		
 		FormData holyWeaponBonusData = new FormData();
 		holyWeaponBonusData.left = new FormAttachment(growthBonusParameterContainer, 0, SWT.LEFT);
-		holyWeaponBonusData.top = new FormAttachment(growthBonusParameterContainer, 0);
+		holyWeaponBonusData.top = new FormAttachment(growthBonusParameterContainer, 5);
 		randomizeHolyWeaponBonusesButton.setLayoutData(holyWeaponBonusData);
+		
+		giveHolyBlood = new Button(container, SWT.CHECK);
+		giveHolyBlood.setText("Assign Holy Blood to Playable Characters");
+		giveHolyBlood.setToolTipText("Assigns either Major or Minor Holy Blood to all Playable Characters.\n\nThose that already have Major Holy Blood are unaffected.\nThose that have Minor Holy Blood may gain an additional Minor Blood or convert into Major Blood.\nThose with none have a chance of either Major or Minor Blood.\n\nApplies to all non-child characters.");
+		giveHolyBlood.setEnabled(true);
+		giveHolyBlood.setSelection(false);
+		giveHolyBlood.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				matchClass.setEnabled(giveHolyBlood.getSelection());
+				majorBloodChance.setEnabled(giveHolyBlood.getSelection());
+			}
+		});
+		
+		FormData giveBloodData = new FormData();
+		giveBloodData.left = new FormAttachment(randomizeHolyWeaponBonusesButton, 0, SWT.LEFT);
+		giveBloodData.top = new FormAttachment(randomizeHolyWeaponBonusesButton, 10);
+		giveHolyBlood.setLayoutData(giveBloodData);
+		
+		matchClass = new Button(container, SWT.CHECK);
+		matchClass.setText("Match Blood to Weapon Usage");
+		matchClass.setToolTipText("When assigning a character with no holy blood, assigns a blood that matches their weapon type.\n\nFor characters with minor blood, a blood of a different weapon type will be used.");
+		matchClass.setEnabled(false);
+		matchClass.setSelection(false);
+		
+		FormData matchData = new FormData();
+		matchData.left = new FormAttachment(giveHolyBlood, 10, SWT.LEFT);
+		matchData.top = new FormAttachment(giveHolyBlood, 5);
+		matchClass.setLayoutData(matchData);
+		
+		Composite giveBloodContainer = new Composite(container, 0);
+		
+		FormLayout giveBloodContainerLayout = new FormLayout();
+		giveBloodContainerLayout.marginLeft = 5;
+		giveBloodContainerLayout.marginRight = 5;
+		giveBloodContainerLayout.marginTop = 5;
+		giveBloodContainerLayout.marginBottom = 5;
+		giveBloodContainer.setLayout(giveBloodContainerLayout);
+		
+		Label majorBloodLabel = new Label(giveBloodContainer, SWT.RIGHT);
+		majorBloodLabel.setText("Major Blood Chance");
+		
+		majorBloodChance = new Spinner(giveBloodContainer, SWT.NONE);
+		majorBloodChance.setValues(25, 0, 100, 0, 5, 10);
+		majorBloodChance.setEnabled(false);
+		majorBloodChance.setToolTipText("The chance of a character obtaining Major Holy Blood. The remainder (out of 100) is allocated to Minor Holy Blood.");
+		
+		labelData = new FormData();
+		labelData.left = new FormAttachment(0, 5);
+		labelData.right = new FormAttachment(majorBloodChance, -5);
+		labelData.top = new FormAttachment(majorBloodChance, 0, SWT.CENTER);
+		majorBloodLabel.setLayoutData(labelData);
+		
+		spinnerData = new FormData();
+		spinnerData.right = new FormAttachment(100, -5);
+		majorBloodChance.setLayoutData(spinnerData);
+		
+		containerData = new FormData();
+		containerData.top = new FormAttachment(matchClass, 0);
+		containerData.left = new FormAttachment(matchClass, 0, SWT.LEFT);
+		containerData.right = new FormAttachment(100, -5);
+		giveBloodContainer.setLayoutData(containerData);
 	}
 
 	public HolyBloodOptions getHolyBloodOptions() {
-		return new HolyBloodOptions(randomizeGrowthBonusesButton.getSelection(), growthBonusTotalSpinner.getSelection(), randomizeHolyWeaponBonusesButton.getSelection());
+		return new HolyBloodOptions(randomizeGrowthBonusesButton.getSelection(), growthBonusTotalSpinner.getSelection(), randomizeHolyWeaponBonusesButton.getSelection(), giveHolyBlood.getSelection(), matchClass.getSelection(), majorBloodChance.getSelection());
 	}
 }
