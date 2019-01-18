@@ -91,7 +91,7 @@ FE7 and FE8 currently require US versions of those games. Like above, a cheksum 
 ### FE4 Additions
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/FE4Mac.png">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/FE4Mac.png?raw=true">
 </p>
 
 #### Growths
