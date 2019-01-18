@@ -87,36 +87,30 @@ public class FE4Data {
 	public static final byte SeliphHolyWeaponInheritenceBanOldValue = 0x18;
 	public static final byte SeliphHolyWeaponInheritenceBanNewValue = 0x1E;
 	
-	public static final Map<Character, Integer> EventItemInventoryIDsByRecipient = createEventItemMap();
-	private static Map<Character, Integer> createEventItemMap() {
-		Map<Character, Integer> map = new HashMap<Character, Integer>();
-		map.put(Character.LACHESIS, 0x16); // Thief Sword
-		map.put(Character.LACHESIS, 0x22); // Earth Sword
-		map.put(Character.ETHLYN, 0x25); // Light Brand
-		map.put(Character.AYRA, 0x19); // Brave Sword (Technically needs to work for Coruta (boss) as well...)
-		map.put(Character.SILVIA, 0x20); // Defender
-		map.put(Character.DEW, 0x24); // Wind Sword
-		map.put(Character.SIGURD, 0x0A); // Silver Sword
+	public static final Map<Character, List<Integer>> EventItemInventoryIDsByRecipient = createEventItemMap();
+	private static Map<Character, List<Integer>> createEventItemMap() {
+		Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();
+		map.put(Character.LACHESIS, new ArrayList<Integer>(Arrays.asList(0x16, 0x22))); // Thief Sword, Earth Sword
+		map.put(Character.ETHLYN, new ArrayList<Integer>(Arrays.asList(0x25, 0x6D))); // Light Brand, Return Staff
+		map.put(Character.AYRA, new ArrayList<Integer>(Arrays.asList(0x19))); // Brave Sword (Technically needs to work for Coruta (boss) as well...)
+		map.put(Character.SILVIA, new ArrayList<Integer>(Arrays.asList(0x20))); // Defender
+		map.put(Character.DEW, new ArrayList<Integer>(Arrays.asList(0x24))); // Wind Sword
+		map.put(Character.SIGURD, new ArrayList<Integer>(Arrays.asList(0x0A))); // Silver Sword
 		/*map.put(Character.SIGURD, 0x27); // Tyrfing*/
-		map.put(Character.FINN_GEN_1, 0x3B); // Brave Lance
+		map.put(Character.FINN_GEN_1, new ArrayList<Integer>(Arrays.asList(0x3B))); // Brave Lance
 		/*map.put(Character.QUAN, 0x3E); // Gae Bolg*/
-		map.put(Character.LEX, 0x45); // Brave Axe
-		map.put(Character.MIDIR, 0x4D); // Brave Bow (Technically needs to work for Jamke too...)
+		map.put(Character.LEX, new ArrayList<Integer>(Arrays.asList(0x45))); // Brave Axe
+		map.put(Character.MIDIR, new ArrayList<Integer>(Arrays.asList(0x4D))); // Brave Bow (Technically needs to work for Jamke too...)
 		/*map.put(Character.BRIGID, 0x4F); // Yewfelle*/
 		/*map.put(Character.LEWYN, 0x5C); // Forseti*/
-		map.put(Character.ETHLYN, 0x6D); // Return Staff
-		map.put(Character.EDAIN, 0x6E); // Warp Staff
-		map.put(Character.EDAIN, 0x6F); // Rescue Staff
-		
-		map.put(Character.LAYLEA, 0x17); // Barrier Sword
-		map.put(Character.SELIPH, 0x1A); // Hero Sword
+		map.put(Character.EDAIN, new ArrayList<Integer>(Arrays.asList(0x6E, 0x6F))); // Warp Staff, Rescue Staff
+		map.put(Character.LAYLEA, new ArrayList<Integer>(Arrays.asList(0x17))); // Barrier Sword
+		map.put(Character.SELIPH, new ArrayList<Integer>(Arrays.asList(0x1A))); // Hero Sword
 		/*map.put(Character.SHANNAN, 0x28); // Balmung*/
-		map.put(Character.JULIA, 0x5E); // Lightning
-		// Aura should be here, but it's shared with Deirdre, so they have to use the same weapon type.
-		map.put(Character.JULIA, 0x5F); // Nosferatu
+		map.put(Character.JULIA, new ArrayList<Integer>(Arrays.asList(0x5E, 0x5F, 0x66))); // Lightning, Nosferatu, Mend Staff
+		// Aura (0x60) should be here, but it's shared with Deirdre (her starting equipment), so they have to use the same weapon type.
 		/*map.put(Character.JULIA, 0x61); // Naga*/
-		map.put(Character.JULIA, 0x66); // Mend Staff
-		map.put(Character.CHARLOT, 0x74); // Berserk Staff
+		map.put(Character.CHARLOT, new ArrayList<Integer>(Arrays.asList(0x74))); // Berserk Staff
 		return map;
 	}
 	
@@ -784,6 +778,7 @@ public class FE4Data {
 		// Midir will make the game confused if he can't attack in his opening scene.
 		// Seliph *technically* doesn't need to attack.
 		public static final Set<Character> CharactersThatMustBeAbleToAttack = new HashSet<Character>(Arrays.asList(SIGURD, /*SELIPH,*/ MIDIR));
+		public static final Set<Character> CharactersThatMustAttackAtMeleeRange = new HashSet<Character>(Arrays.asList(CHULAINN));
 
 		public int ID;
 		
@@ -988,7 +983,7 @@ public class FE4Data {
 		}
 		
 		public boolean requiresMelee() {
-			return !RangedOnlyArenaCharacters.contains(this);
+			return !RangedOnlyArenaCharacters.contains(this) || CharactersThatMustAttackAtMeleeRange.contains(this);
 		}
 		
 		public boolean requiresRange() {
@@ -1560,7 +1555,7 @@ public class FE4Data {
 		
 		// Note that sameWeapon will result in a class that has at least one weapon shared with the current class.
 		// e.g. Calling this on SOCIAL_KNIGHT is going to result in all classes that can use Swords OR Lances.
-		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale, boolean requireWeakness, boolean requireAttack, boolean requireHorse, Item mustUseWeapon, Item mustBeWeakAgainstWeapon) {
+		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale, boolean requireWeakness, boolean requireAttack, boolean requireHorse, boolean requiresMelee, Item mustUseWeapon, Item mustBeWeakAgainstWeapon) {
 			// Don't touch these. These are generally for bandits raiding villages. 
 			if (this == MOUNTAIN_THIEF) {
 				return new CharacterClass[] {};
@@ -1626,6 +1621,10 @@ public class FE4Data {
 			
 			if (requireAttack) {
 				workingSet.removeAll(pacifistClasses);
+			}
+			
+			if (requiresMelee) {
+				workingSet.removeAll(rangedOnlyClasses);
 			}
 			
 			// Lock fliers to flying classes, to make sure we don't blow anything up.
@@ -1864,6 +1863,8 @@ public class FE4Data {
 				LIGHT, NOSFERATU, AURA, NAGA,
 				YOTSMUNGAND));
 		
+		public static final Set<Item> normalWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, SILVER_BLADE, SLIM_SWORD, IRON_LANCE, STEEL_LANCE, SILVER_LANCE, JAVELIN,
+				SLIM_LANCE, IRON_AXE, STEEL_AXE, SILVER_AXE, HAND_AXE, IRON_BOW, STEEL_BOW, SILVER_BOW, FIRE, ELFIRE, WIND, ELWIND, THUNDER, ELTHUNDER, LIGHT, YOTSMUNGAND));
 		public static final Set<Item> interestingWeapons = new HashSet<Item>(Arrays.asList(MIRACLE_SWORD, THIEF_SWORD,
 				BARRIER_BLADE, BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD, SAFEGUARD,
 				FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, ARMORSLAYER, WING_CLIPPER, BRAVE_AXE, 
@@ -1871,6 +1872,13 @@ public class FE4Data {
 		
 		public static final Set<Item> powerfulWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, STEEL_BLADE, SILVER_BLADE, SILVER_LANCE,
 				SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, AURA));
+		
+		public static final Set<Item> ironSet = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_BLADE, SLIM_SWORD, IRON_LANCE, SLIM_LANCE, IRON_AXE, IRON_BOW, FIRE, WIND, THUNDER, LIGHT, YOTSMUNGAND, HEAL));
+		public static final Set<Item> steelSet = new HashSet<Item>(Arrays.asList(STEEL_SWORD, STEEL_BLADE, STEEL_LANCE, STEEL_AXE, STEEL_BOW, ELFIRE, ELTHUNDER, ELWIND, LIGHT, YOTSMUNGAND, MEND));
+		public static final Set<Item> silverSet = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, SILVER_LANCE, SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, AURA, YOTSMUNGAND, RECOVER));
+		public static final Set<Item> rangedSet = new HashSet<Item>(Arrays.asList(FLAME_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, JAVELIN, HAND_AXE, STEEL_BOW, ELFIRE, ELTHUNDER, ELWIND, LIGHT, YOTSMUNGAND, PHYSIC));
+		public static final Set<Item> effectiveSet = new HashSet<Item>(Arrays.asList(WING_CLIPPER, ARMORSLAYER, HORSESLAYER, HAND_AXE, KILLER_BOW, ELFIRE, ELWIND, ELTHUNDER, LIGHT, YOTSMUNGAND, RECOVER));
+		public static final Set<Item> braveSet = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, BRAVE_LANCE, BRAVE_AXE, BRAVE_BOW, ELFIRE, ELWIND, ELTHUNDER, LIGHT, YOTSMUNGAND, RECOVER));
 		
 		public static final Set<Item> rings = new HashSet<Item>(Arrays.asList(LIFE_RING, ELITE_RING, THIEF_RING, PRAYER_RING, PURSUIT_RING, RECOVER_RING, BARGAIN_RING, 
 				KNIGHT_RING, RETURN_RING, SPEED_RING, MAGIC_RING, POWER_RING, SHIELD_RING, BARRIER_RING, LEG_RING, SKILL_RING));
@@ -1885,6 +1893,8 @@ public class FE4Data {
 		public static final Set<Item> aWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, SILVER_LANCE, SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, NOSFERATU,
 				AURA, FORTIFY, RESCUE));
 		public static final Set<Item> holyWeapons = new HashSet<Item>(Arrays.asList(MYSTLETAINN, TYRFING, BALMUNG, GUNGNIR, GAE_BOLG, HELSWATH, YEWFELLE, VALFLAME, MJOLNIR, FORSETI, NAGA, LOPTYR, VALKYRIE));
+		
+		public static final Set<Item> femaleOnlyWeapons = new HashSet<Item>(Arrays.asList(MIRACLE_SWORD));
 		
 		public int ID;
 		

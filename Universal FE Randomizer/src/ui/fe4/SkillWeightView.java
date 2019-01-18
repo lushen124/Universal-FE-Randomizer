@@ -249,7 +249,7 @@ public class SkillWeightView extends Composite {
 		viewData.right = new FormAttachment(100, -5);
 		criticalView.setLayoutData(viewData);
 		
-		vantageView = new WeightView("Wrath", Weight.NORMAL, this, SWT.NONE);
+		vantageView = new WeightView("Vantage", Weight.NORMAL, this, SWT.NONE);
 		vantageView.setListener(new WeightViewListener() {
 			@Override
 			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}

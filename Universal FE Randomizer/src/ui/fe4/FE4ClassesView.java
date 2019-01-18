@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
 import ui.fe4.FE4ClassOptions.ChildOptions;
+import ui.fe4.FE4ClassOptions.ItemAssignmentOptions;
 import ui.fe4.FE4ClassOptions.ShopOptions;
 
 public class FE4ClassesView extends Composite {
@@ -20,6 +21,7 @@ public class FE4ClassesView extends Composite {
 	private Button randomizePCs;
 	private Button includeLords;
 	private Button retainHealers;
+	private Button retainHorses;
 	private Button includeThieves;
 	private Button includeDancers;
 	private Button adjustChildrenStrict;
@@ -31,6 +33,9 @@ public class FE4ClassesView extends Composite {
 	private Button randomizeShops;
 	private Button adjustConvoItems;
 	private Button adjustSTRMAG;
+	private Button strictSidgradeItems;
+	private Button looseSidegradeItems;
+	private Button randomItems;
 	
 	private Button randomizeMinions;
 	
@@ -67,6 +72,7 @@ public class FE4ClassesView extends Composite {
 				boolean enabled = randomizePCs.getSelection();
 				includeLords.setEnabled(enabled);
 				retainHealers.setEnabled(enabled);
+				retainHorses.setEnabled(enabled);
 				includeThieves.setEnabled(enabled);
 				includeDancers.setEnabled(enabled);
 				
@@ -82,6 +88,10 @@ public class FE4ClassesView extends Composite {
 				
 				adjustConvoItems.setEnabled(enabled);
 				adjustSTRMAG.setEnabled(enabled);
+				
+				strictSidgradeItems.setEnabled(enabled);
+				looseSidegradeItems.setEnabled(enabled);
+				randomItems.setEnabled(enabled);
 			}
 		});
 		
@@ -134,6 +144,17 @@ public class FE4ClassesView extends Composite {
 		optionData.top = new FormAttachment(includeDancers, 5);
 		retainHealers.setLayoutData(optionData);
 		
+		retainHorses = new Button(container, SWT.CHECK);
+		retainHorses.setText("Retain Horseback Units");
+		retainHorses.setToolTipText("Limits normally horseback units to other horseback classes.");
+		retainHorses.setEnabled(false);
+		retainHorses.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(retainHealers, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(retainHealers, 5);
+		retainHorses.setLayoutData(optionData);
+		
 		Group childGroup = new Group(container, SWT.NONE);
 		childGroup.setText("Children Options");
 		
@@ -145,8 +166,8 @@ public class FE4ClassesView extends Composite {
 		childGroup.setLayout(groupLayout);
 		
 		FormData groupData = new FormData();
-		groupData.left = new FormAttachment(retainHealers, 0, SWT.LEFT);
-		groupData.top = new FormAttachment(retainHealers, 5);
+		groupData.left = new FormAttachment(retainHorses, 0, SWT.LEFT);
+		groupData.top = new FormAttachment(retainHorses, 5);
 		groupData.right = new FormAttachment(100, -5);
 		childGroup.setLayoutData(groupData);
 		
@@ -269,6 +290,57 @@ public class FE4ClassesView extends Composite {
 		optionData.top = new FormAttachment(adjustConvoItems, 5);
 		adjustSTRMAG.setLayoutData(optionData);
 		
+		Group itemAssignmentGroup = new Group(container, SWT.NONE);
+		itemAssignmentGroup.setText("Weapon Assignment");
+		
+		FormLayout itemLayout = new FormLayout();
+		itemLayout.marginLeft = 5;
+		itemLayout.marginRight = 5;
+		itemLayout.marginTop = 5;
+		itemLayout.marginBottom = 5;
+		itemAssignmentGroup.setLayout(itemLayout);
+		
+		FormData itemData = new FormData();
+		itemData.left = new FormAttachment(adjustSTRMAG, 0, SWT.LEFT);
+		itemData.top = new FormAttachment(adjustSTRMAG, 5);
+		itemData.right = new FormAttachment(100, -5);
+		itemAssignmentGroup.setLayoutData(itemData);
+		
+		{
+			strictSidgradeItems = new Button(itemAssignmentGroup, SWT.RADIO);
+			strictSidgradeItems.setText("Sidegrade (Strict)");
+			strictSidgradeItems.setToolTipText("Assigns weapons using the direct analogue of the appropriate weapon type, where possible. Falls back to loose sidegrade if no matches are found.");
+			strictSidgradeItems.setEnabled(false);
+			strictSidgradeItems.setSelection(true);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(0, 0);
+			optionData.top = new FormAttachment(0, 0);
+			strictSidgradeItems.setLayoutData(optionData);
+			
+			looseSidegradeItems = new Button(itemAssignmentGroup, SWT.RADIO);
+			looseSidegradeItems.setText("Sidegrade (Loose)");
+			looseSidegradeItems.setToolTipText("Assigns weapons based on a more general normal weapon/special weapon split and have the same weapon rank.");
+			looseSidegradeItems.setEnabled(false);
+			looseSidegradeItems.setSelection(false);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(strictSidgradeItems, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(strictSidgradeItems, 5);
+			looseSidegradeItems.setLayoutData(optionData);
+			
+			randomItems = new Button(itemAssignmentGroup, SWT.RADIO);
+			randomItems.setText("Randomize");
+			randomItems.setToolTipText("Assigns weapons entirely randomly.");
+			randomItems.setEnabled(false);
+			randomItems.setSelection(false);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(looseSidegradeItems, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(looseSidegradeItems, 5);
+			randomItems.setLayoutData(optionData);
+		}
+		
 		randomizeMinions = new Button(container, SWT.CHECK);
 		randomizeMinions.setText("Randomize Regular Enemies");
 		randomizeMinions.setToolTipText("Randomizes the classes for regular enemies. Due to how the game was coded and how many enemies are copy/pasted, randomizations are done in batches.");
@@ -277,7 +349,7 @@ public class FE4ClassesView extends Composite {
 		
 		optionData = new FormData();
 		optionData.left = new FormAttachment(randomizePCs, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(adjustSTRMAG, 10);
+		optionData.top = new FormAttachment(itemAssignmentGroup, 10);
 		randomizeMinions.setLayoutData(optionData);
 		
 		randomizeArenas = new Button(container, SWT.CHECK);
@@ -328,7 +400,11 @@ public class FE4ClassesView extends Composite {
 		ShopOptions shopOptions = ShopOptions.ADJUST_TO_MATCH;
 		if (randomizeShops.getSelection()) { shopOptions = ShopOptions.RANDOMIZE; }
 		
-		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(),
+		ItemAssignmentOptions itemOptions = ItemAssignmentOptions.SIDEGRADE_STRICT;
+		if (looseSidegradeItems.getSelection()) { itemOptions = ItemAssignmentOptions.SIDEGRADE_LOOSE; }
+		else if (randomItems.getSelection()) { itemOptions = ItemAssignmentOptions.RANDOMIZE; }
+		
+		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), retainHorses.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(), itemOptions,
 				randomizeMinions.getSelection(), randomizeArenas.getSelection(), randomizeBosses.getSelection(), randomizeBossBlood.getSelection());
 	}
 }

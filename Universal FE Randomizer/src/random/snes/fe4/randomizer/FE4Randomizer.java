@@ -315,6 +315,11 @@ public class FE4Randomizer extends Randomizer {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 2));
 				FE4BloodRandomizer.randomizeHolyWeaponBonuses(bloodData, rng);
 			}
+			if (bloodOptions.giveHolyBlood) {
+				updateStatusString("Assigning Holy Blood...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 3));
+				FE4BloodRandomizer.assignHolyBlood(bloodOptions.majorBloodChance, bloodOptions.matchClass, charData, rng);
+			}
 		}
 	}
 	
@@ -388,7 +393,7 @@ public class FE4Randomizer extends Randomizer {
 			// Trigger it off of whatever equipment Lex started with.
 			FE4StaticCharacter lex = charData.getStaticCharacter(FE4Data.Character.LEX);
 			int equip1 = lex.getEquipment1();
-			FE4Data.Item item1 = FE4Data.Item.valueOf(equip1);
+			FE4Data.Item item1 = itemMapper.getItemAtIndex(equip1);
 			diffCompiler.addDiff(new Diff(FE4Data.LexHeroAxeEventItemRequirementOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)item1.ID}, new byte[] {FE4Data.LexHeroAxeEventItemRequirementOldID}));
 			
 			// Finalize promotions (which are stored away from the character data).

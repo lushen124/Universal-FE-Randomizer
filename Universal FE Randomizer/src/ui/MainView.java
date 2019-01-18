@@ -89,7 +89,7 @@ public class MainView implements FileFlowDelegate {
 		super();
 		
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.RESIZE & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.0)");
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.1)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
 		 mainShell = shell;
@@ -289,7 +289,6 @@ public class MainView implements FileFlowDelegate {
 			holyBloodData.top = new FormAttachment(baseView, 5);
 			holyBloodData.left = new FormAttachment(baseView, 0, SWT.LEFT);
 			holyBloodData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
-			holyBloodData.bottom = new FormAttachment(100, -10);
 			holyBloodView.setLayoutData(holyBloodData);
 			
 			skillsView = new SkillsView(mainShell, SWT.NONE);
@@ -317,10 +316,22 @@ public class MainView implements FileFlowDelegate {
 			miscView.setVisible(false);
 			  
 			FormData miscData = new FormData();
-			miscData.top = new FormAttachment(fe4ClassView, 5);
-			miscData.left = new FormAttachment(fe4ClassView, 0, SWT.LEFT);
-			miscData.right = new FormAttachment(fe4ClassView, 0, SWT.RIGHT);
+			miscData.top = new FormAttachment(holyBloodView, 5);
+			miscData.left = new FormAttachment(holyBloodView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(holyBloodView, 0, SWT.RIGHT);
+			miscData.bottom = new FormAttachment(100, -10);
 			miscView.setLayoutData(miscData);
+			
+			randomizeButton = new Button(mainShell, SWT.PUSH);
+			randomizeButton.setText("Randomize!");
+			randomizeButton.setVisible(false);
+			  
+			FormData randomizeData = new FormData();
+			randomizeData.top = new FormAttachment(fe4ClassView, 5);
+			randomizeData.left = new FormAttachment(fe4ClassView, 0, SWT.LEFT);
+			randomizeData.right = new FormAttachment(fe4ClassView, 0, SWT.RIGHT);
+			randomizeData.bottom = new FormAttachment(100, -10);
+			randomizeButton.setLayoutData(randomizeData);
 			
 		} else {
 			otherCharOptionView = new MOVCONAffinityView(mainShell, SWT.NONE);
@@ -373,18 +384,18 @@ public class MainView implements FileFlowDelegate {
 			miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
 			miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
 			miscView.setLayoutData(miscData);
+			
+			randomizeButton = new Button(mainShell, SWT.PUSH);
+			randomizeButton.setText("Randomize!");
+			randomizeButton.setVisible(false);
+			  
+			FormData randomizeData = new FormData();
+			randomizeData.top = new FormAttachment(miscView, 5);
+			randomizeData.left = new FormAttachment(miscView, 0, SWT.LEFT);
+			randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
+			randomizeData.bottom = new FormAttachment(100, -10);
+			randomizeButton.setLayoutData(randomizeData);
 		}
-		  
-		randomizeButton = new Button(mainShell, SWT.PUSH);
-		randomizeButton.setText("Randomize!");
-		randomizeButton.setVisible(false);
-		  
-		FormData randomizeData = new FormData();
-		randomizeData.top = new FormAttachment(miscView, 5);
-		randomizeData.left = new FormAttachment(miscView, 0, SWT.LEFT);
-		randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
-		randomizeData.bottom = new FormAttachment(100, -10);
-		randomizeButton.setLayoutData(randomizeData);
 		
 		mainShell.layout();
 		final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);

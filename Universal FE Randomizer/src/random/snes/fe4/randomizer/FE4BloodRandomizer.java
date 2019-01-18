@@ -1,10 +1,16 @@
 package random.snes.fe4.randomizer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4HolyBlood;
+import fedata.snes.fe4.FE4StaticCharacter;
+import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 
 public class FE4BloodRandomizer {
@@ -116,5 +122,120 @@ public class FE4BloodRandomizer {
 			blood.setHolyWeaponDEFBonus(defBonus);
 			blood.setHolyWeaponRESBonus(resBonus);
 		}
+	}
+	
+	public static void assignHolyBlood(int majorBloodChance, boolean matchClass, CharacterDataLoader charData, Random rng) {
+		List<FE4StaticCharacter> characterList = new ArrayList<FE4StaticCharacter>(charData.getGen1Characters());
+		characterList.addAll(charData.getGen2CommonCharacters());
+		characterList.addAll(charData.getGen2SubstituteCharacters());
+		
+		Set<Integer> idsProcessed = new HashSet<Integer>();
+		
+		for (FE4StaticCharacter staticChar : characterList) {
+			if (idsProcessed.contains(staticChar.getCharacterID())) { continue; }
+			
+			List<FE4Data.HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(staticChar.getHolyBlood1Value());
+			List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(staticChar.getHolyBlood2Value());
+			List<FE4Data.HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(staticChar.getHolyBlood3Value());
+			
+			boolean hasMajorBlood = false;
+			if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { hasMajorBlood = true; }
+			if (!hasMajorBlood && slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { hasMajorBlood = true; }
+			if (!hasMajorBlood && slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { hasMajorBlood = true; }
+			
+			boolean hasMinorBlood = false;
+			FE4Data.HolyBlood minorBloodType = null;
+			if (slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+				minorBloodType = slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+				hasMajorBlood = true;
+			}
+			if (!hasMajorBlood && slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+				minorBloodType = slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+				hasMajorBlood = true;
+			}
+			if (!hasMajorBlood && slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+				minorBloodType = slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+				hasMajorBlood = true;
+			}
+			
+			if (hasMajorBlood) { continue; }
+			
+			if (rng.nextInt(100) < majorBloodChance) {
+				// assign major blood
+				if (hasMinorBlood) {
+					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(minorBloodType, true);
+					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(minorBloodType, true);
+					FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(minorBloodType, true);
+					if (slot1 != null) {
+						slot1Blood.remove(FE4Data.HolyBloodSlot1.blood(minorBloodType, false));
+						slot1Blood.add(slot1);
+					} else if (slot2 != null) {
+						slot2Blood.remove(FE4Data.HolyBloodSlot2.blood(minorBloodType, false));
+						slot2Blood.add(slot2);
+					} else if (slot3 != null) {
+						slot3Blood.remove(FE4Data.HolyBloodSlot3.blood(minorBloodType, false));
+						slot3Blood.add(slot3);
+					}
+				} else {
+					FE4Data.HolyBlood[] bloodChoices = null;
+					if (matchClass) {
+						FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID());
+						bloodChoices = charClass.supportedHolyBlood();
+					} else {
+						bloodChoices = FE4Data.HolyBlood.values();
+					}
+					
+					FE4Data.HolyBlood selectedBlood = bloodChoices[rng.nextInt(bloodChoices.length)];
+					
+					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(selectedBlood, true);
+					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(selectedBlood, true);
+					FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(selectedBlood, true);
+					if (slot1 != null) { slot1Blood.add(slot1); }
+					if (slot2 != null) { slot2Blood.add(slot2); }
+					if (slot3 != null) { slot3Blood.add(slot3); }
+				}
+			} else {
+				// assign minor blood
+				FE4Data.HolyBlood[] bloodChoices = null;
+				if (matchClass) {
+					FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID());
+					bloodChoices = charClass.supportedHolyBlood();
+				} else {
+					bloodChoices = FE4Data.HolyBlood.values();
+				}
+				
+				Set<FE4Data.HolyBlood> bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(bloodChoices));
+				
+				if (hasMinorBlood) {
+					bloodSet.remove(minorBloodType);
+				}
+				
+				if (bloodSet.isEmpty()) {
+					bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(FE4Data.HolyBlood.values()));
+					bloodSet.remove(minorBloodType);
+				}
+				List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodSet);
+				
+				FE4Data.HolyBlood selectedBlood = bloodList.get(rng.nextInt(bloodList.size()));
+				
+				FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(selectedBlood, false);
+				FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(selectedBlood, false);
+				FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(selectedBlood, false);
+				if (slot1 != null) { slot1Blood.add(slot1); }
+				if (slot2 != null) { slot2Blood.add(slot2); }
+				if (slot3 != null) { slot3Blood.add(slot3); }
+			}
+			
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
+			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
+				FE4StaticCharacter character = charData.getStaticCharacter(linked);
+				character.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
+				character.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
+				character.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));	
+				idsProcessed.add(character.getCharacterID());
+			}
+		}
+		
+		charData.commit();
 	}
 }
