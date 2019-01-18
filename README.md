@@ -1,6 +1,16 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-### Latest Version: 0.7.0
+### Latest Version: 0.7.1
+#### Additions
+* Added the option to assign items in a non-random fashion.
+* Added the ability to assign holy blood to characters that didn't have it previously.
+* Added the option to retain horseback units when randomizing classes.
+#### Bugfixes
+* Fixed an issue with Lex's Hero Axe event not triggering with the correct item.
+* Fixed an issue in the UI where Vantage skill weight was mistakenly labeled as Wrath again.
+* Fixed an issue where some conversation items were not updating properly.
+
+* * *
 
 Properly universal this time. Those of you that used the original may recall that it supported all the GBA FEs, but was locked to Windows machines, mostly because I wrote it in Visual Basic, which has zero cross compatability. This time around, we're taking the opposite approach and starting with a single game first, but working on the three major desktop platforms.
 
@@ -81,7 +91,7 @@ FE7 and FE8 currently require US versions of those games. Like above, a cheksum 
 ### FE4 Additions
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/FE4Windows.png">
+  <img src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/FE4Mac.png">
 </p>
 
 #### Growths
