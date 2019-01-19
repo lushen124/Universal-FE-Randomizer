@@ -1373,7 +1373,7 @@ public class FE4ClassRandomizer {
 		
 		int equip2 = holyBoss.getEquipment2();
 		FE4Data.Item item2 = FE4Data.Item.valueOf(equip2);
-		if (item2 != FE4Data.Item.NONE && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || item2.ID == item1.ID)) {
+		if (item2 != FE4Data.Item.NONE && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || (item1 != null && item2.ID == item1.ID))) {
 			boolean isHolyWeapon = item2.getRank() == FE4Data.Item.WeaponRank.PRF;
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
@@ -1569,7 +1569,7 @@ public class FE4ClassRandomizer {
 		
 		int equip2 = character.getEquipment2();
 		FE4Data.Item item2 = itemMap.getItemAtIndex(equip2);
-		if (item2 != null && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || item2.ID == item1.ID)) {
+		if (item2 != null && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || (item1 != null && item2.ID == item1.ID))) {
 			boolean isHolyWeapon = item2.getRank() == FE4Data.Item.WeaponRank.PRF;
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
@@ -1598,7 +1598,7 @@ public class FE4ClassRandomizer {
 		
 		int equip3 = character.getEquipment3();
 		FE4Data.Item item3 = itemMap.getItemAtIndex(equip3);
-		if (item3 != null && (targetClass.canUseWeapon(item3, slot1Blood, slot2Blood, slot3Blood) == false || item3.ID == item2.ID || item3.ID == item1.ID)) {
+		if (item3 != null && (targetClass.canUseWeapon(item3, slot1Blood, slot2Blood, slot3Blood) == false || (item2 != null && item3.ID == item2.ID) || (item1 != null && item3.ID == item1.ID))) {
 			boolean isHolyWeapon = item3.getRank() == FE4Data.Item.WeaponRank.PRF;
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
@@ -1867,7 +1867,7 @@ public class FE4ClassRandomizer {
 		int item2ID = enemy.getEquipment2();
 		FE4Data.Item item2 = FE4Data.Item.valueOf(item2ID);
 		if (item2 != Item.NONE) {
-			if (!targetClass.canUseWeapon(item2, null, null, null) || item2.ID == item1.ID) {
+			if (!targetClass.canUseWeapon(item2, null, null, null) || (item1 != null && item2.ID == item1.ID)) {
 				if (!usableItems.isEmpty()) {
 					FE4Data.Item item = usableItems.get(rng.nextInt(usableItems.size()));
 					enemy.setEquipment2(item.ID);
