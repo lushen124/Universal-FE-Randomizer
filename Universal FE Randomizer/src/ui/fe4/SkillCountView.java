@@ -21,6 +21,8 @@ public class SkillCountView extends Composite {
 	private WeightView twoView;
 	private WeightView threeView;
 	
+	private boolean isEnabled;
+	
 	private Set<WeightView> allViews;
 	
 	public interface SkillCountListener {
@@ -178,7 +180,35 @@ public class SkillCountView extends Composite {
 		allViews = new HashSet<WeightView>(Arrays.asList(zeroView, oneView, twoView, threeView));
 	}
 	
+	public void setMaxSkillCount(int max) {
+		if (!isEnabled) { return; }
+		
+		if (max >= 3) {
+			threeView.setEnabled(true);
+			twoView.setEnabled(true);
+			oneView.setEnabled(true);
+			zeroView.setEnabled(true);
+		} else if (max >= 2) {
+			threeView.setEnabled(false);
+			twoView.setEnabled(true);
+			oneView.setEnabled(true);
+			zeroView.setEnabled(true);
+		} else if (max >= 1) {
+			threeView.setEnabled(false);
+			twoView.setEnabled(false);
+			oneView.setEnabled(true);
+			zeroView.setEnabled(true);
+		} else {
+			threeView.setEnabled(false);
+			twoView.setEnabled(false);
+			oneView.setEnabled(false);
+			zeroView.setEnabled(true);
+		}
+	}
+	
 	public void setEnabled(boolean enabled) {
+		isEnabled = enabled;
+		
 		for (WeightView view : allViews) { view.setEnabled(enabled); }
 		
 		if (allItemsDisabled && enabled) {

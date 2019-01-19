@@ -873,6 +873,13 @@ public class FE4Data {
 			}
 		}
 		
+		public CharacterClass[] blacklistedClasses() {
+			switch (this) {
+			case SIGURD: return CharacterClass.armoredClasses.toArray(new CharacterClass[CharacterClass.armoredClasses.size()]);
+			default: return new CharacterClass[] {};
+			}
+		}
+		
 		public HolyBlood[] limitedHolyBloodSelection() {
 			switch (this) {
 			case QUAN: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN}; // Mostly due to Altena needing to fly (and therefore locked to lances and swords).
@@ -1259,7 +1266,7 @@ public class FE4Data {
 		public static final Set<CharacterClass> A_staffUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, HIGH_PRIEST, BISHOP, QUEEN, DARK_BISHOP));
 		
 		public static final Set<CharacterClass> maleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, AXE_FIGHTER, WARRIOR, BARBARIAN, PIRATE, HUNTER, SWORD_ARMOR, ARMOR, 
-				AXE_ARMOR, BOW_ARMOR, GENERAL, MAGE_FIGHTER, BARD));
+				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, BARD));
 		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS));
 		
 		public static final Set<CharacterClass> noWeaknessClasses = new HashSet<CharacterClass>(Arrays.asList(BOW_FIGHTER, SWORD_FIGHTER, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
@@ -1879,6 +1886,9 @@ public class FE4Data {
 		public static final Set<Item> rangedSet = new HashSet<Item>(Arrays.asList(FLAME_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, JAVELIN, HAND_AXE, STEEL_BOW, ELFIRE, ELTHUNDER, ELWIND, LIGHT, YOTSMUNGAND, PHYSIC));
 		public static final Set<Item> effectiveSet = new HashSet<Item>(Arrays.asList(WING_CLIPPER, ARMORSLAYER, HORSESLAYER, HAND_AXE, KILLER_BOW, ELFIRE, ELWIND, ELTHUNDER, LIGHT, YOTSMUNGAND, RECOVER));
 		public static final Set<Item> braveSet = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, BRAVE_LANCE, BRAVE_AXE, BRAVE_BOW, ELFIRE, ELWIND, ELTHUNDER, LIGHT, YOTSMUNGAND, RECOVER));
+		
+		public static final Set<Item> statusSet = new HashSet<Item>(Arrays.asList(THIEF_SWORD, BERSERK_SWORD, SILENCE_SWORD, SLEEP_SWORD));
+		public static final Set<Item> playerOnlySet = new HashSet<Item>(Arrays.asList(BERSERK, BERSERK_SWORD));
 		
 		public static final Set<Item> rings = new HashSet<Item>(Arrays.asList(LIFE_RING, ELITE_RING, THIEF_RING, PRAYER_RING, PURSUIT_RING, RECOVER_RING, BARGAIN_RING, 
 				KNIGHT_RING, RETURN_RING, SPEED_RING, MAGIC_RING, POWER_RING, SHIELD_RING, BARRIER_RING, LEG_RING, SKILL_RING));

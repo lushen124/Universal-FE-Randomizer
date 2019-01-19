@@ -156,6 +156,11 @@ public class SkillsView extends Composite {
 		skillWeightView.setEnabled(false);
 		skillWeightView.setListener(new SkillWeightsListener() {
 			@Override
+			public void onEnableCountChanged(int newCount) {
+				skillCountView.setMaxSkillCount(newCount);
+			}
+			
+			@Override
 			public void onAllItemsDisabled() {
 				randomizeButton.setSelection(false);
 				shuffleButton.setSelection(true);

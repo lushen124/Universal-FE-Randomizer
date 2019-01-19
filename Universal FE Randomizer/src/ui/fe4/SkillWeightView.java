@@ -9,7 +9,10 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Spinner;
 
 import ui.fe4.WeightView.WeightViewListener;
 import ui.fe4.WeightedOptions.Weight;
@@ -17,7 +20,6 @@ import ui.fe4.WeightedOptions.Weight;
 public class SkillWeightView extends Composite {
 	
 	private WeightView wrathView;
-	private WeightView pursuitView;
 	private WeightView adeptView;
 	private WeightView charmView;
 	private WeightView nihilView;
@@ -32,19 +34,55 @@ public class SkillWeightView extends Composite {
 	private WeightView paragonView;
 	private WeightView bargainView;
 	
+	private Label pursuitLabel;
+	private Spinner pursuitSpinner;
+	
 	private Set<WeightView> allViews;
 	
 	private SkillWeightsListener listener;
 	private boolean allItemsDisabled;
 	
+	private class WeightListener implements WeightViewListener {
+		private void notifyCount() {
+			int count = 0;
+			for (WeightView view : allViews) {
+				if (view.optionEnabled()) { count++; }
+			}
+			
+			if (pursuitSpinner.getSelection() > 0) { count++; }
+			notifyEnableCountChanged(count);
+			if (count == 0) {
+				notifyAllItemsDisabled();
+			}
+		}
+		
+		@Override
+		public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
+		
+		@Override
+		public void onItemEnabled() { notifyCount(); }
+		
+		@Override
+		public void onItemDisabled() { notifyCount(); }
+	}
+	
+	private WeightListener weightListener = new WeightListener();
+	
 	public interface SkillWeightsListener {
 		public void onAllItemsDisabled();
+		public void onEnableCountChanged(int enabledCount);
 	}
 	
 	private void notifyAllItemsDisabled() {
 		allItemsDisabled = true;
 		if (listener != null) {
 			listener.onAllItemsDisabled();
+		}
+	}
+	
+	private void notifyEnableCountChanged(int count) {
+		if (listener != null) {
+			listener.onEnableCountChanged(count);
 		}
 	}
 	
@@ -103,19 +141,7 @@ public class SkillWeightView extends Composite {
 		moreLikely.setLayoutData(moreData);
 		
 		wrathView = new WeightView("Wrath", Weight.NORMAL, this, SWT.NONE);
-		wrathView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		wrathView.setListener(weightListener);
 		
 		FormData viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -123,62 +149,17 @@ public class SkillWeightView extends Composite {
 		viewData.right = new FormAttachment(100, -5);
 		wrathView.setLayoutData(viewData);
 		
-		pursuitView = new WeightView("Pursuit", Weight.VERY_HIGH, this, SWT.NONE);
-		pursuitView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		adeptView = new WeightView("Adept", Weight.NORMAL, this, SWT.NONE);
+		adeptView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
 		viewData.top = new FormAttachment(wrathView, 0);
 		viewData.right = new FormAttachment(100, -5);
-		pursuitView.setLayoutData(viewData);
-		
-		adeptView = new WeightView("Adept", Weight.NORMAL, this, SWT.NONE);
-		adeptView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
-		
-		viewData = new FormData();
-		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
-		viewData.top = new FormAttachment(pursuitView, 0);
-		viewData.right = new FormAttachment(100, -5);
 		adeptView.setLayoutData(viewData);
 		
 		charmView = new WeightView("Charm", Weight.NORMAL, this, SWT.NONE);
-		charmView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		charmView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -187,19 +168,7 @@ public class SkillWeightView extends Composite {
 		charmView.setLayoutData(viewData);
 		
 		nihilView = new WeightView("Nihil", Weight.NORMAL, this, SWT.NONE);
-		nihilView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		nihilView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -208,19 +177,7 @@ public class SkillWeightView extends Composite {
 		nihilView.setLayoutData(viewData);
 		
 		miracleView = new WeightView("Miracle", Weight.NORMAL, this, SWT.NONE);
-		miracleView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		miracleView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -229,19 +186,7 @@ public class SkillWeightView extends Composite {
 		miracleView.setLayoutData(viewData);
 		
 		criticalView = new WeightView("Critical", Weight.NORMAL, this, SWT.NONE);
-		criticalView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		criticalView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -250,19 +195,7 @@ public class SkillWeightView extends Composite {
 		criticalView.setLayoutData(viewData);
 		
 		vantageView = new WeightView("Vantage", Weight.NORMAL, this, SWT.NONE);
-		vantageView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		vantageView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -271,19 +204,7 @@ public class SkillWeightView extends Composite {
 		vantageView.setLayoutData(viewData);
 		
 		chargeView = new WeightView("Charge", Weight.NORMAL, this, SWT.NONE);
-		chargeView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		chargeView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -292,19 +213,7 @@ public class SkillWeightView extends Composite {
 		chargeView.setLayoutData(viewData);
 		
 		astraView = new WeightView("Astra", Weight.LOW, this, SWT.NONE);
-		astraView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		astraView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -313,19 +222,7 @@ public class SkillWeightView extends Composite {
 		astraView.setLayoutData(viewData);
 		
 		lunaView = new WeightView("Luna", Weight.LOW, this, SWT.NONE);
-		lunaView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		lunaView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -334,19 +231,7 @@ public class SkillWeightView extends Composite {
 		lunaView.setLayoutData(viewData);
 		
 		solView = new WeightView("Sol", Weight.LOW, this, SWT.NONE);
-		solView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		solView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -355,19 +240,7 @@ public class SkillWeightView extends Composite {
 		solView.setLayoutData(viewData);
 		
 		renewalView = new WeightView("Renewal", Weight.NORMAL, this, SWT.NONE);
-		renewalView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		renewalView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -376,19 +249,7 @@ public class SkillWeightView extends Composite {
 		renewalView.setLayoutData(viewData);
 		
 		paragonView = new WeightView("Paragon", Weight.NORMAL, this, SWT.NONE);
-		paragonView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		paragonView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -397,19 +258,7 @@ public class SkillWeightView extends Composite {
 		paragonView.setLayoutData(viewData);
 		
 		bargainView = new WeightView("Bargain", Weight.LOW, this, SWT.NONE);
-		bargainView.setListener(new WeightViewListener() {
-			@Override
-			public void onWeightChanged(Weight oldWeight, Weight newWeight) {}
-			
-			@Override
-			public void onItemEnabled() {}
-			
-			@Override
-			public void onItemDisabled() {
-				for (WeightView view : allViews) { if (view.optionEnabled()) { return; } }
-				notifyAllItemsDisabled();
-			}
-		});
+		bargainView.setListener(weightListener);
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(header, 0, SWT.LEFT);
@@ -417,12 +266,39 @@ public class SkillWeightView extends Composite {
 		viewData.right = new FormAttachment(100, -5);
 		bargainView.setLayoutData(viewData);
 		
-		allViews = new HashSet<WeightView>(Arrays.asList(wrathView, pursuitView, adeptView, charmView, nihilView, miracleView, criticalView, 
+		pursuitSpinner = new Spinner(this, SWT.NONE);
+		pursuitSpinner.setValues(50, 0, 100, 0, 5, 10);
+		pursuitSpinner.setEnabled(false);
+		pursuitSpinner.setToolTipText("Due to Pursuit's outsized importance in FE4, pursuit's chance can be set independently of the skill pool specified above.\nWhether a unit has pursuit is rolled first before determining other skills.\nA unit randomized with 0 skills will not be rolled.");
+		pursuitSpinner.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				weightListener.notifyCount();
+			}
+		});
+				
+		viewData = new FormData();
+		viewData.right = new FormAttachment(100, -5);
+		viewData.top = new FormAttachment(bargainView, 10);
+		pursuitSpinner.setLayoutData(viewData);
+		
+		pursuitLabel = new Label(this, SWT.NONE);
+		pursuitLabel.setText("Pursuit Chance:");
+		pursuitLabel.setEnabled(false);
+		
+		FormData labelData = new FormData();
+		labelData.left = new FormAttachment(header, 0, SWT.LEFT);
+		labelData.top = new FormAttachment(pursuitSpinner, 0, SWT.CENTER);
+		pursuitLabel.setLayoutData(labelData);
+		
+		allViews = new HashSet<WeightView>(Arrays.asList(wrathView, adeptView, charmView, nihilView, miracleView, criticalView, 
 				vantageView, chargeView, astraView, lunaView, solView, renewalView, paragonView, bargainView));
 	}
 	
 	public void setEnabled(boolean enabled) {
 		for (WeightView view : allViews) { view.setEnabled(enabled); }
+		pursuitSpinner.setEnabled(enabled);
+		pursuitLabel.setEnabled(enabled);
 		
 		if (allItemsDisabled && enabled) {
 			for (WeightView view : allViews) { view.setSelected(true); }
@@ -432,8 +308,7 @@ public class SkillWeightView extends Composite {
 	
 	
 	public SkillWeightOptions getSkillWeights() {
-		return new SkillWeightOptions(wrathView.getWeightedOptions(), 
-				pursuitView.getWeightedOptions(), 
+		return new SkillWeightOptions(wrathView.getWeightedOptions(),  
 				adeptView.getWeightedOptions(), 
 				charmView.getWeightedOptions(), 
 				nihilView.getWeightedOptions(), 
@@ -446,7 +321,8 @@ public class SkillWeightView extends Composite {
 				solView.getWeightedOptions(), 
 				renewalView.getWeightedOptions(), 
 				paragonView.getWeightedOptions(), 
-				bargainView.getWeightedOptions());
+				bargainView.getWeightedOptions(),
+				pursuitSpinner.getSelection());
 	}
 
 }

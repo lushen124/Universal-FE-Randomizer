@@ -141,7 +141,7 @@ public class HolyBloodView extends Composite {
 		giveBloodContainer.setLayout(giveBloodContainerLayout);
 		
 		Label majorBloodLabel = new Label(giveBloodContainer, SWT.RIGHT);
-		majorBloodLabel.setText("Major Blood Chance");
+		majorBloodLabel.setText("Major Blood Chance:");
 		
 		majorBloodChance = new Spinner(giveBloodContainer, SWT.NONE);
 		majorBloodChance.setValues(25, 0, 100, 0, 5, 10);

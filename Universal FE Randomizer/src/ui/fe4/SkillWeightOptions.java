@@ -2,7 +2,6 @@ package ui.fe4;
 
 public class SkillWeightOptions {
 	public final WeightedOptions wrathWeight;
-	public final WeightedOptions pursuitWeight;
 	public final WeightedOptions adeptWeight;
 	public final WeightedOptions charmWeight;
 	public final WeightedOptions nihilWeight;
@@ -17,8 +16,9 @@ public class SkillWeightOptions {
 	public final WeightedOptions paragonWeight;
 	public final WeightedOptions bargainWeight;
 	
+	public final int pursuitChance;
+	
 	public SkillWeightOptions(WeightedOptions wrath, 
-			WeightedOptions pursuit, 
 			WeightedOptions adept, 
 			WeightedOptions charm, 
 			WeightedOptions nihil, 
@@ -31,10 +31,10 @@ public class SkillWeightOptions {
 			WeightedOptions sol, 
 			WeightedOptions renewal, 
 			WeightedOptions paragon, 
-			WeightedOptions bargain) {
+			WeightedOptions bargain,
+			int pursuitChance) {
 		super();
 		this.wrathWeight = wrath;
-		this.pursuitWeight = pursuit;
 		this.adeptWeight = adept;
 		this.charmWeight = charm;
 		this.nihilWeight = nihil;
@@ -48,5 +48,6 @@ public class SkillWeightOptions {
 		this.renewalWeight = renewal;
 		this.paragonWeight = paragon;
 		this.bargainWeight = bargain;
+		this.pursuitChance = pursuitChance;
 	}
 }

@@ -1,14 +1,14 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-### Latest Version: 0.7.1
+### Latest Version: 0.7.2
 #### Additions
-* Added the option to assign items in a non-random fashion.
-* Added the ability to assign holy blood to characters that didn't have it previously.
-* Added the option to retain horseback units when randomizing classes.
+* Added the ability to independently set the chance for Pursuit from the other skills.
 #### Bugfixes
-* Fixed an issue with Lex's Hero Axe event not triggering with the correct item.
-* Fixed an issue in the UI where Vantage skill weight was mistakenly labeled as Wrath again.
-* Fixed an issue where some conversation items were not updating properly.
+* Blacklisted General/Baron/Emperor from Sigurd (for mountain crossing in Ch. 4)
+* Removed Bragi Blood from the pool for Holy Bosses.
+* Removed Berserk Blade and Berserk Staff from enemy weapon pools.
+* Removed Status-inflicting swords (Silence Sword, Sleep Sword, etc.) from the weapon pool for Arena Characters
+* Removed Dragon Rider from the class pool for female characters.
 
 * * *
 
