@@ -88,7 +88,7 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
-			List<FE4Data.CharacterClass> potentialClasses = new ArrayList<FE4Data.CharacterClass>();
+			Set<FE4Data.CharacterClass> potentialClasses = new HashSet<FE4Data.CharacterClass>();
 			
 			if (fe4Char.isHealer() && options.retainHealers) {
 				Collections.addAll(potentialClasses, originalClass.getClassPool(true, false, true, staticChar.isFemale(), false, false, options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), FE4Data.Item.HEAL, null));
@@ -130,14 +130,18 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			potentialClasses.removeAll(new HashSet<FE4Data.CharacterClass>(Arrays.asList(fe4Char.blacklistedClasses())));
+			
 			if (potentialClasses.isEmpty()) { continue; }
 			
+			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
+			
 			Set<HolyBlood> bloodOptions = new HashSet<HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
-			targetClass = potentialClasses.get(rng.nextInt(potentialClasses.size()));
+			targetClass = classList.get(rng.nextInt(classList.size()));
 			Set<HolyBlood> supportedBlood = new HashSet<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
 			supportedBlood.retainAll(bloodOptions);
 			while (supportedBlood.isEmpty()) {
-				targetClass = potentialClasses.get(rng.nextInt(potentialClasses.size()));
+				targetClass = classList.get(rng.nextInt(classList.size()));
 				supportedBlood = new HashSet<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
 				supportedBlood.retainAll(bloodOptions);	
 			}
@@ -169,7 +173,7 @@ public class FE4ClassRandomizer {
 			FE4Data.CharacterClass originalClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID());
 			if (originalClass == null) { continue; } // Shouldn't be touching this class. Skip this character.
 			
-			List<FE4Data.CharacterClass> potentialClasses = new ArrayList<FE4Data.CharacterClass>(); 
+			Set<FE4Data.CharacterClass> potentialClasses = new HashSet<FE4Data.CharacterClass>(); 
 			
 			// In the case that we have a weak requirement on a specific class (where two characters have to be somewhat similar), set that here.
 			// Whoever gets randomized first chooses the weapon.
@@ -231,9 +235,13 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			potentialClasses.removeAll(new HashSet<FE4Data.CharacterClass>(Arrays.asList(fe4Char.blacklistedClasses())));
+			
 			if (potentialClasses.isEmpty()) { continue; }
 			
-			targetClass = potentialClasses.get(rng.nextInt(potentialClasses.size()));
+			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
+			
+			targetClass = classList.get(rng.nextInt(classList.size()));
 			setStaticCharacterToClass(options, staticChar, targetClass, charData, itemMap, predeterminedClasses, requiredItems, rng);
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
@@ -872,6 +880,9 @@ public class FE4ClassRandomizer {
 				} else {
 					filteredWeapons.removeAll(nonBasicWeapons);
 				}
+				
+				filteredWeapons.removeAll(FE4Data.Item.statusSet);
+				
 				if (filteredWeapons.isEmpty()) {
 					filteredWeapons = possibleWeapons;
 				}
@@ -892,6 +903,9 @@ public class FE4ClassRandomizer {
 				} else {
 					filteredWeapons.removeAll(nonBasicWeapons);
 				}
+				
+				filteredWeapons.removeAll(FE4Data.Item.statusSet);
+				
 				if (filteredWeapons.isEmpty()) {
 					filteredWeapons = possibleWeapons;
 				}
@@ -914,6 +928,9 @@ public class FE4ClassRandomizer {
 				} else {
 					filteredWeapons.removeAll(nonBasicWeapons);
 				}
+				
+				filteredWeapons.removeAll(FE4Data.Item.statusSet);
+				
 				if (filteredWeapons.isEmpty()) {
 					filteredWeapons = possibleWeapons;
 				}
@@ -933,6 +950,9 @@ public class FE4ClassRandomizer {
 				} else {
 					filteredWeapons.removeAll(nonBasicWeapons);
 				}
+				
+				filteredWeapons.removeAll(FE4Data.Item.statusSet);
+				
 				if (filteredWeapons.isEmpty()) {
 					filteredWeapons = possibleWeapons;
 				}
@@ -1229,7 +1249,9 @@ public class FE4ClassRandomizer {
 				slot2Blood.removeIf(blood -> (blood.isMajor()));
 				slot3Blood.removeIf(blood -> (blood.isMajor()));
 				
-				List<FE4Data.HolyBlood> bloodOptions = Arrays.asList(targetClass.supportedHolyBlood());
+				List<FE4Data.HolyBlood> bloodOptions = new ArrayList<FE4Data.HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
+				// Bosses should never get Bragi Blood. That's a staff as a weapon if that's the case.
+				bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
 				if (!bloodOptions.isEmpty()) {
 					FE4Data.HolyBlood newMajorBlood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
 					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajorBlood, true);
@@ -1324,6 +1346,7 @@ public class FE4ClassRandomizer {
 		// Verify equipment.
 		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
 		usableItems.removeIf(item -> (item.getRank() == FE4Data.Item.WeaponRank.PRF));
+		usableItems.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
 		if (!holyBoss.isFemale()) {
 			usableItems.removeIf(item -> (FE4Data.Item.femaleOnlyWeapons.contains(item)));
 		}
@@ -1606,9 +1629,9 @@ public class FE4ClassRandomizer {
 					FE4Data.Item weapon = null;
 					
 					if (options.itemOptions == ItemAssignmentOptions.SIDEGRADE_STRICT) {
-						weapon = strictReplacementForItem(item2, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableWeapons), rng);
+						weapon = strictReplacementForItem(item1, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableWeapons), rng);
 					} else if (options.itemOptions != ItemAssignmentOptions.RANDOMIZE) {
-						weapon = looseReplacementForItem(item2, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableWeapons), rng);
+						weapon = looseReplacementForItem(item1, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableWeapons), rng);
 					} else {
 						weapon = usableItems.get(rng.nextInt(usableItems.size()));
 					}
@@ -1622,10 +1645,16 @@ public class FE4ClassRandomizer {
 		Set<Item> potentialGifts = new HashSet<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
 		Set<Item> rewardSet = new HashSet<FE4Data.Item>(FE4Data.Item.interestingWeapons);
 		rewardSet.addAll(FE4Data.Item.powerfulWeapons);
+		
+		// Characters that already have major blood will receive their weapon naturally.
+		// If somebody randomizes into major blood, we'll deal with that later.
+		rewardSet.removeAll(FE4Data.Item.holyWeapons); 
+		
 		potentialGifts.retainAll(rewardSet);
 		if (!character.isFemale()) {
 			potentialGifts.removeAll(FE4Data.Item.femaleOnlyWeapons);
 		}
+		
 		if (!potentialGifts.isEmpty()) {
 			usableItems = new ArrayList<Item>(potentialGifts);
 		} else {
@@ -1643,7 +1672,9 @@ public class FE4ClassRandomizer {
 						if (targetClass.canUseWeapon(item, slot1Blood, slot2Blood, slot3Blood) == false) {
 							FE4Data.Item replacement = usableItems.get(rng.nextInt(usableItems.size()));
 							itemMap.setItemAtIndex(inventoryID, replacement);
-							usableItems.remove(replacement);
+							if (usableItems.size() > 1) {
+								usableItems.remove(replacement);
+							}
 						}
 						
 						if (FE4Data.WeaklyLinkedCharacters.containsKey(recipient)) {
@@ -1747,9 +1778,9 @@ public class FE4ClassRandomizer {
 					FE4Data.Item weapon = null;
 					
 					if (options.itemOptions == ItemAssignmentOptions.SIDEGRADE_STRICT) {
-						weapon = strictReplacementForItem(item2, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableWeapons), rng);
+						weapon = strictReplacementForItem(item1, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableWeapons), rng);
 					} else if (options.itemOptions != ItemAssignmentOptions.RANDOMIZE) {
-						weapon = looseReplacementForItem(item2, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableWeapons), rng);
+						weapon = looseReplacementForItem(item1, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableWeapons), rng);
 					} else {
 						weapon = usableItems.get(rng.nextInt(usableItems.size()));
 					}
@@ -1783,7 +1814,9 @@ public class FE4ClassRandomizer {
 						if (targetClass.canUseWeapon(item, slot1Blood, slot2Blood, slot3Blood) == false) {
 							FE4Data.Item replacement = usableItems.get(rng.nextInt(usableItems.size()));
 							itemMap.setItemAtIndex(inventoryID, replacement);
-							usableItems.remove(replacement);
+							if (usableItems.size() > 1) {
+								usableItems.remove(replacement);
+							}
 						}
 					}
 				}
@@ -1815,6 +1848,7 @@ public class FE4ClassRandomizer {
 		itemSet.removeAll(blacklistedItems);
 		List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet);
 		itemSet.removeAll(FE4Data.Item.femaleOnlyWeapons);
+		itemSet.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
 		
 		int item1ID = enemy.getEquipment1();
 		FE4Data.Item item1 = FE4Data.Item.valueOf(item1ID);

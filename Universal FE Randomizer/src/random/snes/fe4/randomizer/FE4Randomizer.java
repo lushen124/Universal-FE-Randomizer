@@ -141,6 +141,7 @@ public class FE4Randomizer extends Randomizer {
 		charData.compileDiffs(diffCompiler);
 		itemMapper.compileDiff(diffCompiler);
 		bloodData.compileDiffs(diffCompiler);
+		promotionMapper.compileDiff(diffCompiler);
 		
 		updateStatusString("Applying changes...");
 		updateProgress(0.99);
@@ -318,7 +319,7 @@ public class FE4Randomizer extends Randomizer {
 			if (bloodOptions.giveHolyBlood) {
 				updateStatusString("Assigning Holy Blood...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 3));
-				FE4BloodRandomizer.assignHolyBlood(bloodOptions.majorBloodChance, bloodOptions.matchClass, charData, rng);
+				FE4BloodRandomizer.assignHolyBlood(bloodOptions.majorBloodChance, bloodOptions.matchClass, charData, itemMapper, rng);
 			}
 		}
 	}
@@ -510,11 +511,12 @@ public class FE4Randomizer extends Randomizer {
 				rk.addHeaderItem("Miracle Weight", skillsOptions.skillWeights.miracleWeight.enabled ? skillsOptions.skillWeights.miracleWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.MIRACLE) * 100) : "Disabled");
 				rk.addHeaderItem("Nihil Weight", skillsOptions.skillWeights.nihilWeight.enabled ? skillsOptions.skillWeights.nihilWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.NIHIL) * 100) : "Disabled");
 				rk.addHeaderItem("Paragon Weight", skillsOptions.skillWeights.paragonWeight.enabled ? skillsOptions.skillWeights.paragonWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.PARAGON) * 100) : "Disabled");
-				rk.addHeaderItem("Pursuit Weight", skillsOptions.skillWeights.pursuitWeight.enabled ? skillsOptions.skillWeights.pursuitWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.PURSUIT) * 100) : "Disabled");
 				rk.addHeaderItem("Renewal Weight", skillsOptions.skillWeights.renewalWeight.enabled ? skillsOptions.skillWeights.renewalWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.RENEWAL) * 100) : "Disabled");
 				rk.addHeaderItem("Sol Weight", skillsOptions.skillWeights.solWeight.enabled ? skillsOptions.skillWeights.solWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.SOL) * 100) : "Disabled");
 				rk.addHeaderItem("Vantage Weight", skillsOptions.skillWeights.vantageWeight.enabled ? skillsOptions.skillWeights.vantageWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.VANTAGE) * 100) : "Disabled");
 				rk.addHeaderItem("Wrath Weight", skillsOptions.skillWeights.wrathWeight.enabled ? skillsOptions.skillWeights.wrathWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.WRATH) * 100) : "Disabled");
+				
+				rk.addHeaderItem("Pursuit Chance", String.format(" %d%%", skillsOptions.skillWeights.pursuitChance));
 			}
 			
 		} else {

@@ -12,6 +12,7 @@ import fedata.snes.fe4.FE4HolyBlood;
 import fedata.snes.fe4.FE4StaticCharacter;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
+import random.snes.fe4.loader.ItemMapper;
 
 public class FE4BloodRandomizer {
 	
@@ -124,7 +125,7 @@ public class FE4BloodRandomizer {
 		}
 	}
 	
-	public static void assignHolyBlood(int majorBloodChance, boolean matchClass, CharacterDataLoader charData, Random rng) {
+	public static void assignHolyBlood(int majorBloodChance, boolean matchClass, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		List<FE4StaticCharacter> characterList = new ArrayList<FE4StaticCharacter>(charData.getGen1Characters());
 		characterList.addAll(charData.getGen2CommonCharacters());
 		characterList.addAll(charData.getGen2SubstituteCharacters());
@@ -133,6 +134,8 @@ public class FE4BloodRandomizer {
 		
 		for (FE4StaticCharacter staticChar : characterList) {
 			if (idsProcessed.contains(staticChar.getCharacterID())) { continue; }
+			
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
 			
 			List<FE4Data.HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(staticChar.getHolyBlood1Value());
 			List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(staticChar.getHolyBlood2Value());
@@ -162,7 +165,9 @@ public class FE4BloodRandomizer {
 			
 			if (rng.nextInt(100) < majorBloodChance) {
 				// assign major blood
+				FE4Data.HolyBlood majorBlood = null;
 				if (hasMinorBlood) {
+					majorBlood = minorBloodType;
 					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(minorBloodType, true);
 					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(minorBloodType, true);
 					FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(minorBloodType, true);
@@ -193,6 +198,19 @@ public class FE4BloodRandomizer {
 					if (slot1 != null) { slot1Blood.add(slot1); }
 					if (slot2 != null) { slot2Blood.add(slot2); }
 					if (slot3 != null) { slot3Blood.add(slot3); }
+					
+					majorBlood = selectedBlood;
+				}
+				
+				if (majorBlood != null) {
+					// See if this character has any chance for receiving an item specifically for him/her.
+					for (FE4Data.Character recipient : FE4Data.EventItemInventoryIDsByRecipient.keySet()) {
+						if (recipient.ID == fe4Char.ID && rng.nextInt(3) == 0) {
+							List<Integer> inventoryIDs = FE4Data.EventItemInventoryIDsByRecipient.get(recipient);
+							int inventoryID = inventoryIDs.get(inventoryIDs.size() - 1);
+							itemMap.setItemAtIndex(inventoryID, majorBlood.holyWeapon);
+						}
+					}
 				}
 			} else {
 				// assign minor blood
@@ -226,7 +244,6 @@ public class FE4BloodRandomizer {
 				if (slot3 != null) { slot3Blood.add(slot3); }
 			}
 			
-			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
 				FE4StaticCharacter character = charData.getStaticCharacter(linked);
 				character.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
