@@ -1867,7 +1867,7 @@ public class FE4ClassRandomizer {
 		int item2ID = enemy.getEquipment2();
 		FE4Data.Item item2 = FE4Data.Item.valueOf(item2ID);
 		if (item2 != Item.NONE) {
-			if (!targetClass.canUseWeapon(item2, null, null, null) || (item1 != null && (item1 != null && item2.ID == item1.ID))) {
+			if (!targetClass.canUseWeapon(item2, null, null, null) || (item1 != null && item2.ID == item1.ID)) {
 				if (!usableItems.isEmpty()) {
 					FE4Data.Item item = usableItems.get(rng.nextInt(usableItems.size()));
 					enemy.setEquipment2(item.ID);
