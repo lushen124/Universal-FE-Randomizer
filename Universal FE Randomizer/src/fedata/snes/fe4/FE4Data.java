@@ -1829,7 +1829,7 @@ public class FE4Data {
 		
 		IRON_AXE(0x28), STEEL_AXE(0x29), SILVER_AXE(0x2A), BRAVE_AXE(0x2B), HELSWATH(0x2C), HAND_AXE(0x2D), BROKEN_AXE_A(0x2E), BROKEN_AXE_B(0x2F), BROKEN_AXE_C(0x30),
 		
-		IRON_BOW(0x31), STEEL_BOW(0x32), SILVER_BOW(0x33), BRAVE_BOW(0x34), KILLER_BOW(0x35), YEWFELLE(0x36), BROKEN_BOW_A(0x37), BROKEN_BOW_B(0x38), BROEKN_BOW_C(0x39),
+		IRON_BOW(0x31), STEEL_BOW(0x32), SILVER_BOW(0x33), BRAVE_BOW(0x34), KILLER_BOW(0x35), YEWFELLE(0x36), BROKEN_BOW_A(0x37), BROKEN_BOW_B(0x38), BROKEN_BOW_C(0x39),
 		
 		// Ballistas here, which we don't care about.
 		
@@ -1843,7 +1843,7 @@ public class FE4Data {
 		
 		YOTSMUNGAND(0x51), FENRIR(0x52), HEL(0x53), LOPTYR(0x54),
 		
-		EMPTY_BOOK_A_1(0x55), EMPTY_BOOK_B_1(0x56), EMPTY_BOOK_C_1(0x57), // No idea which kind of tome this is...
+		EMPTY_BOOK_A_FIRE(0x55), EMPTY_BOOK_B_FIRE(0x56), EMPTY_BOOK_C_FIRE(0x57),
 		
 		HEAL(0x58), MEND(0x59), RECOVER(0x5A), PHYSIC(0x5B), FORTIFY(0x5C), RETURN(0x5D), WARP(0x5E), RESCUE(0x5F), RESTORE(0x61), VALKYRIE(0x62), SILENCE(0x63), SLEEP(0x64), BERSERK(0x65),
 		BROKEN_STAFF_A(0x67), BROKEN_STAFF_B(0x68), BROKEN_STAFF_C(0x69),
@@ -1854,12 +1854,11 @@ public class FE4Data {
 		
 		BROKEN_HOLY_SWORD(0x7A), BROKEN_HOLY_SPEAR(0x7B), BROKEN_HOLY_BOW(0x7C),
 		
-		EMPTY_BOOK_A_2(0x7D), EMPTY_BOOK_B_2(0x7E), EMPTY_BOOK_C_2(0x7F),
-		EMPTY_BOOK_A_3(0x80), EMPTY_BOOK_B_3(0x81), EMPTY_BOOK_C_3(0x82),
-		EMPTY_BOOK_A_4(0x83), EMPTY_BOOK_B_4(0x84), EMPTY_BOOK_C_4(0x85),
-		EMPTY_BOOK_A_5(0x86), EMPTY_BOOK_B_5(0x87),
+		EMPTY_BOOK_A_THUNDER(0x7D), EMPTY_BOOK_B_THUNDER(0x7E), EMPTY_BOOK_C_THUNDER(0x7F),
+		EMPTY_BOOK_S_WIND(0x80), EMPTY_BOOK_A_WIND(0x81), EMPTY_BOOK_B_WIND(0x82), EMPTY_BOOK_C_WIND(0x83), 
+		EMPTY_BOOK_S_LIGHT(0x84), EMPTY_BOOK_A_LIGHT(0x85), EMPTY_BOOK_B_LIGHT(0x86), EMPTY_BOOK_C_LIGHT(0x87),
 		
-		BROKEN_STAFF(0x88),
+		BROKEN_HOLY_STAFF(0x88),
 		
 		CIRCLET(0x89)
 		;
@@ -1867,20 +1866,25 @@ public class FE4Data {
 		public static final Set<Item> swords = new HashSet<Item>(Arrays.asList(IRON_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, MIRACLE_SWORD,
 				THIEF_SWORD, BARRIER_BLADE, BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD,
 				SAFEGUARD, FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, MYSTLETAINN, TYRFING,
-				BALMUNG, ARMORSLAYER, WING_CLIPPER));
+				BALMUNG, ARMORSLAYER, WING_CLIPPER, BROKEN_SWORD_C, BROKEN_SWORD_B, BROKEN_SWORD_A, BROKEN_HOLY_SWORD));
 		public static final Set<Item> lances = new HashSet<Item>(Arrays.asList(IRON_LANCE, STEEL_LANCE, SILVER_LANCE, JAVELIN, HORSESLAYER, BRAVE_LANCE, SLIM_LANCE,
-				GUNGNIR, GAE_BOLG));
-		public static final Set<Item> axes = new HashSet<Item>(Arrays.asList(IRON_AXE, STEEL_AXE, SILVER_AXE, BRAVE_AXE, HELSWATH, HAND_AXE));
-		public static final Set<Item> bows = new HashSet<Item>(Arrays.asList(IRON_BOW, STEEL_BOW, SILVER_BOW, BRAVE_BOW, KILLER_BOW, YEWFELLE));
-		public static final Set<Item> fireMagic = new HashSet<Item>(Arrays.asList(FIRE, ELFIRE, BOLGANONE, VALFLAME, METEOR));
-		public static final Set<Item> thunderMagic = new HashSet<Item>(Arrays.asList(THUNDER, ELTHUNDER, THORON, MJOLNIR, BOLTING));
-		public static final Set<Item> windMagic = new HashSet<Item>(Arrays.asList(WIND, ELWIND, TORNADO, FORSETI, BLIZZARD));
-		public static final Set<Item> lightMagic = new HashSet<Item>(Arrays.asList(LIGHT, NOSFERATU, AURA, NAGA));
+				GUNGNIR, GAE_BOLG, BROKEN_LANCE_C, BROKEN_LANCE_B, BROKEN_LANCE_A, BROKEN_HOLY_SPEAR));
+		public static final Set<Item> axes = new HashSet<Item>(Arrays.asList(IRON_AXE, STEEL_AXE, SILVER_AXE, BRAVE_AXE, HELSWATH, HAND_AXE, BROKEN_AXE_C, BROKEN_AXE_B, BROKEN_AXE_A));
+		public static final Set<Item> bows = new HashSet<Item>(Arrays.asList(IRON_BOW, STEEL_BOW, SILVER_BOW, BRAVE_BOW, KILLER_BOW, YEWFELLE, BROKEN_BOW_C, BROKEN_BOW_B, BROKEN_BOW_A, BROKEN_HOLY_BOW));
+		public static final Set<Item> fireMagic = new HashSet<Item>(Arrays.asList(FIRE, ELFIRE, BOLGANONE, VALFLAME, METEOR, EMPTY_BOOK_C_FIRE, EMPTY_BOOK_B_FIRE, EMPTY_BOOK_A_FIRE));
+		public static final Set<Item> thunderMagic = new HashSet<Item>(Arrays.asList(THUNDER, ELTHUNDER, THORON, MJOLNIR, BOLTING, EMPTY_BOOK_C_THUNDER, EMPTY_BOOK_B_THUNDER, EMPTY_BOOK_A_THUNDER));
+		public static final Set<Item> windMagic = new HashSet<Item>(Arrays.asList(WIND, ELWIND, TORNADO, FORSETI, BLIZZARD, EMPTY_BOOK_C_WIND, EMPTY_BOOK_B_WIND, EMPTY_BOOK_A_WIND, EMPTY_BOOK_S_WIND));
+		public static final Set<Item> lightMagic = new HashSet<Item>(Arrays.asList(LIGHT, NOSFERATU, AURA, NAGA, EMPTY_BOOK_C_LIGHT, EMPTY_BOOK_B_LIGHT, EMPTY_BOOK_A_LIGHT, EMPTY_BOOK_S_LIGHT));
 		public static final Set<Item> darkMagic = new HashSet<Item>(Arrays.asList(YOTSMUNGAND, FENRIR, HEL, LOPTYR));
-		public static final Set<Item> staves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RETURN, WARP, RESCUE, RESTORE, VALKYRIE, SILENCE, SLEEP, BERSERK));
+		public static final Set<Item> staves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RETURN, WARP, RESCUE, RESTORE, VALKYRIE, SILENCE, SLEEP, BERSERK, BROKEN_STAFF_C, BROKEN_STAFF_B, BROKEN_STAFF_A, BROKEN_HOLY_STAFF));
 		
 		public static final Set<Item> healingStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY));
 		public static final Set<Item> siegeTomes = new HashSet<Item>(Arrays.asList(METEOR, BOLTING, BLIZZARD, FENRIR));
+		
+		public static final Set<Item> brokenWeapons = new HashSet<Item>(Arrays.asList(BROKEN_SWORD_A, BROKEN_SWORD_B, BROKEN_SWORD_C, BROKEN_LANCE_A, BROKEN_LANCE_B, BROKEN_LANCE_C, BROKEN_AXE_A, BROKEN_AXE_B, BROKEN_AXE_C,
+				BROKEN_BOW_A, BROKEN_BOW_B, BROKEN_BOW_C, BROKEN_STAFF_A, BROKEN_STAFF_B, BROKEN_STAFF_C, EMPTY_BOOK_A_FIRE, EMPTY_BOOK_A_THUNDER, EMPTY_BOOK_A_WIND, EMPTY_BOOK_A_LIGHT, EMPTY_BOOK_B_FIRE, EMPTY_BOOK_B_THUNDER, 
+				EMPTY_BOOK_B_WIND, EMPTY_BOOK_B_LIGHT, EMPTY_BOOK_C_FIRE, EMPTY_BOOK_C_THUNDER, EMPTY_BOOK_C_WIND, EMPTY_BOOK_C_LIGHT, 
+				EMPTY_BOOK_S_WIND, EMPTY_BOOK_S_LIGHT, BROKEN_HOLY_SWORD, BROKEN_HOLY_SPEAR, BROKEN_HOLY_BOW, BROKEN_HOLY_STAFF));
 		
 		public static final Set<Item> meleeWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, MIRACLE_SWORD, THIEF_SWORD, BARRIER_BLADE,
 				BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD, SAFEGUARD, FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, MYSTLETAINN, TYRFING, BALMUNG, ARMORSLAYER, WING_CLIPPER,
@@ -1918,6 +1922,7 @@ public class FE4Data {
 		public static final Set<Item> braveSet = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, BRAVE_LANCE, BRAVE_AXE, BRAVE_BOW, ELFIRE, ELWIND, ELTHUNDER, LIGHT, YOTSMUNGAND, RECOVER));
 		
 		public static final Set<Item> statusSet = new HashSet<Item>(Arrays.asList(THIEF_SWORD, BERSERK_SWORD, SILENCE_SWORD, SLEEP_SWORD));
+		
 		public static final Set<Item> playerOnlySet = new HashSet<Item>(Arrays.asList(BERSERK, BERSERK_SWORD));
 		
 		public static final Set<Item> rings = new HashSet<Item>(Arrays.asList(LIFE_RING, ELITE_RING, THIEF_RING, PRAYER_RING, PURSUIT_RING, RECOVER_RING, BARGAIN_RING, 
@@ -1927,12 +1932,14 @@ public class FE4Data {
 		
 		public static final Set<Item> cWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, MIRACLE_SWORD, THIEF_SWORD, BARRIER_BLADE, BERSERK_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD, SAFEGUARD, FLAME_SWORD,
 				EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, IRON_LANCE, JAVELIN, HORSESLAYER, SLIM_LANCE, IRON_AXE, HAND_AXE, IRON_BOW, KILLER_BOW, FIRE, METEOR, THUNDER, BOLTING, WIND, BLIZZARD, LIGHT, YOTSMUNGAND,
-				HEAL, MEND, RETURN));
+				HEAL, MEND, RETURN, BROKEN_SWORD_C, BROKEN_LANCE_C, BROKEN_AXE_C, BROKEN_BOW_C, EMPTY_BOOK_C_FIRE, EMPTY_BOOK_C_THUNDER, EMPTY_BOOK_C_WIND, EMPTY_BOOK_C_LIGHT, BROKEN_STAFF_C));
 		public static final Set<Item> bWeapons = new HashSet<Item>(Arrays.asList(STEEL_SWORD, BRAVE_SWORD, ARMORSLAYER, WING_CLIPPER, STEEL_LANCE, BRAVE_LANCE, STEEL_AXE, BRAVE_AXE, STEEL_BOW, BRAVE_BOW, ELFIRE, 
-				ELTHUNDER, ELWIND, FENRIR, HEL, RECOVER, PHYSIC, WARP, RESTORE, SILENCE, SLEEP, BERSERK));
+				ELTHUNDER, ELWIND, FENRIR, HEL, RECOVER, PHYSIC, WARP, RESTORE, SILENCE, SLEEP, BERSERK, BROKEN_SWORD_B, BROKEN_LANCE_B, BROKEN_AXE_B, BROKEN_BOW_B, EMPTY_BOOK_B_FIRE, EMPTY_BOOK_B_THUNDER, 
+				EMPTY_BOOK_B_WIND, EMPTY_BOOK_B_LIGHT, BROKEN_STAFF_B));
 		public static final Set<Item> aWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, SILVER_LANCE, SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, NOSFERATU,
-				AURA, FORTIFY, RESCUE));
-		public static final Set<Item> holyWeapons = new HashSet<Item>(Arrays.asList(MYSTLETAINN, TYRFING, BALMUNG, GUNGNIR, GAE_BOLG, HELSWATH, YEWFELLE, VALFLAME, MJOLNIR, FORSETI, NAGA, LOPTYR, VALKYRIE));
+				AURA, FORTIFY, RESCUE, BROKEN_SWORD_A, BROKEN_LANCE_A, BROKEN_AXE_A, BROKEN_BOW_A, EMPTY_BOOK_A_FIRE, EMPTY_BOOK_A_THUNDER, EMPTY_BOOK_A_WIND, EMPTY_BOOK_A_LIGHT, BROKEN_STAFF_A));
+		public static final Set<Item> holyWeapons = new HashSet<Item>(Arrays.asList(MYSTLETAINN, TYRFING, BALMUNG, GUNGNIR, GAE_BOLG, HELSWATH, YEWFELLE, VALFLAME, MJOLNIR, FORSETI, NAGA, LOPTYR, VALKYRIE,
+				BROKEN_HOLY_SWORD, BROKEN_HOLY_SPEAR, BROKEN_HOLY_BOW, EMPTY_BOOK_S_WIND, EMPTY_BOOK_S_LIGHT, BROKEN_HOLY_STAFF));
 		
 		public static final Set<Item> femaleOnlyWeapons = new HashSet<Item>(Arrays.asList(MIRACLE_SWORD));
 		
@@ -2044,8 +2051,112 @@ public class FE4Data {
 			}
 			
 			items.removeAll(siegeTomes); // Don't give out these.
+			items.removeAll(brokenWeapons); // Nor these (unless explicitly asked for)
 			
 			return items.toArray(new Item[items.size()]);
+		}
+		
+		public static Item getBrokenWeapon(ItemType type, WeaponRank rank) {
+			switch (type) {
+			case AXE:
+				switch (rank) {
+				case PRF:
+				case A:
+					return BROKEN_AXE_A;
+				case B:
+					return BROKEN_AXE_B;
+				default:
+					return BROKEN_AXE_C;
+				}
+			case LANCE:
+				switch (rank) {
+				case PRF:
+					return BROKEN_HOLY_SPEAR;
+				case A:
+					return BROKEN_LANCE_A;
+				case B:
+					return BROKEN_LANCE_B;
+				default:
+					return BROKEN_LANCE_C;
+				}
+			case SWORD:
+				switch (rank) {
+				case PRF:
+					return BROKEN_HOLY_SWORD;
+				case A:
+					return BROKEN_SWORD_A;
+				case B:
+					return BROKEN_SWORD_B;
+				default:
+					return BROKEN_SWORD_C;
+				}
+			case BOW:
+				switch (rank) {
+				case PRF:
+					return BROKEN_HOLY_BOW;
+				case A:
+					return BROKEN_BOW_A;
+				case B:
+					return BROKEN_BOW_B;
+				default:
+					return BROKEN_BOW_C;
+				}
+			case FIRE_MAGIC:
+				switch (rank) {
+				case PRF:
+				case A:
+					return EMPTY_BOOK_A_FIRE;
+				case B:
+					return EMPTY_BOOK_B_FIRE;
+				default:
+					return EMPTY_BOOK_C_FIRE;
+				}
+			case THUNDER_MAGIC:
+				switch (rank) {
+				case PRF:
+				case A:
+					return EMPTY_BOOK_A_THUNDER;
+				case B:
+					return EMPTY_BOOK_B_THUNDER;
+				default:
+					return EMPTY_BOOK_C_THUNDER;
+				}
+			case WIND_MAGIC:
+				switch (rank) {
+				case PRF:
+					return EMPTY_BOOK_S_WIND;
+				case A:
+					return EMPTY_BOOK_A_WIND;
+				case B:
+					return EMPTY_BOOK_B_WIND;
+				default:
+					return EMPTY_BOOK_C_WIND;
+				}
+			case LIGHT_MAGIC:
+				switch (rank) {
+				case PRF:
+					return EMPTY_BOOK_S_LIGHT;
+				case A:
+					return EMPTY_BOOK_A_LIGHT;
+				case B:
+					return EMPTY_BOOK_B_LIGHT;
+				default:
+					return EMPTY_BOOK_C_LIGHT;
+				}
+			case STAFF:
+				switch (rank) {
+				case PRF:
+					return BROKEN_HOLY_STAFF;
+				case A:
+					return BROKEN_STAFF_A;
+				case B:
+					return BROKEN_STAFF_B;
+				default:
+					return BROKEN_STAFF_C;
+				}
+			default:
+				return null;
+			}
 		}
 		
 		public ItemType getType() {
@@ -2061,6 +2172,10 @@ public class FE4Data {
 			if (staves.contains(this)) { return ItemType.STAFF; }
 			if (rings.contains(this)) { return ItemType.RING; }
 			return ItemType.NONE;
+		}
+		
+		public boolean isBroken() {
+			return brokenWeapons.contains(this);
 		}
 		
 		public boolean isWeapon() {

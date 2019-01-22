@@ -1379,6 +1379,7 @@ public class FE4ClassRandomizer {
 		FE4Data.Item item1 = FE4Data.Item.valueOf(equip1);
 		if (item1 != FE4Data.Item.NONE && targetClass.canUseWeapon(item1, slot1Blood, slot2Blood, slot3Blood) == false) {
 			boolean isHolyWeapon = item1.getRank() == FE4Data.Item.WeaponRank.PRF;
+			boolean isBroken = item1.isBroken();
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
 				replacement = majorBloodType.holyWeapon;
@@ -1386,6 +1387,10 @@ public class FE4ClassRandomizer {
 				replacement = stafflessList.get(rng.nextInt(stafflessList.size()));
 			} else {
 				replacement = usableItems.get(rng.nextInt(usableItems.size()));
+			}
+			
+			if (isBroken) {
+				replacement = FE4Data.Item.getBrokenWeapon(replacement.getType(), replacement.getRank());
 			}
 			holyBoss.setEquipment1(replacement.ID);
 			usableItems.remove(replacement);
@@ -1396,13 +1401,17 @@ public class FE4ClassRandomizer {
 		FE4Data.Item item2 = FE4Data.Item.valueOf(equip2);
 		if (item2 != FE4Data.Item.NONE && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || (item1 != null && item2.ID == item1.ID))) {
 			boolean isHolyWeapon = item2.getRank() == FE4Data.Item.WeaponRank.PRF;
+			boolean isBroken = item2.isBroken();
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
 				replacement = majorBloodType.holyWeapon;
 			} else {
 				replacement = usableItems.get(rng.nextInt(usableItems.size()));
 			}
-			
+
+			if (isBroken) {
+				replacement = FE4Data.Item.getBrokenWeapon(replacement.getType(), replacement.getRank());
+			}
 			holyBoss.setEquipment2(replacement.ID);
 			usableItems.remove(replacement);
 		}
@@ -1562,6 +1571,7 @@ public class FE4ClassRandomizer {
 		FE4Data.Item item1 = itemMap.getItemAtIndex(equip1);
 		if (item1 != null && targetClass.canUseWeapon(item1, slot1Blood, slot2Blood, slot3Blood) == false) {
 			boolean isHolyWeapon = item1.getRank() == FE4Data.Item.WeaponRank.PRF;
+			boolean isBroken = item1.isBroken();
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
 				replacement = majorBloodType.holyWeapon;
@@ -1580,6 +1590,10 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			if (isBroken) {
+				replacement = FE4Data.Item.getBrokenWeapon(replacement.getType(), replacement.getRank());
+			}
+			
 			itemMap.setItemAtIndex(equip1, replacement);
 			usableItems.remove(replacement);
 			
@@ -1592,6 +1606,7 @@ public class FE4ClassRandomizer {
 		FE4Data.Item item2 = itemMap.getItemAtIndex(equip2);
 		if (item2 != null && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || (item1 != null && item2.ID == item1.ID))) {
 			boolean isHolyWeapon = item2.getRank() == FE4Data.Item.WeaponRank.PRF;
+			boolean isBroken = item2.isBroken();
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
 				replacement = majorBloodType.holyWeapon;
@@ -1610,6 +1625,10 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			if (isBroken) {
+				replacement = FE4Data.Item.getBrokenWeapon(replacement.getType(), replacement.getRank());
+			}
+			
 			itemMap.setItemAtIndex(equip2, replacement);
 			usableItems.remove(replacement);
 			if (!hasWeapon) { hasWeapon = replacement.isWeapon(); }
@@ -1621,6 +1640,7 @@ public class FE4ClassRandomizer {
 		FE4Data.Item item3 = itemMap.getItemAtIndex(equip3);
 		if (item3 != null && (targetClass.canUseWeapon(item3, slot1Blood, slot2Blood, slot3Blood) == false || (item2 != null && item3.ID == item2.ID) || (item1 != null && item3.ID == item1.ID))) {
 			boolean isHolyWeapon = item3.getRank() == FE4Data.Item.WeaponRank.PRF;
+			boolean isBroken = item3.isBroken();
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
 				replacement = majorBloodType.holyWeapon;
@@ -1632,6 +1652,10 @@ public class FE4ClassRandomizer {
 				} else {
 					replacement = usableItems.get(rng.nextInt(usableItems.size()));
 				}
+			}
+			
+			if (isBroken) {
+				replacement = FE4Data.Item.getBrokenWeapon(replacement.getType(), replacement.getRank());
 			}
 			
 			itemMap.setItemAtIndex(equip3, replacement);
@@ -1754,7 +1778,7 @@ public class FE4ClassRandomizer {
 		FE4Data.Item item1 = itemMap.getItemAtIndex(equip1);
 		if (item1 != null && targetClass.canUseWeapon(item1, slot1Blood, slot2Blood, slot3Blood) == false) {
 			FE4Data.Item replacement = null;
-			
+			boolean isBroken = item1.isBroken();
 			if (options.itemOptions == ItemAssignmentOptions.SIDEGRADE_STRICT) {
 				replacement = strictReplacementForItem(item1, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableItems), rng);
 			} else if (options.itemOptions != ItemAssignmentOptions.RANDOMIZE) {
@@ -1762,6 +1786,11 @@ public class FE4ClassRandomizer {
 			} else {
 				replacement = usableItems.get(rng.nextInt(usableItems.size()));
 			}
+			
+			if (isBroken) {
+				replacement = FE4Data.Item.getBrokenWeapon(replacement.getType(), replacement.getRank());
+			}
+			
 			itemMap.setItemAtIndex(equip1, replacement);
 			usableItems.remove(replacement);
 			
@@ -1774,7 +1803,7 @@ public class FE4ClassRandomizer {
 		FE4Data.Item item2 = itemMap.getItemAtIndex(equip2);
 		if (item2 != null && targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false) {
 			FE4Data.Item replacement = null;
-			
+			boolean isBroken = item2.isBroken();
 			if (options.itemOptions == ItemAssignmentOptions.SIDEGRADE_STRICT) {
 				replacement = strictReplacementForItem(item2, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableItems), rng);
 			} else if (options.itemOptions != ItemAssignmentOptions.RANDOMIZE) {
@@ -1783,6 +1812,9 @@ public class FE4ClassRandomizer {
 				replacement = usableItems.get(rng.nextInt(usableItems.size()));
 			}
 			
+			if (isBroken) {
+				replacement = FE4Data.Item.getBrokenWeapon(replacement.getType(), replacement.getRank());
+			}
 			itemMap.setItemAtIndex(equip2, replacement);
 			usableItems.remove(replacement);
 			if (!hasWeapon) { hasWeapon = replacement.isWeapon(); }
