@@ -209,7 +209,9 @@ public class FE4BloodRandomizer {
 				if (majorBlood != null) {
 					// See if this character has any chance for receiving an item specifically for him/her.
 					for (FE4Data.Character recipient : FE4Data.EventItemInventoryIDsByRecipient.keySet()) {
-						if (recipient.ID == fe4Char.ID && rng.nextInt(2) == 0) {
+						// They also can't be weakly linked to other characters (since we can potentially change a weapon that works for both units).
+						// This also only has a 50% chance of happening.
+						if (recipient.ID == fe4Char.ID && !FE4Data.WeaklyLinkedCharacters.containsKey(fe4Char) && rng.nextInt(2) == 0) {
 							List<Integer> inventoryIDs = FE4Data.EventItemInventoryIDsByRecipient.get(recipient);
 							int inventoryID = inventoryIDs.get(inventoryIDs.size() - 1);
 							itemMap.setItemAtIndex(inventoryID, majorBlood.holyWeapon);
