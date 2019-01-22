@@ -1276,7 +1276,7 @@ public class FE4Data {
 		public static final Set<CharacterClass> A_staffUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, HIGH_PRIEST, BISHOP, QUEEN, DARK_BISHOP));
 		
 		public static final Set<CharacterClass> maleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, AXE_FIGHTER, WARRIOR, BARBARIAN, PIRATE, HUNTER, SWORD_ARMOR, ARMOR, 
-				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, BARD));
+				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, BARD, FREE_KNIGHT, FORREST_KNIGHT, FORREST));
 		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS));
 		
 		public static final Set<CharacterClass> noWeaknessClasses = new HashSet<CharacterClass>(Arrays.asList(BOW_FIGHTER, SWORD_FIGHTER, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
@@ -1726,7 +1726,12 @@ public class FE4Data {
 			case MAGE_KNIGHT: return new CharacterClass[] {MAGE};
 			case GREAT_KNIGHT: return new CharacterClass[] {AXE_KNIGHT};
 			case FALCON_KNIGHT: return new CharacterClass[] {PEGASUS_KNIGHT};
-			case DRAGON_MASTER: return new CharacterClass[] {DRAGON_RIDER, DRAGON_KNIGHT};
+			case DRAGON_MASTER: 
+				if (isFemale) {
+					return new CharacterClass[] {DRAGON_KNIGHT};
+				} else {
+					return new CharacterClass[] {DRAGON_RIDER, DRAGON_KNIGHT};
+				}
 			case SWORD_MASTER: 
 			case FORREST:
 				return new CharacterClass[] {SWORD_FIGHTER};
@@ -1751,7 +1756,12 @@ public class FE4Data {
 		public CharacterClass[] promotionClasses(boolean isFemale) {
 			if (promotedClasses.contains(this)) { return new CharacterClass[] {}; }
 			switch (this) {
-			case SOCIAL_KNIGHT: return new CharacterClass[] {PALADIN};
+			case SOCIAL_KNIGHT: 
+				if (isFemale) {
+					return new CharacterClass[] {PALADIN_F};
+				} else {
+					return new CharacterClass[] {PALADIN};
+				}
 			case LANCE_KNIGHT: return new CharacterClass[] {DUKE_KNIGHT}; 
 			case ARCH_KNIGHT: return new CharacterClass[] {BOW_KNIGHT}; 
 			case AXE_KNIGHT: return new CharacterClass[] {GREAT_KNIGHT};
@@ -1762,7 +1772,12 @@ public class FE4Data {
 			case DRAGON_KNIGHT:
 				return new CharacterClass[] {DRAGON_MASTER};
 			case BOW_FIGHTER: return new CharacterClass[] {SNIPER};
-			case SWORD_FIGHTER: return new CharacterClass[] {SWORD_MASTER, FORREST};
+			case SWORD_FIGHTER: 
+				if (isFemale) {
+					return new CharacterClass[] {SWORD_MASTER};
+				} else {
+					return new CharacterClass[] {SWORD_MASTER, FORREST};
+				}
 			case ARMOR:
 			case AXE_ARMOR:
 			case BOW_ARMOR:
@@ -1783,8 +1798,9 @@ public class FE4Data {
 				} else {
 					return new CharacterClass[] {MAGE_KNIGHT, MAGE_FIGHTER};
 				}
-			case BARD: return new CharacterClass[] {SAGE}; 
-			case LIGHT_PRIESTESS: return new CharacterClass[] {SAGE};
+			case BARD:
+			case LIGHT_PRIESTESS: 
+				return new CharacterClass[] {SAGE};
 			case THIEF: return new CharacterClass[] {THIEF_FIGHTER};
 			case BARBARIAN:
 			case MOUNTAIN_THIEF:
