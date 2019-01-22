@@ -1082,6 +1082,15 @@ public class FE4ClassRandomizer {
 					}
 				}
 			}
+			
+			// Try to retain siege tome users.
+			if (mustUseItem == null) {
+				FE4Data.Item item1 = FE4Data.Item.valueOf(enemy.getEquipment1());
+				FE4Data.Item item2 = FE4Data.Item.valueOf(enemy.getEquipment2());
+				if (item1 != null && item1.isSiegeTome()) { mustUseItem = item1; }
+				if (item2 != null && item2.isSiegeTome()) { mustUseItem = item2; }
+			}
+			
 			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, fe4Char.mustLoseToCharacters().length > 0, true, false, fe4Char.requiresMelee(), mustUseItem, mustLoseToWeapon));
 			
 			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
@@ -1204,6 +1213,14 @@ public class FE4ClassRandomizer {
 				if (winningWeapons.length > 0) {
 					weaponsBeatingCharacter.put(fe4Char, weaponsBeatingCharacter.put(fe4Char, winningWeapons[rng.nextInt(winningWeapons.length)]));
 				}
+			}
+			
+			// Try to retain siege tome users.
+			if (mustUseItem == null) {
+				FE4Data.Item item1 = FE4Data.Item.valueOf(deferred.getEquipment1());
+				FE4Data.Item item2 = FE4Data.Item.valueOf(deferred.getEquipment2());
+				if (item1 != null && item1.isSiegeTome()) { mustUseItem = item1; }
+				if (item2 != null && item2.isSiegeTome()) { mustUseItem = item2; }
 			}
 			
 			if (mustUseItem != null) {

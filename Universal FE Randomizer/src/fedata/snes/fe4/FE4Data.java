@@ -2190,6 +2190,10 @@ public class FE4Data {
 			return rings.contains(this);
 		}
 		
+		public boolean isSiegeTome() {
+			return siegeTomes.contains(this);
+		}
+		
 		public WeaponRank getRank() {
 			if (cWeapons.contains(this)) { return WeaponRank.C; }
 			if (bWeapons.contains(this)) { return WeaponRank.B; }
