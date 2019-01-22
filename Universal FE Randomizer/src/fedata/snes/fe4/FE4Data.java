@@ -1220,10 +1220,12 @@ public class FE4Data {
 		public static final Set<CharacterClass> unpromotedClasses = new HashSet<CharacterClass>(Arrays.asList(SOCIAL_KNIGHT, LANCE_KNIGHT, ARCH_KNIGHT, AXE_KNIGHT, FREE_KNIGHT, TROUBADOUR, 
 				PEGASUS_KNIGHT, DRAGON_RIDER, DRAGON_KNIGHT, BOW_FIGHTER, SWORD_FIGHTER, ARMOR, AXE_ARMOR, BOW_ARMOR, SWORD_ARMOR, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
 				FIRE_MAGE, THUNDER_MAGE, WIND_MAGE, BARD, LIGHT_PRIESTESS, THIEF, BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, DANCER));
-		public static final Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, EMPEROR, BARON, QUEEN, BISHOP, DARK_BISHOP));
 		public static final Set<CharacterClass> promotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, DUKE_KNIGHT, MASTER_KNIGHT, PALADIN, PALADIN_F, BOW_KNIGHT, FORREST_KNIGHT,
 				MAGE_KNIGHT, GREAT_KNIGHT, FALCON_KNIGHT, DRAGON_MASTER, SWORD_MASTER, SNIPER, FORREST, GENERAL, WARRIOR, MAGE_FIGHTER, MAGE_FIGHTER_F, HIGH_PRIEST, SAGE, THIEF_FIGHTER, EMPEROR,
 				BARON, QUEEN, BISHOP, DARK_BISHOP));
+		
+		public static final Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, EMPEROR, BARON, QUEEN, BISHOP, DARK_BISHOP));
+		public static final Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS)); // This one seems to make the game go nuts for enemies.
 		
 		public static final Set<CharacterClass> swordUsers = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, PRINCESS, MASTER_KNIGHT, SWORD_FIGHTER, SWORD_MASTER, FORREST, THIEF,
 				THIEF_FIGHTER, DANCER, SOCIAL_KNIGHT, PALADIN, TROUBADOUR, PALADIN_F, FREE_KNIGHT, FORREST_KNIGHT, SWORD_ARMOR, GENERAL, BARON, EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_RIDER,
@@ -1581,6 +1583,7 @@ public class FE4Data {
 			else { workingSet.addAll(unpromotedClasses); }
 			
 			if (!isEnemy) { workingSet.removeAll(enemyOnlyClasses); }
+			else { workingSet.removeAll(playerOnlyClasses); }
 			
 			if (!allowSame) { workingSet.remove(this); }
 			
