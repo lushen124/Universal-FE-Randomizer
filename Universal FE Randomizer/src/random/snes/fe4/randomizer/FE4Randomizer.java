@@ -3,7 +3,12 @@ package random.snes.fe4.randomizer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Data;
@@ -430,6 +435,94 @@ public class FE4Randomizer extends Randomizer {
 					promotionMapper.setPromotionForCharacter(fe4Char, promotedClass);
 				}
 			}
+		}
+		
+		if (classOptions.randomizeBlood || bloodOptions.giveHolyBlood) {
+			// Hard code Seliph's Holy Blood, based on his parents.
+			// He only has the first two bytes, so drop the other blood (which they should be limited in already).
+			FE4StaticCharacter sigurd = charData.getStaticCharacter(FE4Data.Character.SIGURD);
+			FE4StaticCharacter deirdre = charData.getStaticCharacter(FE4Data.Character.DEIRDRE);
+			
+			List<FE4Data.HolyBloodSlot1> sigurdSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(sigurd.getHolyBlood1Value());
+			List<FE4Data.HolyBloodSlot1> deirdreSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(deirdre.getHolyBlood1Value());
+			
+			List<FE4Data.HolyBloodSlot2> sigurdSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(sigurd.getHolyBlood2Value());
+			List<FE4Data.HolyBloodSlot2> deirdreSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(deirdre.getHolyBlood2Value());
+			
+			// We can discard any major blood Deirdre has, as that will generally go to Julia. Seliph will always inherit Sigurd's Major blood and a minor version of Deirdre's Major Blood.
+			FE4Data.HolyBlood deirdreMajorBlood = null;
+			FE4Data.HolyBlood sigurdMajorBlood = null;
+			sigurdMajorBlood = sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
+			if (sigurdMajorBlood == null) {
+				sigurdMajorBlood = sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
+			}
+			deirdreMajorBlood = deirdreSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? deirdreSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
+			if (deirdreMajorBlood == null) {
+				deirdreMajorBlood = deirdreSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? deirdreSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
+			}
+			
+			Set<FE4Data.HolyBloodSlot1> seliphSlot1Set = new HashSet<FE4Data.HolyBloodSlot1>();
+			Set<FE4Data.HolyBloodSlot2> seliphSlot2Set = new HashSet<FE4Data.HolyBloodSlot2>();
+			
+			if (sigurdMajorBlood != null) {
+				FE4Data.HolyBloodSlot1 slot1Major = FE4Data.HolyBloodSlot1.blood(sigurdMajorBlood, true);
+				if (slot1Major != null) {
+					seliphSlot1Set.add(slot1Major);
+				} else {
+					FE4Data.HolyBloodSlot2 slot2Major = FE4Data.HolyBloodSlot2.blood(sigurdMajorBlood, true);
+					if (slot2Major != null) {
+						seliphSlot2Set.add(slot2Major);
+					}
+				}
+			}
+			
+			if (deirdreMajorBlood != null) {
+				FE4Data.HolyBloodSlot1 slot1Minor = FE4Data.HolyBloodSlot1.blood(deirdreMajorBlood, false);
+				if (slot1Minor != null) {
+					seliphSlot1Set.add(slot1Minor);
+				} else {
+					FE4Data.HolyBloodSlot2 slot2Minor = FE4Data.HolyBloodSlot2.blood(deirdreMajorBlood, false);
+					if (slot2Minor != null) {
+						seliphSlot2Set.add(slot2Minor);
+					}
+				}
+			}
+			
+			// Transfer all minor blood that might be present.
+			seliphSlot1Set.addAll(sigurdSlot1.stream().filter(blood -> (blood.isMajor() == false)).collect(Collectors.toList()));
+			seliphSlot1Set.addAll(deirdreSlot1.stream().filter(blood -> (blood.isMajor() == false)).collect(Collectors.toList()));
+			seliphSlot2Set.addAll(sigurdSlot2.stream().filter(blood -> (blood.isMajor() == false)).collect(Collectors.toList()));
+			seliphSlot2Set.addAll(deirdreSlot2.stream().filter(blood -> (blood.isMajor() == false)).collect(Collectors.toList()));
+			
+			// Search for shared minor, which will become major.
+			Set<FE4Data.HolyBloodSlot1> sharedSlot1 = new HashSet<FE4Data.HolyBloodSlot1>(sigurdSlot1);
+			sharedSlot1.retainAll(deirdreSlot1);
+			for (FE4Data.HolyBloodSlot1 slot1 : sharedSlot1) {
+				if (slot1.isMajor()) { continue; }
+				// Remove shared minor blood and add the major version.
+				seliphSlot1Set.remove(slot1);
+				FE4Data.HolyBlood bloodType = slot1.bloodType();
+				seliphSlot1Set.add(FE4Data.HolyBloodSlot1.blood(bloodType, true));
+			}
+			
+			Set<FE4Data.HolyBloodSlot2> sharedSlot2 = new HashSet<FE4Data.HolyBloodSlot2>(sigurdSlot2);
+			sharedSlot2.retainAll(deirdreSlot2);
+			for (FE4Data.HolyBloodSlot2 slot2 : sharedSlot2) {
+				if (slot2.isMajor()) { continue; }
+				// Remove shared minor blood and add the major version.
+				seliphSlot2Set.remove(slot2);
+				FE4Data.HolyBlood bloodType = slot2.bloodType();
+				seliphSlot2Set.add(FE4Data.HolyBloodSlot2.blood(bloodType, true));
+			}
+			
+			List<FE4Data.HolyBloodSlot1> seliphSlot1 = new ArrayList<FE4Data.HolyBloodSlot1>(seliphSlot1Set);
+			List<FE4Data.HolyBloodSlot2> seliphSlot2 = new ArrayList<FE4Data.HolyBloodSlot2>(seliphSlot2Set);
+			
+			int slot1Value = FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(seliphSlot1);
+			int slot2Value = FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(seliphSlot2);
+			
+			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte1Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot1Value}, null));
+			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte2Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot2Value}, null));
 		}
 	}
 	

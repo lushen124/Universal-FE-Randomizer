@@ -88,6 +88,10 @@ public class FE4Data {
 	public static final byte SeliphHolyWeaponInheritenceBanOldValue = 0x18;
 	public static final byte SeliphHolyWeaponInheritenceBanNewValue = 0x1E;
 	
+	// Seliph also has hard-coded blood. Since we limited the parent's blood. We can calculate what his blood should be.
+	public static final long SeliphHolyBloodByte1Offset = 0x4856DL;
+	public static final long SeliphHolyBloodByte2Offset = 0x4856EL;
+	
 	public static final Map<Character, List<Integer>> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, List<Integer>> createEventItemMap() {
 		Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();
@@ -884,6 +888,9 @@ public class FE4Data {
 		public HolyBlood[] limitedHolyBloodSelection() {
 			switch (this) {
 			case QUAN: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN}; // Mostly due to Altena needing to fly (and therefore locked to lances and swords).
+			case SIGURD:
+			case DEIRDRE: // Seliph's blood inheritence only supports the first two bytes, so neither parent can go beyond that.
+				return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.NAGA, HolyBlood.DAIN, HolyBlood.NJORUN, HolyBlood.OD, HolyBlood.ULIR, HolyBlood.NEIR, HolyBlood.FJALAR};
 			default: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 					HolyBlood.NEIR, HolyBlood.ULIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA, HolyBlood.BRAGI};
 			}
