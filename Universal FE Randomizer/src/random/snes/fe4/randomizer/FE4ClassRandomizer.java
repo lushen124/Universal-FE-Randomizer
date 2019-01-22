@@ -1916,9 +1916,9 @@ public class FE4ClassRandomizer {
 		
 		Set<FE4Data.Item> itemSet = new HashSet<FE4Data.Item>(Arrays.asList(targetClass.usableItems(null, null, null)));
 		itemSet.removeAll(blacklistedItems);
-		List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet);
 		itemSet.removeAll(FE4Data.Item.femaleOnlyWeapons);
 		itemSet.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
+		List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet);
 		
 		int item1ID = enemy.getEquipment1();
 		FE4Data.Item item1 = FE4Data.Item.valueOf(item1ID);
