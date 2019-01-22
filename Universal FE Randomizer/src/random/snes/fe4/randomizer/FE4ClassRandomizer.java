@@ -50,6 +50,10 @@ public class FE4ClassRandomizer {
 		}
 		
 		// Gen 1
+		boolean hasDancer = false;
+		if (!options.includeDancers) {
+			hasDancer = true;
+		}
 		List<FE4StaticCharacter> gen1Characters = charData.getGen1Characters();
 		for  (FE4StaticCharacter staticChar : gen1Characters) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
@@ -131,6 +135,9 @@ public class FE4ClassRandomizer {
 			}
 			
 			potentialClasses.removeAll(new HashSet<FE4Data.CharacterClass>(Arrays.asList(fe4Char.blacklistedClasses())));
+			if (hasDancer) { // Only 1 per generation.
+				potentialClasses.remove(FE4Data.CharacterClass.DANCER);
+			}
 			
 			if (potentialClasses.isEmpty()) { continue; }
 			
@@ -146,7 +153,7 @@ public class FE4ClassRandomizer {
 				supportedBlood.retainAll(bloodOptions);	
 			}
 			
-			
+			if (targetClass == FE4Data.CharacterClass.DANCER) { hasDancer = true; }
 			setStaticCharacterToClass(options, staticChar, targetClass, charData, itemMap, predeterminedClasses, requiredItems, rng);
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
@@ -236,6 +243,8 @@ public class FE4ClassRandomizer {
 			}
 			
 			potentialClasses.removeAll(new HashSet<FE4Data.CharacterClass>(Arrays.asList(fe4Char.blacklistedClasses())));
+			// No real candidates for Dancer here, so don't worry about it.
+			potentialClasses.remove(FE4Data.CharacterClass.DANCER);
 			
 			if (potentialClasses.isEmpty()) { continue; }
 			
@@ -251,6 +260,10 @@ public class FE4ClassRandomizer {
 			predeterminedClasses.put(fe4Char, targetClass);
 		}
 		
+		
+		if (!options.includeDancers) { // Allow another dancer for gen 2.
+			hasDancer = false;
+		}
 		// Gen 2 - Children/Substitutes
 		List<FE4ChildCharacter> gen2Children = charData.getAllChildren();
 		for (FE4ChildCharacter child : gen2Children) {
@@ -311,15 +324,23 @@ public class FE4ClassRandomizer {
 						}
 					}
 				}
-				FE4Data.CharacterClass[] pool = referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null);
-				if (pool.length > 0) {
-					targetClass = pool[rng.nextInt(pool.length)];
+				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
+				if (hasDancer) { poolSet.remove(FE4Data.CharacterClass.DANCER); }
+				List<FE4Data.CharacterClass> poolList = new ArrayList<FE4Data.CharacterClass>(poolSet);
+				
+				if (!poolList.isEmpty()) {
+					targetClass = poolList.get(rng.nextInt(poolList.size()));
+					if (targetClass == FE4Data.CharacterClass.DANCER) { hasDancer = true; }
 				}
 			} else {
 				FE4Data.CharacterClass referenceClass = FE4Data.CharacterClass.valueOf(child.getClassID());
-				FE4Data.CharacterClass[] pool = referenceClass.getClassPool(false, false, false, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null);
-				if (pool.length > 0) {
-					targetClass = pool[rng.nextInt(pool.length)];
+				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
+				if (hasDancer) { poolSet.remove(FE4Data.CharacterClass.DANCER); }
+				List<FE4Data.CharacterClass> poolList = new ArrayList<FE4Data.CharacterClass>(poolSet);
+				
+				if (!poolList.isEmpty()) {
+					targetClass = poolList.get(rng.nextInt(poolList.size()));
+					if (targetClass == FE4Data.CharacterClass.DANCER) { hasDancer = true; }
 				}
 			}
 			

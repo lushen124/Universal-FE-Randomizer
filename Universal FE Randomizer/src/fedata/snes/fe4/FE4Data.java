@@ -1660,8 +1660,10 @@ public class FE4Data {
 				workingSet = weaponFilter;
 			}
 			
-			// Never return dancer from this.
-			workingSet.remove(DANCER);
+			if (isEnemy) {
+				// Never return dancer from this.
+				workingSet.remove(DANCER);
+			}
 			
 			return workingSet.toArray(new CharacterClass[workingSet.size()]);
 		}
