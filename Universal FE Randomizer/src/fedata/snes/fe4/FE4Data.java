@@ -50,7 +50,8 @@ public class FE4Data {
 	// These characters all use inheritance of some kind.
 	public static final long Gen2ChildrenCharacterTable1Offset = 0x3B7F7;
 	public static final int Gen2ChildrenCharacterTable1Count = 2; // Includes Seliph and Leif
-	public static final int Gen2ChildrenCharacterTable1ItemSize = 126; // For whatever reason, Nightmare says the object is "126 bytes" long, even though we only care about 12 of them.
+	public static final int Gen2ChildrenCharacterTable1ItemSize = 12; // This should remain as 12. There's some important data after it that we don't want to overwrite.
+	public static final int Gen2ChildrenCharacterTable1Spacing = 126; // For whatever reason, Nightmare says the object is "126 bytes" long, even though we only care about 12 of them.
 	
 	public static final long Gen2ChildrenCharacterTable2Offset = 0x3BA95;
 	public static final int Gen2ChildrenCharacterTable2Count = 1; // Only Altena is here.

@@ -282,7 +282,7 @@ public class CharacterDataLoader {
 		
 		// Seliph and Leif
 		for (int i = 0; i < FE4Data.Gen2ChildrenCharacterTable1Count; i++) {
-			long dataOffset = FE4Data.Gen2ChildrenCharacterTable1Offset + (i * FE4Data.Gen2ChildrenCharacterTable1ItemSize);
+			long dataOffset = FE4Data.Gen2ChildrenCharacterTable1Offset + (i * FE4Data.Gen2ChildrenCharacterTable1Spacing);
 			if (!isHeadered) {
 				dataOffset -= 0x200;
 			}
