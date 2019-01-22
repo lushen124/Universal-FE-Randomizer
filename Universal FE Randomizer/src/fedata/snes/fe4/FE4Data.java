@@ -1573,8 +1573,9 @@ public class FE4Data {
 		// Note that sameWeapon will result in a class that has at least one weapon shared with the current class.
 		// e.g. Calling this on SOCIAL_KNIGHT is going to result in all classes that can use Swords OR Lances.
 		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale, boolean requireWeakness, boolean requireAttack, boolean requireHorse, boolean requiresMelee, Item mustUseWeapon, Item mustBeWeakAgainstWeapon) {
-			// Don't touch these. These are generally for bandits raiding villages. 
-			if (this == MOUNTAIN_THIEF) {
+			// Don't touch these. These are generally for bandits raiding villages.
+			// Adding pirates here too because Ch. 3 pirates are over water, which makes them stuck.
+			if (this == MOUNTAIN_THIEF || this == PIRATE) {
 				return new CharacterClass[] {};
 			}
 			
