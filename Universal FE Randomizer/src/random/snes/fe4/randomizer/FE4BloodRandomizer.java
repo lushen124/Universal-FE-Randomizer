@@ -194,7 +194,7 @@ public class FE4BloodRandomizer {
 					bloodSet.retainAll(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
 					List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodSet);
 					
-					FE4Data.HolyBlood selectedBlood = bloodList.get(rng.nextInt(bloodChoices.length));
+					FE4Data.HolyBlood selectedBlood = bloodList.get(rng.nextInt(bloodList.size()));
 					
 					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(selectedBlood, true);
 					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(selectedBlood, true);
