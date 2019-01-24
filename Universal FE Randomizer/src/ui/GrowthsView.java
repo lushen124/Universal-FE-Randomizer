@@ -279,4 +279,42 @@ public class GrowthsView extends Composite {
 		
 		return new GrowthOptions(currentMode, redistributionOption, deltaOption, fullOption, adjustHPGrowths.getSelection(), adjustSTRMAG);
 	}
+	
+	public void setGrowthOptions(GrowthOptions options) {
+		if (options == null) {
+			enableButton.setSelection(false);
+			setEnableGrowths(false);
+		} else {
+			enableButton.setSelection(true);
+			setEnableGrowths(true);
+			setMode(options.mode);
+			
+			switch (options.mode) {
+			case REDISTRIBUTE:	
+				redistributeOption.setSelection(true);
+				byDeltaOption.setSelection(false);
+				fullRandomOption.setSelection(false);
+				varianceSpinner.setSelection(options.redistributionOption.variance);
+				break;
+			case DELTA:
+				redistributeOption.setSelection(false);
+				byDeltaOption.setSelection(true);
+				fullRandomOption.setSelection(false);
+				deltaSpinner.setSelection(options.deltaOption.variance);
+				break;
+			case FULL:
+				redistributeOption.setSelection(false);
+				byDeltaOption.setSelection(false);
+				fullRandomOption.setSelection(true);
+				growthRangeControl.setMin(options.fullOption.minValue);
+				growthRangeControl.setMax(options.fullOption.maxValue);
+				break;
+			}
+			
+			adjustHPGrowths.setSelection(options.adjustHP);
+			if (adjustSTRMAGSplit != null) {
+				adjustSTRMAGSplit.setSelection(options.adjustSTRMAGSplit);
+			}
+		}
+	}
 }

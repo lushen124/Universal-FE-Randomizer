@@ -168,4 +168,28 @@ public class HolyBloodView extends Composite {
 	public HolyBloodOptions getHolyBloodOptions() {
 		return new HolyBloodOptions(randomizeGrowthBonusesButton.getSelection(), growthBonusTotalSpinner.getSelection(), randomizeHolyWeaponBonusesButton.getSelection(), giveHolyBlood.getSelection(), matchClass.getSelection(), majorBloodChance.getSelection());
 	}
+	
+	public void setHolyBloodOptions(HolyBloodOptions options) {
+		if (options == null) {
+			// Shouldn't happen.
+		} else {
+			if (options.randomizeGrowthBonuses) {
+				randomizeGrowthBonusesButton.setSelection(true);
+				growthBonusTotalSpinner.setEnabled(true);
+				growthBonusTotalSpinner.setSelection(options.growthTotal);
+			}
+			
+			randomizeHolyWeaponBonusesButton.setSelection(options.randomizeWeaponBonuses);
+			
+			if (options.giveHolyBlood) {
+				giveHolyBlood.setSelection(true);
+				
+				matchClass.setEnabled(true);
+				majorBloodChance.setEnabled(true);
+				
+				matchClass.setSelection(options.matchClass);
+				majorBloodChance.setSelection(options.majorBloodChance);
+			}
+		}
+	}
 }

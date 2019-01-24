@@ -43,7 +43,10 @@ import ui.general.ModalButtonListener;
 import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
 import util.DiffCompiler;
+import util.OptionRecorder;
 import util.SeedGenerator;
+import util.OptionRecorder.FE4OptionBundle;
+import util.OptionRecorder.GBAOptionBundle;
 import util.recordkeeper.RecordKeeper;
 
 public class MainView implements FileFlowDelegate {
@@ -89,7 +92,7 @@ public class MainView implements FileFlowDelegate {
 		super();
 		
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.RESIZE & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.2)");
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.3)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
 		 mainShell = shell;
@@ -209,6 +212,32 @@ public class MainView implements FileFlowDelegate {
 		mainShell.layout();
 		final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 		mainShell.setSize(newSize);
+	}
+	
+	private void preloadOptions(GameType type) {
+		if (type == GameType.FE4 && OptionRecorder.options.fe4 != null) {
+			FE4OptionBundle bundle = OptionRecorder.options.fe4;
+			growthView.setGrowthOptions(bundle.growths);
+			baseView.setBasesOptions(bundle.bases);
+			holyBloodView.setHolyBloodOptions(bundle.holyBlood);
+			miscView.setMiscellaneousOptions(bundle.misc);
+			skillsView.setSkillOptions(bundle.skills);
+			fe4ClassView.setClassOptions(bundle.classes);
+		} else if (type.isGBA()) { 
+			GBAOptionBundle bundle = null;
+			if (type == GameType.FE6) { bundle = OptionRecorder.options.fe6; }
+			else if (type == GameType.FE7) { bundle = OptionRecorder.options.fe7; }
+			else if (type == GameType.FE8) { bundle = OptionRecorder.options.fe8; }
+			if (bundle != null) {
+				growthView.setGrowthOptions(bundle.growths);
+				baseView.setBasesOptions(bundle.bases);
+				otherCharOptionView.setOtherCharacterOptions(bundle.other);
+				weaponView.setWeaponOptions(bundle.weapons);
+				classView.setClassOptions(bundle.classes);
+				enemyView.setEnemyOptions(bundle.enemies);
+				miscView.setMiscellaneousOptions(bundle.otherOptions);				
+			}
+		}
 	}
 	
 	private void updateLayoutForGameType(GameType type) {
@@ -456,6 +485,9 @@ public class MainView implements FileFlowDelegate {
 			
 			loadedGameType = type;
 			
+			// Preload options if there are any.
+			preloadOptions(type);
+			
 			final GameType gameType = type;
 			
 			if (type != GameType.UNKNOWN) {
@@ -536,11 +568,29 @@ public class MainView implements FileFlowDelegate {
 										enemyView.getEnemyOptions(),
 										miscView.getMiscellaneousOptions(),
 										seedField.getText());
+								
+								OptionRecorder.recordGBAFEOptions(gameType, 
+										growthView.getGrowthOptions(),
+										baseView.getBaseOptions(),
+										classView.getClassOptions(),
+										weaponView.getWeaponOptions(),
+										otherCharOptionView.getOtherCharacterOptions(),
+										enemyView.getEnemyOptions(),
+										miscView.getMiscellaneousOptions(),
+										seedField.getText());
 							} else if (gameType.isSFC()) {
 								if (gameType == GameType.FE4) {
 									boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
 									randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, 
 											growthView.getGrowthOptions(),
+											baseView.getBaseOptions(),
+											holyBloodView.getHolyBloodOptions(),
+											skillsView.getSkillOptions(),
+											fe4ClassView.getClassOptions(),
+											miscView.getMiscellaneousOptions(), 
+											seedField.getText());
+									
+									OptionRecorder.recordFE4Options(growthView.getGrowthOptions(),
 											baseView.getBaseOptions(),
 											holyBloodView.getHolyBloodOptions(),
 											skillsView.getSkillOptions(),

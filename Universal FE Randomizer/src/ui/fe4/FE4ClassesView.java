@@ -124,7 +124,7 @@ public class FE4ClassesView extends Composite {
 		
 		includeDancers = new Button(container, SWT.CHECK);
 		includeDancers.setText("Include Dancers");
-		includeDancers.setToolTipText("Includes Silvia, Lene, and Laylea for randomization and adds Dancer to the class pool (limit 1 per generation).");
+		includeDancers.setToolTipText("Includes Silvia, Lene, and Laylea for randomization and adds Dancer to the class pool (limit 1 per generation).\n\nNote: This will break Silvia's village event in Chapter 4 if enabled.");
 		includeDancers.setEnabled(false);
 		includeDancers.setSelection(false);
 		
@@ -406,5 +406,70 @@ public class FE4ClassesView extends Composite {
 		
 		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), retainHorses.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(), itemOptions,
 				randomizeMinions.getSelection(), randomizeArenas.getSelection(), randomizeBosses.getSelection(), randomizeBossBlood.getSelection());
+	}
+	
+	public void setClassOptions(FE4ClassOptions options) {
+		if (options == null) {
+			// shouldn't happen.
+		} else {
+			if (options.randomizePlayableCharacters) {
+				randomizePCs.setSelection(true);
+				
+				includeLords.setEnabled(true);
+				retainHealers.setEnabled(true);
+				retainHorses.setEnabled(true);
+				includeThieves.setEnabled(true);
+				includeDancers.setEnabled(true);
+				
+				adjustChildrenStrict.setEnabled(true);
+				adjustChildrenLoose.setEnabled(true);
+				randomizeChildren.setEnabled(true);
+				
+				randomizeBlood.setEnabled(true);
+				
+				retainShops.setEnabled(true);
+				adjustShops.setEnabled(true);
+				randomizeShops.setEnabled(true);
+				
+				adjustConvoItems.setEnabled(true);
+				adjustSTRMAG.setEnabled(true);
+				
+				strictSidgradeItems.setEnabled(true);
+				looseSidegradeItems.setEnabled(true);
+				randomItems.setEnabled(true);
+				
+				includeLords.setSelection(options.includeLords);
+				retainHealers.setSelection(options.retainHealers);
+				retainHorses.setSelection(options.retainHorses);
+				includeThieves.setSelection(options.includeThieves);
+				includeDancers.setSelection(options.includeDancers);
+				
+				adjustChildrenStrict.setSelection(options.childOption == ChildOptions.MATCH_STRICT);
+				adjustChildrenLoose.setSelection(options.childOption == ChildOptions.MATCH_LOOSE);
+				randomizeChildren.setSelection(options.childOption == ChildOptions.RANDOM_CLASS);
+				
+				randomizeBlood.setSelection(options.randomizeBlood);
+				
+				retainShops.setSelection(options.shopOption == ShopOptions.DO_NOT_ADJUST);
+				adjustShops.setSelection(options.shopOption == ShopOptions.ADJUST_TO_MATCH);
+				randomizeShops.setSelection(options.shopOption == ShopOptions.RANDOMIZE);
+				
+				adjustConvoItems.setSelection(options.adjustConversationWeapons);
+				adjustSTRMAG.setSelection(options.adjustSTRMAG);
+				
+				strictSidgradeItems.setSelection(options.itemOptions == ItemAssignmentOptions.SIDEGRADE_STRICT);
+				looseSidegradeItems.setSelection(options.itemOptions == ItemAssignmentOptions.SIDEGRADE_LOOSE);
+				randomItems.setSelection(options.itemOptions == ItemAssignmentOptions.RANDOMIZE);
+			}
+			
+			randomizeMinions.setSelection(options.randomizeMinions);
+			randomizeArenas.setSelection(options.randomizeArena);
+			
+			if (options.randomizeBosses) {
+				randomizeBosses.setSelection(true);
+				randomizeBossBlood.setSelection(options.randomizeBossBlood);
+				randomizeBossBlood.setEnabled(true);
+			}
+		}
 	}
 }

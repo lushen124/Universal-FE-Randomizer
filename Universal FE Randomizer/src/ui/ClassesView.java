@@ -135,4 +135,25 @@ public class ClassesView extends Composite {
 			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection());
 		}
 	}
+	
+	public void setClassOptions(ClassOptions options) {
+		if (options == null) {
+			// Shouldn't happen.
+		} else {
+			if (options.randomizePCs) {
+				randomizePCButton.setSelection(true);
+				randomizePCLordsButton.setEnabled(true);
+				randomizePCThievesButton.setEnabled(true);
+				randomizePCLordsButton.setSelection(options.includeLords);
+				randomizePCThievesButton.setSelection(options.includeThieves);
+				if (hasMonsterOption) {
+					mixMonsterClasses.setEnabled(true);
+					mixMonsterClasses.setSelection(options.separateMonsters);
+				}
+			}
+			
+			randomizeEnemiesButton.setSelection(options.randomizeEnemies);
+			randomizeBossesButton.setSelection(options.randomizeBosses);
+		}
+	}
 }

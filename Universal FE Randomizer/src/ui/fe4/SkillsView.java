@@ -200,4 +200,44 @@ public class SkillsView extends Composite {
 		if (!skillsEnabled) { return null; }
 		return new SkillsOptions(currentMode, retainSkillCountsButton.getSelection(), separateByGeneration.getSelection(), skillCountView.getSkillCountDistribution(), skillWeightView.getSkillWeights());
 	}
+	
+	public void setSkillOptions(SkillsOptions options) {
+		if (options == null) {
+			skillsEnabled = false;
+			enableButton.setSelection(false);
+			
+			retainSkillCountsButton.setEnabled(false);
+			shuffleButton.setEnabled(false);
+			separateByGeneration.setEnabled(false);
+			
+			randomizeButton.setEnabled(false);
+			skillCountView.setEnabled(false);
+			skillWeightView.setEnabled(false);
+		} else {
+			skillsEnabled = true;
+			enableButton.setSelection(true);
+			
+			retainSkillCountsButton.setEnabled(true);
+			shuffleButton.setEnabled(true);
+			randomizeButton.setEnabled(true);
+			
+			retainSkillCountsButton.setSelection(options.retainNumberOfSkills);
+			
+			setMode(options.mode);
+			
+			switch (options.mode) {
+			case SHUFFLE:
+				shuffleButton.setSelection(true);
+				randomizeButton.setSelection(false);
+				separateByGeneration.setSelection(options.separatePoolsByGeneration);
+				break;
+			case RANDOMIZE:
+				shuffleButton.setSelection(false);
+				randomizeButton.setSelection(true);
+				skillCountView.setSkillCountDistribution(options.skillCounts);
+				skillWeightView.setSkillWeights(options.skillWeights);
+				break;
+			}
+		}
+	}
 }

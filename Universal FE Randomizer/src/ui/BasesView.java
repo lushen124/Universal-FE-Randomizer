@@ -225,5 +225,33 @@ public class BasesView extends Composite {
 		
 		return new BaseOptions(currentMode, redistributionOption, deltaOption, adjustSTRMAGBases);
 	}
+	
+	public void setBasesOptions(BaseOptions options) {
+		if (options == null) {
+			enableButton.setSelection(false);
+			setEnableBases(false);
+		} else {
+			enableButton.setSelection(true);
+			setEnableBases(true);
+			setMode(options.mode);
+			
+			switch (options.mode) {
+			case REDISTRIBUTE:
+				redistributeOption.setSelection(true);
+				byDeltaOption.setSelection(false);
+				varianceSpinner.setSelection(options.redistributionOption.variance);
+				break;
+			case DELTA:
+				redistributeOption.setSelection(false);
+				byDeltaOption.setSelection(true);
+				deltaSpinner.setSelection(options.deltaOption.variance);
+				break;
+			}
+			
+			if (adjustSTRMAG != null) {
+				adjustSTRMAG.setSelection(options.adjustSTRMAGByClass);
+			}
+		}
+	}
 
 }

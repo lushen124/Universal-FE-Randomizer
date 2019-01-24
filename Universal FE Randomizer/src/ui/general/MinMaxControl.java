@@ -101,5 +101,13 @@ public class MinMaxControl extends Composite {
 	public MinMaxOption getMinMaxOption() {
 		return new MinMaxOption(minSpinner.getSelection(), maxSpinner.getSelection());
 	}
+	
+	public void setMin(int min) {
+		minSpinner.setSelection(min);
+	}
+	
+	public void setMax(int max) {
+		maxSpinner.setSelection(max);
+	}
 
 }

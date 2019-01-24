@@ -251,6 +251,23 @@ public class WeaponEffectSelectionView extends Composite {
 		return new WeaponEffectOptions(noneEnabled, statBoostsEnabled, effectivenessEnabled, unbreakableEnabled, braveEnabled, reverseEnabled, rangeEnabled, criticalEnabled, magicEnabled, poisonEnabled, eclipseEnabled, devilEnabled);
 	}
 	
+	public void setOptions(WeaponEffectOptions options) {
+		if (options != null) {
+			noneCheckBox.setSelection(options.none);
+			statBoostsCheckBox.setSelection(options.statBoosts);
+			effectivenessCheckBox.setSelection(options.effectiveness);
+			unbreakableCheckBox.setSelection(options.unbreakable);
+			braveCheckBox.setSelection(options.brave);
+			reverseTriangleCheckBox.setSelection(options.reverseTriangle);
+			extendedRangeCheckBox.setSelection(options.extendedRange);
+			highCriticalCheckBox.setSelection(options.highCritical);
+			magicDamageCheckBox.setSelection(options.magicDamage);
+			poisonCheckBox.setSelection(options.poison);
+			if (eclipseCheckBox != null) { eclipseCheckBox.setSelection(options.eclipse); }
+			devilCheckBox.setSelection(options.devil);
+		}
+	}
+	
 	public void notifySelectionChange() {
 		noneEnabled = noneCheckBox.getSelection();
 		statBoostsEnabled = statBoostsCheckBox.getSelection();

@@ -111,4 +111,20 @@ public class MiscellaneousView extends Composite {
 		
 		return new MiscellaneousOptions(false, false, false);
 	}
+	
+	public void setMiscellaneousOptions(MiscellaneousOptions options) {
+		if (options == null) {
+			// Shouldn't happen.
+		} else {
+			if (applyEnglishPatch != null) {
+				applyEnglishPatch.setSelection(options.applyEnglishPatch);
+			}
+			if (randomizeChestVillageRewards != null) {
+				randomizeChestVillageRewards.setSelection(options.randomizeRewards);
+			}
+			if (randomizeRecruitmentOrder != null) {
+				randomizeRecruitmentOrder.setSelection(options.randomizeRecruitment);
+			}
+		}
+	}
 }
