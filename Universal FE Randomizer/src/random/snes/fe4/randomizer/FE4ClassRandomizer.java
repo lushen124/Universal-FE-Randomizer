@@ -762,67 +762,9 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
-			if (fe4Char.mustBeatCharacter().length > 0) {
-				FE4Data.Character loser = fe4Char.mustBeatCharacter()[0];
-				if (loser.isPlayable() && mustUseItem == null) {
-					FE4StaticCharacter playableCharacter = charData.getStaticCharacter(loser);
-					FE4Data.CharacterClass losingClass = FE4Data.CharacterClass.valueOf(playableCharacter.getClassID());
-					List<FE4Data.Item> weapons = new ArrayList<FE4Data.Item>(Arrays.asList(losingClass.criticalWeaknessWeapons()));
-					if (!weapons.isEmpty()) {
-						mustUseItem = weapons.get(rng.nextInt(weapons.size()));
-					}
-				} else if (predeterminedClasses.containsKey(loser) && mustUseItem == null) {
-					FE4Data.CharacterClass losingClass = predeterminedClasses.get(loser);
-					List<FE4Data.Item> weapons = new ArrayList<FE4Data.Item>(Arrays.asList(losingClass.criticalWeaknessWeapons()));
-					if (!weapons.isEmpty()) {
-						mustUseItem = weapons.get(rng.nextInt(weapons.size()));
-					}
-				} else {
-					// Defer to later?
-				}
-				
-				if (mustUseItem == null && fe4Char.isGen2() && holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
-					mustUseItem = itemMap.getItemAtIndex(holyBoss.getEquipment3());
-				}
-				
-				if (referenceClass != null) {
-					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, true, holyBoss.isFemale(), false, fe4Char.requiresAttack(), true, fe4Char.requiresMelee(), mustUseItem, null));
-				} else {
-					Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, true, holyBoss.isFemale(), false, fe4Char.requiresAttack(), true, fe4Char.requiresMelee(), mustUseItem, null));
-				}
-			} else if (fe4Char.mustLoseToCharacters().length > 0) {
-				FE4Data.Item loseToWeapon = null;
-				for (FE4Data.Character otherWeaknesses : fe4Char.sharedWeaknesses()) {
-					if (otherWeaknesses == fe4Char) { continue; }
-					if (otherWeaknesses.isMinion()) {
-						FE4EnemyCharacter minion = charData.getEnemyCharacter(otherWeaknesses);
-						if (minion != null) {
-							FE4Data.CharacterClass weakClass = FE4Data.CharacterClass.valueOf(minion.getClassID());
-							List<FE4Data.Item> weakWeapons = new ArrayList<FE4Data.Item>(Arrays.asList(weakClass.criticalWeaknessWeapons()));
-							if (!weakWeapons.isEmpty()) {
-								loseToWeapon = weakWeapons.get(rng.nextInt(weakWeapons.size()));
-								break;
-							}
-						}
-					} else if (otherWeaknesses.isBoss() && predeterminedClasses.containsKey(otherWeaknesses)) {
-						FE4Data.CharacterClass weakClass = predeterminedClasses.get(otherWeaknesses);
-						List<FE4Data.Item> weakWeapons = new ArrayList<FE4Data.Item>(Arrays.asList(weakClass.criticalWeaknessWeapons()));
-						if (!weakWeapons.isEmpty()) {
-							loseToWeapon = weakWeapons.get(rng.nextInt(weakWeapons.size()));
-							break;
-						}
-					}
-				}
-				
-				if (mustUseItem == null && fe4Char.isGen2() && holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
-					mustUseItem = itemMap.getItemAtIndex(holyBoss.getEquipment3());
-				}
-				
-				if (referenceClass != null) {
-					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, true, holyBoss.isFemale(), true, fe4Char.requiresAttack(), true, fe4Char.requiresMelee(), mustUseItem, loseToWeapon));
-				} else {
-					Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, true, holyBoss.isFemale(), true, fe4Char.requiresAttack(), true, fe4Char.requiresMelee(), mustUseItem, loseToWeapon));
-				}
+			if (fe4Char.mustBeatCharacter().length > 0 || fe4Char.mustLoseToCharacters().length > 0) {
+				// Don't change these. Even if we leverage effective weapons, it's not guaranteed that the winners will actually win.
+				// Just don't touch these at all. (Quan and Ethlyn are locked to horses, so this is fine.)
 			} else {
 				if (mustUseItem == null && fe4Char.isGen2() && holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
 					mustUseItem = itemMap.getItemAtIndex(holyBoss.getEquipment3());
@@ -1002,8 +944,7 @@ public class FE4ClassRandomizer {
 	
 	private static void randomizeEnemies(FE4ClassOptions options, List<FE4EnemyCharacter> enemies, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses = new HashMap<FE4Data.Character, FE4Data.CharacterClass>();
-		
-		List<FE4EnemyCharacter> deferredEnemies = new ArrayList<FE4EnemyCharacter>();
+
 		Map<FE4Data.Character, FE4Data.Item> weaponsBeatingCharacter = new HashMap<FE4Data.Character, FE4Data.Item>();
 		
 		for (FE4EnemyCharacter enemy : enemies) {
@@ -1035,53 +976,15 @@ public class FE4ClassRandomizer {
 					mustUseItem = droppedItem; 
 				}
 			}
-			if (fe4Char.mustBeatCharacter().length > 0) {
-				FE4Data.Character loser = fe4Char.mustBeatCharacter()[0];
-				FE4Data.CharacterClass loserClass = null;
-				if (loser.isPlayable()) {
-					if (loser.isChild()) {
-						FE4ChildCharacter child = charData.getChildCharacter(loser);
-						if (child != null) { loserClass = FE4Data.CharacterClass.valueOf(child.getClassID()); }
-					} else {
-						FE4StaticCharacter staticChar = charData.getStaticCharacter(loser);
-						if (staticChar != null) { loserClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID()); }
-					}
-				} else {
-					if (predeterminedClasses.containsKey(loser)) {
-						loserClass = predeterminedClasses.get(loser);
-					} else {
-						FE4EnemyCharacter loserEnemy = charData.getEnemyCharacter(loser);
-						if (loserEnemy != null && loserEnemy.hasCommittedChanges()) {
-							loserClass = FE4Data.CharacterClass.valueOf(loserEnemy.getClassID());
-						}
-					}
-				}
-				if (loserClass == null) {
-					// Wait until we've done all the other enemies before doing this one.
-					deferredEnemies.add(enemy);
-					continue;
-				} else {
-					FE4Data.Item[] weaponPool = loserClass.criticalWeaknessWeapons();
-					if (weaponPool.length > 0) {
-						mustUseItem = weaponPool[rng.nextInt(weaponPool.length)];
-					}
-				}
+			if (fe4Char.mustBeatCharacter().length > 0 || fe4Char.mustLoseToCharacters().length > 0) {
+				// Just skip these. There's no guarantee that the battle will play out as expected.
+				continue;
 			}
 			
 			FE4Data.CharacterClass currentClass = FE4Data.CharacterClass.valueOf(enemy.getClassID());
 			if (currentClass == null) { continue; }
 			
 			List<FE4Data.CharacterClass> classPool = new ArrayList<FE4Data.CharacterClass>();
-			FE4Data.Item mustLoseToWeapon = null;
-			if (fe4Char.sharedWeaknesses().length > 0) {
-				for (FE4Data.Character weakChar : fe4Char.sharedWeaknesses()) {
-					if (weakChar == fe4Char) { continue; }
-					if (weaponsBeatingCharacter.containsKey(weakChar)) {
-						mustLoseToWeapon = weaponsBeatingCharacter.get(weakChar);
-						break;
-					}
-				}
-			}
 			
 			// Try to retain siege tome users.
 			if (mustUseItem == null) {
@@ -1091,7 +994,7 @@ public class FE4ClassRandomizer {
 				if (item2 != null && item2.isSiegeTome()) { mustUseItem = item2; }
 			}
 			
-			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, fe4Char.mustLoseToCharacters().length > 0, true, false, fe4Char.requiresMelee(), mustUseItem, mustLoseToWeapon));
+			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
 			
 			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
 			if (fe4Char.minionChapter() % 6 < 2) {
@@ -1109,124 +1012,10 @@ public class FE4ClassRandomizer {
 				targetClass = classPool.get(rng.nextInt(classPool.size()));
 			}
 			
-			if (fe4Char.mustLoseToCharacters().length > 0) {
-				FE4Data.Item[] winningWeapons = targetClass.criticalWeaknessWeapons();
-				if (winningWeapons.length > 0) {
-					weaponsBeatingCharacter.put(fe4Char, weaponsBeatingCharacter.put(fe4Char, winningWeapons[rng.nextInt(winningWeapons.length)]));
-				}
-			}
-			
 			if (mustUseItem != null) {
 				setEnemyCharacterToClass(options, enemy, targetClass, mustUseItem, itemMap);
 			} else {
 				setEnemyCharacterToClass(options, enemy, fe4Char, targetClass, itemMap, rng);
-			}
-			
-			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
-				predeterminedClasses.put(linked, targetClass);
-			}
-		}
-		
-		for (FE4EnemyCharacter deferred : deferredEnemies) {
-			FE4Data.Character fe4Char = FE4Data.Character.valueOf(deferred.getCharacterID());
-			
-			if (predeterminedClasses.containsKey(fe4Char)) {
-				FE4Data.Item mustUseItem = null;
-				if (fe4Char.mustBeatCharacter().length > 0) {
-					for (FE4Data.Character loser : fe4Char.mustBeatCharacter()) {
-						if (weaponsBeatingCharacter.containsKey(loser)) {
-							mustUseItem = weaponsBeatingCharacter.get(loser);
-							break;
-						}
-					}
-				}
-				if (mustUseItem != null) {
-					setEnemyCharacterToClass(options, deferred, predeterminedClasses.get(fe4Char), mustUseItem, itemMap);
-				} else {
-					setEnemyCharacterToClass(options, deferred, fe4Char, predeterminedClasses.get(fe4Char), itemMap, rng);
-				}
-				continue;
-			}
-			
-			FE4Data.Item mustUseItem = fe4Char.requiresWeapon();
-			if (fe4Char.mustBeatCharacter().length > 0) {
-				FE4Data.Character loser = fe4Char.mustBeatCharacter()[0];
-				FE4Data.CharacterClass loserClass = null;
-				if (loser.isPlayable()) {
-					if (loser.isChild()) {
-						FE4ChildCharacter child = charData.getChildCharacter(loser);
-						if (child != null) { loserClass = FE4Data.CharacterClass.valueOf(child.getClassID()); }
-					} else {
-						FE4StaticCharacter staticChar = charData.getStaticCharacter(loser);
-						if (staticChar != null) { loserClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID()); }
-					}
-				} else {
-					if (predeterminedClasses.containsKey(loser)) {
-						loserClass = predeterminedClasses.get(loser);
-					} else {
-						FE4EnemyCharacter loserEnemy = charData.getEnemyCharacter(loser);
-						if (loserEnemy != null && loserEnemy.hasCommittedChanges()) {
-							loserClass = FE4Data.CharacterClass.valueOf(loserEnemy.getClassID());
-						}
-					}
-					
-				}
-				if (loserClass == null) {
-					// This shouldn't happen again...
-					// But if it does, just go ahead and randomize it.
-				} else {
-					FE4Data.Item[] weaponPool = loserClass.criticalWeaknessWeapons();
-					if (weaponPool.length > 0) {
-						mustUseItem = weaponPool[rng.nextInt(weaponPool.length)];
-					}
-				}
-			}
-			
-			FE4Data.CharacterClass currentClass = FE4Data.CharacterClass.valueOf(deferred.getClassID());
-			if (currentClass == null) { continue; }
-			
-			List<FE4Data.CharacterClass> classPool = new ArrayList<FE4Data.CharacterClass>();
-			FE4Data.Item mustLoseToWeapon = null;
-			if (fe4Char.sharedWeaknesses().length > 0) {
-				for (FE4Data.Character weakChar : fe4Char.sharedWeaknesses()) {
-					if (weakChar == fe4Char) { continue; }
-					if (weaponsBeatingCharacter.containsKey(weakChar)) {
-						mustLoseToWeapon = weaponsBeatingCharacter.get(weakChar);
-						break;
-					}
-				}
-			}
-			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, fe4Char.mustLoseToCharacters().length > 0, true, false, fe4Char.requiresMelee(), mustUseItem, mustLoseToWeapon));
-			
-			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
-			if (classPool.isEmpty()) {
-				continue;
-			}
-			
-			FE4Data.CharacterClass targetClass = classPool.get(rng.nextInt(classPool.size()));
-			// Put reduced weight on fliers, since they're maybe a bit too powerful. Re-randomize once if they get fliers the first time
-			if (targetClass.isFlier()) { 
-				targetClass = classPool.get(rng.nextInt(classPool.size()));
-			}
-			if (fe4Char.mustLoseToCharacters().length > 0) {
-				FE4Data.Item[] winningWeapons = targetClass.criticalWeaknessWeapons();
-				if (winningWeapons.length > 0) {
-					weaponsBeatingCharacter.put(fe4Char, weaponsBeatingCharacter.put(fe4Char, winningWeapons[rng.nextInt(winningWeapons.length)]));
-				}
-			}
-			
-			// Try to retain siege tome users.
-			if (mustUseItem == null) {
-				FE4Data.Item item1 = FE4Data.Item.valueOf(deferred.getEquipment1());
-				FE4Data.Item item2 = FE4Data.Item.valueOf(deferred.getEquipment2());
-				if (item1 != null && item1.isSiegeTome()) { mustUseItem = item1; }
-				if (item2 != null && item2.isSiegeTome()) { mustUseItem = item2; }
-			}
-			
-			if (mustUseItem != null) {
-				setEnemyCharacterToClass(options, deferred, targetClass, mustUseItem, itemMap);
-			} else {
-				setEnemyCharacterToClass(options, deferred, fe4Char, targetClass, itemMap, rng);
 			}
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
