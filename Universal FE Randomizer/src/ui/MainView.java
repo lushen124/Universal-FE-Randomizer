@@ -21,6 +21,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -54,8 +56,8 @@ public class MainView implements FileFlowDelegate {
 	
 	public Shell mainShell;
 	
-	public ScrolledComposite scrollable;
-	public Composite container;
+	private ScrolledComposite scrollable;
+	private Composite container;
 	
 	private int screenHeight;
 	
@@ -101,7 +103,10 @@ public class MainView implements FileFlowDelegate {
 		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.3)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
-		 screenHeight = mainDisplay.getPrimaryMonitor() != null ? mainDisplay.getPrimaryMonitor().getClientArea().height : mainDisplay.getBounds().height;
+		 screenHeight = mainDisplay.getBounds().height;
+		 for (Monitor monitor : mainDisplay.getMonitors()) {
+			 screenHeight = Math.max(screenHeight, monitor.getClientArea().height);
+		 }
 		 
 		 mainShell = shell;
 		 
@@ -116,9 +121,22 @@ public class MainView implements FileFlowDelegate {
 	private void resize() {
 		mainShell.layout();
 		container.layout();
+		int titleBarHeight = mainShell.getBounds().height - mainShell.getClientArea().height;
 		Point containerSize = container.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		Point actualSize = new Point(containerSize.x, Math.min(containerSize.y + titleBarHeight, screenHeight));
+		
+		if (actualSize.y - titleBarHeight < containerSize.y) {
+			ScrollBar verticalScrollBar = scrollable.getVerticalBar();
+			FormLayout containerLayout = (FormLayout)container.getLayout();
+			containerLayout.marginRight = verticalScrollBar.getSize().x + 5;
+
+			mainShell.layout();
+			container.layout();
+			containerSize = container.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+			actualSize = new Point(containerSize.x, Math.min(containerSize.y + (mainShell.getBounds().height - mainShell.getClientArea().height), screenHeight));
+		}
+		
 		container.setSize(containerSize);
-		Point actualSize = new Point(containerSize.x, Math.min(containerSize.y + (mainShell.getBounds().height - mainShell.getClientArea().height), screenHeight));
 		mainShell.setSize(actualSize);
 		
 		FormData scrollableData = new FormData();
@@ -159,7 +177,8 @@ public class MainView implements FileFlowDelegate {
 		scrollable.setContent(container);
 
 		FormLayout containerLayout = new FormLayout();
-		containerLayout.marginWidth = 5;
+		containerLayout.marginLeft = 5;
+		containerLayout.marginRight = 5;
 		containerLayout.marginHeight = 5;
 		container.setLayout(containerLayout);
 
