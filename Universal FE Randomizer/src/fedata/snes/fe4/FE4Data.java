@@ -1983,6 +1983,18 @@ public class FE4Data {
 				default: return null;
 				}
 			}
+			
+			public boolean isPhysical() {
+				switch (this) {
+				case SWORD:
+				case LANCE:
+				case AXE:
+				case BOW:
+					return true;
+				default:
+					return false;
+				}
+			}
 		}
 		
 		public static Item[] weaponsOfTypeAndRank(ItemType type, WeaponRank rank, boolean includeLowerRank) {

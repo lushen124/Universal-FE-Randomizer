@@ -1097,6 +1097,21 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			if (isMAGBased && isSTRBased) {
+				// For mixed classes, prioritize STR/MAG depending on blood.
+				if ((holyBoss.getSTRGrowth() < holyBoss.getMAGGrowth() && majorBloodType.weaponType.isPhysical()) || (!majorBloodType.weaponType.isPhysical() && holyBoss.getMAGGrowth() < holyBoss.getSTRGrowth())) {
+					int oldSTR = holyBoss.getSTRGrowth();
+					holyBoss.setSTRGrowth(holyBoss.getMAGGrowth());
+					holyBoss.setMAGGrowth(oldSTR);
+				}
+				
+				if ((holyBoss.getBaseSTR() < holyBoss.getBaseMAG() && majorBloodType.weaponType.isPhysical()) || (!majorBloodType.weaponType.isPhysical() && holyBoss.getBaseMAG() < holyBoss.getBaseSTR())) {
+					int oldSTR = holyBoss.getBaseSTR();
+					holyBoss.setBaseSTR(holyBoss.getBaseMAG());
+					holyBoss.setBaseMAG(oldSTR);
+				}
+			}
+			
 			// Look for Minor blood now.
 			int minorBloodCount = 0;
 			minorBloodCount += slot1Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
