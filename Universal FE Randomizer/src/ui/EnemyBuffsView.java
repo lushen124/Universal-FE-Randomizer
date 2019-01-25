@@ -171,4 +171,37 @@ public class EnemyBuffsView extends Composite {
 			}
 		}
 	}
+	
+	public void setEnemyOptions(EnemyOptions options) {
+		if (options == null) {
+			// Shouldn't happen.
+		} else {
+			switch (options.mode) {
+			case NONE:
+				buffEnemyGrowthsButton.setSelection(false);
+				flatBonusButton.setEnabled(false);
+				scalingBonusButton.setEnabled(false);
+				buffSpinner.setEnabled(false);
+				break;
+			case FLAT:
+				buffEnemyGrowthsButton.setSelection(true);
+				flatBonusButton.setEnabled(true);
+				scalingBonusButton.setEnabled(true);
+				flatBonusButton.setSelection(true);
+				scalingBonusButton.setSelection(false);
+				buffSpinner.setEnabled(true);
+				buffSpinner.setSelection(options.buffAmount);
+				break;
+			case SCALING:
+				buffEnemyGrowthsButton.setSelection(true);
+				flatBonusButton.setEnabled(true);
+				scalingBonusButton.setEnabled(true);
+				flatBonusButton.setSelection(false);
+				scalingBonusButton.setSelection(true);
+				buffSpinner.setEnabled(true);
+				buffSpinner.setSelection(options.buffAmount);
+				break;
+			}
+		}
+	}
 }

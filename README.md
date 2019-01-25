@@ -1,14 +1,24 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-### Latest Version: 0.7.2
+### Latest Version: 0.7.3
 #### Additions
-* Added the ability to independently set the chance for Pursuit from the other skills.
+* Added dancers to the randomization pool. (The option before simply allowed Silvia, Lene, and Laylea to be randomized. Dancers were not candidates for playable classes earlier.)
+* Added limitations for enemy pirates to remain pirates (they can spawn over water).
+* Added logic to retain broken weapons when possible.
+* Added logic to try to retain enemy siege tome users.
+* The randomizer automatically remembers and restores the last used settings per game.
+* The randomizer now scrolls if the screen is not tall enough to accomodate all the settings.
+#### Changes
+* Removed Princess from the class pool for enemies.
+* Removed Free Knight, Forrest Knight, and Forrest from the female pool.
+* Removed Recover Ring from the list of randomizable Rings.
+* Increased the chance of a random character receiving a holy weapon from a conversation/event from 33% to 50%.
 #### Bugfixes
-* Blacklisted General/Baron/Emperor from Sigurd (for mountain crossing in Ch. 4)
-* Removed Bragi Blood from the pool for Holy Bosses.
-* Removed Berserk Blade and Berserk Staff from enemy weapon pools.
-* Removed Status-inflicting swords (Silence Sword, Sleep Sword, etc.) from the weapon pool for Arena Characters
-* Removed Dragon Rider from the class pool for female characters.
+* Fixed an issue where Gen 2 Common Characters were getting their data overwritten by other changes.
+* Limited Sigurd and Deirdre's holy blood to the first two bytes to accomodate Seliph.
+* Updated Seliph's hard coded holy blood to match his parents' randomized blood.
+* Fixed an issue where berserk swords were still showing up in enemy inventories.
+* Fixed an issue where it's possible for to change Midir's gift from Edain to not be usable by Jamke.
 
 * * *
 

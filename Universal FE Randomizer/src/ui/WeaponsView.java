@@ -400,4 +400,54 @@ public class WeaponsView extends Composite {
 		
 		return new WeaponOptions(mightOptions, hitOptions, weightOptions, durabilityOptions, enableRandomEffectsButton.getSelection(), effectsSelectionView.getOptions(), noEffectsForIronButton.getSelection());
 	}
+	
+	public void setWeaponOptions(WeaponOptions options) {
+		if (options == null) {
+			// Shouldn't happen.
+		} else {
+			if (options.mightOptions != null) {
+				enableMightButton.setSelection(true);
+				mightRangeControl.setEnabled(true);
+				mightRangeControl.setMin(options.mightOptions.minValue);
+				mightRangeControl.setMax(options.mightOptions.maxValue);
+				mightVarianceSpinner.setEnabled(true);
+				mightVarianceSpinner.setSelection(options.mightOptions.variance);
+			}
+			
+			if (options.hitOptions != null) {
+				enableHitButton.setSelection(true);
+				hitRangeControl.setEnabled(true);
+				hitRangeControl.setMin(options.hitOptions.minValue);
+				hitRangeControl.setMax(options.hitOptions.maxValue);
+				hitVarianceSpinner.setEnabled(true);
+				hitVarianceSpinner.setSelection(options.hitOptions.variance);
+			}
+			
+			if (options.weightOptions != null) {
+				enableWeightButton.setSelection(true);
+				weightRangeControl.setEnabled(true);
+				weightRangeControl.setMin(options.weightOptions.minValue);
+				weightRangeControl.setMax(options.weightOptions.maxValue);
+				weightVarianceSpinner.setEnabled(true);
+				weightVarianceSpinner.setSelection(options.weightOptions.variance);
+			}
+			
+			if (options.durabilityOptions != null) {
+				enableDurabilityButton.setSelection(true);
+				durabilityRangeControl.setEnabled(true);
+				durabilityRangeControl.setMin(options.durabilityOptions.minValue);
+				durabilityRangeControl.setMax(options.durabilityOptions.maxValue);
+				durabilityVarianceSpinner.setEnabled(true);
+				durabilityVarianceSpinner.setSelection(options.durabilityOptions.variance);
+			}
+			
+			if (options.shouldAddEffects) {
+				enableRandomEffectsButton.setSelection(true);
+				effectsSelectionView.setEnabled(true);
+				noEffectsForIronButton.setEnabled(true);
+				effectsSelectionView.setOptions(options.effectsList);
+				noEffectsForIronButton.setSelection(options.noEffectIronWeapons);
+			}
+		}
+	}
 }

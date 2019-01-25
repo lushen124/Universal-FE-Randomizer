@@ -10,6 +10,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import ui.fe4.WeightedOptions.Weight;
+
 public class WeightView extends Composite {
 
 	private Button enableToggle;
@@ -189,28 +191,14 @@ public class WeightView extends Composite {
 	
 	public void setWeight(WeightedOptions.Weight newWeight) {
 		setEnabled(newWeight != WeightedOptions.Weight.NONE);
+		currentWeight = newWeight;
 		
 		squelchCallbacks = true;
-		switch (newWeight) {
-		case VERY_LOW:
-			veryLowWeight.setSelection(true);
-			break;
-		case LOW:
-			lowWeight.setSelection(true);
-			break;
-		case NORMAL:
-			normalWeight.setSelection(true);
-			break;
-		case HIGH:
-			highWeight.setSelection(true);
-			break;
-		case VERY_HIGH:
-			veryHighWeight.setSelection(true);
-			break;
-		default:
-			break;
-		}
-		
+		veryLowWeight.setSelection(newWeight == Weight.VERY_LOW);
+		lowWeight.setSelection(newWeight == Weight.LOW);
+		normalWeight.setSelection(newWeight == Weight.NORMAL);
+		highWeight.setSelection(newWeight == Weight.HIGH);
+		veryHighWeight.setSelection(newWeight == Weight.VERY_HIGH);
 		squelchCallbacks = false;
 	}
 	
@@ -219,6 +207,19 @@ public class WeightView extends Composite {
 			return new WeightedOptions(true, currentWeight);
 		} else {
 			return new WeightedOptions(false, WeightedOptions.Weight.NONE);
+		}
+	}
+	
+	public void setWeightedOptions(WeightedOptions options) {
+		if (options == null) {
+			// Shouldn't happen.
+		} else {
+			enableToggle.setSelection(options.enabled);
+			if (options.weight == WeightedOptions.Weight.NONE) {
+				// Shouldn't happen.
+			} else {
+				setWeight(options.weight);
+			}
 		}
 	}
 }

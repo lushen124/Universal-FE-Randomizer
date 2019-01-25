@@ -325,4 +325,26 @@ public class SkillWeightView extends Composite {
 				pursuitSpinner.getSelection());
 	}
 
+	public void setSkillWeights(SkillWeightOptions options) {
+		if (options == null) {
+			// Shouldn't happen.
+		} else {
+			wrathView.setWeightedOptions(options.wrathWeight);
+			adeptView.setWeightedOptions(options.adeptWeight);
+			charmView.setWeightedOptions(options.charmWeight);
+			nihilView.setWeightedOptions(options.nihilWeight);
+			miracleView.setWeightedOptions(options.miracleWeight);
+			criticalView.setWeightedOptions(options.criticalWeight);
+			vantageView.setWeightedOptions(options.vantageWeight);
+			chargeView.setWeightedOptions(options.chargeWeight);
+			astraView.setWeightedOptions(options.astraWeight);
+			lunaView.setWeightedOptions(options.lunaWeight);
+			solView.setWeightedOptions(options.solWeight);
+			renewalView.setWeightedOptions(options.renewalWeight);
+			paragonView.setWeightedOptions(options.paragonWeight);
+			bargainView.setWeightedOptions(options.bargainWeight);
+			
+			pursuitSpinner.setSelection(options.pursuitChance);
+		}
+	}
 }

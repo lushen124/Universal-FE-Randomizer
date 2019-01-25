@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -20,6 +21,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -43,12 +46,20 @@ import ui.general.ModalButtonListener;
 import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
 import util.DiffCompiler;
+import util.OptionRecorder;
 import util.SeedGenerator;
+import util.OptionRecorder.FE4OptionBundle;
+import util.OptionRecorder.GBAOptionBundle;
 import util.recordkeeper.RecordKeeper;
 
 public class MainView implements FileFlowDelegate {
 	
 	public Shell mainShell;
+	
+	private ScrolledComposite scrollable;
+	private Composite container;
+	
+	private int screenHeight;
 	
 	private Text filenameField;
 	
@@ -89,19 +100,56 @@ public class MainView implements FileFlowDelegate {
 		super();
 		
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.RESIZE & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.2)");
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.3)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
+		 
+		 screenHeight = mainDisplay.getBounds().height;
+		 for (Monitor monitor : mainDisplay.getMonitors()) {
+			 screenHeight = Math.max(screenHeight, monitor.getClientArea().height);
+		 }
 		 
 		 mainShell = shell;
 		 
 		 setupMainShell();
 		 
-		 mainShell.layout();
-		 final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		 mainShell.setSize(newSize);
+		 resize();
 		 
 		 /* Open shell window */
 		  mainShell.open();
+	}
+	
+	private void resize() {
+		mainShell.layout();
+		container.layout();
+		int titleBarHeight = mainShell.getBounds().height - mainShell.getClientArea().height;
+		Point containerSize = container.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		// For some reason, in debug, everything works fine, but when exporting to JAR,
+		// the right margin is off (maybe due to different JREs?) The +10 is to make sure the
+		// JAR being run is shown correctly.
+		Point actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + titleBarHeight, screenHeight));
+		
+		if (actualSize.y - titleBarHeight < containerSize.y) {
+			ScrollBar verticalScrollBar = scrollable.getVerticalBar();
+			FormLayout containerLayout = (FormLayout)container.getLayout();
+			containerLayout.marginRight = verticalScrollBar.getSize().x + 5;
+
+			mainShell.layout();
+			container.layout();
+			containerSize = container.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+			actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + (mainShell.getBounds().height - mainShell.getClientArea().height), screenHeight));
+		}
+		
+		container.setSize(containerSize);
+		mainShell.setSize(actualSize);
+		
+		FormData scrollableData = new FormData();
+		scrollableData.top = new FormAttachment(0, 0);
+		scrollableData.left = new FormAttachment(0, 0);
+		scrollableData.right = new FormAttachment(100, 0);
+		scrollableData.bottom = new FormAttachment(100, 0);
+		scrollableData.width = actualSize.x;
+		scrollableData.height = actualSize.y;
+		scrollable.setLayoutData(scrollableData);
 	}
 	
 	public void showModalProgressDialog() {
@@ -123,44 +171,53 @@ public class MainView implements FileFlowDelegate {
 	}
 
 	public void setupMainShell() {		  
-		  FormLayout mainLayout = new FormLayout();
-		  mainLayout.marginWidth = 5;
-		  mainLayout.marginHeight = 5;
-		  mainShell.setLayout(mainLayout);
+		mainShell.setLayout(new FillLayout());
 		  
-		  /* Define widgets to add to the shell */
-		  Label romFileLabel = new Label(mainShell, 0);
-		  romFileLabel.setText("ROM File:");
-		  
-		  Text field = new Text(mainShell, SWT.BORDER);
-		  field.setEditable(false);
-		  filenameField = field;
-		  
-		  Button button = new Button(mainShell, SWT.PUSH);
-		  button.setText("Browse...");
-		  button.addListener(SWT.Selection, new OpenFileFlow(mainShell, this));
-		  
-		  FormData labelData = new FormData();
-		  labelData.left = new FormAttachment(mainShell, 5);
-		  labelData.top = new FormAttachment(field, 0, SWT.CENTER);
-		  romFileLabel.setLayoutData(labelData);
-		  
-		  FormData fieldData = new FormData();
-		  fieldData.left = new FormAttachment(romFileLabel, 5);
-		  fieldData.top = new FormAttachment(0, 5);
-		  fieldData.right = new FormAttachment(button, -5);
-		  fieldData.width = 400;
-		  field.setLayoutData(fieldData);
-		  
-		  FormData buttonData = new FormData();
-		  buttonData.right = new FormAttachment(100, -5);
-		  buttonData.top = new FormAttachment(field, 0, SWT.CENTER);
-		  buttonData.width = 100;
-		  button.setLayoutData(buttonData);
+		scrollable = new ScrolledComposite(mainShell, SWT.V_SCROLL);
+
+		container = new Composite(scrollable, SWT.NONE);
+
+		scrollable.setContent(container);
+
+		FormLayout containerLayout = new FormLayout();
+		containerLayout.marginLeft = 5;
+		containerLayout.marginRight = 5;
+		containerLayout.marginHeight = 5;
+		container.setLayout(containerLayout);
+
+		/* Define widgets to add to the shell */
+		Label romFileLabel = new Label(container, 0);
+		romFileLabel.setText("ROM File:");
+
+		Text field = new Text(container, SWT.BORDER);
+		field.setEditable(false);
+		filenameField = field;
+
+		Button button = new Button(container, SWT.PUSH);
+		button.setText("Browse...");
+		button.addListener(SWT.Selection, new OpenFileFlow(mainShell, this));
+
+		FormData labelData = new FormData();
+		labelData.left = new FormAttachment(container, 5);
+		labelData.top = new FormAttachment(field, 0, SWT.CENTER);
+		romFileLabel.setLayoutData(labelData);
+
+		FormData fieldData = new FormData();
+		fieldData.left = new FormAttachment(romFileLabel, 5);
+		fieldData.top = new FormAttachment(0, 5);
+		fieldData.right = new FormAttachment(button, -5);
+		fieldData.width = 400;
+		field.setLayoutData(fieldData);
+
+		FormData buttonData = new FormData();
+		buttonData.right = new FormAttachment(100, -5);
+		buttonData.top = new FormAttachment(field, 0, SWT.CENTER);
+		buttonData.width = 100;
+		button.setLayoutData(buttonData);
 	}
 	
 	private void setupInfoLayout() {
-		romInfoGroup = new Group(mainShell, SWT.NONE);
+		romInfoGroup = new Group(container, SWT.NONE);
 		romInfoGroup.setText("ROM Info");
 		romInfoGroup.setVisible(false);
 		  
@@ -206,9 +263,33 @@ public class MainView implements FileFlowDelegate {
 		if (holyBloodView != null) { holyBloodView.dispose(); }
 		if (fe4ClassView != null) { fe4ClassView.dispose(); }
 		
-		mainShell.layout();
-		final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		mainShell.setSize(newSize);
+		resize();
+	}
+	
+	private void preloadOptions(GameType type) {
+		if (type == GameType.FE4 && OptionRecorder.options.fe4 != null) {
+			FE4OptionBundle bundle = OptionRecorder.options.fe4;
+			growthView.setGrowthOptions(bundle.growths);
+			baseView.setBasesOptions(bundle.bases);
+			holyBloodView.setHolyBloodOptions(bundle.holyBlood);
+			miscView.setMiscellaneousOptions(bundle.misc);
+			skillsView.setSkillOptions(bundle.skills);
+			fe4ClassView.setClassOptions(bundle.classes);
+		} else if (type.isGBA()) { 
+			GBAOptionBundle bundle = null;
+			if (type == GameType.FE6) { bundle = OptionRecorder.options.fe6; }
+			else if (type == GameType.FE7) { bundle = OptionRecorder.options.fe7; }
+			else if (type == GameType.FE8) { bundle = OptionRecorder.options.fe8; }
+			if (bundle != null) {
+				growthView.setGrowthOptions(bundle.growths);
+				baseView.setBasesOptions(bundle.bases);
+				otherCharOptionView.setOtherCharacterOptions(bundle.other);
+				weaponView.setWeaponOptions(bundle.weapons);
+				classView.setClassOptions(bundle.classes);
+				enemyView.setEnemyOptions(bundle.enemies);
+				miscView.setMiscellaneousOptions(bundle.otherOptions);				
+			}
+		}
 	}
 	
 	private void updateLayoutForGameType(GameType type) {
@@ -219,14 +300,14 @@ public class MainView implements FileFlowDelegate {
 			return;
 		}
 		
-		seedField = new Text(mainShell, SWT.BORDER);
+		seedField = new Text(container, SWT.BORDER);
 		seedField.addListener(SWT.CHANGED, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				randomizeButton.setEnabled(seedField.getText().length() > 0);
 			}
 		});
-		Button button = new Button(mainShell, SWT.PUSH);
+		Button button = new Button(container, SWT.PUSH);
 		button.setText("Generate");
 		button.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -237,7 +318,7 @@ public class MainView implements FileFlowDelegate {
 		});
 		generateButton = button;
 		  
-		seedLabel = new Label(mainShell, SWT.NONE);
+		seedLabel = new Label(container, SWT.NONE);
 		seedLabel.setText("Randomizer Seed Phrase: ");
 		  
 		seedField.setVisible(false);
@@ -261,7 +342,7 @@ public class MainView implements FileFlowDelegate {
 		generateData.width = 100;
 		button.setLayoutData(generateData);
 		
-		growthView = new GrowthsView(mainShell, SWT.NONE, type.hasSTRMAGSplit());
+		growthView = new GrowthsView(container, SWT.NONE, type.hasSTRMAGSplit());
 		growthView.setSize(200, 200);
 		growthView.setVisible(false);
 		  
@@ -270,7 +351,7 @@ public class MainView implements FileFlowDelegate {
 		growthData.left = new FormAttachment(romInfoGroup, 0, SWT.LEFT);
 		growthView.setLayoutData(growthData);
 		  
-		baseView = new BasesView(mainShell, SWT.NONE, type);
+		baseView = new BasesView(container, SWT.NONE, type);
 		baseView.setSize(200, 200);
 		baseView.setVisible(false);
 		  
@@ -281,7 +362,7 @@ public class MainView implements FileFlowDelegate {
 		baseView.setLayoutData(baseData);
 		  
 		if (type == GameType.FE4) {
-			holyBloodView = new HolyBloodView(mainShell, SWT.NONE);
+			holyBloodView = new HolyBloodView(container, SWT.NONE);
 			holyBloodView.setSize(200, 200);
 			holyBloodView.setVisible(false);
 			  
@@ -291,7 +372,7 @@ public class MainView implements FileFlowDelegate {
 			holyBloodData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
 			holyBloodView.setLayoutData(holyBloodData);
 			
-			skillsView = new SkillsView(mainShell, SWT.NONE);
+			skillsView = new SkillsView(container, SWT.NONE);
 			skillsView.setSize(200, 200);
 			skillsView.setVisible(false);
 			
@@ -301,7 +382,7 @@ public class MainView implements FileFlowDelegate {
 			skillsData.bottom = new FormAttachment(100, -10);
 			skillsView.setLayoutData(skillsData);
 			
-			fe4ClassView = new FE4ClassesView(mainShell, SWT.NONE);
+			fe4ClassView = new FE4ClassesView(container, SWT.NONE);
 			fe4ClassView.setSize(200, 200);
 			fe4ClassView.setVisible(false);
 			  
@@ -311,7 +392,7 @@ public class MainView implements FileFlowDelegate {
 			classData.right = new FormAttachment(100, -5);
 			fe4ClassView.setLayoutData(classData);
 			
-			miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
+			miscView = new MiscellaneousView(container, SWT.NONE, type);
 			miscView.setSize(200, 200);
 			miscView.setVisible(false);
 			  
@@ -322,7 +403,7 @@ public class MainView implements FileFlowDelegate {
 			miscData.bottom = new FormAttachment(100, -10);
 			miscView.setLayoutData(miscData);
 			
-			randomizeButton = new Button(mainShell, SWT.PUSH);
+			randomizeButton = new Button(container, SWT.PUSH);
 			randomizeButton.setText("Randomize!");
 			randomizeButton.setVisible(false);
 			  
@@ -334,7 +415,7 @@ public class MainView implements FileFlowDelegate {
 			randomizeButton.setLayoutData(randomizeData);
 			
 		} else {
-			otherCharOptionView = new MOVCONAffinityView(mainShell, SWT.NONE);
+			otherCharOptionView = new MOVCONAffinityView(container, SWT.NONE);
 			otherCharOptionView.setSize(200, 200);
 			otherCharOptionView.setVisible(false);
 			  
@@ -345,7 +426,7 @@ public class MainView implements FileFlowDelegate {
 			otherData.bottom = new FormAttachment(100, -10);
 			otherCharOptionView.setLayoutData(otherData);
 			
-			weaponView = new WeaponsView(mainShell, SWT.NONE, type);
+			weaponView = new WeaponsView(container, SWT.NONE, type);
 			weaponView.setSize(200, 200);
 			weaponView.setVisible(false);
 		  
@@ -355,7 +436,7 @@ public class MainView implements FileFlowDelegate {
 			weaponData.bottom = new FormAttachment(100, -10);
 			weaponView.setLayoutData(weaponData);
 			
-			classView = new ClassesView(mainShell, SWT.NONE, type);
+			classView = new ClassesView(container, SWT.NONE, type);
 			classView.setSize(200, 200);
 			classView.setVisible(false);
 			  
@@ -365,7 +446,7 @@ public class MainView implements FileFlowDelegate {
 			classData.right = new FormAttachment(100, -5);
 			classView.setLayoutData(classData);
 			
-			enemyView = new EnemyBuffsView(mainShell, SWT.NONE);
+			enemyView = new EnemyBuffsView(container, SWT.NONE);
 			enemyView.setSize(200, 200);
 			enemyView.setVisible(false);
 			  
@@ -375,7 +456,7 @@ public class MainView implements FileFlowDelegate {
 			enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
 			enemyView.setLayoutData(enemyData);
 			  
-			miscView = new MiscellaneousView(mainShell, SWT.NONE, type);
+			miscView = new MiscellaneousView(container, SWT.NONE, type);
 			miscView.setSize(200, 200);
 			miscView.setVisible(false);
 			  
@@ -385,7 +466,7 @@ public class MainView implements FileFlowDelegate {
 			miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
 			miscView.setLayoutData(miscData);
 			
-			randomizeButton = new Button(mainShell, SWT.PUSH);
+			randomizeButton = new Button(container, SWT.PUSH);
 			randomizeButton.setText("Randomize!");
 			randomizeButton.setVisible(false);
 			  
@@ -397,9 +478,7 @@ public class MainView implements FileFlowDelegate {
 			randomizeButton.setLayoutData(randomizeData);
 		}
 		
-		mainShell.layout();
-		final Point newSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		 mainShell.setSize(newSize);
+		resize();
 	}
 
 	@Override
@@ -455,6 +534,9 @@ public class MainView implements FileFlowDelegate {
 			updateLayoutForGameType(type);
 			
 			loadedGameType = type;
+			
+			// Preload options if there are any.
+			preloadOptions(type);
 			
 			final GameType gameType = type;
 			
@@ -536,11 +618,29 @@ public class MainView implements FileFlowDelegate {
 										enemyView.getEnemyOptions(),
 										miscView.getMiscellaneousOptions(),
 										seedField.getText());
+								
+								OptionRecorder.recordGBAFEOptions(gameType, 
+										growthView.getGrowthOptions(),
+										baseView.getBaseOptions(),
+										classView.getClassOptions(),
+										weaponView.getWeaponOptions(),
+										otherCharOptionView.getOtherCharacterOptions(),
+										enemyView.getEnemyOptions(),
+										miscView.getMiscellaneousOptions(),
+										seedField.getText());
 							} else if (gameType.isSFC()) {
 								if (gameType == GameType.FE4) {
 									boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
 									randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, 
 											growthView.getGrowthOptions(),
+											baseView.getBaseOptions(),
+											holyBloodView.getHolyBloodOptions(),
+											skillsView.getSkillOptions(),
+											fe4ClassView.getClassOptions(),
+											miscView.getMiscellaneousOptions(), 
+											seedField.getText());
+									
+									OptionRecorder.recordFE4Options(growthView.getGrowthOptions(),
 											baseView.getBaseOptions(),
 											holyBloodView.getHolyBloodOptions(),
 											skillsView.getSkillOptions(),

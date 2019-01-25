@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="res"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.swt"/>
+	<classpathentry kind="lib" path="C:/Users/Lu/Documents/Universal-FE-Randomizer/gson-2.8.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
