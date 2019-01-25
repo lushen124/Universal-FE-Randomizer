@@ -123,7 +123,10 @@ public class MainView implements FileFlowDelegate {
 		container.layout();
 		int titleBarHeight = mainShell.getBounds().height - mainShell.getClientArea().height;
 		Point containerSize = container.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		Point actualSize = new Point(containerSize.x, Math.min(containerSize.y + titleBarHeight, screenHeight));
+		// For some reason, in debug, everything works fine, but when exporting to JAR,
+		// the right margin is off (maybe due to different JREs?) The +10 is to make sure the
+		// JAR being run is shown correctly.
+		Point actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + titleBarHeight, screenHeight));
 		
 		if (actualSize.y - titleBarHeight < containerSize.y) {
 			ScrollBar verticalScrollBar = scrollable.getVerticalBar();
@@ -133,7 +136,7 @@ public class MainView implements FileFlowDelegate {
 			mainShell.layout();
 			container.layout();
 			containerSize = container.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-			actualSize = new Point(containerSize.x, Math.min(containerSize.y + (mainShell.getBounds().height - mainShell.getClientArea().height), screenHeight));
+			actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + (mainShell.getBounds().height - mainShell.getClientArea().height), screenHeight));
 		}
 		
 		container.setSize(containerSize);
