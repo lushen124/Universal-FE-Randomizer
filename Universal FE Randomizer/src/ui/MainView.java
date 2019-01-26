@@ -108,6 +108,8 @@ public class MainView implements FileFlowDelegate {
 			 screenHeight = Math.max(screenHeight, monitor.getClientArea().height);
 		 }
 		 
+		 screenHeight -= 20;
+		 
 		 mainShell = shell;
 		 
 		 setupMainShell();
