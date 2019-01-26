@@ -572,6 +572,13 @@ public class FE4Randomizer extends Randomizer {
 		if (bloodOptions != null) {
 			rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", bloodOptions.randomizeGrowthBonuses ? "YES (Growth Total: " + bloodOptions.growthTotal + ")" : "NO");
 			rk.addHeaderItem("Randomize Holy Weapon Bonuses", bloodOptions.randomizeWeaponBonuses ? "YES" : "NO");
+			if (bloodOptions.giveHolyBlood) {
+				rk.addHeaderItem("Assign Holy Blood", "YES");
+				rk.addHeaderItem("Match Holy Blood to Class", bloodOptions.matchClass ? "YES" : "NO");
+				rk.addHeaderItem("Holy Blood Distribution", String.format("%d%% Major, %d%% Minor, %d%% None", bloodOptions.majorBloodChance, bloodOptions.minorBloodChance, 100 - bloodOptions.majorBloodChance - bloodOptions.minorBloodChance));
+			} else {
+				rk.addHeaderItem("Assign Holy Blood", "NO");
+			}
 		} else {
 			rk.addHeaderItem("Randomize Holy Blood", "NO");
 		}
