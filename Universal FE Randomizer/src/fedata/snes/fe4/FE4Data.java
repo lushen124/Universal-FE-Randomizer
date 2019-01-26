@@ -92,6 +92,10 @@ public class FE4Data {
 	public static final long SeliphHolyBloodByte1Offset = 0x4856DL;
 	public static final long SeliphHolyBloodByte2Offset = 0x4856EL;
 	
+	public static final long SellableHolyWeaponsOffset = 0x4B4E7L;
+	public static final byte SellableHolyWeaponEnabledValue = 0x00;
+	public static final byte SellableHolyWeaponsDisabledValue = 0x16;
+	
 	public static final Map<Character, List<Integer>> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, List<Integer>> createEventItemMap() {
 		Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();

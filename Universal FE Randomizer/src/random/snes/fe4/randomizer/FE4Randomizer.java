@@ -218,6 +218,9 @@ public class FE4Randomizer extends Randomizer {
 			diffCompiler.addDiff(new Diff(0x7ABE2L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
 			diffCompiler.addDiff(new Diff(0x7ABE8L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
 			
+			// Diffs to allow holy weapons to be sellable.
+			diffCompiler.addDiff(new Diff(FE4Data.SellableHolyWeaponsOffset, 1, new byte[] {FE4Data.SellableHolyWeaponEnabledValue}, new byte[] {FE4Data.SellableHolyWeaponsDisabledValue}));
+			
 		} else {
 			// Diffs for allowing Sigurd/Seliph to sieze, regardless of their class.
 			diffCompiler.addDiff(new Diff(0x5E43CL, 4, new byte[] {(byte)0x22, (byte)0x33, (byte)0xA3, (byte)0x84}, new byte[] {(byte)0x22, (byte)0x2D, (byte)0xA0, (byte)0x84}));
@@ -249,6 +252,9 @@ public class FE4Randomizer extends Randomizer {
 			diffCompiler.addDiff(new Diff(0x7A9DFL, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
 			diffCompiler.addDiff(new Diff(0x7A9E2L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
 			diffCompiler.addDiff(new Diff(0x7A9E8L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));			
+			
+			// Diffs to allow holy weapons to be sellable.
+			diffCompiler.addDiff(new Diff(FE4Data.SellableHolyWeaponsOffset - 0x200, 1, new byte[] {FE4Data.SellableHolyWeaponEnabledValue}, new byte[] {FE4Data.SellableHolyWeaponsDisabledValue}));
 		}
 	}
 
