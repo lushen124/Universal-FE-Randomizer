@@ -1,6 +1,6 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-### Latest Version: 0.7.3
+### Latest Version: 0.7.4
 #### Additions
 * Added the ability to specify chances for major and minor holy blood (and allowing for no holy blood) when assigning blood.
 #### Changes
