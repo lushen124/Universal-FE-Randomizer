@@ -1,25 +1,19 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-### Latest Version: 0.7.3
+### Latest Version: 0.7.4
 #### Additions
-* Added dancers to the randomization pool. (The option before simply allowed Silvia, Lene, and Laylea to be randomized. Dancers were not candidates for playable classes earlier.)
-* Added limitations for enemy pirates to remain pirates (they can spawn over water).
-* Added logic to retain broken weapons when possible.
-* Added logic to try to retain enemy siege tome users.
-* The randomizer automatically remembers and restores the last used settings per game.
-* The randomizer now scrolls if the screen is not tall enough to accomodate all the settings.
+* Added the ability to specify chances for major and minor holy blood (and allowing for no holy blood) when assigning blood.
 #### Changes
-* Removed Princess from the class pool for enemies.
-* Removed Free Knight, Forrest Knight, and Forrest from the female pool.
-* Removed Recover Ring from the list of randomizable Rings.
-* Increased the chance of a random character receiving a holy weapon from a conversation/event from 33% to 50%.
-* Updated logic to not touch units involved in scripted fights to ensure they play out like they're supposed to. This includes Eldigan/Elliot and their squads in Ch1, Mahnya/Andorey and their squads in Ch4, and Travant and his squad in Ch5.
+* Re-added Forrest/Hero to the female class pool.
+* Added some vertical clearance margin for smaller screens.
+* Holy weapons are now sellable.
 #### Bugfixes
-* Fixed an issue where Gen 2 Common Characters were getting their data overwritten by other changes.
-* Limited Sigurd and Deirdre's holy blood to the first two bytes to accomodate Seliph.
-* Updated Seliph's hard coded holy blood to match his parents' randomized blood.
-* Fixed an issue where berserk swords were still showing up in enemy inventories.
-* Fixed an issue where it's possible for to change Midir's gift from Edain to not be usable by Jamke.
+* Removed Armor classes from Lewyn's class pool so he can reach Silesse.
+* Fixed an issue where multiple dancers can appear in Gen 2.
+* Fixed an issue where healers may not start with a healing staff.
+* Fixed an issue where the changelog didn't include all of the settings.
+* Fixed an issue where it was possible for a broken weapon to appear in the shop when randomizing shop items.
+* Removed Flying classes from Sigurd's class pool to avoid sequence breaking Chapter 1.
 
 * * *
 
