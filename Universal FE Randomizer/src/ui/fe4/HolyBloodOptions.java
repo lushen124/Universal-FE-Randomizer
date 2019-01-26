@@ -10,8 +10,9 @@ public class HolyBloodOptions {
 	public final boolean giveHolyBlood;
 	public final boolean matchClass;
 	public final int majorBloodChance;
+	public final int minorBloodChance;
 
-	public HolyBloodOptions(boolean randomizeGrowth, int growthTotal, boolean randomizeWeapons, boolean giveHolyBlood, boolean matchClass, int majorBloodChance) {
+	public HolyBloodOptions(boolean randomizeGrowth, int growthTotal, boolean randomizeWeapons, boolean giveHolyBlood, boolean matchClass, int majorBloodChance, int minorBloodChance) {
 		super();
 		
 		this.randomizeGrowthBonuses = randomizeGrowth;
@@ -22,5 +23,6 @@ public class HolyBloodOptions {
 		this.giveHolyBlood = giveHolyBlood;
 		this.matchClass = matchClass;
 		this.majorBloodChance = majorBloodChance;
+		this.minorBloodChance = minorBloodChance;
 	}
 }

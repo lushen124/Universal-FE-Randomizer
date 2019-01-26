@@ -261,7 +261,7 @@ public class FE4ClassRandomizer {
 		}
 		
 		
-		if (!options.includeDancers) { // Allow another dancer for gen 2.
+		if (options.includeDancers) { // Allow another dancer for gen 2.
 			hasDancer = false;
 		}
 		// Gen 2 - Children/Substitutes
@@ -654,6 +654,7 @@ public class FE4ClassRandomizer {
 			weapons.addAll(FE4Data.Item.cWeapons);
 			weapons.addAll(FE4Data.Item.bWeapons);
 			weapons.addAll(FE4Data.Item.aWeapons);
+			weapons.removeAll(FE4Data.Item.brokenWeapons);
 			
 			for (int index : inventoryIndices) {
 				FE4Data.Item currentItem = itemMap.getItemAtIndex(index);
@@ -803,7 +804,7 @@ public class FE4ClassRandomizer {
 			boolean requiresMelee = arenaCharacter.requiresMelee();
 			boolean requiresRange = arenaCharacter.requiresRange();
 			
-			Set<FE4Data.CharacterClass> possibleClasses = new HashSet<FE4Data.CharacterClass>(Arrays.asList(currentClass.getClassPool(false, true, false, rng.nextInt(2) == 0, false, true, false, requiresMelee, null, null)));
+			Set<FE4Data.CharacterClass> possibleClasses = new HashSet<FE4Data.CharacterClass>(Arrays.asList(currentClass.getClassPool(false, true, false, combatant.isFemale(), false, true, false, requiresMelee, null, null)));
 			if (requiresMelee) {
 				possibleClasses.removeAll(FE4Data.CharacterClass.rangedOnlyClasses);
 			} else if (requiresRange) {
@@ -1486,7 +1487,7 @@ public class FE4ClassRandomizer {
 			hasWeapon = item3.isWeapon();
 		}
 		
-		if (canAttack && !hasWeapon) {
+		if (canAttack && !hasWeapon && !isHealer) {
 			item1 = itemMap.getItemAtIndex(equip1);
 			if (item1 != null) {
 				List<FE4Data.Item> usableWeapons = new ArrayList<Item>(usableItems);
@@ -1590,6 +1591,10 @@ public class FE4ClassRandomizer {
 		
 		boolean canAttack = usableItems.stream().anyMatch(item -> (item.isWeapon()));
 		boolean hasWeapon = false;
+		boolean isHealer = targetClass.isHealer();
+		
+		Set<FE4Data.Item> healingStaves = new HashSet<Item>(FE4Data.Item.healingStaves);
+		healingStaves.retainAll(usableItems);
 		
 		List<FE4Data.HolyBloodSlot1> slot1Blood = parent != null ? FE4Data.HolyBloodSlot1.slot1HolyBlood(parent.getHolyBlood1Value()) : null;
 		List<FE4Data.HolyBloodSlot2> slot2Blood = parent != null ? FE4Data.HolyBloodSlot2.slot2HolyBlood(parent.getHolyBlood2Value()) : null;
@@ -1600,12 +1605,17 @@ public class FE4ClassRandomizer {
 		if (item1 != null && targetClass.canUseWeapon(item1, slot1Blood, slot2Blood, slot3Blood) == false) {
 			FE4Data.Item replacement = null;
 			boolean isBroken = item1.isBroken();
-			if (options.itemOptions == ItemAssignmentOptions.SIDEGRADE_STRICT) {
-				replacement = strictReplacementForItem(item1, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableItems), rng);
-			} else if (options.itemOptions != ItemAssignmentOptions.RANDOMIZE) {
-				replacement = looseReplacementForItem(item1, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableItems), rng);
+			if (isHealer && !healingStaves.isEmpty()) {
+				List<FE4Data.Item> healStaffList = new ArrayList<FE4Data.Item>(healingStaves); 
+				replacement = healStaffList.get(rng.nextInt(healStaffList.size()));
 			} else {
-				replacement = usableItems.get(rng.nextInt(usableItems.size()));
+				if (options.itemOptions == ItemAssignmentOptions.SIDEGRADE_STRICT) {
+					replacement = strictReplacementForItem(item1, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableItems), rng);
+				} else if (options.itemOptions != ItemAssignmentOptions.RANDOMIZE) {
+					replacement = looseReplacementForItem(item1, fe4Char.joinChapter(), new HashSet<FE4Data.Item>(usableItems), rng);
+				} else {
+					replacement = usableItems.get(rng.nextInt(usableItems.size()));
+				}
 			}
 			
 			if (isBroken) {
@@ -1643,7 +1653,7 @@ public class FE4ClassRandomizer {
 			hasWeapon = item2.isWeapon(); 
 		}
 		
-		if (canAttack && !hasWeapon) {
+		if (canAttack && !hasWeapon && !isHealer) {
 			item1 = itemMap.getItemAtIndex(equip1);
 			if (item1 != null) {
 				List<FE4Data.Item> usableWeapons = new ArrayList<Item>(usableItems);

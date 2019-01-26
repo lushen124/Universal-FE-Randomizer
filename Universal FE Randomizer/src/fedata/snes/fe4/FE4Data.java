@@ -92,6 +92,10 @@ public class FE4Data {
 	public static final long SeliphHolyBloodByte1Offset = 0x4856DL;
 	public static final long SeliphHolyBloodByte2Offset = 0x4856EL;
 	
+	public static final long SellableHolyWeaponsOffset = 0x4B4E7L;
+	public static final byte SellableHolyWeaponEnabledValue = 0x00;
+	public static final byte SellableHolyWeaponsDisabledValue = 0x16;
+	
 	public static final Map<Character, List<Integer>> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, List<Integer>> createEventItemMap() {
 		Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();
@@ -880,7 +884,12 @@ public class FE4Data {
 		
 		public CharacterClass[] blacklistedClasses() {
 			switch (this) {
-			case SIGURD: return CharacterClass.armoredClasses.toArray(new CharacterClass[CharacterClass.armoredClasses.size()]);
+			case SIGURD: // Needs to sieze ch. 4 castle. Also may break the game if flying.
+				Set<CharacterClass> blacklist = new HashSet<CharacterClass>(CharacterClass.armoredClasses);
+				blacklist.addAll(CharacterClass.fliers);
+				return blacklist.toArray(new CharacterClass[blacklist.size()]);
+			case LEWYN:  // Needs holy weapon from ch. 4 castle.
+				return CharacterClass.armoredClasses.toArray(new CharacterClass[CharacterClass.armoredClasses.size()]);
 			default: return new CharacterClass[] {};
 			}
 		}
@@ -1276,7 +1285,7 @@ public class FE4Data {
 		public static final Set<CharacterClass> A_staffUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, HIGH_PRIEST, BISHOP, QUEEN, DARK_BISHOP));
 		
 		public static final Set<CharacterClass> maleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, AXE_FIGHTER, WARRIOR, BARBARIAN, PIRATE, HUNTER, SWORD_ARMOR, ARMOR, 
-				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, BARD, FREE_KNIGHT, FORREST_KNIGHT, FORREST));
+				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, BARD, FREE_KNIGHT, FORREST_KNIGHT));
 		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS));
 		
 		public static final Set<CharacterClass> noWeaknessClasses = new HashSet<CharacterClass>(Arrays.asList(BOW_FIGHTER, SWORD_FIGHTER, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
@@ -1775,12 +1784,7 @@ public class FE4Data {
 			case DRAGON_KNIGHT:
 				return new CharacterClass[] {DRAGON_MASTER};
 			case BOW_FIGHTER: return new CharacterClass[] {SNIPER};
-			case SWORD_FIGHTER: 
-				if (isFemale) {
-					return new CharacterClass[] {SWORD_MASTER};
-				} else {
-					return new CharacterClass[] {SWORD_MASTER, FORREST};
-				}
+			case SWORD_FIGHTER: return new CharacterClass[] {SWORD_MASTER, FORREST};
 			case ARMOR:
 			case AXE_ARMOR:
 			case BOW_ARMOR:

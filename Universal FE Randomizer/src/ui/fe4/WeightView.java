@@ -214,7 +214,7 @@ public class WeightView extends Composite {
 		if (options == null) {
 			// Shouldn't happen.
 		} else {
-			enableToggle.setSelection(options.enabled);
+			setSelected(options.enabled);
 			if (options.weight == WeightedOptions.Weight.NONE) {
 				// Shouldn't happen.
 			} else {
