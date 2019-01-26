@@ -1,8 +1,9 @@
 package fedata.gba;
 
 import fedata.general.FEModifiableData;
+import fedata.general.FEOverrideableAddress;
 
-public interface GBAFECharacterData extends FEModifiableData {
+public interface GBAFECharacterData extends FEModifiableData, FEOverrideableAddress {
 	
 	public Boolean isClassRestricted();
 	
@@ -11,7 +12,15 @@ public interface GBAFECharacterData extends FEModifiableData {
 	public int getNameIndex();
 	public int getDescriptionIndex();
 	
+	// Used for Random Recruitment. Shouldn't be used for anything else.
+	public void setDescriptionIndex(int newIndex);
+	public int getOriginalDescriptionIndex();
+	
 	public int getID();
+	
+	// Used for Random Recruitment. Shouldn't be used for anything else.
+	public void setID(int newID); 
+	public int getOriginalID();
 	
 	public int getClassID();
 	public void setClassID(int classID);

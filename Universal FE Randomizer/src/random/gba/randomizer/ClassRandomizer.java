@@ -391,7 +391,7 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void validateCharacterInventory(GBAFECharacterData character, GBAFEClassData charClass, GBAFEChapterUnitData chapterUnit, Boolean ranged, Boolean melee, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, Random rng) {
+	public static void validateCharacterInventory(GBAFECharacterData character, GBAFEClassData charClass, GBAFEChapterUnitData chapterUnit, Boolean ranged, Boolean melee, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, Random rng) {
 		int item1ID = chapterUnit.getItem1();
 		GBAFEItemData item1 = itemData.itemWithID(item1ID);
 		int item2ID = chapterUnit.getItem2();

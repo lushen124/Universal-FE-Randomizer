@@ -95,6 +95,11 @@ public class CharacterDataLoader {
 		return feCharactersFromSet(provider.linkedCharacters(character.getID()));
 	}
 	
+	public Boolean isFlyingCharacter(int characterID) {
+		GBAFECharacter character = provider.characterWithID(characterID);
+		return provider.allFliers().contains(character);
+	}
+	
 	public int getCanonicalIDForCharacter(GBAFECharacterData character) {
 		return provider.canonicalID(character.getID());
 	}

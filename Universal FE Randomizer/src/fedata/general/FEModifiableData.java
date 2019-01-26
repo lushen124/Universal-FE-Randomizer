@@ -8,5 +8,4 @@ public interface FEModifiableData {
 	
 	public Boolean wasModified();
 	public long getAddressOffset();
-	
 }

@@ -36,6 +36,7 @@ public class FE8Character implements GBAFECharacterData {
 	private byte[] data;
 	
 	private long originalOffset;
+	private long overrideOffset;
 	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
@@ -62,8 +63,27 @@ public class FE8Character implements GBAFECharacterData {
 		return (data[2] & 0xFF) | ((data[3] & 0xFF) << 8);
 	}
 	
+	public void setDescriptionIndex(int newIndex) {
+		data[2] = (byte)(newIndex & 0xFF);
+		data[3] = (byte)((newIndex >> 8) & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getOriginalDescriptionIndex() {
+		return (originalData[2] & 0xFF) | ((originalData[3] & 0xFF) << 8);
+	}
+	
 	public int getID() {
 		return data[4] & 0xFF;
+	}
+	
+	public void setID(int newID) {
+		data[4] = (byte)(newID & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getOriginalID() {
+		return originalData[4] & 0xFF;
 	}
 	
 	public int getClassID() {
@@ -370,6 +390,18 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public long getAddressOffset() {
+		return overrideOffset != 0 ? overrideOffset : originalOffset;
+	}
+	
+	public void setAddressOverride(long newAddress) {
+		overrideOffset = newAddress;
+	}
+	
+	public long getOverrideAddress() {
+		return overrideOffset;
+	}
+	
+	public long getOriginalAddress() {
 		return originalOffset;
 	}
 	

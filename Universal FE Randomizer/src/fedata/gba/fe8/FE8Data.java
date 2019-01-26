@@ -187,6 +187,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList(SETH)); // The prologue scripted battle.
 		
+		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE));
+		
 		public Boolean isLord() {
 			return allLords.contains(this);
 		}
@@ -349,6 +351,54 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				TROUBADOUR, DANCER, RECRUIT_2, EIRIKA_MASTER_LORD, PALADIN_F, GENERAL_F, SWORDMASTER_F, ASSASSIN_F, SNIPER_F, RANGER_F, WYVERN_KNIGHT_F, SAGE_F, MAGE_KNIGHT_F, BISHOP_F,
 				GREAT_KNIGHT_F, SUPER_RECRUIT, MANAKETE_F, FALCON_KNIGHT, VALKYRIE, REVENANT, BONEWALKER, BONEWALKER_BOW, BAEL, MAUTHE_DOOG, TARVOS, MOGALL, GARGOYLE,
 				ENTOMBED, WIGHT, WIGHT_BOW, ELDER_BAEL, CYCLOPS, GWYLLGI, MAELDUIN, ARCH_MOGALL, GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2));
+		
+		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, PEGASUS_KNIGHT, MOGALL, GARGOYLE, WYVERN_LORD, WYVERN_KNIGHT, WYVERN_KNIGHT_F, FALCON_KNIGHT, ARCH_MOGALL, DEATHGOYLE));
+		
+		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, MERCENARY, MYRMIDON, SWORDMASTER, ASSASSIN, ROGUE, EIRIKA_LORD, MYRMIDON_F, MANAKETE_F, SWORDMASTER_F, ASSASSIN_F, REVENANT,
+				BAEL, MAUTHE_DOOG, ENTOMBED, ELDER_BAEL, GWYLLGI, ELDER_BAEL_2));
+		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, SNIPER, ARCHER_F, SNIPER_F, BONEWALKER_BOW, WIGHT_BOW));
+		
+		public static Map<CharacterClass, Set<CharacterClass>> promotionMap = createPromotionMap();
+		private static Map<CharacterClass, Set<CharacterClass>> createPromotionMap() {
+			Map<CharacterClass, Set<CharacterClass>> map = new HashMap<CharacterClass, Set<CharacterClass>>();
+			map.put(EPHRAIM_LORD, new HashSet<CharacterClass>(Arrays.asList(EPHRAIM_MASTER_LORD)));
+			map.put(CAVALIER, new HashSet<CharacterClass>(Arrays.asList(PALADIN, GREAT_KNIGHT)));
+			map.put(KNIGHT, new HashSet<CharacterClass>(Arrays.asList(GREAT_KNIGHT, GENERAL)));
+			map.put(THIEF, new HashSet<CharacterClass>(Arrays.asList(ROGUE, ASSASSIN)));
+			map.put(MERCENARY, new HashSet<CharacterClass>(Arrays.asList(HERO, RANGER)));
+			map.put(MYRMIDON, new HashSet<CharacterClass>(Arrays.asList(SWORDMASTER, ASSASSIN)));
+			map.put(ARCHER, new HashSet<CharacterClass>(Arrays.asList(SNIPER, RANGER)));
+			map.put(WYVERN_RIDER, new HashSet<CharacterClass>(Arrays.asList(WYVERN_KNIGHT, WYVERN_LORD)));
+			map.put(MAGE, new HashSet<CharacterClass>(Arrays.asList(SAGE, MAGE_KNIGHT)));
+			map.put(SHAMAN, new HashSet<CharacterClass>(Arrays.asList(SUMMONER, DRUID)));
+			map.put(RECRUIT_2, new HashSet<CharacterClass>(Arrays.asList(SUPER_RECRUIT, PALADIN))); 
+			map.put(FIGHTER, new HashSet<CharacterClass>(Arrays.asList(WARRIOR, HERO))); 
+			map.put(BRIGAND, new HashSet<CharacterClass>(Arrays.asList(BERSERKER, WARRIOR)));
+			map.put(PIRATE, new HashSet<CharacterClass>(Arrays.asList(BERSERKER, WARRIOR)));
+			map.put(MONK, new HashSet<CharacterClass>(Arrays.asList(BISHOP, SAGE)));
+			map.put(PRIEST, new HashSet<CharacterClass>(Arrays.asList(BISHOP, SAGE)));
+			map.put(SOLDIER, new HashSet<CharacterClass>(Arrays.asList(PALADIN, GENERAL)));
+			map.put(TRAINEE_2, new HashSet<CharacterClass>(Arrays.asList(SUPER_TRAINEE, WARRIOR)));
+			map.put(PUPIL_2, new HashSet<CharacterClass>(Arrays.asList(SUPER_PUPIL, SAGE)));
+			map.put(EIRIKA_LORD, new HashSet<CharacterClass>(Arrays.asList(EIRIKA_MASTER_LORD)));
+			map.put(CAVALIER_F, new HashSet<CharacterClass>(Arrays.asList(PALADIN_F, GREAT_KNIGHT_F)));
+			map.put(KNIGHT_F, new HashSet<CharacterClass>(Arrays.asList(GENERAL_F, GREAT_KNIGHT_F)));
+			map.put(MYRMIDON_F, new HashSet<CharacterClass>(Arrays.asList(SWORDMASTER_F, ASSASSIN_F)));
+			map.put(ARCHER_F, new HashSet<CharacterClass>(Arrays.asList(SNIPER_F, RANGER_F)));
+			map.put(MAGE_F, new HashSet<CharacterClass>(Arrays.asList(SAGE_F, MAGE_KNIGHT_F)));
+			map.put(PEGASUS_KNIGHT, new HashSet<CharacterClass>(Arrays.asList(FALCON_KNIGHT, WYVERN_KNIGHT_F)));
+			map.put(CLERIC, new HashSet<CharacterClass>(Arrays.asList(BISHOP_F, VALKYRIE)));
+			map.put(TROUBADOUR, new HashSet<CharacterClass>(Arrays.asList(VALKYRIE, MAGE_KNIGHT_F)));
+			map.put(REVENANT, new HashSet<CharacterClass>(Arrays.asList(ENTOMBED)));
+			map.put(BONEWALKER, new HashSet<CharacterClass>(Arrays.asList(WIGHT))); 
+			map.put(BONEWALKER_BOW, new HashSet<CharacterClass>(Arrays.asList(WIGHT_BOW)));
+			map.put(BAEL, new HashSet<CharacterClass>(Arrays.asList(ELDER_BAEL, ELDER_BAEL_2)));
+			map.put(MAUTHE_DOOG, new HashSet<CharacterClass>(Arrays.asList(GWYLLGI)));
+			map.put(TARVOS, new HashSet<CharacterClass>(Arrays.asList(MAELDUIN)));
+			map.put(MOGALL, new HashSet<CharacterClass>(Arrays.asList(ARCH_MOGALL)));
+			map.put(GARGOYLE, new HashSet<CharacterClass>(Arrays.asList(DEATHGOYLE)));
+			return map;
+		}
 		
 		private static Boolean isClassPromoted(CharacterClass sourceClass) {
 			return allPromotedClasses.contains(sourceClass);
@@ -2224,6 +2274,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public Set<GBAFECharacter> allFliers() {
+		return new HashSet<GBAFECharacter>(Character.requiredFliers);
+	}
+	
 	public GBAFECharacter characterWithID(int characterID) {
 		GBAFECharacter character = Character.valueOf(characterID);
 		if (character == null) {
@@ -2272,9 +2326,65 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEClass> allValidClasses() {
 		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 	}
+	
+	public Set<GBAFEClass> meleeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.rangedOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
+	
+	public Set<GBAFEClass> rangeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.meleeOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
 
 	public GBAFEClass classWithID(int classID) {
 		return CharacterClass.valueOf(classID);
+	}
+	
+	public boolean canClassDemote(GBAFEClass charClass) {
+		for (GBAFEClass baseClass : CharacterClass.promotionMap.keySet()) {
+			Set<CharacterClass> promotionOptions = CharacterClass.promotionMap.get(baseClass);
+			if (promotionOptions.contains(charClass)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean canClassPromote(GBAFEClass charClass) {
+		return CharacterClass.promotionMap.keySet().contains(charClass);
+	}
+	
+	public GBAFEClass[] promotedClass(GBAFEClass baseClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass charClass : CharacterClass.promotionMap.keySet()) {
+			if (charClass.ID == baseClass.getID()) {
+				classList.addAll(CharacterClass.promotionMap.get(charClass));
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public GBAFEClass[] demotedClass(GBAFEClass promotedClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass baseClass : CharacterClass.promotionMap.keySet()) {
+			Set<CharacterClass> classes = CharacterClass.promotionMap.get(baseClass);
+			if (classes.contains(promotedClass)) {
+				classList.add(baseClass);
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public boolean isFlier(GBAFEClass charClass) {
+		return CharacterClass.flyingClasses.contains(charClass);
 	}
 
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options) {

@@ -180,6 +180,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList(ERK, RATH, RATH_TUTORIAL));
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
 		
+		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(FIORA, FARINA, VAIDA));
+		
 		public Boolean isLord() {
 			return allLords.contains(this);
 		}
@@ -351,6 +353,41 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMADTROOPER, WYVERNLORD,
 				BERSERKER, ASSASSIN, LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
 				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, LORD_KNIGHT, GREAT_LORD, UBER_SAGE));
+		
+		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERNKNIGHT, WYVERNLORD, PEGASUSKNIGHT, FALCONKNIGHT));
+		
+		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, MERCENARY, MYRMIDON, THIEF, SWORDMASTER, ASSASSIN, LORD_LYN, SWORDMASTER_F));
+		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, NOMAD, SNIPER, ARCHER_F, SNIPER_F));
+		
+		public static Map<CharacterClass, CharacterClass> promotionMap = createPromotionMap();
+		private static Map<CharacterClass, CharacterClass> createPromotionMap() {
+			Map<CharacterClass, CharacterClass> map = new HashMap<CharacterClass, CharacterClass>();
+			map.put(LORD_ELIWOOD, LORD_KNIGHT);
+			map.put(LORD_LYN, BLADE_LORD);
+			map.put(LORD_HECTOR, GREAT_LORD); 
+			map.put(MERCENARY, HERO);
+			map.put(MYRMIDON, SWORDMASTER);
+			map.put(FIGHTER, WARRIOR);
+			map.put(KNIGHT, GENERAL);
+			map.put(ARCHER, SNIPER);
+			map.put(MONK, BISHOP);
+			map.put(MAGE, SAGE);
+			map.put(SHAMAN, DRUID);
+			map.put(CAVALIER, PALADIN);
+			map.put(NOMAD, NOMADTROOPER);
+			map.put(WYVERNKNIGHT, WYVERNLORD);
+			map.put(SOLDIER, GENERAL);
+			map.put(BRIGAND, BERSERKER);
+			map.put(PIRATE, BERSERKER);
+			map.put(THIEF, ASSASSIN);
+			map.put(CORSAIR, BERSERKER);
+			map.put(ARCHER_F, SNIPER_F);
+			map.put(CLERIC, BISHOP_F); 
+			map.put(MAGE_F, SAGE_F);
+			map.put(TROUBADOUR, VALKYRIE);
+			map.put(PEGASUSKNIGHT, FALCONKNIGHT);
+			return map;
+		}
 		
 		private static Boolean isClassPromoted(CharacterClass sourceClass) {
 			return allPromotedClasses.contains(sourceClass);
@@ -1701,6 +1738,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public Set<GBAFECharacter> allFliers() {
+		return new HashSet<GBAFECharacter>(Character.requiredFliers);
+	}
+	
 	public GBAFECharacter characterWithID(int characterID) {
 		GBAFECharacter character = Character.valueOf(characterID);
 		if (character == null) {
@@ -1749,9 +1790,64 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEClass> allValidClasses() {
 		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 	}
+	
+	public Set<GBAFEClass> meleeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.rangedOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
+	
+	public Set<GBAFEClass> rangeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.meleeOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
 
 	public GBAFEClass classWithID(int classID) {
 		return CharacterClass.valueOf(classID);
+	}
+	
+	public boolean canClassDemote(GBAFEClass charClass) {
+		for (GBAFEClass baseClass : CharacterClass.promotionMap.keySet()) {
+			if (CharacterClass.promotionMap.get(baseClass).ID == charClass.getID()) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean canClassPromote(GBAFEClass charClass) {
+		return CharacterClass.promotionMap.keySet().contains(charClass);
+	}
+	
+	public GBAFEClass[] promotedClass(GBAFEClass baseClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass charClass : CharacterClass.promotionMap.keySet()) {
+			if (charClass.ID == baseClass.getID()) {
+				classList.add(CharacterClass.promotionMap.get(charClass));
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public GBAFEClass[] demotedClass(GBAFEClass promotedClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass baseClass : CharacterClass.promotionMap.keySet()) {
+			CharacterClass charClass = CharacterClass.promotionMap.get(baseClass);
+			if (charClass.ID == promotedClass.getID()) {
+				classList.add(baseClass);
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public boolean isFlier(GBAFEClass charClass) {
+		return CharacterClass.flyingClasses.contains(charClass);
 	}
 
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options) {

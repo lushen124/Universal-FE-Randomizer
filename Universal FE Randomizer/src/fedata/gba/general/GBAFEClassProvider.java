@@ -22,8 +22,18 @@ public interface GBAFEClassProvider {
 	public GBAFEClass[] allClasses();
 	
 	public Set<GBAFEClass> allValidClasses();
+	public Set<GBAFEClass> meleeSupportedClasses();
+	public Set<GBAFEClass> rangeSupportedClasses();
 	
 	public GBAFEClass classWithID(int classID);
+	
+	public boolean canClassDemote(GBAFEClass charClass);
+	public boolean canClassPromote(GBAFEClass charClass);
+	
+	public GBAFEClass[] promotedClass(GBAFEClass baseClass);
+	public GBAFEClass[] demotedClass(GBAFEClass promotedClass);
+	
+	public boolean isFlier(GBAFEClass charClass);
 	
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options);
 	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, Map<String, Boolean> options);
