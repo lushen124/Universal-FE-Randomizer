@@ -146,22 +146,22 @@ public class FE4BloodRandomizer {
 			if (!hasMajorBlood && slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { hasMajorBlood = true; }
 			if (!hasMajorBlood && slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { hasMajorBlood = true; }
 			
+			if (hasMajorBlood) { continue; }
+			
 			boolean hasMinorBlood = false;
 			FE4Data.HolyBlood minorBloodType = null;
 			if (slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
 				minorBloodType = slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
-				hasMajorBlood = true;
+				hasMinorBlood = true;
 			}
-			if (!hasMajorBlood && slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+			if (!hasMinorBlood && slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
 				minorBloodType = slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
-				hasMajorBlood = true;
+				hasMinorBlood = true;
 			}
-			if (!hasMajorBlood && slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+			if (!hasMinorBlood && slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
 				minorBloodType = slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
-				hasMajorBlood = true;
+				hasMinorBlood = true;
 			}
-			
-			if (hasMajorBlood) { continue; }
 			
 			int rngValue = rng.nextInt(100);
 			
