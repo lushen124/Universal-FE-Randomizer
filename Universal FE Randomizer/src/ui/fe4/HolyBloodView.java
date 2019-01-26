@@ -24,7 +24,13 @@ public class HolyBloodView extends Composite {
 	
 	private Button giveHolyBlood;
 	private Button matchClass;
+	
+	private Label majorBloodLabel;
 	private Spinner majorBloodChance;
+	private Label minorBloodLabel;
+	private Spinner minorBloodChance;
+	private Label noBloodLabel;
+	private Spinner noBloodChance;
 	
 	public HolyBloodView(Composite parent, int style) {
 		super(parent, style);
@@ -111,7 +117,11 @@ public class HolyBloodView extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				matchClass.setEnabled(giveHolyBlood.getSelection());
+				majorBloodLabel.setEnabled(giveHolyBlood.getSelection());
 				majorBloodChance.setEnabled(giveHolyBlood.getSelection());
+				minorBloodLabel.setEnabled(giveHolyBlood.getSelection());
+				minorBloodChance.setEnabled(giveHolyBlood.getSelection());
+				noBloodLabel.setEnabled(giveHolyBlood.getSelection());
 			}
 		});
 		
@@ -140,13 +150,25 @@ public class HolyBloodView extends Composite {
 		giveBloodContainerLayout.marginBottom = 5;
 		giveBloodContainer.setLayout(giveBloodContainerLayout);
 		
-		Label majorBloodLabel = new Label(giveBloodContainer, SWT.RIGHT);
+		majorBloodLabel = new Label(giveBloodContainer, SWT.RIGHT);
 		majorBloodLabel.setText("Major Blood Chance:");
+		majorBloodLabel.setEnabled(false);
 		
 		majorBloodChance = new Spinner(giveBloodContainer, SWT.NONE);
-		majorBloodChance.setValues(25, 0, 100, 0, 5, 10);
+		majorBloodChance.setValues(50, 0, 100, 0, 1, 1);
 		majorBloodChance.setEnabled(false);
-		majorBloodChance.setToolTipText("The chance of a character obtaining Major Holy Blood. The remainder (out of 100) is allocated to Minor Holy Blood.");
+		majorBloodChance.setToolTipText("The chance of a character obtaining Major Holy Blood.");
+		majorBloodChance.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (majorBloodChance.getSelection() + minorBloodChance.getSelection() < 100) {
+					noBloodChance.setValues(100 - majorBloodChance.getSelection() - minorBloodChance.getSelection(), 0, 100, 0, 1, 1);
+				} else {
+					noBloodChance.setValues(0, 0, 100, 0, 1, 1);
+					minorBloodChance.setValues(100 - majorBloodChance.getSelection(), 0, 100, 0, 1, 1);
+				}
+			}
+		});
 		
 		labelData = new FormData();
 		labelData.left = new FormAttachment(0, 5);
@@ -158,6 +180,58 @@ public class HolyBloodView extends Composite {
 		spinnerData.right = new FormAttachment(100, -5);
 		majorBloodChance.setLayoutData(spinnerData);
 		
+		minorBloodLabel = new Label(giveBloodContainer, SWT.RIGHT);
+		minorBloodLabel.setText("Minor Blood Chance:");
+		minorBloodLabel.setEnabled(false);
+		
+		minorBloodChance = new Spinner(giveBloodContainer, SWT.NONE);
+		minorBloodChance.setValues(50, 0, 100, 0, 1, 1);
+		minorBloodChance.setEnabled(false);
+		minorBloodChance.setToolTipText("The chance of a character obtaining Minor Holy Blood.");
+		minorBloodChance.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (minorBloodChance.getSelection() + majorBloodChance.getSelection() < 100) {
+					noBloodChance.setValues(100 - majorBloodChance.getSelection() - minorBloodChance.getSelection(), 0, 100, 0, 1, 1);
+				} else {
+					noBloodChance.setValues(0, 0, 100, 0, 1, 1);
+					majorBloodChance.setValues(100 - minorBloodChance.getSelection(), 0, 100, 0, 1, 1);
+				}
+			}
+		});
+		
+		labelData = new FormData();
+		labelData.left = new FormAttachment(0, 5);
+		labelData.right = new FormAttachment(minorBloodChance, -5);
+		labelData.top = new FormAttachment(minorBloodChance, 0, SWT.CENTER);
+		minorBloodLabel.setLayoutData(labelData);
+		
+		spinnerData = new FormData();
+		spinnerData.right = new FormAttachment(100, -5);
+		spinnerData.left = new FormAttachment(majorBloodChance, 0, SWT.LEFT);
+		spinnerData.top = new FormAttachment(majorBloodChance, 5);
+		minorBloodChance.setLayoutData(spinnerData);
+		
+		noBloodLabel = new Label(giveBloodContainer, SWT.RIGHT);
+		noBloodLabel.setText("[Calculated] No Blood Chance:");
+		noBloodLabel.setEnabled(false);
+		
+		noBloodChance = new Spinner(giveBloodContainer, SWT.NONE);
+		noBloodChance.setValues(0, 0, 100, 0, 1, 1);
+		noBloodChance.setEnabled(false);
+		
+		labelData = new FormData();
+		labelData.left = new FormAttachment(0, 5);
+		labelData.right = new FormAttachment(noBloodChance, -5);
+		labelData.top = new FormAttachment(noBloodChance, 0, SWT.CENTER);
+		noBloodLabel.setLayoutData(labelData);
+		
+		spinnerData = new FormData();
+		spinnerData.right = new FormAttachment(100, -5);
+		spinnerData.left = new FormAttachment(minorBloodChance, 0, SWT.LEFT);
+		spinnerData.top = new FormAttachment(minorBloodChance, 5);
+		noBloodChance.setLayoutData(spinnerData);
+		
 		containerData = new FormData();
 		containerData.top = new FormAttachment(matchClass, 0);
 		containerData.left = new FormAttachment(matchClass, 0, SWT.LEFT);
@@ -166,7 +240,7 @@ public class HolyBloodView extends Composite {
 	}
 
 	public HolyBloodOptions getHolyBloodOptions() {
-		return new HolyBloodOptions(randomizeGrowthBonusesButton.getSelection(), growthBonusTotalSpinner.getSelection(), randomizeHolyWeaponBonusesButton.getSelection(), giveHolyBlood.getSelection(), matchClass.getSelection(), majorBloodChance.getSelection());
+		return new HolyBloodOptions(randomizeGrowthBonusesButton.getSelection(), growthBonusTotalSpinner.getSelection(), randomizeHolyWeaponBonusesButton.getSelection(), giveHolyBlood.getSelection(), matchClass.getSelection(), majorBloodChance.getSelection(), minorBloodChance.getSelection());
 	}
 	
 	public void setHolyBloodOptions(HolyBloodOptions options) {
@@ -186,9 +260,17 @@ public class HolyBloodView extends Composite {
 				
 				matchClass.setEnabled(true);
 				majorBloodChance.setEnabled(true);
+				minorBloodChance.setEnabled(true);
+				
+				majorBloodLabel.setEnabled(true);
+				minorBloodLabel.setEnabled(true);
+				noBloodLabel.setEnabled(true);
 				
 				matchClass.setSelection(options.matchClass);
+				
 				majorBloodChance.setSelection(options.majorBloodChance);
+				minorBloodChance.setSelection(options.minorBloodChance);
+				noBloodChance.setSelection(100 - options.majorBloodChance - options.minorBloodChance);
 			}
 		}
 	}

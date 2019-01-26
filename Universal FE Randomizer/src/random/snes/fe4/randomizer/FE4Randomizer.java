@@ -324,7 +324,7 @@ public class FE4Randomizer extends Randomizer {
 			if (bloodOptions.giveHolyBlood) {
 				updateStatusString("Assigning Holy Blood...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 3));
-				FE4BloodRandomizer.assignHolyBlood(bloodOptions.majorBloodChance, bloodOptions.matchClass, charData, itemMapper, rng);
+				FE4BloodRandomizer.assignHolyBlood(bloodOptions.majorBloodChance, bloodOptions.minorBloodChance, bloodOptions.matchClass, charData, itemMapper, rng);
 			}
 		}
 	}

@@ -125,7 +125,7 @@ public class FE4BloodRandomizer {
 		}
 	}
 	
-	public static void assignHolyBlood(int majorBloodChance, boolean matchClass, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
+	public static void assignHolyBlood(int majorBloodChance, int minorBloodChance, boolean matchClass, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		List<FE4StaticCharacter> characterList = new ArrayList<FE4StaticCharacter>(charData.getGen1Characters());
 		characterList.addAll(charData.getGen2CommonCharacters());
 		characterList.addAll(charData.getGen2SubstituteCharacters());
@@ -163,7 +163,9 @@ public class FE4BloodRandomizer {
 			
 			if (hasMajorBlood) { continue; }
 			
-			if (rng.nextInt(100) < majorBloodChance) {
+			int rngValue = rng.nextInt(100);
+			
+			if (rngValue < majorBloodChance) {
 				// assign major blood
 				FE4Data.HolyBlood majorBlood = null;
 				if (hasMinorBlood) {
@@ -218,7 +220,7 @@ public class FE4BloodRandomizer {
 						}
 					}
 				}
-			} else {
+			} else if (rngValue - majorBloodChance < minorBloodChance) {
 				// assign minor blood
 				FE4Data.HolyBlood[] bloodChoices = null;
 				if (matchClass) {
