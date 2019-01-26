@@ -18,6 +18,9 @@ import ui.model.WeaponOptions;
 
 public class OptionRecorder {
 	
+	private static final Integer FE4OptionBundleVersion = 1;
+	private static final Integer GBAOptionBundleVersion = 1;
+	
 	public static class AllOptions {
 		public FE4OptionBundle fe4;
 		public GBAOptionBundle fe6;
@@ -34,6 +37,7 @@ public class OptionRecorder {
 		public EnemyOptions enemies;
 		public MiscellaneousOptions otherOptions;
 		public String seed;
+		public Integer version;
 	}
 	
 	public static class FE4OptionBundle {
@@ -44,6 +48,7 @@ public class OptionRecorder {
 		public FE4ClassOptions classes;
 		public MiscellaneousOptions misc;
 		public String seed;
+		public Integer version;
 	}
 	
 	public static AllOptions options = loadOptions();
@@ -55,7 +60,13 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
-			return gson.fromJson(jsonString, AllOptions.class);
+			AllOptions loadedOptions = gson.fromJson(jsonString, AllOptions.class);
+			// Version check.
+			if (loadedOptions.fe4 != null && FE4OptionBundleVersion != loadedOptions.fe4.version) { loadedOptions.fe4 = null; }
+			if (loadedOptions.fe6 != null && GBAOptionBundleVersion != loadedOptions.fe6.version) { loadedOptions.fe6 = null; }
+			if (loadedOptions.fe7 != null && GBAOptionBundleVersion != loadedOptions.fe7.version) { loadedOptions.fe7 = null; }
+			if (loadedOptions.fe8 != null && GBAOptionBundleVersion != loadedOptions.fe8.version) { loadedOptions.fe8 = null; }
+			return loadedOptions;
 		} else {
 			return new AllOptions();
 		}
@@ -78,6 +89,7 @@ public class OptionRecorder {
 		bundle.classes = classOptions;
 		bundle.misc = miscOptions;
 		bundle.seed = seed;
+		bundle.version = FE4OptionBundleVersion;
 		
 		options.fe4 = bundle;
 		
@@ -95,6 +107,7 @@ public class OptionRecorder {
 		bundle.enemies = enemies;
 		bundle.otherOptions = otherOptions;
 		bundle.seed = seed;
+		bundle.version = GBAOptionBundleVersion;
 		
 		switch (gameType) {
 		case FE6:
