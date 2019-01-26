@@ -884,7 +884,10 @@ public class FE4Data {
 		
 		public CharacterClass[] blacklistedClasses() {
 			switch (this) {
-			case SIGURD: // Needs to sieze ch. 4 castle.
+			case SIGURD: // Needs to sieze ch. 4 castle. Also may break the game if flying.
+				Set<CharacterClass> blacklist = new HashSet<CharacterClass>(CharacterClass.armoredClasses);
+				blacklist.addAll(CharacterClass.fliers);
+				return blacklist.toArray(new CharacterClass[blacklist.size()]);
 			case LEWYN:  // Needs holy weapon from ch. 4 castle.
 				return CharacterClass.armoredClasses.toArray(new CharacterClass[CharacterClass.armoredClasses.size()]);
 			default: return new CharacterClass[] {};
