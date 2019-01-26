@@ -261,7 +261,7 @@ public class FE4ClassRandomizer {
 		}
 		
 		
-		if (!options.includeDancers) { // Allow another dancer for gen 2.
+		if (options.includeDancers) { // Allow another dancer for gen 2.
 			hasDancer = false;
 		}
 		// Gen 2 - Children/Substitutes
