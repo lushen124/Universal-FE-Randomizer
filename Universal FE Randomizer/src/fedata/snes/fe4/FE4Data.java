@@ -880,7 +880,9 @@ public class FE4Data {
 		
 		public CharacterClass[] blacklistedClasses() {
 			switch (this) {
-			case SIGURD: return CharacterClass.armoredClasses.toArray(new CharacterClass[CharacterClass.armoredClasses.size()]);
+			case SIGURD: // Needs to sieze ch. 4 castle.
+			case LEWYN:  // Needs holy weapon from ch. 4 castle.
+				return CharacterClass.armoredClasses.toArray(new CharacterClass[CharacterClass.armoredClasses.size()]);
 			default: return new CharacterClass[] {};
 			}
 		}
