@@ -14,6 +14,7 @@
 * Fixed an issue where the changelog didn't include all of the settings.
 * Fixed an issue where it was possible for a broken weapon to appear in the shop when randomizing shop items.
 * Removed Flying classes from Sigurd's class pool to avoid sequence breaking Chapter 1.
+* Fixed an issue where minor holy blood characters were being mistakenly treated as having major blood.
 
 * * *
 
