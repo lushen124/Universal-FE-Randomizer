@@ -1278,7 +1278,7 @@ public class FE4Data {
 		public static final Set<CharacterClass> A_staffUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, HIGH_PRIEST, BISHOP, QUEEN, DARK_BISHOP));
 		
 		public static final Set<CharacterClass> maleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, AXE_FIGHTER, WARRIOR, BARBARIAN, PIRATE, HUNTER, SWORD_ARMOR, ARMOR, 
-				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, BARD, FREE_KNIGHT, FORREST_KNIGHT, FORREST));
+				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, BARD, FREE_KNIGHT, FORREST_KNIGHT));
 		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS));
 		
 		public static final Set<CharacterClass> noWeaknessClasses = new HashSet<CharacterClass>(Arrays.asList(BOW_FIGHTER, SWORD_FIGHTER, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
@@ -1777,12 +1777,7 @@ public class FE4Data {
 			case DRAGON_KNIGHT:
 				return new CharacterClass[] {DRAGON_MASTER};
 			case BOW_FIGHTER: return new CharacterClass[] {SNIPER};
-			case SWORD_FIGHTER: 
-				if (isFemale) {
-					return new CharacterClass[] {SWORD_MASTER};
-				} else {
-					return new CharacterClass[] {SWORD_MASTER, FORREST};
-				}
+			case SWORD_FIGHTER: return new CharacterClass[] {SWORD_MASTER, FORREST};
 			case ARMOR:
 			case AXE_ARMOR:
 			case BOW_ARMOR:
