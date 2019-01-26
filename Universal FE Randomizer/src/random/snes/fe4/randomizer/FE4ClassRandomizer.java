@@ -654,6 +654,7 @@ public class FE4ClassRandomizer {
 			weapons.addAll(FE4Data.Item.cWeapons);
 			weapons.addAll(FE4Data.Item.bWeapons);
 			weapons.addAll(FE4Data.Item.aWeapons);
+			weapons.removeAll(FE4Data.Item.brokenWeapons);
 			
 			for (int index : inventoryIndices) {
 				FE4Data.Item currentItem = itemMap.getItemAtIndex(index);
@@ -803,7 +804,7 @@ public class FE4ClassRandomizer {
 			boolean requiresMelee = arenaCharacter.requiresMelee();
 			boolean requiresRange = arenaCharacter.requiresRange();
 			
-			Set<FE4Data.CharacterClass> possibleClasses = new HashSet<FE4Data.CharacterClass>(Arrays.asList(currentClass.getClassPool(false, true, false, rng.nextInt(2) == 0, false, true, false, requiresMelee, null, null)));
+			Set<FE4Data.CharacterClass> possibleClasses = new HashSet<FE4Data.CharacterClass>(Arrays.asList(currentClass.getClassPool(false, true, false, combatant.isFemale(), false, true, false, requiresMelee, null, null)));
 			if (requiresMelee) {
 				possibleClasses.removeAll(FE4Data.CharacterClass.rangedOnlyClasses);
 			} else if (requiresRange) {
