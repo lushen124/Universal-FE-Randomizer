@@ -13,6 +13,7 @@
 * Removed Free Knight, Forrest Knight, and Forrest from the female pool.
 * Removed Recover Ring from the list of randomizable Rings.
 * Increased the chance of a random character receiving a holy weapon from a conversation/event from 33% to 50%.
+* Updated logic to not touch units involved in scripted fights to ensure they play out like they're supposed to. This includes Eldigan/Elliot and their squads in Ch1, Mahnya/Andorey and their squads in Ch4, and Travant and his squad in Ch5.
 #### Bugfixes
 * Fixed an issue where Gen 2 Common Characters were getting their data overwritten by other changes.
 * Limited Sigurd and Deirdre's holy blood to the first two bytes to accomodate Seliph.
@@ -101,7 +102,7 @@ FE7 and FE8 currently require US versions of those games. Like above, a cheksum 
 ### FE4 Additions
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/FE4Mac.png">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/FE4Mac.png?raw=true">
 </p>
 
 #### Growths
