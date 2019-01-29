@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -59,6 +61,8 @@ public class MainView implements FileFlowDelegate {
 	private ScrolledComposite scrollable;
 	private Composite container;
 	
+	private ControlListener resizeListener;
+	
 	private int screenHeight;
 	
 	private Text filenameField;
@@ -99,8 +103,8 @@ public class MainView implements FileFlowDelegate {
 	public MainView(Display mainDisplay) {
 		super();
 		
-		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.RESIZE & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.4)");
+		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.MAX); 
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.7.5)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
 		 screenHeight = mainDisplay.getBounds().height;
@@ -130,6 +134,8 @@ public class MainView implements FileFlowDelegate {
 		// JAR being run is shown correctly.
 		Point actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + titleBarHeight, screenHeight));
 		
+		final Point contentSize = actualSize;
+		
 		if (actualSize.y - titleBarHeight < containerSize.y) {
 			ScrollBar verticalScrollBar = scrollable.getVerticalBar();
 			FormLayout containerLayout = (FormLayout)container.getLayout();
@@ -140,6 +146,29 @@ public class MainView implements FileFlowDelegate {
 			containerSize = container.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
 			actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + (mainShell.getBounds().height - mainShell.getClientArea().height), screenHeight));
 		}
+		
+		if (containerSize.y < 40) {
+			mainShell.setMinimumSize(containerSize.x + 10, 0);
+		} else {
+			mainShell.setMinimumSize(containerSize.x + 10, 300);
+		}
+		
+		if (resizeListener != null) { mainShell.removeControlListener(resizeListener); }
+		
+		resizeListener = new ControlListener() {
+			@Override
+			public void controlMoved(ControlEvent e) {}
+			@Override
+			public void controlResized(ControlEvent e) {
+				Point size = mainShell.getSize();
+				if (contentSize.y < 40) { return; }
+				if (size.y > contentSize.y || size.x > contentSize.x) {
+					mainShell.setSize(contentSize.x, contentSize.y);
+				}
+			}
+		};
+		
+		mainShell.addControlListener(resizeListener);
 		
 		container.setSize(containerSize);
 		mainShell.setSize(actualSize);
