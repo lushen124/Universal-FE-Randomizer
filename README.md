@@ -12,6 +12,7 @@
 * Fixed an issue where Quan and Ethlyn could end up with one less skill than intended.
 * Fixed an issue where Weapon Effects settings were not being resotred properly for GBA games.
 * Fixed a crash that could happen when restoring GBA settings.
+* Fixed an issue with item assignment in FE8 for monster classes that use human weapons.
 
 * * *
 
