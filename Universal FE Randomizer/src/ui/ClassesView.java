@@ -146,14 +146,14 @@ public class ClassesView extends Composite {
 				randomizePCThievesButton.setEnabled(true);
 				randomizePCLordsButton.setSelection(options.includeLords);
 				randomizePCThievesButton.setSelection(options.includeThieves);
-				if (hasMonsterOption) {
-					mixMonsterClasses.setEnabled(true);
-					mixMonsterClasses.setSelection(options.separateMonsters);
-				}
 			}
 			
 			randomizeEnemiesButton.setSelection(options.randomizeEnemies);
 			randomizeBossesButton.setSelection(options.randomizeBosses);
+			if (hasMonsterOption) {
+				mixMonsterClasses.setEnabled(true);
+				mixMonsterClasses.setSelection(options.separateMonsters);
+			}
 		}
 	}
 }

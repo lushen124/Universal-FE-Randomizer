@@ -325,6 +325,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				GREAT_KNIGHT_F, SUPER_RECRUIT, MANAKETE_F, FALCON_KNIGHT, VALKYRIE));
 		public static Set<CharacterClass> allMonsterClasses = new HashSet<CharacterClass>(Arrays.asList(REVENANT, BONEWALKER, BONEWALKER_BOW, BAEL, MAUTHE_DOOG, TARVOS, MOGALL, GARGOYLE,
 		ENTOMBED, WIGHT, WIGHT_BOW, ELDER_BAEL, CYCLOPS, GWYLLGI, MAELDUIN, ARCH_MOGALL, GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2));
+		public static Set<CharacterClass> monsterWeaponClasses = new HashSet<CharacterClass>(Arrays.asList(REVENANT, BAEL, MAUTHE_DOOG, MOGALL, ENTOMBED, ELDER_BAEL, GWYLLGI, ARCH_MOGALL, GORGON, ELDER_BAEL_2));
 		
 		public static Set<CharacterClass> allLordClasses = new HashSet<CharacterClass>(Arrays.asList(EIRIKA_LORD, EPHRAIM_LORD, EIRIKA_MASTER_LORD, EPHRAIM_MASTER_LORD));
 		public static Set<CharacterClass> allThiefClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, ASSASSIN, ROGUE));
@@ -2616,7 +2617,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		if (item == null) { return new HashSet<GBAFEItem>(); }
 		
 		CharacterClass charClass = CharacterClass.valueOf(classID);
-		if (CharacterClass.allMonsterClasses.contains(charClass)) {
+		if (CharacterClass.monsterWeaponClasses.contains(charClass)) {
 			return new HashSet<GBAFEItem>(Arrays.asList(Item.equivalentMonsterWeapon(item.ID, classID)));
 		}
 		
