@@ -433,8 +433,10 @@ public class FE4SkillsRandomizer {
 		
 		for (int i = 0; i < numberOfSkills; i++) {
 			FE4Data.Skill randomSkill = workingSkillDistributor.getRandomItem(rng);
-			if (fe4Char.mustLoseToCharacters().length > 0 && randomSkill == FE4Data.Skill.NIHIL) {
-				continue; // Nobody that has to lose can have Nihil as a skill.
+			if (fe4Char.mustLoseToCharacters().length > 0) {
+				while (randomSkill == FE4Data.Skill.NIHIL) {
+					randomSkill = workingSkillDistributor.getRandomItem(rng);
+				}
 			}
 			if (randomSkill == null) { break; }
 			skillsGiven.add(randomSkill);
