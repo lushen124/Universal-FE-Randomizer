@@ -162,6 +162,7 @@ public class MainView implements FileFlowDelegate {
 			public void controlResized(ControlEvent e) {
 				Point size = mainShell.getSize();
 				if (contentSize.y < 50) { return; }
+				if (contentSize.y >= screenHeight) { return; }
 				if (size.y > contentSize.y || size.x > contentSize.x) {
 					mainShell.setSize(contentSize.x, contentSize.y);
 				}
