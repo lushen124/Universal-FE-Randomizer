@@ -1,20 +1,17 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-### Latest Version: 0.7.4
+### Latest Version: 0.7.5
 #### Additions
-* Added the ability to specify chances for major and minor holy blood (and allowing for no holy blood) when assigning blood.
+* Added the ability to resize the window vertically, if necessary.
 #### Changes
-* Re-added Forrest/Hero to the female class pool.
-* Added some vertical clearance margin for smaller screens.
-* Holy weapons are now sellable.
+* Removed Bard from the Male-only class list (female bards work, apparently).
+* Added Paladin to the Male-only class list (female cavs will always promote to the female variant of the Paladin)
 #### Bugfixes
-* Removed Armor classes from Lewyn's class pool so he can reach Silesse.
-* Fixed an issue where multiple dancers can appear in Gen 2.
-* Fixed an issue where healers may not start with a healing staff.
-* Fixed an issue where the changelog didn't include all of the settings.
-* Fixed an issue where it was possible for a broken weapon to appear in the shop when randomizing shop items.
-* Removed Flying classes from Sigurd's class pool to avoid sequence breaking Chapter 1.
-* Fixed an issue where minor holy blood characters were being mistakenly treated as having major blood.
+* Removed Axe Armor from the A rank axe users list.
+* Moved Dragon Rider from B Swords/B Lances to C Swords/C Lances as they're supposed to be.
+* Fixed an issue where Quan and Ethlyn could end up with one less skill than intended.
+* Fixed an issue where Weapon Effects settings were not being resotred properly for GBA games.
+* Fixed a crash that could happen when restoring GBA settings.
 
 * * *
 
