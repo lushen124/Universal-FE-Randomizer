@@ -1256,10 +1256,10 @@ public class FE4Data {
 				PRIEST, HIGH_PRIEST, BISHOP, QUEEN, DARK_MAGE, DARK_BISHOP));
 		
 		public static final Set<CharacterClass> B_swordUsers = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, PRINCESS, MASTER_KNIGHT, SWORD_FIGHTER, SWORD_MASTER, FORREST,
-				THIEF_FIGHTER, SOCIAL_KNIGHT, PALADIN, TROUBADOUR, PALADIN_F, FREE_KNIGHT, FORREST_KNIGHT, SWORD_ARMOR, GENERAL, BARON, EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_RIDER,
+				THIEF_FIGHTER, SOCIAL_KNIGHT, PALADIN, TROUBADOUR, PALADIN_F, FREE_KNIGHT, FORREST_KNIGHT, SWORD_ARMOR, GENERAL, BARON, EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT,
 				DRAGON_KNIGHT, DRAGON_MASTER, MAGE_KNIGHT));
 		public static final Set<CharacterClass> B_lanceUsers = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, MASTER_KNIGHT, PALADIN, LANCE_KNIGHT, DUKE_KNIGHT, ARMOR, GENERAL, BARON,
-				EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_RIDER, DRAGON_KNIGHT, DRAGON_MASTER));
+				EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_KNIGHT, DRAGON_MASTER));
 		public static final Set<CharacterClass> B_axeUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, AXE_FIGHTER, WARRIOR, MOUNTAIN_THIEF, BARBARIAN, PIRATE, AXE_KNIGHT, GREAT_KNIGHT, AXE_ARMOR, GENERAL,
 				BARON, EMPEROR));
 		public static final Set<CharacterClass> B_bowUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, WARRIOR, BOW_FIGHTER, SNIPER, HUNTER, ARCH_KNIGHT, BOW_KNIGHT, BOW_ARMOR, GENERAL, BARON, EMPEROR));
@@ -1275,7 +1275,7 @@ public class FE4Data {
 		public static final Set<CharacterClass> A_swordUsers = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, PRINCE, MASTER_KNIGHT, SWORD_FIGHTER, SWORD_MASTER, FORREST, THIEF_FIGHTER, FORREST_KNIGHT, GENERAL, 
 				BARON, EMPEROR, FALCON_KNIGHT, DRAGON_MASTER));
 		public static final Set<CharacterClass> A_lanceUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, DUKE_KNIGHT, GENERAL, BARON, EMPEROR, FALCON_KNIGHT, DRAGON_MASTER));
-		public static final Set<CharacterClass> A_axeUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, AXE_FIGHTER, WARRIOR, GREAT_KNIGHT, AXE_ARMOR, BARON, EMPEROR));
+		public static final Set<CharacterClass> A_axeUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, AXE_FIGHTER, WARRIOR, GREAT_KNIGHT, BARON, EMPEROR));
 		public static final Set<CharacterClass> A_bowUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BOW_FIGHTER, SNIPER, BOW_KNIGHT, BARON, EMPEROR));
 		public static final Set<CharacterClass> A_fireUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, QUEEN, DARK_BISHOP));
 		public static final Set<CharacterClass> A_thunderUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, QUEEN, DARK_BISHOP));
@@ -1285,7 +1285,7 @@ public class FE4Data {
 		public static final Set<CharacterClass> A_staffUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, HIGH_PRIEST, BISHOP, QUEEN, DARK_BISHOP));
 		
 		public static final Set<CharacterClass> maleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, AXE_FIGHTER, WARRIOR, BARBARIAN, PIRATE, HUNTER, SWORD_ARMOR, ARMOR, 
-				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, BARD, FREE_KNIGHT, FORREST_KNIGHT));
+				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, FREE_KNIGHT, FORREST_KNIGHT, PALADIN));
 		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS));
 		
 		public static final Set<CharacterClass> noWeaknessClasses = new HashSet<CharacterClass>(Arrays.asList(BOW_FIGHTER, SWORD_FIGHTER, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,

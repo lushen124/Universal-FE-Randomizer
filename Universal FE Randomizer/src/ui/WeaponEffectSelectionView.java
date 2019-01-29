@@ -43,7 +43,7 @@ public class WeaponEffectSelectionView extends Composite {
 	public Boolean devilEnabled;
 	
 	private WeaponEffectSelectionViewListener listener;
-	private Boolean squelchCallbacks;
+	private boolean squelchCallbacks;
 
 	public WeaponEffectSelectionView(Composite parent, int style, GameType type) {
 		super(parent, style);
@@ -253,18 +253,20 @@ public class WeaponEffectSelectionView extends Composite {
 	
 	public void setOptions(WeaponEffectOptions options) {
 		if (options != null) {
-			noneCheckBox.setSelection(options.none);
-			statBoostsCheckBox.setSelection(options.statBoosts);
-			effectivenessCheckBox.setSelection(options.effectiveness);
-			unbreakableCheckBox.setSelection(options.unbreakable);
-			braveCheckBox.setSelection(options.brave);
-			reverseTriangleCheckBox.setSelection(options.reverseTriangle);
-			extendedRangeCheckBox.setSelection(options.extendedRange);
-			highCriticalCheckBox.setSelection(options.highCritical);
-			magicDamageCheckBox.setSelection(options.magicDamage);
-			poisonCheckBox.setSelection(options.poison);
-			if (eclipseCheckBox != null) { eclipseCheckBox.setSelection(options.eclipse); }
-			devilCheckBox.setSelection(options.devil);
+			noneCheckBox.setSelection(options.none != null ? options.none : false);
+			statBoostsCheckBox.setSelection(options.statBoosts != null ? options.statBoosts : false);
+			effectivenessCheckBox.setSelection(options.effectiveness != null ? options.effectiveness : false);
+			unbreakableCheckBox.setSelection(options.unbreakable != null ? options.unbreakable : false);
+			braveCheckBox.setSelection(options.brave != null ? options.brave : false);
+			reverseTriangleCheckBox.setSelection(options.reverseTriangle != null ? options.reverseTriangle : false);
+			extendedRangeCheckBox.setSelection(options.extendedRange != null ? options.extendedRange : false);
+			highCriticalCheckBox.setSelection(options.highCritical != null ? options.highCritical : false);
+			magicDamageCheckBox.setSelection(options.magicDamage != null ? options.magicDamage : false);
+			poisonCheckBox.setSelection(options.poison != null ? options.poison : false);
+			if (eclipseCheckBox != null) { eclipseCheckBox.setSelection(options.eclipse != null ? options.eclipse : false); }
+			devilCheckBox.setSelection(options.devil != null ? options.devil : false);
+			
+			notifySelectionChange();
 		}
 	}
 	
