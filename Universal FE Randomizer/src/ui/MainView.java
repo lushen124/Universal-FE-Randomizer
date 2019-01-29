@@ -147,6 +147,7 @@ public class MainView implements FileFlowDelegate {
 			actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + (mainShell.getBounds().height - mainShell.getClientArea().height), screenHeight));
 		}
 		
+		// On Ubuntu, 44 is the size of the natural container size, so we'll give some additional margin too.
 		if (containerSize.y < 50) {
 			mainShell.setMinimumSize(containerSize.x + 10, 0);
 		} else {
@@ -162,7 +163,7 @@ public class MainView implements FileFlowDelegate {
 			public void controlResized(ControlEvent e) {
 				Point size = mainShell.getSize();
 				if (contentSize.y < 50) { return; }
-				if (contentSize.y >= screenHeight) { return; }
+				if (size.y >= screenHeight) { return; } // This is to allow Full screen to work on Mac OS.
 				if (size.y > contentSize.y || size.x > contentSize.x) {
 					mainShell.setSize(contentSize.x, contentSize.y);
 				}
