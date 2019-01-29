@@ -147,7 +147,7 @@ public class MainView implements FileFlowDelegate {
 			actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + (mainShell.getBounds().height - mainShell.getClientArea().height), screenHeight));
 		}
 		
-		if (containerSize.y < 40) {
+		if (containerSize.y < 50) {
 			mainShell.setMinimumSize(containerSize.x + 10, 0);
 		} else {
 			mainShell.setMinimumSize(containerSize.x + 10, 300);
@@ -161,7 +161,7 @@ public class MainView implements FileFlowDelegate {
 			@Override
 			public void controlResized(ControlEvent e) {
 				Point size = mainShell.getSize();
-				if (contentSize.y < 40) { return; }
+				if (contentSize.y < 50) { return; }
 				if (size.y > contentSize.y || size.x > contentSize.x) {
 					mainShell.setSize(contentSize.x, contentSize.y);
 				}
