@@ -165,7 +165,7 @@ public class HuffmanHelper {
 	
 	public void buildEncoder() {
 		if (!staleEncoder) { return; }
-		encoder = new EncoderEntry[0x7F - 0x20];
+		encoder = new EncoderEntry[0x100];
 		buildEncoderHelper(cacheRoot);
 	}
 	
@@ -173,29 +173,37 @@ public class HuffmanHelper {
 		if (root == null) { return; }
 		buildEncoderHelper(root.left);
 		if (root.value != null) {
-			if (root.value.value1 >= 0x20 && root.value.value1 <= 0x7E) {
-				int index = root.value.value1 - 0x20;
+			if (root.value.hasValue1) {
+				int index = (root.value.value1 & 0xFF);
 				EncoderEntry entry = encoder[index];
 				if (entry == null) {
-					if (root.value.hasValue2 && root.value.value2 >= 0x20 && root.value.value2 <= 0x7E) {
+					if (root.value.hasValue2) {
 						entry = new EncoderEntry(null);
 						encoder[index] = entry;
-						entry.followups.put((char)root.value.value2, new EncoderEntry(root.value.stream));
+						entry.followups.put((char)(root.value.value2 & 0xFF), new EncoderEntry(root.value.stream));
 					} else {
 						entry = new EncoderEntry(root.value.stream);
 						encoder[index] = entry;
+						DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Writing stream " + root.value.stream.toString() + " to encoder index " + index);
 					}
 				} else {
-					if (root.value.hasValue2 && root.value.value2 >= 0x20 && root.value.value2 <= 0x7E) {
-						entry.followups.put((char)root.value.value2, new EncoderEntry(root.value.stream));
+					if (root.value.hasValue2) {
+						entry.followups.put((char)(root.value.value2 & 0xFF), new EncoderEntry(root.value.stream));
 					} else {
 						if (entry.stream == null) {
 							entry.stream = new Bitstream(root.value.stream);
+							DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Writing stream " + root.value.stream.toString() + " to encoder index " + index);
 						}
 					}
 				}
-			} else if (root.value.value1 == 0x0) {
+			}
+			
+			if (root.value.value1 == 0x0) {
 				terminatorBitstream = root.value.stream;
+			}
+		} else {
+			if (root.hasValue1 || root.hasValue2) {
+				DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Null Root has Value!");
 			}
 		}
 		buildEncoderHelper(root.right);
@@ -213,6 +221,129 @@ public class HuffmanHelper {
 			DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Bitstream: " + root.stream.toString() + "\t\tValue: " + root.value.getValueString());
 		}
 		printCacheHelper(root.right);
+	}
+	
+	public byte[] decodeDataArray(byte[] data, long treeAddress, long rootAddress, boolean isMarked) {
+		byte[] result = new byte[0x1000];
+		int i = 0;
+		
+		int currentDataIndex = 0;
+		byte currentByte = 0;
+		
+		if (isMarked) {
+			do {
+				currentByte = data[i];
+				result[i] = currentByte;
+				i++;
+			} while (currentByte != 0);
+			
+			return result;
+		} else {
+			int bit = 0;
+			long node = rootAddress;
+			currentByte = data[currentDataIndex++];
+			CacheEntry currentEntry = cacheRoot;
+			currentEntry.nodeValue = node;
+			while (i < 0x1000) {
+				CacheEntry leftEntry = currentEntry.left;
+				CacheEntry rightEntry = currentEntry.right;
+				
+				if (bit == 8) {
+					bit = 0;
+					currentByte = data[currentDataIndex++];
+				}
+				Boolean nextBitIsZero = (currentByte & 0x1) == 0;
+				if (currentEntry.value != null) {
+					result[i++] = currentEntry.value.value1;
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value1));
+					if (currentEntry.value.hasValue2) {
+						result[i++] = currentEntry.value.value2;
+						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value2));
+					} else if (currentEntry.value.isTerminal) {
+						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Terminal");
+						break;
+					}
+					node = rootAddress;
+					currentEntry = cacheRoot;
+					continue;
+				}
+				
+				if (nextBitIsZero && leftEntry != null) {
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] 0 - left");
+					currentEntry = leftEntry;
+					node = leftEntry.nodeValue;
+					currentByte >>= 1;
+					bit += 1;
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] node = 0x" + Long.toHexString(node));
+				} else if (!nextBitIsZero && rightEntry != null) {
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] 1 - right");
+					currentEntry = rightEntry;
+					node = rightEntry.nodeValue;
+					currentByte >>= 1;
+					bit += 1;
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] node = 0x" + Long.toHexString(node));
+				} else {
+					long currentTreeAddress = node;
+					int left = FileReadHelper.readSignedHalfWord(handler, currentTreeAddress);
+					currentTreeAddress += 2;
+					int right = FileReadHelper.readSignedHalfWord(handler, currentTreeAddress);
+					
+					Boolean rightReachedLeafMask = right < 0;
+					if (!rightReachedLeafMask) {
+						int offset;
+						if (nextBitIsZero) {
+							offset = left;
+							CacheEntry previousEntry = currentEntry;
+							currentEntry = new CacheEntry(previousEntry);
+							previousEntry.left = currentEntry;
+							currentEntry.stream.pushZero();
+							//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "0 - left");
+						}
+						else {
+							offset = right;
+							CacheEntry previousEntry = currentEntry;
+							currentEntry = new CacheEntry(previousEntry);
+							previousEntry.right = currentEntry;
+							currentEntry.stream.pushOne();
+							//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "1 - right");
+						}
+						
+						node = treeAddress + (4 * offset);
+						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "node = 0x" + Long.toHexString(node));
+						currentEntry.nodeValue = node;
+						currentByte >>= 1;
+						bit += 1;
+					} else {
+						node = rootAddress;
+						result[i] = (byte) (left & 0xFF);
+						
+						CacheEntry valueEntry = new CacheEntry(currentEntry);
+						currentEntry.value = valueEntry;
+						
+						valueEntry.hasValue1 = true;
+						valueEntry.value1 = (byte) (left & 0xFF);
+						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value1));
+						i += 1;
+						if ((left & 0xFF00) != 0) {
+							if (i != 0x1000) {
+								result[i] = (byte) ((left >> 8) & 0xFF);
+								valueEntry.hasValue2 = true;
+								valueEntry.value2 = (byte) ((left >> 8) & 0xFF);
+								//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value2));
+								i += 1;
+							}
+						} else if (left == 0) {
+							valueEntry.isTerminal = true;
+							//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Terminal");
+							break;
+						}
+						currentEntry = cacheRoot;
+					}
+				}
+			}
+			
+			return result;
+		}
 	}
 
 	public byte[] decodeTextAddressWithHuffmanTree(long textAddress, long treeAddress, long rootAddress) {
@@ -254,12 +385,12 @@ public class HuffmanHelper {
 				Boolean nextBitIsZero = (currentByte & 0x1) == 0;
 				if (currentEntry.value != null) {
 					result[i++] = currentEntry.value.value1;
-					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value1));
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value1));
 					if (currentEntry.value.hasValue2) {
 						result[i++] = currentEntry.value.value2;
-						DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value2));
+						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value2));
 					} else if (currentEntry.value.isTerminal) {
-						DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Terminal");
+						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Terminal");
 						break;
 					}
 					node = rootAddress;
@@ -268,19 +399,19 @@ public class HuffmanHelper {
 				}
 				
 				if (nextBitIsZero && leftEntry != null) {
-					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] 0 - left");
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] 0 - left");
 					currentEntry = leftEntry;
 					node = leftEntry.nodeValue;
 					currentByte >>= 1;
 					bit += 1;
-					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] node = 0x" + Long.toHexString(node));
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] node = 0x" + Long.toHexString(node));
 				} else if (!nextBitIsZero && rightEntry != null) {
-					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] 1 - right");
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] 1 - right");
 					currentEntry = rightEntry;
 					node = rightEntry.nodeValue;
 					currentByte >>= 1;
 					bit += 1;
-					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] node = 0x" + Long.toHexString(node));
+					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] node = 0x" + Long.toHexString(node));
 				} else {
 					long currentTreeAddress = node;
 					int left = FileReadHelper.readSignedHalfWord(handler, currentTreeAddress);
@@ -296,7 +427,7 @@ public class HuffmanHelper {
 							currentEntry = new CacheEntry(previousEntry);
 							previousEntry.left = currentEntry;
 							currentEntry.stream.pushZero();
-							DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "0 - left");
+							//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "0 - left");
 						}
 						else {
 							offset = right;
@@ -304,11 +435,11 @@ public class HuffmanHelper {
 							currentEntry = new CacheEntry(previousEntry);
 							previousEntry.right = currentEntry;
 							currentEntry.stream.pushOne();
-							DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "1 - right");
+							//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "1 - right");
 						}
 						
 						node = treeAddress + (4 * offset);
-						DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "node = 0x" + Long.toHexString(node));
+						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "node = 0x" + Long.toHexString(node));
 						currentEntry.nodeValue = node;
 						currentByte >>= 1;
 						bit += 1;
@@ -321,19 +452,19 @@ public class HuffmanHelper {
 						
 						valueEntry.hasValue1 = true;
 						valueEntry.value1 = (byte) (left & 0xFF);
-						DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value1));
+						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value1));
 						i += 1;
 						if ((left & 0xFF00) != 0) {
 							if (i != 0x1000) {
 								result[i] = (byte) ((left >> 8) & 0xFF);
 								valueEntry.hasValue2 = true;
 								valueEntry.value2 = (byte) ((left >> 8) & 0xFF);
-								DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value2));
+								//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value2));
 								i += 1;
 							}
 						} else if (left == 0) {
 							valueEntry.isTerminal = true;
-							DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Terminal");
+							//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Terminal");
 							break;
 						}
 						currentEntry = cacheRoot;
@@ -362,11 +493,52 @@ public class HuffmanHelper {
 				}
 			} else if (currentByte == 2) {
 				if (!squelchCodes) {
-					sb.append("[0x02]");
+					sb.append(System.lineSeparator());
+					sb.append(System.lineSeparator());
 				}
 			} else if (currentByte == 3) {
 				if (!squelchCodes) {
 					sb.append("[A]");
+				}
+			} else if (currentByte >= 4 && currentByte <= 7) {
+				if (!squelchCodes) {
+					sb.append('[');
+					for (int j = 0; j < currentByte; j++) {
+						sb.append('.');
+					}
+					sb.append(']');
+				}
+			} else if (currentByte == 8) {
+				if (!squelchCodes) {
+					sb.append("[OpenFarLeft]");
+				}
+			} else if (currentByte == 9) {
+				if (!squelchCodes) {
+					sb.append("[OpenMidLeft]");
+				}
+			} else if (currentByte == 0xA) {
+				if (!squelchCodes) {
+					sb.append("[OpenLeft]");
+				}
+			} else if (currentByte == 0xB) {
+				if (!squelchCodes) {
+					sb.append("[OpenRight]");
+				}
+			} else if (currentByte == 0xC) {
+				if (!squelchCodes) {
+					sb.append("[OpenMidRight]");
+				}
+			} else if (currentByte == 0xD) {
+				if (!squelchCodes) {
+					sb.append("[OpenFarRight]");
+				}
+			} else if (currentByte == 0xE) {
+				if (!squelchCodes) {
+					sb.append("[OpenFarFarLeft]");
+				}
+			} else if (currentByte == 0xF) {
+				if (!squelchCodes) {
+					sb.append("[OpenFarFarRight]");
 				}
 			} else if (currentByte == 0x10) {
 				if (i + 2 < byteArray.length && byteArray[i + 2] == 0xFF) {
@@ -374,11 +546,15 @@ public class HuffmanHelper {
 						sb.append("[LoadFace][0x" + Integer.toHexString(byteArray[i + 1] & 0xFF) + "][0xFF]");
 					}
 					i += 2;
-				} else {
+				} else if (i + 2 < byteArray.length) {
 					if (!squelchCodes) {
-						sb.append("[LoadFace][0x" + Integer.toHexString(byteArray[i + 1] & 0xFF) + "][0xFF]");
+						sb.append("[LoadFace][0x" + Integer.toHexString(byteArray[i + 1] & 0xFF) + "][0x" + Integer.toHexString(byteArray[i + 2] & 0xFF) + "]");
 					}
 					i += 2;
+				}
+			} else if (currentByte == 0x11) {
+				if (!squelchCodes) {
+					sb.append("[ClearFace]");
 				}
 			} else if (currentByte == '[') {
 				if (!squelchCodes) {
@@ -386,7 +562,7 @@ public class HuffmanHelper {
 				}
 			} else if ((currentByte & 0xFF) == 0x80) {
 				if (!squelchCodes) {
-					sb.append("[0x80" + Integer.toHexString(byteArray[i + 1] & 0xFF) + "]");
+					sb.append("[0x80][0x" + Integer.toHexString(byteArray[i + 1] & 0xFF) + "]");
 				}
 				i += 1;
 			} else if ((currentByte & 0xFF) == 0x82) {
@@ -408,28 +584,138 @@ public class HuffmanHelper {
 		return sb.toString();
 	}
 	
+	private static class StringByteProvider {
+		int currentIndex;
+		List<Byte> byteArray = new ArrayList<Byte>();
+		
+		private static Integer encoderIndexFromCodeString(String controlCode) {
+			if (controlCode.equals("X")) { return 0; } 
+			else if (controlCode.equals("A")) { return 3; } 
+			else if (controlCode.equals("....")) { return 4; } 
+			else if (controlCode.equals(".....")) { return 5; } 
+			else if (controlCode.equals("......")) { return 6; } 
+			else if (controlCode.equals(".......")) { return 7; } 
+			else if (controlCode.equals("OpenFarLeft")) { return 8; }
+			else if (controlCode.equals("OpenMidLeft")) { return 9; }
+			else if (controlCode.equals("OpenLeft")) { return 0xA; }
+			else if (controlCode.equals("OpenRight")) { return 0xB; }
+			else if (controlCode.equals("OpenMidRight")) { return 0xC; }
+			else if (controlCode.equals("OpenFarRight")) { return 0xD; }
+			else if (controlCode.equals("OpenFarFarLeft")) { return 0xE; }
+			else if (controlCode.equals("OpenFarFarRight")) { return 0xF; }
+			else if (controlCode.equals("LoadFace")) { return 0x10; }
+			else if (controlCode.equals("ClearFace")) { return 0x11; }
+			else if (controlCode.startsWith("0x")) {
+				String hexString = controlCode.substring(2);
+				return Integer.parseUnsignedInt(hexString, 16);
+			}
+			
+			return null;
+		}
+		
+		private StringByteProvider(String string, boolean includesCodes) {
+			currentIndex = 0;
+			for (int i = 0; i < string.length(); i++) {
+				char character = string.charAt(i);
+				Integer encoderIndex = (int)character;
+				
+				if (character == '\n') {
+					encoderIndex = 1;
+					if (i + 1 < string.length() && string.charAt(i + 1) == '\n') {
+						encoderIndex = 2;
+						i += 1;
+					}
+				} else if (character == '\r') {
+					encoderIndex = 1;
+					if (i + 1 < string.length() && string.charAt(i + 1) == '\n') {
+						if (i + 3 < string.length() && string.charAt(i + 2) == '\r' && string.charAt(i + 3) == '\n') {
+							encoderIndex = 2;
+							i += 3;
+						} else {
+							encoderIndex = 1;
+							i += 1;
+						}
+					} else if (i + 1 < string.length() && string.charAt(i + 1) == '\r') {
+						encoderIndex = 2;
+						i += 1;
+					}
+				}
+				
+				if (includesCodes && character == '[') {
+					StringBuilder sb = new StringBuilder();
+					int j = i + 1;
+					for ( ; j < string.length(); j++) {
+						char nextChar = string.charAt(j);
+						if (nextChar == ']') { break; }
+						else {
+							sb.append(nextChar);
+						}
+					}
+					i = j;
+					String controlCode = sb.toString();
+					encoderIndex = encoderIndexFromCodeString(controlCode);
+					
+					if (encoderIndex == null) {
+						System.err.println("Unsupported control code: " + controlCode);
+						continue;
+					}
+				}
+				
+				byteArray.add((byte)(encoderIndex & 0xFF));
+			}
+		}
+		
+		private Byte getCurrent() {
+			if (currentIndex >= byteArray.size()) { return null; }
+			return byteArray.get(currentIndex);
+		}
+		
+		private Byte peekNext() {
+			if (currentIndex + 1 >= byteArray.size()) { return null; }
+			return byteArray.get(currentIndex + 1);
+		}
+		
+		private void advance() {
+			currentIndex += 1;
+		}
+		
+		private boolean hasData() {
+			return currentIndex < byteArray.size();
+		}
+	}
+	
 	public byte[] encodeString(String string) {
+		return encodeString(string, false);
+	}
+	
+	public byte[] encodeString(String string, boolean includesCodes) {
 		buildEncoder();
 		Bitstream result = new Bitstream();
 		
-		for (int i = 0; i < string.length(); i++) {
-			char character = string.charAt(i);
-			int encoderIndex = character - 0x20;
+		StringByteProvider provider = new StringByteProvider(string, includesCodes);
+		
+		while (provider.hasData()) {
+			Character encoderIndex = (char)(int)provider.getCurrent();
+			
 			if (encoderIndex < encoder.length) {
 				EncoderEntry entry = encoder[encoderIndex];
-				if (i + 1 < string.length()) {
-					char nextChar = string.charAt(i + 1);
-					EncoderEntry followup = entry.followups.get(nextChar);
-					if (followup != null) {
-						result.appendStream(followup.stream);
-						i += 1;
-					} else {
-						result.appendStream(entry.stream);
-					}
+				Character nextChar = provider.peekNext() != null ? (char)(int)provider.peekNext() : null;
+				
+				if (nextChar == null) {
+					result.appendStream(entry.stream);
+					break;
+				}
+				
+				EncoderEntry followup = entry.followups.get(nextChar);
+				if (followup != null) {
+					result.appendStream(followup.stream);
+					provider.advance();
 				} else {
 					result.appendStream(entry.stream);
 				}
 			}
+			
+			provider.advance();
 		}
 		
 		if (!result.hasSuffix(terminatorBitstream)) {
@@ -440,10 +726,87 @@ public class HuffmanHelper {
 	}
 	
 	public byte[] encodeNonHuffmanString(String string) {
+		return encodeNonHuffmanString(string, false);
+	}
+	
+	public byte[] encodeNonHuffmanString(String string, boolean includesCodes) {
 		List<Byte> byteList = new ArrayList<Byte>();
 		
 		for (int i = 0; i < string.length(); i++) {
 			char character = string.charAt(i);
+			
+			Integer encoderIndex = null;
+			
+			if (character == '\n') {
+				encoderIndex = 1;
+				if (i + 1 < string.length() && string.charAt(i + 1) == '\n') {
+					encoderIndex = 2;
+					i += 1;
+				}
+			} else if (character == '\r') {
+				encoderIndex = 1;
+				if (i + 1 < string.length() && string.charAt(i + 1) == '\n') {
+					if (i + 3 < string.length() && string.charAt(i + 2) == '\r' && string.charAt(i + 3) == '\n') {
+						encoderIndex = 2;
+						i += 3;
+					} else {
+						encoderIndex = 1;
+						i += 1;
+					}
+				} else if (i + 1 < string.length() && string.charAt(i + 1) == '\r') {
+					encoderIndex = 2;
+					i += 1;
+				}
+			}
+			
+			if (encoderIndex != null) {
+				byteList.add((byte)(encoderIndex & 0xFF));
+				continue;
+			}
+			
+			if (includesCodes && character == '[') {
+				
+				StringBuilder sb = new StringBuilder();
+				int j = i + 1;
+				for ( ; j < string.length(); j++) {
+					char nextChar = string.charAt(j);
+					if (nextChar == ']') { break; }
+					else {
+						sb.append(nextChar);
+					}
+				}
+				i = j;
+				String controlCode = sb.toString();
+				if (controlCode.equals("X")) { encoderIndex = 0; } 
+				else if (controlCode.equals("A")) { encoderIndex = 3; } 
+				else if (controlCode.equals("....")) { encoderIndex = 4; } 
+				else if (controlCode.equals(".....")) { encoderIndex = 5; } 
+				else if (controlCode.equals("......")) { encoderIndex = 6; } 
+				else if (controlCode.equals(".......")) { encoderIndex = 7; } 
+				else if (controlCode.equals("OpenFarLeft")) { encoderIndex = 8; }
+				else if (controlCode.equals("OpenMidLeft")) { encoderIndex = 9; }
+				else if (controlCode.equals("OpenLeft")) { encoderIndex = 0xA; }
+				else if (controlCode.equals("OpenRight")) { encoderIndex = 0xB; }
+				else if (controlCode.equals("OpenMidRight")) { encoderIndex = 0xC; }
+				else if (controlCode.equals("OpenFarRight")) { encoderIndex = 0xD; }
+				else if (controlCode.equals("OpenFarFarLeft")) { encoderIndex = 0xE; }
+				else if (controlCode.equals("OpenFarFarRight")) { encoderIndex = 0xF; }
+				else if (controlCode.equals("LoadFace")) { encoderIndex = 0x10; }
+				else if (controlCode.equals("ClearFace")) { encoderIndex = 0x11; }
+				else if (controlCode.startsWith("0x")) {
+					String hexString = controlCode.substring(2);
+					encoderIndex = Integer.parseUnsignedInt(hexString, 16);
+				} else {
+					System.err.println("Unsupported control code: " + controlCode);
+					continue;
+				}
+				
+				if (encoderIndex != null) {
+					byteList.add((byte)(encoderIndex & 0xFF));
+					continue;
+				}
+			}
+			
 			byteList.add((byte)0x82);
 			byteList.add(fe6ByteFromCharacter(character));
 		}
