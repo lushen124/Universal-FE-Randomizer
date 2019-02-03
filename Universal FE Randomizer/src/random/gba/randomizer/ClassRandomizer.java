@@ -18,6 +18,7 @@ import fedata.gba.GBAFEItemData;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase.GameType;
+import fedata.snes.fe4.FE4Data.Item.ItemType;
 import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
@@ -416,7 +417,7 @@ public class ClassRandomizer {
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Validating inventory for character 0x" + Integer.toHexString(character.getID()) + " (" + textData.getStringAtIndex(character.getNameIndex()) +") in class 0x" + Integer.toHexString(charClass.getID()) + " (" + textData.getStringAtIndex(charClass.getNameIndex()) + ")");
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Original Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex()) + ")") + "]");
 		
-		if (itemData.isWeapon(item1)) {
+		if (itemData.isWeapon(item1) || item1.getType() == WeaponType.STAFF) {
 			if (!canCharacterUseItem(character, item1, itemData) || (item1.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item1ID))) {
 				GBAFEItemData replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item1.getWeaponRank() == WeaponRank.S) {
@@ -438,7 +439,7 @@ public class ClassRandomizer {
 			}
 		}
 		
-		if (itemData.isWeapon(item2)) {
+		if (itemData.isWeapon(item2) || item2.getType() == WeaponType.STAFF) {
 			if (!canCharacterUseItem(character, item2, itemData) || (item2.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item2ID))) {
 				GBAFEItemData replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item2.getWeaponRank() == WeaponRank.S) {
@@ -460,7 +461,7 @@ public class ClassRandomizer {
 			}
 		}
 		
-		if (itemData.isWeapon(item3)) {
+		if (itemData.isWeapon(item3) || item3.getType() == WeaponType.STAFF) {
 			if (!canCharacterUseItem(character, item3, itemData) || (item3.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item3ID))) {
 				GBAFEItemData replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item3.getWeaponRank() == WeaponRank.S) {
@@ -482,7 +483,7 @@ public class ClassRandomizer {
 			}
 		}
 		
-		if (itemData.isWeapon(item4)) {
+		if (itemData.isWeapon(item4) || item4.getType() == WeaponType.STAFF) {
 			if (!canCharacterUseItem(character, item4, itemData) || (item4.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item4ID))) {
 				GBAFEItemData replacementItem = forceBasic ? itemData.getBasicWeaponForCharacter(character, ranged, false, rng) : itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 				if (item4.getWeaponRank() == WeaponRank.S) {
