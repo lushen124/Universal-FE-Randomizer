@@ -1,29 +1,27 @@
 package fedata.gba;
 
 import fedata.general.FEModifiableData;
-import fedata.general.FEOverrideableAddress;
 
-public interface GBAFECharacterData extends FEModifiableData, FEOverrideableAddress {
+public interface GBAFECharacterData extends FEModifiableData {
 	
 	public Boolean isClassRestricted();
 	
+	public GBAFECharacterData createCopy(boolean useOriginalData);
+	
 	// Info
-	
 	public int getNameIndex();
-	public int getDescriptionIndex();
+	public void setNameIndex(int nameIndex);
 	
-	// Used for Random Recruitment. Shouldn't be used for anything else.
-	public void setDescriptionIndex(int newIndex);
-	public int getOriginalDescriptionIndex();
+	public int getDescriptionIndex();
+	public void setDescriptionIndex(int descriptionIndex);
 	
 	public int getID();
 	
-	// Used for Random Recruitment. Shouldn't be used for anything else.
-	public void setID(int newID); 
-	public int getOriginalID();
-	
 	public int getClassID();
 	public void setClassID(int classID);
+	
+	public int getFaceID();
+	public void setFaceID(int faceID);
 	
 	// Growths
 	
@@ -104,6 +102,11 @@ public interface GBAFECharacterData extends FEModifiableData, FEOverrideableAddr
 	public int getAffinityValue();
 	public void setAffinityValue(int newAffinity);
 	public String getAffinityName();
+	
+	public int getUnpromotedPaletteIndex();
+	public void setUnpromotedPaletteIndex(int newIndex);
+	public int getPromotedPaletteIndex();
+	public void setPromotedPaletteIndex(int newIndex);
 	
 	public void prepareForClassRandomization();
 	

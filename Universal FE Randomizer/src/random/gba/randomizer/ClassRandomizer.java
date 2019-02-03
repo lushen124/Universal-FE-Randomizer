@@ -401,7 +401,7 @@ public class ClassRandomizer {
 		int item4ID = chapterUnit.getItem4();
 		GBAFEItemData item4 = itemData.itemWithID(item4ID);
 		
-		GBAFEItemData[] prfWeapons = itemData.prfWeaponsForClass(character.getClassID());
+		GBAFEItemData[] prfWeapons = itemData.prfWeaponsForClass(charClass.getID());
 		Set<Integer> prfIDs = new HashSet<Integer>();
 		for (GBAFEItemData prfWeapon : prfWeapons) {
 			prfIDs.add(prfWeapon.getID());

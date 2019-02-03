@@ -487,7 +487,7 @@ public class HuffmanHelper {
 					sb.append("[X]");
 				}
 				break;
-			} else if (currentByte == 1) {
+			}/* else if (currentByte == 1) {
 				if (!squelchCodes) {
 					sb.append(System.lineSeparator());
 				}
@@ -496,7 +496,7 @@ public class HuffmanHelper {
 					sb.append(System.lineSeparator());
 					sb.append(System.lineSeparator());
 				}
-			} else if (currentByte == 3) {
+			}*/ else if (currentByte == 3) {
 				if (!squelchCodes) {
 					sb.append("[A]");
 				}
@@ -568,7 +568,12 @@ public class HuffmanHelper {
 			} else if ((currentByte & 0xFF) == 0x82) {
 				// FE6 stuff.
 				byte dataByte = byteArray[i + 1];
-				sb.append(fe6CharacterFromByte(dataByte));
+				sb.append(fe6CharacterFrom82Byte(dataByte));
+				i++;
+			} else if ((currentByte & 0xFF) == 0x83) {
+				// FE6 Stuff.
+				byte dataByte = byteArray[i + 1];
+				sb.append(fe6CharacterFrom83Byte(dataByte));
 				i++;
 			} else {
 				if (currentByte < 0x20) {
@@ -619,7 +624,7 @@ public class HuffmanHelper {
 				char character = string.charAt(i);
 				Integer encoderIndex = (int)character;
 				
-				if (character == '\n') {
+				/*if (character == '\n') {
 					encoderIndex = 1;
 					if (i + 1 < string.length() && string.charAt(i + 1) == '\n') {
 						encoderIndex = 2;
@@ -639,7 +644,7 @@ public class HuffmanHelper {
 						encoderIndex = 2;
 						i += 1;
 					}
-				}
+				}*/
 				
 				if (includesCodes && character == '[') {
 					StringBuilder sb = new StringBuilder();
@@ -695,11 +700,11 @@ public class HuffmanHelper {
 		StringByteProvider provider = new StringByteProvider(string, includesCodes);
 		
 		while (provider.hasData()) {
-			Character encoderIndex = (char)(int)provider.getCurrent();
+			Character encoderIndex = (char)((int)provider.getCurrent() & 0xFF);
 			
 			if (encoderIndex < encoder.length) {
 				EncoderEntry entry = encoder[encoderIndex];
-				Character nextChar = provider.peekNext() != null ? (char)(int)provider.peekNext() : null;
+				Character nextChar = provider.peekNext() != null ? (char)((int)provider.peekNext() & 0xFF) : null;
 				
 				if (nextChar == null) {
 					result.appendStream(entry.stream);
@@ -711,7 +716,23 @@ public class HuffmanHelper {
 					result.appendStream(followup.stream);
 					provider.advance();
 				} else {
-					result.appendStream(entry.stream);
+					// ?[A] is apparently not a valid combo in the huffman table... (for FE7)
+					// Maybe we can use a space instead in this case.
+					// Applies to ,[.....] too. These all have an extra space as an option.
+					// Geitz has issues with posessive form (i.e. Geitz's) since z' isn't a valid combination.
+					// Letters with colons after them might also cause issues. (i.e. Nino:)
+					if (entry.stream == null) {
+						// Try the short pause.
+						if (entry.followups.get((char)(0x1f)) != null) {
+							result.appendStream(entry.followups.get((char)(0x1f)).stream);
+						}
+						// Try a space.
+						else if (entry.followups.get(' ') != null) {
+							result.appendStream(entry.followups.get(' ').stream);
+						}
+					} else {
+						result.appendStream(entry.stream);
+					}
 				}
 			}
 			
@@ -737,7 +758,7 @@ public class HuffmanHelper {
 			
 			Integer encoderIndex = null;
 			
-			if (character == '\n') {
+			/*if (character == '\n') {
 				encoderIndex = 1;
 				if (i + 1 < string.length() && string.charAt(i + 1) == '\n') {
 					encoderIndex = 2;
@@ -762,7 +783,7 @@ public class HuffmanHelper {
 			if (encoderIndex != null) {
 				byteList.add((byte)(encoderIndex & 0xFF));
 				continue;
-			}
+			}*/
 			
 			if (includesCodes && character == '[') {
 				
@@ -807,8 +828,13 @@ public class HuffmanHelper {
 				}
 			}
 			
-			byteList.add((byte)0x82);
-			byteList.add(fe6ByteFromCharacter(character));
+			byte prefix = fe6PrefixByteForCharacter(character);
+			byteList.add(prefix);
+			if (prefix == (byte)0x82) {
+				byteList.add(fe6ByteFrom82Character(character));
+			} else {
+				byteList.add(fe6ByteFrom83Character(character));
+			}
 		}
 		
 		// Terminate the string.
@@ -817,7 +843,28 @@ public class HuffmanHelper {
 		return WhyDoesJavaNotHaveThese.byteArrayFromByteList(byteList);
 	}
 	
-	private char fe6CharacterFromByte(byte charByte) {
+	private char fe6CharacterFrom83Byte(byte charByte) {
+		switch (charByte) {
+		case (byte)0x41: return ';';
+		case (byte)0x43: return '<';
+		case (byte)0x45: return '=';
+		case (byte)0x47: return '>';
+		case (byte)0x49: return '?';
+		case (byte)0x4A: return '@';
+		//case (byte)0x4C: return '[';
+		//case (byte)0x50: return ']';
+		case (byte)0x52: return '^';
+		case (byte)0x54: return '_';
+		case (byte)0x56: return '`';
+		case (byte)0x58: return '{';
+		case (byte)0x5A: return '|';
+		case (byte)0x5C: return '}';
+		case (byte)0x5E: return '~';
+		default: return '_';
+		}
+	}
+	
+	private char fe6CharacterFrom82Byte(byte charByte) {
 		switch (charByte) {
 		case (byte)0x9F: return '2';
 		case (byte)0xA0: return 'A';
@@ -906,7 +953,53 @@ public class HuffmanHelper {
 		}
 	}
 	
-	private byte fe6ByteFromCharacter(char character) {
+	private byte fe6PrefixByteForCharacter(char character) {
+		switch (character) {
+		case ';':
+		case '<':
+		case '=':
+		case '>':
+		case '?':
+		case '@':
+		//case '[':
+		//case ']':
+		case '^':
+		case '_':
+		case '`':
+		case '{':
+		case '|':
+		case '}':
+		case '~':
+			return (byte)0x83;
+		default:
+			return (byte)0x82;
+		}
+	}
+	
+	private byte fe6ByteFrom83Character(char character) {
+		switch (character) {
+		case ';': return (byte)0x41;
+		case '<': return (byte)0x43;
+		case '=': return (byte)0x45;
+		case '>': return (byte)0x47;
+		case '?': return (byte)0x49;
+		case '@': return (byte)0x4A;
+		case '[': return (byte)0x4C;
+		case ']': return (byte)0x50;
+		case '^': return (byte)0x52;
+		case '_': return (byte)0x54;
+		case '`': return (byte)0x56;
+		case '{': return (byte)0x58;
+		case '|': return (byte)0x5A;
+		case '}': return (byte)0x5C;
+		case '~': return (byte)0x5E;
+		default:
+			System.err.println("Unencodable character detected.");
+			return (byte)0x54; // '_'
+		}
+	}
+	
+	private byte fe6ByteFrom82Character(char character) {
 		switch (character) {
 		case 'A': return (byte)0xA0;
 		case 'B': return (byte)0xA2;
@@ -993,7 +1086,7 @@ public class HuffmanHelper {
 		
 		default:
 			System.err.println("Unencodable character detected.");
-			return (byte)0xC0;
+			return (byte)0xC0; // '$'
 		}
 	}
 }

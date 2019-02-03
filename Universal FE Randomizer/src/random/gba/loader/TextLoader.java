@@ -95,6 +95,10 @@ public class TextLoader {
 		huffman.printCache();
 	}
 	
+	public int getStringCount() {
+		return allStrings.length;
+	}
+	
 	public String getStringAtIndex(int index) {
 		return getStringAtIndex(index, true);
 	}
@@ -109,6 +113,7 @@ public class TextLoader {
 		String replacement = replacements.get(index);
 		if (stripCodes) {
 			if (replacement != null) { return replacement; }
+			else { replacement = replacementsWithCodes.get(index); }
 		} else {
 			replacement = replacementsWithCodes.get(index);
 			if (replacement != null) { return replacement; }
@@ -163,6 +168,8 @@ public class TextLoader {
 			long pointer = textArrayOffset + 4 * index;
 			byte[] addressBytes = WhyDoesJavaNotHaveThese.bytesFromAddress(offset);
 			compiler.addDiff(new Diff(pointer, 4, addressBytes, null));
+			
+			allStrings[index] = replacementWithCodes; // We can replace these now, since they both have codes on them.
 		}
 	}
 }

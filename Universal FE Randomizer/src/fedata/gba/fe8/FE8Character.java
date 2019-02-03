@@ -1,5 +1,6 @@
 package fedata.gba.fe8;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +37,6 @@ public class FE8Character implements GBAFECharacterData {
 	private byte[] data;
 	
 	private long originalOffset;
-	private long overrideOffset;
 	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
@@ -51,12 +51,25 @@ public class FE8Character implements GBAFECharacterData {
 		this.isClassRestricted = isClassRestricted;
 	}
 	
+	public GBAFECharacterData createCopy(boolean useOriginalData) {
+		if (useOriginalData) {
+			return new FE8Character(Arrays.copyOf(this.originalData, this.originalData.length), this.originalOffset, this.isClassRestricted);
+		}
+		
+		return new FE8Character(Arrays.copyOf(this.data, this.data.length), this.originalOffset, this.isClassRestricted);
+	}
+	
 	public Boolean isClassRestricted() {
 		return isClassRestricted;
 	}
 	
 	public int getNameIndex() {
 		return (data[0] & 0xFF) | ((data[1] & 0xFF) << 8);
+	}
+	
+	public void setNameIndex(int newIndex) {
+		data[0] = (byte)(newIndex & 0xFF);
+		data[1] = (byte)((newIndex >> 8) & 0xFF);
 	}
 	
 	public int getDescriptionIndex() {
@@ -92,6 +105,15 @@ public class FE8Character implements GBAFECharacterData {
 	
 	public void setClassID(int classID) {
 		data[5] = (byte)(classID & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getFaceID() {
+		return data[6] & 0xFF;
+	}
+	
+	public void setFaceID(int faceID) {
+		data[6] = (byte)(faceID & 0xFF);
 		wasModified = true;
 	}
 	
@@ -353,6 +375,12 @@ public class FE8Character implements GBAFECharacterData {
 		wasModified = true;
 	}
 	
+	// FE8 uses a separate table away from the character data.
+	public int getUnpromotedPaletteIndex() { return 0; }
+	public void setUnpromotedPaletteIndex(int newIndex) {}
+	public int getPromotedPaletteIndex() { return 0; }
+	public void setPromotedPaletteIndex(int newIndex) {}
+	
 	public String getAffinityName() {
 		return Affinity.affinityWithID(getAffinityValue()).toString();
 	}
@@ -390,18 +418,6 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public long getAddressOffset() {
-		return overrideOffset != 0 ? overrideOffset : originalOffset;
-	}
-	
-	public void setAddressOverride(long newAddress) {
-		overrideOffset = newAddress;
-	}
-	
-	public long getOverrideAddress() {
-		return overrideOffset;
-	}
-	
-	public long getOriginalAddress() {
 		return originalOffset;
 	}
 	

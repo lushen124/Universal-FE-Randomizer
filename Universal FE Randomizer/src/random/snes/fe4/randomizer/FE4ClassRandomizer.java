@@ -995,7 +995,7 @@ public class FE4ClassRandomizer {
 				if (item2 != null && item2.isSiegeTome()) { mustUseItem = item2; }
 			}
 			
-			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
+			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, enemy.isFemale(), false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
 			
 			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
 			if (fe4Char.minionChapter() % 6 < 2) {

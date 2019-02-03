@@ -255,7 +255,7 @@ public class GBARandomizer extends Randomizer {
 		itemData = new ItemDataLoader(FE7Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.50);
-		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
+		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler, charData, classData);
 		
 		handler.clearAppliedDiffs();
 	}
@@ -287,7 +287,7 @@ public class GBARandomizer extends Randomizer {
 		itemData = new ItemDataLoader(FE6Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.50);
-		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler);
+		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler, charData, classData);
 		
 		handler.clearAppliedDiffs();
 	}
@@ -321,7 +321,7 @@ public class GBARandomizer extends Randomizer {
 		itemData = new ItemDataLoader(FE8Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.40);
-		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler);
+		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler, charData, classData);
 		
 		updateStatusString("Loading Summoner Module...");
 		updateProgress(0.45);
@@ -466,6 +466,12 @@ public class GBARandomizer extends Randomizer {
 				updateStatusString("Randomizing rewards...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt));
 				RandomRandomizer.randomizeRewards(itemData, chapterData, rng);
+			}
+			
+			if (miscOptions.randomizeRecruitment) {
+				updateStatusString("Randomizing recruitment...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RecruitmentRandomizer.rngSalt));
+				RecruitmentRandomizer.randomizeRecruitment(gameType, charData, classData, itemData, chapterData, paletteData, textData, freeSpace, rng);
 			}
 		}
 	}

@@ -70,6 +70,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public static final long PromotionItemTablePointer = 0x237AC; // Hero's Crest (0), Knights Crest (1), Orion Bolt (2), Elysian Whip (3), Guiding Ring (8)
 	
+	public static final long PaletteTableOffset = 0x7FC004L;
+	public static final int PaletteEntryCount = 130;
+	public static final int PaletteEntrySize = 16;
+	
 	private static final FE6Data sharedInstance = new FE6Data();
 	
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
@@ -1180,149 +1184,165 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public enum Palette {
 		
-		LORD_ROY(Character.ROY.ID, CharacterClass.LORD.ID, 0x7FC800),
+		LORD_ROY(0x01, Character.ROY.ID, CharacterClass.LORD.ID, 0x7FC800),
 		
-		ARCHER_WOLT(Character.WOLT.ID, CharacterClass.ARCHER.ID, 0x7FC858),
-		ARCHER_DOROTHY(Character.DOROTHY.ID, CharacterClass.ARCHER_F.ID, 0x7FC8B8),
+		ARCHER_WOLT(0x02, Character.WOLT.ID, CharacterClass.ARCHER.ID, 0x7FC858),
+		ARCHER_DOROTHY(0x03, Character.DOROTHY.ID, CharacterClass.ARCHER_F.ID, 0x7FC8B8),
 		
-		BERSERKER_GEESE(Character.GEESE.ID, CharacterClass.BERSERKER.ID, 0x7FC91C),
-		BERSERKER_GONZALES(Character.GONZALES.ID, CharacterClass.BERSERKER.ID, 0x7FC974),
-		BERSERKER_GARET(Character.GARET.ID, CharacterClass.BERSERKER.ID, 0x7FCD74),
+		BERSERKER_GEESE(0x04, Character.GEESE.ID, CharacterClass.BERSERKER.ID, 0x7FC91C),
+		BERSERKER_GONZALES(0x05, Character.GONZALES.ID, CharacterClass.BERSERKER.ID, 0x7FC974),
+		BERSERKER_GARET(0x0F, Character.GARET.ID, CharacterClass.BERSERKER.ID, 0x7FCD74),
+		// Scott has no palettes :(
+		// Rose has no palettes :(
+		// Maggie has no palettes :(
 		
-		KNIGHT_BORS(Character.BORS.ID, CharacterClass.KNIGHT.ID, 0x7FC9CC),
-		KNIGHT_BARTH(Character.BARTH.ID, CharacterClass.KNIGHT.ID, 0x7FCA4C),
-		KNIGHT_WENDY(Character.WENDY.ID, CharacterClass.KNIGHT_F.ID, 0x7FCAC0),
-		KNIGHT_DEVIAS(Character.DEVIAS.ID, CharacterClass.KNIGHT.ID, 0x7FEA24),
-		KNIGHT_RUDE(Character.RUDE.ID, CharacterClass.KNIGHT.ID, 0x7FEA7C),
-		KNIGHT_SLATER(Character.SLATER.ID, CharacterClass.KNIGHT.ID, 0x7FEAD8),
+		KNIGHT_BORS(0x06, Character.BORS.ID, CharacterClass.KNIGHT.ID, 0x7FC9CC),
+		KNIGHT_BARTH(0x07, Character.BARTH.ID, CharacterClass.KNIGHT.ID, 0x7FCA4C),
+		KNIGHT_WENDY(0x08, Character.WENDY.ID, CharacterClass.KNIGHT_F.ID, 0x7FCAC0),
+		KNIGHT_DEVIAS(0x56, Character.DEVIAS.ID, CharacterClass.KNIGHT.ID, 0x7FEA24),
+		KNIGHT_RUDE(0x57, Character.RUDE.ID, CharacterClass.KNIGHT.ID, 0x7FEA7C),
+		KNIGHT_SLATER(0x58, Character.SLATER.ID, CharacterClass.KNIGHT.ID, 0x7FEAD8),
 		
-		BRIGAND_GONZALES(Character.GONZALES.ID, CharacterClass.BRIGAND.ID, 0x7FCB38),
-		BRIGAND_DORY(Character.DORY.ID, CharacterClass.BRIGAND.ID, 0x7FEB80),
-		BRIGAND_DAMAS(Character.DAMAS.ID, CharacterClass.BRIGAND.ID, 0x7FEB30), // FE6 is so busted. The classes in the class table are straight up wrong for some characters.
+		BRIGAND_GONZALES(0x09, Character.GONZALES.ID, CharacterClass.BRIGAND.ID, 0x7FCB38),
+		BRIGAND_DORY(0x5A, Character.DORY.ID, CharacterClass.BRIGAND.ID, 0x7FEB80),
+		BRIGAND_DAMAS(0x59, Character.DAMAS.ID, CharacterClass.BRIGAND.ID, 0x7FEB30), // FE6 is so busted. The classes in the class table are straight up wrong for some characters.
 		
-		BISHOP_ELEN(Character.ELEN.ID, CharacterClass.BISHOP_F.ID, 0x7FCB90),
-		BISHOP_YODEL(Character.YODEL.ID, CharacterClass.BISHOP.ID, 0x7FCBF8),
-		BISHOP_SAUL(Character.SAUL.ID, CharacterClass.BISHOP.ID, 0x7FCC5C),
+		BISHOP_ELEN(0x0A, Character.ELEN.ID, CharacterClass.BISHOP_F.ID, 0x7FCB90),
+		BISHOP_YODEL(0x0B, Character.YODEL.ID, CharacterClass.BISHOP.ID, 0x7FCBF8),
+		BISHOP_SAUL(0x0C, Character.SAUL.ID, CharacterClass.BISHOP.ID, 0x7FCC5C),
+		// Oro has no palettes :(
+		// Martel has no palettes :(
 		
-		HERO_ECHIDNA(Character.ECHIDNA.ID, CharacterClass.HERO_F.ID, 0x7FCCC0),
-		HERO_DIECK(Character.DIECK.ID, CharacterClass.HERO.ID, 0x7FCD18),
-		HERO_OUJAY(Character.OUJAY.ID, CharacterClass.HERO.ID, 0x7FCDCC),
+		HERO_ECHIDNA(0x0D, Character.ECHIDNA.ID, CharacterClass.HERO_F.ID, 0x7FCCC0),
+		HERO_DIECK(0x0E, Character.DIECK.ID, CharacterClass.HERO.ID, 0x7FCD18),
+		HERO_OUJAY(0x10, Character.OUJAY.ID, CharacterClass.HERO.ID, 0x7FCDCC),
+		// Randy has no palettes :(
 		
-		BARD_ELFIN(Character.ELFIN.ID, CharacterClass.BARD.ID, 0x7FCE28),
-		DANCER_LALAM(Character.LALAM.ID, CharacterClass.DANCER.ID, 0x7FCE88),
+		BARD_ELFIN(0x11, Character.ELFIN.ID, CharacterClass.BARD.ID, 0x7FCE28),
+		DANCER_LALAM(0x12, Character.LALAM.ID, CharacterClass.DANCER.ID, 0x7FCE88),
 		
-		WYVERN_RIDER_MILEDY(Character.MILEDY.ID, CharacterClass.WYVERN_RIDER_F.ID, 0x7FCEE0),
-		WYVERN_RIDER_ZEISS(Character.ZEISS.ID, CharacterClass.WYVERN_RIDER.ID, 0x77144C),
+		WYVERN_RIDER_MILEDY(0x13, Character.MILEDY.ID, CharacterClass.WYVERN_RIDER_F.ID, 0x7FCEE0),
+		WYVERN_RIDER_ZEISS(0x0, Character.ZEISS.ID, CharacterClass.WYVERN_RIDER.ID, 0x77144C), // This one is using the sprite colors.
 		
-		DRUID_REI(Character.REI.ID, CharacterClass.DRUID.ID, 0x7FCF60),
-		DRUID_NIIME(Character.NIIME.ID, CharacterClass.DRUID_F.ID, 0x7FCFBC),
-		DRUID_SOPHIA(Character.SOPHIA.ID, CharacterClass.DRUID_F.ID, 0x7FEDB0),
+		DRUID_REI(0x14, Character.REI.ID, CharacterClass.DRUID.ID, 0x7FCF60),
+		DRUID_NIIME(0x15, Character.NIIME.ID, CharacterClass.DRUID_F.ID, 0x7FCFBC),
+		DRUID_SOPHIA(0x5F, Character.SOPHIA.ID, CharacterClass.DRUID_F.ID, 0x7FEDB0),
+		// Nord has no palettes. :(
 		
-		FALCON_KNIGHT_YUNNO(Character.YUNNO.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD01C),
-		FALCON_KNIGHT_THANY(Character.THANY.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD07C),
-		FALCON_KNIGHT_THITO(Character.THITO.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD0DC),
+		FALCON_KNIGHT_YUNNO(0x16, Character.YUNNO.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD01C),
+		FALCON_KNIGHT_THANY(0x17, Character.THANY.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD07C),
+		FALCON_KNIGHT_THITO(0x18, Character.THITO.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD0DC),
+		// Sigune has no palettes :(
 		
-		FIGHTER_BARTRE(Character.BARTRE.ID, CharacterClass.FIGHTER.ID, 0x7FD13C), // Not used.
-		FIGHTER_LOT(Character.LOT.ID, CharacterClass.FIGHTER.ID, 0x7FD194),
-		FIGHTER_WARD(Character.WARD.ID, CharacterClass.FIGHTER.ID, 0x7FD1EC),
-		FIGHTER_DAMAS(Character.DAMAS.ID, CharacterClass.FIGHTER.ID, 0x7FEB30),
+		FIGHTER_BARTRE(0x19, Character.BARTRE.ID, CharacterClass.FIGHTER.ID, 0x7FD13C), // Not used.
+		FIGHTER_LOT(0x1A, Character.LOT.ID, CharacterClass.FIGHTER.ID, 0x7FD194),
+		FIGHTER_WARD(0x1B, Character.WARD.ID, CharacterClass.FIGHTER.ID, 0x7FD1EC),
+		FIGHTER_DAMAS(0x59, Character.DAMAS.ID, CharacterClass.FIGHTER.ID, 0x7FEB30),
 		
-		MAGE_LILINA(Character.LILINA.ID, CharacterClass.MAGE_F.ID, 0x7FD244),
-		MAGE_HUGH(Character.HUGH.ID, CharacterClass.MAGE.ID, 0x7FD2A0),
-		MAGE_LUGH(Character.LUGH.ID, CharacterClass.MAGE.ID, 0x7FD304),
+		MAGE_LILINA(0x1C, Character.LILINA.ID, CharacterClass.MAGE_F.ID, 0x7FD244),
+		MAGE_HUGH(0x1D, Character.HUGH.ID, CharacterClass.MAGE.ID, 0x7FD2A0),
+		MAGE_LUGH(0x1E, Character.LUGH.ID, CharacterClass.MAGE.ID, 0x7FD304),
 		
-		MERCENARY_DIECK(Character.DIECK.ID, CharacterClass.MERCENARY.ID, 0x7FD36C),
-		MERCENARY_OUJAY(Character.OUJAY.ID, CharacterClass.MERCENARY.ID, 0x7FD3C0),
+		MERCENARY_DIECK(0x1F, Character.DIECK.ID, CharacterClass.MERCENARY.ID, 0x7FD36C),
+		MERCENARY_OUJAY(0x20, Character.OUJAY.ID, CharacterClass.MERCENARY.ID, 0x7FD3C0),
 		
-		MYRMIDON_FIR(Character.FIR.ID, CharacterClass.MYRMIDON_F.ID, 0x7FD41C),
-		MYRMIDON_RUTGER(Character.RUTGER.ID, CharacterClass.MYRMIDON.ID, 0x7FD47C),
+		MYRMIDON_FIR(0x21, Character.FIR.ID, CharacterClass.MYRMIDON_F.ID, 0x7FD41C),
+		MYRMIDON_RUTGER(0x22, Character.RUTGER.ID, CharacterClass.MYRMIDON.ID, 0x7FD47C),
 		
-		NOMAD_SUE(Character.SUE.ID, CharacterClass.NOMAD_F.ID, 0x7FD4DC),
-		NOMAD_SHIN(Character.SHIN.ID, CharacterClass.NOMAD.ID, 0x7FD540),
+		NOMAD_SUE(0x23, Character.SUE.ID, CharacterClass.NOMAD_F.ID, 0x7FD4DC),
+		NOMAD_SHIN(0x24, Character.SHIN.ID, CharacterClass.NOMAD.ID, 0x7FD540),
 		
-		NOMAD_TROOPER_SUE(Character.SUE.ID, CharacterClass.NOMAD_TROOPER_F.ID, 0x7FD5B0),
-		NOMAD_TROOPER_SHIN(Character.SHIN.ID, CharacterClass.NOMAD_TROOPER.ID, 0x7FD634),
-		NOMAD_TROOPER_DAYAN(Character.DAYAN.ID, CharacterClass.NOMAD_TROOPER.ID, 0x7FD6B8),
+		NOMAD_TROOPER_SUE(0x25, Character.SUE.ID, CharacterClass.NOMAD_TROOPER_F.ID, 0x7FD5B0),
+		NOMAD_TROOPER_SHIN(0x26, Character.SHIN.ID, CharacterClass.NOMAD_TROOPER.ID, 0x7FD634),
+		NOMAD_TROOPER_DAYAN(0x27, Character.DAYAN.ID, CharacterClass.NOMAD_TROOPER.ID, 0x7FD6B8),
 		
-		PALADIN_ALAN(Character.ALAN.ID, CharacterClass.PALADIN.ID, 0x7FD740),
-		PALADIN_LANCE(Character.LANCE.ID, CharacterClass.PALADIN.ID, 0x7FD828),
-		PALADIN_MARCUS(Character.MARCUS.ID, CharacterClass.PALADIN.ID, 0x7FD8B4),
-		PALADIN_NOAH(Character.NOAH.ID, CharacterClass.PALADIN.ID, 0x7FD940),
-		PALADIN_PERCIVAL(Character.PERCIVAL.ID, CharacterClass.PALADIN.ID, 0x7FD9D4),
-		PALADIN_TRECK(Character.TRECK.ID, CharacterClass.PALADIN.ID, 0x7FDA50),
-		PALADIN_ZEALOT(Character.ZEALOT.ID, CharacterClass.PALADIN.ID, 0x7FDAC8),
+		PALADIN_ALAN(0x28, Character.ALAN.ID, CharacterClass.PALADIN.ID, 0x7FD740),
+		PALADIN_LANCE(0x2A, Character.LANCE.ID, CharacterClass.PALADIN.ID, 0x7FD828),
+		PALADIN_MARCUS(0x2B, Character.MARCUS.ID, CharacterClass.PALADIN.ID, 0x7FD8B4),
+		PALADIN_NOAH(0x2C, Character.NOAH.ID, CharacterClass.PALADIN.ID, 0x7FD940),
+		PALADIN_PERCIVAL(0x2D, Character.PERCIVAL.ID, CharacterClass.PALADIN.ID, 0x7FD9D4),
+		PALADIN_TRECK(0x2E, Character.TRECK.ID, CharacterClass.PALADIN.ID, 0x7FDA50),
+		PALADIN_ZEALOT(0x2F, Character.ZEALOT.ID, CharacterClass.PALADIN.ID, 0x7FDAC8),
+		// Robarts has no palettes :(
+		// Arcard has no palettes :(
 		
-		PEGASUS_KNIGHT_YUNNO(Character.YUNNO.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDB48), // Not used.
-		PEGASUS_KNIGHT_THANY(Character.THANY.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDBA8),
-		PEGASUS_KNIGHT_THITO(Character.THITO.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDC08),
+		PEGASUS_KNIGHT_YUNNO(0x30, Character.YUNNO.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDB48), // Not used.
+		PEGASUS_KNIGHT_THANY(0x31, Character.THANY.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDBA8),
+		PEGASUS_KNIGHT_THITO(0x32, Character.THITO.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDC08),
 		
-		PIRATE_GEESE(Character.GEESE.ID, CharacterClass.PIRATE.ID, 0x7FDC68),
+		PIRATE_GEESE(0x33, Character.GEESE.ID, CharacterClass.PIRATE.ID, 0x7FDC68),
 		
-		CLERIC_ELEN(Character.ELEN.ID, CharacterClass.CLERIC.ID, 0x7FDCD8),
-		PRIEST_SAUL(Character.SAUL.ID, CharacterClass.PRIEST.ID, 0x7FDD34),
+		CLERIC_ELEN(0x34, Character.ELEN.ID, CharacterClass.CLERIC.ID, 0x7FDCD8),
+		PRIEST_SAUL(0x35, Character.SAUL.ID, CharacterClass.PRIEST.ID, 0x7FDD34),
 		
-		CAVALIER_ALAN(Character.ALAN.ID, CharacterClass.CAVALIER.ID, 0x7FDD88),
-		CAVALIER_LANCE(Character.LANCE.ID, CharacterClass.CAVALIER.ID, 0x7FDE00),
-		CAVALIER_NOAH(Character.NOAH.ID, CharacterClass.CAVALIER.ID, 0x7FDE78),
-		CAVALIER_TRECK(Character.TRECK.ID, CharacterClass.CAVALIER.ID, 0x7FDF40),
-		CAVALIER_ERIK(Character.ERIK.ID, CharacterClass.CAVALIER.ID, 0x7FDEF0),
+		CAVALIER_ALAN(0x36, Character.ALAN.ID, CharacterClass.CAVALIER.ID, 0x7FDD88),
+		CAVALIER_LANCE(0x37, Character.LANCE.ID, CharacterClass.CAVALIER.ID, 0x7FDE00),
+		CAVALIER_NOAH(0x38, Character.NOAH.ID, CharacterClass.CAVALIER.ID, 0x7FDE78),
+		CAVALIER_TRECK(0x3A, Character.TRECK.ID, CharacterClass.CAVALIER.ID, 0x7FDF40),
+		CAVALIER_ERIK(0x39, Character.ERIK.ID, CharacterClass.CAVALIER.ID, 0x7FDEF0),
 		
-		SAGE_LILINA(Character.LILINA.ID, CharacterClass.SAGE_F.ID, 0x7FDFB8),
-		SAGE_HUGH(Character.HUGH.ID, CharacterClass.SAGE.ID, 0x7FE014),
-		SAGE_LUGH(Character.LUGH.ID, CharacterClass.SAGE.ID, 0x7FEFF0),
-		SAGE_BRUNYA(Character.BRUNYA.ID, CharacterClass.SAGE_F.ID, 0x7FE5D0),
+		SAGE_LILINA(0x3B, Character.LILINA.ID, CharacterClass.SAGE_F.ID, 0x7FDFB8),
+		SAGE_HUGH(0x3C, Character.HUGH.ID, CharacterClass.SAGE.ID, 0x7FE014),
+		SAGE_LUGH(0x65, Character.LUGH.ID, CharacterClass.SAGE.ID, 0x7FEFF0),
+		SAGE_BRUNYA(0x4B, Character.BRUNYA.ID, CharacterClass.SAGE_F.ID, 0x7FE5D0),
 		
-		SNIPER_DOROTHY(Character.DOROTHY.ID, CharacterClass.SNIPER_F.ID, 0x7FE074),
-		SNIPER_IGRENE(Character.IGRENE.ID, CharacterClass.SNIPER_F.ID, 0x7FE0DC),
-		SNIPER_KLEIN(Character.KLEIN.ID, CharacterClass.SNIPER.ID, 0x7FE140),
-		SNIPER_WOLT(Character.WOLT.ID, CharacterClass.SNIPER.ID, 0x7FE1A0),
+		SNIPER_DOROTHY(0x3D, Character.DOROTHY.ID, CharacterClass.SNIPER_F.ID, 0x7FE074),
+		SNIPER_IGRENE(0x3E, Character.IGRENE.ID, CharacterClass.SNIPER_F.ID, 0x7FE0DC),
+		SNIPER_KLEIN(0x3F, Character.KLEIN.ID, CharacterClass.SNIPER.ID, 0x7FE140),
+		SNIPER_WOLT(0x40, Character.WOLT.ID, CharacterClass.SNIPER.ID, 0x7FE1A0),
 		
-		SHAMAN_SOPHIA(Character.SOPHIA.ID, CharacterClass.SHAMAN_F.ID, 0x7FE200),
-		SHAMAN_REI(Character.REI.ID, CharacterClass.SHAMAN.ID, 0x7FE254),
+		SHAMAN_SOPHIA(0x41, Character.SOPHIA.ID, CharacterClass.SHAMAN_F.ID, 0x7FE200),
+		SHAMAN_REI(0x42, Character.REI.ID, CharacterClass.SHAMAN.ID, 0x7FE254),
+		// Wagner has no palettes. :(
 		
-		SWORDMASTER_FIR(Character.FIR.ID, CharacterClass.SWORDMASTER_F.ID, 0x7FE2B0),
-		SWORDMASTER_KAREL(Character.KAREL.ID, CharacterClass.SWORDMASTER.ID, 0x7FE310),
-		SWORDMASTER_RUTGER(Character.RUTGER.ID, CharacterClass.SWORDMASTER.ID, 0x7FE370),
+		SWORDMASTER_FIR(0x43, Character.FIR.ID, CharacterClass.SWORDMASTER_F.ID, 0x7FE2B0),
+		SWORDMASTER_KAREL(0x44, Character.KAREL.ID, CharacterClass.SWORDMASTER.ID, 0x7FE310),
+		SWORDMASTER_RUTGER(0x45, Character.RUTGER.ID, CharacterClass.SWORDMASTER.ID, 0x7FE370),
 		
-		THIEF_ASTOL(Character.ASTOL.ID, CharacterClass.THIEF.ID, 0x7FD7CC),
-		THIEF_CASS(Character.CASS.ID, CharacterClass.THIEF_F.ID, 0x7FE3D4),
-		THIEF_CHAD(Character.CHAD.ID, CharacterClass.THIEF.ID, 0x7FE42C),
+		THIEF_ASTOL(0x29, Character.ASTOL.ID, CharacterClass.THIEF.ID, 0x7FD7CC),
+		THIEF_CASS(0x46, Character.CASS.ID, CharacterClass.THIEF_F.ID, 0x7FE3D4),
+		THIEF_CHAD(0x47, Character.CHAD.ID, CharacterClass.THIEF.ID, 0x7FE42C),
 		
-		TROUBADOUR_CLARINE(Character.CLARINE.ID, CharacterClass.TROUBADOUR.ID, 0x7FE484),
+		TROUBADOUR_CLARINE(0x48, Character.CLARINE.ID, CharacterClass.TROUBADOUR.ID, 0x7FE484),
 		
-		VALKYRIE_CLARINE(Character.CLARINE.ID, CharacterClass.VALKYRIE.ID, 0x7FE4E4),
-		VALKYRIE_CECILIA(Character.CECILIA.ID, CharacterClass.VALKYRIE.ID, 0x7FE558),
+		VALKYRIE_CLARINE(0x49, Character.CLARINE.ID, CharacterClass.VALKYRIE.ID, 0x7FE4E4),
+		VALKYRIE_CECILIA(0x4A, Character.CECILIA.ID, CharacterClass.VALKYRIE.ID, 0x7FE558),
 		
-		GENERAL_WENDY(Character.WENDY.ID, CharacterClass.GENERAL_F.ID, 0x7FE71C),
-		GENERAL_BARTH(Character.BARTH.ID, CharacterClass.GENERAL.ID, 0x7FE7A0),
-		GENERAL_BORS(Character.BORS.ID, CharacterClass.GENERAL.ID, 0x7FE82C),
-		GENERAL_DOUGLAS(Character.DOUGLAS.ID, CharacterClass.GENERAL.ID, 0x7FE8B0),
-		GENERAL_MURDOCK(Character.MURDOCK.ID, CharacterClass.GENERAL.ID, 0x7FE67C),
-		GENERAL_LEGYLANCE(Character.LEGYLANCE.ID, CharacterClass.GENERAL.ID, 0x7FE6C8),
-		GENERAL_ROARTZ(Character.ROARTZ.ID, CharacterClass.GENERAL.ID, 0x7FE984),
-		GENERAL_ZINC(Character.ZINC.ID, CharacterClass.GENERAL.ID, 0x7FE9D4),
+		GENERAL_WENDY(0x4F, Character.WENDY.ID, CharacterClass.GENERAL_F.ID, 0x7FE71C),
+		GENERAL_BARTH(0x50, Character.BARTH.ID, CharacterClass.GENERAL.ID, 0x7FE7A0),
+		GENERAL_BORS(0x51, Character.BORS.ID, CharacterClass.GENERAL.ID, 0x7FE82C),
+		GENERAL_DOUGLAS(0x52, Character.DOUGLAS.ID, CharacterClass.GENERAL.ID, 0x7FE8B0),
+		GENERAL_MURDOCK(0x4D, Character.MURDOCK.ID, CharacterClass.GENERAL.ID, 0x7FE67C),
+		GENERAL_LEGYLANCE(0x4E, Character.LEGYLANCE.ID, CharacterClass.GENERAL.ID, 0x7FE6C8),
+		GENERAL_ROARTZ(0x54, Character.ROARTZ.ID, CharacterClass.GENERAL.ID, 0x7FE984),
+		GENERAL_ZINC(0x55, Character.ZINC.ID, CharacterClass.GENERAL.ID, 0x7FE9D4),
 		
-		WYVERN_KNIGHT_MILEDY(Character.MILEDY.ID, CharacterClass.WYVERN_KNIGHT_F.ID, 0x7FEC50),
-		WYVERN_KNIGHT_ZEISS(Character.ZEISS.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FED38),
-		WYVERN_KNIGHT_GALE(Character.GALE.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FEBD0),
-		WYVERN_KNIGHT_NARSHEN(Character.NARSHEN.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FECC8),
+		WYVERN_KNIGHT_MILEDY(0x5C, Character.MILEDY.ID, CharacterClass.WYVERN_KNIGHT_F.ID, 0x7FEC50),
+		WYVERN_KNIGHT_ZEISS(0x5E, Character.ZEISS.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FED38),
+		WYVERN_KNIGHT_GALE(0x5B, Character.GALE.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FEBD0),
+		WYVERN_KNIGHT_NARSHEN(0x5D, Character.NARSHEN.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FECC8),
+		// Flaer has no palettes :(
+		// Raeth has no palettes :(
 		
-		WARRIOR_LOT(Character.LOT.ID, CharacterClass.WARRIOR.ID, 0x7FEE08),
-		WARRIOR_WARD(Character.WARD.ID, CharacterClass.WARRIOR.ID, 0x7FEE60),
-		WARRIOR_BARTRE(Character.BARTRE.ID, CharacterClass.WARRIOR.ID, 0x7FEF94),
+		WARRIOR_LOT(0x60, Character.LOT.ID, CharacterClass.WARRIOR.ID, 0x7FEE08),
+		WARRIOR_WARD(0x61, Character.WARD.ID, CharacterClass.WARRIOR.ID, 0x7FEE60),
+		WARRIOR_BARTRE(0x64, Character.BARTRE.ID, CharacterClass.WARRIOR.ID, 0x7FEF94),
 		
-		MANAKETE_GENERIC(Character.NONE.ID, CharacterClass.MANAKETE.ID, 0x716DCB), // Based off of sprite's base palette.
-		MANAKETE_FA(Character.FA.ID, CharacterClass.MANAKETE_F.ID, 0x7FF050)
+		MANAKETE_GENERIC(0x0, Character.NONE.ID, CharacterClass.MANAKETE.ID, 0x716DCB), // Based off of sprite's base palette.
+		MANAKETE_FA(0x0, Character.FA.ID, CharacterClass.MANAKETE_F.ID, 0x7FF050) // TODO: Verify Fa's pointer. There's one last entry in the table that's not listed anywhere else, but Fa herself has no palette index.
 		;
 		
 		int characterID;
 		int classID;
+		
+		int paletteID;
 		
 		PaletteInfo info;
 		
 		static Map<Integer, Map<Integer, PaletteInfo>> classByCharacter = new HashMap<Integer, Map<Integer, PaletteInfo>>();
 		static Map<Integer, Map<Integer, PaletteInfo>> charactersByClass = new HashMap<Integer, Map<Integer, PaletteInfo>>();
 		static Map<Integer, PaletteInfo> defaultPaletteForClass = new HashMap<Integer, PaletteInfo>();
+		static Map<Integer, Palette> palettesByID = new HashMap<Integer, Palette>();
 		
 		static {
 			for (Palette palette : Palette.values()) {
@@ -1339,6 +1359,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					charactersByClass.put(palette.classID, map);
 				}
 				map.put(palette.characterID, palette.info);
+				
+				palettesByID.put(palette.paletteID, palette);
 			}
 			
 			defaultPaletteForClass.put(CharacterClass.SOLDIER.ID, ARCHER_WOLT.info); // No idea.
@@ -1398,9 +1420,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			defaultPaletteForClass.put(CharacterClass.MANAKETE.ID, MANAKETE_GENERIC.info);
 		}
 		
-		private Palette(int charID, int classID, long offset) {
+		private Palette(int paletteID, int charID, int classID, long offset) {
 			this.characterID = charID;
 			this.classID = classID;
+			this.paletteID = paletteID;
 			CharacterClass charClass = CharacterClass.valueOf(classID);
 			if (charClass != null) {
 				switch (charClass) {
@@ -1528,6 +1551,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					break;
 				}
 			}
+			
+			this.info.setPaletteID(paletteID);
 		}
 		
 		public static PaletteInfo paletteForCharacterInClass(int characterID, int classID) {
@@ -1544,6 +1569,14 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			} else {
 				return new PaletteInfo[] {};
 			}
+		}
+		
+		public static int maxUsedPaletteIndex() {
+			return 0x66; // Fa, I think.
+		}
+		
+		public static int maxPaletteIndex() {
+			return 0x78; // There's space for this many, but they're all 0s. Seems like they could be used.
 		}
 		
 		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {
@@ -1570,6 +1603,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			default:
 				return null;
 			}
+		}
+		
+		public static Palette paletteForID(int paletteID) {
+			return palettesByID.get(paletteID);
 		}
 		
 		public static PaletteInfo defaultPaletteForClass(int classID) {
@@ -1610,6 +1647,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public Set<GBAFECharacter> linkedCharacters(int characterID) {
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
+	}
+	
+	public Set<Integer> linkedPortraitIDs(int characterID) {
+		return new HashSet<Integer>(); // We don't have that feature yet in FE6.
 	}
 	
 	public Set<GBAFECharacter> allFliers() {

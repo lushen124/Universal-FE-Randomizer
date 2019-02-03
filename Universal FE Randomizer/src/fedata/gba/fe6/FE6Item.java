@@ -144,14 +144,15 @@ public class FE6Item implements GBAFEItemData {
 	}
 
 	public WeaponRank getWeaponRank() {
-		int rank = data[28] & 0xFF;
-		FE6WeaponRank weaponRank = FE6Data.Item.FE6WeaponRank.valueOf(rank);
-		if (weaponRank != null) {
-			return weaponRank.toGeneralRank();
+		// Check PRFs first, since Rapier, for example, is Rank E, despite being PRF.
+		FE6Data.Item weapon = FE6Data.Item.valueOf(getID());
+		if (weapon != null && FE6Data.Item.allPrfRank.contains(weapon)) {
+			return WeaponRank.PRF;
 		} else {
-			FE6Data.Item weapon = FE6Data.Item.valueOf(getID());
-			if (weapon != null && FE6Data.Item.allPrfRank.contains(weapon)) {
-				return WeaponRank.PRF;
+			int rank = data[28] & 0xFF;
+			FE6WeaponRank weaponRank = FE6Data.Item.FE6WeaponRank.valueOf(rank);
+			if (weaponRank != null) {
+				return weaponRank.toGeneralRank();
 			} else {
 				return WeaponRank.NONE;
 			}

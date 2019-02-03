@@ -1,5 +1,6 @@
 package fedata.gba.fe7;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +37,6 @@ public class FE7Character implements GBAFECharacterData {
 	private byte[] data;
 	
 	private long originalOffset;
-	private long overrideOffset;
 	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
@@ -51,12 +51,25 @@ public class FE7Character implements GBAFECharacterData {
 		this.isClassRestricted = isClassRestricted;
 	}
 	
+	public GBAFECharacterData createCopy(boolean useOriginalData) {
+		if (useOriginalData) {
+			return new FE7Character(Arrays.copyOf(this.originalData, this.originalData.length), this.originalOffset, this.isClassRestricted);
+		}
+		return new FE7Character(Arrays.copyOf(this.data, this.data.length), this.originalOffset, this.isClassRestricted);
+	}
+	
 	public Boolean isClassRestricted() {
 		return isClassRestricted;
 	}
 	
 	public int getNameIndex() {
 		return (data[0] & 0xFF) | ((data[1] & 0xFF) << 8);
+	}
+	
+	public void setNameIndex(int newIndex) {
+		data[0] = (byte)(newIndex & 0xFF);
+		data[1] = (byte)((newIndex >> 8) & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getDescriptionIndex() {
@@ -67,10 +80,6 @@ public class FE7Character implements GBAFECharacterData {
 		data[2] = (byte)(newIndex & 0xFF);
 		data[3] = (byte)((newIndex >> 8) & 0xFF);
 		wasModified = true;
-	}
-	
-	public int getOriginalDescriptionIndex() {
-		return (originalData[2] & 0xFF) | ((originalData[3] & 0xFF) << 8);
 	}
 	
 	public int getID() {
@@ -92,6 +101,15 @@ public class FE7Character implements GBAFECharacterData {
 	
 	public void setClassID(int classID) {
 		data[5] = (byte)(classID & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getFaceID() {
+		return data[6] & 0xFF;
+	}
+	
+	public void setFaceID(int faceID) {
+		data[6] = (byte)(faceID & 0xFF);
 		wasModified = true;
 	}
 	
@@ -357,6 +375,24 @@ public class FE7Character implements GBAFECharacterData {
 		return Affinity.affinityWithID(getAffinityValue()).toString();
 	}
 	
+	public int getUnpromotedPaletteIndex() {
+		return data[35] & 0xFF;
+	}
+	
+	public void setUnpromotedPaletteIndex(int newIndex) {
+		data[35] = (byte)(newIndex & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getPromotedPaletteIndex() {
+		return data[36] & 0xFF;
+	}
+	
+	public void setPromotedPaletteIndex(int newIndex) {
+		data[36] = (byte)(newIndex & 0xFF);
+		wasModified = true;
+	}
+	
 	// We technically don't need this, but might as well make it complete.
 	public void setIsLord() {
 		byte oldValue = (byte)(data[41] & 0xFF);
@@ -390,18 +426,6 @@ public class FE7Character implements GBAFECharacterData {
 	}
 	
 	public long getAddressOffset() {
-		return overrideOffset != 0 ? overrideOffset : originalOffset;
-	}
-	
-	public void setAddressOverride(long newAddress) {
-		overrideOffset = newAddress;
-	}
-	
-	public long getOverrideAddress() {
-		return overrideOffset;
-	}
-	
-	public long getOriginalAddress() {
 		return originalOffset;
 	}
 	

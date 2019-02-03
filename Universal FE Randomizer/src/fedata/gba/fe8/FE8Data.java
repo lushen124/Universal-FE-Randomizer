@@ -88,6 +88,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int BytesPerBossPalette = 80; // Play around with this. Hopefully it doesn't collide with another palette.
 	public static final int BytesPerPalette = 40;
 	
+	public static final long PaletteTableOffset = 0xEF8004L;
+	public static final int PaletteEntryCount = 256;
+	public static final int PaletteEntrySize = 16;
+	
 	private static final FE8Data sharedInstance = new FE8Data();
 	
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
@@ -188,6 +192,22 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList(SETH)); // The prologue scripted battle.
 		
 		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE));
+		
+		// Playable characters only.
+		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
+		private static Map<Character, Set<Integer>> createMultiPortraitMap() {
+			Map<Character, Set<Integer>> map = new HashMap<Character, Set<Integer>>();
+			map.put(EIRIKA, new HashSet<Integer>(Arrays.asList(0x02, 0x03)));
+			map.put(NEIMI, new HashSet<Integer>(Arrays.asList(0x0A, 0x0B)));
+			map.put(COLM, new HashSet<Integer>(Arrays.asList(0x0C, 0x0D)));
+			map.put(NATASHA, new HashSet<Integer>(Arrays.asList(0x11, 0x12)));
+			map.put(EPHRAIM, new HashSet<Integer>(Arrays.asList(0x14, 0x15)));
+			map.put(FORDE, new HashSet<Integer>(Arrays.asList(0x16, 0x17)));
+			map.put(TETHYS, new HashSet<Integer>(Arrays.asList(0x1C, 0x1D)));
+			map.put(MARISA, new HashSet<Integer>(Arrays.asList(0x1E, 0x1F)));
+			map.put(MYRRH, new HashSet<Integer>(Arrays.asList(0x26, 0x27, 0x28)));
+			return map;
+		}
 		
 		public Boolean isLord() {
 			return allLords.contains(this);
@@ -617,6 +637,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 		public Boolean isPromoted() {
 			return CharacterClass.allPromotedClasses.contains(this);
+		}
+		
+		public Boolean isTrainee() {
+			return CharacterClass.allTraineeClasses.contains(this);
 		}
 
 		public Boolean canAttack() {
@@ -2101,6 +2125,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return list.toArray(new PaletteInfo[list.size()]);
 		}
 		
+		public static int maxUsedPaletteIndex() {
+			return 0x6C; // Caellach
+		}
+		
+		public static int maxPaletteIndex() {
+			return 0xF0; // There's space for this many, but they're all 0s. Seems like they could be used. It actually goes to FF, but we'll leave some space.
+		}
+		
 		public static int paletteSizeForCharacter(int characterID) {
 			FE8Data.Character character = FE8Data.Character.valueOf(characterID);
 			switch (character) {
@@ -2272,6 +2304,15 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public Set<GBAFECharacter> linkedCharacters(int characterID) {
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
+	}
+	
+	public Set<Integer> linkedPortraitIDs(int characterID) {
+		Character character = Character.valueOf(characterID);
+		if (Character.charactersWithMultiplePortraits.containsKey(character)) {
+			return Character.charactersWithMultiplePortraits.get(character);
+		}
+		
+		return new HashSet<Integer>();
 	}
 	
 	public Set<GBAFECharacter> allFliers() {

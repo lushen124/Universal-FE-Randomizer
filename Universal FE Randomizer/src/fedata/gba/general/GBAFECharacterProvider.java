@@ -18,6 +18,8 @@ public interface GBAFECharacterProvider {
 	public Set<GBAFECharacter> allBossCharacters();
 	public Set<GBAFECharacter> linkedCharacters(int characterID);
 	
+	public Set<Integer> linkedPortraitIDs(int characterID);
+	
 	public Set<GBAFECharacter> allFliers();
 	
 	public GBAFECharacter characterWithID(int characterID);
