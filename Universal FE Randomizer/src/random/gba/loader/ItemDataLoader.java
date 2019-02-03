@@ -325,12 +325,12 @@ public class ItemDataLoader {
 		return itemMap.get(weaponArray[rng.nextInt(weapons.size())].getID());
 	}
 	
-	public GBAFEItemData getSidegradeWeapon(GBAFEClassData targetClass, GBAFEItemData originalWeapon, Random rng) {
+	public GBAFEItemData getSidegradeWeapon(GBAFEClassData targetClass, GBAFEItemData originalWeapon, boolean strict, Random rng) {
 		if (!isWeapon(originalWeapon)) {
 			return null;
 		}
 		
-		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), originalWeapon);
+		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), originalWeapon, strict);
 		if (potentialItems.isEmpty()) { 
 			potentialItems = provider.basicWeaponsForClass(targetClass.getID());
 			

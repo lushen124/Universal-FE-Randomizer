@@ -34,7 +34,7 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> weaponsLockedToClass(int classID);
 	public Set<GBAFEItem> weaponsForClass(int classID);
 	public Set<GBAFEItem> basicWeaponsForClass(int classID);
-	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem);
+	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem, boolean strict);
 	public Set<GBAFEItem> formerThiefInventory();
 	public Set<GBAFEItem> thiefItemsToRemove();
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng);
