@@ -927,6 +927,30 @@ public class FE4Data {
 			}
 		}
 		
+		// If this returns a non-empty array, then the result should be restricted to classes in the set.
+		public CharacterClass[] whitelistedClasses(boolean isRandomizingMinions) {
+			// If minions are getting randomized, then we should be able to make things work.
+			if (isRandomizingMinions) { return new CharacterClass[] {}; }
+			
+			Set<CharacterClass> whitelistedClasses = new HashSet<CharacterClass>();
+			// Otherwise, there are some characters that have to be careful with what they pass down to gen 2 enemies if their weapons are not inerhited.
+			switch (this) {
+			case CLAUD:
+				whitelistedClasses.addAll(CharacterClass.fireUsers);
+				whitelistedClasses.removeAll(CharacterClass.B_fireUsers);
+				whitelistedClasses.addAll(CharacterClass.thunderUsers);
+				whitelistedClasses.removeAll(CharacterClass.B_thunderUsers);
+				whitelistedClasses.addAll(CharacterClass.windUsers);
+				whitelistedClasses.removeAll(CharacterClass.B_windUsers);
+				whitelistedClasses.addAll(CharacterClass.staffUsers);
+				break;
+			default:
+				break;
+			}
+			
+			return whitelistedClasses.toArray(new CharacterClass[whitelistedClasses.size()]);
+		}
+		
 		public HolyBlood[] limitedHolyBloodSelection() {
 			switch (this) {
 			case QUAN: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN}; // Mostly due to Altena needing to fly (and therefore locked to lances and swords).

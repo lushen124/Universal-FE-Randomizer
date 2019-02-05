@@ -151,6 +151,12 @@ public class FE4ClassRandomizer {
 				potentialClasses.removeAll(childBlacklist);
 			}
 			
+			// If we randomize minions, this probably isn't a problem, but due to weapon inheriting, we may have to restrict some characters so that their weapons don't cause issues in gen 2 if they end up on enemies.
+			FE4Data.CharacterClass[] whitelistedClasses = fe4Char.whitelistedClasses(options.randomizeMinions);
+			if (whitelistedClasses.length > 0) {
+				potentialClasses.retainAll(Arrays.asList(whitelistedClasses));
+			}
+			
 			if (potentialClasses.isEmpty()) { continue; }
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
