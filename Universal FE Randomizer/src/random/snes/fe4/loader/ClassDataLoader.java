@@ -1,5 +1,6 @@
 package random.snes.fe4.loader;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ import util.recordkeeper.RecordKeeper;
 
 public class ClassDataLoader {
 	
-	private Map<FE4Data.CharacterClass, FE4Class> classMap;
+	private Map<FE4Data.CharacterClass, FE4Class> classMap = new HashMap<FE4Data.CharacterClass, FE4Class>();
 	
 	public static final String RecordKeeperCategoryKey = "Classes";
 	
