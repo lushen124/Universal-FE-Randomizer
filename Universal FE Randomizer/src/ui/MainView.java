@@ -399,6 +399,9 @@ public class MainView implements FileFlowDelegate {
 		baseView.setLayoutData(baseData);
 		  
 		if (type == GameType.FE4) {
+			// To prevent gen 2 overflow, the max growth allowed for any single stat is 85%.
+			growthView.overrideMaxGrowthAllowed(85);
+			
 			holyBloodView = new HolyBloodView(container, SWT.NONE);
 			holyBloodView.setSize(200, 200);
 			holyBloodView.setVisible(false);
