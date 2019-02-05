@@ -140,6 +140,17 @@ public class FE4ClassRandomizer {
 				potentialClasses.remove(FE4Data.CharacterClass.DANCER);
 			}
 			
+			// If we randomize strictly mapped children, then we need to make sure the parent doesn't end up forcing a child into a blacklisted class.
+			FE4Data.Character[] children = fe4Char.getChildren();
+			if (options.childOption == ChildOptions.MATCH_STRICT && children.length > 0) {
+				Set<FE4Data.CharacterClass> childBlacklist = new HashSet<FE4Data.CharacterClass>();
+				for (int i = 0; i < children.length; i++) {
+					FE4Data.Character child = children[i];
+					childBlacklist.addAll(Arrays.asList(child.blacklistedClasses()));
+				}
+				potentialClasses.removeAll(childBlacklist);
+			}
+			
 			if (potentialClasses.isEmpty()) { continue; }
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
@@ -335,6 +346,7 @@ public class FE4ClassRandomizer {
 				}
 				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
 				if (hasDancer) { poolSet.remove(FE4Data.CharacterClass.DANCER); }
+				poolSet.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
 				List<FE4Data.CharacterClass> poolList = new ArrayList<FE4Data.CharacterClass>(poolSet);
 				
 				if (!poolList.isEmpty()) {
@@ -345,6 +357,7 @@ public class FE4ClassRandomizer {
 				FE4Data.CharacterClass referenceClass = FE4Data.CharacterClass.valueOf(child.getClassID());
 				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
 				if (hasDancer) { poolSet.remove(FE4Data.CharacterClass.DANCER); }
+				poolSet.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
 				List<FE4Data.CharacterClass> poolList = new ArrayList<FE4Data.CharacterClass>(poolSet);
 				
 				if (!poolList.isEmpty()) {
@@ -787,9 +800,13 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			potentialClasses.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
+			
 			if (potentialClasses.isEmpty()) { continue; }
 			
-			targetClass = potentialClasses.get(rng.nextInt(potentialClasses.size()));
+			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
+			
+			targetClass = classList.get(rng.nextInt(potentialClasses.size()));
 			setHolyBossToClass(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng);
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
@@ -1012,14 +1029,18 @@ public class FE4ClassRandomizer {
 				classPool.remove(FE4Data.CharacterClass.DARK_BISHOP);
 			}
 			
+			classPool.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
+			
 			if (classPool.isEmpty()) {
 				continue;
 			}
 			
-			FE4Data.CharacterClass targetClass = classPool.get(rng.nextInt(classPool.size()));
+			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(classPool);
+			
+			FE4Data.CharacterClass targetClass = classList.get(rng.nextInt(classPool.size()));
 			// Put reduced weight on fliers, since they're maybe a bit too powerful. Re-randomize once if they get fliers the first time
 			if (targetClass.isFlier()) { 
-				targetClass = classPool.get(rng.nextInt(classPool.size()));
+				targetClass = classList.get(rng.nextInt(classPool.size()));
 			}
 			
 			if (mustUseItem != null) {
