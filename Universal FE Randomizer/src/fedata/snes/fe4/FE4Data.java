@@ -764,9 +764,9 @@ public class FE4Data {
 		public static final Set<Character> DancerCharacters = new HashSet<Character>(Arrays.asList(SILVIA, LENE, LAYLEA));
 		public static final Set<Character> HealerCharacters = new HashSet<Character>(Arrays.asList(EDAIN, CLAUD, LANA, MUIRNE, COIRPRE, CHARLOT));
 		
-		// Elliot and his squad must lose to Eldigan and his Cross Knights.
-		public static final Set<Character> MustWin1 = new HashSet<Character>(Arrays.asList(ELDIGAN_CH1_SCENE, CH1_CROSS_KNIGHTS));
-		public static final Set<Character> MustLose1 = new HashSet<Character>(Arrays.asList(ELLIOT_CH1_SCENE, CH1_HEIRHEIN_ARMY));
+		// Elliot and his squad must lose to Eldigan and his Cross Knights. We'll make sure the minions win or lose, but Eldigan can probably solo all of them.
+		public static final Set<Character> MustWin1 = new HashSet<Character>(Arrays.asList(CH1_CROSS_KNIGHTS));
+		public static final Set<Character> MustLose1 = new HashSet<Character>(Arrays.asList(CH1_HEIRHEIN_ARMY));
 		// Quan and Ethlyn (and their squad) must lose to Travant (and Magorn) and his squad.
 		public static final Set<Character> MustWin2 = new HashSet<Character>(Arrays.asList(TRAVANT_CH5, CH5_THRACIA_ARMY, MAGORN));
 		public static final Set<Character> MustLose2 = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN, CH5_LEONSTER_ARMY));
