@@ -19,6 +19,7 @@ import io.UPSPatcher;
 import random.general.Randomizer;
 import random.general.WeightedDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
+import random.snes.fe4.loader.ItemDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
 import random.snes.fe4.loader.PromotionMapper;
@@ -49,6 +50,7 @@ public class FE4Randomizer extends Randomizer {
 	
 	HolyBloodLoader bloodData;
 	CharacterDataLoader charData;
+	ItemDataLoader itemData;
 	ItemMapper itemMapper;
 	PromotionMapper promotionMapper;
 	
@@ -147,6 +149,7 @@ public class FE4Randomizer extends Randomizer {
 		itemMapper.compileDiff(diffCompiler);
 		bloodData.compileDiffs(diffCompiler);
 		promotionMapper.compileDiff(diffCompiler);
+		itemData.compileDiffs(diffCompiler);
 		
 		updateStatusString("Applying changes...");
 		updateProgress(0.99);
@@ -274,6 +277,10 @@ public class FE4Randomizer extends Randomizer {
 		updateStatusString("Loading Promotion Map...");
 		updateProgress(0.40);
 		promotionMapper = new PromotionMapper(handler, charData, isHeadered);
+		
+		updateStatusString("Loading Item Data...");
+		updateProgress(0.30);
+		itemData = new ItemDataLoader(handler, isHeadered);
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
@@ -393,6 +400,10 @@ public class FE4Randomizer extends Randomizer {
 	// Should be called after all other randomizations.
 	private void makeFinalAdjustments(String seed) {
 		updateStatusString("Making final adjustments...");
+		
+		// Give Dark magic a price
+		itemData.itemForID(FE4Data.Item.YOTSMUNGAND.ID).setPrice(15000);
+		itemData.itemForID(FE4Data.Item.HEL.ID).setPrice(20000);
 		
 		// These only need to be performed if playable character classes were randomized. Otherwise, the default values should still work.
 		if (classOptions.randomizePlayableCharacters) {

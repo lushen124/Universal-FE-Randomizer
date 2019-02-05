@@ -96,6 +96,10 @@ public class FE4Data {
 	public static final byte SellableHolyWeaponEnabledValue = 0x00;
 	public static final byte SellableHolyWeaponsDisabledValue = 0x16;
 	
+	public static final long ItemTableOffset = 0x3ECE4L;
+	public static final int ItemTableCount = 107;
+	public static final int ItemSize = 19;
+	
 	public static final Map<Character, List<Integer>> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, List<Integer>> createEventItemMap() {
 		Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();
