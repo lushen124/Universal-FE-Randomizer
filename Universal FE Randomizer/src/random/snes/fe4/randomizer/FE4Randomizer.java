@@ -349,7 +349,7 @@ public class FE4Randomizer extends Randomizer {
 			if (bloodOptions.giveHolyBlood) {
 				updateStatusString("Assigning Holy Blood...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 3));
-				FE4BloodRandomizer.assignHolyBlood(bloodOptions.majorBloodChance, bloodOptions.minorBloodChance, bloodOptions.matchClass, charData, itemMapper, rng);
+				FE4BloodRandomizer.assignHolyBlood(bloodOptions.majorBloodChance, bloodOptions.minorBloodChance, bloodOptions.matchClass, charData, bloodData, itemMapper, rng);
 			}
 		}
 	}
@@ -359,7 +359,7 @@ public class FE4Randomizer extends Randomizer {
 			if (classOptions.randomizePlayableCharacters) {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 1));
-				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, charData, itemMapper, rng);
+				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, charData, bloodData, itemMapper, rng);
 				charData.commit();
 				itemMapper.commitChanges();
 			}

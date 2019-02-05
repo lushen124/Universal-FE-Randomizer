@@ -125,7 +125,7 @@ public class FE4BloodRandomizer {
 		}
 	}
 	
-	public static void assignHolyBlood(int majorBloodChance, int minorBloodChance, boolean matchClass, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
+	public static void assignHolyBlood(int majorBloodChance, int minorBloodChance, boolean matchClass, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, Random rng) {
 		List<FE4StaticCharacter> characterList = new ArrayList<FE4StaticCharacter>(charData.getGen1Characters());
 		characterList.addAll(charData.getGen2CommonCharacters());
 		characterList.addAll(charData.getGen2SubstituteCharacters());
@@ -183,6 +183,16 @@ public class FE4BloodRandomizer {
 						slot3Blood.remove(FE4Data.HolyBloodSlot3.blood(minorBloodType, false));
 						slot3Blood.add(slot3);
 					}
+					
+					// Adjust personal growths downwards to compensate.
+					staticChar.setHPGrowth(staticChar.getHPGrowth() - bloodData.holyBloodByType(majorBlood).getHPGrowthBonus());
+					staticChar.setSTRGrowth(staticChar.getSTRGrowth() - bloodData.holyBloodByType(majorBlood).getSTRGrowthBonus());
+					staticChar.setMAGGrowth(staticChar.getMAGGrowth() - bloodData.holyBloodByType(majorBlood).getMAGGrowthBonus());
+					staticChar.setSKLGrowth(staticChar.getSKLGrowth() - bloodData.holyBloodByType(majorBlood).getSKLGrowthBonus());
+					staticChar.setSPDGrowth(staticChar.getSPDGrowth() - bloodData.holyBloodByType(majorBlood).getSPDGrowthBonus());
+					staticChar.setDEFGrowth(staticChar.getDEFGrowth() - bloodData.holyBloodByType(majorBlood).getDEFGrowthBonus());
+					staticChar.setRESGrowth(staticChar.getRESGrowth() - bloodData.holyBloodByType(majorBlood).getRESGrowthBonus());
+					staticChar.setLCKGrowth(staticChar.getLCKGrowth() - bloodData.holyBloodByType(majorBlood).getLCKGrowthBonus());
 				} else {
 					FE4Data.HolyBlood[] bloodChoices = null;
 					if (matchClass) {
@@ -206,6 +216,16 @@ public class FE4BloodRandomizer {
 					if (slot3 != null) { slot3Blood.add(slot3); }
 					
 					majorBlood = selectedBlood;
+					
+					// Adjust personal growths downwards to compensate.
+					staticChar.setHPGrowth(staticChar.getHPGrowth() - bloodData.holyBloodByType(majorBlood).getHPGrowthBonus() * 2);
+					staticChar.setSTRGrowth(staticChar.getSTRGrowth() - bloodData.holyBloodByType(majorBlood).getSTRGrowthBonus() * 2);
+					staticChar.setMAGGrowth(staticChar.getMAGGrowth() - bloodData.holyBloodByType(majorBlood).getMAGGrowthBonus() * 2);
+					staticChar.setSKLGrowth(staticChar.getSKLGrowth() - bloodData.holyBloodByType(majorBlood).getSKLGrowthBonus() * 2);
+					staticChar.setSPDGrowth(staticChar.getSPDGrowth() - bloodData.holyBloodByType(majorBlood).getSPDGrowthBonus() * 2);
+					staticChar.setDEFGrowth(staticChar.getDEFGrowth() - bloodData.holyBloodByType(majorBlood).getDEFGrowthBonus() * 2);
+					staticChar.setRESGrowth(staticChar.getRESGrowth() - bloodData.holyBloodByType(majorBlood).getRESGrowthBonus() * 2);
+					staticChar.setLCKGrowth(staticChar.getLCKGrowth() - bloodData.holyBloodByType(majorBlood).getLCKGrowthBonus() * 2);
 				}
 				
 				if (majorBlood != null) {
@@ -252,6 +272,16 @@ public class FE4BloodRandomizer {
 				if (slot1 != null) { slot1Blood.add(slot1); }
 				if (slot2 != null) { slot2Blood.add(slot2); }
 				if (slot3 != null) { slot3Blood.add(slot3); }
+				
+				// Adjust personal growths downwards to compensate.
+				staticChar.setHPGrowth(staticChar.getHPGrowth() - bloodData.holyBloodByType(selectedBlood).getHPGrowthBonus());
+				staticChar.setSTRGrowth(staticChar.getSTRGrowth() - bloodData.holyBloodByType(selectedBlood).getSTRGrowthBonus());
+				staticChar.setMAGGrowth(staticChar.getMAGGrowth() - bloodData.holyBloodByType(selectedBlood).getMAGGrowthBonus());
+				staticChar.setSKLGrowth(staticChar.getSKLGrowth() - bloodData.holyBloodByType(selectedBlood).getSKLGrowthBonus());
+				staticChar.setSPDGrowth(staticChar.getSPDGrowth() - bloodData.holyBloodByType(selectedBlood).getSPDGrowthBonus());
+				staticChar.setDEFGrowth(staticChar.getDEFGrowth() - bloodData.holyBloodByType(selectedBlood).getDEFGrowthBonus());
+				staticChar.setRESGrowth(staticChar.getRESGrowth() - bloodData.holyBloodByType(selectedBlood).getRESGrowthBonus());
+				staticChar.setLCKGrowth(staticChar.getLCKGrowth() - bloodData.holyBloodByType(selectedBlood).getLCKGrowthBonus());
 			}
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
