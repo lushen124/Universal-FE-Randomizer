@@ -24,6 +24,7 @@ import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
 import random.snes.fe4.loader.PromotionMapper;
 import ui.fe4.FE4ClassOptions;
+import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
 import ui.fe4.SkillsOptions.Mode;
@@ -46,6 +47,7 @@ public class FE4Randomizer extends Randomizer {
 	private HolyBloodOptions bloodOptions;
 	private SkillsOptions skillsOptions;
 	private FE4ClassOptions classOptions;
+	private FE4PromotionOptions promoOptions;
 	private MiscellaneousOptions miscOptions;
 	
 	HolyBloodLoader bloodData;
@@ -60,7 +62,8 @@ public class FE4Randomizer extends Randomizer {
 	
 	private FileHandler handler;
 	
-	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions, FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, 
+			SkillsOptions skillOptions, FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -75,6 +78,7 @@ public class FE4Randomizer extends Randomizer {
 		this.bloodOptions = bloodOptions;
 		this.skillsOptions = skillOptions;
 		this.classOptions = classOptions;
+		this.promoOptions = promoOptions;
 		this.miscOptions = miscOptions;
 	}
 	
@@ -129,16 +133,18 @@ public class FE4Randomizer extends Randomizer {
 		
 		updateStatusString("Randomizing...");
 		randomizeClassesIfNecessary(seed);
-		updateProgress(0.60);
+		updateProgress(0.40);
 		randomizeSkillsIfNecessary(seed);
-		updateProgress(0.65);
+		updateProgress(0.45);
 		randomizeGrowthsIfNecessary(seed);
-		updateProgress(0.70);
+		updateProgress(0.50);
 		randomizeBasesIfNecessary(seed);
-		updateProgress(0.75);
+		updateProgress(0.55);
 		randomizeBloodIfNecessary(seed);
-		updateProgress(0.80);
+		updateProgress(0.65);
 		randomizeRingsIfNecessary(seed);
+		updateProgress(0.75);
+		randomizePromotionsIfNecessary(seed);
 		updateProgress(0.85);
 		makeFinalAdjustments(seed);
 		updateProgress(0.90);
@@ -224,6 +230,9 @@ public class FE4Randomizer extends Randomizer {
 			// Diffs to allow holy weapons to be sellable.
 			diffCompiler.addDiff(new Diff(FE4Data.SellableHolyWeaponsOffset, 1, new byte[] {FE4Data.SellableHolyWeaponEnabledValue}, new byte[] {FE4Data.SellableHolyWeaponsDisabledValue}));
 			
+			// Diff to fix Female Emperor battle animation.
+			diffCompiler.addDiff(new Diff(FE4Data.FemaleEmperorStaffAnimationFixOffset, 1, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixNewValue}, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixOldValue}));
+			
 		} else {
 			// Diffs for allowing Sigurd/Seliph to sieze, regardless of their class.
 			diffCompiler.addDiff(new Diff(0x5E43CL, 4, new byte[] {(byte)0x22, (byte)0x33, (byte)0xA3, (byte)0x84}, new byte[] {(byte)0x22, (byte)0x2D, (byte)0xA0, (byte)0x84}));
@@ -258,6 +267,9 @@ public class FE4Randomizer extends Randomizer {
 			
 			// Diffs to allow holy weapons to be sellable.
 			diffCompiler.addDiff(new Diff(FE4Data.SellableHolyWeaponsOffset - 0x200, 1, new byte[] {FE4Data.SellableHolyWeaponEnabledValue}, new byte[] {FE4Data.SellableHolyWeaponsDisabledValue}));
+			
+			// Diff to fix Female Emperor battle animation.
+			diffCompiler.addDiff(new Diff(FE4Data.FemaleEmperorStaffAnimationFixOffset - 0x200, 1, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixNewValue}, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixOldValue}));
 		}
 	}
 
@@ -267,15 +279,15 @@ public class FE4Randomizer extends Randomizer {
 		charData = new CharacterDataLoader(handler, isHeadered);
 		
 		updateStatusString("Loading Item Map...");
-		updateProgress(0.20);
+		updateProgress(0.15);
 		itemMapper = new ItemMapper(handler, isHeadered);
 		
 		updateStatusString("Loading Holy Blood Data...");
-		updateProgress(0.30);
+		updateProgress(0.20);
 		bloodData = new HolyBloodLoader(handler, isHeadered);
 		
 		updateStatusString("Loading Promotion Map...");
-		updateProgress(0.40);
+		updateProgress(0.25);
 		promotionMapper = new PromotionMapper(handler, charData, isHeadered);
 		
 		updateStatusString("Loading Item Data...");
@@ -397,6 +409,16 @@ public class FE4Randomizer extends Randomizer {
 		}
 	}
 	
+	private void randomizePromotionsIfNecessary(String seed) {
+		if (promoOptions != null) {
+			// Don't touch promotions if they're supposed to be strict and we didn't randomize playable character classes.
+			if (promoOptions.promotionMode == FE4PromotionOptions.Mode.STRICT && (classOptions == null || !classOptions.randomizePlayableCharacters)) { return; }
+			updateStatusString("Randomizing Promotions...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4PromotionRandomizer.rngSalt + 1));
+			FE4PromotionRandomizer.randomizePromotions(promoOptions, charData, promotionMapper, rng);
+		}
+	}
+	
 	// Should be called after all other randomizations.
 	private void makeFinalAdjustments(String seed) {
 		updateStatusString("Making final adjustments...");
@@ -418,40 +440,6 @@ public class FE4Randomizer extends Randomizer {
 			int equip1 = lex.getEquipment1();
 			FE4Data.Item item1 = itemMapper.getItemAtIndex(equip1);
 			diffCompiler.addDiff(new Diff(FE4Data.LexHeroAxeEventItemRequirementOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)item1.ID}, new byte[] {FE4Data.LexHeroAxeEventItemRequirementOldID}));
-			
-			// Finalize promotions (which are stored away from the character data).
-			Random rng = new Random(SeedGenerator.generateSeedValue(seed, 2));
-			for (FE4Data.Character fe4Char : promotionMapper.allPromotableCharacters()) {
-				int classID = FE4Data.CharacterClass.NONE.ID;
-				boolean isFemale = false;
-				if (fe4Char.isChild()) {
-					FE4ChildCharacter child = charData.getChildCharacter(fe4Char);
-					if (child != null) {
-						classID = child.getClassID();
-						isFemale = child.isFemale();
-					}
-				} else {
-					FE4StaticCharacter staticChar = charData.getStaticCharacter(fe4Char);
-					if (staticChar != null) {
-						classID = staticChar.getClassID();
-						isFemale = staticChar.isFemale();
-					}
-				}
-				
-				if (classID == FE4Data.CharacterClass.NONE.ID) { continue; }
-				
-				FE4Data.CharacterClass fe4CharClass = FE4Data.CharacterClass.valueOf(classID);
-				if (fe4CharClass.isPromoted()) { 
-					promotionMapper.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
-				} else {
-					FE4Data.CharacterClass[] possiblePromotions = fe4CharClass.promotionClasses(isFemale);
-					FE4Data.CharacterClass promotedClass = FE4Data.CharacterClass.NONE;
-					if (possiblePromotions.length > 0) {
-						promotedClass = possiblePromotions[rng.nextInt(possiblePromotions.length)];
-					}
-					promotionMapper.setPromotionForCharacter(fe4Char, promotedClass);
-				}
-			}
 		}
 		
 		if (classOptions.randomizeBlood || bloodOptions.giveHolyBlood) {
@@ -690,6 +678,22 @@ public class FE4Randomizer extends Randomizer {
 			}
 		} else {
 			rk.addHeaderItem("Randomize Classes", "NO");
+		}
+		
+		if (promoOptions != null) {
+			switch (promoOptions.promotionMode) {
+			case STRICT:
+				rk.addHeaderItem("Promotion Assignment", "Default");
+				break;
+			case LOOSE:
+				rk.addHeaderItem("Promotion Assignment", "Similar");
+				rk.addHeaderItem("Allow Mount Change", promoOptions.allowMountChanges ? "YES" : "NO");
+				rk.addHeaderItem("Allow Enemy-only Classes", promoOptions.allowEnemyOnlyPromotedClasses ? "YES" : "NO");
+				break;
+			case RANDOM:
+				rk.addHeaderItem("Promotion Assignment", "Random");
+				rk.addHeaderItem("Require Common Weapons", promoOptions.requireCommonWeapon ? "YES" : "NO");
+			}
 		}
 		
 		if (miscOptions != null) {

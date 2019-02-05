@@ -40,6 +40,7 @@ import random.general.Randomizer;
 import random.general.RandomizerListener;
 import random.snes.fe4.randomizer.FE4Randomizer;
 import ui.fe4.FE4ClassesView;
+import ui.fe4.FE4PromotionView;
 import ui.fe4.HolyBloodView;
 import ui.fe4.SkillsView;
 import ui.general.FileFlowDelegate;
@@ -94,6 +95,7 @@ public class MainView implements FileFlowDelegate {
 	private SkillsView skillsView;
 	private HolyBloodView holyBloodView;
 	private FE4ClassesView fe4ClassView;
+	private FE4PromotionView fe4PromotionView;
 	
 	private Button randomizeButton;
 	
@@ -295,6 +297,7 @@ public class MainView implements FileFlowDelegate {
 		if (skillsView != null) { skillsView.dispose(); }
 		if (holyBloodView != null) { holyBloodView.dispose(); }
 		if (fe4ClassView != null) { fe4ClassView.dispose(); }
+		if (fe4PromotionView != null) { fe4PromotionView.dispose(); }
 		
 		resize();
 	}
@@ -308,6 +311,7 @@ public class MainView implements FileFlowDelegate {
 			miscView.setMiscellaneousOptions(bundle.misc);
 			skillsView.setSkillOptions(bundle.skills);
 			fe4ClassView.setClassOptions(bundle.classes);
+			fe4PromotionView.setPromotionOptions(bundle.promo);
 		} else if (type.isGBA()) { 
 			GBAOptionBundle bundle = null;
 			if (type == GameType.FE6) { bundle = OptionRecorder.options.fe6; }
@@ -422,8 +426,17 @@ public class MainView implements FileFlowDelegate {
 			FormData classData = new FormData();
 			classData.top = new FormAttachment(skillsView, 0, SWT.TOP);
 			classData.left = new FormAttachment(skillsView, 5);
-			classData.right = new FormAttachment(100, -5);
 			fe4ClassView.setLayoutData(classData);
+			
+			fe4PromotionView = new FE4PromotionView(container, SWT.NONE);
+			fe4PromotionView.setSize(200, 200);
+			fe4PromotionView.setVisible(false);
+			
+			FormData promoData = new FormData();
+			promoData.top = new FormAttachment(fe4ClassView, 0, SWT.TOP);
+			promoData.left = new FormAttachment(fe4ClassView, 5);
+			promoData.right = new FormAttachment(100, -5);
+			fe4PromotionView.setLayoutData(promoData);
 			
 			miscView = new MiscellaneousView(container, SWT.NONE, type);
 			miscView.setSize(200, 200);
@@ -441,9 +454,9 @@ public class MainView implements FileFlowDelegate {
 			randomizeButton.setVisible(false);
 			  
 			FormData randomizeData = new FormData();
-			randomizeData.top = new FormAttachment(fe4ClassView, 5);
-			randomizeData.left = new FormAttachment(fe4ClassView, 0, SWT.LEFT);
-			randomizeData.right = new FormAttachment(fe4ClassView, 0, SWT.RIGHT);
+			randomizeData.top = new FormAttachment(fe4PromotionView, 5);
+			randomizeData.left = new FormAttachment(fe4PromotionView, 0, SWT.LEFT);
+			randomizeData.right = new FormAttachment(fe4PromotionView, 0, SWT.RIGHT);
 			randomizeData.bottom = new FormAttachment(100, -10);
 			randomizeButton.setLayoutData(randomizeData);
 			
@@ -581,6 +594,7 @@ public class MainView implements FileFlowDelegate {
 					fe4ClassView.setVisible(true);
 					holyBloodView.setVisible(true);
 					skillsView.setVisible(true);
+					fe4PromotionView.setVisible(true);
 					
 				} else {
 					classView.setVisible(true);
@@ -670,6 +684,7 @@ public class MainView implements FileFlowDelegate {
 											holyBloodView.getHolyBloodOptions(),
 											skillsView.getSkillOptions(),
 											fe4ClassView.getClassOptions(),
+											fe4PromotionView.getPromotionOptions(),
 											miscView.getMiscellaneousOptions(), 
 											seedField.getText());
 									
@@ -678,6 +693,7 @@ public class MainView implements FileFlowDelegate {
 											holyBloodView.getHolyBloodOptions(),
 											skillsView.getSkillOptions(),
 											fe4ClassView.getClassOptions(),
+											fe4PromotionView.getPromotionOptions(),
 											miscView.getMiscellaneousOptions(), 
 											seedField.getText());
 								}
