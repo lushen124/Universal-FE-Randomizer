@@ -698,38 +698,16 @@ public class FE4ClassRandomizer {
 	public static void randomizeMinions(FE4ClassOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		List<FE4EnemyCharacter> enemies = charData.getMinions();
 		randomizeEnemies(options, enemies, charData, itemMap, rng);
-	}
-	
-	private static class BloodArrays {
-		public final List<FE4Data.HolyBloodSlot1> slot1Blood;
-		public final List<FE4Data.HolyBloodSlot2> slot2Blood;
-		public final List<FE4Data.HolyBloodSlot3> slot3Blood;
 		
-		public BloodArrays(FE4StaticCharacter character) {
-			super();
-			slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(character.getHolyBlood1Value());
-			slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(character.getHolyBlood2Value());
-			slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(character.getHolyBlood3Value());
-		}
-	}
-	
-	// Should be run after randomizing enemies.
-	public static void randomizeBosses(FE4ClassOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
-		List<FE4EnemyCharacter> bosses = charData.getPlainBossCharacters();
-		randomizeEnemies(options, bosses, charData, itemMap, rng);
-		
+		// Some minions are classified as holy blood bosses because they have some personal skill or holy blood.
+		// They should be treated as minions and not bosses.
 		List<FE4StaticCharacter> holyBosses = charData.getHolyBossCharacters();
 		Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses = new HashMap<FE4Data.Character, FE4Data.CharacterClass>();
 		Map<FE4Data.Character, BloodArrays> predeterminedBlood = new HashMap<FE4Data.Character, BloodArrays>();
 		
-		for (FE4EnemyCharacter boss : bosses) {
-			FE4Data.Character fe4Char = FE4Data.Character.valueOf(boss.getCharacterID());
-			FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(boss.getClassID());
-			predeterminedClasses.put(fe4Char, charClass);
-		}
-		
 		for (FE4StaticCharacter holyBoss : holyBosses) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
+			if (!fe4Char.isMinion()) { continue; }
 			
 			FE4Data.CharacterClass targetClass = predeterminedClasses.get(fe4Char);
 			if (targetClass != null) {
@@ -768,7 +746,136 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
-			List<FE4Data.CharacterClass> potentialClasses = new ArrayList<FE4Data.CharacterClass>();
+			Set<FE4Data.CharacterClass> potentialClasses = new HashSet<FE4Data.CharacterClass>();
+			
+			FE4Data.Item mustUseItem = null;
+			if (!options.randomizeBossBlood) {
+				// Limit classes if this option is disabled for those with major holy blood (most endgame bosses).
+				int blood1Value = holyBoss.getHolyBlood1Value();
+				int blood2Value = holyBoss.getHolyBlood2Value();
+				int blood3Value = holyBoss.getHolyBlood3Value();
+				// Blood 4 is only Loptous, which we're not dealing with player-side.
+				
+				List<HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(blood1Value);
+				List<HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(blood2Value);
+				List<HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(blood3Value);
+				
+				if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+					mustUseItem = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
+				} else if (slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+					mustUseItem = slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
+				} else if (slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+					mustUseItem = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
+				}
+			}
+			
+			if (fe4Char.mustBeatCharacter().length > 0 || fe4Char.mustLoseToCharacters().length > 0) {
+				// Don't change these. Even if we leverage effective weapons, it's not guaranteed that the winners will actually win.
+				// Just don't touch these at all. (Quan and Ethlyn are locked to horses, so this is fine.)
+			} else {
+				if (mustUseItem == null && fe4Char.isGen2() && holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
+					mustUseItem = itemMap.getItemAtIndex(holyBoss.getEquipment3());
+				}
+				
+				if (referenceClass != null) {
+					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, false, holyBoss.isFemale(), false, fe4Char.requiresAttack(), false, fe4Char.requiresMelee(), mustUseItem, null));
+				} else {
+					Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, false, holyBoss.isFemale(), false, fe4Char.requiresAttack(), false, fe4Char.requiresMelee(), mustUseItem, null));
+				}
+			}
+			
+			potentialClasses.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
+			
+			if (potentialClasses.isEmpty()) { continue; }
+			
+			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
+			
+			targetClass = classList.get(rng.nextInt(potentialClasses.size()));
+			setHolyBossToClass(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng);
+			
+			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
+				predeterminedClasses.put(linked, targetClass);
+				predeterminedBlood.put(linked, new BloodArrays(holyBoss));
+			}
+			
+			// Set ourselves as predetermined, in the odd case that we run across ourself again.
+			// Also useful for children in this case.
+			predeterminedClasses.put(fe4Char, targetClass);
+		}
+	}
+	
+	private static class BloodArrays {
+		public final List<FE4Data.HolyBloodSlot1> slot1Blood;
+		public final List<FE4Data.HolyBloodSlot2> slot2Blood;
+		public final List<FE4Data.HolyBloodSlot3> slot3Blood;
+		
+		public BloodArrays(FE4StaticCharacter character) {
+			super();
+			slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(character.getHolyBlood1Value());
+			slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(character.getHolyBlood2Value());
+			slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(character.getHolyBlood3Value());
+		}
+	}
+	
+	// Should be run after randomizing enemies.
+	public static void randomizeBosses(FE4ClassOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
+		List<FE4EnemyCharacter> bosses = charData.getPlainBossCharacters();
+		randomizeEnemies(options, bosses, charData, itemMap, rng);
+		
+		List<FE4StaticCharacter> holyBosses = charData.getHolyBossCharacters();
+		Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses = new HashMap<FE4Data.Character, FE4Data.CharacterClass>();
+		Map<FE4Data.Character, BloodArrays> predeterminedBlood = new HashMap<FE4Data.Character, BloodArrays>();
+		
+		for (FE4EnemyCharacter boss : bosses) {
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(boss.getCharacterID());
+			FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(boss.getClassID());
+			predeterminedClasses.put(fe4Char, charClass);
+		}
+		
+		for (FE4StaticCharacter holyBoss : holyBosses) {
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
+			
+			// Some holy bosses are actually just random minions with skills or blood. We should treat them as minions and not as bosses.
+			if (fe4Char.isMinion() && !options.randomizeMinions) { continue; }
+			
+			FE4Data.CharacterClass targetClass = predeterminedClasses.get(fe4Char);
+			if (targetClass != null) {
+				BloodArrays blood = predeterminedBlood.get(fe4Char);
+				if (blood != null) {
+					setHolyBossToClass(options, holyBoss, targetClass, blood.slot1Blood, blood.slot2Blood, blood.slot3Blood, charData, predeterminedClasses, itemMap, rng);
+				} else {
+					setHolyBossToClass(options, holyBoss, targetClass, null, null, null, charData, predeterminedClasses, itemMap, rng);
+				}
+				continue;
+			}
+			
+			FE4Data.CharacterClass originalClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
+			if (originalClass == null) { continue; } // Shouldn't be touching this class. Skip this character.
+			
+			// In the case that we have a weak requirement on a specific class (where two characters have to be somewhat similar), set that here.
+			// Whoever gets randomized first chooses the weapon.
+			// The second character should refer to the first character.
+			FE4Data.CharacterClass referenceClass = null;
+			if (FE4Data.WeaklyLinkedCharacters.containsKey(fe4Char)) {
+				FE4Data.Character referenceCharacter = FE4Data.WeaklyLinkedCharacters.get(fe4Char);
+				if (referenceCharacter.isPlayable() && referenceCharacter.isGen1()) {
+					FE4StaticCharacter playableCharacter = charData.getStaticCharacter(referenceCharacter);
+					referenceClass = FE4Data.CharacterClass.valueOf(playableCharacter.getClassID());
+					if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
+						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(holyBoss.isFemale())));
+						if (!demotedClasses.isEmpty()) {
+							referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
+						}
+					} else if (!referenceClass.isPromoted() && originalClass.isPromoted()) {
+						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(holyBoss.isFemale())));
+						if (!promotedClasses.isEmpty()) {
+							referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
+						}
+					}
+				}
+			}
+			
+			Set<FE4Data.CharacterClass> potentialClasses = new HashSet<FE4Data.CharacterClass>();
 			
 			FE4Data.Item mustUseItem = null;
 			if (!options.randomizeBossBlood) {
@@ -1017,7 +1124,7 @@ public class FE4ClassRandomizer {
 			FE4Data.CharacterClass currentClass = FE4Data.CharacterClass.valueOf(enemy.getClassID());
 			if (currentClass == null) { continue; }
 			
-			List<FE4Data.CharacterClass> classPool = new ArrayList<FE4Data.CharacterClass>();
+			Set<FE4Data.CharacterClass> classPool = new HashSet<FE4Data.CharacterClass>();
 			
 			// Try to retain siege tome users.
 			if (mustUseItem == null) {
@@ -1027,7 +1134,7 @@ public class FE4ClassRandomizer {
 				if (item2 != null && item2.isSiegeTome()) { mustUseItem = item2; }
 			}
 			
-			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, rng.nextInt(4) == 0, false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
+			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, enemy.isFemale(), false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
 			
 			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
 			if (fe4Char.minionChapter() % 6 < 2) {
