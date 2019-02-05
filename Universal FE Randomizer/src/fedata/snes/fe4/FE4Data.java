@@ -225,7 +225,7 @@ public class FE4Data {
 		CH1_VERDANE_THIEF_1(0x57),
 		CH1_HEIRHEIN_ARMY(0x59),
 		CH1_CROSS_KNIGHTS(0x5B),
-		CH1_COMMANDER(0x5C),
+		CH1_GENOA_COMMANDER(0x5C),
 		
 		// CH 2
 		BOLDOR(0x005D), // 0x5E = HEIRHEIN ARMY
@@ -429,6 +429,7 @@ public class FE4Data {
 		
 		// CH 7
 		KUTUZOV(0x0114), // 0x115 - 0x116 = YIED MAGE, 0x117 = MERCENARY, 0x118 = YIED MAGE, 0x119 = COMMANDER, 0x11A - 0x11B = ALSTER ARMY, 0x11C = THIEF
+		KUTUZOV_TURN_12(0x1DE), // This boss reappears after turn 12 with a new inventory, which the game treats as a completely new character.
 		BLOOM_CH7(0x011D), // 0x11E = ALSTER ARMY, 0x11F = DARNA ARMY
 		ISHTORE(0x0120), // 0x121 = MELGAN ARMY
 		LIZA(0x0122), // 0x123 - 0x128 = MELGAN ARMY
@@ -791,11 +792,26 @@ public class FE4Data {
 		
 		public static final Set<Character> Gen2Bosses = new HashSet<Character>(Arrays.asList(
 				HAROLD, SCHMIDT, DANANN,
-				KUTUZOV, LIZA, ISHTORE, JAVARRO, BRAMSEL, VAMPA_CH7, FETRA_CH7, ELIU_CH7, BLOOM_CH7,
+				KUTUZOV, KUTUZOV_TURN_12, LIZA, ISHTORE, JAVARRO, BRAMSEL, VAMPA_CH7, FETRA_CH7, ELIU_CH7, BLOOM_CH7,
 				MUHAMMAD, OVO, VAMPA_CH8, FETRA_CH8, ELIU_CH8, ISHTAR_CH8, BLOOM_CH8, CORUTA, MAIKOV,
 				KANATZ, DISLER, TRAVANT_CH9, MUSAR, JUDAH, ARION_CH9,
 				RIDALE, HILDA_CH10, MORRIGAN, ISHTAR_CH10, JULIUS_CH10, ZAGAM, ARVIS_CH10,
 				ROBERT, BOYCE, RODAN, YUPHEEL, FISHER, BRIAN, DAGGON, SCIPIO, HILDA_FINAL, BARAN, MENG, BLEG, MAYBELL, ISHTAR_FINAL, ARION_FINAL, MANFROY, MUS, BOVIS, TIGRIS, LEPUS, DRACO, ANGUILLA, EQUUS, OVIS, SIMIA, GALLUS, CANIS, PORCUS, JULIUS_FINAL));
+		
+		public static final Set<Character> CastleGuards = new HashSet<Character>(Arrays.asList(
+				DIMAGGIO, GERRARD,
+				CH1_GENOA_COMMANDER, MUNNIR, SANDIMA,
+				BOLDOR, MACBETH, CLEMENT, CHAGALL_CH2,
+				JACOBAN, CHAGALL_CH3, DOBARL,
+				MAIOS, DACCAR,
+				LOMBARD, VAHA,
+				HAROLD, DANANN,
+				KUTUZOV, KUTUZOV_TURN_12, ISHTORE, BRAMSEL, BLOOM_CH7,
+				BLOOM_CH8, MAIKOV,
+				DISLER, JUDAH,
+				MORRIGAN, HILDA_CH10, ARVIS_CH10,
+				YUPHEEL, HILDA_FINAL, MANFROY, JULIUS_FINAL
+				));
 		
 		// Midir will make the game confused if he can't attack in his opening scene.
 		// Seliph *technically* doesn't need to attack.
@@ -1093,6 +1109,9 @@ public class FE4Data {
 			case REPTOR_CH3_SCENE:
 			case REPTOR:
 				return new Character[] {REPTOR, REPTOR_CH3_SCENE};
+			case KUTUZOV:
+			case KUTUZOV_TURN_12:
+				return new Character[] {KUTUZOV, KUTUZOV_TURN_12};
 			case VAMPA_CH7:
 			case VAMPA_CH8:
 				return new Character[] {VAMPA_CH7, VAMPA_CH8};
@@ -1360,6 +1379,10 @@ public class FE4Data {
 		}
 		
 		public Item[] usableItems(List<HolyBloodSlot1> slot1Blood, List<HolyBloodSlot2> slot2Blood, List<HolyBloodSlot3> slot3Blood) {
+			return usableItems(slot1Blood, slot2Blood, slot3Blood, false);
+		}
+		
+		public Item[] usableItems(List<HolyBloodSlot1> slot1Blood, List<HolyBloodSlot2> slot2Blood, List<HolyBloodSlot3> slot3Blood, boolean allowSiegeTomes) {
 			if (slot1Blood == null) { slot1Blood = new ArrayList<HolyBloodSlot1>(); }
 			if (slot2Blood == null) { slot2Blood = new ArrayList<HolyBloodSlot2>(); }
 			if (slot3Blood == null) { slot3Blood = new ArrayList<HolyBloodSlot3>(); }
@@ -1413,6 +1436,10 @@ public class FE4Data {
 				boolean hasMajorBlood = slot3Blood.contains(HolyBloodSlot3.MAJOR_BRAGI);
 				boolean hasMinorBlood = slot3Blood.contains(HolyBloodSlot3.MINOR_BRAGI);
 				addItemsOfTypeAndRank(items, ItemType.STAFF, hasMajorBlood, hasMinorBlood);
+			}
+			
+			if (!allowSiegeTomes) {
+				items.removeAll(Item.siegeTomes);
 			}
 			
 			return items.toArray(new Item[items.size()]);
@@ -2125,10 +2152,10 @@ public class FE4Data {
 		public static final Set<Item> interestingWeapons = new HashSet<Item>(Arrays.asList(MIRACLE_SWORD, THIEF_SWORD,
 				BARRIER_BLADE, BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD, SAFEGUARD,
 				FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, ARMORSLAYER, WING_CLIPPER, BRAVE_AXE, 
-				BRAVE_LANCE, HORSESLAYER, BRAVE_BOW, KILLER_BOW, NOSFERATU));
+				BRAVE_LANCE, HORSESLAYER, BRAVE_BOW, KILLER_BOW, NOSFERATU, HEL));
 		
 		public static final Set<Item> powerfulWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, STEEL_BLADE, SILVER_BLADE, SILVER_LANCE,
-				SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, AURA));
+				SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, AURA, FENRIR));
 		
 		public static final Set<Item> ironSet = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_BLADE, SLIM_SWORD, IRON_LANCE, SLIM_LANCE, IRON_AXE, IRON_BOW, FIRE, WIND, THUNDER, LIGHT, YOTSMUNGAND, HEAL));
 		public static final Set<Item> steelSet = new HashSet<Item>(Arrays.asList(STEEL_SWORD, STEEL_BLADE, STEEL_LANCE, STEEL_AXE, STEEL_BOW, ELFIRE, ELTHUNDER, ELWIND, LIGHT, YOTSMUNGAND, MEND));

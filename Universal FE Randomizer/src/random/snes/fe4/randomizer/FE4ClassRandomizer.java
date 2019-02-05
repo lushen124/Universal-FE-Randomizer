@@ -1793,8 +1793,16 @@ public class FE4ClassRandomizer {
 			blacklistedItems.addAll(FE4Data.Item.powerfulWeapons);
 		}
 		
-		Set<FE4Data.Item> itemSet = new HashSet<FE4Data.Item>(Arrays.asList(targetClass.usableItems(null, null, null)));
-		itemSet.removeAll(blacklistedItems);
+		boolean isStationary = FE4Data.Character.CastleGuards.contains(enemyChar);
+		
+		Set<FE4Data.Item> itemSet = new HashSet<FE4Data.Item>(Arrays.asList(targetClass.usableItems(null, null, null, isStationary)));
+		if (enemyChar.ID == FE4Data.Character.KUTUZOV_TURN_12.ID) {
+			// Special Case: Kutuzov is a boss in Chapter 7 that spawns initially missing a weapon. After 12 turns, he finds his poweful weapon in his castle and re-emerges as a new character.
+			// If this character is the version after turn 12, then we're going to give him only powerful weapons.
+			itemSet.retainAll(FE4Data.Item.powerfulWeapons);
+		} else {
+			itemSet.removeAll(blacklistedItems);
+		}
 		itemSet.removeAll(FE4Data.Item.femaleOnlyWeapons);
 		itemSet.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
 		List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet);
