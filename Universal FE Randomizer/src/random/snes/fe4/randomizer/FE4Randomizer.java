@@ -10,7 +10,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4StaticCharacter;
 import io.DiffApplicator;

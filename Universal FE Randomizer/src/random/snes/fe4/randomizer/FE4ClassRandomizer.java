@@ -1426,6 +1426,12 @@ public class FE4ClassRandomizer {
 		}
 		
 		// Verify equipment.
+		
+		// If this is Deirdre, substitute her aura (0x60) with chapter 8 steel lance (0x34) to prevent duplicate items in Gen 2.
+		if (character.getCharacterID() == FE4Data.Character.DEIRDRE.ID) {
+			character.setEquipment1(FE4Data.Chapter8ShopSteelLanceInventoryID);
+		}
+		
 		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
 		usableItems.removeIf(item -> (item.getRank() == FE4Data.Item.WeaponRank.PRF));
 		if (!character.isFemale()) {

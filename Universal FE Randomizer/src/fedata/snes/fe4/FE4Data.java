@@ -105,6 +105,13 @@ public class FE4Data {
 	public static final byte FemaleEmperorStaffAnimationFixOldValue = 0x00;
 	public static final byte FemaleEmperorStaffAnimationFixNewValue = 0x01;
 	
+	// Aura shenanigans.
+	// 0x34 is a Steel Lance freely available in Ch. 8 that we can use
+	// This allows us to swap it for Deirdre's Aura, which can side-step the duplicate item issue in gen 2.
+	// This means Deirdre gets 0x34 randomized to her usage, which frees up 0x60 (what used to be Aura) to be unique to Julia.
+	public static final int Chapter8ShopSteelLanceInventoryID = 0x34;
+	public static final int DeirdreAuraInventoryID = 0x60;
+	
 	public static final Map<Character, List<Integer>> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, List<Integer>> createEventItemMap() {
 		Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();
@@ -125,8 +132,8 @@ public class FE4Data {
 		map.put(Character.LAYLEA, new ArrayList<Integer>(Arrays.asList(0x17))); // Barrier Sword
 		map.put(Character.SELIPH, new ArrayList<Integer>(Arrays.asList(0x1A))); // Hero Sword
 		/*map.put(Character.SHANNAN, 0x28); // Balmung*/
-		map.put(Character.JULIA, new ArrayList<Integer>(Arrays.asList(0x5E, 0x5F, 0x66))); // Lightning, Nosferatu, Mend Staff
-		// Aura (0x60) should be here, but it's shared with Deirdre (her starting equipment), so they have to use the same weapon type.
+		map.put(Character.JULIA, new ArrayList<Integer>(Arrays.asList(0x5E, 0x5F, 0x60, 0x66))); // Lightning, Nosferatu, Mend Staff
+		// With the change to give Deirdre 0x34 instead (a Chapter 8 Shop Steel Lance), this frees up 0x60 for Julia.
 		/*map.put(Character.JULIA, 0x61); // Naga*/
 		map.put(Character.CHARLOT, new ArrayList<Integer>(Arrays.asList(0x74))); // Berserk Staff
 		return map;
@@ -142,9 +149,6 @@ public class FE4Data {
 		
 		map.put(Character.MIDIR, Character.JAMKE);
 		map.put(Character.JAMKE, Character.MIDIR);
-	
-		map.put(Character.JULIA, Character.DEIRDRE);
-		map.put(Character.DEIRDRE, Character.JULIA);
 		
 		return map;
 	}
