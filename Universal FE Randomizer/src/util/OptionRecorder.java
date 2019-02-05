@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import fedata.general.FEBase;
 import ui.fe4.FE4ClassOptions;
+import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
@@ -48,6 +49,7 @@ public class OptionRecorder {
 		public SkillsOptions skills;
 		public FE4ClassOptions classes;
 		public FE4PromotionOptions promo;
+		public FE4EnemyBuffOptions enemyBuff;
 		public MiscellaneousOptions misc;
 		public String seed;
 		public Integer version;
@@ -82,7 +84,7 @@ public class OptionRecorder {
 	}
 	
 	public static void recordFE4Options(GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions, 
-			FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, MiscellaneousOptions miscOptions, String seed) {
+			FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, MiscellaneousOptions miscOptions, String seed) {
 		FE4OptionBundle bundle = new FE4OptionBundle();
 		bundle.growths = growthOptions;
 		bundle.bases = basesOptions;
@@ -90,6 +92,7 @@ public class OptionRecorder {
 		bundle.skills = skillOptions;
 		bundle.classes = classOptions;
 		bundle.promo = promoOptions;
+		bundle.enemyBuff = buffOptions;
 		bundle.misc = miscOptions;
 		bundle.seed = seed;
 		bundle.version = FE4OptionBundleVersion;

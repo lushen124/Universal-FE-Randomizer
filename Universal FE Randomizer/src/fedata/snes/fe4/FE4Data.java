@@ -2234,7 +2234,18 @@ public class FE4Data {
 		}
 		
 		public enum WeaponRank {
-			NONE, C, B, A, PRF
+			NONE, C, B, A, PRF;
+			
+			public boolean isHigher(WeaponRank other) {
+				switch (this) {
+				case NONE:
+				case C: return false;
+				case B: return other == C;
+				case A: return other == C || other == B;
+				case PRF: return other != PRF;
+				default: return false;
+				}
+			}
 		}
 		
 		public enum ItemType {

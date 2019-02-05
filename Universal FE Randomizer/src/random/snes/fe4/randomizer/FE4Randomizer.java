@@ -18,11 +18,13 @@ import io.UPSPatcher;
 import random.general.Randomizer;
 import random.general.WeightedDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
+import random.snes.fe4.loader.ClassDataLoader;
 import random.snes.fe4.loader.ItemDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
 import random.snes.fe4.loader.PromotionMapper;
 import ui.fe4.FE4ClassOptions;
+import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
@@ -47,10 +49,12 @@ public class FE4Randomizer extends Randomizer {
 	private SkillsOptions skillsOptions;
 	private FE4ClassOptions classOptions;
 	private FE4PromotionOptions promoOptions;
+	private FE4EnemyBuffOptions buffOptions;
 	private MiscellaneousOptions miscOptions;
 	
 	HolyBloodLoader bloodData;
 	CharacterDataLoader charData;
+	ClassDataLoader classData;
 	ItemDataLoader itemData;
 	ItemMapper itemMapper;
 	PromotionMapper promotionMapper;
@@ -62,7 +66,7 @@ public class FE4Randomizer extends Randomizer {
 	private FileHandler handler;
 	
 	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, 
-			SkillsOptions skillOptions, FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, MiscellaneousOptions miscOptions, String seed) {
+			SkillsOptions skillOptions, FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -78,6 +82,7 @@ public class FE4Randomizer extends Randomizer {
 		this.skillsOptions = skillOptions;
 		this.classOptions = classOptions;
 		this.promoOptions = promoOptions;
+		this.buffOptions = buffOptions;
 		this.miscOptions = miscOptions;
 	}
 	
@@ -145,8 +150,10 @@ public class FE4Randomizer extends Randomizer {
 		updateProgress(0.75);
 		randomizePromotionsIfNecessary(seed);
 		updateProgress(0.85);
-		makeFinalAdjustments(seed);
+		buffEnemiesIfNecessary(seed);
 		updateProgress(0.90);
+		makeFinalAdjustments(seed);
+		updateProgress(0.95);
 		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
@@ -155,6 +162,7 @@ public class FE4Randomizer extends Randomizer {
 		bloodData.compileDiffs(diffCompiler);
 		promotionMapper.compileDiff(diffCompiler);
 		itemData.compileDiffs(diffCompiler);
+		classData.compileDiffs(diffCompiler);
 		
 		updateStatusString("Applying changes...");
 		updateProgress(0.99);
@@ -185,6 +193,7 @@ public class FE4Randomizer extends Randomizer {
 		bloodData.recordHolyBlood(recordKeeper, false);
 		itemMapper.recordRingMap(recordKeeper, false);
 		promotionMapper.recordPromotions(recordKeeper, false);
+		classData.recordClasses(recordKeeper, false);
 		
 		recordKeeper.sortKeysInCategoryAndSubcategories(CharacterDataLoader.RecordKeeperCategoryKey);
 		
@@ -292,6 +301,10 @@ public class FE4Randomizer extends Randomizer {
 		updateStatusString("Loading Item Data...");
 		updateProgress(0.30);
 		itemData = new ItemDataLoader(handler, isHeadered);
+		
+		updateStatusString("Loading Class Data...");
+		updateProgress(0.40);
+		classData = new ClassDataLoader(handler, isHeadered);
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
@@ -415,6 +428,25 @@ public class FE4Randomizer extends Randomizer {
 			updateStatusString("Randomizing Promotions...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4PromotionRandomizer.rngSalt + 1));
 			FE4PromotionRandomizer.randomizePromotions(promoOptions, charData, promotionMapper, rng);
+		}
+	}
+	
+	private void buffEnemiesIfNecessary(String seed) {
+		if (buffOptions != null) {
+			if (buffOptions.increaseEnemyScaling) {
+				updateStatusString("Scaling up enemies...");
+				FE4EnemyBuffer.buffEnemyStats(buffOptions, charData, classData);
+			}
+			if (buffOptions.improveMinionWeapons) {
+				updateStatusString("Improving Enemy Weapons...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4EnemyBuffer.rngSalt + 1));
+				FE4EnemyBuffer.improveEquipment(buffOptions, charData, rng);
+			}
+			if (buffOptions.majorHolyBloodBosses) {
+				updateStatusString("Upgrading Holy Bosses...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4EnemyBuffer.rngSalt + 2));
+				FE4EnemyBuffer.forceMajorBloodOnHolyBOsses(buffOptions, charData, itemMapper, rng);
+			}
 		}
 	}
 	
@@ -704,6 +736,7 @@ public class FE4Randomizer extends Randomizer {
 		bloodData.recordHolyBlood(rk, true);
 		itemMapper.recordRingMap(rk, true);
 		promotionMapper.recordPromotions(rk, true);
+		classData.recordClasses(rk, true);
 		
 		return rk;
 	}

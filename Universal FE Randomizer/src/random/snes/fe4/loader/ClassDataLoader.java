@@ -1,5 +1,6 @@
 package random.snes.fe4.loader;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import util.recordkeeper.RecordKeeper;
 public class ClassDataLoader {
 	
 	private Map<FE4Data.CharacterClass, FE4Class> classMap = new HashMap<FE4Data.CharacterClass, FE4Class>();
+	private List<FE4Class> validClasses = new ArrayList<FE4Class>();
 	
 	public static final String RecordKeeperCategoryKey = "Classes";
 	
@@ -30,8 +32,16 @@ public class ClassDataLoader {
 			byte[] classData = handler.readBytesAtOffset(address, FE4Data.ClassTableItemSize);
 			FE4Class classObject = new FE4Class(classData, address);
 			FE4Data.CharacterClass fe4CharClass = FE4Data.CharacterClass.valueOf(i);
+			if (fe4CharClass == null) { continue; }
 			classMap.put(fe4CharClass, classObject);
+			if (FE4Data.CharacterClass.unpromotedClasses.contains(fe4CharClass) || FE4Data.CharacterClass.promotedClasses.contains(fe4CharClass)) {
+				validClasses.add(classObject);
+			}
 		}
+	}
+	
+	public List<FE4Class> allValidClasses() {
+		return new ArrayList<FE4Class>(validClasses);
 	}
 	
 	public void commit() {
