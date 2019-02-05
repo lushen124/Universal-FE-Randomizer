@@ -1223,6 +1223,7 @@ public class FE4ClassRandomizer {
 				List<FE4Data.HolyBlood> bloodOptions = new ArrayList<FE4Data.HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
 				// Bosses should never get Bragi Blood. That's a staff as a weapon if that's the case.
 				bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
+				bloodOptions.remove(FE4Data.HolyBlood.NAGA); // Probably shouldn't get Naga either, in case they end up with the Naga tome (and wipe the floor with everybody).
 				if (!bloodOptions.isEmpty()) {
 					FE4Data.HolyBlood newMajorBlood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
 					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajorBlood, true);
