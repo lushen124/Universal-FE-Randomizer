@@ -100,6 +100,11 @@ public class FE4Data {
 	public static final int ItemTableCount = 107;
 	public static final int ItemSize = 19;
 	
+	// Emperor has a 1 byte mistake in its battle animation data that breaks for female emperors using staves. We can fix this and re-enable Emperor as a class.
+	public static final long FemaleEmperorStaffAnimationFixOffset = 0x178E7CL;
+	public static final byte FemaleEmperorStaffAnimationFixOldValue = 0x00;
+	public static final byte FemaleEmperorStaffAnimationFixNewValue = 0x01;
+	
 	public static final Map<Character, List<Integer>> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, List<Integer>> createEventItemMap() {
 		Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();
