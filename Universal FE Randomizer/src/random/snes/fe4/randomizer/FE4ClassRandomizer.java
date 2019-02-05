@@ -146,6 +146,10 @@ public class FE4ClassRandomizer {
 			
 			Set<HolyBlood> bloodOptions = new HashSet<HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
 			targetClass = classList.get(rng.nextInt(classList.size()));
+			if (FE4Data.CharacterClass.reducedChanceClasses.contains(targetClass)) {
+				// Reroll once for anybody ending up in these classes.
+				targetClass = classList.get(rng.nextInt(classList.size()));
+			}
 			Set<HolyBlood> supportedBlood = new HashSet<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
 			supportedBlood.retainAll(bloodOptions);
 			while (supportedBlood.isEmpty()) {
@@ -252,6 +256,10 @@ public class FE4ClassRandomizer {
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
 			
 			targetClass = classList.get(rng.nextInt(classList.size()));
+			if (FE4Data.CharacterClass.reducedChanceClasses.contains(targetClass)) {
+				// Reroll once for anybody ending up in these classes.
+				targetClass = classList.get(rng.nextInt(classList.size()));
+			}
 			setStaticCharacterToClass(options, staticChar, targetClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {

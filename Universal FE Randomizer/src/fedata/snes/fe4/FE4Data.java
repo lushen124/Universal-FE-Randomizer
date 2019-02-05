@@ -1246,8 +1246,11 @@ public class FE4Data {
 				MAGE_KNIGHT, GREAT_KNIGHT, FALCON_KNIGHT, DRAGON_MASTER, SWORD_MASTER, SNIPER, FORREST, GENERAL, WARRIOR, MAGE_FIGHTER, MAGE_FIGHTER_F, HIGH_PRIEST, SAGE, THIEF_FIGHTER, EMPEROR,
 				BARON, QUEEN, BISHOP, DARK_BISHOP));
 		
-		public static final Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, EMPEROR, BARON, QUEEN, BISHOP, DARK_BISHOP));
-		public static final Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS)); // This one seems to make the game go nuts for enemies.
+		// We can blacklist as necessary, but this list includes all of the classes we don't give out to playable characters freely.
+		// Emperor and Queen are blocked as we don't give out advanced classes freely (but we allow playable characters to promote into them under the right settings).
+		public static final Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(/*BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, EMPEROR,*/ BARON/*, QUEEN*/, BISHOP, DARK_BISHOP));
+		// Princess should be ok, so long as we adhere to gender flags.
+		public static final Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(/*PRINCESS*/));
 		
 		public static final Set<CharacterClass> swordUsers = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, PRINCESS, MASTER_KNIGHT, SWORD_FIGHTER, SWORD_MASTER, FORREST, THIEF,
 				THIEF_FIGHTER, DANCER, SOCIAL_KNIGHT, PALADIN, TROUBADOUR, PALADIN_F, FREE_KNIGHT, FORREST_KNIGHT, SWORD_ARMOR, GENERAL, BARON, EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_RIDER,
@@ -1298,8 +1301,8 @@ public class FE4Data {
 		public static final Set<CharacterClass> A_staffUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, HIGH_PRIEST, BISHOP, QUEEN, DARK_BISHOP));
 		
 		public static final Set<CharacterClass> maleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, AXE_FIGHTER, WARRIOR, BARBARIAN, PIRATE, HUNTER, SWORD_ARMOR, ARMOR, 
-				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, FREE_KNIGHT, FORREST_KNIGHT, PALADIN));
-		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS));
+				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, MAGE_FIGHTER, FREE_KNIGHT, FORREST_KNIGHT, PALADIN, MOUNTAIN_THIEF, BISHOP, DARK_MAGE));
+		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS, QUEEN));
 		
 		public static final Set<CharacterClass> noWeaknessClasses = new HashSet<CharacterClass>(Arrays.asList(BOW_FIGHTER, SWORD_FIGHTER, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
 				FIRE_MAGE, THUNDER_MAGE, WIND_MAGE, BARD, LIGHT_PRIESTESS, THIEF, BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, DANCER, SWORD_MASTER, SNIPER, FORREST, WARRIOR, MAGE_FIGHTER, MAGE_FIGHTER_F, HIGH_PRIEST, 
@@ -1316,6 +1319,8 @@ public class FE4Data {
 		public static final Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCH_KNIGHT, BOW_KNIGHT, HUNTER, BOW_ARMOR, BOW_FIGHTER, SNIPER));
 		
 		public static final Set<CharacterClass> advancedClasses = new HashSet<CharacterClass>(Arrays.asList(EMPEROR, QUEEN));
+		
+		public static final Set<CharacterClass> reducedChanceClasses = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, EMPEROR, QUEEN, BARON));
 		
 		public int ID;
 		
@@ -1605,7 +1610,11 @@ public class FE4Data {
 			if (promotedClasses.contains(this)) { workingSet.addAll(promotedClasses); }
 			else { workingSet.addAll(unpromotedClasses); }
 			
-			if (!isEnemy) { workingSet.removeAll(enemyOnlyClasses); }
+			if (!isEnemy) { 
+				workingSet.removeAll(enemyOnlyClasses);
+				// Nobody is going to immediately randomize into advanced classes though.
+				workingSet.removeAll(advancedClasses);
+			}
 			else { workingSet.removeAll(playerOnlyClasses); }
 			
 			if (!allowSame) { workingSet.remove(this); }
@@ -1830,6 +1839,196 @@ public class FE4Data {
 			case DARK_MAGE: return new CharacterClass[] {DARK_BISHOP};
 			default: return new CharacterClass[] {};
 			}
+		}
+		
+		public CharacterClass[] getLoosePromotionOptions(boolean isFemale, boolean includeAlternateMounts, boolean includeEnemyClasses, List<HolyBloodSlot1> slot1Blood, List<HolyBloodSlot2> slot2Blood, List<HolyBloodSlot3> slot3Blood) {
+			List<CharacterClass> resultList = new ArrayList<CharacterClass>();
+			
+			if (slot1Blood == null) { slot1Blood = new ArrayList<HolyBloodSlot1>(); }
+			if (slot2Blood == null) { slot2Blood = new ArrayList<HolyBloodSlot2>(); }
+			if (slot3Blood == null) { slot3Blood = new ArrayList<HolyBloodSlot3>(); }
+			
+			switch (this) {
+			case SOCIAL_KNIGHT:
+				resultList.add(isFemale ? PALADIN_F : PALADIN);
+				if (!isFemale) { resultList.add(LORD_KNIGHT); }
+				resultList.add(MASTER_KNIGHT);
+				if (includeAlternateMounts) {
+					resultList.add(DRAGON_MASTER);
+					if (isFemale) { resultList.add(FALCON_KNIGHT); }
+				}
+				break;
+			case LANCE_KNIGHT:
+				if (!isFemale) { resultList.addAll(Arrays.asList(PALADIN, LORD_KNIGHT)); }
+				resultList.addAll(Arrays.asList(DUKE_KNIGHT, MASTER_KNIGHT));
+				if (isFemale && (slot1Blood.contains(HolyBloodSlot1.MAJOR_DAIN) || slot1Blood.contains(HolyBloodSlot1.MAJOR_NJORUN))) { resultList.add(PALADIN_F); }
+				if (includeAlternateMounts) {
+					resultList.add(DRAGON_MASTER);
+					if (isFemale) { resultList.add(FALCON_KNIGHT); }
+				}
+				break;
+			case ARCH_KNIGHT:
+				resultList.addAll(Arrays.asList(BOW_KNIGHT, MASTER_KNIGHT));
+				break;
+			case AXE_KNIGHT:
+				resultList.addAll(Arrays.asList(GREAT_KNIGHT, MASTER_KNIGHT));
+				break;
+			case FREE_KNIGHT:
+				assert !isFemale : "Free Knights can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(FORREST_KNIGHT, PALADIN, LORD_KNIGHT, MASTER_KNIGHT));
+				if (includeAlternateMounts) { resultList.add(DRAGON_MASTER); }
+				break;
+			case TROUBADOUR:
+				assert isFemale : "Troubadours can only be loosely promoted by females.";
+				resultList.addAll(Arrays.asList(PALADIN_F, MASTER_KNIGHT));
+				if (includeAlternateMounts) { resultList.add(FALCON_KNIGHT); }
+				break;
+			case PEGASUS_KNIGHT:
+				assert isFemale : "Pegasus Knights can only be loosely promoted by females.";
+				resultList.add(FALCON_KNIGHT);
+				if (includeAlternateMounts) { resultList.add(MASTER_KNIGHT); }
+				break;
+			case DRAGON_RIDER:
+				assert !isFemale : "Dragon Rider can only be loosely promoted by males.";
+				resultList.add(DRAGON_MASTER);
+				if (includeAlternateMounts) { resultList.addAll(Arrays.asList(PALADIN, MASTER_KNIGHT)); }
+				break;
+			case DRAGON_KNIGHT:
+				resultList.add(DRAGON_MASTER);
+				if (includeAlternateMounts) { 
+					resultList.add(MASTER_KNIGHT);
+				}
+				break;
+			case BOW_FIGHTER:
+				resultList.addAll(Arrays.asList(SNIPER, MASTER_KNIGHT));
+				break;
+			case SWORD_FIGHTER:
+				resultList.addAll(Arrays.asList(SWORD_MASTER, FORREST, MASTER_KNIGHT));
+				break;
+			case ARMOR:
+				assert !isFemale : "Armors can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(GENERAL, DRAGON_MASTER, MASTER_KNIGHT));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, EMPEROR)); }
+				break;
+			case AXE_ARMOR:
+				assert !isFemale : "Axe Armors can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(GENERAL, GREAT_KNIGHT, MASTER_KNIGHT));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, EMPEROR)); }
+				break;
+			case BOW_ARMOR:
+				assert !isFemale : "Bow Armors can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(GENERAL, MASTER_KNIGHT));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, EMPEROR)); }
+				break;
+			case SWORD_ARMOR:
+				assert !isFemale : "Sword Armors can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(GENERAL, DRAGON_MASTER, MASTER_KNIGHT));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, EMPEROR)); }
+				break;
+			case AXE_FIGHTER:
+				assert !isFemale : "Axe Fighters can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(WARRIOR, MASTER_KNIGHT));
+				break;
+			case JUNIOR_LORD:
+				assert !isFemale : "Junior Lords can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(PALADIN, LORD_KNIGHT, FORREST_KNIGHT, DRAGON_MASTER, FORREST, SWORD_MASTER, THIEF_FIGHTER, MAGE_KNIGHT, MASTER_KNIGHT));
+				if (slot1Blood.contains(HolyBloodSlot1.MAJOR_BALDR) || slot2Blood.contains(HolyBloodSlot2.MAJOR_OD) || slot3Blood.contains(HolyBloodSlot3.MAJOR_HEZUL)) {
+					resultList.add(MAGE_FIGHTER);
+				}
+				break;
+			case PRINCE:
+				assert !isFemale : "Princes can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(LORD_KNIGHT, FORREST_KNIGHT, DRAGON_MASTER, FORREST, SWORD_MASTER, MASTER_KNIGHT));
+				if (slot1Blood.contains(HolyBloodSlot1.MINOR_BALDR) || slot1Blood.contains(HolyBloodSlot1.MAJOR_BALDR) ||
+						slot2Blood.contains(HolyBloodSlot2.MINOR_OD) || slot2Blood.contains(HolyBloodSlot2.MAJOR_OD) ||
+						slot3Blood.contains(HolyBloodSlot3.MINOR_HEZUL) || slot3Blood.contains(HolyBloodSlot3.MAJOR_HEZUL)) {
+					resultList.add(PALADIN);
+				}
+				break;
+			case PRINCESS:
+				assert isFemale : "Princesses can only be loosely promoted by females.";
+				resultList.addAll(Arrays.asList(PALADIN_F, FALCON_KNIGHT, MASTER_KNIGHT));
+				break;
+			case PRIEST:
+				resultList.addAll(Arrays.asList(HIGH_PRIEST, SAGE, MASTER_KNIGHT));
+				if (isFemale && slot3Blood.contains(HolyBloodSlot3.MAJOR_BRAGI)) { resultList.add(FALCON_KNIGHT); }
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, DARK_BISHOP, EMPEROR)); }
+				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
+				break;
+			case MAGE:
+				resultList.addAll(Arrays.asList(SAGE, MAGE_KNIGHT, MASTER_KNIGHT, (isFemale ? MAGE_FIGHTER_F : MAGE_FIGHTER)));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, DARK_BISHOP, EMPEROR)); }
+				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
+				break;
+			case FIRE_MAGE:
+				resultList.addAll(Arrays.asList(SAGE, MAGE_KNIGHT, MASTER_KNIGHT, (isFemale ? MAGE_FIGHTER_F : MAGE_FIGHTER)));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(DARK_BISHOP, EMPEROR)); }
+				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
+				break;
+			case THUNDER_MAGE:
+			case WIND_MAGE:
+				resultList.addAll(Arrays.asList(SAGE, MASTER_KNIGHT, (isFemale ? MAGE_FIGHTER_F : MAGE_FIGHTER)));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(DARK_BISHOP, EMPEROR)); }
+				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
+				break;
+			case BARD:
+				resultList.addAll(Arrays.asList(SAGE, MASTER_KNIGHT));
+				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
+				break;
+			case LIGHT_PRIESTESS:
+				assert isFemale : "Light Priestess can only be loosely promoted by females.";
+				resultList.add(SAGE);
+				break;
+			case THIEF:
+				resultList.add(THIEF_FIGHTER);
+				break;
+			case DARK_MAGE:
+				assert !isFemale : "Dark Mages can only be loosely promoted by males.";
+				resultList.add(DARK_BISHOP);
+				break;
+			case HUNTER:
+				assert !isFemale : "Hunters can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(SNIPER, BOW_KNIGHT, MASTER_KNIGHT));
+				if (slot2Blood.contains(HolyBloodSlot2.MINOR_ULIR) || slot2Blood.contains(HolyBloodSlot2.MAJOR_ULIR)) { resultList.add(WARRIOR); }
+				break;
+			case MOUNTAIN_THIEF:
+			case PIRATE:
+			case BARBARIAN:
+				assert !isFemale : "Mountain Thieves, Barbarians, and Pirates can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(WARRIOR, GREAT_KNIGHT, MASTER_KNIGHT));
+				break;
+			default:
+				break;
+			}
+			
+			if (resultList.isEmpty()) {
+				return promotionClasses(isFemale);
+			}
+			
+			return resultList.toArray(new CharacterClass[resultList.size()]);
+		}
+		
+		public CharacterClass[] sharedWeaponPromotions(boolean isFemale) {
+			Set<CharacterClass> promotions = new HashSet<CharacterClass>();
+			if (swordUsers.contains(this)) { promotions.addAll(swordUsers); }
+			if (lanceUsers.contains(this)) { promotions.addAll(lanceUsers); }
+			if (axeUsers.contains(this)) { promotions.addAll(axeUsers); }
+			if (bowUsers.contains(this)) { promotions.addAll(bowUsers); }
+			if (fireUsers.contains(this)) { promotions.addAll(fireUsers); }
+			if (thunderUsers.contains(this)) { promotions.addAll(thunderUsers); }
+			if (windUsers.contains(this)) { promotions.addAll(windUsers); }
+			if (lightUsers.contains(this)) { promotions.addAll(lightUsers); }
+			if (darkUsers.contains(this)) { promotions.addAll(darkUsers); }
+			if (staffUsers.contains(this)) { promotions.addAll(staffUsers); }
+			
+			promotions.removeAll(unpromotedClasses);
+			if (isFemale) {
+				promotions.removeAll(maleOnlyClasses);
+			} else {
+				promotions.removeAll(femaleOnlyClasses);
+			}
+			
+			return promotions.toArray(new CharacterClass[promotions.size()]);
 		}
 	}
 	
