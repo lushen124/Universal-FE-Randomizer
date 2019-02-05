@@ -817,6 +817,7 @@ public class FE4Data {
 		// Seliph *technically* doesn't need to attack.
 		public static final Set<Character> CharactersThatMustBeAbleToAttack = new HashSet<Character>(Arrays.asList(SIGURD, /*SELIPH,*/ MIDIR));
 		public static final Set<Character> CharactersThatMustAttackAtMeleeRange = new HashSet<Character>(Arrays.asList(CHULAINN));
+		public static final Set<Character> CharactersThatRequireHorses = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN)); // :(
 
 		public int ID;
 		
