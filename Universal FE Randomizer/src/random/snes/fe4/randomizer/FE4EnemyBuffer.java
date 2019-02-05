@@ -116,6 +116,8 @@ public class FE4EnemyBuffer {
 			if (holyBoss.getCharacterID() == FE4Data.Character.JULIUS_FINAL.ID) { continue; }
 			// Just to make sure Ch. 6 doesn't start out crazy, Danann shouldn't have one either.
 			if (holyBoss.getCharacterID() == FE4Data.Character.DANANN.ID) { continue; }
+			// Byron shouldn't have one for obvious reasons.
+			if (holyBoss.getCharacterID() == FE4Data.Character.BYRON.ID) { continue; }
 			
 			List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>();
 			bloodList.addAll(slot1Blood.stream().map(blood -> (blood.bloodType())).distinct().collect(Collectors.toList()));
@@ -148,7 +150,7 @@ public class FE4EnemyBuffer {
 			holyBoss.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
 			holyBoss.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
 			
-			holyWeapons.removeAll(usableByClass);
+			holyWeapons.retainAll(usableByClass);
 			
 			if (!holyWeapons.isEmpty()) {
 				FE4Data.Item randomHolyWeapon = holyWeapons.get(rng.nextInt(holyWeapons.size()));
