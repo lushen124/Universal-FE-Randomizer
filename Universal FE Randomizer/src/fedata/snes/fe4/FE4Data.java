@@ -917,6 +917,10 @@ public class FE4Data {
 				Set<CharacterClass> blacklist = new HashSet<CharacterClass>(CharacterClass.armoredClasses);
 				blacklist.addAll(CharacterClass.fliers);
 				return blacklist.toArray(new CharacterClass[blacklist.size()]);
+			case LARCEI:
+			case CREIDNE: // Be careful about sequence breaking Ch. 6. They can recruit Iuchar and Iucharba earlier than they're supposed to if they can fly.
+			case SELIPH: // Seliph can also seize castles out of order if he turns out to be able to fly.
+				return CharacterClass.fliers.toArray(new CharacterClass[CharacterClass.fliers.size()]);
 			case LEWYN:  // Needs holy weapon from ch. 4 castle.
 				return CharacterClass.armoredClasses.toArray(new CharacterClass[CharacterClass.armoredClasses.size()]);
 			default: return new CharacterClass[] {};
