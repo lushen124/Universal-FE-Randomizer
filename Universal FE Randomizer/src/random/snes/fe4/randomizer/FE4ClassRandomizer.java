@@ -1261,10 +1261,12 @@ public class FE4ClassRandomizer {
 			slot2Blood.removeIf(blood -> (blood.isMajor() == false));
 			slot3Blood.removeIf(blood -> (blood.isMajor() == false));
 			
-			List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(HolyBlood.values()));
+			List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
 			if (majorBloodType != null) {
 				bloodOptions.remove(majorBloodType);
 			}
+			// Once again, no Bragi.
+			bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
 			boolean hasFavoredBlood = false;
 			for (int i = 0; i < minorBloodCount; i++) {
 				FE4Data.HolyBlood blood = null;
