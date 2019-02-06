@@ -1009,6 +1009,9 @@ public class FE4Data {
 		public static final Set<Character> CharactersThatMustBeAbleToAttack = new HashSet<Character>(Arrays.asList(SIGURD, /*SELIPH,*/ MIDIR));
 		public static final Set<Character> CharactersThatMustAttackAtMeleeRange = new HashSet<Character>(Arrays.asList(CHULAINN));
 		public static final Set<Character> CharactersThatRequireHorses = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN)); // :(
+		
+		// These bosses can drop their holy weapon if they were randomized to get them.
+		public static final Set<Character> HolyBossesWithFreeDrops = new HashSet<Character>(Arrays.asList(HILDA_CH10, MUSAR, ARION_CH9));
 
 		public int ID;
 		
