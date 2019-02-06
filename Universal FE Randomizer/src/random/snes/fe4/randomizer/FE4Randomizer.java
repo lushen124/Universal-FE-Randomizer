@@ -468,7 +468,7 @@ public class FE4Randomizer extends Randomizer {
 			if (buffOptions.majorHolyBloodBosses) {
 				updateStatusString("Upgrading Holy Bosses...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4EnemyBuffer.rngSalt + 2));
-				FE4EnemyBuffer.forceMajorBloodOnHolyBOsses(buffOptions, charData, itemMapper, rng);
+				FE4EnemyBuffer.forceMajorBloodOnHolyBosses(buffOptions, charData, itemMapper, rng);
 			}
 		}
 	}

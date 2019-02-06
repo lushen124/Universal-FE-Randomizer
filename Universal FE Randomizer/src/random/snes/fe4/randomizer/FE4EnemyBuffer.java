@@ -106,7 +106,7 @@ public class FE4EnemyBuffer {
 		}
 	}
 	
-	public static void forceMajorBloodOnHolyBOsses(FE4EnemyBuffOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
+	public static void forceMajorBloodOnHolyBosses(FE4EnemyBuffOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		for (FE4StaticCharacter holyBoss : charData.getHolyBossCharacters()) {
 			List<FE4Data.HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(holyBoss.getHolyBlood1Value());
 			List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(holyBoss.getHolyBlood2Value());
@@ -156,7 +156,8 @@ public class FE4EnemyBuffer {
 				FE4Data.Item randomHolyWeapon = holyWeapons.get(rng.nextInt(holyWeapons.size()));
 				holyBoss.setEquipment1(randomHolyWeapon.ID);
 				
-				if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
+				FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
+				if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID && FE4Data.Character.HolyBossesWithFreeDrops.contains(fe4Char)) {
 					// If this boss drops an item, make him/her drop the holy weapon.
 					itemMap.setItemAtIndex(holyBoss.getEquipment3(), randomHolyWeapon);
 				}
