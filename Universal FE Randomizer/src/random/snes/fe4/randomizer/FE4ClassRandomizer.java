@@ -392,7 +392,7 @@ public class FE4ClassRandomizer {
 							 subClass = pool[rng.nextInt(pool.length)];
 						}
 						
-						setStaticCharacterToClass(options, subChar, subClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
+						setStaticCharacterToClass(options, subChar, subClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, targetClass, rng);
 						
 						predeterminedClasses.put(sub, subClass);
 					}
@@ -1389,7 +1389,13 @@ public class FE4ClassRandomizer {
 		}
 	}
 	
-	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.Character, FE4Data.Item> requiredItems, Random rng) {
+	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, 
+			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.Character, FE4Data.Item> requiredItems, Random rng) {
+		setStaticCharacterToClass(options, character, targetClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, null, rng);
+	}
+	
+	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, 
+			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.Character, FE4Data.Item> requiredItems, FE4Data.CharacterClass relatedClass, Random rng) {
 		FE4Data.CharacterClass oldClass = FE4Data.CharacterClass.valueOf(character.getClassID());
 		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
 		boolean wasMAGBased = oldClass.primaryAttackIsMagic();
@@ -1571,11 +1577,26 @@ public class FE4ClassRandomizer {
 			character.setEquipment1(FE4Data.Chapter8ShopSteelLanceInventoryID);
 		}
 		
-		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
-		usableItems.removeIf(item -> (item.getRank() == FE4Data.Item.WeaponRank.PRF));
-		if (!character.isFemale()) {
-			usableItems.removeIf(item -> (FE4Data.Item.femaleOnlyWeapons.contains(item)));
+		Set<FE4Data.Item> usableSet = new HashSet<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
+		
+		if (relatedClass != null) {
+			usableSet.retainAll(new HashSet<Item>(Arrays.asList(relatedClass.usableItems(null, null, null))));
 		}
+		
+		usableSet.removeIf(item -> (item.getRank() == FE4Data.Item.WeaponRank.PRF));
+		if (!character.isFemale()) {
+			usableSet.removeIf(item -> (FE4Data.Item.femaleOnlyWeapons.contains(item)));
+		}
+		
+		List<FE4Data.Item> usableItems = usableSet.stream().sorted(new Comparator<FE4Data.Item>() {
+			@Override
+			public int compare(Item o1, Item o2) {
+				return Integer.compare(o1.ID, o2.ID);
+			}
+		}).collect(Collectors.toList());
+		
+		// Remove Hel, if it's in here.
+		usableItems.remove(FE4Data.Item.HEL);
 		
 		boolean canAttack = usableItems.stream().anyMatch(item -> (item.isWeapon()));
 		boolean hasWeapon = false;
