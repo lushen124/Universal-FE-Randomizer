@@ -44,6 +44,11 @@ public class ClassDataLoader {
 		return new ArrayList<FE4Class>(validClasses);
 	}
 	
+	public FE4Class classForID(int classID) {
+		FE4Data.CharacterClass fe4Class = FE4Data.CharacterClass.valueOf(classID);
+		return classMap.get(fe4Class);
+	}
+	
 	public void commit() {
 		for (FE4Class classObject : classMap.values()) {
 			classObject.commitChanges();

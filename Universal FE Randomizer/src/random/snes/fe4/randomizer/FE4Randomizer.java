@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fedata.snes.fe4.FE4Class.ClassSkills;
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4StaticCharacter;
 import io.DiffApplicator;
@@ -479,6 +480,9 @@ public class FE4Randomizer extends Randomizer {
 		// Give Dark magic a price
 		itemData.itemForID(FE4Data.Item.YOTSMUNGAND.ID).setPrice(15000);
 		itemData.itemForID(FE4Data.Item.HEL.ID).setPrice(20000);
+		
+		// Remove Charm from Princess
+		classData.classForID(FE4Data.CharacterClass.PRINCESS.ID).setSlot2ClassSkills(new ArrayList<ClassSkills>());
 		
 		// These only need to be performed if playable character classes were randomized. Otherwise, the default values should still work.
 		if (classOptions.randomizePlayableCharacters) {
