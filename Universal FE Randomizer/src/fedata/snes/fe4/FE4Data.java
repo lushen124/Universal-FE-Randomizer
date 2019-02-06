@@ -2223,7 +2223,6 @@ public class FE4Data {
 				break;
 			case BARD:
 				resultList.addAll(Arrays.asList(SAGE, MASTER_KNIGHT));
-				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
 				break;
 			case LIGHT_PRIESTESS:
 				assert isFemale : "Light Priestess can only be loosely promoted by females.";
