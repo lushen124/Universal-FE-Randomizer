@@ -1,6 +1,8 @@
 package random.snes.fe4.loader;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,10 +16,11 @@ import util.recordkeeper.RecordKeeper;
 public class ItemMapper {
 	
 	private Map<Integer, FE4Data.Item> playerEquipmentIDToItem;
+	private Map<Integer, List<String>> registrationMap;
 	
 	private boolean isHeadered;
 	
-	public static final String RecordKeeperCategoryKey = "Item Map - Rings";
+	public static final String RecordKeeperCategoryKey = "Player Equipment";
 	
 	public ItemMapper(FileHandler handler, boolean isHeadered) {
 		super();
@@ -61,6 +64,7 @@ public class ItemMapper {
 		DebugPrinter.log(DebugPrinter.Key.FE4_ITEM_MAPPER, "Reading item map...");
 		
 		playerEquipmentIDToItem = new HashMap<Integer, FE4Data.Item>();
+		registrationMap = new HashMap<Integer, List<String>>();
 		
 		long baseOffset = FE4Data.PlayerItemMappingTableOffset;
 		int count = FE4Data.PlayerItemMappingTableCount;
@@ -85,6 +89,18 @@ public class ItemMapper {
 		
 		DebugPrinter.log(DebugPrinter.Key.FE4_ITEM_MAPPER, "Finished reading item map!");
 	}
+	
+	public void registerInventoryID(int inventoryID, String key) {
+		if (key == null) { return; }
+		
+		List<String> keys = registrationMap.get(inventoryID);
+		if (keys == null) {
+			keys = new ArrayList<String>();
+			registrationMap.put(inventoryID, keys);
+		}
+		
+		keys.add(key);
+	}
 
 	public void commitChanges() {
 		
@@ -108,6 +124,20 @@ public class ItemMapper {
 			FE4Data.Item item = playerEquipmentIDToItem.get(index);
 			if (item.isRing()) {
 				recordData(rk, isInitial, "Ring List", String.format("0x%s", Integer.toHexString(index).toUpperCase()), item.toString());
+			}
+		}
+	}
+	
+	public void recordItemMap(RecordKeeper rk, Boolean isInitial) {
+		String entryKey = "Item Map";
+		for (int index : allIndices()) {
+			FE4Data.Item item = playerEquipmentIDToItem.get(index);
+			String key = String.format("0x%s", Integer.toHexString(index).toUpperCase());
+			recordData(rk, isInitial, entryKey, key, item.toString());
+			List<String> registeredKeys = registrationMap.get(index);
+			if (registeredKeys != null) {
+				String registrationString = String.join("<br>", registeredKeys.toArray(new String[registeredKeys.size()]));
+				rk.setAdditionalInfo(RecordKeeperCategoryKey, entryKey, key, registrationString);
 			}
 		}
 	}

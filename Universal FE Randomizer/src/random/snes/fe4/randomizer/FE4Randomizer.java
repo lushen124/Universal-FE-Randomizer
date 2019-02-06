@@ -189,9 +189,31 @@ public class FE4Randomizer extends Randomizer {
 			}
 		}
 		
+		charData.registerInventories(itemMapper);
+		// Register shop items.
+		for (FE4Data.ShopItem shopItem : FE4Data.ShopItems) {
+			itemMapper.registerInventoryID(shopItem.itemInventoryID, "Shop (Ch. " + Integer.toString(shopItem.chapter) + ")");
+		}
+		// Register known event items.
+		for (FE4Data.EventGift eventItem : FE4Data.EventGifts) {
+			if (eventItem.donor != FE4Data.Character.NONE) {
+				itemMapper.registerInventoryID(eventItem.giftInventoryID, "Event (" + eventItem.donor.toString() + " -> " + eventItem.recipient.toString() + ")");
+			} else {
+				itemMapper.registerInventoryID(eventItem.giftInventoryID, "Event (" + eventItem.recipient.toString() + ")");
+			}
+		}
+		// Register village items.
+		for (FE4Data.VillageGift villageItem : FE4Data.VillageGifts) {
+			if (villageItem.chapter == 0) {
+				itemMapper.registerInventoryID(villageItem.giftInventoryID, "Village (Prologue)");
+			} else {
+				itemMapper.registerInventoryID(villageItem.giftInventoryID, "Village (Ch. " + villageItem.chapter + ")");
+			}
+		}
+		
 		charData.recordCharacters(recordKeeper, false, itemMapper);
 		bloodData.recordHolyBlood(recordKeeper, false);
-		itemMapper.recordRingMap(recordKeeper, false);
+		itemMapper.recordItemMap(recordKeeper, false);
 		promotionMapper.recordPromotions(recordKeeper, false);
 		classData.recordClasses(recordKeeper, false);
 		
@@ -734,7 +756,7 @@ public class FE4Randomizer extends Randomizer {
 		
 		charData.recordCharacters(rk, true, itemMapper);
 		bloodData.recordHolyBlood(rk, true);
-		itemMapper.recordRingMap(rk, true);
+		itemMapper.recordItemMap(rk, true);
 		promotionMapper.recordPromotions(rk, true);
 		classData.recordClasses(rk, true);
 		

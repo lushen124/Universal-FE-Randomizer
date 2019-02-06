@@ -112,6 +112,203 @@ public class FE4Data {
 	public static final int Chapter8ShopSteelLanceInventoryID = 0x34;
 	public static final int DeirdreAuraInventoryID = 0x60;
 	
+	public static final List<Integer> UnusedInventoryIDs = new ArrayList<Integer>(Arrays.asList(0x12, 0x40)); // These don't seem to be used by anybody in the game. Free holy weapons?
+	
+	public static class EventGift {
+		public Character recipient;
+		public Character donor;
+		public int giftInventoryID;
+		
+		public EventGift(Character donor, Character recipient, int giftInventoryID) {
+			this.recipient = recipient;
+			this.donor = donor;
+			this.giftInventoryID = giftInventoryID;
+		}
+	}
+	
+	public static final List<EventGift> EventGifts = createEventGiftList();
+	private static List<EventGift> createEventGiftList() {
+		List<EventGift> gifts = new ArrayList<EventGift>();
+		gifts.add(new EventGift(Character.ARVIS_CH5, Character.SIGURD, 0x0A)); // Silver Sword
+		gifts.add(new EventGift(Character.EDAIN, Character.ETHLYN, 0x6D)); // Return Staff
+		gifts.add(new EventGift(Character.DEW, Character.EDAIN, 0x6E)); // Warp Staff
+		gifts.add(new EventGift(Character.DEIRDRE, Character.ETHLYN, 0x25)); // Light Brand
+		gifts.add(new EventGift(Character.DEW, Character.LACHESIS, 0x16)); // Thief Sword
+		gifts.add(new EventGift(Character.QUAN, Character.FINN_GEN_1, 0x3B)); // Brave Lance
+		gifts.add(new EventGift(Character.LEX, Character.AYRA, 0x19)); // Brave Sword
+		gifts.add(new EventGift(Character.CHULAINN, Character.AYRA, 0x19)); // Brave Sword (Same as Lex)
+		gifts.add(new EventGift(Character.ELDIGAN_CH3, Character.LACHESIS, 0x22)); // Earth Sword
+		gifts.add(new EventGift(Character.ETHLYN, Character.QUAN, 0x3E)); // Gae Bolg
+		gifts.add(new EventGift(Character.EDAIN, Character.BRIGID, 0x4F)); // Yewfelle
+		gifts.add(new EventGift(Character.EDAIN, Character.MIDIR, 0x4D)); // Brave Bow
+		gifts.add(new EventGift(Character.EDAIN, Character.JAMKE, 0x4D)); // Brave Bow (Same as Midir)
+		gifts.add(new EventGift(Character.AZELLE, Character.EDAIN, 0x6F)); // Rescue Staff
+		gifts.add(new EventGift(Character.BYRON, Character.SIGURD, 0x27)); // Tyrfing
+		gifts.add(new EventGift(Character.LANA, Character.JULIA, 0x66)); // Mend Staff
+		gifts.add(new EventGift(Character.MUIRNE, Character.JULIA, 0x66)); // Mend Staff (Same as Lana)
+		gifts.add(new EventGift(Character.SELIPH, Character.JULIA, 0x60)); // Aura
+		gifts.add(new EventGift(Character.SELIPH, Character.JULIA, 0x5F)); // Nosferatu
+		gifts.add(new EventGift(Character.PATTY, Character.SHANNAN, 0x28)); // Balmung
+		gifts.add(new EventGift(Character.DAISY, Character.SHANNAN, 0x28)); // Balmung (Same as Patty)
+		gifts.add(new EventGift(Character.PATTY, Character.SELIPH, 0x1A)); // Hero Sword
+		gifts.add(new EventGift(Character.DAISY, Character.SELIPH, 0x1A)); // Hero Sword (Same as Patty)
+		gifts.add(new EventGift(Character.HANNIBAL, Character.CHARLOT, 0x74)); // Berserk Staff
+		gifts.add(new EventGift(Character.PALMARK, Character.SELIPH, 0x27)); // Tyrfing (Same as for Sigurd)
+		
+		gifts.add(new EventGift(Character.NONE, Character.LEX, 0x45)); // Brave Axe
+		gifts.add(new EventGift(Character.NONE, Character.ARDEN, 0x89)); // Pursuit Ring
+		gifts.add(new EventGift(Character.NONE, Character.DEW, 0x24)); // Wind Sword
+		gifts.add(new EventGift(Character.NONE, Character.SILVIA, 0x20)); // Defender
+		gifts.add(new EventGift(Character.NONE, Character.LEWYN, 0x5C)); // Foresti
+		gifts.add(new EventGift(Character.NONE, Character.LAYLEA, 0x17)); // Barrier Sword
+		gifts.add(new EventGift(Character.NONE, Character.SELIPH, 0x84)); // Life Ring
+		gifts.add(new EventGift(Character.NONE, Character.JULIA, 0x61)); // Naga
+		
+		gifts.add(new EventGift(Character.ALVA, Character.LACHESIS, 0x88)); // Knight Ring
+		return gifts;
+	}
+	
+	public static class ShopItem {
+		public int itemInventoryID;
+		public int chapter;
+		
+		public ShopItem(int itemInventoryID, int chapter) {
+			this.itemInventoryID = itemInventoryID;
+			this.chapter = chapter;
+		}
+	}
+	
+	public static final List<ShopItem> ShopItems = createShopItemList();
+	private static List<ShopItem> createShopItemList() {
+		List<ShopItem> shopItems = new ArrayList<ShopItem>();
+		// Ch. 1
+		shopItems.add(new ShopItem(0x1D, 1));
+		shopItems.add(new ShopItem(0x2F, 1));
+		shopItems.add(new ShopItem(0x38, 1));
+		shopItems.add(new ShopItem(0x41, 1));
+		// Ch. 2
+		shopItems.add(new ShopItem(0x33, 2));
+		shopItems.add(new ShopItem(0x55, 2));
+		shopItems.add(new ShopItem(0x10, 2));
+		shopItems.add(new ShopItem(0x4A, 2));
+		// Ch. 3
+		shopItems.add(new ShopItem(0x0B, 3));
+		shopItems.add(new ShopItem(0x36, 3));
+		shopItems.add(new ShopItem(0x44, 3));
+		shopItems.add(new ShopItem(0x4B, 3));
+		shopItems.add(new ShopItem(0x52, 3));
+		// Ch. 4
+		shopItems.add(new ShopItem(0x58, 4));
+		shopItems.add(new ShopItem(0x68, 4));
+		shopItems.add(new ShopItem(0x83, 4));
+		// Ch. 6
+		shopItems.add(new ShopItem(0x01, 6));
+		shopItems.add(new ShopItem(0x03, 6));
+		shopItems.add(new ShopItem(0x04, 6));
+		shopItems.add(new ShopItem(0x0A, 6));
+		shopItems.add(new ShopItem(0x0C, 6));
+		shopItems.add(new ShopItem(0x25, 6));
+		// Ch. 7
+		shopItems.add(new ShopItem(0x07, 7));
+		shopItems.add(new ShopItem(0x10, 7));
+		shopItems.add(new ShopItem(0x1D, 7));
+		shopItems.add(new ShopItem(0x21, 7));
+		shopItems.add(new ShopItem(0x2D, 7));
+		shopItems.add(new ShopItem(0x2E, 7));
+		shopItems.add(new ShopItem(0x2F, 7));
+		shopItems.add(new ShopItem(0x3C, 7));
+		shopItems.add(new ShopItem(0x3F, 7));
+		shopItems.add(new ShopItem(0x41, 7));
+		shopItems.add(new ShopItem(0x46, 7));
+		shopItems.add(new ShopItem(0x49, 7));
+		shopItems.add(new ShopItem(0x51, 7));
+		shopItems.add(new ShopItem(0x54, 7));
+		shopItems.add(new ShopItem(0x62, 7));
+		shopItems.add(new ShopItem(0x63, 7));
+		shopItems.add(new ShopItem(0x69, 7));
+		shopItems.add(new ShopItem(0x6D, 7));
+		shopItems.add(new ShopItem(0x05, 7));
+		shopItems.add(new ShopItem(0x0E, 7));
+		shopItems.add(new ShopItem(0x0F, 7));
+		shopItems.add(new ShopItem(0x1F, 7));
+		shopItems.add(new ShopItem(0x3D, 7));
+		// Ch. 8
+		shopItems.add(new ShopItem(0x08, 8));
+		shopItems.add(new ShopItem(0x1C, 8));
+		shopItems.add(new ShopItem(0x23, 8));
+		shopItems.add(new ShopItem(0x29, 8));
+		shopItems.add(new ShopItem(0x32, 8));
+		shopItems.add(new ShopItem(0x33, 8));
+		shopItems.add(new ShopItem(0x34, 8));
+		shopItems.add(new ShopItem(0x44, 8));
+		shopItems.add(new ShopItem(0x47, 8));
+		shopItems.add(new ShopItem(0x4A, 8));
+		shopItems.add(new ShopItem(0x50, 8));
+		shopItems.add(new ShopItem(0x55, 8));
+		shopItems.add(new ShopItem(0x58, 8));
+		shopItems.add(new ShopItem(0x65, 8));
+		shopItems.add(new ShopItem(0x72, 8));
+		shopItems.add(new ShopItem(0x06, 8));
+		shopItems.add(new ShopItem(0x30, 8));
+		shopItems.add(new ShopItem(0x48, 8));
+		shopItems.add(new ShopItem(0x5D, 8));
+		shopItems.add(new ShopItem(0x64, 8));
+		shopItems.add(new ShopItem(0x67, 8));
+		// Ch. 9
+		shopItems.add(new ShopItem(0x09, 9));
+		shopItems.add(new ShopItem(0x0B, 9));
+		shopItems.add(new ShopItem(0x1E, 9));
+		shopItems.add(new ShopItem(0x22, 9));
+		shopItems.add(new ShopItem(0x2B, 9));
+		shopItems.add(new ShopItem(0x35, 9));
+		shopItems.add(new ShopItem(0x36, 9));
+		shopItems.add(new ShopItem(0x37, 9));
+		shopItems.add(new ShopItem(0x38, 9));
+		shopItems.add(new ShopItem(0x4B, 9));
+		shopItems.add(new ShopItem(0x52, 9));
+		shopItems.add(new ShopItem(0x5A, 9));
+		shopItems.add(new ShopItem(0x6E, 9));
+		shopItems.add(new ShopItem(0x70, 9));
+		shopItems.add(new ShopItem(0x59, 9));
+		// CH. 10
+		shopItems.add(new ShopItem(0x0D, 10));
+		shopItems.add(new ShopItem(0x24, 10));
+		shopItems.add(new ShopItem(0x68, 10));
+		shopItems.add(new ShopItem(0x6A, 10));
+		shopItems.add(new ShopItem(0x6F, 10));
+		shopItems.add(new ShopItem(0x73, 10));
+		shopItems.add(new ShopItem(0x6B, 10));
+		
+		return shopItems;
+	}
+	
+	public static class VillageGift {
+		public int giftInventoryID;
+		public int chapter;
+		
+		public VillageGift(int giftInventoryID, int chapter) {
+			this.giftInventoryID = giftInventoryID;
+			this.chapter = chapter;
+		}
+	}
+	
+	public static final List<VillageGift> VillageGifts = createVillageGiftList();
+	private static List<VillageGift> createVillageGiftList() {
+		List<VillageGift> gifts = new ArrayList<VillageGift>();
+		gifts.add(new VillageGift(0x29, 2)); // Armorslayer
+		gifts.add(new VillageGift(0x2B, 3)); // Wing Clipper
+		gifts.add(new VillageGift(0x70, 3)); // Restore Staff
+		gifts.add(new VillageGift(0x7B, 0)); // Speed Ring
+		gifts.add(new VillageGift(0x76, 8)); // Power Ring
+		gifts.add(new VillageGift(0x78, 10)); // Magic Ring
+		gifts.add(new VillageGift(0x7A, 6)); // Skill Ring
+		gifts.add(new VillageGift(0x7C, 7)); // Speed Ring
+		gifts.add(new VillageGift(0x7E, 7)); // Shield Ring
+		gifts.add(new VillageGift(0x80, 9)); // Barrier Ring
+		gifts.add(new VillageGift(0x8B, 8)); // Thief Ring
+		return gifts;
+	}
+	
 	public static final Map<Character, List<Integer>> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, List<Integer>> createEventItemMap() {
 		Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();
@@ -165,12 +362,6 @@ public class FE4Data {
 		map.put(Item.NAGA, 0x61); // Naga
 		return map;
 	}
-	
-	// 0x7B is shared with Johan's inventory. (Speed Ring)
-	// 0x88 is received from an event (Knight ring from saving Lachesis' bodyguards.)
-	// 0x89 is received from the Arden event (Pursuit Ring)
-	public static final Set<Integer> VillageItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x29, 0x2B, 0x70, 0x7B, 0x88, 0x89,
-			0x76, 0x78, 0x7A, 0x7C, 0x7E, 0x80, 0x8B)); 
 	
 	public static final long HolyBloodDataOffset = 0x38BE3L;
 	public static final int HolyBloodDataCount = 13;

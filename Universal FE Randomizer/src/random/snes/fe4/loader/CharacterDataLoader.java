@@ -404,6 +404,57 @@ public class CharacterDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE4_CHARACTER_LOADER, "Finished loading bosses with holy blood!");
 	}
 	
+	public void registerInventories(ItemMapper itemMap) {
+		for (FE4StaticCharacter staticChar : staticPlayableCharacters.values()) {
+			int item1 = staticChar.getEquipment1();
+			if (item1 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item1, "Starting Inventory (" + FE4Data.Character.valueOf(staticChar.getCharacterID()).toString() + ")");
+			}
+			
+			int item2 = staticChar.getEquipment2();
+			if (item2 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item2, "Starting Inventory (" + FE4Data.Character.valueOf(staticChar.getCharacterID()).toString() + ")");
+			}
+			
+			int item3 = staticChar.getEquipment3();
+			if (item3 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item3, "Starting Inventory (" + FE4Data.Character.valueOf(staticChar.getCharacterID()).toString() + ")");
+			}
+		}
+		for (FE4ChildCharacter childChar : childCharacters.values()) {
+			int item1 = childChar.getEquipment1();
+			if (item1 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item1, "Starting Inventory (" + FE4Data.Character.valueOf(childChar.getCharacterID()).toString() + ")");
+			}
+			
+			int item2 = childChar.getEquipment2();
+			if (item2 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item2, "Starting Inventory (" + FE4Data.Character.valueOf(childChar.getCharacterID()).toString() + ")");
+			}
+		}
+		
+		for (FE4EnemyCharacter enemyChar : enemyCharacters.values()) {
+			int item3 = enemyChar.getDropableEquipment();
+			if (item3 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item3, "Enemy Drop (" + FE4Data.Character.valueOf(enemyChar.getCharacterID()).toString() + ")");
+			}
+		}
+		
+		for (FE4EnemyCharacter bossChar : bossCharacters.values()) {
+			int item3 = bossChar.getDropableEquipment();
+			if (item3 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item3, "Boss Drop (" + FE4Data.Character.valueOf(bossChar.getCharacterID()).toString() + ")");
+			}
+		}
+		
+		for (FE4StaticCharacter holyBoss : holyBloodBossCharacters.values()) {
+			int item3 = holyBoss.getEquipment3();
+			if (item3 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item3, "Boss Drop (" + FE4Data.Character.valueOf(holyBoss.getCharacterID()).toString() + ")");
+			}
+		}
+	}
+	
 	public void commit() {
 		for (FE4StaticCharacter staticChar : staticPlayableCharacters.values()) {
 			staticChar.commitChanges();
