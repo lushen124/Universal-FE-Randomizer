@@ -533,7 +533,7 @@ public class CharacterDataLoader {
 	
 	public void recordAdditionalData(RecordKeeper rk, HolyBloodLoader bloodData, ClassDataLoader classData) {
 		for (FE4Data.Character fe4Char : staticPlayableCharacters.keySet()) {
-			String category = RecordKeeperCategoryKey + " - " + RecordKeeperSubcategoryGen1;
+			String category = RecordKeeperCategoryKey + " - " + (fe4Char.isGen1() ? RecordKeeperSubcategoryGen1 : (fe4Char.isSubstitute() ? RecordKeeperSubcategoryGen2Subs : RecordKeeperSubcategoryGen2Static));
 			FE4StaticCharacter staticChar = staticPlayableCharacters.get(fe4Char);
 			
 			List<FE4Data.HolyBlood> majorBloodList = FE4Data.HolyBloodSlot1.slot1HolyBlood(staticChar.getHolyBlood1Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
