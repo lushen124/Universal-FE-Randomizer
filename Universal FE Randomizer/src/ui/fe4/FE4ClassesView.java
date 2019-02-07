@@ -24,6 +24,7 @@ public class FE4ClassesView extends Composite {
 	private Button retainHorses;
 	private Button includeThieves;
 	private Button includeDancers;
+	private Button includeJulia;
 	private Button adjustChildrenStrict;
 	private Button adjustChildrenLoose;
 	private Button randomizeChildren;
@@ -75,6 +76,7 @@ public class FE4ClassesView extends Composite {
 				retainHorses.setEnabled(enabled);
 				includeThieves.setEnabled(enabled);
 				includeDancers.setEnabled(enabled);
+				includeJulia.setEnabled(enabled);
 				
 				adjustChildrenStrict.setEnabled(enabled);
 				adjustChildrenLoose.setEnabled(enabled);
@@ -133,6 +135,17 @@ public class FE4ClassesView extends Composite {
 		optionData.top = new FormAttachment(includeThieves, 5);
 		includeDancers.setLayoutData(optionData);
 		
+		includeJulia = new Button(container, SWT.CHECK);
+		includeJulia.setText("Include Julia");
+		includeJulia.setToolTipText("Allows Julia to be randomized. Removes the guarantee of having Naga for endgame.");
+		includeJulia.setEnabled(false);
+		includeJulia.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(includeDancers, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(includeDancers, 5);
+		includeJulia.setLayoutData(optionData);
+		
 		retainHealers = new Button(container, SWT.CHECK);
 		retainHealers.setText("Retain Healers");
 		retainHealers.setToolTipText("Ensures Edain, Claud, Lana, Muirne, Coirpre, and Charlot can all still use staves.");
@@ -140,8 +153,8 @@ public class FE4ClassesView extends Composite {
 		retainHealers.setSelection(false);
 		
 		optionData = new FormData();
-		optionData.left = new FormAttachment(includeDancers, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(includeDancers, 5);
+		optionData.left = new FormAttachment(includeJulia, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(includeJulia, 5);
 		retainHealers.setLayoutData(optionData);
 		
 		retainHorses = new Button(container, SWT.CHECK);
@@ -404,7 +417,7 @@ public class FE4ClassesView extends Composite {
 		if (looseSidegradeItems.getSelection()) { itemOptions = ItemAssignmentOptions.SIDEGRADE_LOOSE; }
 		else if (randomItems.getSelection()) { itemOptions = ItemAssignmentOptions.RANDOMIZE; }
 		
-		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), retainHorses.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(), itemOptions,
+		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), retainHorses.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), includeJulia.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(), itemOptions,
 				randomizeMinions.getSelection(), randomizeArenas.getSelection(), randomizeBosses.getSelection(), randomizeBossBlood.getSelection());
 	}
 	
@@ -420,6 +433,7 @@ public class FE4ClassesView extends Composite {
 				retainHorses.setEnabled(true);
 				includeThieves.setEnabled(true);
 				includeDancers.setEnabled(true);
+				includeJulia.setEnabled(true);
 				
 				adjustChildrenStrict.setEnabled(true);
 				adjustChildrenLoose.setEnabled(true);
@@ -443,6 +457,7 @@ public class FE4ClassesView extends Composite {
 				retainHorses.setSelection(options.retainHorses);
 				includeThieves.setSelection(options.includeThieves);
 				includeDancers.setSelection(options.includeDancers);
+				includeJulia.setSelection(options.includeJulia);
 				
 				adjustChildrenStrict.setSelection(options.childOption == ChildOptions.MATCH_STRICT);
 				adjustChildrenLoose.setSelection(options.childOption == ChildOptions.MATCH_LOOSE);
