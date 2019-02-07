@@ -1579,7 +1579,7 @@ public class FE4ClassRandomizer {
 		
 		// If this is Deirdre, substitute her aura (0x60) with chapter 8 steel lance (0x34) to prevent duplicate items in Gen 2.
 		if (character.getCharacterID() == FE4Data.Character.DEIRDRE.ID) {
-			character.setEquipment1(FE4Data.Chapter8ShopSteelLanceInventoryID);
+			character.setEquipment2(FE4Data.Chapter8ShopSteelLanceInventoryID);
 		}
 		
 		Set<FE4Data.Item> usableSet = new HashSet<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
