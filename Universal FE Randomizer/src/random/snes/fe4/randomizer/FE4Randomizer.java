@@ -266,6 +266,9 @@ public class FE4Randomizer extends Randomizer {
 			// Diff to fix Female Emperor battle animation.
 			diffCompiler.addDiff(new Diff(FE4Data.FemaleEmperorStaffAnimationFixOffset, 1, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixNewValue}, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixOldValue}));
 			
+			// Diff to remove 0x34 from the Ch. 8 shop, since we're using it for Deirdre's Aura.
+			diffCompiler.addDiff(new Diff(FE4Data.Chapter8ShopListOffset, FE4Data.Chapter8ShopOldListByteArray.length, FE4Data.Chapter8ShopNewListByteArray, FE4Data.Chapter8ShopOldListByteArray));
+			
 		} else {
 			// Diffs for allowing Sigurd/Seliph to sieze, regardless of their class.
 			diffCompiler.addDiff(new Diff(0x5E43CL, 4, new byte[] {(byte)0x22, (byte)0x33, (byte)0xA3, (byte)0x84}, new byte[] {(byte)0x22, (byte)0x2D, (byte)0xA0, (byte)0x84}));
@@ -303,6 +306,9 @@ public class FE4Randomizer extends Randomizer {
 			
 			// Diff to fix Female Emperor battle animation.
 			diffCompiler.addDiff(new Diff(FE4Data.FemaleEmperorStaffAnimationFixOffset - 0x200, 1, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixNewValue}, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixOldValue}));
+			
+			// Diff to remove 0x34 from the Ch. 8 shop, since we're using it for Deirdre's Aura.
+			diffCompiler.addDiff(new Diff(FE4Data.Chapter8ShopListOffset - 0x200, FE4Data.Chapter8ShopOldListByteArray.length, FE4Data.Chapter8ShopNewListByteArray, FE4Data.Chapter8ShopOldListByteArray));
 		}
 	}
 

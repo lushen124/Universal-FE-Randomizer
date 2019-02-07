@@ -113,6 +113,11 @@ public class FE4Data {
 	public static final int Chapter8ShopSteelLanceInventoryID = 0x34;
 	public static final int DeirdreAuraInventoryID = 0x60;
 	
+	// Remove 0x34 from the Ch. 8 shop.
+	public static final long Chapter8ShopListOffset = 0x6F54CL;
+	public static final byte[] Chapter8ShopOldListByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x34, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67};
+	public static final byte[] Chapter8ShopNewListByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67, (byte)0xFF};
+	
 	public static final List<Integer> UnusedInventoryIDs = new ArrayList<Integer>(Arrays.asList(0x12, 0x40)); // These don't seem to be used by anybody in the game. Free holy weapons?
 	
 	public static class EventGift {
@@ -3292,7 +3297,7 @@ public class FE4Data {
 		CHAPTER_5(new HashSet<Integer>(Arrays.asList())), 
 		CHAPTER_6(new HashSet<Integer>(Arrays.asList())), 
 		CHAPTER_7(new HashSet<Integer>(Arrays.asList(0x21, 0x51, 0x69))), 
-		CHAPTER_8(new HashSet<Integer>(Arrays.asList(0x34))), 
+		CHAPTER_8(new HashSet<Integer>(Arrays.asList())), 
 		CHAPTER_9(new HashSet<Integer>(Arrays.asList())), 
 		CHAPTER_10(new HashSet<Integer>(Arrays.asList()));
 		
