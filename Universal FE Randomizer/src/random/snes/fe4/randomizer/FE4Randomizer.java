@@ -218,6 +218,8 @@ public class FE4Randomizer extends Randomizer {
 		promotionMapper.recordPromotions(recordKeeper, false);
 		classData.recordClasses(recordKeeper, false);
 		
+		charData.recordAdditionalData(recordKeeper, bloodData, classData);
+		
 		recordKeeper.sortKeysInCategoryAndSubcategories(CharacterDataLoader.RecordKeeperCategoryKey);
 		
 		updateStatusString("Done!");
