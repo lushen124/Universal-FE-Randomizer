@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import fedata.snes.fe4.FE4Data.Item.ItemType;
 import fedata.snes.fe4.FE4Data.Item.WeaponRank;
@@ -1763,24 +1764,34 @@ public class FE4Data {
 			if (blood2 == null) { blood2 = new ArrayList<HolyBloodSlot2>(); }
 			if (blood3 == null) { blood3 = new ArrayList<HolyBloodSlot3>(); }
 			
-			boolean majorSwordBlood = blood1.contains(HolyBloodSlot1.MAJOR_BALDR) || blood2.contains(HolyBloodSlot2.MAJOR_OD) || blood3.contains(HolyBloodSlot3.MAJOR_HEZUL);
-			boolean minorSwordBlood = blood1.contains(HolyBloodSlot1.MINOR_BALDR) || blood2.contains(HolyBloodSlot2.MINOR_OD) || blood3.contains(HolyBloodSlot3.MINOR_HEZUL);
-			boolean majorLanceBlood = blood1.contains(HolyBloodSlot1.MAJOR_DAIN) || blood1.contains(HolyBloodSlot1.MAJOR_NJORUN);
-			boolean minorLanceBlood = blood1.contains(HolyBloodSlot1.MINOR_DAIN) || blood1.contains(HolyBloodSlot1.MINOR_NJORUN);
-			boolean majorAxeBlood = blood2.contains(HolyBloodSlot2.MAJOR_NEIR);
-			boolean minorAxeBlood = blood2.contains(HolyBloodSlot2.MINOR_NEIR);
-			boolean majorBowBlood = blood2.contains(HolyBloodSlot2.MAJOR_ULIR);
-			boolean minorBowBlood = blood2.contains(HolyBloodSlot2.MINOR_ULIR);
-			boolean majorFireBlood = blood2.contains(HolyBloodSlot2.MAJOR_FJALAR);
-			boolean minorFireBlood = blood2.contains(HolyBloodSlot2.MINOR_FJALAR);
-			boolean majorThunderBlood = blood3.contains(HolyBloodSlot3.MAJOR_THRUD);
-			boolean minorThunderBlood = blood3.contains(HolyBloodSlot3.MINOR_THRUD);
-			boolean majorWindBlood = blood3.contains(HolyBloodSlot3.MAJOR_FORSETI);
-			boolean minorWindBlood = blood3.contains(HolyBloodSlot3.MINOR_FORSETI);
-			boolean majorLightBlood = blood1.contains(HolyBloodSlot1.MAJOR_NAGA);
-			boolean minorLightBlood = blood1.contains(HolyBloodSlot1.MINOR_NAGA);
-			boolean majorStaffBlood = blood3.contains(HolyBloodSlot3.MAJOR_BRAGI);
-			boolean minorStaffBlood = blood3.contains(HolyBloodSlot3.MINOR_BRAGI);
+			List<HolyBlood> majorBlood = blood1.stream().filter(blood -> (blood.isMajor())).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
+			majorBlood.addAll(blood2.stream().filter(blood -> (blood.isMajor())).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+			majorBlood.addAll(blood3.stream().filter(blood -> (blood.isMajor())).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			
+			List<HolyBlood> minorBlood = blood1.stream().filter(blood -> (blood.isMajor() == false)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
+			minorBlood.addAll(blood2.stream().filter(blood -> (blood.isMajor() == false)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+			minorBlood.addAll(blood3.stream().filter(blood -> (blood.isMajor() == false)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			
+			boolean majorSwordBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.BALDR, HolyBlood.HEZUL, HolyBlood.OD));
+			boolean minorSwordBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.BALDR, HolyBlood.HEZUL, HolyBlood.OD));
+			boolean majorLanceBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.NJORUN, HolyBlood.DAIN));
+			boolean minorLanceBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.NJORUN, HolyBlood.DAIN));
+			boolean majorAxeBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.NEIR));
+			boolean minorAxeBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.NEIR));
+			boolean majorBowBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.ULIR));
+			boolean minorBowBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.ULIR));
+			boolean majorFireBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.FJALAR));
+			boolean minorFireBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.FJALAR));
+			boolean majorThunderBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.THRUD));
+			boolean minorThunderBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.THRUD));
+			boolean majorWindBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.FORSETI));
+			boolean minorWindBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.FORSETI));
+			boolean majorLightBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.NAGA));
+			boolean minorLightBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.NAGA));
+			boolean majorStaffBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.BRAGI));
+			boolean minorStaffBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.BRAGI));
+			
+			HolyBlood majorHolyBlood = majorBlood.isEmpty() ? null : majorBlood.get(0);
 			
 			if (weapon.getType() == ItemType.RING) {
 				// Everybody can use rings.
@@ -1788,49 +1799,49 @@ public class FE4Data {
 			}
 			
 			if (weapon.getType() == ItemType.SWORD) {
-				if (majorSwordBlood && swordUsers.contains(this)) { return true; }
+				if (majorSwordBlood && swordUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return swordUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_swordUsers.contains(this) || (swordUsers.contains(this) && minorSwordBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_swordUsers.contains(this) || (B_swordUsers.contains(this) && minorSwordBlood); }
 			}
 			else if (weapon.getType() == ItemType.LANCE) {
-				if (majorLanceBlood && lanceUsers.contains(this)) { return true; }
+				if (majorLanceBlood && lanceUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return lanceUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_lanceUsers.contains(this) || (lanceUsers.contains(this) && minorLanceBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_lanceUsers.contains(this) || (B_lanceUsers.contains(this) && minorLanceBlood); }
 			}
 			else if (weapon.getType() == ItemType.AXE) {
-				if (majorAxeBlood && axeUsers.contains(this)) { return true; }
+				if (majorAxeBlood && axeUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return axeUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_axeUsers.contains(this) || (axeUsers.contains(this) && minorAxeBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_axeUsers.contains(this) || (B_axeUsers.contains(this) && minorAxeBlood); }
 			}
 			else if (weapon.getType() == ItemType.BOW) {
-				if (majorBowBlood && bowUsers.contains(this)) { return true; }
+				if (majorBowBlood && bowUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return bowUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_bowUsers.contains(this) || (bowUsers.contains(this) && minorBowBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_bowUsers.contains(this) || (B_bowUsers.contains(this) && minorBowBlood); }
 			}
 			else if (weapon.getType() == ItemType.FIRE_MAGIC) {
-				if (majorFireBlood && fireUsers.contains(this)) { return true; }
+				if (majorFireBlood && fireUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return fireUsers.contains(this) || (fireUsers.contains(this) && minorFireBlood); }
 				if (weapon.getRank() == WeaponRank.B) { return B_fireUsers.contains(this) || (B_fireUsers.contains(this) && minorFireBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_fireUsers.contains(this); }
 			}
 			else if (weapon.getType() == ItemType.THUNDER_MAGIC) {
-				if (majorThunderBlood && thunderUsers.contains(this)) { return true; }
+				if (majorThunderBlood && thunderUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return thunderUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_thunderUsers.contains(this) || (thunderUsers.contains(this) && minorThunderBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_thunderUsers.contains(this) || (B_thunderUsers.contains(this) && minorThunderBlood); }
 			}
 			else if (weapon.getType() == ItemType.WIND_MAGIC) {
-				if (majorWindBlood && windUsers.contains(this)) { return true; }
+				if (majorWindBlood && windUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return windUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_windUsers.contains(this) || (windUsers.contains(this) && minorWindBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_windUsers.contains(this) || (B_windUsers.contains(this) && minorWindBlood); }
 			}
 			else if (weapon.getType() == ItemType.LIGHT_MAGIC) {
-				if (majorLightBlood && lightUsers.contains(this)) { return true; }
+				if (majorLightBlood && lightUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return lightUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_lightUsers.contains(this) || (lightUsers.contains(this) && minorLightBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_lightUsers.contains(this) || (B_lightUsers.contains(this) && minorLightBlood); }
@@ -1841,7 +1852,7 @@ public class FE4Data {
 				if (weapon.getRank() == WeaponRank.A) { return A_darkUsers.contains(this); }
 			}
 			else if (weapon.getType() == ItemType.STAFF) {
-				if (majorStaffBlood && staffUsers.contains(this)) { return true; }
+				if (majorStaffBlood && staffUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return staffUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_staffUsers.contains(this) || (staffUsers.contains(this) && minorStaffBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_staffUsers.contains(this) || (B_staffUsers.contains(this) && minorStaffBlood); }
