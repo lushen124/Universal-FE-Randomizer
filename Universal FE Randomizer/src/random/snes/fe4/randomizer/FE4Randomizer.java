@@ -4,14 +4,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Class.ClassSkills;
 import fedata.snes.fe4.FE4Data;
+import fedata.snes.fe4.FE4Data.CharacterClass;
 import fedata.snes.fe4.FE4StaticCharacter;
 import io.DiffApplicator;
 import io.FileHandler;
@@ -599,6 +603,38 @@ public class FE4Randomizer extends Randomizer {
 			
 			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte1Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot1Value}, null));
 			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte2Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot2Value}, null));
+			
+			if (classOptions != null && promoOptions != null && promoOptions.promotionMode != FE4PromotionOptions.Mode.STRICT) {
+				// Make sure Seliph's class can use Sigurd's major blood weapon.
+				FE4ChildCharacter seliph = charData.getChildCharacter(FE4Data.Character.SELIPH);
+				FE4Data.CharacterClass seliphClass = FE4Data.CharacterClass.valueOf(seliph.getCharacterID());
+				Set<FE4Data.HolyBlood> supportedBlood = new HashSet<FE4Data.HolyBlood>(Arrays.asList(seliphClass.supportedHolyBlood()));
+				if (supportedBlood.contains(sigurdMajorBlood) == false) {
+					FE4Data.CharacterClass[] fullPool = sigurdMajorBlood.classPool();
+					Set<FE4Data.CharacterClass> unpromotedPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(FE4Data.CharacterClass.filteredClasses(fullPool, false, false)));
+					unpromotedPool.removeAll(Arrays.asList(FE4Data.Character.SELIPH.blacklistedClasses()));
+					List<FE4Data.CharacterClass> unpromotedList = unpromotedPool.stream().sorted(new Comparator<FE4Data.CharacterClass>() {
+						@Override
+						public int compare(CharacterClass arg0, CharacterClass arg1) {
+							return Integer.compare(arg0.ID, arg1.ID);
+						}
+					 }).collect(Collectors.toList());
+					
+					if (!unpromotedList.isEmpty()) {
+						Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
+						FE4Data.CharacterClass unpromotedClass = unpromotedList.get(rng.nextInt(unpromotedList.size()));
+						FE4ClassRandomizer.setChildCharacterToClass(classOptions, seliph, sigurd, unpromotedClass, itemMapper, rng);
+						if (promoOptions.promotionMode == FE4PromotionOptions.Mode.RANDOM) {
+							FE4Data.CharacterClass[] promotedPool = FE4Data.CharacterClass.filteredClasses(fullPool, true, false);
+							promotionMapper.setPromotionForCharacter(FE4Data.Character.SELIPH, promotedPool[rng.nextInt(promotedPool.length)]);
+						} else { // LOOSE
+							FE4Data.CharacterClass[] promotedPool = unpromotedClass.getLoosePromotionOptions(false, promoOptions.allowMountChanges, promoOptions.allowEnemyOnlyPromotedClasses, seliphSlot1, seliphSlot2, null);
+							promotionMapper.setPromotionForCharacter(FE4Data.Character.SELIPH, promotedPool[rng.nextInt(promotedPool.length)]);
+						}
+					}
+				}
+			}
+		}
 		}
 	}
 	

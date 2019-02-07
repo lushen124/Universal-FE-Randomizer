@@ -2944,6 +2944,26 @@ public class FE4Data {
 		public static HolyBlood[] orderedByDataTable() {
 			return new HolyBlood[] {BALDR, NAGA, DAIN, NJORUN, OD, ULIR, NEIR, FJALAR, THRUD, FORSETI, BRAGI, HEZUL, LOPTOUS};
 		}
+		
+		public CharacterClass[] classPool() {
+			switch (this) {
+			case BALDR:
+			case OD:
+			case HEZUL:
+				return CharacterClass.swordUsers.toArray(new CharacterClass[CharacterClass.swordUsers.size()]);
+			case NJORUN:
+			case DAIN:
+				return CharacterClass.lanceUsers.toArray(new CharacterClass[CharacterClass.lanceUsers.size()]);
+			case NEIR: CharacterClass.axeUsers.toArray(new CharacterClass[CharacterClass.axeUsers.size()]);
+			case FJALAR: CharacterClass.fireUsers.toArray(new CharacterClass[CharacterClass.fireUsers.size()]);
+			case THRUD: CharacterClass.thunderUsers.toArray(new CharacterClass[CharacterClass.thunderUsers.size()]);
+			case FORSETI: CharacterClass.windUsers.toArray(new CharacterClass[CharacterClass.windUsers.size()]);
+			case NAGA: CharacterClass.lightUsers.toArray(new CharacterClass[CharacterClass.lightUsers.size()]);
+			case LOPTOUS: CharacterClass.darkUsers.toArray(new CharacterClass[CharacterClass.darkUsers.size()]);
+			case BRAGI: CharacterClass.staffUsers.toArray(new CharacterClass[CharacterClass.staffUsers.size()]);
+			default: return new CharacterClass[] {};
+			}
+		}
 	}
 	
 	public enum HolyBloodSlot1 {
