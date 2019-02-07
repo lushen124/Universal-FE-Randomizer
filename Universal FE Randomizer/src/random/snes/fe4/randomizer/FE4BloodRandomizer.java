@@ -204,6 +204,7 @@ public class FE4BloodRandomizer {
 					
 					Set<FE4Data.HolyBlood> bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(bloodChoices));
 					bloodSet.retainAll(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
+					bloodSet.remove(FE4Data.HolyBlood.NONE);
 					List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodSet);
 					
 					FE4Data.HolyBlood selectedBlood = bloodList.get(rng.nextInt(bloodList.size()));
@@ -260,6 +261,7 @@ public class FE4BloodRandomizer {
 				
 				if (bloodSet.isEmpty()) {
 					bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(FE4Data.HolyBlood.values()));
+					bloodSet.remove(FE4Data.HolyBlood.NONE);
 					bloodSet.remove(minorBloodType);
 				}
 				List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodSet);
