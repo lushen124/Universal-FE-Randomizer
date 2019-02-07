@@ -995,6 +995,7 @@ public class FE4ClassRandomizer {
 				}
 				
 				filteredWeapons.removeAll(FE4Data.Item.statusSet);
+				if (combatant.isFemale() == false) { filteredWeapons.removeAll(FE4Data.Item.femaleOnlyWeapons); }
 				
 				if (filteredWeapons.isEmpty()) {
 					filteredWeapons = possibleWeapons;
@@ -1018,6 +1019,7 @@ public class FE4ClassRandomizer {
 				}
 				
 				filteredWeapons.removeAll(FE4Data.Item.statusSet);
+				if (combatant.isFemale() == false) { filteredWeapons.removeAll(FE4Data.Item.femaleOnlyWeapons); }
 				
 				if (filteredWeapons.isEmpty()) {
 					filteredWeapons = possibleWeapons;
@@ -1043,6 +1045,7 @@ public class FE4ClassRandomizer {
 				}
 				
 				filteredWeapons.removeAll(FE4Data.Item.statusSet);
+				if (combatant.isFemale() == false) { filteredWeapons.removeAll(FE4Data.Item.femaleOnlyWeapons); }
 				
 				if (filteredWeapons.isEmpty()) {
 					filteredWeapons = possibleWeapons;
@@ -1065,6 +1068,7 @@ public class FE4ClassRandomizer {
 				}
 				
 				filteredWeapons.removeAll(FE4Data.Item.statusSet);
+				if (combatant.isFemale() == false) { filteredWeapons.removeAll(FE4Data.Item.femaleOnlyWeapons); }
 				
 				if (filteredWeapons.isEmpty()) {
 					filteredWeapons = possibleWeapons;
@@ -1088,7 +1092,7 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
-			setEnemyCharacterToClass(options, combatant, targetClass, item1, item2, null);
+			setEnemyCharacterToClass(options, combatant, targetClass, item1, item2, null, rng);
 		}
 	}
 	
@@ -1111,7 +1115,7 @@ public class FE4ClassRandomizer {
 					}
 				}
 				if (mustUseItem != null) {
-					setEnemyCharacterToClass(options, enemy, predeterminedClasses.get(fe4Char), mustUseItem, itemMap);
+					setEnemyCharacterToClass(options, enemy, predeterminedClasses.get(fe4Char), mustUseItem, itemMap, rng);
 				} else { 
 					setEnemyCharacterToClass(options, enemy, fe4Char, predeterminedClasses.get(fe4Char), itemMap, rng);
 				}
@@ -1167,7 +1171,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			if (mustUseItem != null) {
-				setEnemyCharacterToClass(options, enemy, targetClass, mustUseItem, itemMap);
+				setEnemyCharacterToClass(options, enemy, targetClass, mustUseItem, itemMap, rng);
 			} else {
 				setEnemyCharacterToClass(options, enemy, fe4Char, targetClass, itemMap, rng);
 			}
@@ -1777,7 +1781,7 @@ public class FE4ClassRandomizer {
 		}
 	}
 	
-	private static void setChildCharacterToClass(FE4ClassOptions options, FE4ChildCharacter child, FE4StaticCharacter parent, FE4Data.CharacterClass targetClass, ItemMapper itemMap, Random rng) {
+	public static void setChildCharacterToClass(FE4ClassOptions options, FE4ChildCharacter child, FE4StaticCharacter parent, FE4Data.CharacterClass targetClass, ItemMapper itemMap, Random rng) {
 		child.setClassID(targetClass.ID);
 		
 		FE4Data.Character fe4Char = FE4Data.Character.valueOf(child.getCharacterID());
@@ -1979,14 +1983,34 @@ public class FE4ClassRandomizer {
 		}
 	}
 	
-	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, FE4Data.Item weapon, ItemMapper itemMap) {
-		setEnemyCharacterToClass(options, enemy, targetClass, weapon, null, itemMap);
+	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, FE4Data.Item weapon, ItemMapper itemMap, Random rng) {
+		setEnemyCharacterToClass(options, enemy, targetClass, weapon, null, itemMap, rng);
 	}
 	
-	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, FE4Data.Item item1, FE4Data.Item item2, ItemMapper itemMap) {
+	private static void setEnemyCharacterToClass(FE4ClassOptions options, FE4EnemyCharacter enemy, FE4Data.CharacterClass targetClass, FE4Data.Item item1, FE4Data.Item item2, ItemMapper itemMap, Random rng) {
 		enemy.setClassID(targetClass.ID);
 		enemy.setEquipment1(item1 != null ? item1.ID : FE4Data.Item.NONE.ID);
-		enemy.setEquipment2(item2 != null ? item2.ID : FE4Data.Item.NONE.ID);
+		if (item2 != null) {
+			enemy.setEquipment2(item2 != null ? item2.ID : FE4Data.Item.NONE.ID);
+		} else if (enemy.getEquipment2() != FE4Data.Item.NONE.ID) {
+			Set<FE4Data.Item> itemSet = new HashSet<FE4Data.Item>(Arrays.asList(targetClass.usableItems(null, null, null, false)));
+			itemSet.removeAll(FE4Data.Item.femaleOnlyWeapons);
+			itemSet.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
+			List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet);
+			
+			int item2ID = enemy.getEquipment2();
+			FE4Data.Item existingItem = FE4Data.Item.valueOf(item2ID);
+			if (item2 != Item.NONE) {
+				if (!targetClass.canUseWeapon(existingItem, null, null, null) || (item1 != null && existingItem.ID == item1.ID)) {
+					if (!usableItems.isEmpty()) {
+						FE4Data.Item item = usableItems.get(rng.nextInt(usableItems.size()));
+						enemy.setEquipment2(item.ID);
+					} else {
+						enemy.setEquipment2(Item.NONE.ID);
+					}
+				}
+			}
+		}
 		
 		// If we must set the item on this enemy and they also drop a weapon, force that drop to be the item given (unless it's a ring), just to ensure they can use the dropped item.
 		if (itemMap != null && enemy.getDropableEquipment() != FE4Data.Item.NONE.ID && !itemMap.getItemAtIndex(enemy.getDropableEquipment()).isRing()) {

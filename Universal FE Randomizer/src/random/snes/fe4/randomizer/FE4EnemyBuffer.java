@@ -91,6 +91,8 @@ public class FE4EnemyBuffer {
 						choices.retainAll(FE4Data.Item.powerfulWeapons);
 					}
 					
+					if (enemy.isFemale() == false) { choices.removeAll(FE4Data.Item.femaleOnlyWeapons); }
+					
 					List<FE4Data.Item> itemList = choices.stream().sorted(new Comparator<FE4Data.Item>() {
 						@Override
 						public int compare(Item o1, Item o2) {
