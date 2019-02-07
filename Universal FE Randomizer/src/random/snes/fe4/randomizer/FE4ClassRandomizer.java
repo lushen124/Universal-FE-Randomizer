@@ -917,9 +917,9 @@ public class FE4ClassRandomizer {
 				}
 				
 				if (referenceClass != null) {
-					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, false, holyBoss.isFemale(), false, fe4Char.requiresAttack(), false, fe4Char.requiresMelee(), mustUseItem, null));
+					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, false, holyBoss.isFemale(), false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
 				} else {
-					Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, false, holyBoss.isFemale(), false, fe4Char.requiresAttack(), false, fe4Char.requiresMelee(), mustUseItem, null));
+					Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, false, holyBoss.isFemale(), false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
 				}
 			}
 			
