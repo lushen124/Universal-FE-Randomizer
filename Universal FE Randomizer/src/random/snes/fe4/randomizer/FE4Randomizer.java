@@ -635,6 +635,34 @@ public class FE4Randomizer extends Randomizer {
 				}
 			}
 		}
+		
+		// Correct STR/MAG on bosses if necessary.
+		for (FE4StaticCharacter holyBoss : charData.getHolyBossCharacters()) {
+			FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
+			if (charClass == null) { continue; }
+			boolean isSTRBased = charClass.primaryAttackIsStrength();
+			boolean isMAGBased = charClass.primaryAttackIsMagic();
+			
+			List<FE4Data.HolyBlood> majorBlood = FE4Data.HolyBloodSlot1.slot1HolyBlood(holyBoss.getHolyBlood1Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
+			majorBlood.addAll(FE4Data.HolyBloodSlot2.slot2HolyBlood(holyBoss.getHolyBlood2Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+			majorBlood.addAll(FE4Data.HolyBloodSlot3.slot3HolyBlood(holyBoss.getHolyBlood3Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			
+			if (majorBlood.isEmpty()) {			
+				if ((isSTRBased && !isMAGBased && holyBoss.getBaseSTR() < holyBoss.getBaseMAG()) ||
+						(isMAGBased && !isSTRBased && holyBoss.getBaseMAG() < holyBoss.getBaseSTR())) {
+					int oldSTR = holyBoss.getBaseSTR();
+					holyBoss.setBaseSTR(holyBoss.getBaseMAG());
+					holyBoss.setBaseMAG(oldSTR);
+				}
+			} else {
+				FE4Data.HolyBlood majorBloodType = majorBlood.get(0);
+				if ((majorBloodType.holyWeapon.getType().isPhysical() && holyBoss.getBaseSTR() < holyBoss.getBaseMAG()) ||
+						(majorBloodType.holyWeapon.getType().isPhysical() == false & holyBoss.getBaseMAG() < holyBoss.getBaseSTR())) {
+					int oldSTR = holyBoss.getBaseSTR();
+					holyBoss.setBaseSTR(holyBoss.getBaseMAG());
+					holyBoss.setBaseMAG(oldSTR);
+				}
+			}
 		}
 	}
 	

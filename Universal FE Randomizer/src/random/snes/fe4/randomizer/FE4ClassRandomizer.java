@@ -1275,20 +1275,6 @@ public class FE4ClassRandomizer {
 	
 	private static void setHolyBossToClass(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, List<FE4Data.HolyBloodSlot1> slot1Blood, List<FE4Data.HolyBloodSlot2> slot2Blood, List<FE4Data.HolyBloodSlot3> slot3Blood, CharacterDataLoader charData, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, ItemMapper itemMap, Random rng) {
 		
-		FE4Data.CharacterClass oldClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
-		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
-		boolean wasMAGBased = oldClass.primaryAttackIsMagic();
-		
-		boolean isSTRBased = targetClass.primaryAttackIsStrength();
-		boolean isMAGBased = targetClass.primaryAttackIsMagic();
-		
-		if ((wasSTRBased && !wasMAGBased && isMAGBased && !isSTRBased) || (wasMAGBased && !wasSTRBased && isSTRBased && !isMAGBased)) {
-			// Swap in the case that we've randomized across the STR/MAG split.
-			int oldSTR = holyBoss.getBaseSTR();
-			holyBoss.setBaseSTR(holyBoss.getBaseMAG());
-			holyBoss.setBaseMAG(oldSTR);
-		}
-		
 		FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
 		
 		holyBoss.setClassID(targetClass.ID);
@@ -1314,15 +1300,6 @@ public class FE4ClassRandomizer {
 		if (!hasMajorBlood && slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
 			majorBloodType = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
 			hasMajorBlood = true;
-		}
-		
-		if (majorBloodType != null) {
-			// For mixed classes, prioritize STR/MAG depending on blood.
-			if ((holyBoss.getBaseSTR() < holyBoss.getBaseMAG() && majorBloodType.weaponType.isPhysical()) || (!majorBloodType.weaponType.isPhysical() && holyBoss.getBaseMAG() < holyBoss.getBaseSTR())) {
-				int oldSTR = holyBoss.getBaseSTR();
-				holyBoss.setBaseSTR(holyBoss.getBaseMAG());
-				holyBoss.setBaseMAG(oldSTR);
-			}
 		}
 		
 		// Verify equipment.
