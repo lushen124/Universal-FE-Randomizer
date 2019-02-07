@@ -1158,6 +1158,9 @@ public class FE4Data {
 			case SIGURD:
 			case DEIRDRE: // Seliph's blood inheritence only supports the first two bytes, so neither parent can go beyond that.
 				return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.NAGA, HolyBlood.DAIN, HolyBlood.NJORUN, HolyBlood.OD, HolyBlood.ULIR, HolyBlood.NEIR, HolyBlood.FJALAR};
+			case ELDIGAN_CH1_SCENE: // This is just to make sure he doesn't get stuck with Yewfelle in chapter 1.
+				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
+						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA};
 			default: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 					HolyBlood.NEIR, HolyBlood.ULIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA, HolyBlood.BRAGI};
 			}

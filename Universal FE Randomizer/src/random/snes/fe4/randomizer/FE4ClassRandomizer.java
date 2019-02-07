@@ -1211,7 +1211,10 @@ public class FE4ClassRandomizer {
 				slot2Blood.removeIf(blood -> (blood.isMajor()));
 				slot3Blood.removeIf(blood -> (blood.isMajor()));
 				
-				List<FE4Data.HolyBlood> bloodOptions = new ArrayList<FE4Data.HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
+				FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
+				Set<FE4Data.HolyBlood> bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
+				bloodSet.retainAll(new HashSet<FE4Data.HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection())));
+				List<FE4Data.HolyBlood> bloodOptions = bloodSet.stream().collect(Collectors.toList());
 				// Bosses should never get Bragi Blood. That's a staff as a weapon if that's the case.
 				bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
 				bloodOptions.remove(FE4Data.HolyBlood.NAGA); // Probably shouldn't get Naga either, in case they end up with the Naga tome (and wipe the floor with everybody).
@@ -1247,20 +1250,11 @@ public class FE4ClassRandomizer {
 			if (majorBloodType != null) {
 				bloodOptions.remove(majorBloodType);
 			}
-			// Once again, no Bragi.
+			// Once again, no Bragi or Naga.
 			bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
-			boolean hasFavoredBlood = false;
+			bloodOptions.remove(FE4Data.HolyBlood.NAGA);
 			for (int i = 0; i < minorBloodCount; i++) {
-				FE4Data.HolyBlood blood = null;
-				FE4Data.HolyBlood[] favoredBlood = targetClass.supportedHolyBlood();
-				if (!hasFavoredBlood && favoredBlood.length > 0 && rng.nextInt(2) == 0) {
-					// Pull from the blood options based on class. (Can only happen once)
-					blood = favoredBlood[rng.nextInt(favoredBlood.length)];
-					hasFavoredBlood = true;
-				} else {
-					// Pull from the remaining list.
-					blood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
-				}
+				FE4Data.HolyBlood blood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
 				
 				if (blood == null) { break; }
 				
