@@ -269,7 +269,7 @@ public class FE4GrowthRandomizer {
 				int threshold = range / 2 + minGrowth; // This ensures the HP is always in the upper half of the range specified.
 				if (newHPGrowth < threshold) {
 					if (newHPGrowth + threshold <= maxGrowth) {
-						newHPGrowth += threshold;
+						newHPGrowth += range / 2;
 					} else {
 						newHPGrowth = maxGrowth;
 					}
