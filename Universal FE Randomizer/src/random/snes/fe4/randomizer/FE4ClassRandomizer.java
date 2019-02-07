@@ -1593,6 +1593,11 @@ public class FE4ClassRandomizer {
 			usableSet.removeIf(item -> (FE4Data.Item.femaleOnlyWeapons.contains(item)));
 		}
 		
+		// Special case for Chulainn, since he's an arena combatant. Shouldn't have a status sword.
+		if (character.getCharacterID() == FE4Data.Character.CHULAINN.ID) {
+			usableSet.removeAll(FE4Data.Item.statusSet);
+		}
+		
 		List<FE4Data.Item> usableItems = usableSet.stream().sorted(new Comparator<FE4Data.Item>() {
 			@Override
 			public int compare(Item o1, Item o2) {
