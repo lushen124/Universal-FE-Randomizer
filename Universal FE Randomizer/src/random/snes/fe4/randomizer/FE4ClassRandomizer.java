@@ -36,18 +36,25 @@ public class FE4ClassRandomizer {
 	public static void randomizePlayableCharacterClasses(FE4ClassOptions options, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, Random rng) {
 		Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses = new HashMap<FE4Data.Character, FE4Data.CharacterClass>();
 		Set<FE4Data.Character> blacklistedCharacters = new HashSet<FE4Data.Character>();
+		Set<FE4Data.CharacterClass> blacklistedClasses = new HashSet<FE4Data.CharacterClass>();
 		Map<FE4Data.Character, FE4Data.Item> requiredItems = new HashMap<FE4Data.Character, FE4Data.Item>();
 		
 		if (!options.includeLords) {
 			blacklistedCharacters.addAll(FE4Data.Character.LordCharacters);
+			blacklistedClasses.addAll(FE4Data.CharacterClass.lordClasses);
 		}
 		
 		if (!options.includeThieves) {
 			blacklistedCharacters.addAll(FE4Data.Character.ThiefCharacters);
+			blacklistedClasses.addAll(FE4Data.CharacterClass.thiefClasses);
 		}
 		
 		if (!options.includeDancers) {
 			blacklistedCharacters.addAll(FE4Data.Character.DancerCharacters);
+		}
+		
+		if (!options.includeJulia) {
+			blacklistedCharacters.add(FE4Data.Character.JULIA);
 		}
 		
 		// Gen 1
@@ -136,6 +143,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			potentialClasses.removeAll(new HashSet<FE4Data.CharacterClass>(Arrays.asList(fe4Char.blacklistedClasses())));
+			potentialClasses.removeAll(blacklistedClasses);
 			if (hasDancer) { // Only 1 per generation.
 				potentialClasses.remove(FE4Data.CharacterClass.DANCER);
 			}
@@ -265,6 +273,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			potentialClasses.removeAll(new HashSet<FE4Data.CharacterClass>(Arrays.asList(fe4Char.blacklistedClasses())));
+			potentialClasses.removeAll(blacklistedClasses);
 			// No real candidates for Dancer here, so don't worry about it.
 			potentialClasses.remove(FE4Data.CharacterClass.DANCER);
 			
@@ -364,6 +373,7 @@ public class FE4ClassRandomizer {
 				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
 				if (hasDancer) { poolSet.remove(FE4Data.CharacterClass.DANCER); }
 				poolSet.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
+				poolSet.removeAll(blacklistedClasses);
 				List<FE4Data.CharacterClass> poolList = new ArrayList<FE4Data.CharacterClass>(poolSet);
 				
 				if (!poolList.isEmpty()) {

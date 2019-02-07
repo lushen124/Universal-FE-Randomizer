@@ -967,8 +967,8 @@ public class FE4Data {
 		
 		public static final Set<Character> Gen1PlayableCharacters = new HashSet<Character>(Arrays.asList(SIGURD, NAOISE, ALEC, ARDEN, FINN_GEN_1, QUAN, MIDIR, LEWYN, CHULAINN, AZELLE,
 				JAMKE, CLAUD, BEOWOLF, LEX, DEW, DEIRDRE, ETHLYN, LACHESIS, AYRA, ERINYS, TAILTIU, SILVIA, EDAIN, BRIGID));
-		public static final Set<Character> Gen2StaticCharacters = new HashSet<Character>(Arrays.asList(SHANNAN, IUCHAR, FINN_GEN_2, HANNIBAL, ARES, OIFEY, IUCHARBA));
-		public static final Set<Character> Gen2ChildCharacters = new HashSet<Character>(Arrays.asList(SELIPH, LEIF, JULIA, ALTENA, ULSTER, FEBAIL, COIRPRE, CED, DIARMUID, LESTER, ARTHUR, 
+		public static final Set<Character> Gen2StaticCharacters = new HashSet<Character>(Arrays.asList(SHANNAN, IUCHAR, FINN_GEN_2, HANNIBAL, ARES, OIFEY, IUCHARBA, JULIA));
+		public static final Set<Character> Gen2ChildCharacters = new HashSet<Character>(Arrays.asList(SELIPH, LEIF, ALTENA, ULSTER, FEBAIL, COIRPRE, CED, DIARMUID, LESTER, ARTHUR, 
 				PATTY, LARCEI, LANA, FEE, TINE, LENE, NANNA));
 		public static final Set<Character> Gen2SubstituteCharacters = new HashSet<Character>(Arrays.asList(DALVIN, ASAELLO, CHARLOT, HAWK, TRISTAN, DEIMNE, AMID, DAISY, CREIDNE, MUIRNE,
 				HERMINA, LINDA, LAYLEA, JEANNE));
@@ -1549,6 +1549,9 @@ public class FE4Data {
 		public static final Set<CharacterClass> noWeaknessClasses = new HashSet<CharacterClass>(Arrays.asList(BOW_FIGHTER, SWORD_FIGHTER, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
 				FIRE_MAGE, THUNDER_MAGE, WIND_MAGE, BARD, LIGHT_PRIESTESS, THIEF, BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, DANCER, SWORD_MASTER, SNIPER, FORREST, WARRIOR, MAGE_FIGHTER, MAGE_FIGHTER_F, HIGH_PRIEST, 
 				SAGE, THIEF_FIGHTER, QUEEN, BISHOP, DARK_BISHOP));
+		
+		public static final Set<CharacterClass> lordClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT));
+		public static final Set<CharacterClass> thiefClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, THIEF_FIGHTER));
 		
 		public static final Set<CharacterClass> pacifistClasses = new HashSet<CharacterClass>(Arrays.asList(PRIEST, DANCER));
 		public static final Set<CharacterClass> healingClasses = new HashSet<CharacterClass>(Arrays.asList(PRIEST, TROUBADOUR, HIGH_PRIEST, PRINCESS));
