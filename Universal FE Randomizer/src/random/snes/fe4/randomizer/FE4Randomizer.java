@@ -451,6 +451,9 @@ public class FE4Randomizer extends Randomizer {
 			updateStatusString("Randomizing Promotions...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4PromotionRandomizer.rngSalt + 1));
 			FE4PromotionRandomizer.randomizePromotions(promoOptions, charData, promotionMapper, rng);
+			// Special case, since Finn is the only character to go between both gens and is unpromoted.
+			// It's possible for him to get two different promotions in Gen2, so we want to make sure he's synced across both gens.
+			promotionMapper.setPromotionForCharacter(FE4Data.Character.FINN_GEN_2, promotionMapper.getPromotionForCharacter(FE4Data.Character.FINN_GEN_1));
 		}
 	}
 	
@@ -483,6 +486,9 @@ public class FE4Randomizer extends Randomizer {
 		
 		// Remove Charm from Princess
 		classData.classForID(FE4Data.CharacterClass.PRINCESS.ID).setSlot2ClassSkills(new ArrayList<ClassSkills>());
+		
+		// Gotta fix Oifey's promotion so that he doesn't somehow promote even though he's already promoted.
+		promotionMapper.setPromotionForCharacter(FE4Data.Character.OIFEY, FE4Data.CharacterClass.NONE);
 		
 		// These only need to be performed if playable character classes were randomized. Otherwise, the default values should still work.
 		if (classOptions.randomizePlayableCharacters) {
