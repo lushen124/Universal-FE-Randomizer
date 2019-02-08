@@ -1087,7 +1087,7 @@ public class FE4Data {
 			case LARCEI: return AYRA;
 			case ULSTER: return CHULAINN;
 			case DIARMUID: return BEOWOLF;
-			case NANNA: return LACHESIS;
+			case NANNA: return ETHLYN;
 			case FEE: return ERINYS;
 			case CED: return LEWYN;
 			case LENE: return SILVIA;
@@ -1098,7 +1098,7 @@ public class FE4Data {
 			case FEBAIL: return BRIGID;
 			
 			case SELIPH: return SIGURD;
-			case LEIF: return ETHLYN;
+			case LEIF: return LACHESIS;
 			case ALTENA: return QUAN;
 			default: return null;
 			}
