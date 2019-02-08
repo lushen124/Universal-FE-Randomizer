@@ -18,19 +18,29 @@ public class ItemMapper {
 	private Map<Integer, FE4Data.Item> playerEquipmentIDToItem;
 	private Map<Integer, List<String>> registrationMap;
 	
+	private List<Integer> freeInventoryIDs = new ArrayList<Integer>();
+	
 	private boolean isHeadered;
 	
 	public static final String RecordKeeperCategoryKey = "Player Equipment";
 	
-	public ItemMapper(FileHandler handler, boolean isHeadered) {
+	public ItemMapper(FileHandler handler, boolean isHeadered, List<Integer> freeIDs) {
 		super();
 		this.isHeadered = isHeadered;
-		
+		freeInventoryIDs = freeIDs;
 		initializeMap(handler);
 	}
 	
+	public Integer obtainFreeInventoryID(FE4Data.Item itemSet) {
+		if (freeInventoryIDs.isEmpty()) { return null; }
+		int inventoryID = freeInventoryIDs.get(0);
+		setItemAtIndex(inventoryID, itemSet);
+		freeInventoryIDs.remove(0);
+		return inventoryID;
+	}
+	
 	public FE4Data.Item getItemAtIndex(int index) {
-		if (index == 0) { return null; }
+		if (index == 0 || index == FE4Data.Item.NONE.ID) { return null; }
 		return playerEquipmentIDToItem.get(index);
 	}
 	
