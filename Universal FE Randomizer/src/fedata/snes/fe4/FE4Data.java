@@ -1135,21 +1135,25 @@ public class FE4Data {
 		
 		// If this returns a non-empty array, then the result should be restricted to classes in the set.
 		public CharacterClass[] whitelistedClasses(boolean isRandomizingMinions) {
-			// If minions are getting randomized, then we should be able to make things work.
-			if (isRandomizingMinions) { return new CharacterClass[] {}; }
-			
 			Set<CharacterClass> whitelistedClasses = new HashSet<CharacterClass>();
 			// Otherwise, there are some characters that have to be careful with what they pass down to gen 2 enemies if their weapons are not inerhited.
 			switch (this) {
-			case CLAUD:
-				whitelistedClasses.addAll(CharacterClass.fireUsers);
-				whitelistedClasses.removeAll(CharacterClass.B_fireUsers);
-				whitelistedClasses.addAll(CharacterClass.thunderUsers);
-				whitelistedClasses.removeAll(CharacterClass.B_thunderUsers);
-				whitelistedClasses.addAll(CharacterClass.windUsers);
-				whitelistedClasses.removeAll(CharacterClass.B_windUsers);
-				whitelistedClasses.addAll(CharacterClass.staffUsers);
+			case CLAUD: // Some random minion has one of Claud's items, so we need to make sure that remains working.
+				if (!isRandomizingMinions) {
+					whitelistedClasses.addAll(CharacterClass.fireUsers);
+					whitelistedClasses.removeAll(CharacterClass.B_fireUsers);
+					whitelistedClasses.addAll(CharacterClass.thunderUsers);
+					whitelistedClasses.removeAll(CharacterClass.B_thunderUsers);
+					whitelistedClasses.addAll(CharacterClass.windUsers);
+					whitelistedClasses.removeAll(CharacterClass.B_windUsers);
+					whitelistedClasses.addAll(CharacterClass.staffUsers);
+				}
 				break;
+			case ERINYS:
+			case FEE:
+			case HERMINA:
+			case ALTENA:
+				whitelistedClasses.addAll(CharacterClass.fliers);
 			default:
 				break;
 			}
