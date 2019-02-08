@@ -92,6 +92,7 @@ public class FE4EnemyBuffer {
 					}
 					
 					if (enemy.isFemale() == false) { choices.removeAll(FE4Data.Item.femaleOnlyWeapons); }
+					choices.removeAll(FE4Data.Item.playerOnlySet);
 					
 					List<FE4Data.Item> itemList = choices.stream().sorted(new Comparator<FE4Data.Item>() {
 						@Override
@@ -108,7 +109,7 @@ public class FE4EnemyBuffer {
 		}
 	}
 	
-	public static void forceMajorBloodOnHolyBosses(FE4EnemyBuffOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
+	public static void forceMajorBloodOnHolyBosses(FE4EnemyBuffOptions options, boolean useFreeInventoryForDrops, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		for (FE4StaticCharacter holyBoss : charData.getHolyBossCharacters()) {
 			List<FE4Data.HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(holyBoss.getHolyBlood1Value());
 			List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(holyBoss.getHolyBlood2Value());
@@ -160,8 +161,12 @@ public class FE4EnemyBuffer {
 				
 				FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
 				if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID && FE4Data.Character.HolyBossesWithFreeDrops.contains(fe4Char)) {
-					// If this boss drops an item, make him/her drop the holy weapon.
 					itemMap.setItemAtIndex(holyBoss.getEquipment3(), randomHolyWeapon);
+				} else if (holyBoss.getEquipment3() == FE4Data.Item.NONE.ID && useFreeInventoryForDrops) {
+					Integer inventoryID = itemMap.obtainFreeInventoryID(randomHolyWeapon);
+					if (inventoryID != null) {
+						holyBoss.setEquipment3(inventoryID);
+					}
 				}
 			}
 		}
