@@ -1277,7 +1277,7 @@ public class FE4Data {
 		}
 		
 		public boolean requiresMelee() {
-			return !RangedOnlyArenaCharacters.contains(this) || CharactersThatMustAttackAtMeleeRange.contains(this);
+			return (isArena() && !RangedOnlyArenaCharacters.contains(this)) || CharactersThatMustAttackAtMeleeRange.contains(this);
 		}
 		
 		public boolean requiresRange() {
