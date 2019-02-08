@@ -1,10 +1,16 @@
 package random.snes.fe4.randomizer;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Data;
+import fedata.snes.fe4.FE4Data.CharacterClass;
 import fedata.snes.fe4.FE4StaticCharacter;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.PromotionMapper;
@@ -21,39 +27,85 @@ public class FE4PromotionRandomizer {
 	}
 	
 	private static void setPromotions(CharacterDataLoader charData, PromotionMapper promotionMap, Random rng) {
-		for (FE4Data.Character fe4Char : promotionMap.allPromotableCharacters()) {
-			int classID = FE4Data.CharacterClass.NONE.ID;
-			boolean isFemale = false;
-			if (fe4Char.isChild()) {
-				FE4ChildCharacter child = charData.getChildCharacter(fe4Char);
-				if (child != null) {
-					classID = child.getClassID();
-					isFemale = child.isFemale();
-				}
+		// Gen 1 needs to be processed first because gen 2 might depend on gen 1.
+		for (FE4StaticCharacter gen1Char : charData.getGen1Characters()) {
+			setMatchingPromotionForStaticCharacter(gen1Char, promotionMap, rng);
+		}
+		
+		// Gen 2 can be done in any order, technically.
+		for (FE4StaticCharacter gen2Char : charData.getGen2CommonCharacters()) {
+			setMatchingPromotionForStaticCharacter(gen2Char, promotionMap, rng);
+		}
+		
+		for (FE4StaticCharacter sub : charData.getGen2SubstituteCharacters()) {
+			setMatchingPromotionForStaticCharacter(sub, promotionMap, rng);
+		}
+		
+		// These are the reason why gen 1 needs to go first.
+		for (FE4ChildCharacter child : charData.getAllChildren()) {
+			int classID = child.getClassID();
+			boolean isFemale = child.isFemale();
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(child.getCharacterID());
+			
+			FE4Data.Character analogue = fe4Char.getGen1Analogue();
+			FE4Data.CharacterClass referenceClass = FE4Data.CharacterClass.valueOf(charData.getStaticCharacter(analogue).getClassID());
+			
+			if (referenceClass.isPromoted()) {
+				// Set it as is.
+				promotionMap.setPromotionForCharacter(fe4Char, referenceClass);
 			} else {
-				FE4StaticCharacter staticChar = charData.getStaticCharacter(fe4Char);
-				if (staticChar != null) {
-					classID = staticChar.getClassID();
-					isFemale = staticChar.isFemale();
+				// Get the promotion for the analogue.
+				Set<FE4Data.CharacterClass> classPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(isFemale)));
+				classPool.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
+				FE4Data.CharacterClass[] whitelistedClasses = fe4Char.whitelistedClasses(false);
+				if (whitelistedClasses.length > 0) {
+					classPool.retainAll(Arrays.asList(whitelistedClasses));
+				}
+				if (classPool.isEmpty()) {
+					// Forget the reference class, use our own class.
+					FE4Data.CharacterClass childClass = FE4Data.CharacterClass.valueOf(classID);
+					classPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(childClass.promotionClasses(isFemale)));
+				}
+				if (classPool.isEmpty()) {
+					promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
+				} else {
+					List<FE4Data.CharacterClass> classList = classPool.stream().sorted(new Comparator<FE4Data.CharacterClass>() {
+						@Override
+						public int compare(CharacterClass arg0, CharacterClass arg1) {
+							return Integer.compare(arg0.ID, arg1.ID);
+						}
+					}).collect(Collectors.toList());
+					
+					FE4Data.CharacterClass promotion = classList.get(rng.nextInt(classList.size()));
+					if (FE4Data.CharacterClass.reducedChanceClasses.contains(promotion)) {
+						promotion = classList.get(rng.nextInt(classList.size()));
+					}
+					
+					while (FE4Data.Character.CharactersThatRequireHorses.contains(fe4Char) && !promotion.isHorseback()) {
+						promotion = classList.get(rng.nextInt(classList.size()));
+					}
+					
+					promotionMap.setPromotionForCharacter(fe4Char, promotion);
 				}
 			}
-			
-			if (classID == FE4Data.CharacterClass.NONE.ID) { continue; }
-			
-			FE4Data.CharacterClass fe4CharClass = FE4Data.CharacterClass.valueOf(classID);
-			if (fe4CharClass.isPromoted()) { 
-				promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
-			} else {
-				FE4Data.CharacterClass[] possiblePromotions = fe4CharClass.promotionClasses(isFemale);
-				FE4Data.CharacterClass promotedClass = FE4Data.CharacterClass.NONE;
-				if (possiblePromotions.length > 0) {
-					promotedClass = possiblePromotions[rng.nextInt(possiblePromotions.length)];
-				}
-				while (FE4Data.Character.CharactersThatRequireHorses.contains(fe4Char) && !promotedClass.isHorseback()) {
-					promotedClass = possiblePromotions[rng.nextInt(possiblePromotions.length)];
-				}
-				promotionMap.setPromotionForCharacter(fe4Char, promotedClass);
+		}
+	}
+	
+	private static void setMatchingPromotionForStaticCharacter(FE4StaticCharacter staticChar, PromotionMapper promotionMap, Random rng) {
+		FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
+		FE4Data.CharacterClass fe4CharClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID());
+		if (fe4CharClass.isPromoted()) { 
+			promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
+		} else {
+			FE4Data.CharacterClass[] possiblePromotions = fe4CharClass.promotionClasses(staticChar.isFemale());
+			FE4Data.CharacterClass promotedClass = FE4Data.CharacterClass.NONE;
+			if (possiblePromotions.length > 0) {
+				promotedClass = possiblePromotions[rng.nextInt(possiblePromotions.length)];
 			}
+			while (FE4Data.Character.CharactersThatRequireHorses.contains(fe4Char) && !promotedClass.isHorseback()) {
+				promotedClass = possiblePromotions[rng.nextInt(possiblePromotions.length)];
+			}
+			promotionMap.setPromotionForCharacter(fe4Char, promotedClass);
 		}
 	}
 
@@ -67,20 +119,52 @@ public class FE4PromotionRandomizer {
 		// Gen 2 Children
 		for (FE4ChildCharacter gen2Child : charData.getAllChildren()) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(gen2Child.getCharacterID());
-			FE4Data.CharacterClass targetPromotion = promotionMap.getPromotionForCharacter(fe4Char);
-			if (targetPromotion == FE4Data.CharacterClass.NONE) { continue; }
 			FE4Data.CharacterClass baseClass = FE4Data.CharacterClass.valueOf(gen2Child.getClassID());
-			// We have no blood information for children, so we have to be a bit safer with the loose randomization.
-			FE4Data.CharacterClass[] promoOptions = baseClass.getLoosePromotionOptions(gen2Child.isFemale(), allowMountChange, allowEnemyClasses, null, null, null);
-			if (promoOptions.length > 0) {
-				FE4Data.CharacterClass promotion = promoOptions[rng.nextInt(promoOptions.length)];
+			
+			// If the class is promoted or has no promotions avaialble, don't set one.
+			if (baseClass.isPromoted() || baseClass.promotionClasses(gen2Child.isFemale()).length == 0) {
+				promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
+				continue;
+			}
+			
+			FE4Data.Character parent = fe4Char.primaryParent();
+			
+			FE4StaticCharacter parentCharacter = charData.getStaticCharacter(parent);
+			List<FE4Data.HolyBloodSlot1> slot1Blood = null;
+			List<FE4Data.HolyBloodSlot2> slot2Blood = null;
+			List<FE4Data.HolyBloodSlot3> slot3Blood = null;
+			if (parentCharacter != null) {
+				// We at least know their holy blood so we can use them. In most cases, this is the mother. In Seliph and Altena's case, this is the Father.
+				slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(parentCharacter.getHolyBlood1Value());
+				slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(parentCharacter.getHolyBlood2Value());
+				slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(parentCharacter.getHolyBlood3Value());
+			}
+			
+			Set<FE4Data.CharacterClass> classPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(baseClass.getLoosePromotionOptions(gen2Child.isFemale(), allowMountChange, allowEnemyClasses, slot1Blood, slot2Blood, slot3Blood)));
+			classPool.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
+			FE4Data.CharacterClass[] whitelistedClasses = fe4Char.whitelistedClasses(false);
+			if (whitelistedClasses.length > 0) {
+				classPool.retainAll(Arrays.asList(whitelistedClasses));
+			}
+			if (classPool.isEmpty()) {
+				promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
+			} else {
+				List<FE4Data.CharacterClass> classList = classPool.stream().sorted(new Comparator<FE4Data.CharacterClass>() {
+					@Override
+					public int compare(CharacterClass arg0, CharacterClass arg1) {
+						return Integer.compare(arg0.ID, arg1.ID);
+					}
+				}).collect(Collectors.toList());
+				
+				FE4Data.CharacterClass promotion = classList.get(rng.nextInt(classList.size()));
 				if (FE4Data.CharacterClass.reducedChanceClasses.contains(promotion)) {
-					// Reroll once for anybody ending up in these classes.
-					promotion = promoOptions[rng.nextInt(promoOptions.length)];
+					promotion = classList.get(rng.nextInt(classList.size()));
 				}
+				
 				while (FE4Data.Character.CharactersThatRequireHorses.contains(fe4Char) && !promotion.isHorseback()) {
-					promotion = promoOptions[rng.nextInt(promoOptions.length)];
+					promotion = classList.get(rng.nextInt(classList.size()));
 				}
+				
 				promotionMap.setPromotionForCharacter(fe4Char, promotion);
 			}
 		}
@@ -89,9 +173,14 @@ public class FE4PromotionRandomizer {
 	private static void randomizeStaticCharacterPromotionsLoosely(List<FE4StaticCharacter> characters, PromotionMapper promotionMap, boolean allowMountChange, boolean allowEnemyClasses, Random rng) {
 		for (FE4StaticCharacter staticChar : characters) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
-			FE4Data.CharacterClass targetPromotion = promotionMap.getPromotionForCharacter(fe4Char);
-			if (targetPromotion == FE4Data.CharacterClass.NONE) { continue; } // This character is probably already promoted, or at least does not promote naturally. Leave it alone.
 			FE4Data.CharacterClass baseClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID());
+			
+			// If the class is promoted or has no promotions avaialble, don't set one.
+			if (baseClass.isPromoted() || baseClass.promotionClasses(staticChar.isFemale()).length == 0) {
+				promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
+				continue;
+			}
+			
 			List<FE4Data.HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(staticChar.getHolyBlood1Value());
 			List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(staticChar.getHolyBlood2Value());
 			List<FE4Data.HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(staticChar.getHolyBlood3Value());
@@ -121,9 +210,13 @@ public class FE4PromotionRandomizer {
 		// Gen 2 Children
 		for (FE4ChildCharacter gen2Child : charData.getAllChildren()) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(gen2Child.getCharacterID());
-			FE4Data.CharacterClass targetPromotion = promotionMap.getPromotionForCharacter(fe4Char);
-			if (targetPromotion == FE4Data.CharacterClass.NONE) { continue; }
 			FE4Data.CharacterClass baseClass = FE4Data.CharacterClass.valueOf(gen2Child.getClassID());
+			
+			// If the class is promoted or has no promotions avaialble, don't set one.
+			if (baseClass.isPromoted() || baseClass.promotionClasses(gen2Child.isFemale()).length == 0) {
+				promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
+				continue;
+			}
 			
 			FE4Data.CharacterClass[] promoOptions = FE4Data.CharacterClass.promotedClasses.toArray(new FE4Data.CharacterClass[FE4Data.CharacterClass.promotedClasses.size()]);
 			if (commonWeapons) {
