@@ -809,7 +809,6 @@ public class FE4Data {
 		MAYBELL(0x01D7),
 		BLEG(0x01D8), // 0x1D9 - 0x1DC = BELHALLA ARMY
 		BARAN(0x01DD),
-		CUTUZOV_FINAL(0x1DE), // Not sure why he's here again. 0x1DF = THIEF
 		
 		ENDGAME_MERCENARY_1(0x1A5),
 		ENDGAME_MERCENARY_2(0x1A6),
