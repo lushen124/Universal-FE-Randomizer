@@ -3,6 +3,7 @@ package fedata.snes.fe4;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1992,6 +1993,58 @@ public class FE4Data {
 			return !maleOnlyClasses.contains(this);
 		}
 		
+		public CharacterClass toMale() {
+			if (!femaleOnlyClasses.contains(this)) { return this; }
+			switch (this) {
+			case PRINCESS: return PRINCE;
+			case TROUBADOUR: return SOCIAL_KNIGHT;
+			case PALADIN_F: return PALADIN;
+			case FALCON_KNIGHT: return DRAGON_MASTER;
+			case PEGASUS_KNIGHT: return DRAGON_RIDER;
+			case MAGE_FIGHTER_F: return MAGE_FIGHTER;
+			case LIGHT_PRIESTESS: return BARD;
+			case QUEEN: return EMPEROR;
+			default:
+				// There's no good option for Dancer, so just return Junior Lord or something.
+				return JUNIOR_LORD;
+			}
+		}
+		
+		public CharacterClass toFemale() {
+			if (!maleOnlyClasses.contains(this)) { return this; }
+			switch (this) {
+			case JUNIOR_LORD:
+			case PRINCE:
+				return PRINCESS; // Close enough for Junior Lord.
+			case LORD_KNIGHT:
+				return MASTER_KNIGHT;
+			case AXE_FIGHTER:
+			case BARBARIAN:
+			case PIRATE:
+			case MOUNTAIN_THIEF:
+			case AXE_ARMOR:
+				return AXE_KNIGHT;
+			case ARMOR:
+				return LANCE_KNIGHT;
+			case SWORD_ARMOR:
+				return SWORD_FIGHTER;
+			case WARRIOR: return GREAT_KNIGHT;
+			case BOW_ARMOR: return BOW_FIGHTER;
+			case DRAGON_RIDER: return PEGASUS_KNIGHT;
+			case MAGE_FIGHTER: return MAGE_FIGHTER_F;
+			case FREE_KNIGHT: return TROUBADOUR;
+			case FORREST_KNIGHT: 
+			case PALADIN:
+				return PALADIN_F;
+			case BISHOP:
+			case DARK_MAGE:
+				return SAGE;
+			default:
+				// There shouldn't be anything here, but just return Princess or something if we get here.
+				return PRINCESS;
+			}
+		}
+		
 		public static CharacterClass[] filteredClasses(CharacterClass[] classArray, boolean promoted, boolean isFemale) {
 			Set<CharacterClass> classSet = new HashSet<CharacterClass>(Arrays.asList(classArray));
 			if (promoted) {
@@ -2025,101 +2078,111 @@ public class FE4Data {
 		
 		public CharacterClass[] demotedClasses(boolean isFemale) {
 			if (unpromotedClasses.contains(this)) { return new CharacterClass[] {}; }
+			Set<CharacterClass> classSet = new HashSet<CharacterClass>();
+			
 			switch (this) {
-			case LORD_KNIGHT: return new CharacterClass[] {JUNIOR_LORD};
-			case DUKE_KNIGHT: return new CharacterClass[] {LANCE_KNIGHT};
-			case MASTER_KNIGHT:
-				if (isFemale) {
-					return new CharacterClass[] {PRINCESS};
-				} else {
-					return new CharacterClass[] {PRINCE};
-				}
-			case PALADIN: return new CharacterClass[] {SOCIAL_KNIGHT};
-			case PALADIN_F: return new CharacterClass[] {TROUBADOUR};
-			case BOW_KNIGHT: return new CharacterClass[] {ARCH_KNIGHT};
-			case FORREST_KNIGHT: return new CharacterClass[] {FREE_KNIGHT};
-			case MAGE_KNIGHT: return new CharacterClass[] {MAGE};
-			case GREAT_KNIGHT: return new CharacterClass[] {AXE_KNIGHT};
-			case FALCON_KNIGHT: return new CharacterClass[] {PEGASUS_KNIGHT};
-			case DRAGON_MASTER: 
-				if (isFemale) {
-					return new CharacterClass[] {DRAGON_KNIGHT};
-				} else {
-					return new CharacterClass[] {DRAGON_RIDER, DRAGON_KNIGHT};
-				}
+			case LORD_KNIGHT: classSet.add(JUNIOR_LORD); break;
+			case DUKE_KNIGHT: classSet.add(LANCE_KNIGHT); break;
+			case MASTER_KNIGHT: classSet.add(isFemale ? PRINCESS : PRINCE); break;
+			case PALADIN: classSet.add(SOCIAL_KNIGHT); break;
+			case PALADIN_F: classSet.add(TROUBADOUR); break;
+			case BOW_KNIGHT: classSet.add(ARCH_KNIGHT); break;
+			case FORREST_KNIGHT: classSet.add(FREE_KNIGHT); break;
+			case MAGE_KNIGHT: classSet.add(MAGE); break;
+			case GREAT_KNIGHT: classSet.add(AXE_KNIGHT); break;
+			case FALCON_KNIGHT: classSet.add(PEGASUS_KNIGHT); break;
+			case DRAGON_MASTER:
+				classSet.add(DRAGON_KNIGHT);
+				if (!isFemale) { classSet.add(DRAGON_RIDER); }
+				break;
 			case SWORD_MASTER: 
 			case FORREST:
-				return new CharacterClass[] {SWORD_FIGHTER};
-			case SNIPER: return new CharacterClass[] {BOW_FIGHTER};
-			case GENERAL:
-				return new CharacterClass[] {ARMOR, SWORD_ARMOR, AXE_ARMOR, BOW_ARMOR};
-			case WARRIOR:
-				return new CharacterClass[] {HUNTER, BARBARIAN, MOUNTAIN_THIEF, PIRATE};
+				classSet.add(SWORD_FIGHTER); 
+				break;
+			case SNIPER: classSet.add(BOW_FIGHTER); break;
+			case GENERAL: classSet.addAll(Arrays.asList(ARMOR, SWORD_ARMOR, AXE_ARMOR, BOW_ARMOR)); break;
+			case WARRIOR: classSet.addAll(Arrays.asList(HUNTER, BARBARIAN, MOUNTAIN_THIEF, PIRATE)); break;
 			case MAGE_FIGHTER:
 			case MAGE_FIGHTER_F:
-				return new CharacterClass[] {MAGE, FIRE_MAGE, THUNDER_MAGE, WIND_MAGE};
+				classSet.addAll(Arrays.asList(MAGE, FIRE_MAGE, THUNDER_MAGE, WIND_MAGE)); 
+				break;
 			case HIGH_PRIEST:
-			case BISHOP:
-				return new CharacterClass[] {PRIEST};
-			case SAGE: return new CharacterClass[] {BARD, LIGHT_PRIESTESS};
-			case THIEF_FIGHTER: return new CharacterClass[] {THIEF};
-			case DARK_BISHOP: return new CharacterClass[] {DARK_MAGE};
-			default: return new CharacterClass[] {};
+			case BISHOP: classSet.add(PRIEST); break;
+			case SAGE: classSet.addAll(Arrays.asList(BARD, LIGHT_PRIESTESS)); break;
+			case THIEF_FIGHTER: classSet.add(THIEF); break;
+			case DARK_BISHOP: classSet.add(DARK_MAGE); break;
+			default: break;
 			}
+			
+			List<CharacterClass> classList = classSet.stream().map(charClass -> (isFemale ? charClass.toFemale() : charClass.toMale())).distinct().sorted(new Comparator<CharacterClass>() {
+				@Override
+				public int compare(CharacterClass arg0, CharacterClass arg1) {
+					return Integer.compare(arg0.ID, arg1.ID);
+				}
+			}).collect(Collectors.toList());
+			
+			return classList.toArray(new CharacterClass[classList.size()]);
 		}
 		
 		public CharacterClass[] promotionClasses(boolean isFemale) {
 			if (promotedClasses.contains(this)) { return new CharacterClass[] {}; }
+			Set<CharacterClass> classSet = new HashSet<CharacterClass>();
 			switch (this) {
-			case SOCIAL_KNIGHT: 
-				if (isFemale) {
-					return new CharacterClass[] {PALADIN_F};
-				} else {
-					return new CharacterClass[] {PALADIN};
-				}
-			case LANCE_KNIGHT: return new CharacterClass[] {DUKE_KNIGHT}; 
-			case ARCH_KNIGHT: return new CharacterClass[] {BOW_KNIGHT}; 
-			case AXE_KNIGHT: return new CharacterClass[] {GREAT_KNIGHT};
-			case FREE_KNIGHT: return new CharacterClass[] {FORREST_KNIGHT};
-			case TROUBADOUR: return new CharacterClass[] {PALADIN_F}; 
-			case PEGASUS_KNIGHT: return new CharacterClass[] {FALCON_KNIGHT};
+			case SOCIAL_KNIGHT: classSet.add(isFemale ? PALADIN_F : PALADIN); break; 
+			case LANCE_KNIGHT: classSet.add(DUKE_KNIGHT); break; 
+			case ARCH_KNIGHT: classSet.add(BOW_KNIGHT); break;
+			case AXE_KNIGHT: classSet.add(GREAT_KNIGHT); break;
+			case FREE_KNIGHT: classSet.add(FORREST_KNIGHT); break;
+			case TROUBADOUR: classSet.add(PALADIN_F); break; 
+			case PEGASUS_KNIGHT: classSet.add(FALCON_KNIGHT); break;
 			case DRAGON_RIDER:
 			case DRAGON_KNIGHT:
-				return new CharacterClass[] {DRAGON_MASTER};
-			case BOW_FIGHTER: return new CharacterClass[] {SNIPER};
-			case SWORD_FIGHTER: return new CharacterClass[] {SWORD_MASTER, FORREST};
+				classSet.add(DRAGON_MASTER); 
+				break;
+			case BOW_FIGHTER: classSet.add(SNIPER); break;
+			case SWORD_FIGHTER: classSet.addAll(Arrays.asList(SWORD_MASTER, FORREST)); break;
 			case ARMOR:
 			case AXE_ARMOR:
 			case BOW_ARMOR:
 			case SWORD_ARMOR:
-				return new CharacterClass[] {GENERAL};
-			case AXE_FIGHTER: return new CharacterClass[] {WARRIOR};
-			case JUNIOR_LORD: return new CharacterClass[] {LORD_KNIGHT};
-			case PRINCE:
-			case PRINCESS:
-				return new CharacterClass[] {MASTER_KNIGHT};
-			case PRIEST: return new CharacterClass[] {HIGH_PRIEST};
-			case MAGE:
-			case FIRE_MAGE:
-			case THUNDER_MAGE:
-			case WIND_MAGE:
-				if (isFemale) {
-					return new CharacterClass[] {MAGE_KNIGHT, MAGE_FIGHTER_F};	
-				} else {
-					return new CharacterClass[] {MAGE_KNIGHT, MAGE_FIGHTER};
-				}
-			case BARD:
-			case LIGHT_PRIESTESS: 
-				return new CharacterClass[] {SAGE};
-			case THIEF: return new CharacterClass[] {THIEF_FIGHTER};
+				classSet.add(GENERAL);
+				break;
 			case BARBARIAN:
 			case MOUNTAIN_THIEF:
 			case PIRATE:
 			case HUNTER:
-				return new CharacterClass[] {WARRIOR};
-			case DARK_MAGE: return new CharacterClass[] {DARK_BISHOP};
-			default: return new CharacterClass[] {};
+			case AXE_FIGHTER: 
+				classSet.add(WARRIOR);
+				break;
+			case JUNIOR_LORD: classSet.add(LORD_KNIGHT); break;
+			case PRINCE:
+			case PRINCESS:
+				classSet.add(MASTER_KNIGHT);
+				break;
+			case PRIEST: classSet.add(HIGH_PRIEST); break;
+			case MAGE:
+			case FIRE_MAGE:
+			case THUNDER_MAGE:
+			case WIND_MAGE: 
+				classSet.addAll(Arrays.asList(MAGE_KNIGHT, isFemale ? MAGE_FIGHTER_F : MAGE_FIGHTER)); 
+				break;
+			case BARD:
+			case LIGHT_PRIESTESS: 
+				classSet.add(SAGE);
+				break;
+			case THIEF: classSet.add(THIEF_FIGHTER); break;
+			case DARK_MAGE: classSet.add(DARK_BISHOP); break;
+			default: break;
 			}
+			
+			List<CharacterClass> classList = classSet.stream().map(charClass -> (isFemale ? charClass.toFemale() : charClass.toMale())).distinct().sorted(new Comparator<CharacterClass>() {
+				@Override
+				public int compare(CharacterClass arg0, CharacterClass arg1) {
+					return Integer.compare(arg0.ID, arg1.ID);
+				}
+			}).collect(Collectors.toList());
+			
+			return classList.toArray(new CharacterClass[classList.size()]);
 		}
 		
 		public CharacterClass[] getLoosePromotionOptions(boolean isFemale, boolean includeAlternateMounts, boolean includeEnemyClasses, List<HolyBloodSlot1> slot1Blood, List<HolyBloodSlot2> slot2Blood, List<HolyBloodSlot3> slot3Blood) {
