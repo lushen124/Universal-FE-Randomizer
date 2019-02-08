@@ -1123,6 +1123,10 @@ public class FE4Data {
 				return CharacterClass.fliers.toArray(new CharacterClass[CharacterClass.fliers.size()]);
 			case LEWYN:  // Needs holy weapon from ch. 4 castle.
 				return CharacterClass.armoredClasses.toArray(new CharacterClass[CharacterClass.armoredClasses.size()]);
+			case DEW: // Patty as a possible child means Dew needs to be limited in case of strictly matched children.
+				blacklist = new HashSet<CharacterClass>(CharacterClass.maleOnlyClasses);
+				blacklist.addAll(CharacterClass.femaleOnlyClasses);
+				return blacklist.toArray(new CharacterClass[blacklist.size()]);
 			default: return new CharacterClass[] {};
 			}
 		}
