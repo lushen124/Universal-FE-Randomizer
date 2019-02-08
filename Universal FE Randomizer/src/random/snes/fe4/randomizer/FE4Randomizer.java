@@ -323,7 +323,7 @@ public class FE4Randomizer extends Randomizer {
 		
 		updateStatusString("Loading Item Map...");
 		updateProgress(0.15);
-		itemMapper = new ItemMapper(handler, isHeadered);
+		itemMapper = new ItemMapper(handler, isHeadered, new ArrayList<Integer>(FE4Data.UnusedInventoryIDs));
 		
 		updateStatusString("Loading Holy Blood Data...");
 		updateProgress(0.20);
@@ -406,7 +406,7 @@ public class FE4Randomizer extends Randomizer {
 			if (classOptions.randomizePlayableCharacters) {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 1));
-				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, charData, bloodData, itemMapper, rng);
+				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, buffOptions != null ? !buffOptions.majorHolyBloodBosses : true, charData, bloodData, itemMapper, rng);
 				charData.commit();
 				itemMapper.commitChanges();
 			}
@@ -483,7 +483,7 @@ public class FE4Randomizer extends Randomizer {
 			if (buffOptions.majorHolyBloodBosses) {
 				updateStatusString("Upgrading Holy Bosses...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4EnemyBuffer.rngSalt + 2));
-				FE4EnemyBuffer.forceMajorBloodOnHolyBosses(buffOptions, charData, itemMapper, rng);
+				FE4EnemyBuffer.forceMajorBloodOnHolyBosses(buffOptions, true, charData, itemMapper, rng);
 			}
 		}
 	}
@@ -607,7 +607,7 @@ public class FE4Randomizer extends Randomizer {
 			if (classOptions != null && promoOptions != null && promoOptions.promotionMode != FE4PromotionOptions.Mode.STRICT) {
 				// Make sure Seliph's class can use Sigurd's major blood weapon.
 				FE4ChildCharacter seliph = charData.getChildCharacter(FE4Data.Character.SELIPH);
-				FE4Data.CharacterClass seliphClass = FE4Data.CharacterClass.valueOf(seliph.getCharacterID());
+				FE4Data.CharacterClass seliphClass = FE4Data.CharacterClass.valueOf(seliph.getClassID());
 				Set<FE4Data.HolyBlood> supportedBlood = new HashSet<FE4Data.HolyBlood>(Arrays.asList(seliphClass.supportedHolyBlood()));
 				if (supportedBlood.contains(sigurdMajorBlood) == false) {
 					FE4Data.CharacterClass[] fullPool = sigurdMajorBlood.classPool();
