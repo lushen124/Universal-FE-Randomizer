@@ -1131,6 +1131,10 @@ public class FE4Data {
 				blacklist = new HashSet<CharacterClass>(CharacterClass.maleOnlyClasses);
 				blacklist.addAll(CharacterClass.femaleOnlyClasses);
 				return blacklist.toArray(new CharacterClass[blacklist.size()]);
+			case ELDIGAN_CH1_SCENE:
+			case ELDIGAN_CH3: // Eldigan shouldn't get bow-locked. He might not win against Elliot if he is.
+				return CharacterClass.rangedOnlyClasses.toArray(new CharacterClass[CharacterClass.rangedOnlyClasses.size()]);
+				
 			default: return new CharacterClass[] {};
 			}
 		}
