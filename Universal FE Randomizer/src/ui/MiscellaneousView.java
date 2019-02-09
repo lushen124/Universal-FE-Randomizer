@@ -82,7 +82,7 @@ public class MiscellaneousView extends Composite {
 			randomizeRecruitmentOrder = new Button(container, SWT.CHECK);
 			randomizeRecruitmentOrder.setText("Randomize Recruitment Order");
 			randomizeRecruitmentOrder.setToolTipText("Mixes up the order in which characters join the party.");
-			randomizeRecruitmentOrder.setEnabled(false);
+			randomizeRecruitmentOrder.setEnabled(true);
 			
 			FormData randomRecruitData = new FormData();
 			randomRecruitData.left = new FormAttachment(0, 5);
@@ -95,10 +95,10 @@ public class MiscellaneousView extends Composite {
 		if (type.isGBA()) {
 			switch (type) {
 			case FE6:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), randomizeRecruitmentOrder.getSelection());
 			case FE7:
 			default:
-				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), false);
+				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), randomizeRecruitmentOrder.getSelection());
 			}
 		} else if (type.isSFC()) {
 			switch (type) {

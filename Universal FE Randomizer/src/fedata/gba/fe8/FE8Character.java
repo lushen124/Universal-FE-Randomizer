@@ -1,5 +1,6 @@
 package fedata.gba.fe8;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +51,14 @@ public class FE8Character implements GBAFECharacterData {
 		this.isClassRestricted = isClassRestricted;
 	}
 	
+	public GBAFECharacterData createCopy(boolean useOriginalData) {
+		if (useOriginalData) {
+			return new FE8Character(Arrays.copyOf(this.originalData, this.originalData.length), this.originalOffset, this.isClassRestricted);
+		}
+		
+		return new FE8Character(Arrays.copyOf(this.data, this.data.length), this.originalOffset, this.isClassRestricted);
+	}
+	
 	public Boolean isClassRestricted() {
 		return isClassRestricted;
 	}
@@ -58,12 +67,36 @@ public class FE8Character implements GBAFECharacterData {
 		return (data[0] & 0xFF) | ((data[1] & 0xFF) << 8);
 	}
 	
+	public void setNameIndex(int newIndex) {
+		data[0] = (byte)(newIndex & 0xFF);
+		data[1] = (byte)((newIndex >> 8) & 0xFF);
+	}
+	
 	public int getDescriptionIndex() {
 		return (data[2] & 0xFF) | ((data[3] & 0xFF) << 8);
 	}
 	
+	public void setDescriptionIndex(int newIndex) {
+		data[2] = (byte)(newIndex & 0xFF);
+		data[3] = (byte)((newIndex >> 8) & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getOriginalDescriptionIndex() {
+		return (originalData[2] & 0xFF) | ((originalData[3] & 0xFF) << 8);
+	}
+	
 	public int getID() {
 		return data[4] & 0xFF;
+	}
+	
+	public void setID(int newID) {
+		data[4] = (byte)(newID & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getOriginalID() {
+		return originalData[4] & 0xFF;
 	}
 	
 	public int getClassID() {
@@ -72,6 +105,15 @@ public class FE8Character implements GBAFECharacterData {
 	
 	public void setClassID(int classID) {
 		data[5] = (byte)(classID & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getFaceID() {
+		return data[6] & 0xFF;
+	}
+	
+	public void setFaceID(int faceID) {
+		data[6] = (byte)(faceID & 0xFF);
 		wasModified = true;
 	}
 	
@@ -332,6 +374,12 @@ public class FE8Character implements GBAFECharacterData {
 		data[9] = (byte)(newAffinity & 0xFF);
 		wasModified = true;
 	}
+	
+	// FE8 uses a separate table away from the character data.
+	public int getUnpromotedPaletteIndex() { return 0; }
+	public void setUnpromotedPaletteIndex(int newIndex) {}
+	public int getPromotedPaletteIndex() { return 0; }
+	public void setPromotedPaletteIndex(int newIndex) {}
 	
 	public String getAffinityName() {
 		return Affinity.affinityWithID(getAffinityValue()).toString();

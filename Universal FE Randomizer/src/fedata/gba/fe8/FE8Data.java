@@ -88,6 +88,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int BytesPerBossPalette = 80; // Play around with this. Hopefully it doesn't collide with another palette.
 	public static final int BytesPerPalette = 40;
 	
+	public static final long PaletteTableOffset = 0xEF8004L;
+	public static final int PaletteEntryCount = 256;
+	public static final int PaletteEntrySize = 16;
+	
 	private static final FE8Data sharedInstance = new FE8Data();
 	
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
@@ -186,6 +190,24 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList(SETH)); // The prologue scripted battle.
+		
+		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE));
+		
+		// Playable characters only.
+		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
+		private static Map<Character, Set<Integer>> createMultiPortraitMap() {
+			Map<Character, Set<Integer>> map = new HashMap<Character, Set<Integer>>();
+			map.put(EIRIKA, new HashSet<Integer>(Arrays.asList(0x02, 0x03)));
+			map.put(NEIMI, new HashSet<Integer>(Arrays.asList(0x0A, 0x0B)));
+			map.put(COLM, new HashSet<Integer>(Arrays.asList(0x0C, 0x0D)));
+			map.put(NATASHA, new HashSet<Integer>(Arrays.asList(0x11, 0x12)));
+			map.put(EPHRAIM, new HashSet<Integer>(Arrays.asList(0x14, 0x15)));
+			map.put(FORDE, new HashSet<Integer>(Arrays.asList(0x16, 0x17)));
+			map.put(TETHYS, new HashSet<Integer>(Arrays.asList(0x1C, 0x1D)));
+			map.put(MARISA, new HashSet<Integer>(Arrays.asList(0x1E, 0x1F)));
+			map.put(MYRRH, new HashSet<Integer>(Arrays.asList(0x26, 0x27, 0x28)));
+			return map;
+		}
 		
 		public Boolean isLord() {
 			return allLords.contains(this);
@@ -350,6 +372,54 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				TROUBADOUR, DANCER, RECRUIT_2, EIRIKA_MASTER_LORD, PALADIN_F, GENERAL_F, SWORDMASTER_F, ASSASSIN_F, SNIPER_F, RANGER_F, WYVERN_KNIGHT_F, SAGE_F, MAGE_KNIGHT_F, BISHOP_F,
 				GREAT_KNIGHT_F, SUPER_RECRUIT, MANAKETE_F, FALCON_KNIGHT, VALKYRIE, REVENANT, BONEWALKER, BONEWALKER_BOW, BAEL, MAUTHE_DOOG, TARVOS, MOGALL, GARGOYLE,
 				ENTOMBED, WIGHT, WIGHT_BOW, ELDER_BAEL, CYCLOPS, GWYLLGI, MAELDUIN, ARCH_MOGALL, GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2));
+		
+		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, PEGASUS_KNIGHT, MOGALL, GARGOYLE, WYVERN_LORD, WYVERN_KNIGHT, WYVERN_KNIGHT_F, FALCON_KNIGHT, ARCH_MOGALL, DEATHGOYLE));
+		
+		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, MERCENARY, MYRMIDON, SWORDMASTER, ASSASSIN, ROGUE, EIRIKA_LORD, MYRMIDON_F, MANAKETE_F, SWORDMASTER_F, ASSASSIN_F, REVENANT,
+				BAEL, MAUTHE_DOOG, ENTOMBED, ELDER_BAEL, GWYLLGI, ELDER_BAEL_2));
+		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, SNIPER, ARCHER_F, SNIPER_F, BONEWALKER_BOW, WIGHT_BOW));
+		
+		public static Map<CharacterClass, Set<CharacterClass>> promotionMap = createPromotionMap();
+		private static Map<CharacterClass, Set<CharacterClass>> createPromotionMap() {
+			Map<CharacterClass, Set<CharacterClass>> map = new HashMap<CharacterClass, Set<CharacterClass>>();
+			map.put(EPHRAIM_LORD, new HashSet<CharacterClass>(Arrays.asList(EPHRAIM_MASTER_LORD)));
+			map.put(CAVALIER, new HashSet<CharacterClass>(Arrays.asList(PALADIN, GREAT_KNIGHT)));
+			map.put(KNIGHT, new HashSet<CharacterClass>(Arrays.asList(GREAT_KNIGHT, GENERAL)));
+			map.put(THIEF, new HashSet<CharacterClass>(Arrays.asList(ROGUE, ASSASSIN)));
+			map.put(MERCENARY, new HashSet<CharacterClass>(Arrays.asList(HERO, RANGER)));
+			map.put(MYRMIDON, new HashSet<CharacterClass>(Arrays.asList(SWORDMASTER, ASSASSIN)));
+			map.put(ARCHER, new HashSet<CharacterClass>(Arrays.asList(SNIPER, RANGER)));
+			map.put(WYVERN_RIDER, new HashSet<CharacterClass>(Arrays.asList(WYVERN_KNIGHT, WYVERN_LORD)));
+			map.put(MAGE, new HashSet<CharacterClass>(Arrays.asList(SAGE, MAGE_KNIGHT)));
+			map.put(SHAMAN, new HashSet<CharacterClass>(Arrays.asList(SUMMONER, DRUID)));
+			map.put(RECRUIT_2, new HashSet<CharacterClass>(Arrays.asList(SUPER_RECRUIT, PALADIN))); 
+			map.put(FIGHTER, new HashSet<CharacterClass>(Arrays.asList(WARRIOR, HERO))); 
+			map.put(BRIGAND, new HashSet<CharacterClass>(Arrays.asList(BERSERKER, WARRIOR)));
+			map.put(PIRATE, new HashSet<CharacterClass>(Arrays.asList(BERSERKER, WARRIOR)));
+			map.put(MONK, new HashSet<CharacterClass>(Arrays.asList(BISHOP, SAGE)));
+			map.put(PRIEST, new HashSet<CharacterClass>(Arrays.asList(BISHOP, SAGE)));
+			map.put(SOLDIER, new HashSet<CharacterClass>(Arrays.asList(PALADIN, GENERAL)));
+			map.put(TRAINEE_2, new HashSet<CharacterClass>(Arrays.asList(SUPER_TRAINEE, WARRIOR)));
+			map.put(PUPIL_2, new HashSet<CharacterClass>(Arrays.asList(SUPER_PUPIL, SAGE)));
+			map.put(EIRIKA_LORD, new HashSet<CharacterClass>(Arrays.asList(EIRIKA_MASTER_LORD)));
+			map.put(CAVALIER_F, new HashSet<CharacterClass>(Arrays.asList(PALADIN_F, GREAT_KNIGHT_F)));
+			map.put(KNIGHT_F, new HashSet<CharacterClass>(Arrays.asList(GENERAL_F, GREAT_KNIGHT_F)));
+			map.put(MYRMIDON_F, new HashSet<CharacterClass>(Arrays.asList(SWORDMASTER_F, ASSASSIN_F)));
+			map.put(ARCHER_F, new HashSet<CharacterClass>(Arrays.asList(SNIPER_F, RANGER_F)));
+			map.put(MAGE_F, new HashSet<CharacterClass>(Arrays.asList(SAGE_F, MAGE_KNIGHT_F)));
+			map.put(PEGASUS_KNIGHT, new HashSet<CharacterClass>(Arrays.asList(FALCON_KNIGHT, WYVERN_KNIGHT_F)));
+			map.put(CLERIC, new HashSet<CharacterClass>(Arrays.asList(BISHOP_F, VALKYRIE)));
+			map.put(TROUBADOUR, new HashSet<CharacterClass>(Arrays.asList(VALKYRIE, MAGE_KNIGHT_F)));
+			map.put(REVENANT, new HashSet<CharacterClass>(Arrays.asList(ENTOMBED)));
+			map.put(BONEWALKER, new HashSet<CharacterClass>(Arrays.asList(WIGHT))); 
+			map.put(BONEWALKER_BOW, new HashSet<CharacterClass>(Arrays.asList(WIGHT_BOW)));
+			map.put(BAEL, new HashSet<CharacterClass>(Arrays.asList(ELDER_BAEL, ELDER_BAEL_2)));
+			map.put(MAUTHE_DOOG, new HashSet<CharacterClass>(Arrays.asList(GWYLLGI)));
+			map.put(TARVOS, new HashSet<CharacterClass>(Arrays.asList(MAELDUIN)));
+			map.put(MOGALL, new HashSet<CharacterClass>(Arrays.asList(ARCH_MOGALL)));
+			map.put(GARGOYLE, new HashSet<CharacterClass>(Arrays.asList(DEATHGOYLE)));
+			return map;
+		}
 		
 		private static Boolean isClassPromoted(CharacterClass sourceClass) {
 			return allPromotedClasses.contains(sourceClass);
@@ -568,6 +638,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 		public Boolean isPromoted() {
 			return CharacterClass.allPromotedClasses.contains(this);
+		}
+		
+		public Boolean isTrainee() {
+			return CharacterClass.allTraineeClasses.contains(this);
 		}
 
 		public Boolean canAttack() {
@@ -946,6 +1020,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allRangedOnlyWeapons = new HashSet<Item>(Arrays.asList(IRON_BOW, STEEL_BOW, SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONG_BOW, BEACON_BOW, NIDHOGG));
 		public static Set<Item> allStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER, SILENCE, SLEEP, BERSERK));
 		
+		public static Set<Item> allSiegeTomes = new HashSet<Item>(Arrays.asList(BOLTING, PURGE, ECLIPSE, SHADOWSHOT));
+		
 		public static Set<Item> allERank = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, SHADOWKILLER, IRON_LANCE, SLIM_LANCE, TOXIN_LANCE, JAVELIN, BRIGHT_LANCE, IRON_AXE, STEEL_AXE, DEVIL_AXE,
 				HAND_AXE, HATCHET, FIENDCLEAVER, IRON_BOW, BEACON_BOW, HEAL, FIRE, LIGHTNING));
 		public static Set<Item> allDRank = new HashSet<Item>(Arrays.asList(STEEL_SWORD, IRON_BLADE, POISON_SWORD, SHAMSHIR, ARMORSLAYER, ZANBATO, STEEL_LANCE, HORSESLAYER, HEAVY_SPEAR,
@@ -956,6 +1032,25 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allARank = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, SILVER_AXE, TOMAHAWK, SILVER_BOW, FORTIFY, WARP, FIMBULVETR, AURA, FENRIR));
 		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(AUDHULMA, VIDOFNIR, GARM, NIDHOGG, LATONA, EXCALIBUR, IVALDI, GLEIPNIR, NAGLFAR));
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(REGINLEIF, RAPIER, SIEGMUND, SIEGLINDE));
+		
+		public static Set<Item> normalSet = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, IRON_LANCE, SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, 
+				IRON_AXE, STEEL_AXE, SILVER_AXE, BATTLE_AXE, IRON_BOW, STEEL_BOW, SILVER_BOW, SHORT_BOW, BEACON_BOW, FIRE, THUNDER, ELFIRE, FIMBULVETR, LIGHTNING, SHINE, DIVINE, AURA, FLUX, FENRIR,
+				SHARP_CLAW, WRETCHED_AIR, DRAGONSTONE, DEMON_SURGE, ROTTEN_CLAW, FETID_CLAW, FIERY_FANG, HELLFANG, EVIL_EYE, CRIMSON_EYE));
+		public static Set<Item> interestingSet = new HashSet<Item>(Arrays.asList(POISON_SWORD, RAPIER, BRAVE_SWORD, SHAMSHIR, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, ZANBATO, 
+				SHADOWKILLER, WIND_SWORD, TOXIN_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN, SPEAR, AXEREAVER, REGINLEIF, BRIGHT_LANCE, DRAGONSPEAR, HEAVY_SPEAR, SHORT_SPEAR,
+				POISON_AXE, BRAVE_AXE, KILLER_AXE, HALBERD, HAMMER, DEVIL_AXE, HAND_AXE, TOMAHAWK, SWORDREAVER, SWORDSLAYER, HATCHET, DRAGON_AXE, FIENDCLEAVER,
+				POISON_BOW, KILLER_BOW, BRAVE_BOW, LONG_BOW, BEACON_BOW, BOLTING, PURGE, LUNA, NOSFERATU, ECLIPSE, SHADOWSHOT, POISON_CLAW, LETHAL_TALON, STONE));
+		
+		// These must be of lower rank than the siege tomes set, and each weapon type needs to have an equivalent analogue.
+		public static Set<Item> siegeReplacementSet = new HashSet<Item>(Arrays.asList(NOSFERATU, DIVINE, ELFIRE, DEMON_SURGE));
+		
+		public static Set<Item> killerSet = new HashSet<Item>(Arrays.asList(KILLING_EDGE, SHAMSHIR, KILLER_LANCE, KILLER_AXE, KILLER_BOW));
+		public static Set<Item> effectiveSet = new HashSet<Item>(Arrays.asList(RAPIER, ARMORSLAYER, WYRMSLAYER, ZANBATO, SHADOWKILLER, HORSESLAYER, REGINLEIF, BRIGHT_LANCE, DRAGONSPEAR, HEAVY_SPEAR,
+				HALBERD, HAMMER, SWORDSLAYER, DRAGON_AXE, FIENDCLEAVER, BEACON_BOW));
+		public static Set<Item> poisonSet = new HashSet<Item>(Arrays.asList(POISON_SWORD, POISON_AXE, TOXIN_LANCE, POISON_BOW, POISON_CLAW, LETHAL_TALON));
+		public static Set<Item> rangedSet = new HashSet<Item>(Arrays.asList(LIGHT_BRAND, RUNE_SWORD, WIND_SWORD, JAVELIN, SPEAR, SHORT_SPEAR, HAND_AXE, TOMAHAWK, HATCHET, LONG_BOW, BOLTING, PURGE, ECLIPSE, SHADOWSHOT));
+		public static Set<Item> reaverSet = new HashSet<Item>(Arrays.asList(LANCEREAVER, AXEREAVER, SWORDREAVER, SWORDSLAYER));
+		public static Set<Item> braveSet = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, BRAVE_LANCE, BRAVE_AXE, BRAVE_BOW));
 		
 		public static Set<Item> allRestrictedWeapons = new HashSet<Item>(Arrays.asList(SHAMSHIR));
 		
@@ -2052,6 +2147,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return list.toArray(new PaletteInfo[list.size()]);
 		}
 		
+		public static int maxUsedPaletteIndex() {
+			return 0x6C; // Caellach
+		}
+		
+		public static int maxPaletteIndex() {
+			return 0xF0; // There's space for this many, but they're all 0s. Seems like they could be used. It actually goes to FF, but we'll leave some space.
+		}
+		
 		public static int paletteSizeForCharacter(int characterID) {
 			FE8Data.Character character = FE8Data.Character.valueOf(characterID);
 			switch (character) {
@@ -2225,6 +2328,19 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public Set<Integer> linkedPortraitIDs(int characterID) {
+		Character character = Character.valueOf(characterID);
+		if (Character.charactersWithMultiplePortraits.containsKey(character)) {
+			return Character.charactersWithMultiplePortraits.get(character);
+		}
+		
+		return new HashSet<Integer>();
+	}
+	
+	public Set<GBAFECharacter> allFliers() {
+		return new HashSet<GBAFECharacter>(Character.requiredFliers);
+	}
+	
 	public GBAFECharacter characterWithID(int characterID) {
 		GBAFECharacter character = Character.valueOf(characterID);
 		if (character == null) {
@@ -2273,9 +2389,65 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEClass> allValidClasses() {
 		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 	}
+	
+	public Set<GBAFEClass> meleeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.rangedOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
+	
+	public Set<GBAFEClass> rangeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.meleeOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
 
 	public GBAFEClass classWithID(int classID) {
 		return CharacterClass.valueOf(classID);
+	}
+	
+	public boolean canClassDemote(GBAFEClass charClass) {
+		for (GBAFEClass baseClass : CharacterClass.promotionMap.keySet()) {
+			Set<CharacterClass> promotionOptions = CharacterClass.promotionMap.get(baseClass);
+			if (promotionOptions.contains(charClass)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean canClassPromote(GBAFEClass charClass) {
+		return CharacterClass.promotionMap.keySet().contains(charClass);
+	}
+	
+	public GBAFEClass[] promotedClass(GBAFEClass baseClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass charClass : CharacterClass.promotionMap.keySet()) {
+			if (charClass.ID == baseClass.getID()) {
+				classList.addAll(CharacterClass.promotionMap.get(charClass));
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public GBAFEClass[] demotedClass(GBAFEClass promotedClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass baseClass : CharacterClass.promotionMap.keySet()) {
+			Set<CharacterClass> classes = CharacterClass.promotionMap.get(baseClass);
+			if (classes.contains(promotedClass)) {
+				classList.add(baseClass);
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public boolean isFlier(GBAFEClass charClass) {
+		return CharacterClass.flyingClasses.contains(charClass);
 	}
 
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options) {
@@ -2611,7 +2783,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		itemsUsableByClass.retainAll(Item.allBasicWeapons);
 		return itemsUsableByClass;
 	}
-	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem) {
+	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem, boolean strict) {
 		if (originalItem == null) { return new HashSet<GBAFEItem>(); }
 		Item item = Item.valueOf(originalItem.getID());
 		if (item == null) { return new HashSet<GBAFEItem>(); }
@@ -2628,6 +2800,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		Set<GBAFEItem> itemsUsableByClass = new HashSet<GBAFEItem>(weaponsForClass(classID));
+		Set<GBAFEItem> usableSet = new HashSet<GBAFEItem>(itemsUsableByClass);
 		
 		switch (rank) {
 		case E:
@@ -2651,6 +2824,43 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		default:
 			itemsUsableByClass.clear();
 			break;
+		}
+		
+		if (strict) {
+			Set<GBAFEItem> usableByRank = new HashSet<GBAFEItem>(itemsUsableByClass);
+			if (Item.braveSet.contains(item) && !Collections.disjoint(Item.braveSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.braveSet);
+			} else if (Item.reaverSet.contains(item) && !Collections.disjoint(Item.reaverSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.reaverSet);
+			} else if (Item.rangedSet.contains(item) && !Collections.disjoint(Item.rangedSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.rangedSet);
+				if (!Item.allSiegeTomes.contains(item)) {
+					itemsUsableByClass.removeAll(Item.allSiegeTomes);
+					Set<GBAFEItem> usableSiegeReplacements = new HashSet<GBAFEItem>(usableSet);
+					usableSiegeReplacements.retainAll(Item.siegeReplacementSet);
+					itemsUsableByClass.addAll(usableSiegeReplacements);
+				}
+			} else if (Item.poisonSet.contains(item) && !Collections.disjoint(Item.poisonSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.poisonSet);
+			} else if (Item.effectiveSet.contains(item) && !Collections.disjoint(Item.effectiveSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.effectiveSet);
+			} else if (Item.killerSet.contains(item) && !Collections.disjoint(Item.killerSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.killerSet);
+			} else if (Item.interestingSet.contains(item) && !Collections.disjoint(Item.interestingSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.interestingSet);
+				if (!Item.allSiegeTomes.contains(item)) {
+					itemsUsableByClass.removeAll(Item.allSiegeTomes);
+					Set<GBAFEItem> usableSiegeReplacements = new HashSet<GBAFEItem>(usableSet);
+					usableSiegeReplacements.retainAll(Item.siegeReplacementSet);
+					itemsUsableByClass.addAll(usableSiegeReplacements);
+				}
+			} else {
+				itemsUsableByClass.retainAll(Item.normalSet);
+			}
+			
+			if (itemsUsableByClass.isEmpty() && !usableByRank.isEmpty()) {
+				itemsUsableByClass = usableByRank;
+			}
 		}
 		
 		return itemsUsableByClass;

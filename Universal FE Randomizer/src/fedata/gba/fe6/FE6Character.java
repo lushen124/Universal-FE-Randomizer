@@ -1,5 +1,6 @@
 package fedata.gba.fe6;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +51,13 @@ public class FE6Character implements GBAFECharacterData {
 		this.isClassRestricted = isClassRestricted;
 	}
 	
+	public GBAFECharacterData createCopy(boolean useOriginalData) {
+		if (useOriginalData) {
+			return new FE6Character(Arrays.copyOf(this.originalData, this.originalData.length), this.originalOffset, this.isClassRestricted);
+		}
+		return new FE6Character(Arrays.copyOf(this.data, this.data.length), this.originalOffset, this.isClassRestricted);
+	}
+	
 	public Boolean isClassRestricted() {
 		return isClassRestricted;
 	}
@@ -58,8 +66,20 @@ public class FE6Character implements GBAFECharacterData {
 		return (data[0] & 0xFF) | ((data[1] & 0xFF) << 8);
 	}
 	
+	public void setNameIndex(int newIndex) {
+		data[0] = (byte)(newIndex & 0xFF);
+		data[1] = (byte)((newIndex >> 8) & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getDescriptionIndex() {
 		return (data[2] & 0xFF) | ((data[3] & 0xFF) << 8);
+	}
+	
+	public void setDescriptionIndex(int newIndex) {
+		data[2] = (byte)(newIndex & 0xFF);
+		data[3] = (byte)((newIndex >> 8) & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getID() {
@@ -72,6 +92,15 @@ public class FE6Character implements GBAFECharacterData {
 	
 	public void setClassID(int classID) {
 		data[5] = (byte)(classID & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getFaceID() {
+		return data[6] & 0xFF;
+	}
+	
+	public void setFaceID(int faceID) {
+		data[6] = (byte)(faceID & 0xFF);
 		wasModified = true;
 	}
 	
@@ -335,6 +364,24 @@ public class FE6Character implements GBAFECharacterData {
 	
 	public String getAffinityName() {
 		return Affinity.affinityWithID(getAffinityValue()).toString();
+	}
+	
+	public int getUnpromotedPaletteIndex() {
+		return data[35] & 0xFF;
+	}
+	
+	public void setUnpromotedPaletteIndex(int newIndex) {
+		data[35] = (byte)(newIndex & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getPromotedPaletteIndex() {
+		return data[36] & 0xFF;
+	}
+	
+	public void setPromotedPaletteIndex(int newIndex) {
+		data[36] = (byte)(newIndex & 0xFF);
+		wasModified = true;
 	}
 	
 	public void setIsLord() {

@@ -113,6 +113,18 @@ public class ChapterLoader {
 		}
 	}
 	
+	public int getStartingLevelForCharacter(int characterID) {
+		for (GBAFEChapterData chapter : allChapters()) {
+			for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+				if (unit.getCharacterNumber() == characterID) {
+					return unit.getStartingLevel();
+				}
+			}
+		}
+		
+		return 0;
+	}
+	
 	public void commit() {
 		for (GBAFEChapterData chapter : chapters) {
 			chapter.applyNudges();

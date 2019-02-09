@@ -113,6 +113,53 @@ public class ClassDataLoader {
 		return charClass != null ? charClass.isPromoted() : false;
 	}
 	
+	public Boolean canClassDemote(int classID) {
+		GBAFEClass charClass = provider.classWithID(classID);
+		return charClass != null ? provider.canClassDemote(charClass) : false;
+	}
+	
+	public Boolean canClassPromote(int classID) {
+		GBAFEClass charClass = provider.classWithID(classID);
+		return charClass != null ? provider.canClassPromote(charClass) : false;
+	}
+	
+	public List<GBAFEClassData> demotionOptions(int classID) {
+		GBAFEClass charClass = provider.classWithID(classID);
+		if (charClass == null) { return new ArrayList<GBAFEClassData>(); }
+		GBAFEClass[] options = provider.demotedClass(charClass);
+		List<GBAFEClassData> result = new ArrayList<GBAFEClassData>();
+		for (GBAFEClass option : options) {
+			result.add(classMap.get(option.getID()));
+		}
+		return result;
+	}
+	
+	public List<GBAFEClassData> promotionOptions(int classID) {
+		GBAFEClass charClass = provider.classWithID(classID);
+		if (charClass == null) { return new ArrayList<GBAFEClassData>(); }
+		GBAFEClass[] options = provider.promotedClass(charClass);
+		List<GBAFEClassData> result = new ArrayList<GBAFEClassData>();
+		for (GBAFEClass option : options) {
+			result.add(classMap.get(option.getID()));
+		}
+		return result;
+	}
+	
+	public Boolean isFlying(int classID) {
+		GBAFEClass charClass = provider.classWithID(classID);
+		return charClass != null ? provider.isFlier(charClass) : false;
+	}
+	
+	public Boolean canSupportMelee(int classID) {
+		GBAFEClass charClass = provider.classWithID(classID);
+		return provider.meleeSupportedClasses().contains(charClass);
+	}
+	
+	public Boolean canSupportRange(int classID) {
+		GBAFEClass charClass = provider.classWithID(classID);
+		return provider.rangeSupportedClasses().contains(charClass);
+	}
+	
 	public Boolean isValidClass(int classID) {
 		GBAFEClass charClass = provider.classWithID(classID);
 		return provider.allValidClasses().contains(charClass);

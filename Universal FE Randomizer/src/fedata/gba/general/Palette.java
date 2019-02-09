@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +48,50 @@ public class Palette {
 		return index;
 	}
 	
+	public Palette(Palette other) {
+		this.info = new PaletteInfo(other.info);
+		this.rawData = other.rawData.clone();
+		
+		this.hair = new ArrayList<PaletteColor>();
+		for (PaletteColor otherHair : other.hair) {
+			this.hair.add(new PaletteColor(otherHair.getRedValue(), otherHair.getGreenValue(), otherHair.getBlueValue()));
+		}
+		this.primary = new ArrayList<PaletteColor>();
+		for (PaletteColor otherPrimary : other.primary) {
+			this.primary.add(new PaletteColor(otherPrimary.getRedValue(), otherPrimary.getGreenValue(), otherPrimary.getBlueValue()));
+		}
+		this.secondary = new ArrayList<PaletteColor>();
+		for (PaletteColor otherSecondary : other.secondary) {
+			this.secondary.add(new PaletteColor(otherSecondary.getRedValue(), otherSecondary.getGreenValue(), otherSecondary.getBlueValue()));
+		}
+		this.tertiary = new ArrayList<PaletteColor>();
+		for (PaletteColor otherTertiary : other.tertiary) {
+			this.tertiary.add(new PaletteColor(otherTertiary.getRedValue(), otherTertiary.getGreenValue(), otherTertiary.getBlueValue()));
+		}
+		
+		this.hairModified = other.hairModified;
+		this.primaryModified = other.primaryModified;
+		this.secondaryModified = other.secondaryModified;
+		this.tertiaryModified = other.tertiaryModified;
+		
+		if (other.supplementalHairColor != null) {
+			this.supplementalHairColor = new ArrayList<PaletteColor>();
+			for (PaletteColor supplement : other.supplementalHairColor) {
+				this.supplementalHairColor.add(new PaletteColor(supplement.getRedValue(), supplement.getGreenValue(), supplement.getBlueValue()));
+			}
+		}
+		
+		this.customMapping = null;
+		if (other.customMapping != null) {
+			this.customMapping = new HashMap<Integer, Integer>();
+			for (int key : other.customMapping.keySet()) {
+				this.customMapping.put(key, other.customMapping.get(key));
+			}
+		}
+		
+		this.fullUpdate = other.fullUpdate;
+	}
+	
 	public Palette(FileHandler handler, PaletteInfo info, int paletteSize, Map<Integer, Integer> customMap) {
 		this.info = info;
 		customMapping = customMap;
@@ -80,9 +125,11 @@ public class Palette {
 	
 	public Palette(Palette template, Palette targetPalette, Palette[] allReferencePalettes, Map<Integer, Integer> customMap) {
 		info = new PaletteInfo(template.info);
-		info.paletteOffset = targetPalette.info.paletteOffset;
+		if (targetPalette != null) {
+			info.paletteOffset = targetPalette.info.paletteOffset;
+		}
 		customMapping = customMap;
-		if (targetPalette.rawData.length > template.rawData.length) {
+		if (targetPalette != null && targetPalette.rawData.length > template.rawData.length) {
 			rawData = targetPalette.rawData.clone();
 			for (int i = 0; i < template.rawData.length; i++) {
 				rawData[indexOf(i)] = template.rawData[i];
@@ -322,6 +369,14 @@ public class Palette {
 	
 	public PaletteInfo getInfo() {
 		return info;
+	}
+	
+	public int getDataLength() {
+		return rawData.length;
+	}
+	
+	public void overrideOffset(long newOffset) {
+		info.paletteOffset = newOffset;
 	}
 	
 	public PaletteColor[] getHairColors() {

@@ -34,6 +34,18 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		wasModified = true;
 	}
 	
+	public int getStartingLevel() {
+		// Level and alliance are stored in byte 3, but we need to interpret it properly.
+		// LLLL LENA
+		// L = Level (5 bits, 0 - 31)
+		// E = Set if enemy
+		// N = Set if NPC
+		// A = Set if autolevel
+		// Note: playable characters are defined as not enemies and not NPCs.
+		int value = data[3] & 0xFF;
+		return value >> 3;
+	}
+	
 	public int getLeaderID() {
 		return 0; // FE8 doesn't use Leader IDs
 	}

@@ -70,6 +70,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public static final long PromotionItemTablePointer = 0x237AC; // Hero's Crest (0), Knights Crest (1), Orion Bolt (2), Elysian Whip (3), Guiding Ring (8)
 	
+	public static final long PaletteTableOffset = 0x7FC004L;
+	public static final int PaletteEntryCount = 130;
+	public static final int PaletteEntrySize = 16;
+	
 	private static final FE6Data sharedInstance = new FE6Data();
 	
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
@@ -170,6 +174,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
+		
+		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(THITO, MILEDY, GALE, NARSHEN));
 		
 		public Boolean isLord() {
 			return allLords.contains(this);
@@ -315,6 +321,44 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				WYVERN_RIDER, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMAD_TROOPER, WYVERN_KNIGHT,
 				BERSERKER, /*MANAKETE,*/ MASTER_LORD, MYRMIDON_F, KNIGHT_F, ARCHER_F, CLERIC, MAGE_F, SHAMAN_F, TROUBADOUR, NOMAD_F, PEGASUS_KNIGHT, WYVERN_RIDER_F, THIEF_F, DANCER, HERO_F, SWORDMASTER_F, GENERAL_F, SNIPER_F,
 				BISHOP_F, SAGE_F, DRUID_F, VALKYRIE, NOMAD_TROOPER_F, FALCON_KNIGHT, WYVERN_KNIGHT_F, MANAKETE_F));
+		
+		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_KNIGHT, WYVERN_KNIGHT_F, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
+		
+		// Includes most sword locks. Yes, they gain range with magic swords, but we're not going to assume they can use magic swords.
+		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, MERCENARY, MYRMIDON, SWORDMASTER, MASTER_LORD, MYRMIDON_F, THIEF, THIEF_F, SWORDMASTER_F, MANAKETE_F));
+		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(NOMAD, ARCHER, SNIPER, SNIPER_F, NOMAD_F));
+		
+		public static Map<CharacterClass, CharacterClass> promotionMap = createPromotionMap();
+		private static Map<CharacterClass, CharacterClass> createPromotionMap() {
+			Map<CharacterClass, CharacterClass> map = new HashMap<CharacterClass, CharacterClass>();
+			map.put(LORD, MASTER_LORD);
+			map.put(MERCENARY, HERO);
+			map.put(MYRMIDON, SWORDMASTER);
+			map.put(FIGHTER, WARRIOR);
+			map.put(KNIGHT, GENERAL);
+			map.put(ARCHER, SNIPER);
+			map.put(PRIEST, BISHOP); 
+			map.put(MAGE, SAGE);
+			map.put(SHAMAN, DRUID);
+			map.put(CAVALIER, PALADIN);
+			map.put(NOMAD, NOMAD_TROOPER);
+			map.put(WYVERN_RIDER, WYVERN_KNIGHT); 
+			map.put(SOLDIER, GENERAL); 
+			map.put(BRIGAND, BERSERKER);
+			map.put(PIRATE, BERSERKER);
+			map.put(MYRMIDON_F, SWORDMASTER_F); 
+			map.put(KNIGHT_F, GENERAL_F);
+			map.put(ARCHER_F, SNIPER_F);
+			map.put(CLERIC, BISHOP_F);
+			map.put(MAGE_F, SAGE_F);
+			map.put(SHAMAN_F, DRUID_F);
+			map.put(TROUBADOUR, VALKYRIE);
+			map.put(NOMAD_F, NOMAD_TROOPER_F);
+			map.put(PEGASUS_KNIGHT, FALCON_KNIGHT);
+			map.put(WYVERN_RIDER_F, WYVERN_KNIGHT_F);
+			
+			return map;
+		}
 		
 		private static Boolean isClassPromoted(CharacterClass sourceClass) {
 			return allPromotedClasses.contains(sourceClass);
@@ -799,6 +843,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, MURGLEIS, FIRE, THUNDER, ELFIRE, FIMBULVETR, FORBLAZE, AIRCALIBUR, LIGHTNING, DIVINE, AUREOLA, FLUX, NOSFERATU, FENRIR, APOCALYPSE));
 		public static Set<Item> allStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER, SILENCE, SLEEP, BERSERK, TINA_STAFF, HOLY_MAIDEN));
 		
+		public static Set<Item> allSiegeTomes = new HashSet<Item>(Arrays.asList(BOLTING, PURGE, ECLIPSE));
+		
 		public static Set<Item> allERank = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, IRON_LANCE, SLIM_LANCE, JAVELIN, POISON_LANCE, HAND_AXE, IRON_AXE, STEEL_AXE, DEVIL_AXE, IRON_BOW, FIRE, LIGHTNING, HEAL, TINA_STAFF));
 		public static Set<Item> allDRank = new HashSet<Item>(Arrays.asList(AL_SWORD, POISON_SWORD, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, WO_DAO, STEEL_LANCE, GANT_LANCE, HORSESLAYER, POISON_AXE, HALBERD, HAMMER, POISON_BOW,
 				SHORT_BOW, LONGBOW, STEEL_BOW, THUNDER, FLUX, MEND, TORCH_STAFF, UNLOCK));
@@ -808,6 +854,23 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allARank = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, TOMAHAWK, SILVER_AXE, SILVER_BOW, FIMBULVETR, BOLTING, PURGE, FENRIR, FORTIFY, WARP));
 		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(DURANDAL, MALTET, ARMADS, MURGLEIS, FORBLAZE, APOCALYPSE, HOLY_MAIDEN, AUREOLA));
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(RAPIER, BINDING_BLADE, ECKESACHS));
+		
+		public static Set<Item> normalSet = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, AL_SWORD, STEEL_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_SWORD, SILVER_BLADE, IRON_LANCE, STEEL_LANCE, SILVER_LANCE, SLIM_LANCE, 
+				GANT_LANCE, IRON_AXE, STEEL_AXE, SILVER_AXE, IRON_BOW, STEEL_BOW, SILVER_BOW, FIRE, THUNDER, FIMBULVETR, ELFIRE, LIGHTNING, DIVINE, FLUX, FENRIR, HEAL, MEND, RECOVER, TINA_STAFF));
+		public static Set<Item> interestingSet = new HashSet<Item>(Arrays.asList(RAPIER, POISON_SWORD, ARMORSLAYER, WO_DAO, KILLING_EDGE, WYRMSLAYER, LIGHT_BRAND, LANCEREAVER, BRAVE_SWORD, RUNE_SWORD, POISON_LANCE, 
+				BRAVE_LANCE, JAVELIN, HORSESLAYER, KILLER_LANCE, AXEREAVER, SPEAR, POISON_AXE, BRAVE_AXE, HAND_AXE, HAMMER, KILLER_AXE, SWORDREAVER, DEVIL_AXE,
+				HALBERD, TOMAHAWK, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, AIRCALIBUR, BOLTING, PURGE, NOSFERATU, ECLIPSE, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER,
+				SILENCE, SLEEP, BERSERK, HOLY_MAIDEN));
+		
+		// These must be of lower rank than the siege tomes set, and each weapon type needs to have an equivalent analogue.
+		public static Set<Item> siegeReplacementSet = new HashSet<Item>(Arrays.asList(NOSFERATU, DIVINE, ELFIRE));
+		
+		public static Set<Item> killerSet = new HashSet<Item>(Arrays.asList(KILLING_EDGE, WO_DAO, KILLER_LANCE, KILLER_AXE, KILLER_BOW));
+		public static Set<Item> effectiveSet = new HashSet<Item>(Arrays.asList(ARMORSLAYER, WYRMSLAYER, RAPIER, HORSESLAYER, HAMMER, HALBERD, AIRCALIBUR));
+		public static Set<Item> poisonSet = new HashSet<Item>(Arrays.asList(POISON_SWORD, POISON_LANCE, POISON_AXE, POISON_BOW));
+		public static Set<Item> rangedSet = new HashSet<Item>(Arrays.asList(LIGHT_BRAND, RUNE_SWORD, JAVELIN, SPEAR, HAND_AXE, TOMAHAWK, LONGBOW, BOLTING, PURGE, ECLIPSE, PHYSIC));
+		public static Set<Item> reaverSet = new HashSet<Item>(Arrays.asList(LANCEREAVER, AXEREAVER, SWORDREAVER));
+		public static Set<Item> braveSet = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, BRAVE_LANCE, BRAVE_AXE, BRAVE_BOW));
 		
 		public static Set<Item> allRestrictedWeapons = new HashSet<Item>(Arrays.asList(WO_DAO));
 		
@@ -1140,149 +1203,165 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public enum Palette {
 		
-		LORD_ROY(Character.ROY.ID, CharacterClass.LORD.ID, 0x7FC800),
+		LORD_ROY(0x01, Character.ROY.ID, CharacterClass.LORD.ID, 0x7FC800),
 		
-		ARCHER_WOLT(Character.WOLT.ID, CharacterClass.ARCHER.ID, 0x7FC858),
-		ARCHER_DOROTHY(Character.DOROTHY.ID, CharacterClass.ARCHER_F.ID, 0x7FC8B8),
+		ARCHER_WOLT(0x02, Character.WOLT.ID, CharacterClass.ARCHER.ID, 0x7FC858),
+		ARCHER_DOROTHY(0x03, Character.DOROTHY.ID, CharacterClass.ARCHER_F.ID, 0x7FC8B8),
 		
-		BERSERKER_GEESE(Character.GEESE.ID, CharacterClass.BERSERKER.ID, 0x7FC91C),
-		BERSERKER_GONZALES(Character.GONZALES.ID, CharacterClass.BERSERKER.ID, 0x7FC974),
-		BERSERKER_GARET(Character.GARET.ID, CharacterClass.BERSERKER.ID, 0x7FCD74),
+		BERSERKER_GEESE(0x04, Character.GEESE.ID, CharacterClass.BERSERKER.ID, 0x7FC91C),
+		BERSERKER_GONZALES(0x05, Character.GONZALES.ID, CharacterClass.BERSERKER.ID, 0x7FC974),
+		BERSERKER_GARET(0x0F, Character.GARET.ID, CharacterClass.BERSERKER.ID, 0x7FCD74),
+		// Scott has no palettes :(
+		// Rose has no palettes :(
+		// Maggie has no palettes :(
 		
-		KNIGHT_BORS(Character.BORS.ID, CharacterClass.KNIGHT.ID, 0x7FC9CC),
-		KNIGHT_BARTH(Character.BARTH.ID, CharacterClass.KNIGHT.ID, 0x7FCA4C),
-		KNIGHT_WENDY(Character.WENDY.ID, CharacterClass.KNIGHT_F.ID, 0x7FCAC0),
-		KNIGHT_DEVIAS(Character.DEVIAS.ID, CharacterClass.KNIGHT.ID, 0x7FEA24),
-		KNIGHT_RUDE(Character.RUDE.ID, CharacterClass.KNIGHT.ID, 0x7FEA7C),
-		KNIGHT_SLATER(Character.SLATER.ID, CharacterClass.KNIGHT.ID, 0x7FEAD8),
+		KNIGHT_BORS(0x06, Character.BORS.ID, CharacterClass.KNIGHT.ID, 0x7FC9CC),
+		KNIGHT_BARTH(0x07, Character.BARTH.ID, CharacterClass.KNIGHT.ID, 0x7FCA4C),
+		KNIGHT_WENDY(0x08, Character.WENDY.ID, CharacterClass.KNIGHT_F.ID, 0x7FCAC0),
+		KNIGHT_DEVIAS(0x56, Character.DEVIAS.ID, CharacterClass.KNIGHT.ID, 0x7FEA24),
+		KNIGHT_RUDE(0x57, Character.RUDE.ID, CharacterClass.KNIGHT.ID, 0x7FEA7C),
+		KNIGHT_SLATER(0x58, Character.SLATER.ID, CharacterClass.KNIGHT.ID, 0x7FEAD8),
 		
-		BRIGAND_GONZALES(Character.GONZALES.ID, CharacterClass.BRIGAND.ID, 0x7FCB38),
-		BRIGAND_DORY(Character.DORY.ID, CharacterClass.BRIGAND.ID, 0x7FEB80),
-		BRIGAND_DAMAS(Character.DAMAS.ID, CharacterClass.BRIGAND.ID, 0x7FEB30), // FE6 is so busted. The classes in the class table are straight up wrong for some characters.
+		BRIGAND_GONZALES(0x09, Character.GONZALES.ID, CharacterClass.BRIGAND.ID, 0x7FCB38),
+		BRIGAND_DORY(0x5A, Character.DORY.ID, CharacterClass.BRIGAND.ID, 0x7FEB80),
+		BRIGAND_DAMAS(0x59, Character.DAMAS.ID, CharacterClass.BRIGAND.ID, 0x7FEB30), // FE6 is so busted. The classes in the class table are straight up wrong for some characters.
 		
-		BISHOP_ELEN(Character.ELEN.ID, CharacterClass.BISHOP_F.ID, 0x7FCB90),
-		BISHOP_YODEL(Character.YODEL.ID, CharacterClass.BISHOP.ID, 0x7FCBF8),
-		BISHOP_SAUL(Character.SAUL.ID, CharacterClass.BISHOP.ID, 0x7FCC5C),
+		BISHOP_ELEN(0x0A, Character.ELEN.ID, CharacterClass.BISHOP_F.ID, 0x7FCB90),
+		BISHOP_YODEL(0x0B, Character.YODEL.ID, CharacterClass.BISHOP.ID, 0x7FCBF8),
+		BISHOP_SAUL(0x0C, Character.SAUL.ID, CharacterClass.BISHOP.ID, 0x7FCC5C),
+		// Oro has no palettes :(
+		// Martel has no palettes :(
 		
-		HERO_ECHIDNA(Character.ECHIDNA.ID, CharacterClass.HERO_F.ID, 0x7FCCC0),
-		HERO_DIECK(Character.DIECK.ID, CharacterClass.HERO.ID, 0x7FCD18),
-		HERO_OUJAY(Character.OUJAY.ID, CharacterClass.HERO.ID, 0x7FCDCC),
+		HERO_ECHIDNA(0x0D, Character.ECHIDNA.ID, CharacterClass.HERO_F.ID, 0x7FCCC0),
+		HERO_DIECK(0x0E, Character.DIECK.ID, CharacterClass.HERO.ID, 0x7FCD18),
+		HERO_OUJAY(0x10, Character.OUJAY.ID, CharacterClass.HERO.ID, 0x7FCDCC),
+		// Randy has no palettes :(
 		
-		BARD_ELFIN(Character.ELFIN.ID, CharacterClass.BARD.ID, 0x7FCE28),
-		DANCER_LALAM(Character.LALAM.ID, CharacterClass.DANCER.ID, 0x7FCE88),
+		BARD_ELFIN(0x11, Character.ELFIN.ID, CharacterClass.BARD.ID, 0x7FCE28),
+		DANCER_LALAM(0x12, Character.LALAM.ID, CharacterClass.DANCER.ID, 0x7FCE88),
 		
-		WYVERN_RIDER_MILEDY(Character.MILEDY.ID, CharacterClass.WYVERN_RIDER_F.ID, 0x7FCEE0),
-		WYVERN_RIDER_ZEISS(Character.ZEISS.ID, CharacterClass.WYVERN_RIDER.ID, 0x77144C),
+		WYVERN_RIDER_MILEDY(0x13, Character.MILEDY.ID, CharacterClass.WYVERN_RIDER_F.ID, 0x7FCEE0),
+		WYVERN_RIDER_ZEISS(0x0, Character.ZEISS.ID, CharacterClass.WYVERN_RIDER.ID, 0x77144C), // This one is using the sprite colors.
 		
-		DRUID_REI(Character.REI.ID, CharacterClass.DRUID.ID, 0x7FCF60),
-		DRUID_NIIME(Character.NIIME.ID, CharacterClass.DRUID_F.ID, 0x7FCFBC),
-		DRUID_SOPHIA(Character.SOPHIA.ID, CharacterClass.DRUID_F.ID, 0x7FEDB0),
+		DRUID_REI(0x14, Character.REI.ID, CharacterClass.DRUID.ID, 0x7FCF60),
+		DRUID_NIIME(0x15, Character.NIIME.ID, CharacterClass.DRUID_F.ID, 0x7FCFBC),
+		DRUID_SOPHIA(0x5F, Character.SOPHIA.ID, CharacterClass.DRUID_F.ID, 0x7FEDB0),
+		// Nord has no palettes. :(
 		
-		FALCON_KNIGHT_YUNNO(Character.YUNNO.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD01C),
-		FALCON_KNIGHT_THANY(Character.THANY.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD07C),
-		FALCON_KNIGHT_THITO(Character.THITO.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD0DC),
+		FALCON_KNIGHT_YUNNO(0x16, Character.YUNNO.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD01C),
+		FALCON_KNIGHT_THANY(0x17, Character.THANY.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD07C),
+		FALCON_KNIGHT_THITO(0x18, Character.THITO.ID, CharacterClass.FALCON_KNIGHT.ID, 0x7FD0DC),
+		// Sigune has no palettes :(
 		
-		FIGHTER_BARTRE(Character.BARTRE.ID, CharacterClass.FIGHTER.ID, 0x7FD13C), // Not used.
-		FIGHTER_LOT(Character.LOT.ID, CharacterClass.FIGHTER.ID, 0x7FD194),
-		FIGHTER_WARD(Character.WARD.ID, CharacterClass.FIGHTER.ID, 0x7FD1EC),
-		FIGHTER_DAMAS(Character.DAMAS.ID, CharacterClass.FIGHTER.ID, 0x7FEB30),
+		FIGHTER_BARTRE(0x19, Character.BARTRE.ID, CharacterClass.FIGHTER.ID, 0x7FD13C), // Not used.
+		FIGHTER_LOT(0x1A, Character.LOT.ID, CharacterClass.FIGHTER.ID, 0x7FD194),
+		FIGHTER_WARD(0x1B, Character.WARD.ID, CharacterClass.FIGHTER.ID, 0x7FD1EC),
+		FIGHTER_DAMAS(0x59, Character.DAMAS.ID, CharacterClass.FIGHTER.ID, 0x7FEB30),
 		
-		MAGE_LILINA(Character.LILINA.ID, CharacterClass.MAGE_F.ID, 0x7FD244),
-		MAGE_HUGH(Character.HUGH.ID, CharacterClass.MAGE.ID, 0x7FD2A0),
-		MAGE_LUGH(Character.LUGH.ID, CharacterClass.MAGE.ID, 0x7FD304),
+		MAGE_LILINA(0x1C, Character.LILINA.ID, CharacterClass.MAGE_F.ID, 0x7FD244),
+		MAGE_HUGH(0x1D, Character.HUGH.ID, CharacterClass.MAGE.ID, 0x7FD2A0),
+		MAGE_LUGH(0x1E, Character.LUGH.ID, CharacterClass.MAGE.ID, 0x7FD304),
 		
-		MERCENARY_DIECK(Character.DIECK.ID, CharacterClass.MERCENARY.ID, 0x7FD36C),
-		MERCENARY_OUJAY(Character.OUJAY.ID, CharacterClass.MERCENARY.ID, 0x7FD3C0),
+		MERCENARY_DIECK(0x1F, Character.DIECK.ID, CharacterClass.MERCENARY.ID, 0x7FD36C),
+		MERCENARY_OUJAY(0x20, Character.OUJAY.ID, CharacterClass.MERCENARY.ID, 0x7FD3C0),
 		
-		MYRMIDON_FIR(Character.FIR.ID, CharacterClass.MYRMIDON_F.ID, 0x7FD41C),
-		MYRMIDON_RUTGER(Character.RUTGER.ID, CharacterClass.MYRMIDON.ID, 0x7FD47C),
+		MYRMIDON_FIR(0x21, Character.FIR.ID, CharacterClass.MYRMIDON_F.ID, 0x7FD41C),
+		MYRMIDON_RUTGER(0x22, Character.RUTGER.ID, CharacterClass.MYRMIDON.ID, 0x7FD47C),
 		
-		NOMAD_SUE(Character.SUE.ID, CharacterClass.NOMAD_F.ID, 0x7FD4DC),
-		NOMAD_SHIN(Character.SHIN.ID, CharacterClass.NOMAD.ID, 0x7FD540),
+		NOMAD_SUE(0x23, Character.SUE.ID, CharacterClass.NOMAD_F.ID, 0x7FD4DC),
+		NOMAD_SHIN(0x24, Character.SHIN.ID, CharacterClass.NOMAD.ID, 0x7FD540),
 		
-		NOMAD_TROOPER_SUE(Character.SUE.ID, CharacterClass.NOMAD_TROOPER_F.ID, 0x7FD5B0),
-		NOMAD_TROOPER_SHIN(Character.SHIN.ID, CharacterClass.NOMAD_TROOPER.ID, 0x7FD634),
-		NOMAD_TROOPER_DAYAN(Character.DAYAN.ID, CharacterClass.NOMAD_TROOPER.ID, 0x7FD6B8),
+		NOMAD_TROOPER_SUE(0x25, Character.SUE.ID, CharacterClass.NOMAD_TROOPER_F.ID, 0x7FD5B0),
+		NOMAD_TROOPER_SHIN(0x26, Character.SHIN.ID, CharacterClass.NOMAD_TROOPER.ID, 0x7FD634),
+		NOMAD_TROOPER_DAYAN(0x27, Character.DAYAN.ID, CharacterClass.NOMAD_TROOPER.ID, 0x7FD6B8),
 		
-		PALADIN_ALAN(Character.ALAN.ID, CharacterClass.PALADIN.ID, 0x7FD740),
-		PALADIN_LANCE(Character.LANCE.ID, CharacterClass.PALADIN.ID, 0x7FD828),
-		PALADIN_MARCUS(Character.MARCUS.ID, CharacterClass.PALADIN.ID, 0x7FD8B4),
-		PALADIN_NOAH(Character.NOAH.ID, CharacterClass.PALADIN.ID, 0x7FD940),
-		PALADIN_PERCIVAL(Character.PERCIVAL.ID, CharacterClass.PALADIN.ID, 0x7FD9D4),
-		PALADIN_TRECK(Character.TRECK.ID, CharacterClass.PALADIN.ID, 0x7FDA50),
-		PALADIN_ZEALOT(Character.ZEALOT.ID, CharacterClass.PALADIN.ID, 0x7FDAC8),
+		PALADIN_ALAN(0x28, Character.ALAN.ID, CharacterClass.PALADIN.ID, 0x7FD740),
+		PALADIN_LANCE(0x2A, Character.LANCE.ID, CharacterClass.PALADIN.ID, 0x7FD828),
+		PALADIN_MARCUS(0x2B, Character.MARCUS.ID, CharacterClass.PALADIN.ID, 0x7FD8B4),
+		PALADIN_NOAH(0x2C, Character.NOAH.ID, CharacterClass.PALADIN.ID, 0x7FD940),
+		PALADIN_PERCIVAL(0x2D, Character.PERCIVAL.ID, CharacterClass.PALADIN.ID, 0x7FD9D4),
+		PALADIN_TRECK(0x2E, Character.TRECK.ID, CharacterClass.PALADIN.ID, 0x7FDA50),
+		PALADIN_ZEALOT(0x2F, Character.ZEALOT.ID, CharacterClass.PALADIN.ID, 0x7FDAC8),
+		// Robarts has no palettes :(
+		// Arcard has no palettes :(
 		
-		PEGASUS_KNIGHT_YUNNO(Character.YUNNO.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDB48), // Not used.
-		PEGASUS_KNIGHT_THANY(Character.THANY.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDBA8),
-		PEGASUS_KNIGHT_THITO(Character.THITO.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDC08),
+		PEGASUS_KNIGHT_YUNNO(0x30, Character.YUNNO.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDB48), // Not used.
+		PEGASUS_KNIGHT_THANY(0x31, Character.THANY.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDBA8),
+		PEGASUS_KNIGHT_THITO(0x32, Character.THITO.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0x7FDC08),
 		
-		PIRATE_GEESE(Character.GEESE.ID, CharacterClass.PIRATE.ID, 0x7FDC68),
+		PIRATE_GEESE(0x33, Character.GEESE.ID, CharacterClass.PIRATE.ID, 0x7FDC68),
 		
-		CLERIC_ELEN(Character.ELEN.ID, CharacterClass.CLERIC.ID, 0x7FDCD8),
-		PRIEST_SAUL(Character.SAUL.ID, CharacterClass.PRIEST.ID, 0x7FDD34),
+		CLERIC_ELEN(0x34, Character.ELEN.ID, CharacterClass.CLERIC.ID, 0x7FDCD8),
+		PRIEST_SAUL(0x35, Character.SAUL.ID, CharacterClass.PRIEST.ID, 0x7FDD34),
 		
-		CAVALIER_ALAN(Character.ALAN.ID, CharacterClass.CAVALIER.ID, 0x7FDD88),
-		CAVALIER_LANCE(Character.LANCE.ID, CharacterClass.CAVALIER.ID, 0x7FDE00),
-		CAVALIER_NOAH(Character.NOAH.ID, CharacterClass.CAVALIER.ID, 0x7FDE78),
-		CAVALIER_TRECK(Character.TRECK.ID, CharacterClass.CAVALIER.ID, 0x7FDF40),
-		CAVALIER_ERIK(Character.ERIK.ID, CharacterClass.CAVALIER.ID, 0x7FDEF0),
+		CAVALIER_ALAN(0x36, Character.ALAN.ID, CharacterClass.CAVALIER.ID, 0x7FDD88),
+		CAVALIER_LANCE(0x37, Character.LANCE.ID, CharacterClass.CAVALIER.ID, 0x7FDE00),
+		CAVALIER_NOAH(0x38, Character.NOAH.ID, CharacterClass.CAVALIER.ID, 0x7FDE78),
+		CAVALIER_TRECK(0x3A, Character.TRECK.ID, CharacterClass.CAVALIER.ID, 0x7FDF40),
+		CAVALIER_ERIK(0x39, Character.ERIK.ID, CharacterClass.CAVALIER.ID, 0x7FDEF0),
 		
-		SAGE_LILINA(Character.LILINA.ID, CharacterClass.SAGE_F.ID, 0x7FDFB8),
-		SAGE_HUGH(Character.HUGH.ID, CharacterClass.SAGE.ID, 0x7FE014),
-		SAGE_LUGH(Character.LUGH.ID, CharacterClass.SAGE.ID, 0x7FEFF0),
-		SAGE_BRUNYA(Character.BRUNYA.ID, CharacterClass.SAGE_F.ID, 0x7FE5D0),
+		SAGE_LILINA(0x3B, Character.LILINA.ID, CharacterClass.SAGE_F.ID, 0x7FDFB8),
+		SAGE_HUGH(0x3C, Character.HUGH.ID, CharacterClass.SAGE.ID, 0x7FE014),
+		SAGE_LUGH(0x65, Character.LUGH.ID, CharacterClass.SAGE.ID, 0x7FEFF0),
+		SAGE_BRUNYA(0x4B, Character.BRUNYA.ID, CharacterClass.SAGE_F.ID, 0x7FE5D0),
 		
-		SNIPER_DOROTHY(Character.DOROTHY.ID, CharacterClass.SNIPER_F.ID, 0x7FE074),
-		SNIPER_IGRENE(Character.IGRENE.ID, CharacterClass.SNIPER_F.ID, 0x7FE0DC),
-		SNIPER_KLEIN(Character.KLEIN.ID, CharacterClass.SNIPER.ID, 0x7FE140),
-		SNIPER_WOLT(Character.WOLT.ID, CharacterClass.SNIPER.ID, 0x7FE1A0),
+		SNIPER_DOROTHY(0x3D, Character.DOROTHY.ID, CharacterClass.SNIPER_F.ID, 0x7FE074),
+		SNIPER_IGRENE(0x3E, Character.IGRENE.ID, CharacterClass.SNIPER_F.ID, 0x7FE0DC),
+		SNIPER_KLEIN(0x3F, Character.KLEIN.ID, CharacterClass.SNIPER.ID, 0x7FE140),
+		SNIPER_WOLT(0x40, Character.WOLT.ID, CharacterClass.SNIPER.ID, 0x7FE1A0),
 		
-		SHAMAN_SOPHIA(Character.SOPHIA.ID, CharacterClass.SHAMAN_F.ID, 0x7FE200),
-		SHAMAN_REI(Character.REI.ID, CharacterClass.SHAMAN.ID, 0x7FE254),
+		SHAMAN_SOPHIA(0x41, Character.SOPHIA.ID, CharacterClass.SHAMAN_F.ID, 0x7FE200),
+		SHAMAN_REI(0x42, Character.REI.ID, CharacterClass.SHAMAN.ID, 0x7FE254),
+		// Wagner has no palettes. :(
 		
-		SWORDMASTER_FIR(Character.FIR.ID, CharacterClass.SWORDMASTER_F.ID, 0x7FE2B0),
-		SWORDMASTER_KAREL(Character.KAREL.ID, CharacterClass.SWORDMASTER.ID, 0x7FE310),
-		SWORDMASTER_RUTGER(Character.RUTGER.ID, CharacterClass.SWORDMASTER.ID, 0x7FE370),
+		SWORDMASTER_FIR(0x43, Character.FIR.ID, CharacterClass.SWORDMASTER_F.ID, 0x7FE2B0),
+		SWORDMASTER_KAREL(0x44, Character.KAREL.ID, CharacterClass.SWORDMASTER.ID, 0x7FE310),
+		SWORDMASTER_RUTGER(0x45, Character.RUTGER.ID, CharacterClass.SWORDMASTER.ID, 0x7FE370),
 		
-		THIEF_ASTOL(Character.ASTOL.ID, CharacterClass.THIEF.ID, 0x7FD7CC),
-		THIEF_CASS(Character.CASS.ID, CharacterClass.THIEF_F.ID, 0x7FE3D4),
-		THIEF_CHAD(Character.CHAD.ID, CharacterClass.THIEF.ID, 0x7FE42C),
+		THIEF_ASTOL(0x29, Character.ASTOL.ID, CharacterClass.THIEF.ID, 0x7FD7CC),
+		THIEF_CASS(0x46, Character.CASS.ID, CharacterClass.THIEF_F.ID, 0x7FE3D4),
+		THIEF_CHAD(0x47, Character.CHAD.ID, CharacterClass.THIEF.ID, 0x7FE42C),
 		
-		TROUBADOUR_CLARINE(Character.CLARINE.ID, CharacterClass.TROUBADOUR.ID, 0x7FE484),
+		TROUBADOUR_CLARINE(0x48, Character.CLARINE.ID, CharacterClass.TROUBADOUR.ID, 0x7FE484),
 		
-		VALKYRIE_CLARINE(Character.CLARINE.ID, CharacterClass.VALKYRIE.ID, 0x7FE4E4),
-		VALKYRIE_CECILIA(Character.CECILIA.ID, CharacterClass.VALKYRIE.ID, 0x7FE558),
+		VALKYRIE_CLARINE(0x49, Character.CLARINE.ID, CharacterClass.VALKYRIE.ID, 0x7FE4E4),
+		VALKYRIE_CECILIA(0x4A, Character.CECILIA.ID, CharacterClass.VALKYRIE.ID, 0x7FE558),
 		
-		GENERAL_WENDY(Character.WENDY.ID, CharacterClass.GENERAL_F.ID, 0x7FE71C),
-		GENERAL_BARTH(Character.BARTH.ID, CharacterClass.GENERAL.ID, 0x7FE7A0),
-		GENERAL_BORS(Character.BORS.ID, CharacterClass.GENERAL.ID, 0x7FE82C),
-		GENERAL_DOUGLAS(Character.DOUGLAS.ID, CharacterClass.GENERAL.ID, 0x7FE8B0),
-		GENERAL_MURDOCK(Character.MURDOCK.ID, CharacterClass.GENERAL.ID, 0x7FE67C),
-		GENERAL_LEGYLANCE(Character.LEGYLANCE.ID, CharacterClass.GENERAL.ID, 0x7FE6C8),
-		GENERAL_ROARTZ(Character.ROARTZ.ID, CharacterClass.GENERAL.ID, 0x7FE984),
-		GENERAL_ZINC(Character.ZINC.ID, CharacterClass.GENERAL.ID, 0x7FE9D4),
+		GENERAL_WENDY(0x4F, Character.WENDY.ID, CharacterClass.GENERAL_F.ID, 0x7FE71C),
+		GENERAL_BARTH(0x50, Character.BARTH.ID, CharacterClass.GENERAL.ID, 0x7FE7A0),
+		GENERAL_BORS(0x51, Character.BORS.ID, CharacterClass.GENERAL.ID, 0x7FE82C),
+		GENERAL_DOUGLAS(0x52, Character.DOUGLAS.ID, CharacterClass.GENERAL.ID, 0x7FE8B0),
+		GENERAL_MURDOCK(0x4D, Character.MURDOCK.ID, CharacterClass.GENERAL.ID, 0x7FE67C),
+		GENERAL_LEGYLANCE(0x4E, Character.LEGYLANCE.ID, CharacterClass.GENERAL.ID, 0x7FE6C8),
+		GENERAL_ROARTZ(0x54, Character.ROARTZ.ID, CharacterClass.GENERAL.ID, 0x7FE984),
+		GENERAL_ZINC(0x55, Character.ZINC.ID, CharacterClass.GENERAL.ID, 0x7FE9D4),
 		
-		WYVERN_KNIGHT_MILEDY(Character.MILEDY.ID, CharacterClass.WYVERN_KNIGHT_F.ID, 0x7FEC50),
-		WYVERN_KNIGHT_ZEISS(Character.ZEISS.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FED38),
-		WYVERN_KNIGHT_GALE(Character.GALE.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FEBD0),
-		WYVERN_KNIGHT_NARSHEN(Character.NARSHEN.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FECC8),
+		WYVERN_KNIGHT_MILEDY(0x5C, Character.MILEDY.ID, CharacterClass.WYVERN_KNIGHT_F.ID, 0x7FEC50),
+		WYVERN_KNIGHT_ZEISS(0x5E, Character.ZEISS.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FED38),
+		WYVERN_KNIGHT_GALE(0x5B, Character.GALE.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FEBD0),
+		WYVERN_KNIGHT_NARSHEN(0x5D, Character.NARSHEN.ID, CharacterClass.WYVERN_KNIGHT.ID, 0x7FECC8),
+		// Flaer has no palettes :(
+		// Raeth has no palettes :(
 		
-		WARRIOR_LOT(Character.LOT.ID, CharacterClass.WARRIOR.ID, 0x7FEE08),
-		WARRIOR_WARD(Character.WARD.ID, CharacterClass.WARRIOR.ID, 0x7FEE60),
-		WARRIOR_BARTRE(Character.BARTRE.ID, CharacterClass.WARRIOR.ID, 0x7FEF94),
+		WARRIOR_LOT(0x60, Character.LOT.ID, CharacterClass.WARRIOR.ID, 0x7FEE08),
+		WARRIOR_WARD(0x61, Character.WARD.ID, CharacterClass.WARRIOR.ID, 0x7FEE60),
+		WARRIOR_BARTRE(0x64, Character.BARTRE.ID, CharacterClass.WARRIOR.ID, 0x7FEF94),
 		
-		MANAKETE_GENERIC(Character.NONE.ID, CharacterClass.MANAKETE.ID, 0x716DCB), // Based off of sprite's base palette.
-		MANAKETE_FA(Character.FA.ID, CharacterClass.MANAKETE_F.ID, 0x7FF050)
+		MANAKETE_GENERIC(0x0, Character.NONE.ID, CharacterClass.MANAKETE.ID, 0x716DCB), // Based off of sprite's base palette.
+		MANAKETE_FA(0x0, Character.FA.ID, CharacterClass.MANAKETE_F.ID, 0x7FF050) // TODO: Verify Fa's pointer. There's one last entry in the table that's not listed anywhere else, but Fa herself has no palette index.
 		;
 		
 		int characterID;
 		int classID;
+		
+		int paletteID;
 		
 		PaletteInfo info;
 		
 		static Map<Integer, Map<Integer, PaletteInfo>> classByCharacter = new HashMap<Integer, Map<Integer, PaletteInfo>>();
 		static Map<Integer, Map<Integer, PaletteInfo>> charactersByClass = new HashMap<Integer, Map<Integer, PaletteInfo>>();
 		static Map<Integer, PaletteInfo> defaultPaletteForClass = new HashMap<Integer, PaletteInfo>();
+		static Map<Integer, Palette> palettesByID = new HashMap<Integer, Palette>();
 		
 		static {
 			for (Palette palette : Palette.values()) {
@@ -1299,6 +1378,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					charactersByClass.put(palette.classID, map);
 				}
 				map.put(palette.characterID, palette.info);
+				
+				palettesByID.put(palette.paletteID, palette);
 			}
 			
 			defaultPaletteForClass.put(CharacterClass.SOLDIER.ID, ARCHER_WOLT.info); // No idea.
@@ -1358,9 +1439,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			defaultPaletteForClass.put(CharacterClass.MANAKETE.ID, MANAKETE_GENERIC.info);
 		}
 		
-		private Palette(int charID, int classID, long offset) {
+		private Palette(int paletteID, int charID, int classID, long offset) {
 			this.characterID = charID;
 			this.classID = classID;
+			this.paletteID = paletteID;
 			CharacterClass charClass = CharacterClass.valueOf(classID);
 			if (charClass != null) {
 				switch (charClass) {
@@ -1488,6 +1570,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					break;
 				}
 			}
+			
+			this.info.setPaletteID(paletteID);
 		}
 		
 		public static PaletteInfo paletteForCharacterInClass(int characterID, int classID) {
@@ -1504,6 +1588,14 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			} else {
 				return new PaletteInfo[] {};
 			}
+		}
+		
+		public static int maxUsedPaletteIndex() {
+			return 0x66; // Fa, I think.
+		}
+		
+		public static int maxPaletteIndex() {
+			return 0x78; // There's space for this many, but they're all 0s. Seems like they could be used.
 		}
 		
 		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {
@@ -1530,6 +1622,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			default:
 				return null;
 			}
+		}
+		
+		public static Palette paletteForID(int paletteID) {
+			return palettesByID.get(paletteID);
 		}
 		
 		public static PaletteInfo defaultPaletteForClass(int classID) {
@@ -1570,6 +1666,14 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public Set<GBAFECharacter> linkedCharacters(int characterID) {
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
+	}
+	
+	public Set<Integer> linkedPortraitIDs(int characterID) {
+		return new HashSet<Integer>(); // We don't have that feature yet in FE6.
+	}
+	
+	public Set<GBAFECharacter> allFliers() {
+		return new HashSet<GBAFECharacter>(Character.requiredFliers);
 	}
 	
 	public GBAFECharacter characterWithID(int characterID) {
@@ -1620,9 +1724,64 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEClass> allValidClasses() {
 		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 	}
+	
+	public Set<GBAFEClass> meleeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.rangedOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
+	
+	public Set<GBAFEClass> rangeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.meleeOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
 
 	public GBAFEClass classWithID(int classID) {
 		return CharacterClass.valueOf(classID);
+	}
+	
+	public boolean canClassDemote(GBAFEClass charClass) {
+		for (GBAFEClass baseClass : CharacterClass.promotionMap.keySet()) {
+			if (CharacterClass.promotionMap.get(baseClass).ID == charClass.getID()) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean canClassPromote(GBAFEClass charClass) {
+		return CharacterClass.promotionMap.keySet().contains(charClass);
+	}
+	
+	public GBAFEClass[] promotedClass(GBAFEClass baseClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass charClass : CharacterClass.promotionMap.keySet()) {
+			if (charClass.ID == baseClass.getID()) {
+				classList.add(CharacterClass.promotionMap.get(charClass));
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public GBAFEClass[] demotedClass(GBAFEClass promotedClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass baseClass : CharacterClass.promotionMap.keySet()) {
+			CharacterClass charClass = CharacterClass.promotionMap.get(baseClass);
+			if (charClass.ID == promotedClass.getID()) {
+				classList.add(baseClass);
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public boolean isFlier(GBAFEClass charClass) {
+		return CharacterClass.flyingClasses.contains(charClass);
 	}
 
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass,
@@ -1907,12 +2066,13 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return itemsUsableByClass;
 	}
 
-	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem) {
+	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem, boolean strict) {
 		if (originalItem == null) { return new HashSet<GBAFEItem>(); }
 		Item item = Item.valueOf(originalItem.getID());
 		if (item == null) { return new HashSet<GBAFEItem>(); }
 		
 		Set<GBAFEItem> itemsUsableByClass = new HashSet<GBAFEItem>(weaponsForClass(classID));
+		Set<GBAFEItem> usableSet = new HashSet<GBAFEItem>(itemsUsableByClass);
 		
 		switch (item.getRank()) {
 		case E:
@@ -1936,6 +2096,44 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		default:
 			itemsUsableByClass.clear();
 			break;
+		}
+		
+		if (strict) {
+			Set<GBAFEItem> usableByRank = new HashSet<GBAFEItem>(itemsUsableByClass);
+			// filter out based on matches to pre-defined sets.
+			if (Item.braveSet.contains(item) && !Collections.disjoint(Item.braveSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.braveSet);
+			} else if (Item.reaverSet.contains(item) && !Collections.disjoint(Item.reaverSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.reaverSet);
+			} else if (Item.rangedSet.contains(item) && !Collections.disjoint(Item.rangedSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.rangedSet);
+				if (!Item.allSiegeTomes.contains(item)) {
+					itemsUsableByClass.removeAll(Item.allSiegeTomes);
+					Set<GBAFEItem> usableSiegeReplacements = new HashSet<GBAFEItem>(usableSet);
+					usableSiegeReplacements.retainAll(Item.siegeReplacementSet);
+					itemsUsableByClass.addAll(usableSiegeReplacements);
+				}
+			} else if (Item.rangedSet.contains(item) && !Collections.disjoint(Item.poisonSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.poisonSet);
+			} else if (Item.effectiveSet.contains(item) && !Collections.disjoint(Item.effectiveSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.effectiveSet);
+			} else if (Item.killerSet.contains(item) && !Collections.disjoint(Item.killerSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.killerSet);
+			} else if (Item.interestingSet.contains(item) && !Collections.disjoint(Item.interestingSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.interestingSet);
+				if (!Item.allSiegeTomes.contains(item)) {
+					itemsUsableByClass.removeAll(Item.allSiegeTomes);
+					Set<GBAFEItem> usableSiegeReplacements = new HashSet<GBAFEItem>(usableSet);
+					usableSiegeReplacements.retainAll(Item.siegeReplacementSet);
+					itemsUsableByClass.addAll(usableSiegeReplacements);
+				}
+			} else {
+				itemsUsableByClass.retainAll(Item.normalSet);
+			}
+			
+			if (itemsUsableByClass.isEmpty() && !usableByRank.isEmpty()) {
+				itemsUsableByClass = usableByRank;
+			}
 		}
 		
 		return itemsUsableByClass;
