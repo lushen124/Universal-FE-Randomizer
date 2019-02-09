@@ -156,6 +156,8 @@ public class FE4EnemyBuffer {
 				} else if (FE4Data.Character.HolyBossesThatReceiveNewHolyBlood.contains(fe4Char)) {
 					FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
 					List<FE4Data.HolyBlood> bloodChoices = new ArrayList<FE4Data.HolyBlood>(Arrays.asList(charClass.supportedHolyBlood()));
+					bloodChoices.remove(FE4Data.HolyBlood.NAGA);
+					bloodChoices.remove(FE4Data.HolyBlood.BRAGI);
 					if (!bloodChoices.isEmpty()) {
 						FE4Data.HolyBlood newBlood = bloodChoices.get(rng.nextInt(bloodChoices.size()));
 						bloodList.add(newBlood);
