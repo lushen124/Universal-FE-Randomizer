@@ -1020,7 +1020,10 @@ public class FE4Data {
 		
 		// These bosses can drop their holy weapon if they were randomized to get them.
 		public static final Set<Character> HolyBossesWithFreeDrops = new HashSet<Character>(Arrays.asList(HILDA_CH10, MUSAR, ARION_CH9));
-		public static final Set<Character> HolyBossesNotFought = new HashSet<Character>(Arrays.asList(ELLIOT_CH1_SCENE, ELDIGAN_CH1_SCENE, ANDOREY_CH4, TRAVANT_CH5));
+		// These bosses can be assigned holy blood, even if they didn't have any before.
+		public static final Set<Character> HolyBossesThatReceiveNewHolyBlood = new HashSet<Character>(Arrays.asList(VAMPA_CH7, VAMPA_CH8, RIDALE, ROBERT, BOYCE, SCIPIO, MUS, BOVIS, TIGRIS, LEPUS, DRACO, SIMIA, GALLUS, CANIS, PORCUS, MANFROY));
+		// These are the only bosses that can drop their holy weapon.
+		public static final Set<Character> HolyBossesThatCanDropHolyWeapons = new HashSet<Character>(Arrays.asList(ANDOREY_CH5, LOMBARD, VAMPA_CH7, VAMPA_CH8, ISHTAR_CH8, BLOOM_CH8, MUSAR, ARION_CH9, HILDA_CH10, RIDALE, ROBERT, BOYCE, BRIAN, SCIPIO));
 
 		public int ID;
 		

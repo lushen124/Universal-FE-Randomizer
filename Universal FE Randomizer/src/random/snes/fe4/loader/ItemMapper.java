@@ -39,6 +39,12 @@ public class ItemMapper {
 		return inventoryID;
 	}
 	
+	public void freeInventoryID(Integer unusedInventoryID) {
+		if (unusedInventoryID != null) {
+			freeInventoryIDs.add(unusedInventoryID);
+		}
+	}
+	
 	public FE4Data.Item getItemAtIndex(int index) {
 		if (index == 0 || index == FE4Data.Item.NONE.ID) { return null; }
 		return playerEquipmentIDToItem.get(index);

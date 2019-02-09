@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -109,8 +111,23 @@ public class FE4EnemyBuffer {
 		}
 	}
 	
+	private static class HolyBossDrop {
+		FE4StaticCharacter holyBoss;
+		FE4Data.Item holyWeapon;
+		
+		private HolyBossDrop(FE4StaticCharacter boss, FE4Data.Item drop) {
+			holyBoss = boss;
+			holyWeapon = drop;
+		}
+	}
+	
 	public static void forceMajorBloodOnHolyBosses(FE4EnemyBuffOptions options, boolean useFreeInventoryForDrops, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
+		List<HolyBossDrop> potentialDrops = new ArrayList<HolyBossDrop>();
+		Map<FE4Data.Character, FE4Data.HolyBlood> assignedBlood = new HashMap<FE4Data.Character, FE4Data.HolyBlood>();
+		
 		for (FE4StaticCharacter holyBoss : charData.getHolyBossCharacters()) {
+			FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
+			
 			List<FE4Data.HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(holyBoss.getHolyBlood1Value());
 			List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(holyBoss.getHolyBlood2Value());
 			List<FE4Data.HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(holyBoss.getHolyBlood3Value());
@@ -132,6 +149,22 @@ public class FE4EnemyBuffer {
 			slot3Blood.clear();
 			
 			List<FE4Data.Item> holyWeapons = new ArrayList<FE4Data.Item>(); 
+			
+			if (bloodList.isEmpty()) {
+				if (assignedBlood.get(fe4Char) != null) {
+					bloodList.add(assignedBlood.get(fe4Char));
+				} else if (FE4Data.Character.HolyBossesThatReceiveNewHolyBlood.contains(fe4Char)) {
+					FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
+					List<FE4Data.HolyBlood> bloodChoices = new ArrayList<FE4Data.HolyBlood>(Arrays.asList(charClass.supportedHolyBlood()));
+					if (!bloodChoices.isEmpty()) {
+						FE4Data.HolyBlood newBlood = bloodChoices.get(rng.nextInt(bloodChoices.size()));
+						bloodList.add(newBlood);
+						for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
+							assignedBlood.put(linked, newBlood);
+						}
+					}
+				}
+			}
 			
 			for (FE4Data.HolyBlood blood : bloodList) {
 				FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(blood, true);
@@ -159,16 +192,30 @@ public class FE4EnemyBuffer {
 				FE4Data.Item randomHolyWeapon = holyWeapons.get(rng.nextInt(holyWeapons.size()));
 				holyBoss.setEquipment1(randomHolyWeapon.ID);
 				
-				FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
-				if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID && FE4Data.Character.HolyBossesWithFreeDrops.contains(fe4Char)) {
-					itemMap.setItemAtIndex(holyBoss.getEquipment3(), randomHolyWeapon);
-				} else if (holyBoss.getEquipment3() == FE4Data.Item.NONE.ID && useFreeInventoryForDrops && FE4Data.Character.HolyBossesNotFought.contains(fe4Char) == false && rng.nextInt(2) == 0) {
-					Integer inventoryID = itemMap.obtainFreeInventoryID(randomHolyWeapon);
-					if (inventoryID != null) {
-						holyBoss.setEquipment3(inventoryID);
+				if (useFreeInventoryForDrops && FE4Data.Character.HolyBossesThatCanDropHolyWeapons.contains(fe4Char)) {
+					if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
+						// Clear it out and add it to the list of potential drops.
+						potentialDrops.add(new HolyBossDrop(holyBoss, randomHolyWeapon));
+						itemMap.freeInventoryID(holyBoss.getEquipment3());
+						holyBoss.setEquipment3(FE4Data.Item.NONE.ID);
+					} else {
+						potentialDrops.add(new HolyBossDrop(holyBoss, randomHolyWeapon));
 					}
+				} else if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID && FE4Data.Character.HolyBossesWithFreeDrops.contains(fe4Char)) {
+					itemMap.setItemAtIndex(holyBoss.getEquipment3(), randomHolyWeapon);
 				}
 			}
 		}
+		
+		int totalDrops = potentialDrops.size();
+		for (int i = 0; i < totalDrops; i++) {
+			HolyBossDrop drop = potentialDrops.get(rng.nextInt(potentialDrops.size()));
+			potentialDrops.remove(drop);
+			Integer inventoryID = itemMap.obtainFreeInventoryID(drop.holyWeapon);
+			if (inventoryID == null) { break; } // We only have a finite set of these, so if we run out, we're done.
+			drop.holyBoss.setEquipment3(inventoryID);
+		}
 	}
+	
+	
 }

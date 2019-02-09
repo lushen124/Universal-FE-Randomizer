@@ -70,7 +70,7 @@ public class FE4ClassRandomizer {
 			
 			FE4Data.CharacterClass targetClass = predeterminedClasses.get(fe4Char);
 			if (targetClass != null) {
-				setStaticCharacterToClass(options, staticChar, targetClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
+				setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
 				continue;
 			}
 			
@@ -185,7 +185,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			if (targetClass == FE4Data.CharacterClass.DANCER) { hasDancer = true; }
-			setStaticCharacterToClass(options, staticChar, targetClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
+			setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
 			if (useFreeInventoryForStaves) { giveStaffIfNecessary(staticChar, charData, itemMap, rng); }
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
@@ -205,7 +205,7 @@ public class FE4ClassRandomizer {
 			
 			FE4Data.CharacterClass targetClass = predeterminedClasses.get(fe4Char);
 			if (targetClass != null) {
-				setStaticCharacterToClass(options, staticChar, targetClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
+				setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
 				continue;
 			}
 			
@@ -288,7 +288,7 @@ public class FE4ClassRandomizer {
 				// Reroll once for anybody ending up in these classes.
 				targetClass = classList.get(rng.nextInt(classList.size()));
 			}
-			setStaticCharacterToClass(options, staticChar, targetClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
+			setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
 			if (useFreeInventoryForStaves) { giveStaffIfNecessary(staticChar, charData, itemMap, rng); }
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
@@ -442,7 +442,7 @@ public class FE4ClassRandomizer {
 							 subClass = pool[rng.nextInt(pool.length)];
 						}
 						
-						setStaticCharacterToClass(options, subChar, subClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, targetClass, rng);
+						setStaticCharacterToClass(options, subChar, subClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, targetClass, rng);
 						if (useFreeInventoryForStaves) { giveStaffIfNecessary(subChar, charData, itemMap, rng); }
 						
 						predeterminedClasses.put(sub, subClass);
@@ -1463,12 +1463,12 @@ public class FE4ClassRandomizer {
 		}
 	}
 	
-	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, 
+	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, boolean prioritizeHealingStavesForHealers, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, 
 			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.Character, FE4Data.Item> requiredItems, Random rng) {
-		setStaticCharacterToClass(options, character, targetClass, charData, bloodData, itemMap, predeterminedClasses, requiredItems, null, rng);
+		setStaticCharacterToClass(options, character, targetClass, prioritizeHealingStavesForHealers, charData, bloodData, itemMap, predeterminedClasses, requiredItems, null, rng);
 	}
 	
-	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, 
+	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, boolean prioritizeHealingStavesForHealers, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, 
 			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.Character, FE4Data.Item> requiredItems, FE4Data.CharacterClass relatedClass, Random rng) {
 		FE4Data.CharacterClass oldClass = FE4Data.CharacterClass.valueOf(character.getClassID());
 		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
@@ -1679,6 +1679,8 @@ public class FE4ClassRandomizer {
 		boolean canAttack = usableItems.stream().anyMatch(item -> (item.isWeapon()));
 		boolean hasWeapon = false;
 		boolean isHealer = targetClass.isHealer();
+		// If we're not prioritizing healing staves, we don't need any special logic that relies on this being a healing class.
+		if (!prioritizeHealingStavesForHealers) { isHealer = false; }
 		FE4Data.Character fe4Char = FE4Data.Character.valueOf(character.getCharacterID());
 		
 		Set<FE4Data.Item> healingStaves = new HashSet<Item>(FE4Data.Item.healingStaves);
