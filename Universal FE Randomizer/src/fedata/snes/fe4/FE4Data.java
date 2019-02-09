@@ -1020,6 +1020,7 @@ public class FE4Data {
 		
 		// These bosses can drop their holy weapon if they were randomized to get them.
 		public static final Set<Character> HolyBossesWithFreeDrops = new HashSet<Character>(Arrays.asList(HILDA_CH10, MUSAR, ARION_CH9));
+		public static final Set<Character> HolyBossesNotFought = new HashSet<Character>(Arrays.asList(ELLIOT_CH1_SCENE, ELDIGAN_CH1_SCENE, ANDOREY_CH4, TRAVANT_CH5));
 
 		public int ID;
 		

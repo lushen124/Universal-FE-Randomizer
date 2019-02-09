@@ -162,7 +162,7 @@ public class FE4EnemyBuffer {
 				FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
 				if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID && FE4Data.Character.HolyBossesWithFreeDrops.contains(fe4Char)) {
 					itemMap.setItemAtIndex(holyBoss.getEquipment3(), randomHolyWeapon);
-				} else if (holyBoss.getEquipment3() == FE4Data.Item.NONE.ID && useFreeInventoryForDrops) {
+				} else if (holyBoss.getEquipment3() == FE4Data.Item.NONE.ID && useFreeInventoryForDrops && FE4Data.Character.HolyBossesNotFought.contains(fe4Char) == false && rng.nextInt(2) == 0) {
 					Integer inventoryID = itemMap.obtainFreeInventoryID(randomHolyWeapon);
 					if (inventoryID != null) {
 						holyBoss.setEquipment3(inventoryID);
