@@ -842,7 +842,7 @@ public class FE4ClassRandomizer {
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
 			
 			targetClass = classList.get(rng.nextInt(potentialClasses.size()));
-			setHolyBossToClass(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng);
+			randomizeHolyBossBlood(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng);
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
 				predeterminedClasses.put(linked, targetClass);
@@ -893,6 +893,9 @@ public class FE4ClassRandomizer {
 			if (targetClass != null) {
 				BloodArrays blood = predeterminedBlood.get(fe4Char);
 				if (blood != null) {
+					holyBoss.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(blood.slot1Blood));
+					holyBoss.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(blood.slot2Blood));
+					holyBoss.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(blood.slot3Blood));
 					setHolyBossToClass(options, holyBoss, targetClass, blood.slot1Blood, blood.slot2Blood, blood.slot3Blood, charData, predeterminedClasses, itemMap, rng);
 				} else {
 					setHolyBossToClass(options, holyBoss, targetClass, null, null, null, charData, predeterminedClasses, itemMap, rng);
@@ -966,16 +969,29 @@ public class FE4ClassRandomizer {
 			
 			potentialClasses.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
 			
-			if (potentialClasses.isEmpty()) { continue; }
+			if (potentialClasses.isEmpty()) {
+				// Still randomize their blood if necessary.
+				if (options.randomizeBossBlood) { randomizeHolyBossBlood(options, holyBoss, originalClass, charData, predeterminedClasses, itemMap, rng); }
+				BloodArrays blood = new BloodArrays(holyBoss);
+				for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
+					predeterminedClasses.put(linked, originalClass);
+					predeterminedBlood.put(linked, blood);
+				}
+				continue;
+			}
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
 			
 			targetClass = classList.get(rng.nextInt(potentialClasses.size()));
-			setHolyBossToClass(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng);
+			
+			
+			if (options.randomizeBossBlood) { randomizeHolyBossBlood(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng); }
+			BloodArrays blood = new BloodArrays(holyBoss);
+			setHolyBossToClass(options, holyBoss, targetClass, blood.slot1Blood, blood.slot2Blood, blood.slot3Blood, charData, predeterminedClasses, itemMap, rng);
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
 				predeterminedClasses.put(linked, targetClass);
-				predeterminedBlood.put(linked, new BloodArrays(holyBoss));
+				predeterminedBlood.put(linked, blood);
 			}
 			
 			// Set ourselves as predetermined, in the odd case that we run across ourself again.
@@ -1223,7 +1239,7 @@ public class FE4ClassRandomizer {
 		}
 	}
 	
-	private static void setHolyBossToClass(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, ItemMapper itemMap, Random rng) {
+	private static void randomizeHolyBossBlood(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, ItemMapper itemMap, Random rng) {
 		
 		int blood1Value = holyBoss.getHolyBlood1Value();
 		int blood2Value = holyBoss.getHolyBlood2Value();
@@ -1249,73 +1265,74 @@ public class FE4ClassRandomizer {
 			hasMajorBlood = true;
 		}
 		
-		if (options.randomizeBossBlood) {
-			// Anybody with major blood is keeping major blood, but that blood might have to be adjusted.
-			if (hasMajorBlood && majorBloodType != null) {
-				slot1Blood.removeIf(blood -> (blood.isMajor()));
-				slot2Blood.removeIf(blood -> (blood.isMajor()));
-				slot3Blood.removeIf(blood -> (blood.isMajor()));
-				
-				FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
-				Set<FE4Data.HolyBlood> bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
-				bloodSet.retainAll(new HashSet<FE4Data.HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection())));
-				List<FE4Data.HolyBlood> bloodOptions = bloodSet.stream().collect(Collectors.toList());
-				// Bosses should never get Bragi Blood. That's a staff as a weapon if that's the case.
-				bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
-				bloodOptions.remove(FE4Data.HolyBlood.NAGA); // Probably shouldn't get Naga either, in case they end up with the Naga tome (and wipe the floor with everybody).
-				if (!bloodOptions.isEmpty()) {
-					FE4Data.HolyBlood newMajorBlood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
-					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajorBlood, true);
-					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(newMajorBlood, true);
-					FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(newMajorBlood, true);
-					
-					if (slot1 != null) { 
-						slot1Blood.add(slot1);
-					} else if (slot2 != null) { 
-						slot2Blood.add(slot2);
-					} else if (slot3 != null) {
-						slot3Blood.add(slot3);
-					}
-					
-					majorBloodType = newMajorBlood;
-				}
-			}
+		FE4Data.Character fe4Char = FE4Data.Character.valueOf(holyBoss.getCharacterID());
+		
+		// Anybody with major blood is keeping major blood, but that blood might have to be adjusted.
+		if (hasMajorBlood && majorBloodType != null) {
+			slot1Blood.removeIf(blood -> (blood.isMajor()));
+			slot2Blood.removeIf(blood -> (blood.isMajor()));
+			slot3Blood.removeIf(blood -> (blood.isMajor()));
 			
-			// Look for Minor blood now.
-			int minorBloodCount = 0;
-			minorBloodCount += slot1Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
-			minorBloodCount += slot2Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
-			minorBloodCount += slot3Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
-			
-			slot1Blood.removeIf(blood -> (blood.isMajor() == false));
-			slot2Blood.removeIf(blood -> (blood.isMajor() == false));
-			slot3Blood.removeIf(blood -> (blood.isMajor() == false));
-			
-			List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
-			if (majorBloodType != null) {
-				bloodOptions.remove(majorBloodType);
-			}
-			// Once again, no Bragi or Naga.
+			Set<FE4Data.HolyBlood> bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
+			bloodSet.retainAll(new HashSet<FE4Data.HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection())));
+			List<FE4Data.HolyBlood> bloodOptions = bloodSet.stream().collect(Collectors.toList());
+			// Bosses should never get Bragi Blood. That's a staff as a weapon if that's the case.
 			bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
-			bloodOptions.remove(FE4Data.HolyBlood.NAGA);
-			for (int i = 0; i < minorBloodCount; i++) {
-				FE4Data.HolyBlood blood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
+			bloodOptions.remove(FE4Data.HolyBlood.NAGA); // Probably shouldn't get Naga either, in case they end up with the Naga tome (and wipe the floor with everybody).
+			if (!bloodOptions.isEmpty()) {
+				FE4Data.HolyBlood newMajorBlood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
+				FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajorBlood, true);
+				FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(newMajorBlood, true);
+				FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(newMajorBlood, true);
 				
-				if (blood == null) { break; }
+				if (slot1 != null) { 
+					slot1Blood.add(slot1);
+				} else if (slot2 != null) { 
+					slot2Blood.add(slot2);
+				} else if (slot3 != null) {
+					slot3Blood.add(slot3);
+				}
 				
-				FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(blood, false);
-				FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(blood, false);
-				FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(blood, false);
-				
-				if (slot1 != null) { slot1Blood.add(slot1); }
-				if (slot2 != null) { slot2Blood.add(slot2); }
-				if (slot3 != null) { slot3Blood.add(slot3); }
-				
-				bloodOptions.remove(blood);
+				majorBloodType = newMajorBlood;
 			}
-			
-			setHolyBossToClass(options, holyBoss, targetClass, slot1Blood, slot2Blood, slot3Blood, charData, predeterminedClasses, itemMap, rng);
 		}
+		
+		// Look for Minor blood now.
+		int minorBloodCount = 0;
+		minorBloodCount += slot1Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
+		minorBloodCount += slot2Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
+		minorBloodCount += slot3Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
+		
+		slot1Blood.removeIf(blood -> (blood.isMajor() == false));
+		slot2Blood.removeIf(blood -> (blood.isMajor() == false));
+		slot3Blood.removeIf(blood -> (blood.isMajor() == false));
+		
+		List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
+		if (majorBloodType != null) {
+			bloodOptions.remove(majorBloodType);
+		}
+		// Once again, no Bragi or Naga.
+		bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
+		bloodOptions.remove(FE4Data.HolyBlood.NAGA);
+		for (int i = 0; i < minorBloodCount; i++) {
+			FE4Data.HolyBlood blood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
+			
+			if (blood == null) { break; }
+			
+			FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(blood, false);
+			FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(blood, false);
+			FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(blood, false);
+			
+			if (slot1 != null) { slot1Blood.add(slot1); }
+			if (slot2 != null) { slot2Blood.add(slot2); }
+			if (slot3 != null) { slot3Blood.add(slot3); }
+			
+			bloodOptions.remove(blood);
+		}
+		
+		holyBoss.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
+		holyBoss.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
+		holyBoss.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
 	}
 	
 	private static void setHolyBossToClass(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, List<FE4Data.HolyBloodSlot1> slot1Blood, List<FE4Data.HolyBloodSlot2> slot2Blood, List<FE4Data.HolyBloodSlot3> slot3Blood, CharacterDataLoader charData, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, ItemMapper itemMap, Random rng) {
@@ -1327,10 +1344,6 @@ public class FE4ClassRandomizer {
 		if (slot1Blood == null) { slot1Blood = new ArrayList<FE4Data.HolyBloodSlot1>(); }
 		if (slot2Blood == null) { slot2Blood = new ArrayList<FE4Data.HolyBloodSlot2>(); }
 		if (slot3Blood == null) { slot3Blood = new ArrayList<FE4Data.HolyBloodSlot3>(); }
-		
-		holyBoss.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
-		holyBoss.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
-		holyBoss.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
 		
 		boolean hasMajorBlood = false;
 		FE4Data.HolyBlood majorBloodType = null;
