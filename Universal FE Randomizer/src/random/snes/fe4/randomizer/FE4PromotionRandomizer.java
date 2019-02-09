@@ -46,47 +46,26 @@ public class FE4PromotionRandomizer {
 			int classID = child.getClassID();
 			boolean isFemale = child.isFemale();
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(child.getCharacterID());
+			FE4Data.CharacterClass fe4CharClass = FE4Data.CharacterClass.valueOf(classID);
 			
-			FE4Data.Character analogue = fe4Char.getGen1Analogue();
-			FE4Data.CharacterClass referenceClass = FE4Data.CharacterClass.valueOf(charData.getStaticCharacter(analogue).getClassID());
+			// If the character is already promoted, don't assign another class.
+			if (fe4CharClass.isPromoted()) {
+				promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
+				continue;
+			}
 			
-			if (referenceClass.isPromoted()) {
-				// Set it as is.
-				promotionMap.setPromotionForCharacter(fe4Char, referenceClass);
+			// Otherwise, assign it based on the child's randomized class.
+			List<FE4Data.CharacterClass> promotions = Arrays.asList(fe4CharClass.promotionClasses(isFemale)).stream().sorted(new Comparator<FE4Data.CharacterClass>() {
+				@Override
+				public int compare(CharacterClass arg0, CharacterClass arg1) {
+					return Integer.compare(arg0.ID, arg1.ID);
+				}
+			}).collect(Collectors.toList());
+			
+			if (promotions.isEmpty()) {
+				promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
 			} else {
-				// Get the promotion for the analogue.
-				Set<FE4Data.CharacterClass> classPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(isFemale)));
-				classPool.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
-				FE4Data.CharacterClass[] whitelistedClasses = fe4Char.whitelistedClasses(false);
-				if (whitelistedClasses.length > 0) {
-					classPool.retainAll(Arrays.asList(whitelistedClasses));
-				}
-				if (classPool.isEmpty()) {
-					// Forget the reference class, use our own class.
-					FE4Data.CharacterClass childClass = FE4Data.CharacterClass.valueOf(classID);
-					classPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(childClass.promotionClasses(isFemale)));
-				}
-				if (classPool.isEmpty()) {
-					promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
-				} else {
-					List<FE4Data.CharacterClass> classList = classPool.stream().sorted(new Comparator<FE4Data.CharacterClass>() {
-						@Override
-						public int compare(CharacterClass arg0, CharacterClass arg1) {
-							return Integer.compare(arg0.ID, arg1.ID);
-						}
-					}).collect(Collectors.toList());
-					
-					FE4Data.CharacterClass promotion = classList.get(rng.nextInt(classList.size()));
-					if (FE4Data.CharacterClass.reducedChanceClasses.contains(promotion)) {
-						promotion = classList.get(rng.nextInt(classList.size()));
-					}
-					
-					while (FE4Data.Character.CharactersThatRequireHorses.contains(fe4Char) && !promotion.isHorseback()) {
-						promotion = classList.get(rng.nextInt(classList.size()));
-					}
-					
-					promotionMap.setPromotionForCharacter(fe4Char, promotion);
-				}
+				promotionMap.setPromotionForCharacter(fe4Char, promotions.get(rng.nextInt(promotions.size())));
 			}
 		}
 	}
