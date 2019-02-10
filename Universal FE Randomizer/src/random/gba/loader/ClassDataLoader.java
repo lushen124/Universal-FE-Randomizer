@@ -1,12 +1,14 @@
 package random.gba.loader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEClassData;
 import fedata.gba.general.GBAFEClass;
@@ -30,11 +32,32 @@ public class ClassDataLoader {
 		this.provider = provider;
 		
 		long baseAddress = FileReadHelper.readAddress(handler, provider.classDataTablePointer());
-		for (GBAFEClass charClass : provider.allClasses()) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>(Arrays.asList(provider.allClasses()));
+		List<GBAFEClass> unpromotedList = classList.stream().filter(charClass -> {
+			return charClass.isPromoted() == false;
+		}).collect(Collectors.toList());
+		List<GBAFEClass> remainderList = classList.stream().filter(charClass -> {
+			return unpromotedList.contains(charClass) == false;
+		}).collect(Collectors.toList());
+		
+		// Key: the promoted class, Value: The class object for the base class.
+		Map<GBAFEClass, GBAFEClassData> promotionMap = new HashMap<GBAFEClass, GBAFEClassData>();
+		
+		// This is done in two passes to satisfy FE6's lack of distinct promotion bonus (which is simply the delta between the two class bases.)
+		for (GBAFEClass charClass : unpromotedList) {
 			long offset = baseAddress + (charClass.getID() * provider.bytesPerClass());
 			byte[] classData = handler.readBytesAtOffset(offset, provider.bytesPerClass());
-			GBAFEClassData classObject = provider.classDataWithData(classData, offset);
+			GBAFEClassData classObject = provider.classDataWithData(classData, offset, null);
 			classMap.put(charClass.getID(), classObject);
+			promotionMap.put(provider.classWithID(classObject.getTargetPromotionID()), classObject);
+		}
+		
+		for (GBAFEClass charClass : remainderList) {
+			long offset = baseAddress + (charClass.getID() * provider.bytesPerClass());
+			byte[] classData = handler.readBytesAtOffset(offset, provider.bytesPerClass());
+			GBAFEClassData demoted = promotionMap.get(charClass);
+			GBAFEClassData classObject = provider.classDataWithData(classData, offset, demoted);
+			classMap.put(charClass.getID(), classObject); 
 		}
 		
 		provider.prepareForClassRandomization(classMap);

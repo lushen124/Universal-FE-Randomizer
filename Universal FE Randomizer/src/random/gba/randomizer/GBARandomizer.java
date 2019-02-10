@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Random;
 
+import fedata.gba.GBAFEChapterData;
+import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
@@ -30,9 +32,11 @@ import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
 import ui.model.WeaponOptions;
+import util.Diff;
 import util.DiffCompiler;
 import util.FreeSpaceManager;
 import util.SeedGenerator;
+import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.RecordKeeper;
 
 public class GBARandomizer extends Randomizer {
@@ -153,16 +157,18 @@ public class GBARandomizer extends Randomizer {
 		randomizeGrowthsIfNecessary(seed);
 		updateProgress(0.55);
 		randomizeClassesIfNecessary(seed); // This MUST come before bases.
-		updateProgress(0.70);
+		updateProgress(0.60);
 		randomizeBasesIfNecessary(seed);
-		updateProgress(0.75);
+		updateProgress(0.70);
 		randomizeWeaponsIfNecessary(seed);
-		updateProgress(0.80);
+		updateProgress(0.75);
 		randomizeOtherCharacterTraitsIfNecessary(seed);
-		updateProgress(0.85);
+		updateProgress(0.80);
 		buffEnemiesIfNecessary(seed);
-		updateProgress(0.90);
+		updateProgress(0.85);
 		randomizeOtherThingsIfNecessary(seed); // i.e. Miscellaneous options.
+		updateProgress(0.90);
+		makeFinalAdjustments(seed);
 		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
@@ -472,6 +478,25 @@ public class GBARandomizer extends Randomizer {
 				updateStatusString("Randomizing recruitment...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RecruitmentRandomizer.rngSalt));
 				RecruitmentRandomizer.randomizeRecruitment(gameType, charData, classData, itemData, chapterData, paletteData, textData, freeSpace, rng);
+			}
+		}
+	}
+	
+	private void makeFinalAdjustments(String seed) {
+		if (gameType == GameType.FE8) {
+			// Create the Trainee Seal using the old heaven seal.
+			textData.setStringAtIndex(0x4AB, "Promotes Tier 0 Trainees at Lv 10.");
+			textData.setStringAtIndex(0x403, "Trainee Seal");
+			long offset = freeSpace.setValue(new byte[] {(byte)FE8Data.CharacterClass.TRAINEE.ID, (byte)FE8Data.CharacterClass.PUPIL.ID, (byte)FE8Data.CharacterClass.RECRUIT.ID}, "TraineeSeal");
+			diffCompiler.addDiff(new Diff(FE8Data.HeavenSealPromotionPointer, 4, WhyDoesJavaNotHaveThese.bytesFromAddress(offset), WhyDoesJavaNotHaveThese.bytesFromAddress(FE8Data.HeavenSealOldAddress)));
+			
+			for (GBAFEChapterData chapter : chapterData.allChapters()) {
+				for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
+					FE8Data.CharacterClass charClass = FE8Data.CharacterClass.valueOf(chapterUnit.getStartingClass());
+					if (FE8Data.CharacterClass.allTraineeClasses.contains(charClass)) {
+						chapterUnit.giveItems(new int[] {FE8Data.Item.HEAVEN_SEAL.ID});
+					}
+				}
 			}
 		}
 	}

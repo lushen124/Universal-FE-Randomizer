@@ -176,6 +176,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
 		
 		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(THITO, MILEDY, GALE, NARSHEN));
+		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(ROY));
+		
+		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(CLARINE, FA, SUE, WENDY, DOROTHY, ELEN, FIR, IGRENE, LILINA, NIIME, LALAM, YUNNO, THITO, THANY, 
+				CASS, SOPHIA, MILEDY, ECHIDNA, CECILIA, GUINEVERE, TATE_UNIT, NIIME_NPC, YUNNO_NPC, THITO_NPC, ECHIDNA_NPC, THITO_ENEMY, SIGUNE, BRUNYA, IDOUN));
 		
 		public Boolean isLord() {
 			return allLords.contains(this);
@@ -1668,12 +1672,24 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public Set<GBAFECharacter> charactersExcludedFromRandomRecruitment() {
+		return new HashSet<GBAFECharacter>(Arrays.asList(Character.FA));
+	}
+	
 	public Set<Integer> linkedPortraitIDs(int characterID) {
 		return new HashSet<Integer>(); // We don't have that feature yet in FE6.
 	}
 	
 	public Set<GBAFECharacter> allFliers() {
 		return new HashSet<GBAFECharacter>(Character.requiredFliers);
+	}
+	
+	public Set<GBAFECharacter> mustAttack() {
+		return new HashSet<GBAFECharacter>(Character.requiredAttackers);
+	}
+	
+	public Set<GBAFECharacter> femaleSet() {
+		return new HashSet<GBAFECharacter>(Character.femaleSet);
 	}
 	
 	public GBAFECharacter characterWithID(int characterID) {
@@ -1819,8 +1835,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 	}
 
-	public GBAFEClassData classDataWithData(byte[] data, long offset) {
-		return new FE6Class(data, offset);
+	public GBAFEClassData classDataWithData(byte[] data, long offset, GBAFEClassData demotedClass) {
+		return new FE6Class(data, offset, demotedClass);
 	}
 	
 	// Item Provider Methods

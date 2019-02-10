@@ -58,6 +58,12 @@ public class CharacterDataLoader {
 		}).collect(Collectors.toList());
 	}
 	
+	public List<GBAFECharacterData> charactersExcludedFromRandomRecruitment() {
+		return provider.charactersExcludedFromRandomRecruitment().stream().sorted(GBAFECharacter.getIDComparator()).map(gbaFEChar -> {
+			return characterWithID(gbaFEChar.getID());
+		}).collect(Collectors.toList());
+	}
+	
 	public GBAFECharacterData[] bossCharacters() {
 		return feCharactersFromSet(provider.allBossCharacters());
 	}
@@ -94,6 +100,16 @@ public class CharacterDataLoader {
 	
 	public Boolean characterIDRequiresMelee(int characterID) {
 		return provider.characterWithID(characterID).requiresMelee();
+	}
+	
+	public Boolean mustAttack(int characterID) {
+		GBAFECharacter character = provider.characterWithID(characterID);
+		return provider.mustAttack().contains(character);
+	}
+	
+	public Boolean isFemale(int characterID) {
+		GBAFECharacter character = provider.characterWithID(characterID);
+		return provider.femaleSet().contains(character);
 	}
 	
 	public GBAFECharacterData characterRequiresCounterToCharacter(GBAFECharacterData character) {

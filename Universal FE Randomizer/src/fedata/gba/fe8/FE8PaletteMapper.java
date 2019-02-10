@@ -386,8 +386,12 @@ public class FE8PaletteMapper {
 				unusedPaletteIDs.add(paletteMap.getTraineePaletteID());
 				paletteMap.setTraineePaletteID(0);
 			}
+			
 			map.setBaseClassID(unpromotedClassID);
-			paletteIDsInUse.add(paletteMap.getBasePaletteID());
+			if (paletteMap.getBasePaletteID() != 0) {
+				paletteIDsInUse.add(paletteMap.getBasePaletteID());
+			}
+			
 			map.setSecondaryBaseClassID(0);
 			if (paletteMap.getSecondaryBasePaletteID() != 0) {
 				unusedPaletteIDs.add(paletteMap.getSecondaryBasePaletteID());
@@ -399,7 +403,9 @@ public class FE8PaletteMapper {
 					FE8Data.CharacterClass primaryPromotionClass = FE8Data.CharacterClass.valueOf(primaryPromotionID);
 					if (primaryPromotionClass != null) {
 						map.setFirstPromotionClassID(primaryPromotionID);
-						paletteIDsInUse.add(paletteMap.getFirstPromotionPaletteID());
+						if (paletteMap.getFirstPromotionPaletteID() != 0) {
+							paletteIDsInUse.add(paletteMap.getFirstPromotionPaletteID());
+						}
 					} else {
 						System.err.println("Invalid class detected in promotion branch (Base Class: " + unpromotedClass.toString() + ").");
 					}
@@ -415,7 +421,9 @@ public class FE8PaletteMapper {
 					FE8Data.CharacterClass secondaryPromotionClass = FE8Data.CharacterClass.valueOf(secondaryPromotionID);
 					if (secondaryPromotionClass != null) {
 						map.setSecondaryPromotionClassID(secondaryPromotionID);
-						paletteIDsInUse.add(paletteMap.getSecondaryPromotionPaletteID());
+						if (paletteMap.getSecondaryPromotionPaletteID() != 0) {
+							paletteIDsInUse.add(paletteMap.getSecondaryPromotionPaletteID());
+						}
 					} else {
 						System.err.println("Invalid class detected in promotion branch (Base Class: " + unpromotedClass.toString() + ").");
 					}

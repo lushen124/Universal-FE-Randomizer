@@ -117,6 +117,10 @@ public class FE8Character implements GBAFECharacterData {
 		wasModified = true;
 	}
 	
+	public int getLevel() {
+		return data[11] & 0xFF;
+	}
+	
 	public int getHPGrowth() {
 		return data[28] & 0xFF;
 	}
@@ -358,7 +362,12 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public int getConstitution() {
-		return data[19];
+		int constitution = data[19] & 0xFF;
+		if ((constitution & 0x80) != 0) {
+			constitution |= 0xFFFFFF00;
+		}
+		
+		return constitution;
 	}
 	
 	public void setConstitution(int newCON) {

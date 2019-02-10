@@ -50,7 +50,7 @@ public class Palette {
 	
 	public Palette(Palette other) {
 		this.info = new PaletteInfo(other.info);
-		this.rawData = other.rawData.clone();
+		this.rawData = Arrays.copyOf(other.rawData, other.rawData.length);
 		
 		this.hair = new ArrayList<PaletteColor>();
 		for (PaletteColor otherHair : other.hair) {

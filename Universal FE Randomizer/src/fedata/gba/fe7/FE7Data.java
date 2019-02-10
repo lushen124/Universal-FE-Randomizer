@@ -185,6 +185,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
 		
 		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(FIORA, FARINA, VAIDA));
+		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(LYN, LYN_TUTORIAL, ELIWOOD, HECTOR, JAFFAR, RATH, ERK, RATH_TUTORIAL));
+		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(REBECCA, LOUISE, SERRA, NINO, PRISCILLA, FIORA, FARINA, VAIDA, FLORINA, ISADORA, KARLA, VAIDA_BOSS, ELENORA, LEILA, 
+				NATALIE, LYN_TUTORIAL, FLORINA_TUTORIAL, URSULA, SONIA, LIMSTELLA, URSULA_MORPH));
 		
 		// Playable characters only.
 		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
@@ -1798,6 +1801,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public Set<GBAFECharacter> charactersExcludedFromRandomRecruitment() {
+		return new HashSet<GBAFECharacter>(Arrays.asList(Character.ATHOS));
+	}
+	
 	public Set<Integer> linkedPortraitIDs(int characterID) {
 		Character character = Character.valueOf(characterID);
 		if (Character.charactersWithMultiplePortraits.containsKey(character)) {
@@ -1809,6 +1816,14 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFECharacter> allFliers() {
 		return new HashSet<GBAFECharacter>(Character.requiredFliers);
+	}
+	
+	public Set<GBAFECharacter> mustAttack() {
+		return new HashSet<GBAFECharacter>(Character.requiredAttackers);
+	}
+	
+	public Set<GBAFECharacter> femaleSet() {
+		return new HashSet<GBAFECharacter>(Character.femaleSet);
 	}
 	
 	public GBAFECharacter characterWithID(int characterID) {
@@ -1953,7 +1968,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 	}
 
-	public GBAFEClassData classDataWithData(byte[] data, long offset) {
+	public GBAFEClassData classDataWithData(byte[] data, long offset, GBAFEClassData demotedClass) {
 		return new FE7Class(data, offset);
 	}
 	

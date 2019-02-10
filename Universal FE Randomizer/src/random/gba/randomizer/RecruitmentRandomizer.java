@@ -33,10 +33,11 @@ public class RecruitmentRandomizer {
 		
 		// Figure out mapping first.
 		List<GBAFECharacterData> characterPool = new ArrayList<GBAFECharacterData>(characterData.canonicalPlayableCharacters());
+		characterPool.removeIf(character -> (characterData.charactersExcludedFromRandomRecruitment().contains(character)));
 		
-		List<GBAFECharacterData> referenceData = characterPool.stream().map(character -> {
+		Map<Integer, GBAFECharacterData> referenceData = characterPool.stream().map(character -> {
 			return character.createCopy(false);
-		}).collect(Collectors.toList());
+		}).collect(Collectors.toMap(charData -> (charData.getID()), charData -> (charData)));
 		
 		Map<GBAFECharacterData, GBAFECharacterData> characterMap = new HashMap<GBAFECharacterData, GBAFECharacterData>();
 		List<GBAFECharacterData> slotsRemaining = new ArrayList<GBAFECharacterData>(characterPool);
@@ -51,68 +52,11 @@ public class RecruitmentRandomizer {
 		// All fliers can promote and demote, so we should be ok here for promotions.
 		List<GBAFECharacterData> flierSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.isFlyingCharacter(character.getID()))).collect(Collectors.toList());
 		List<GBAFECharacterData> flierPool = characterPool.stream().filter(character -> (classData.isFlying(character.getClassID()))).collect(Collectors.toList());
-		while (!flierSlotsRemaining.isEmpty() && !flierPool.isEmpty()) {
-			int slotIndex = rng.nextInt(flierSlotsRemaining.size());
-			GBAFECharacterData flierSlot = flierSlotsRemaining.get(slotIndex);
-			int fillIndex = rng.nextInt(flierPool.size());
-			GBAFECharacterData flier = flierPool.get(fillIndex);
-			
-			// Shouldn't need to guard this one...
-			GBAFECharacterData reference = referenceData.stream().filter(character -> {
-				return character.getID() == flier.getID();
-			}).findFirst().get();
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned flier slot 0x" + Integer.toHexString(flierSlot.getID()) + " (" + textData.getStringAtIndex(flierSlot.getNameIndex()) + 
-					") to flier 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
-			
-			characterMap.put(flierSlot, reference);
-			
-			flierPool.remove(fillIndex);
-			flierSlotsRemaining.remove(slotIndex);
-			
-			slotsRemaining.removeIf(character -> (character.getID() == flierSlot.getID()));
-			characterPool.removeIf(character -> (character.getID() == flier.getID()));
-		}
-		
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
-		
-		// Prioritize those that require attack next. This generally means lords.
-		// Note: these also have to be able to demote.
-		List<GBAFECharacterData> attackingSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.isLordCharacterID(character.getID()))).collect(Collectors.toList());
-		List<GBAFECharacterData> attackingPool = characterPool.stream().filter(character -> {
-			GBAFEClassData charClass = classData.classForID(character.getClassID());
-			if (classData.canClassDemote(charClass.getID())) {
-				for (GBAFEClassData demotion : classData.demotionOptions(charClass.getID())) {
-					if (!classData.canClassAttack(demotion.getID())) { return false; }
-				}
-				
-				return classData.canClassDemote(charClass.getID());
-			} else {
-				return classData.canClassAttack(charClass.getID()) && classData.canClassDemote(charClass.getID());
-			}
-		}).collect(Collectors.toList());
-		while (!attackingSlotsRemaining.isEmpty() && !attackingPool.isEmpty()) {
-			int slotIndex = rng.nextInt(attackingSlotsRemaining.size());
-			GBAFECharacterData attackerSlot = attackingSlotsRemaining.get(slotIndex);
-			int fillIndex = rng.nextInt(attackingPool.size());
-			GBAFECharacterData attacker = attackingPool.get(fillIndex);
-			
-			// Shouldn't need to guard this one...
-			GBAFECharacterData reference = referenceData.stream().filter(character -> {
-				return character.getID() == attacker.getID();
-			}).findFirst().get();
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned attacking slot 0x" + Integer.toHexString(attackerSlot.getID()) + " (" + textData.getStringAtIndex(attackerSlot.getNameIndex()) + 
-					") to attacker 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
-			
-			characterMap.put(attackerSlot, reference);
-			
-			attackingPool.remove(fillIndex);
-			attackingSlotsRemaining.remove(slotIndex);
-			
-			slotsRemaining.removeIf(character -> (character.getID() == attackerSlot.getID()));
-			characterPool.removeIf(character -> (character.getID() == attacker.getID()));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning fliers...");
+		List<SlotAssignment> assignedSlots = shuffleCharactersInPool(flierSlotsRemaining, flierPool, characterMap, referenceData, characterData, classData, textData, rng);
+		for (SlotAssignment assignment : assignedSlots) {
+			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
 		}
 		
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
@@ -121,44 +65,11 @@ public class RecruitmentRandomizer {
 		// Prioritize those with melee/ranged requirements too.
 		List<GBAFECharacterData> meleeRequiredSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.characterIDRequiresMelee(character.getID()))).collect(Collectors.toList());
 		List<GBAFECharacterData> meleePool = characterPool.stream().filter(character -> (classData.canSupportMelee(character.getClassID()))).collect(Collectors.toList());
-		while (!meleeRequiredSlotsRemaining.isEmpty() && !meleePool.isEmpty()) {
-			int slotIndex = rng.nextInt(meleeRequiredSlotsRemaining.size());
-			GBAFECharacterData slot = meleeRequiredSlotsRemaining.get(slotIndex);
-			
-			boolean slotIsPromoted = classData.isPromotedClass(slot.getClassID());
-			
-			List<GBAFECharacterData> fillCandidates = meleePool.stream().filter(fill -> {
-				if (slotIsPromoted) {
-					return classData.isPromotedClass(fill.getClassID()) || classData.canClassPromote(fill.getClassID());
-				} else {
-					return !classData.isPromotedClass(fill.getClassID()) || classData.canClassDemote(fill.getClassID()); 
-				}
-			}).collect(Collectors.toList());
-			if (fillCandidates.isEmpty()) {
-				// This shouldn't happen...
-				System.err.println("No fill candidate found for melee slot for character ID 0x" + Integer.toHexString(slot.getID()));
-				slotsRemaining.remove(slotIndex);
-				continue;
-			}
-			
-			int fillIndex = rng.nextInt(fillCandidates.size());
-			GBAFECharacterData fill = fillCandidates.get(fillIndex);
-			
-			// Shouldn't need to guard this one...
-			GBAFECharacterData reference = referenceData.stream().filter(character -> {
-				return character.getID() == fill.getID();
-			}).findFirst().get();
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned melee slot 0x" + Integer.toHexString(slot.getID()) + " (" + textData.getStringAtIndex(slot.getNameIndex()) + 
-					") to melee 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
-			
-			characterMap.put(slot, reference);
-			
-			meleePool.remove(fillIndex);
-			meleeRequiredSlotsRemaining.remove(slotIndex);
-			
-			slotsRemaining.removeIf(character -> (character.getID() == slot.getID()));
-			characterPool.removeIf(character -> (character.getID() == fill.getID()));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Melee Units...");
+		assignedSlots = shuffleCharactersInPool(meleeRequiredSlotsRemaining, meleePool, characterMap, referenceData, characterData, classData, textData, rng);
+		for (SlotAssignment assignment : assignedSlots) {
+			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
 		}
 		
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
@@ -166,44 +77,34 @@ public class RecruitmentRandomizer {
 		
 		List<GBAFECharacterData> rangeRequiredSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.characterIDRequiresRange(character.getID()))).collect(Collectors.toList());
 		List<GBAFECharacterData> rangePool = characterPool.stream().filter(character -> (classData.canSupportRange(character.getClassID()))).collect(Collectors.toList());
-		while (!rangeRequiredSlotsRemaining.isEmpty() && !rangePool.isEmpty()) {
-			int slotIndex = rng.nextInt(rangeRequiredSlotsRemaining.size());
-			GBAFECharacterData slot = rangeRequiredSlotsRemaining.get(slotIndex);
-			
-			boolean slotIsPromoted = classData.isPromotedClass(slot.getClassID());
-			
-			List<GBAFECharacterData> fillCandidates = rangePool.stream().filter(fill -> {
-				if (slotIsPromoted) {
-					return classData.isPromotedClass(fill.getClassID()) || classData.canClassPromote(fill.getClassID());
-				} else {
-					return !classData.isPromotedClass(fill.getClassID()) || classData.canClassDemote(fill.getClassID()); 
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Ranged Units...");
+		assignedSlots = shuffleCharactersInPool(rangeRequiredSlotsRemaining, rangePool, characterMap, referenceData, characterData, classData, textData, rng);
+		for (SlotAssignment assignment : assignedSlots) {
+			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
+		}
+		
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
+		
+		// Prioritize those that require attack next. This generally means lords.
+		// Note: these also have to be able to demote.
+		List<GBAFECharacterData> attackingSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.mustAttack(character.getID()))).collect(Collectors.toList());
+		List<GBAFECharacterData> attackingPool = characterPool.stream().filter(character -> {
+			GBAFEClassData charClass = classData.classForID(character.getClassID());
+			// Promoted class taht can demote should check all of their demotion options. Any demotion that can't attack disqualifies the class.
+			if (classData.isPromotedClass(charClass.getID()) && classData.canClassDemote(charClass.getID())) {
+				for (GBAFEClassData demotedClass : classData.demotionOptions(charClass.getID())) {
+					if (classData.canClassAttack(demotedClass.getID()) == false) { return false; }
 				}
-			}).collect(Collectors.toList());
-			if (fillCandidates.isEmpty()) {
-				// This shouldn't happen...
-				System.err.println("No fill candidate found for range slot for character ID 0x" + Integer.toHexString(slot.getID()));
-				slotsRemaining.remove(slotIndex);
-				continue;
 			}
-			
-			int fillIndex = rng.nextInt(fillCandidates.size());
-			GBAFECharacterData fill = fillCandidates.get(fillIndex);
-			
-			// Shouldn't need to guard this one...
-			GBAFECharacterData reference = referenceData.stream().filter(character -> {
-				return character.getID() == fill.getID();
-			}).findFirst().get();
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned ranged slot 0x" + Integer.toHexString(slot.getID()) + " (" + textData.getStringAtIndex(slot.getNameIndex()) + 
-					") to ranged 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
-						
-			characterMap.put(slot, reference);
-			
-			rangePool.remove(fillIndex);
-			rangeRequiredSlotsRemaining.remove(slotIndex);
-			
-			slotsRemaining.removeIf(character -> (character.getID() == slot.getID()));
-			characterPool.removeIf(character -> (character.getID() == fill.getID()));
+			return classData.canClassAttack(charClass.getID());
+		}).collect(Collectors.toList());
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Attackers...");
+		assignedSlots = shuffleCharactersInPool(attackingSlotsRemaining, attackingPool, characterMap, referenceData, characterData, classData, textData, rng);
+		for (SlotAssignment assignment : assignedSlots) {
+			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
 		}
 		
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
@@ -215,27 +116,11 @@ public class RecruitmentRandomizer {
 			GBAFEClassData charClass = classData.classForID(character.getClassID());
 			return !classData.canClassDemote(charClass.getID()) && classData.isPromotedClass(charClass.getID());
 		}).collect(Collectors.toList());
-		while (!promotedSlotsRemaining.isEmpty() && !mustBePromotedPool.isEmpty()) {
-			int slotIndex = rng.nextInt(promotedSlotsRemaining.size());
-			GBAFECharacterData promotedSlot = promotedSlotsRemaining.get(slotIndex);
-			int fillIndex = rng.nextInt(mustBePromotedPool.size());
-			GBAFECharacterData promotedFill = mustBePromotedPool.get(fillIndex);
-			
-			// Shouldn't need to guard this one...
-			GBAFECharacterData reference = referenceData.stream().filter(character -> {
-				return character.getID() == promotedFill.getID();
-			}).findFirst().get();
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned promoted slot 0x" + Integer.toHexString(promotedSlot.getID()) + " (" + textData.getStringAtIndex(promotedSlot.getNameIndex()) + 
-					") to promoted unit 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
-			
-			characterMap.put(promotedSlot, reference);
-			
-			mustBePromotedPool.remove(fillIndex);
-			promotedSlotsRemaining.remove(slotIndex);
-			
-			slotsRemaining.removeIf(character -> (character.getID() == promotedSlot.getID()));
-			characterPool.removeIf(character -> (character.getID() == promotedFill.getID()));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning non-demotable classes...");
+		assignedSlots = shuffleCharactersInPool(promotedSlotsRemaining, mustBePromotedPool, characterMap, referenceData, characterData, classData, textData, rng);
+		for (SlotAssignment assignment : assignedSlots) {	
+			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
 		}
 		
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
@@ -243,44 +128,13 @@ public class RecruitmentRandomizer {
 		
 		// Assign everybody else randomly.
 		// We do have to make sure characters that can get assigned can promote/demote if necessary.
-		while (!slotsRemaining.isEmpty() && !characterPool.isEmpty()) {
-			int slotIndex = rng.nextInt(slotsRemaining.size());
-			GBAFECharacterData slot = slotsRemaining.get(slotIndex);
-			
-			boolean slotIsPromoted = classData.isPromotedClass(slot.getClassID());
-			
-			List<GBAFECharacterData> fillCandidates = characterPool.stream().filter(fill -> {
-				if (slotIsPromoted) {
-					return classData.isPromotedClass(fill.getClassID()) || classData.canClassPromote(fill.getClassID());
-				} else {
-					return !classData.isPromotedClass(fill.getClassID()) || classData.canClassDemote(fill.getClassID()); 
-				}
-			}).collect(Collectors.toList());
-			if (fillCandidates.isEmpty()) {
-				// This shouldn't happen...
-				System.err.println("No fill candidate found for slot for character ID 0x" + Integer.toHexString(slot.getID()));
-				slotsRemaining.remove(slotIndex);
-				continue;
-			}
-			
-			int fillIndex = rng.nextInt(fillCandidates.size());
-			GBAFECharacterData fill = fillCandidates.get(fillIndex);
-			
-			// Shouldn't need to guard this one...
-			GBAFECharacterData reference = referenceData.stream().filter(character -> {
-				return character.getID() == fill.getID();
-			}).findFirst().get();
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned slot 0x" + Integer.toHexString(slot.getID()) + " (" + textData.getStringAtIndex(slot.getNameIndex()) + 
-					") to 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
-						
-			characterMap.put(slot, reference);
-			
-			slotsRemaining.remove(slotIndex);
-			characterPool.removeIf(character -> (character.getID() == fill.getID()));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning the remainder of the characters...");
+		assignedSlots = shuffleCharactersInPool(slotsRemaining, characterPool, characterMap, referenceData, characterData, classData, textData, rng);
+		for (SlotAssignment assignment : assignedSlots) {	
+			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
 		}
 		
-		Map<String, String> textReplacements = new HashMap<String, String>();
 		
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
@@ -290,6 +144,8 @@ public class RecruitmentRandomizer {
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Unassigned: 0x" + Integer.toHexString(unassigned.getID()) + " (" + textData.getStringAtIndex(unassigned.getNameIndex()) + ")");
 			}
 		}
+		
+		Map<String, String> textReplacements = new HashMap<String, String>();
 		
 		// Process every mapped character.
 		// The fill should always be reference data, so it will not have changed from earlier substitutions.
@@ -306,8 +162,8 @@ public class RecruitmentRandomizer {
 						textReplacements.put("[LoadFace][0x" + Integer.toHexString(faceID) + "]", "[LoadFace][0x" + Integer.toHexString(fill.getFaceID()) + "]");
 					}
 				}
-				textReplacements.put(textData.getStringAtIndex(slot.getNameIndex()), textData.getStringAtIndex(fill.getNameIndex()));
-				textReplacements.put(textData.getStringAtIndex(slot.getNameIndex()).toUpperCase(), textData.getStringAtIndex(fill.getNameIndex())); // Sometimes people yell too. :(
+				textReplacements.put(textData.getStringAtIndex(slot.getNameIndex()).trim(), textData.getStringAtIndex(fill.getNameIndex()).trim());
+				textReplacements.put(textData.getStringAtIndex(slot.getNameIndex()).toUpperCase().trim(), textData.getStringAtIndex(fill.getNameIndex()).trim()); // Sometimes people yell too. :(
 				// TODO: pronouns?
 				
 				// Apply the change to the data.
@@ -360,6 +216,122 @@ public class RecruitmentRandomizer {
 		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
 	}
+	
+	private static class SlotAssignment {
+		GBAFECharacterData slot;
+		GBAFECharacterData fill;
+		
+		private SlotAssignment(GBAFECharacterData slot, GBAFECharacterData fill) {
+			this.slot = slot;
+			this.fill = fill;
+		}
+	}
+	
+	private static List<SlotAssignment> shuffleCharactersInPool(List<GBAFECharacterData> slots, List<GBAFECharacterData> pool, Map<GBAFECharacterData, GBAFECharacterData> characterMap, Map<Integer, GBAFECharacterData> referenceData, 
+			CharacterDataLoader charData, ClassDataLoader classData, TextLoader textData, Random rng) {
+		List<SlotAssignment> additions = new ArrayList<SlotAssignment>();
+		
+		List<GBAFECharacterData> femaleSlots = slots.stream().filter(character -> (charData.isFemale(character.getID()))).collect(Collectors.toList());
+		List<GBAFECharacterData> femalePool = pool.stream().filter(character -> (charData.isFemale(character.getID()))).collect(Collectors.toList());
+		
+		List<GBAFECharacterData> maleSlots = slots.stream().filter(character -> (charData.isFemale(character.getID()) == false)).collect(Collectors.toList());
+		List<GBAFECharacterData> malePool = pool.stream().filter(character -> (charData.isFemale(character.getID()) == false)).collect(Collectors.toList());
+		
+		if (femalePool.size() >= femaleSlots.size() && malePool.size() >= maleSlots.size()) {
+			additions.addAll(shuffle(femaleSlots, femalePool, characterMap, referenceData, classData, textData, rng));
+			additions.addAll(shuffle(maleSlots, malePool, characterMap, referenceData, classData, textData, rng));
+			
+			return additions;
+		} else {
+			return shuffle(slots, pool, characterMap, referenceData, classData, textData, rng);
+		}
+	}
+	
+	private static List<SlotAssignment> shuffle(List<GBAFECharacterData> slots, List<GBAFECharacterData> pool, Map<GBAFECharacterData, GBAFECharacterData> characterMap, Map<Integer, GBAFECharacterData> referenceData, 
+			ClassDataLoader classData, TextLoader textData, Random rng) {
+		List<SlotAssignment> additions = new ArrayList<SlotAssignment>();
+		
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Shuffling Slots: " + String.join(", ", slots.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Character Pool: " + String.join(", ", pool.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
+		
+		List<GBAFECharacterData> promotedSlots = slots.stream().filter(slot -> (classData.isPromotedClass(slot.getClassID()))).collect(Collectors.toList());
+		List<GBAFECharacterData> cantDemotePool = pool.stream().filter(fill -> (classData.isPromotedClass(fill.getClassID()) == true && classData.canClassDemote(fill.getClassID()) == false)).collect(Collectors.toList());
+		
+		List<GBAFECharacterData> unpromotedSlots = slots.stream().filter(slot -> (classData.isPromotedClass(slot.getClassID()) == false)).collect(Collectors.toList());
+		List<GBAFECharacterData> cantPromotePool = pool.stream().filter(fill -> (classData.isPromotedClass(fill.getClassID()) == false && classData.canClassPromote(fill.getClassID()) == false)).collect(Collectors.toList());
+		
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tPromoted: " + String.join(", ", promotedSlots.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tCan't Demote: " + String.join(", ", cantDemotePool.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tUnpromoted: " + String.join(", ", unpromotedSlots.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tCan't Promote: " + String.join(", ", cantPromotePool.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
+		
+		while (!cantDemotePool.isEmpty()) {
+			assert promotedSlots.isEmpty() == false : "Insufficient promoted slots available for a pool that can't demote.";
+			// Assign promoted slots with this pool first.
+			int slotIndex = rng.nextInt(rng.nextInt(promotedSlots.size()));
+			GBAFECharacterData slot = promotedSlots.get(slotIndex);
+			int fillIndex = rng.nextInt(cantDemotePool.size());
+			GBAFECharacterData fill = cantDemotePool.get(fillIndex);
+			
+			GBAFECharacterData reference = referenceData.get(fill.getID());
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned slot 0x" + Integer.toHexString(slot.getID()) + " (" + textData.getStringAtIndex(slot.getNameIndex()) + 
+					") to 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
+			
+			characterMap.put(slot, reference);
+			additions.add(new SlotAssignment(slot, reference));
+			
+			promotedSlots.remove(slotIndex);
+			cantDemotePool.remove(fillIndex);
+			
+			slots.removeIf(currentSlot -> (currentSlot.getID() == slot.getID()));
+			pool.removeIf(currentFill -> (currentFill.getID() == fill.getID()));
+		}
+		
+		while (!cantPromotePool.isEmpty()) {
+			assert unpromotedSlots.isEmpty() == false : "Insufficient unpromoted slots available for a pool that can't promote.";
+			// Assign demoted slots with this pool first.
+			int slotIndex = rng.nextInt(unpromotedSlots.size());
+			GBAFECharacterData slot = unpromotedSlots.get(slotIndex);
+			int fillIndex = rng.nextInt(cantPromotePool.size());
+			GBAFECharacterData fill = cantPromotePool.get(fillIndex);
+			
+			GBAFECharacterData reference = referenceData.get(fill.getID());
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned slot 0x" + Integer.toHexString(slot.getID()) + " (" + textData.getStringAtIndex(slot.getNameIndex()) + 
+					") to 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
+			
+			characterMap.put(slot, reference);
+			additions.add(new SlotAssignment(slot, reference));
+			
+			unpromotedSlots.remove(slotIndex);
+			cantPromotePool.remove(fillIndex);
+			
+			slots.removeIf(currentSlot -> (currentSlot.getID() == slot.getID()));
+			pool.removeIf(currentFill -> (currentFill.getID() == fill.getID()));
+		}
+		
+		while (!slots.isEmpty() && !pool.isEmpty()) {
+			int slotIndex = rng.nextInt(slots.size());
+			GBAFECharacterData slot = slots.get(slotIndex);
+			int fillIndex = rng.nextInt(pool.size());
+			GBAFECharacterData fill = pool.get(fillIndex);
+			
+			// Shouldn't need to guard this one...
+			GBAFECharacterData reference = referenceData.get(fill.getID());
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned slot 0x" + Integer.toHexString(slot.getID()) + " (" + textData.getStringAtIndex(slot.getNameIndex()) + 
+					") to 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
+			
+			characterMap.put(slot, reference);
+			additions.add(new SlotAssignment(slot, reference));
+			
+			pool.remove(fillIndex);
+			slots.remove(slotIndex);
+		}
+		
+		return additions;
+	}
 
 	private static void fillSlot(GBAFECharacterData slot, GBAFECharacterData fill, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, ChapterLoader chapterData, PaletteLoader paletteData, TextLoader textData, GameType type, Random rng) {
 		// Create copy for reference, since we're about to overwrite the slot data.
@@ -373,8 +345,11 @@ public class RecruitmentRandomizer {
 		GBAFEClassData slotSourceClass = classData.classForID(slotReference.getClassID());
 		GBAFEClassData slotSourcePromoted = classData.canClassPromote(slotSourceClass.getID()) ? classData.classForID(slotSourceClass.getTargetPromotionID()) : null;
 		
-		GBAFEClassData sourceClass = classData.classForID(fill.getClassID());
+		GBAFEClassData fillSourceClass = classData.classForID(fill.getClassID());
 		GBAFEClassData targetClass = null;
+		
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Filling Slot [" + textData.getStringAtIndex(slotReference.getNameIndex()) + "](" + textData.getStringAtIndex(slotSourceClass.getNameIndex()) + ") with [" +
+				textData.getStringAtIndex(fill.getNameIndex()) + "](" + textData.getStringAtIndex(fillSourceClass.getNameIndex()) + ")");
 		
 		GBAFECharacterData[] linkedSlots = characterData.linkedCharactersForCharacter(slotReference);
 		for (GBAFECharacterData linkedSlot : linkedSlots) {
@@ -383,8 +358,10 @@ public class RecruitmentRandomizer {
 			linkedSlot.setDescriptionIndex(fill.getDescriptionIndex());
 			linkedSlot.setFaceID(fill.getFaceID());
 			
-			int targetLevel = chapterData.getStartingLevelForCharacter(linkedSlot.getID());
-			int sourceLevel = chapterData.getStartingLevelForCharacter(fill.getID());
+			int targetLevel = linkedSlot.getLevel();
+			int sourceLevel = fill.getLevel();
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slot level: " + Integer.toString(targetLevel) + "\tFill Level: " + Integer.toString(sourceLevel));
 			
 			// Handle Promotion/Demotion leveling as necessary
 			if (shouldBePromoted) { targetLevel += 10; }
@@ -392,55 +369,116 @@ public class RecruitmentRandomizer {
 			
 			int levelsToAdd = targetLevel - sourceLevel;
 			
+			int promoAdjustHP = 0;
+			int promoAdjustSTR = 0;
+			int promoAdjustSKL = 0;
+			int promoAdjustSPD = 0;
+			int promoAdjustDEF = 0;
+			int promoAdjustRES = 0;
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Adjusted Slot level: " + Integer.toString(targetLevel) + "\tAdjusted Fill Level: " + Integer.toString(sourceLevel) + "\tLevels To Add: " + Integer.toString(levelsToAdd));
+			
 			if (shouldBePromoted && !isPromoted) {
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Promoting [" + textData.getStringAtIndex(fill.getNameIndex()) + "]");
 				// Promote Fill.
 				if (targetClass == null) {
 					List<GBAFEClassData> promotionOptions = classData.promotionOptions(fill.getClassID());
+					DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Promotion Options: [" + String.join(", ", promotionOptions.stream().map(charClass -> (textData.getStringAtIndex(charClass.getNameIndex()))).collect(Collectors.toList())) + "]");
 					if (!promotionOptions.isEmpty()) {
 						targetClass = promotionOptions.get(rng.nextInt(promotionOptions.size()));
 					} else {
-						targetClass = sourceClass;
+						targetClass = fillSourceClass;
 					}
+					DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Selected Class: " + (targetClass != null ? textData.getStringAtIndex(targetClass.getNameIndex()) : "None"));
+					
+					// For some reason, some promoted class seem to have lower bases than their unpromoted variants (FE8 lords are an example). If they are lower, adjust upwards.
+					if (targetClass.getBaseHP() < fillSourceClass.getBaseHP()) { promoAdjustHP = fillSourceClass.getBaseHP() - targetClass.getBaseHP() + targetClass.getPromoHP(); }
+					if (targetClass.getBaseSTR() < fillSourceClass.getBaseSTR()) { promoAdjustSTR = fillSourceClass.getBaseSTR() - targetClass.getBaseSTR() + targetClass.getPromoSTR(); }
+					if (targetClass.getBaseSKL() < fillSourceClass.getBaseSKL()) { promoAdjustSKL = fillSourceClass.getBaseSKL() - targetClass.getBaseSKL() + targetClass.getPromoSKL(); }
+					if (targetClass.getBaseSPD() < fillSourceClass.getBaseSPD()) { promoAdjustSPD = fillSourceClass.getBaseSPD() - targetClass.getBaseSPD() + targetClass.getPromoSPD(); }
+					if (targetClass.getBaseDEF() < fillSourceClass.getBaseDEF()) { promoAdjustDEF = fillSourceClass.getBaseDEF() - targetClass.getBaseDEF() + targetClass.getPromoDEF(); }
+					if (targetClass.getBaseRES() < fillSourceClass.getBaseRES()) { promoAdjustRES = fillSourceClass.getBaseRES() - targetClass.getBaseRES() + targetClass.getPromoRES(); }
 				}
 				
 				setSlotClass(linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			} else if (!shouldBePromoted && isPromoted) {
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Demoting [" + textData.getStringAtIndex(fill.getNameIndex()) + "]");
 				// Demote Fill.
 				if (targetClass == null) {
 					List<GBAFEClassData> demotionOptions = classData.demotionOptions(fill.getClassID());
+					DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Demotion Options: [" + String.join(", ", demotionOptions.stream().map(charClass -> (textData.getStringAtIndex(charClass.getNameIndex()))).collect(Collectors.toList())) + "]");
 					if (!demotionOptions.isEmpty()) {
 						targetClass = demotionOptions.get(rng.nextInt(demotionOptions.size()));
 					} else {
-						targetClass = sourceClass;
+						targetClass = fillSourceClass;
 					}
+					DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Selected Class: " + (targetClass != null ? textData.getStringAtIndex(targetClass.getNameIndex()) : "None"));
+					
+					// For some reason, some promoted class seem to have lower bases than their unpromoted variants (FE8 lords are an example). If our demoted class has higher bases, adjust downwards
+					if (targetClass.getBaseHP() > fillSourceClass.getBaseHP()) { promoAdjustHP = targetClass.getBaseHP() - fillSourceClass.getBaseHP() + fillSourceClass.getPromoHP(); promoAdjustHP *= -1; }
+					if (targetClass.getBaseSTR() > fillSourceClass.getBaseSTR()) { promoAdjustSTR = targetClass.getBaseSTR() - fillSourceClass.getBaseSTR() + fillSourceClass.getPromoSTR(); promoAdjustSTR *= -1; }
+					if (targetClass.getBaseSKL() > fillSourceClass.getBaseSKL()) { promoAdjustSKL = targetClass.getBaseSKL() - fillSourceClass.getBaseSKL() + fillSourceClass.getPromoSKL(); promoAdjustSKL *= -1; }
+					if (targetClass.getBaseSPD() > fillSourceClass.getBaseSPD()) { promoAdjustSPD = targetClass.getBaseSPD() - fillSourceClass.getBaseSPD() + fillSourceClass.getPromoSPD(); promoAdjustSPD *= -1; }
+					if (targetClass.getBaseDEF() > fillSourceClass.getBaseDEF()) { promoAdjustDEF = targetClass.getBaseDEF() - fillSourceClass.getBaseDEF() + fillSourceClass.getPromoDEF(); promoAdjustDEF *= -1; }
+					if (targetClass.getBaseRES() > fillSourceClass.getBaseRES()) { promoAdjustRES = targetClass.getBaseRES() - fillSourceClass.getBaseRES() + fillSourceClass.getPromoRES(); promoAdjustRES *= -1; }
 				}
 				
 				setSlotClass(linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			} else {
 				// Transfer as is.
 				if (targetClass == null) {
-					targetClass = sourceClass;
+					targetClass = fillSourceClass;
 				}
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "No Promotion/Demotion Needed. Class: " + (targetClass != null ? textData.getStringAtIndex(targetClass.getNameIndex()) : "None"));
 				setSlotClass(linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			}
 			
-			// Adjust bases if necessary.
-			int hpDelta = (int)Math.floor((float)(fill.getHPGrowth() / 100.0) * levelsToAdd);
-			int strDelta = (int)Math.floor((float)(fill.getSTRGrowth() / 100.0) * levelsToAdd);
-			int sklDelta = (int)Math.floor((float)(fill.getSKLGrowth() / 100.0) * levelsToAdd);
-			int spdDelta = (int)Math.floor((float)(fill.getSPDGrowth() / 100.0) * levelsToAdd);
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== Stat Adjustment from Class Bases ==");
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + promoAdjustHP);
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + promoAdjustSTR);
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SKL: " + promoAdjustSKL);
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SPD: " + promoAdjustSPD);
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + promoAdjustDEF);
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + promoAdjustRES);
+			
+			// Adjust bases based on level difference and promotion changes.
+			int hpDelta = (int)Math.floor((float)(fill.getHPGrowth() / 100.0) * levelsToAdd) + promoAdjustHP;
+			int strDelta = (int)Math.floor((float)(fill.getSTRGrowth() / 100.0) * levelsToAdd) + promoAdjustSTR;
+			int sklDelta = (int)Math.floor((float)(fill.getSKLGrowth() / 100.0) * levelsToAdd) + promoAdjustSKL;
+			int spdDelta = (int)Math.floor((float)(fill.getSPDGrowth() / 100.0) * levelsToAdd) + promoAdjustSPD;
 			int lckDelta = (int)Math.floor((float)(fill.getLCKGrowth() / 100.0) * levelsToAdd);
-			int defDelta = (int)Math.floor((float)(fill.getDEFGrowth() / 100.0) * levelsToAdd);
-			int resDelta = (int)Math.floor((float)(fill.getRESGrowth() / 100.0) * levelsToAdd);
+			int defDelta = (int)Math.floor((float)(fill.getDEFGrowth() / 100.0) * levelsToAdd) + promoAdjustDEF;
+			int resDelta = (int)Math.floor((float)(fill.getRESGrowth() / 100.0) * levelsToAdd) + promoAdjustRES;
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== Base Deltas ==");
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + Integer.toString(hpDelta));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + Integer.toString(strDelta));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SKL: " + Integer.toString(sklDelta));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SPD: " + Integer.toString(spdDelta));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + Integer.toString(defDelta));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + Integer.toString(resDelta));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "LCK: " + Integer.toString(lckDelta));
 			
 			// Clamp the delta to make sure we're not overflowing caps or underflowing to negative.
-			int newHP = Math.min(targetClass.getMaxHP() - targetClass.getBaseHP(), Math.max(fill.getBaseHP() + hpDelta, -1 * targetClass.getBaseHP() + 1)); // Gotta have at least 1 HP.
-			int newSTR = Math.min(targetClass.getMaxSTR() - targetClass.getBaseSTR(), Math.max(fill.getBaseSTR() + strDelta, -1 * targetClass.getBaseSTR()));
-			int newSKL = Math.min(targetClass.getMaxSKL() - targetClass.getBaseSKL(), Math.max(fill.getBaseSKL() + sklDelta, -1 * targetClass.getBaseSKL()));
-			int newSPD = Math.min(targetClass.getMaxSPD() - targetClass.getBaseSPD(), Math.max(fill.getBaseSPD() + spdDelta, -1 * targetClass.getBaseSPD()));
-			int newLCK = Math.min(targetClass.getMaxLCK() - targetClass.getBaseLCK(), Math.max(fill.getBaseLCK() + lckDelta, -1 * targetClass.getBaseLCK()));
-			int newDEF = Math.min(targetClass.getMaxDEF() - targetClass.getBaseDEF(), Math.max(fill.getBaseDEF() + defDelta, -1 * targetClass.getBaseDEF()));
-			int newRES = Math.min(targetClass.getMaxRES() - targetClass.getBaseRES(), Math.max(fill.getBaseRES() + resDelta, -1 * targetClass.getBaseRES()));
+			// Clamp the minimum so that people aren't force to 0 base stats, but they can go down as far as 25% of their normal bases.
+			int newHP = Math.min(targetClass.getMaxHP() - targetClass.getBaseHP(), Math.max(fill.getBaseHP() + hpDelta, -3 * targetClass.getBaseHP() / 4));
+			int newSTR = Math.min(targetClass.getMaxSTR() - targetClass.getBaseSTR(), Math.max(fill.getBaseSTR() + strDelta, -3 * targetClass.getBaseSTR() / 4));
+			int newSKL = Math.min(targetClass.getMaxSKL() - targetClass.getBaseSKL(), Math.max(fill.getBaseSKL() + sklDelta, -3 * targetClass.getBaseSKL() / 4));
+			int newSPD = Math.min(targetClass.getMaxSPD() - targetClass.getBaseSPD(), Math.max(fill.getBaseSPD() + spdDelta, -3 * targetClass.getBaseSPD() / 4));
+			int newLCK = Math.min(targetClass.getMaxLCK() - targetClass.getBaseLCK(), Math.max(fill.getBaseLCK() + lckDelta, -3 * targetClass.getBaseLCK() / 4));
+			int newDEF = Math.min(targetClass.getMaxDEF() - targetClass.getBaseDEF(), Math.max(fill.getBaseDEF() + defDelta, -3 * targetClass.getBaseDEF() / 4));
+			int newRES = Math.min(targetClass.getMaxRES() - targetClass.getBaseRES(), Math.max(fill.getBaseRES() + resDelta, -3 * targetClass.getBaseRES() / 4));
+			
+			// Add their original bases back into the new value.
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== New Bases ==");
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + Integer.toString(fillSourceClass.getBaseHP()) + " + " + Integer.toString(fill.getBaseHP()) + " -> " + Integer.toString(targetClass.getBaseHP()) + " + " + Integer.toString(newHP));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + Integer.toString(fillSourceClass.getBaseSTR()) + " + " + Integer.toString(fill.getBaseSTR()) + " -> " + Integer.toString(targetClass.getBaseSTR()) + " + " + Integer.toString(newSTR));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SKL: " + Integer.toString(fillSourceClass.getBaseSKL()) + " + " + Integer.toString(fill.getBaseSKL()) + " -> " + Integer.toString(targetClass.getBaseSKL()) + " + " + Integer.toString(newSKL));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SPD: " + Integer.toString(fillSourceClass.getBaseSPD()) + " + " + Integer.toString(fill.getBaseSPD()) + " -> " + Integer.toString(targetClass.getBaseSPD()) + " + " + Integer.toString(newSPD));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + Integer.toString(fillSourceClass.getBaseDEF()) + " + " + Integer.toString(fill.getBaseDEF()) + " -> " + Integer.toString(targetClass.getBaseDEF()) + " + " + Integer.toString(newDEF));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + Integer.toString(fillSourceClass.getBaseRES()) + " + " + Integer.toString(fill.getBaseRES()) + " -> " + Integer.toString(targetClass.getBaseRES()) + " + " + Integer.toString(newRES));
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "LCK: " + Integer.toString(fillSourceClass.getBaseLCK()) + " + " + Integer.toString(fill.getBaseLCK()) + " -> " + Integer.toString(targetClass.getBaseLCK()) + " + " + Integer.toString(newLCK));
 			
 			linkedSlot.setBaseHP(newHP);
 			linkedSlot.setBaseSTR(newSTR);

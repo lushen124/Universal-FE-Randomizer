@@ -92,6 +92,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int PaletteEntryCount = 256;
 	public static final int PaletteEntrySize = 16;
 	
+	// This is where the pointer to the heaven seal promotion classes resides. We're overriding this to promote trainees, so it'll be rewritten to the new address.
+	public static final long HeavenSealPromotionPointer = 0x293D8L;
+	public static final long HeavenSealOldAddress = 0x8ADF96L;
+	
 	private static final FE8Data sharedInstance = new FE8Data();
 	
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
@@ -191,7 +195,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList(SETH)); // The prologue scripted battle.
 		
-		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE));
+		// Vanessa isn't strictly required, but Ross is likely screwed otherwise.
+		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(VANESSA, CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE));
+		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM, SETH, ARTUR));
+		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(EIRIKA, VANESSA, NEIMI, LUTE, NATASHA, AMELIA, TETHYS, MARISA, LARACHEL, MYRRH, SYRENE, TANA, SELENA, SELENA_10B_13B, ISMAIRE));
 		
 		// Playable characters only.
 		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
@@ -418,6 +425,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			map.put(TARVOS, new HashSet<CharacterClass>(Arrays.asList(MAELDUIN)));
 			map.put(MOGALL, new HashSet<CharacterClass>(Arrays.asList(ARCH_MOGALL)));
 			map.put(GARGOYLE, new HashSet<CharacterClass>(Arrays.asList(DEATHGOYLE)));
+			map.put(TRAINEE, new HashSet<CharacterClass>(Arrays.asList(TRAINEE_2, FIGHTER, PIRATE)));
+			map.put(RECRUIT, new HashSet<CharacterClass>(Arrays.asList(RECRUIT_2, CAVALIER_F, KNIGHT_F)));
+			map.put(PUPIL, new HashSet<CharacterClass>(Arrays.asList(PUPIL_2, MAGE, SHAMAN)));
 			return map;
 		}
 		
@@ -647,6 +657,15 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public Boolean canAttack() {
 			return !CharacterClass.allPacifistClasses.contains(this);
 		}
+		
+		public int getIDForPalette() {
+			switch (this) {
+			case TRAINEE: return TRAINEE_2.ID;
+			case RECRUIT: return RECRUIT_2.ID;
+			case PUPIL: return PUPIL_2.ID;
+			default: return this.ID;
+			}
+		}
 	}
 	
 	public enum Item implements GBAFEItem {
@@ -682,6 +701,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		ANGELIC_ROBE(0x5B), ENERGY_RING(0x5C), SECRET_BOOK(0x5D), SPEEDWINGS(0x5E), GODDESS_ICON(0x5F), DRAGONSHIELD(0x60), TALISMAN(0x61), BOOTS(0x62), BODY_RING(0x63),
 		
 		HERO_CREST(0x64), KNIGHT_CREST(0x65), ORION_BOLT(0x66), ELYSIAN_WHIP(0x67), GUIDING_RING(0x68), MASTER_SEAL(0x88), CONQUORER_PROOF(0x97), MOON_BRACELET(0x98), SUN_BRACELET(0x99),
+		HEAVEN_SEAL(0x8A), // We're going to recycle this for use with trainee classes.
 		
 		CHEST_KEY(0x69), DOOR_KEY(0x6A), LOCKPICK(0x6B), CHEST_KEY_5(0x79),
 		
@@ -2328,6 +2348,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public Set<GBAFECharacter> charactersExcludedFromRandomRecruitment() {
+		return new HashSet<GBAFECharacter>(Arrays.asList(Character.MYRRH));
+	}
+	
 	public Set<Integer> linkedPortraitIDs(int characterID) {
 		Character character = Character.valueOf(characterID);
 		if (Character.charactersWithMultiplePortraits.containsKey(character)) {
@@ -2339,6 +2363,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFECharacter> allFliers() {
 		return new HashSet<GBAFECharacter>(Character.requiredFliers);
+	}
+	
+	public Set<GBAFECharacter> mustAttack() {
+		return new HashSet<GBAFECharacter>(Character.requiredAttackers);
+	}
+	
+	public Set<GBAFECharacter> femaleSet() {
+		return new HashSet<GBAFECharacter>(Character.femaleSet);
 	}
 	
 	public GBAFECharacter characterWithID(int characterID) {
@@ -2485,7 +2517,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		// This is handled by a separate helper.
 	}
 
-	public GBAFEClassData classDataWithData(byte[] data, long offset) {
+	public GBAFEClassData classDataWithData(byte[] data, long offset, GBAFEClassData demotedClass) {
 		return new FE8Class(data, offset);
 	}
 	

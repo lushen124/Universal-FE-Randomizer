@@ -33,6 +33,7 @@ public class PaletteLoader {
 	private Map<Integer, Palette> templates = new HashMap<Integer, Palette>();
 	private Map<Integer, Palette> paletteByPaletteID = new HashMap<Integer, Palette>();
 	
+	// CharacterID -> (ClassID, Palette)
 	private Map<Integer, Map<Integer, Palette>> referencePalettes = new HashMap<Integer, Map<Integer, Palette>>();
 	
 	// TODO: Put this somewhere else.
@@ -250,6 +251,10 @@ public class PaletteLoader {
 				Palette recipientPalette = paletteByPaletteID.get(paletteIndex);
 				
 				int targetClassID = fe8Mapper.classIDMappedToCharacterForType(characterID, type);
+				FE8Data.CharacterClass fe8Class = FE8Data.CharacterClass.valueOf(targetClassID);
+				if (fe8Class.isTrainee()) {
+					targetClassID = fe8Class.getIDForPalette();
+				}
 				Palette template = getTemplatePalette(targetClassID);
 				
 				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Adapting palette index 0x" + Integer.toHexString(paletteIndex) + " for character " + FE8Data.Character.valueOf(characterID).toString() + " class " + FE8Data.CharacterClass.valueOf(targetClassID).toString());
@@ -275,6 +280,9 @@ public class PaletteLoader {
 //		if (isBoss) {
 //			return; // On the off chance that their class hasn't changed, might as well use any palette they had from before.
 //		}
+		
+		// If there's no change, don't bother.
+		if (originalClassID == newClassID) { return; }
 		
 		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting Character " + FE8Data.Character.valueOf(characterID).toString() + " from class " + FE8Data.CharacterClass.valueOf(originalClassID).toString() + " to " + FE8Data.CharacterClass.valueOf(newClassID).toString());
 		

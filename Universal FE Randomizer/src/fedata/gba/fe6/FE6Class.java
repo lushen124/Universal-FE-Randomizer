@@ -16,11 +16,27 @@ public class FE6Class implements GBAFEClassData {
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
-	public FE6Class(byte[] data, long originalOffset) {
+	int promoHP;
+	int promoSTR;
+	int promoSKL;
+	int promoSPD;
+	int promoDEF;
+	int promoRES;
+	
+	public FE6Class(byte[] data, long originalOffset, GBAFEClassData demotedClass) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
+		
+		if (demotedClass != null) {
+			promoHP = getBaseHP() - demotedClass.getBaseHP();
+			promoSTR = getBaseSTR() - demotedClass.getBaseSTR();
+			promoSKL = getBaseSKL() - demotedClass.getBaseSKL();
+			promoSPD = getBaseSPD() - demotedClass.getBaseSPD();
+			promoDEF = getBaseDEF() - demotedClass.getBaseDEF();
+			promoRES = getBaseRES() - demotedClass.getBaseRES();
+		}
 	}
 	
 	public int getNameIndex() {
@@ -226,6 +242,30 @@ public class FE6Class implements GBAFEClassData {
 	
 	public int getMaxLCK() {
 		return 30;
+	}
+	
+	public int getPromoHP() {
+		return promoHP;
+	}
+	
+	public int getPromoSTR() {
+		return promoSTR;
+	}
+	
+	public int getPromoSKL() {
+		return promoSKL;
+	}
+	
+	public int getPromoSPD() {
+		return promoSPD;
+	}
+	
+	public int getPromoDEF() {
+		return promoDEF;
+	}
+	
+	public int getPromoRES() {
+		return promoRES;
 	}
 	
 	public int getSwordRank() {

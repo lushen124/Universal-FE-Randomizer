@@ -133,8 +133,14 @@ public class TextLoader {
 		if (allowTextChanges) {
 			if (!containsCodes) {
 				replacements.put(index, string);
+				if (replacementsWithCodes.containsKey(index)) {
+					replacementsWithCodes.remove(index);
+				}
 			} else {
 				replacementsWithCodes.put(index, string);
+				if (replacements.containsKey(index)) {
+					replacements.remove(index);
+				}
 			}
 		}
 	}

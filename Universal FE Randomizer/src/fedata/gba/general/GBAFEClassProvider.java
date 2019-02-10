@@ -40,5 +40,5 @@ public interface GBAFEClassProvider {
 	
 	public void prepareForClassRandomization(Map<Integer, GBAFEClassData> classMap);
 	
-	public GBAFEClassData classDataWithData(byte[] data, long offset);
+	public GBAFEClassData classDataWithData(byte[] data, long offset, GBAFEClassData demotedClass); // demotedClass is really only necessary for FE6.
 }
