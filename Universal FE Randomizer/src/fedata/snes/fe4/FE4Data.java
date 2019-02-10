@@ -1975,6 +1975,8 @@ public class FE4Data {
 			if (mustUseWeapon != null && (mustUseWeapon.isWeapon() || mustUseWeapon.getType() == Item.ItemType.STAFF)) {
 				Set<CharacterClass> weaponFilter = new HashSet<CharacterClass>();
 				for (CharacterClass charClass : workingSet) {
+					// TODO: Pass holy blood from the character in, if we have it.
+					// Might be a bit dangerous if we go and later change the holy blood to something else though...
 					if (charClass.canUseWeapon(mustUseWeapon, null, null, null)) { weaponFilter.add(charClass); }
 				}
 				
@@ -2109,7 +2111,7 @@ public class FE4Data {
 				break;
 			case SNIPER: classSet.add(BOW_FIGHTER); break;
 			case GENERAL: classSet.addAll(Arrays.asList(ARMOR, SWORD_ARMOR, AXE_ARMOR, BOW_ARMOR)); break;
-			case WARRIOR: classSet.addAll(Arrays.asList(HUNTER, BARBARIAN, MOUNTAIN_THIEF, PIRATE)); break;
+			case WARRIOR: classSet.addAll(Arrays.asList(HUNTER, BARBARIAN, MOUNTAIN_THIEF, PIRATE, AXE_FIGHTER)); break;
 			case MAGE_FIGHTER:
 			case MAGE_FIGHTER_F:
 				classSet.addAll(Arrays.asList(MAGE, FIRE_MAGE, THUNDER_MAGE, WIND_MAGE)); 

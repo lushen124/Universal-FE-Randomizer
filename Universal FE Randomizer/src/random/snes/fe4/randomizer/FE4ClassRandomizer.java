@@ -471,6 +471,7 @@ public class FE4ClassRandomizer {
 			// Do not use super powerful weapons immediately. Stick with basic here. 
 			possibleWeapons.retainAll(FE4Data.Item.normalWeapons);
 			possibleWeapons.retainAll(FE4Data.Item.cWeapons);
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -503,6 +504,7 @@ public class FE4ClassRandomizer {
 			// Do not use super powerful weapons immediately. Stick with basic here. Allow Bs though. 
 			possibleWeapons.retainAll(FE4Data.Item.normalWeapons);
 			possibleWeapons.removeAll(FE4Data.Item.aWeapons);
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -534,6 +536,7 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeIf(item -> (!item.isWeapon()));
 			// Begin allowing interesting weapons. 
 			possibleWeapons.removeAll(FE4Data.Item.powerfulWeapons);
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -565,6 +568,7 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeIf(item -> (!item.isWeapon()));
 			// Keep powerful weapons out of reach still.
 			possibleWeapons.removeAll(FE4Data.Item.powerfulWeapons);
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -595,6 +599,7 @@ public class FE4ClassRandomizer {
 			
 			possibleWeapons.removeIf(item -> (!item.isWeapon()));
 			// Anything goes now.
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes); // Except Siege tomes
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -627,6 +632,7 @@ public class FE4ClassRandomizer {
 			// Back to basics.
 			possibleWeapons.retainAll(FE4Data.Item.normalWeapons);
 			possibleWeapons.retainAll(FE4Data.Item.cWeapons);
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -651,6 +657,7 @@ public class FE4ClassRandomizer {
 			// Allow Bs.
 			possibleWeapons.retainAll(FE4Data.Item.normalWeapons);
 			possibleWeapons.removeAll(FE4Data.Item.bWeapons);
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -673,6 +680,7 @@ public class FE4ClassRandomizer {
 			
 			possibleWeapons.removeIf(item -> (!item.isWeapon()));
 			// Just allow everything at this point.
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes); // Still no Siege tomes.
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -693,6 +701,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -713,6 +722,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			possibleWeapons.removeIf(item -> (!item.isWeapon()));
+			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
@@ -734,6 +744,7 @@ public class FE4ClassRandomizer {
 			weapons.addAll(FE4Data.Item.bWeapons);
 			weapons.addAll(FE4Data.Item.aWeapons);
 			weapons.removeAll(FE4Data.Item.brokenWeapons);
+			weapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			for (int index : inventoryIndices) {
 				FE4Data.Item currentItem = itemMap.getItemAtIndex(index);
