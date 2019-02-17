@@ -3,10 +3,12 @@ package random.gba.randomizer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Random;
 
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
+import fedata.gba.GBAFECharacterData;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
@@ -62,6 +64,9 @@ public class GBARandomizer extends Randomizer {
 	private ItemDataLoader itemData;
 	private PaletteLoader paletteData;
 	private TextLoader textData;
+	
+	private boolean needsPaletteFix;
+	private Map<GBAFECharacterData, GBAFECharacterData> characterMap; // valid with random recruitment. Maps slots to reference character.
 	
 	// FE8 only
 	private FE8PaletteMapper fe8_paletteMapper;
@@ -382,7 +387,8 @@ public class GBARandomizer extends Randomizer {
 			if (classes.randomizePCs) {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 1));
-				ClassRandomizer.randomizePlayableCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, paletteData, textData, rng);
+				ClassRandomizer.randomizePlayableCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, textData, rng);
+				needsPaletteFix = true;
 			}
 			if (classes.randomizeEnemies) {
 				updateStatusString("Randomizing minions...");
@@ -392,7 +398,8 @@ public class GBARandomizer extends Randomizer {
 			if (classes.randomizeBosses) {
 				updateStatusString("Randomizing boss classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 3));
-				ClassRandomizer.randomizeBossCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, paletteData, textData, rng);
+				ClassRandomizer.randomizeBossCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, textData, rng);
+				needsPaletteFix = true;
 			}
 		}
 	}
@@ -477,12 +484,18 @@ public class GBARandomizer extends Randomizer {
 			if (miscOptions.randomizeRecruitment) {
 				updateStatusString("Randomizing recruitment...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RecruitmentRandomizer.rngSalt));
-				RecruitmentRandomizer.randomizeRecruitment(gameType, charData, classData, itemData, chapterData, paletteData, textData, freeSpace, rng);
+				characterMap = RecruitmentRandomizer.randomizeRecruitment(gameType, charData, classData, itemData, chapterData, textData, freeSpace, rng);
+				needsPaletteFix = true;
 			}
 		}
 	}
 	
 	private void makeFinalAdjustments(String seed) {
+		// Fix the palettes based on final classes.
+		if (needsPaletteFix) {
+			PaletteHelper.synchronizePalettes(gameType, charData, classData, paletteData, characterMap, freeSpace);
+		}
+		
 		if (gameType == GameType.FE8) {
 			// Create the Trainee Seal using the old heaven seal.
 			textData.setStringAtIndex(0x4AB, "Promotes Tier 0 Trainees at Lv 10.");

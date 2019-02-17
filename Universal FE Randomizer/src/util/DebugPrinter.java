@@ -24,6 +24,7 @@ public class DebugPrinter {
 		switch (label) {
 		case PALETTE:
 		case PALETTE_RECYCLER:
+		case GBA_RANDOM_RECRUITMENT:
 			return true;
 		default:
 			return false;

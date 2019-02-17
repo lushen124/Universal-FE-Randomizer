@@ -2188,7 +2188,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {
-			Character character = Character.valueOf(characterID);
+			Character character = Character.valueOf(Character.canonicalIDForCharacterID(characterID));
 			switch (character) {
 			case SETH:
 				return new PaletteColor[] {new PaletteColor(189, 16, 8), new PaletteColor(132, 0, 0), new PaletteColor(99, 16, 24)};

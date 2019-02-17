@@ -51,6 +51,16 @@ public class FE8PaletteMapper {
 			wasModified = false;
 		}
 		
+		public void synchronize(MapEntry otherMap) {
+			setByte0(otherMap.getByte0());
+			setByte1(otherMap.getByte1());
+			setByte2(otherMap.getByte2());
+			setByte3(otherMap.getByte3());
+			setByte4(otherMap.getByte4());
+			setByte5(otherMap.getByte5());
+			setByte6(otherMap.getByte6());
+		}
+		
 		public int getByte0() {
 			return data[0] & 0xFF;
 		}
@@ -234,6 +244,7 @@ public class FE8PaletteMapper {
 	}
 	
 	public void registerPaletteID(int paletteID, int length, Long offset) {
+		if (paletteID == 0) { return; }
 		if (registeredPaletteLengths.get(paletteID) != null) { return; }
 		registeredPaletteLengths.put(paletteID, length);
 		assert registeredPaletteOffsets.get(paletteID) == null : "Already registered this paletteID";
@@ -431,10 +442,12 @@ public class FE8PaletteMapper {
 			if (primaryPromotionID != 0) {
 				classMap.setFirstPromotionClassID(primaryPromotionID);
 				paletteLength = registeredPaletteLengths.get(existingPaletteMap.getFirstPromotionPaletteID());
-				if (paletteLength != null && promotedPaletteSize > paletteLength) {
-					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Current palette (0x" + Integer.toHexString(existingPaletteMap.getFirstPromotionPaletteID()) + ") is too small or doesn't exist, looking for alternatives...");
-					markPaletteIDAsFree(existingPaletteMap.getFirstPromotionPaletteID());
-					existingPaletteMap.setFirstPromotionPaletteID(0);
+				if (existingPaletteMap.getFirstPromotionPaletteID() == 0 || (paletteLength != null && promotedPaletteSize > paletteLength)) {
+					if (existingPaletteMap.getFirstPromotionPaletteID() != 0) {
+						DebugPrinter.log(DebugPrinter.Key.PALETTE, "Current palette (0x" + Integer.toHexString(existingPaletteMap.getFirstPromotionPaletteID()) + ") is too small or doesn't exist, looking for alternatives...");
+						markPaletteIDAsFree(existingPaletteMap.getFirstPromotionPaletteID());
+						existingPaletteMap.setFirstPromotionPaletteID(0);
+					}
 					
 					Integer recycledPaletteID = requestRecycledPaletteForSize(promotedPaletteSize);
 					if (recycledPaletteID != null) {
@@ -464,10 +477,12 @@ public class FE8PaletteMapper {
 			if (secondaryPromotionID != 0) {
 				classMap.setSecondaryPromotionClassID(secondaryPromotionID);
 				paletteLength = registeredPaletteLengths.get(existingPaletteMap.getSecondaryPromotionPaletteID());
-				if (paletteLength != null && secondPromotionPaletteSize > paletteLength) {
-					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Current palette (0x" + Integer.toHexString(existingPaletteMap.getSecondaryPromotionPaletteID()) + ") is too small or doesn't exist, looking for alternatives...");
-					markPaletteIDAsFree(existingPaletteMap.getSecondaryPromotionPaletteID());
-					existingPaletteMap.setSecondaryPromotionPaletteID(0);
+				if (existingPaletteMap.getSecondaryPromotionPaletteID() == 0 || (paletteLength != null && secondPromotionPaletteSize > paletteLength)) {
+					if (existingPaletteMap.getSecondaryPromotionPaletteID() != 0) {
+						DebugPrinter.log(DebugPrinter.Key.PALETTE, "Current palette (0x" + Integer.toHexString(existingPaletteMap.getSecondaryPromotionPaletteID()) + ") is too small or doesn't exist, looking for alternatives...");
+						markPaletteIDAsFree(existingPaletteMap.getSecondaryPromotionPaletteID());
+						existingPaletteMap.setSecondaryPromotionPaletteID(0);
+					}
 					
 					Integer recycledPaletteID = requestRecycledPaletteForSize(secondPromotionPaletteSize);
 					if (recycledPaletteID != null) {
@@ -519,6 +534,15 @@ public class FE8PaletteMapper {
 			markPaletteIDAsFree(existingPaletteMap.getFourthPromotionPaletteID());
 			existingPaletteMap.setFourthPromotionPaletteID(0);
 		}
+		
+		for (FE8Data.Character linked : FE8Data.Character.allLinkedCharactersFor(character)) {
+			// Sync all linked characters to the same palette and class map.
+			ClassMapEntry linkedClassMap = paletteClassMap.get(linked);
+			PaletteMapEntry linkedPaletteMap = paletteIndexMap.get(linked);
+			
+			linkedClassMap.synchronize(classMap);
+			linkedPaletteMap.synchronize(existingPaletteMap);
+		}
 	}
 	
 	public void setPromotedClass(int promotedClassID, int characterID, int paletteSize) {
@@ -532,6 +556,8 @@ public class FE8PaletteMapper {
 		PaletteMapEntry existingPaletteMap = paletteIndexMap.get(character);
 		List<SlotType> palettesNeeded = new ArrayList<SlotType>();
 		
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Assigning promoted class ID 0x" + Integer.toHexString(promotedClassID) + " (" + promotedClass.toString() + ") to character 0x" + Integer.toHexString(characterID) + " (" + character.toString() + ")");
+		
 		ClassMapEntry classMap = paletteClassMap.get(character);
 		
 		classMap.setFirstPromotionClassID(promotedClassID);
@@ -540,6 +566,7 @@ public class FE8PaletteMapper {
 		
 		if (existingPaletteMap.getFirstPromotionPaletteID() == 0 || (paletteLength != null && paletteSize > paletteLength)) {
 			if (existingPaletteMap.getFirstPromotionPaletteID() != 0) {
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Current palette (0x" + Integer.toHexString(existingPaletteMap.getFirstPromotionPaletteID()) + ") is too small, looking for alternatives...");
 				markPaletteIDAsFree(existingPaletteMap.getFirstPromotionPaletteID());
 				existingPaletteMap.setFirstPromotionPaletteID(0);
 			}
@@ -547,14 +574,19 @@ public class FE8PaletteMapper {
 			Integer recycledPaletteID = requestRecycledPaletteForSize(paletteSize);
 			if (recycledPaletteID != null) {
 				existingPaletteMap.setFirstPromotionPaletteID(recycledPaletteID);
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Found recycled palette 0x" + Integer.toHexString(recycledPaletteID));
 			} else {
 				Integer emptyID = requestEmptyPaletteForSize(paletteSize);
 				if (emptyID != null) {
 					existingPaletteMap.setFirstPromotionPaletteID(emptyID);
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Using empty palette 0x" + Integer.toHexString(emptyID));
 				} else {
 					palettesNeeded.add(SlotType.FIRST_PROMOTION);
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "No Palettes currently available. Adding to waitlist.");
 				}
 			}
+		} else {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette (0x" + Integer.toHexString(existingPaletteMap.getFirstPromotionPaletteID()) + ") OK! (oldSize: " + Integer.toString(paletteLength) + " newSize: " + Integer.toString(paletteSize) + ")");
 		}
 		
 		if (!palettesNeeded.isEmpty()) {
@@ -591,6 +623,15 @@ public class FE8PaletteMapper {
 		if (existingPaletteMap.getFourthPromotionPaletteID() != 0) {
 			markPaletteIDAsFree(existingPaletteMap.getFourthPromotionPaletteID());
 			existingPaletteMap.setFourthPromotionPaletteID(0);
+		}
+		
+		for (FE8Data.Character linked : FE8Data.Character.allLinkedCharactersFor(character)) {
+			// Sync all linked characters to the same palette and class map.
+			ClassMapEntry linkedClassMap = paletteClassMap.get(linked);
+			PaletteMapEntry linkedPaletteMap = paletteIndexMap.get(linked);
+			
+			linkedClassMap.synchronize(classMap);
+			linkedPaletteMap.synchronize(existingPaletteMap);
 		}
 	}
 	
@@ -811,6 +852,15 @@ public class FE8PaletteMapper {
 		
 		if (!palettesNeeded.isEmpty()) {
 			charactersThatNeedPalettes.put(character, palettesNeeded);
+		}
+		
+		for (FE8Data.Character linked : FE8Data.Character.allLinkedCharactersFor(character)) {
+			// Sync all linked characters to the same palette and class map.
+			ClassMapEntry linkedClassMap = paletteClassMap.get(linked);
+			PaletteMapEntry linkedPaletteMap = paletteIndexMap.get(linked);
+			
+			linkedClassMap.synchronize(classMap);
+			linkedPaletteMap.synchronize(existingPaletteMap);
 		}
 	}
 	

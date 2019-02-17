@@ -92,7 +92,7 @@ public class PaletteV2 {
 	}
 	
 	public PaletteV2(PaletteV2 other) {
-		decompressedData = other.decompressedData.clone();
+		decompressedData = Arrays.copyOf(other.decompressedData, other.decompressedData.length);
 		colorArray = new ColorSet[16];
 		for (int i = 0; i < 16; i++) {
 			colorArray[i] = new ColorSet(decompressedData, i);

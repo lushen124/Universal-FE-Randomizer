@@ -159,12 +159,15 @@ public class PaletteLoader {
 			for (FE8Data.Character character : FE8Data.Character.allPlayableCharacters) {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(character.ID);
 				Map<Integer, PaletteV2> map = new HashMap<Integer, PaletteV2>();
+				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
+				referencePalettesV2.put(charID, referenceMap);
 				characterPalettesV2.put(charID, map);
 				for (PaletteInfo paletteInfo : FE8Data.Palette.palettesForCharacter(charID)) {
 					int classID = paletteInfo.getClassID();
 					PaletteV2 palette = new PaletteV2(handler, paletteInfo);
 					paletteByPaletteIDV2.put(paletteInfo.getPaletteID(), palette);
 					map.put(classID, palette);
+					referenceMap.put(classID, new PaletteV2(handler, paletteInfo));
 					FE8Data.CharacterClass fe8class = FE8Data.CharacterClass.valueOf(classID);
 					FE8Data.Character fe8char = FE8Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe8char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe8class.toString() + "))");
@@ -175,10 +178,13 @@ public class PaletteLoader {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(boss.ID);
 				Map<Integer, PaletteV2> map = new HashMap<Integer, PaletteV2>();
 				characterPalettesV2.put(charID, map);
+				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
+				referencePalettesV2.put(charID, referenceMap);
 				for (PaletteInfo paletteInfo : FE8Data.Palette.palettesForCharacter(charID)) {
 					PaletteV2 palette = new PaletteV2(handler, paletteInfo);
 					paletteByPaletteIDV2.put(paletteInfo.getPaletteID(), palette);
 					map.put(paletteInfo.getClassID(), palette);
+					referenceMap.put(paletteInfo.getClassID(), new PaletteV2(handler, paletteInfo));
 					FE8Data.Character fe8char = FE8Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Boss 0x" + Integer.toHexString(charID) + " (" + fe8char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()));
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
@@ -201,15 +207,6 @@ public class PaletteLoader {
 			
 			for (int i = FE8Data.Palette.maxUsedPaletteIndex() + 1; i < FE8Data.Palette.maxPaletteIndex(); i++) {
 				emptyPaletteIDs.add(i);
-			}
-			
-			for (Integer characterID : characterPalettesV2.keySet()) {
-				Map<Integer, PaletteV2> paletteMap = characterPalettesV2.get(characterID);
-				Map<Integer, PaletteV2> copy = new HashMap<Integer, PaletteV2>();
-				for (Integer classID : paletteMap.keySet()) {
-					copy.put(classID, new PaletteV2(paletteMap.get(classID)));
-				}
-				referencePalettesV2.put(characterID, copy);
 			}
 			
 			return;
@@ -302,15 +299,15 @@ public class PaletteLoader {
 		}
 	}
 	
-	public void adaptFE8CharacterToClass(int characterID, int originalClassID, int newClassID, Boolean isBoss) {
-		adaptFE8CharacterToClass(characterID, characterID, originalClassID, newClassID, isBoss);
+	public void adaptFE8CharacterToClass(int characterID, int newClassID, Boolean isBoss) {
+		adaptFE8CharacterToClass(characterID, characterID, newClassID, isBoss);
 	}
 	
-	public void adaptFE8CharacterToClass(int characterID, int referenceID, int originalClassID, int newClassID, Boolean isBoss) {
+	public void adaptFE8CharacterToClass(int characterID, int referenceID, int newClassID, Boolean isBoss) {
 		assert gameType == GameType.FE8 : "This method is only for FE8.";
 		assert fe8Mapper != null : "FE8 requires additional setup before it can adapt palettes.";
 		
-		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting Character " + FE8Data.Character.valueOf(characterID).toString() + " from class " + FE8Data.CharacterClass.valueOf(originalClassID).toString() + " to " + FE8Data.CharacterClass.valueOf(newClassID).toString());
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting Character " + FE8Data.Character.valueOf(characterID).toString() + " to class " + FE8Data.CharacterClass.valueOf(newClassID).toString() + " using Reference " + FE8Data.Character.valueOf(referenceID).toString());
 		
 		Boolean newClassHasPromotions = fe8Promotions.hasPromotions(newClassID);
 		int newPromotion1 = fe8Promotions.getFirstPromotionOptionClassID(newClassID);
@@ -323,7 +320,7 @@ public class PaletteLoader {
 		PaletteV2[] referencePalettes = getV2ReferencePalettesForCharacter(referenceID);
 		Map<Integer, PaletteV2> paletteMap = characterPalettesV2.get(charID);
 		
-		PaletteColor[] supplementalHair = FE8Data.Palette.supplementaryHairColorForCharacter(charID);
+		PaletteColor[] supplementalHair = FE8Data.Palette.supplementaryHairColorForCharacter(referenceID);
 		
 		if (willBecomeTrainee) {
 			int base1 = newPromotion1;
@@ -462,6 +459,7 @@ public class PaletteLoader {
 	private PaletteV2 v2PaletteForClass(int newClassID, PaletteV2[] referencePalettes, PaletteV2.PaletteType type, PaletteColor[] supplementalHairColors) {
 		PaletteV2 template = getV2TemplatePalette(newClassID);
 		PaletteV2 adapted = new PaletteV2(template);
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting Palette using " + referencePalettes.length + " reference palettes.");
 		// We should just apply it to every allegiance. It'll cut down on compression space if they all match.
 		adapted.adaptPalette(referencePalettes, PaletteType.PLAYER, supplementalHairColors);
 		adapted.adaptPalette(referencePalettes, PaletteType.ENEMY, supplementalHairColors);

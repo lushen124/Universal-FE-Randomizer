@@ -22,7 +22,6 @@ import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
-import random.gba.loader.PaletteLoader;
 import random.gba.loader.TextLoader;
 import ui.model.ClassOptions;
 import util.DebugPrinter;
@@ -41,7 +40,7 @@ public class ClassRandomizer {
 		}
 	}
 	
-	public static void randomizePlayableCharacterClasses(ClassOptions options, GameType type, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData, TextLoader textData, Random rng) {
+	public static void randomizePlayableCharacterClasses(ClassOptions options, GameType type, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
 		Map<Integer, GBAFEClassData> determinedClasses = new HashMap<Integer, GBAFEClassData>();
 		
@@ -98,40 +97,10 @@ public class ClassRandomizer {
 					linked.setIsLord();
 				}
 			}
-				
-			Boolean hasOriginalPromotionData = false;
-			int originalPromoClassID = 0;
-			if (!classData.isPromotedClass(originalClass.getID())) {
-				int promotedClassID = originalClass.getTargetPromotionID();
-				if (classData.isValidClass(promotedClassID)) {
-					hasOriginalPromotionData = true;
-					originalPromoClassID = promotedClassID;
-				}
-			}
-			
-			Boolean hasTargetPromotionData = false;
-			int targetPromoClassID = 0;
-			if (!classData.isPromotedClass(targetClass.getID())) {
-				int promotedClassID = targetClass.getTargetPromotionID();
-				if (classData.isValidClass(promotedClassID)) {
-					hasTargetPromotionData = true;
-					targetPromoClassID = promotedClassID;
-				}
-			}
-			
-			if (type == GameType.FE8) {
-				paletteData.adaptFE8CharacterToClass(character.getID(), originalClass.getID(), targetClass.getID(), false);
-			} else {
-				paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), hasOriginalPromotionData ? originalPromoClassID : 0, targetClass.getID(), hasTargetPromotionData ? targetPromoClassID : 0);
-			}
-		}
-		
-		if (type == GameType.FE8) {
-			paletteData.backfillFE8Palettes();
 		}
 	}
 	
-	public static void randomizeBossCharacterClasses(ClassOptions options, GameType type, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, PaletteLoader paletteData, TextLoader textData, Random rng) {
+	public static void randomizeBossCharacterClasses(ClassOptions options, GameType type, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Random rng) {
 		GBAFECharacterData[] allBossCharacters = charactersData.bossCharacters();
 		
 		Boolean includeLords = false;
@@ -192,12 +161,6 @@ public class ClassRandomizer {
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
-			}
-			
-			if (type == GameType.FE8) {
-				paletteData.adaptFE8CharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), targetClass.getID(), true);
-			} else {
-				paletteData.adaptCharacterToClass(charactersData.getCanonicalIDForCharacter(character), originalClass.getID(), 0, targetClass.getID(), 0);
 			}
 		}
 	}
