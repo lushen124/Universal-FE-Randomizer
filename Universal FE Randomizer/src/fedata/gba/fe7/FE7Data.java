@@ -26,6 +26,7 @@ import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
+import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
@@ -74,6 +75,15 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long PaletteTableOffset = 0xFD8004L;
 	public static final int PaletteEntryCount = 256;
 	public static final int PaletteEntrySize = 16;
+	
+	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
+	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
+	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
+	private static final List<AddressRange> createFreeRangeList() {
+		List<AddressRange> ranges = new ArrayList<AddressRange>();
+		// FE7 doesn't seem to have anything that's obviously free...
+		return ranges;
+	}
 	
 	private static final FE7Data sharedInstance = new FE7Data();
 	

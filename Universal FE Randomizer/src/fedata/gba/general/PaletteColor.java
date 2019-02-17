@@ -16,6 +16,13 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	private double saturation;
 	private double brightness;
 	
+	public static final Comparator<PaletteColor> lowToHighBrightnessComparator = new Comparator<PaletteColor>() {
+		@Override
+		public int compare(PaletteColor o1, PaletteColor o2) {
+			return o1.brightness > o2.brightness ? WhyDoesJavaNotHaveThese.ComparatorResult.FIRST_GREATER.returnValue() : WhyDoesJavaNotHaveThese.ComparatorResult.SECOND_GREATER.returnValue();
+		}
+	};
+	
 	public PaletteColor(byte[] colorTuple) {
 		int colorValue = ((colorTuple[1] << 8) & 0xFF00) | (colorTuple[0] & 0xFF);
 		

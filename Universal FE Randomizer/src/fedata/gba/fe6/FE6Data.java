@@ -26,6 +26,7 @@ import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
+import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
@@ -73,6 +74,17 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long PaletteTableOffset = 0x7FC004L;
 	public static final int PaletteEntryCount = 130;
 	public static final int PaletteEntrySize = 16;
+	
+	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
+	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
+	// These are only valid when patched. The JP ROM does *not* have these.
+	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
+	private static final List<AddressRange> createFreeRangeList() {
+		List<AddressRange> ranges = new ArrayList<AddressRange>();
+		ranges.add(new AddressRange(0xA297B0L, 0xB00000L));
+		ranges.add(new AddressRange(0xB013F0L, 0xFFFFFFL));
+		return ranges;
+	}
 	
 	private static final FE6Data sharedInstance = new FE6Data();
 	

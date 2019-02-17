@@ -27,6 +27,7 @@ import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
+import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
@@ -85,8 +86,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	//public static final long DefaultSummonerTableOffset = 0x95F5A4;
 	public static final int BytesPerSummonerEntry = 2;
 	
-	public static final int BytesPerBossPalette = 80; // Play around with this. Hopefully it doesn't collide with another palette.
-	public static final int BytesPerPalette = 40;
+	// Palettes are variable size, so we have to parse until we get to the "end" of it. We know the next palette starts with 10 A0 or 10 80, so we could use that...
+	//public static final int BytesPerBossPalette = 80; // Play around with this. Hopefully it doesn't collide with another palette.
+	//public static final int BytesPerPalette = 0x54;
 	
 	public static final long PaletteTableOffset = 0xEF8004L;
 	public static final int PaletteEntryCount = 256;
@@ -95,6 +97,16 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	// This is where the pointer to the heaven seal promotion classes resides. We're overriding this to promote trainees, so it'll be rewritten to the new address.
 	public static final long HeavenSealPromotionPointer = 0x293D8L;
 	public static final long HeavenSealOldAddress = 0x8ADF96L;
+	
+	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
+	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
+	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
+	private static final List<AddressRange> createFreeRangeList() {
+		List<AddressRange> ranges = new ArrayList<AddressRange>();
+		ranges.add(new AddressRange(0xB2A610L, 0xC00000L));
+		ranges.add(new AddressRange(0xEF2F20L, 0xEF8000L));
+		return ranges;
+	}
 	
 	private static final FE8Data sharedInstance = new FE8Data();
 	
@@ -1781,7 +1793,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		WYVERN_RIDER_CORMAG(0x16, Character.CORMAG.ID, CharacterClass.WYVERN_RIDER.ID, 0xEF97AC),
 		
-		// Unique palettes
+		// Unique palettes (should be read only, as they map to sprites)
 		LORD_EIRIKA(0x00, Character.EIRIKA.ID, CharacterClass.EIRIKA_LORD.ID, 0xC0EB30),
 		LORD_EPHRAIM(0x00, Character.EPHRAIM.ID, CharacterClass.EPHRAIM_LORD.ID, 0xC09B10),
 		MASTER_LORD_EIRIKA(0x00, Character.EIRIKA.ID, CharacterClass.EIRIKA_MASTER_LORD.ID, 0xC2165C),
@@ -1950,84 +1962,84 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (charClass != null) {
 				switch (charClass) {
 				case EIRIKA_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {25, 27, 29}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EIRIKA_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20, 23}, new int[] {25, 27, 29}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EPHRAIM_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {}, new int[] {25, 27}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {}, new int[] {9, 10}, new int[] {12, 13, 14});
 					break;
 				case EPHRAIM_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {}, new int[] {23, 25}, new int[] {34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {}, new int[] {8, 9}, new int[] {13, 14});
 					break;
 				case TRAINEE:
 				case TRAINEE_2:
 				case SUPER_TRAINEE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {25, 27, 29}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {9, 10, 11}, new int[] {});
 					break;
 				case RECRUIT:
 				case RECRUIT_2:
 				case SUPER_RECRUIT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {25, 27, 29}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {9, 10, 11}, new int[] {});
 					break;
 				case PUPIL:
 				case PUPIL_2:
 				case SUPER_PUPIL:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {25, 27, 29});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {9, 10, 11});
 					break;
 				case MANAKETE_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32}, new int[] {34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {8, 9, 10}, new int[] {11, 12}, new int[] {13, 14});
 					break;
 				case REVENANT:
 				case ENTOMBED:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {18, 20}, new int[] {32, 34, 36}, new int[] {}); // These guys actually have hair. The second color is the remnants of their pants.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {}); // These guys actually have hair. The second color is the remnants of their pants.
 					break;
 				case BONEWALKER:
 				case BONEWALKER_BOW:
 				case WIGHT:
 				case WIGHT_BOW:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {23, 25, 27}, new int[] {9, 11, 14}); // No hair. Primary is their loincloth. Secondary is their breastplate.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {8, 9, 10}, new int[] {2, 3, 4}); // No hair. Primary is their loincloth. Secondary is their breastplate.
 					break;
 				case BAEL:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {16, 14, 18, 11, 20}, new int[] {}, new int[] {}); // They have two hair colors, but in the case of the Bael, they're the same color, so we're keeping it that way.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {5, 4, 6, 3, 7}, new int[] {}, new int[] {}); // They have two hair colors, but in the case of the Bael, they're the same color, so we're keeping it that way.
 					break;
 				case ELDER_BAEL:
 				case ELDER_BAEL_2:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {16, 18, 20}, new int[] {14, 11}, new int[] {}); // Unlike Baels, Elder Baels gain a different color streak through their "hair". That's reflected here.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {5, 6, 7}, new int[] {4, 3}, new int[] {}); // Unlike Baels, Elder Baels gain a different color streak through their "hair". That's reflected here.
 					break;
 				case CYCLOPS:
 				case CYCLOPS_2:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {18, 20, 9, 11, 14, 16}, new int[] {34, 36}); // No hair again, but lots of armor colors. Secondary is the color of their loincloth.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {6, 7, 2, 3, 4, 5}, new int[] {13, 14}); // No hair again, but lots of armor colors. Secondary is the color of their loincloth.
 					break;
 				case MAUTHE_DOOG:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {25, 27, 29}, new int[] {32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 10, 11}, new int[] {12, 13, 14}, new int[] {});
 					break;
 				case GWYLLGI:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {25, 27, 29}, new int[] {32, 34, 36}, new int[] {18, 20, 23}); // Gwyllgis get a tail color in addition to what they had as Mauth Doogs.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 10, 11}, new int[] {12, 13, 14}, new int[] {6, 7, 8}); // Gwyllgis get a tail color in addition to what they had as Mauth Doogs.
 					break;
 				case TARVOS:
 				case MAELDUIN:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {18, 20}, new int[] {9, 11, 14, 16}, new int[] {}); // They have a body color, but since they share the same as Maelduins, we want to have some difference between the two.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {6, 7}, new int[] {2, 3, 4, 5}, new int[] {}); // They have a body color, but since they share the same as Maelduins, we want to have some difference between the two.
 					break;
 				case MOGALL:
 				case ARCH_MOGALL:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {32, 34, 36}, new int[] {14, 16, 18}, new int[] {}); // "Hair" is the tentacles. "Armor" is the membrane.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {12, 13, 14}, new int[] {4, 5, 6}, new int[] {}); // "Hair" is the tentacles. "Armor" is the membrane.
 					break;
 				case GORGON:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {9, 11, 14});
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {2, 3, 4});
 					break;
 				case GARGOYLE:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 11, 14}, new int[] {}, new int[] {}); // "Hair" is their horns and claws. Let's not touch anything else for now. They'll get their colors when promoted
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {2, 3, 4}, new int[] {}, new int[] {}); // "Hair" is their horns and claws. Let's not touch anything else for now. They'll get their colors when promoted
 					break;
 				case DEATHGOYLE:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 11, 14}, new int[] {29, 32, 34, 36}, new int[] {25, 27}); // Now they get a non-gray body.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {2, 3, 4}, new int[] {11, 12, 13, 14}, new int[] {9, 10}); // Now they get a non-gray body.
 					break;
 				case MERCENARY:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 32}, new int[] {25, 11, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 12}, new int[] {9, 3, 14}, new int[] {});
 					break;
 				case HERO:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13}, new int[] {});
 					break;
 				case MYRMIDON:
 				case MYRMIDON_F:
@@ -2040,111 +2052,111 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case MONK:
 				case PRIEST:
 				case CLERIC:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case FIGHTER:
 				case BRIGAND:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {});
 					break;
 				case WARRIOR:
 				case BERSERKER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {});
 					break;
 				case RANGER:
 				case RANGER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {34, 16}, new int[] {23, 25, 27, 29});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {13, 5}, new int[] {8, 9, 10, 11});
 					break;
 				case CAVALIER:
 				case CAVALIER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 11, 25, 16, 27, 29}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 3, 9, 5, 10, 11}, new int[] {});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {23, 25, 27, 29}, new int[] {20}, new int[] {16, 11, 14}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {7}, new int[] {5, 3, 4}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
 					break;
 				case PALADIN_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27}, new int[] {16, 11, 14}); // Hair also affects shield. Secondary is mane + shield crest.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {5, 3, 4}); // Hair also affects shield. Secondary is mane + shield crest.
 					break;
 				case KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 14, 16, 11, 9, 7}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 5, 3, 2, 1}, new int[] {});
 					break;
 				case KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 14, 9, 7}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 2, 1}, new int[] {});
 					break;
 				case GENERAL:
 				case GENERAL_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {14, 16, 20});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {4, 5, 7});
 					break;
 				case GREAT_KNIGHT:
 				case GREAT_KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {});
 					break;
 				case WYVERN_RIDER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 9}, new int[] {27, 29, 32, 34}, new int[] {25});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {3, 2}, new int[] {10, 11, 12, 13}, new int[] {9});
 					break;
 				case WYVERN_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {20, 23}, new int[] {27, 29, 32, 34}, new int[] {25});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {7, 8}, new int[] {10, 11, 12, 13}, new int[] {9});
 					break;
 				case WYVERN_KNIGHT:
 				case WYVERN_KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {25, 23, 20}, new int[] {27, 29, 32, 34}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {9, 8, 7}, new int[] {10, 11, 12, 13}, new int[] {});
 					break;
 				case PEGASUS_KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 18}, new int[] {25, 27}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10}, new int[] {});
 					break;
 				case FALCON_KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 18}, new int[] {25, 27, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10, 14}, new int[] {});
 					break;
 				case MAGE:
 				case MAGE_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {32, 34, 36}, new int[] {23, 25, 27});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {8, 9, 10});
 					break;
 				case SAGE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {23, 25, 27});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {8, 9, 10});
 					break;
 				case SAGE_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {29, 23, 25, 27});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {11, 8, 9, 10});
 					break;
 				case MAGE_KNIGHT:
 				case MAGE_KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {27, 29}, new int[] {23, 25}, new int[] {32, 34, 36}); // Primary is cape, secondary is shirt, tertiary is horse armor.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {10, 11}, new int[] {8, 9}, new int[] {12, 13, 14}); // Primary is cape, secondary is shirt, tertiary is horse armor.
 					break;
 				case SHAMAN:
 				case DRUID:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {8, 9, 10}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case SUMMONER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 23}, new int[] {32, 34, 36}, new int[] {25, 27, 29});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 8}, new int[] {12, 13, 14}, new int[] {9, 10, 11});
 					break;
 				case BISHOP:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18}, new int[] {23, 34, 36}, new int[] {29, 32});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {8, 13, 14}, new int[] {11, 12});
 					break;
 				case BISHOP_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case TROUBADOUR:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27, 29}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11}, new int[] {});
 					break;
 				case VALKYRIE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27, 29, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11, 14}, new int[] {});
 					break;
 				case THIEF:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 29, 14}, new int[] {34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 11, 4}, new int[] {13, 14});
 					break;
 				case ASSASSIN:
 				case ASSASSIN_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {16, 27}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {5, 10}, new int[] {12, 13, 14});
 					break;
 				case ROGUE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25}, new int[] {32, 34, 36}, new int[] {16, 18, 20});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {8, 9}, new int[] {12, 13, 14}, new int[] {5, 6, 7});
 					break;
 				case DANCER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {23, 25, 27});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {8, 9, 10});
 					break;
 				case PIRATE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case SOLDIER:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				default:
 					break;
@@ -2173,104 +2185,6 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static int maxPaletteIndex() {
 			return 0xF0; // There's space for this many, but they're all 0s. Seems like they could be used. It actually goes to FF, but we'll leave some space.
-		}
-		
-		public static int paletteSizeForCharacter(int characterID) {
-			FE8Data.Character character = FE8Data.Character.valueOf(characterID);
-			switch (character) {
-			case ONEILL:
-			case BREGUET:
-			case SAAR:
-			case BONE:
-			case BAZBA:
-				// Only return this if we're sure.
-				return BytesPerBossPalette;
-			default:
-				return BytesPerPalette;
-			}
-		}
-		
-		public static Map<Integer, Integer> customMappingForCharacter(int characterID) {
-			FE8Data.Character character = FE8Data.Character.valueOf(characterID);
-			if (FE8Data.Character.allPlayableCharacters.contains(character)) { return null; }
-			switch (character) {
-			case ONEILL: {
-				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-				map.put(32, 45);
-				map.put(33, 46);
-				map.put(34, 47);
-				map.put(35, 48);
-				map.put(36, 49);
-				map.put(37, 50);
-				return map;
-			}
-			case BREGUET:
-			case SAAR: {
-				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-				map.put(5, 41);
-				map.put(6, 42);
-				map.put(7, 43);
-				map.put(8, 44);
-				map.put(9, 45);
-				map.put(10, 46);
-				map.put(11, 47);
-				map.put(12, 48);
-				
-				map.put(14, 50);
-				map.put(15, 51);
-				map.put(16, 52);
-				map.put(17, 53);
-				map.put(18, 54);
-				map.put(19, 55);
-				map.put(20, 56);
-				map.put(21, 57);
-				
-				map.put(23, 59);
-				map.put(24, 60);
-				map.put(25, 61);
-				map.put(26, 62);
-				
-				map.put(32, 65);
-				map.put(33, 66);
-				
-				return map;
-			}
-			case BONE:
-			case BAZBA: {
-				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-				map.put(9, 43);
-				map.put(10, 44);
-				map.put(11, 45);
-				map.put(12, 46);
-				
-				map.put(14, 47);
-				map.put(15, 48);
-				map.put(16, 49);
-				map.put(17, 51);
-				
-				map.put(23, 54);
-				map.put(24, 55);
-				map.put(25, 56);
-				map.put(26, 57);
-				map.put(27, 58);
-				map.put(28, 59);
-				map.put(29, 61);
-				map.put(30, 62);
-				
-				map.put(32, 63);
-				map.put(33, 64);
-				map.put(34, 65);
-				map.put(35, 66);
-				map.put(36, 67);
-				map.put(37, 68);
-				map.put(38, 70);
-				map.put(39, 71);
-				
-				return map;
-			}
-			default:
-				return null;
-			}
 		}
 		
 		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {
