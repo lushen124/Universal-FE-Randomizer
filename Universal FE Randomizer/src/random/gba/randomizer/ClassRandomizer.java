@@ -277,7 +277,7 @@ public class ClassRandomizer {
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
-					validateSpecialClassInventory(character, chapterUnit, itemData, rng);
+					validateSpecialClassInventory(chapterUnit, itemData, rng);
 				}
 			}
 		}
@@ -307,7 +307,7 @@ public class ClassRandomizer {
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Minion update complete. Inventory: [0x" + Integer.toHexString(chapterUnit.getItem1()) + ", 0x" + Integer.toHexString(chapterUnit.getItem2()) + ", 0x" + Integer.toHexString(chapterUnit.getItem3()) + ", 0x" + Integer.toHexString(chapterUnit.getItem4()) + "]");
 	}
 	
-	private static void validateFormerThiefInventory(GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData) {
+	public static void validateFormerThiefInventory(GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData) {
 		GBAFEItemData[] requiredItems = itemData.formerThiefInventory();
 		if (requiredItems != null) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);
@@ -319,7 +319,7 @@ public class ClassRandomizer {
 		}
 	}
 	
-	private static void validateSpecialClassInventory(GBAFECharacterData character, GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData, Random rng) {
+	public static void validateSpecialClassInventory(GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData, Random rng) {
 		GBAFEItemData[] requiredItems = itemData.specialInventoryForClass(chapterUnit.getStartingClass(), rng);
 		if (requiredItems != null && requiredItems.length > 0) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);

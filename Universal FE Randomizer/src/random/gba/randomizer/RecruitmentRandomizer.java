@@ -13,6 +13,7 @@ import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
+import fedata.gba.general.WeaponRank;
 import fedata.general.FEBase.GameType;
 import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
@@ -145,6 +146,8 @@ public class RecruitmentRandomizer {
 			}
 		}
 		
+		assert characterPool.isEmpty() : "Unable to satisfy all constraints for random recruitment.";
+		
 		Map<String, String> textReplacements = new HashMap<String, String>();
 		
 		// Process every mapped character.
@@ -266,9 +269,9 @@ public class RecruitmentRandomizer {
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tCan't Promote: " + String.join(", ", cantPromotePool.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
 		
 		while (!cantDemotePool.isEmpty()) {
-			assert promotedSlots.isEmpty() == false : "Insufficient promoted slots available for a pool that can't demote.";
+			if (promotedSlots.isEmpty()) { break; }
 			// Assign promoted slots with this pool first.
-			int slotIndex = rng.nextInt(rng.nextInt(promotedSlots.size()));
+			int slotIndex = rng.nextInt(promotedSlots.size());
 			GBAFECharacterData slot = promotedSlots.get(slotIndex);
 			int fillIndex = rng.nextInt(cantDemotePool.size());
 			GBAFECharacterData fill = cantDemotePool.get(fillIndex);
@@ -289,7 +292,7 @@ public class RecruitmentRandomizer {
 		}
 		
 		while (!cantPromotePool.isEmpty()) {
-			assert unpromotedSlots.isEmpty() == false : "Insufficient unpromoted slots available for a pool that can't promote.";
+			if (unpromotedSlots.isEmpty()) { break; }
 			// Assign demoted slots with this pool first.
 			int slotIndex = rng.nextInt(unpromotedSlots.size());
 			GBAFECharacterData slot = unpromotedSlots.get(slotIndex);
@@ -309,6 +312,10 @@ public class RecruitmentRandomizer {
 			
 			slots.removeIf(currentSlot -> (currentSlot.getID() == slot.getID()));
 			pool.removeIf(currentFill -> (currentFill.getID() == fill.getID()));
+			
+			if (slots.isEmpty()) {
+				break;
+			}
 		}
 		
 		while (!slots.isEmpty() && !pool.isEmpty()) {
@@ -522,7 +529,7 @@ public class RecruitmentRandomizer {
 		}
 	}
 	
-	private static void transferWeaponRanks(GBAFECharacterData target, GBAFEClassData targetClass, Random rng) {
+	private static void transferWeaponRanks(GBAFECharacterData target, GBAFEClassData targetClass, ItemDataLoader itemData, Random rng) {
 		List<Integer> rankValues = new ArrayList<Integer>();
 		rankValues.add(target.getSwordRank());
 		rankValues.add(target.getLanceRank());
@@ -591,6 +598,10 @@ public class RecruitmentRandomizer {
 		} else { target.setLightRank(0); }
 		if (targetClass.getDarkRank() > 0) {
 			int randomRankValue = rankValues.get(rng.nextInt(rankValues.size()));
+			if (itemData.weaponRankFromValue(randomRankValue) == WeaponRank.E) {
+				// Dark magic floors on D. There's no E rank dark magic.
+				randomRankValue = itemData.weaponRankValueForRank(WeaponRank.D);
+			}
 			target.setDarkRank(randomRankValue);
 			if (rankValues.size() > 1) {
 				rankValues.remove((Integer)randomRankValue);
@@ -606,8 +617,9 @@ public class RecruitmentRandomizer {
 	}
 	
 	private static void setSlotClass(GBAFECharacterData slot, GBAFEClassData targetClass, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, ChapterLoader chapterData, Random rng) {
+		
 		slot.setClassID(targetClass.getID());
-		transferWeaponRanks(slot, targetClass, rng);
+		transferWeaponRanks(slot, targetClass, itemData, rng);
 		
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			for (GBAFEChapterUnitData unit : chapter.allUnits()) {
@@ -616,6 +628,10 @@ public class RecruitmentRandomizer {
 					
 					// Set Inventory.
 					ClassRandomizer.validateCharacterInventory(slot, targetClass, unit, characterData.characterIDRequiresRange(slot.getID()), characterData.characterIDRequiresMelee(slot.getID()), classData, itemData, textData, false, rng);
+					if (characterData.isThiefCharacterID(slot.getID())) {
+						ClassRandomizer.validateFormerThiefInventory(unit, itemData);
+					}
+					ClassRandomizer.validateSpecialClassInventory(unit, itemData, rng);
 				}
 			}
 		}
