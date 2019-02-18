@@ -1,6 +1,7 @@
 package random.gba.randomizer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,20 +141,24 @@ public class RecruitmentRandomizer {
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
 		
 		// Prioritize those that can't demote into valid classes so they don't get left behind.
+		// Unlike the other criteria, this one is primarily based off the character's class and not the slot.
+		// We only need to do this if the pool is not empty.
 		List<GBAFECharacterData> promotedSlotsRemaining = slotsRemaining.stream().filter(character -> (classData.isPromotedClass(character.getClassID()))).collect(Collectors.toList());
 		List<GBAFECharacterData> mustBePromotedPool = characterPool.stream().filter(character -> {
 			GBAFEClassData charClass = classData.classForID(character.getClassID());
 			return !classData.canClassDemote(charClass.getID()) && classData.isPromotedClass(charClass.getID());
 		}).collect(Collectors.toList());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning non-demotable classes...");
-		assignedSlots = shuffleCharactersInPool(false, promotedSlotsRemaining, mustBePromotedPool, characterMap, referenceData, characterData, classData, textData, rng);
-		for (SlotAssignment assignment : assignedSlots) {	
-			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
-			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
+		if (!mustBePromotedPool.isEmpty()) {
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning non-demotable classes...");
+			assignedSlots = shuffleCharactersInPool(false, promotedSlotsRemaining, mustBePromotedPool, characterMap, referenceData, characterData, classData, textData, rng);
+			for (SlotAssignment assignment : assignedSlots) {	
+				slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+				characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
+			}
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
 		}
-		
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
 		
 		// Assign everybody else randomly.
 		// We do have to make sure characters that can get assigned can promote/demote if necessary.
@@ -230,6 +235,19 @@ public class RecruitmentRandomizer {
 			textData.setStringAtIndex(i, sb.toString(), true);
 		}
 		
+		for (GBAFEWorldMapData worldMapEvent : chapterData.allWorldMapEvents()) {
+			for (GBAFEWorldMapPortraitData portrait : worldMapEvent.allPortraits()) {
+				for (GBAFECharacterData slot : characterMap.keySet()) {
+					GBAFECharacterData slotReference = referenceData.get(slot.getID());
+					GBAFECharacterData fill = characterMap.get(slot);
+					if (portrait.getFaceID() == slotReference.getFaceID()) {
+						portrait.setFaceID(fill.getFaceID());
+						break;
+					}
+				}
+			}
+		}
+		
 		return characterMap;
 	}
 	
@@ -261,111 +279,121 @@ public class RecruitmentRandomizer {
 			CharacterDataLoader charData, ClassDataLoader classData, TextLoader textData, Random rng) {
 		List<SlotAssignment> additions = new ArrayList<SlotAssignment>();
 		
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots: " + String.join(", ", slots.stream().map(character -> (String.format("%s[%s]", textData.getStringAtIndex(character.getNameIndex()), classData.debugStringForClass(character.getClassID())))).collect(Collectors.toList())));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool: " + String.join(", ", pool.stream().map(character -> String.format("%s[%s]", textData.getStringAtIndex(character.getNameIndex()), classData.debugStringForClass(character.getClassID()))).collect(Collectors.toList())));
+		
 		List<GBAFECharacterData> femaleSlots = slots.stream().filter(character -> (charData.isFemale(character.getID()))).collect(Collectors.toList());
 		List<GBAFECharacterData> femalePool = pool.stream().filter(character -> (charData.isFemale(character.getID()))).collect(Collectors.toList());
 		
 		List<GBAFECharacterData> maleSlots = slots.stream().filter(character -> (charData.isFemale(character.getID()) == false)).collect(Collectors.toList());
 		List<GBAFECharacterData> malePool = pool.stream().filter(character -> (charData.isFemale(character.getID()) == false)).collect(Collectors.toList());
 		
-		additions.addAll(shuffle(femaleSlots, femalePool, characterMap, referenceData, classData, textData, rng));
-		additions.addAll(shuffle(maleSlots, malePool, characterMap, referenceData, classData, textData, rng));
+		additions.addAll(shuffle(femaleSlots, femalePool, referenceData, classData, textData, rng));
+		additions.addAll(shuffle(maleSlots, malePool, referenceData, classData, textData, rng));
 		
 		if (assignAll) {
 			List<GBAFECharacterData> remainingSlots = new ArrayList<GBAFECharacterData>(femaleSlots);
 			remainingSlots.addAll(maleSlots);
 			List<GBAFECharacterData> remainingPool = new ArrayList<GBAFECharacterData>(femalePool);
 			remainingPool.addAll(malePool);
-			additions.addAll(shuffle(remainingSlots, remainingPool, characterMap, referenceData, classData, textData, rng));
+			additions.addAll(shuffle(remainingSlots, remainingPool, referenceData, classData, textData, rng));
+		}
+		
+		for (SlotAssignment assignment : additions) {
+			characterMap.put(assignment.slot, assignment.fill);
 		}
 			
 		return additions;
 	}
 	
-	private static List<SlotAssignment> shuffle(List<GBAFECharacterData> slots, List<GBAFECharacterData> pool, Map<GBAFECharacterData, GBAFECharacterData> characterMap, Map<Integer, GBAFECharacterData> referenceData, 
+	private static List<SlotAssignment> shuffle(List<GBAFECharacterData> slots, List<GBAFECharacterData> pool, Map<Integer, GBAFECharacterData> referenceData, 
 			ClassDataLoader classData, TextLoader textData, Random rng) {
 		List<SlotAssignment> additions = new ArrayList<SlotAssignment>();
+		if (slots.isEmpty()) { return additions; }
 		
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Shuffling Slots: " + String.join(", ", slots.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Character Pool: " + String.join(", ", pool.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Shuffling Slots: " + String.join(", ", slots.stream().map(charData -> (String.format("%s[%s]", textData.getStringAtIndex(charData.getNameIndex()), classData.debugStringForClass(charData.getClassID())))).collect(Collectors.toList())));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Character Pool: " + String.join(", ", pool.stream().map(charData -> String.format("%s[%s]", textData.getStringAtIndex(charData.getNameIndex()), classData.debugStringForClass(charData.getClassID()))).collect(Collectors.toList())));
 		
 		List<GBAFECharacterData> promotedSlots = slots.stream().filter(slot -> (classData.isPromotedClass(slot.getClassID()))).collect(Collectors.toList());
 		List<GBAFECharacterData> cantDemotePool = pool.stream().filter(fill -> (classData.isPromotedClass(fill.getClassID()) == true && classData.canClassDemote(fill.getClassID()) == false)).collect(Collectors.toList());
+		List<GBAFECharacterData> promotedSlotCandidates = pool.stream().filter(fill -> (classData.isPromotedClass(fill.getClassID()) == true || classData.canClassPromote(fill.getClassID()) == true)).collect(Collectors.toList());
 		
 		List<GBAFECharacterData> unpromotedSlots = slots.stream().filter(slot -> (classData.isPromotedClass(slot.getClassID()) == false)).collect(Collectors.toList());
 		List<GBAFECharacterData> cantPromotePool = pool.stream().filter(fill -> (classData.isPromotedClass(fill.getClassID()) == false && classData.canClassPromote(fill.getClassID()) == false)).collect(Collectors.toList());
+		List<GBAFECharacterData> unpromotedSlotCandidates = pool.stream().filter(fill -> (classData.isPromotedClass(fill.getClassID()) == false || classData.canClassDemote(fill.getClassID()) == true)).collect(Collectors.toList());
 		
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tPromoted: " + String.join(", ", promotedSlots.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tCan't Demote: " + String.join(", ", cantDemotePool.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tUnpromoted: " + String.join(", ", unpromotedSlots.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tCan't Promote: " + String.join(", ", cantPromotePool.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
 		
-		while (!cantDemotePool.isEmpty()) {
-			if (promotedSlots.isEmpty()) { break; }
-			// Assign promoted slots with this pool first.
-			int slotIndex = rng.nextInt(promotedSlots.size());
-			GBAFECharacterData slot = promotedSlots.get(slotIndex);
-			int fillIndex = rng.nextInt(cantDemotePool.size());
-			GBAFECharacterData fill = cantDemotePool.get(fillIndex);
-			
-			GBAFECharacterData reference = referenceData.get(fill.getID());
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned slot 0x" + Integer.toHexString(slot.getID()) + " (" + textData.getStringAtIndex(slot.getNameIndex()) + 
-					") to 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
-			
-			characterMap.put(slot, reference);
-			additions.add(new SlotAssignment(slot, reference));
-			
-			promotedSlots.remove(slotIndex);
-			cantDemotePool.remove(fillIndex);
-			
-			slots.removeIf(currentSlot -> (currentSlot.getID() == slot.getID()));
-			pool.removeIf(currentFill -> (currentFill.getID() == fill.getID()));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tCandidates for Promoted Slots: " + String.join(", ", promotedSlotCandidates.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "\tCandidates for Unpromoted Slots: " + String.join(", ", unpromotedSlotCandidates.stream().map(charData -> (textData.getStringAtIndex(charData.getNameIndex()))).collect(Collectors.toList())));
+		
+		// If there are those that can't demote, prioritize them first.
+		List<SlotAssignment> intermediate = shuffle(promotedSlots, cantDemotePool, referenceData, textData, rng);
+		for (SlotAssignment assignment : intermediate) {
+			slots.removeIf(currentSlot -> (currentSlot.getID() == assignment.slot.getID()));
+			pool.removeIf(currentFill -> (currentFill.getID() == assignment.fill.getID()));
+			promotedSlotCandidates.removeIf(currentFill -> (currentFill.getID() == assignment.fill.getID()));
+			unpromotedSlotCandidates.removeIf(currentFill -> (currentFill.getID() == assignment.fill.getID()));
+		}
+		additions.addAll(intermediate);
+		
+		// Same for any character that can't promote.
+		intermediate = shuffle(unpromotedSlots, cantPromotePool, referenceData, textData, rng);
+		for (SlotAssignment assignment : intermediate) {
+			slots.removeIf(currentSlot -> (currentSlot.getID() == assignment.slot.getID()));
+			pool.removeIf(currentFill -> (currentFill.getID() == assignment.fill.getID()));
+			promotedSlotCandidates.removeIf(currentFill -> (currentFill.getID() == assignment.fill.getID()));
+			unpromotedSlotCandidates.removeIf(currentFill -> (currentFill.getID() == assignment.fill.getID()));
+		}
+		additions.addAll(intermediate);
+		
+		// Prioritize slots now using either promoted or promotable candidates in promoted slots.
+		intermediate = shuffle(promotedSlots, promotedSlotCandidates, referenceData, textData, rng);
+		for (SlotAssignment assignment : intermediate) {
+			slots.removeIf(currentSlot -> (currentSlot.getID() == assignment.slot.getID()));
+			pool.removeIf(currentFill -> (currentFill.getID() == assignment.fill.getID()));
+			unpromotedSlotCandidates.removeIf(currentFill -> (currentFill.getID() == assignment.fill.getID()));
+		}
+		additions.addAll(intermediate);
+		
+		// Same for unpromoted slots.
+		intermediate = shuffle(unpromotedSlots, unpromotedSlotCandidates, referenceData, textData, rng);
+		for (SlotAssignment assignment : intermediate) {
+			slots.removeIf(currentSlot -> (currentSlot.getID() == assignment.slot.getID()));
+			pool.removeIf(currentFill -> (currentFill.getID() == assignment.fill.getID()));
+		}
+		additions.addAll(intermediate);
+		
+		// Anything else left over...
+		if (!slots.isEmpty() && !pool.isEmpty()) {
+			intermediate = shuffle(slots, pool, referenceData, textData, rng);
+			additions.addAll(intermediate);
 		}
 		
-		while (!cantPromotePool.isEmpty()) {
-			if (unpromotedSlots.isEmpty()) { break; }
-			// Assign demoted slots with this pool first.
-			int slotIndex = rng.nextInt(unpromotedSlots.size());
-			GBAFECharacterData slot = unpromotedSlots.get(slotIndex);
-			int fillIndex = rng.nextInt(cantPromotePool.size());
-			GBAFECharacterData fill = cantPromotePool.get(fillIndex);
-			
-			GBAFECharacterData reference = referenceData.get(fill.getID());
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned slot 0x" + Integer.toHexString(slot.getID()) + " (" + textData.getStringAtIndex(slot.getNameIndex()) + 
-					") to 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
-			
-			characterMap.put(slot, reference);
-			additions.add(new SlotAssignment(slot, reference));
-			
-			unpromotedSlots.remove(slotIndex);
-			cantPromotePool.remove(fillIndex);
-			
-			slots.removeIf(currentSlot -> (currentSlot.getID() == slot.getID()));
-			pool.removeIf(currentFill -> (currentFill.getID() == fill.getID()));
-			
-			if (slots.isEmpty()) {
-				break;
-			}
-		}
+		return additions;
+	}
+	
+	private static List<SlotAssignment> shuffle(List<GBAFECharacterData> slots, List<GBAFECharacterData> candidates, Map<Integer, GBAFECharacterData> referenceData, TextLoader textData, Random rng) {
+		List<SlotAssignment> additions = new ArrayList<SlotAssignment>();
 		
-		while (!slots.isEmpty() && !pool.isEmpty()) {
+		while (!slots.isEmpty() && !candidates.isEmpty()) {
 			int slotIndex = rng.nextInt(slots.size());
 			GBAFECharacterData slot = slots.get(slotIndex);
-			int fillIndex = rng.nextInt(pool.size());
-			GBAFECharacterData fill = pool.get(fillIndex);
+			int fillIndex = rng.nextInt(candidates.size());
+			GBAFECharacterData fill = candidates.get(fillIndex);
 			
-			// Shouldn't need to guard this one...
 			GBAFECharacterData reference = referenceData.get(fill.getID());
 			
 			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigned slot 0x" + Integer.toHexString(slot.getID()) + " (" + textData.getStringAtIndex(slot.getNameIndex()) + 
 					") to 0x" + Integer.toHexString(reference.getID()) + " (" + textData.getStringAtIndex(reference.getNameIndex()) + ")");
 			
-			characterMap.put(slot, reference);
 			additions.add(new SlotAssignment(slot, reference));
 			
-			pool.remove(fillIndex);
 			slots.remove(slotIndex);
+			candidates.remove(fillIndex);
 		}
 		
 		return additions;
@@ -387,14 +415,6 @@ public class RecruitmentRandomizer {
 		
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Filling Slot [" + textData.getStringAtIndex(slotReference.getNameIndex()) + "](" + textData.getStringAtIndex(slotSourceClass.getNameIndex()) + ") with [" +
 				textData.getStringAtIndex(fill.getNameIndex()) + "](" + textData.getStringAtIndex(fillSourceClass.getNameIndex()) + ")");
-		
-		for (GBAFEWorldMapData worldMapEvent : chapterData.allWorldMapEvents()) {
-			for (GBAFEWorldMapPortraitData portrait : worldMapEvent.allPortraits()) {
-				if (portrait.getFaceID() == slotReference.getFaceID()) {
-					portrait.setFaceID(fill.getFaceID());
-				}
-			}
-		}
 		
 		GBAFECharacterData[] linkedSlots = characterData.linkedCharactersForCharacter(slotReference);
 		for (GBAFECharacterData linkedSlot : linkedSlots) {

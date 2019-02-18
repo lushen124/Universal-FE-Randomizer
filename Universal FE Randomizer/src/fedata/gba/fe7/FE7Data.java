@@ -76,6 +76,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int PaletteEntryCount = 256;
 	public static final int PaletteEntrySize = 16;
 	
+	public static final long WorldMapEventTableOffset = 0xC9CDACL;
+	public static final int WorldMapEventItemSize = 4;
+	public static final int WorldMapEventCount = 43;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();

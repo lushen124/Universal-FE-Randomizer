@@ -107,7 +107,7 @@ public class FE6WorldMapEvent implements GBAFEWorldMapData  {
 			}
 			// These opcodes are 4 bytes and we don't care about them (right now).
 			// ? (0x41), ? (0x42), TEXTBOXTOBOTTOM (0x57), REMOVETEXTBOX (0x5D), ? (0x59), TEXTBOXTOTOP (0x58), ? (0xA), ? (0x4E), ZOOMOUT (0x50)
-			else if (opcode == 0x41 || opcode == 0x42 || opcode == 0x57 || opcode == 0x5D || opcode == 0x59 || opcode == 0x58 || opcode == 0xA || opcode == 0x4E || opcode == 0x50) {
+			else if (opcode == 0x41 || opcode == 0x42 || opcode == 0x57 || opcode == 0x5D || opcode == 0x59 || opcode == 0x58 || opcode == (byte)0xA || opcode == 0x4E || opcode == 0x50) {
 				handler.continueReadingBytes(3);
 			}
 			// These opcodes are 16 bytes and we don't care about them (right now).

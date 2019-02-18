@@ -23,6 +23,7 @@ public class DebugPrinter {
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
 		case CHAPTER_LOADER:
+		case GBA_RANDOM_RECRUITMENT:
 			return true;
 		default:
 			return false;
