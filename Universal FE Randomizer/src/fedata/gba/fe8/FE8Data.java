@@ -572,6 +572,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				classList.removeAll(allRangeLockedClasses);
 			}
 			
+			classList.retainAll(allValidClasses);
+			
 			return classList;
 		}
 		

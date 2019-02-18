@@ -43,6 +43,8 @@ public class FE8Character implements GBAFECharacterData {
 	
 	private Boolean isClassRestricted = false;
 	
+	private Boolean isReadOnly = false;
+	
 	public FE8Character(byte[] data, long originalOffset, Boolean isClassRestricted) {
 		super();
 		this.originalData = data;
@@ -59,6 +61,14 @@ public class FE8Character implements GBAFECharacterData {
 		return new FE8Character(Arrays.copyOf(this.data, this.data.length), this.originalOffset, this.isClassRestricted);
 	}
 	
+	public void lock() {
+		isReadOnly = true;
+	}
+	
+	public void unlock() {
+		isReadOnly = false;
+	}
+	
 	public Boolean isClassRestricted() {
 		return isClassRestricted;
 	}
@@ -68,6 +78,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setNameIndex(int newIndex) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[0] = (byte)(newIndex & 0xFF);
 		data[1] = (byte)((newIndex >> 8) & 0xFF);
 	}
@@ -77,6 +88,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setDescriptionIndex(int newIndex) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[2] = (byte)(newIndex & 0xFF);
 		data[3] = (byte)((newIndex >> 8) & 0xFF);
 		wasModified = true;
@@ -91,6 +103,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setID(int newID) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[4] = (byte)(newID & 0xFF);
 		wasModified = true;
 	}
@@ -104,6 +117,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setClassID(int classID) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[5] = (byte)(classID & 0xFF);
 		wasModified = true;
 	}
@@ -113,6 +127,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setFaceID(int faceID) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[6] = (byte)(faceID & 0xFF);
 		wasModified = true;
 	}
@@ -126,6 +141,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setHPGrowth(int hpGrowth) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		hpGrowth = WhyDoesJavaNotHaveThese.clamp(hpGrowth, 0, 255);
 		data[28] = (byte)(hpGrowth & 0xFF);
 		wasModified = true;
@@ -136,6 +152,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setSTRGrowth(int strGrowth) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		strGrowth = WhyDoesJavaNotHaveThese.clamp(strGrowth, 0, 255);
 		data[29] = (byte)(strGrowth & 0xFF);
 		wasModified = true;
@@ -146,6 +163,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setSKLGrowth(int sklGrowth) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		sklGrowth = WhyDoesJavaNotHaveThese.clamp(sklGrowth, 0, 255);
 		data[30] = (byte)(sklGrowth & 0xFF);
 		wasModified = true;
@@ -156,6 +174,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setSPDGrowth(int spdGrowth) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		spdGrowth = WhyDoesJavaNotHaveThese.clamp(spdGrowth, 0, 255);
 		data[31] = (byte)(spdGrowth & 0xFF);
 		wasModified = true;
@@ -166,6 +185,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setDEFGrowth(int defGrowth) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		defGrowth = WhyDoesJavaNotHaveThese.clamp(defGrowth, 0, 255);
 		data[32] = (byte)(defGrowth & 0xFF);
 		wasModified = true;
@@ -176,6 +196,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setRESGrowth(int resGrowth) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		resGrowth = WhyDoesJavaNotHaveThese.clamp(resGrowth, 0, 255);
 		data[33] = (byte)(resGrowth & 0xFF);
 		wasModified = true;
@@ -186,6 +207,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setLCKGrowth(int lckGrowth) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		lckGrowth = WhyDoesJavaNotHaveThese.clamp(lckGrowth, 0, 255);
 		data[34] = (byte)(lckGrowth & 0xFF);
 		wasModified = true;
@@ -201,6 +223,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setBaseHP(int baseHP) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[12] = (byte)(baseHP & 0xFF);
 		wasModified = true;
 	}
@@ -215,6 +238,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setBaseSTR(int baseSTR) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[13] = (byte)(baseSTR & 0xFF);
 		wasModified = true;
 	}
@@ -229,6 +253,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setBaseSKL(int baseSKL) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[14] = (byte)(baseSKL & 0xFF);
 		wasModified = true;
 	}
@@ -243,6 +268,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setBaseSPD(int baseSPD) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[15] = (byte)(baseSPD & 0xFF);
 		wasModified = true;
 	}
@@ -257,6 +283,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setBaseDEF(int baseDEF) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[16] = (byte)(baseDEF & 0xFF);
 		wasModified = true;
 	}
@@ -271,6 +298,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setBaseRES(int baseRES) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[17] = (byte)(baseRES & 0xFF);
 		wasModified = true;
 	}
@@ -285,6 +313,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setBaseLCK(int baseLCK) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[18] = (byte)(baseLCK & 0xFF);
 		wasModified = true;
 	}
@@ -294,6 +323,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setSwordRank(int rank) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[20] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
@@ -303,6 +333,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setLanceRank(int rank) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[21] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
@@ -312,6 +343,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setAxeRank(int rank) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[22] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
@@ -321,6 +353,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setBowRank(int rank) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[23] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
@@ -330,6 +363,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setAnimaRank(int rank) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[25] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
@@ -339,6 +373,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setDarkRank(int rank) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[27] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
@@ -348,6 +383,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setLightRank(int rank) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[26] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
@@ -357,6 +393,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setStaffRank(int rank) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[24] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
@@ -371,6 +408,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setConstitution(int newCON) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[19] = (byte)(newCON & 0xFF);
 		wasModified = true;
 	}
@@ -380,6 +418,7 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	public void setAffinityValue(int newAffinity) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[9] = (byte)(newAffinity & 0xFF);
 		wasModified = true;
 	}
@@ -396,6 +435,7 @@ public class FE8Character implements GBAFECharacterData {
 	
 	// We technically don't need this, but might as well make it complete.
 	public void setIsLord() {
+		assert !isReadOnly : "Attempted to modify a locked character.";
 		byte oldValue = (byte)(data[41] & 0xFF);
 		byte newValue = (byte)(oldValue | 0x20);
 		data[41] = newValue;

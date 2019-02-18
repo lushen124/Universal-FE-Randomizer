@@ -496,17 +496,6 @@ public class GBARandomizer extends Randomizer {
 			PaletteHelper.synchronizePalettes(gameType, charData, classData, paletteData, characterMap, freeSpace);
 		}
 		
-		if (gameType == GameType.FE6) {
-			// Shift Cath in Ch. 6 to the left one space, since she normally spawns in the wall.
-			GBAFEChapterData chapter = chapterData.chapterWithID(FE6Data.ChapterPointer.CHAPTER_6.chapterID);
-			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
-				if (chapterUnit.getCharacterNumber() == FE6Data.Character.CASS.ID) {
-					chapterUnit.setLoadingX(chapterUnit.getLoadingX() - 1);
-					chapterUnit.setStartingX(chapterUnit.getStartingX() - 1);
-				}
-			}
-		}
-		
 		if (gameType == GameType.FE8) {
 			// Create the Trainee Seal using the old heaven seal.
 			textData.setStringAtIndex(0x4AB, "Promotes Tier 0 Trainees at Lv 10.");

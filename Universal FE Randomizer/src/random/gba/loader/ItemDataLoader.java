@@ -473,28 +473,23 @@ public class ItemDataLoader {
 			if (effectiveClasses != 0) {
 				effectiveClasses -= 0x8000000;
 				if (handler != null) {
-					try {
-						handler.setNextReadOffset(effectiveClasses);
-						byte[] classes = handler.continueReadingBytesUpToNextTerminator(effectiveClasses + 100);
-						List<String> classList = new ArrayList<String>();
-						for (byte classID : classes) {
-							if (classID == 0) { break; }
-							GBAFEClassData classObject = classData.classForID(classID);
-							if (classObject == null) {
-								classList.add("Unknown (0x" + Integer.toHexString(classID).toUpperCase() + ")");
+					handler.setNextReadOffset(effectiveClasses);
+					byte[] classes = handler.continueReadingBytesUpToNextTerminator(effectiveClasses + 100);
+					List<String> classList = new ArrayList<String>();
+					for (byte classID : classes) {
+						if (classID == 0) { break; }
+						GBAFEClassData classObject = classData.classForID(classID);
+						if (classObject == null) {
+							classList.add("Unknown (0x" + Integer.toHexString(classID).toUpperCase() + ")");
+						} else {
+							if (classData.isFemale(classID)) {
+								classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim() + " (F)");
 							} else {
-								if (classData.isFemale(classID)) {
-									classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim() + " (F)");
-								} else {
-									classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim());
-								}
+								classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim());
 							}
 						}
-						rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", String.join("<br>", classList));
-					} catch (IOException e) {
-						e.printStackTrace();
-						rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "Error");
 					}
+					rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", String.join("<br>", classList));
 				} else {
 					rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "No input handler.");
 				}
@@ -554,30 +549,24 @@ public class ItemDataLoader {
 			if (effectiveClasses != 0) {
 				effectiveClasses -= 0x8000000;
 				if (handler != null) {
-					try {
-						handler.setNextReadOffset(effectiveClasses);
-						byte[] classes = handler.continueReadingBytesUpToNextTerminator(effectiveClasses + 100);
-						List<String> classList = new ArrayList<String>();
-						for (byte classID : classes) {
-							if (classID == 0) { break; }
-							GBAFEClassData classObject = classData.classForID(classID);
-							if (classObject == null) {
-								classList.add("Unknown (0x" + Integer.toHexString(classID).toUpperCase() + ")");
+					handler.setNextReadOffset(effectiveClasses);
+					byte[] classes = handler.continueReadingBytesUpToNextTerminator(effectiveClasses + 100);
+					List<String> classList = new ArrayList<String>();
+					for (byte classID : classes) {
+						if (classID == 0) { break; }
+						GBAFEClassData classObject = classData.classForID(classID);
+						if (classObject == null) {
+							classList.add("Unknown (0x" + Integer.toHexString(classID).toUpperCase() + ")");
+						} else {
+							if (classData.isFemale(classID)) {
+								classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim() + " (F)");
 							} else {
-								if (classData.isFemale(classID)) {
-									classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim() + " (F)");
-								} else {
-									classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim());
-								}
+								classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim());
 							}
 						}
-						rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", String.join("<br>", classList));
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "Error");
 					}
-				} else {
+					rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", String.join("<br>", classList));
+				}  else {
 					rk.recordUpdatedEntry(RecordKeeperCategoryWeaponKey, name, "Effectiveness", "No output handler.");
 				}
 			} else {

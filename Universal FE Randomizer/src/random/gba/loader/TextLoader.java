@@ -50,8 +50,8 @@ public class TextLoader {
 							FileReadHelper.readWord(handler, textArrayOffset + 4 * i, false), // FE6 uses the most significant bit on the text address to signify its english encoding, so this is a little less safe.
 							treeAddress, 
 							rootAddress), false, gameType);
-					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Decoded FE6 String for index 0x" + Integer.toHexString(i).toUpperCase());
-					DebugPrinter.log(DebugPrinter.Key.HUFFMAN, decoded);
+					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, "Decoded FE6 String for index 0x" + Integer.toHexString(i).toUpperCase());
+					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, decoded);
 					allStrings[i] = decoded;
 				}
 				break;
@@ -67,6 +67,8 @@ public class TextLoader {
 							FileReadHelper.readAddress(handler, textArrayOffset + 4 * i), 
 							treeAddress, 
 							rootAddress), false, gameType);
+					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, "Decoded FE7 String for index 0x" + Integer.toHexString(i).toUpperCase());
+					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, decoded);
 					allStrings[i] = decoded;
 				}
 				break;
@@ -91,7 +93,7 @@ public class TextLoader {
 				break;
 		}
 		Date end = new Date();
-		DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Text Import took " + Long.toString(end.getTime() - start.getTime()) + "ms");
+		DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, "Text Import took " + Long.toString(end.getTime() - start.getTime()) + "ms");
 		huffman.printCache();
 	}
 	

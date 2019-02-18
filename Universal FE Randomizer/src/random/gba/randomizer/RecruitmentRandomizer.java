@@ -13,6 +13,8 @@ import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEWorldMapData;
+import fedata.gba.GBAFEWorldMapPortraitData;
 import fedata.gba.general.WeaponRank;
 import fedata.general.FEBase.GameType;
 import random.gba.loader.ChapterLoader;
@@ -36,7 +38,9 @@ public class RecruitmentRandomizer {
 		characterPool.removeIf(character -> (characterData.charactersExcludedFromRandomRecruitment().contains(character)));
 		
 		Map<Integer, GBAFECharacterData> referenceData = characterPool.stream().map(character -> {
-			return character.createCopy(false);
+			GBAFECharacterData copy = character.createCopy(false);
+			copy.lock();
+			return copy;
 		}).collect(Collectors.toMap(charData -> (charData.getID()), charData -> (charData)));
 		
 		Map<GBAFECharacterData, GBAFECharacterData> characterMap = new HashMap<GBAFECharacterData, GBAFECharacterData>();
@@ -383,6 +387,14 @@ public class RecruitmentRandomizer {
 		
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Filling Slot [" + textData.getStringAtIndex(slotReference.getNameIndex()) + "](" + textData.getStringAtIndex(slotSourceClass.getNameIndex()) + ") with [" +
 				textData.getStringAtIndex(fill.getNameIndex()) + "](" + textData.getStringAtIndex(fillSourceClass.getNameIndex()) + ")");
+		
+		for (GBAFEWorldMapData worldMapEvent : chapterData.allWorldMapEvents()) {
+			for (GBAFEWorldMapPortraitData portrait : worldMapEvent.allPortraits()) {
+				if (portrait.getFaceID() == slotReference.getFaceID()) {
+					portrait.setFaceID(fill.getFaceID());
+				}
+			}
+		}
 		
 		GBAFECharacterData[] linkedSlots = characterData.linkedCharactersForCharacter(slotReference);
 		for (GBAFECharacterData linkedSlot : linkedSlots) {

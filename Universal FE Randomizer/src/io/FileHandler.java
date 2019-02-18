@@ -90,10 +90,14 @@ public class FileHandler {
 		return nextReadOffset;
 	}
 	
-	public void setNextReadOffset(long newOffset) throws IOException {
+	public void setNextReadOffset(long newOffset) {
 		if (inputFile != null) {
-			inputFile.seek(newOffset);
-			nextReadOffset = newOffset;
+			try {
+				inputFile.seek(newOffset);
+				nextReadOffset = newOffset;
+			} catch (IOException e) {
+				System.err.println("Failed to seek to offset.");
+			}
 		}
 	}
 	

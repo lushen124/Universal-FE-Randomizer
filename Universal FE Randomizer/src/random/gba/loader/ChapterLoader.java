@@ -9,8 +9,11 @@ import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
+import fedata.gba.GBAFEWorldMapData;
+import fedata.gba.GBAFEWorldMapPortraitData;
 import fedata.gba.fe6.FE6Chapter;
 import fedata.gba.fe6.FE6Data;
+import fedata.gba.fe6.FE6WorldMapEvent;
 import fedata.gba.fe7.FE7Chapter;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Chapter;
@@ -30,6 +33,7 @@ public class ChapterLoader {
 	private FEBase.GameType gameType;
 	
 	private GBAFEChapterData[] chapters;
+	private Map<Integer, GBAFEWorldMapData> worldMapEventsByChapter = new HashMap<Integer, GBAFEWorldMapData>();
 	private Map<Integer, GBAFEChapterData> mappedChapters = new HashMap<Integer, GBAFEChapterData>();
 	
 	public static final String RecordKeeperCategoryKey = "Chapters";
@@ -50,12 +54,22 @@ public class ChapterLoader {
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {
 						classBlacklist[index] = chapter.blacklistedClasses()[index].ID;
 					}
+					
+					CharacterNudge[] nudges = chapter.nudgesRequired();
 					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE6Chapter fe6Chapter = new FE6Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy()); 
+					FE6Chapter fe6Chapter = new FE6Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy(), nudges); 
 					chapters[i++] = fe6Chapter;
 					mappedChapters.put(chapterID, fe6Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe6Chapter.allUnits().length + " characters and " + fe6Chapter.allRewards().length + " rewards");
+					
+					if (chapter.hasWorldMapEvents()) {
+						long worldMapOffset = baseAddress + (4 * chapter.worldMapEvents);
+						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading World Map Events for " + chapter.toString());
+						FE6WorldMapEvent fe6WorldMapEvent = new FE6WorldMapEvent(handler, worldMapOffset);
+						worldMapEventsByChapter.put(chapterID, fe6WorldMapEvent);
+						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe6WorldMapEvent.allPortraits().length + " world map portraits.");
+					}
 				}
 				break;
 			case FE7:
@@ -123,6 +137,21 @@ public class ChapterLoader {
 		}
 	}
 	
+	public GBAFEWorldMapData[] allWorldMapEvents() {
+		switch (gameType) {
+		case FE6:
+			return worldMapEventsByChapter.values().toArray(new GBAFEWorldMapData[worldMapEventsByChapter.size()]);
+		case FE7:
+		case FE8:
+			default:
+				return new GBAFEWorldMapData[] {};
+		}
+	}
+	
+	public GBAFEWorldMapData getWorldMapData(int chapterID) {
+		return worldMapEventsByChapter.get(chapterID);
+	}
+	
 	public GBAFEChapterData chapterWithID(int chapterID) {
 		return mappedChapters.get(chapterID);
 	}
@@ -153,6 +182,12 @@ public class ChapterLoader {
 			GBAFEChapterItemData[] targetedRewards = chapter.allTargetedRewards();
 			for (GBAFEChapterItemData item : targetedRewards) {
 				item.commitChanges();
+			}
+		}
+		
+		for (GBAFEWorldMapData worldMapEvent : worldMapEventsByChapter.values()) {
+			for (GBAFEWorldMapPortraitData portrait : worldMapEvent.allPortraits()) {
+				portrait.commitChanges();
 			}
 		}
 	}
@@ -194,6 +229,17 @@ public class ChapterLoader {
 				for (long fightOffset : chapter.getFightAddresses()) {
 					Diff fightRemovalDiff = new Diff(fightOffset, chapter.fightCommandLength(), chapter.fightReplacementBytes(), null);
 					compiler.addDiff(fightRemovalDiff);
+				}
+			}
+		}
+		
+		for (GBAFEWorldMapData worldMapEvent : worldMapEventsByChapter.values()) {
+			for (GBAFEWorldMapPortraitData portrait : worldMapEvent.allPortraits()) {
+				portrait.commitChanges();
+				if (portrait.hasCommittedChanges()) {
+					byte[] portraitData = portrait.getData();
+					Diff portraitDiff = new Diff(portrait.getAddressOffset(), portraitData.length, portraitData, null);
+					compiler.addDiff(portraitDiff);
 				}
 			}
 		}

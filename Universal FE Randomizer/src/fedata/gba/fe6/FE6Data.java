@@ -15,6 +15,7 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
 import fedata.gba.general.GBAFEClass;
@@ -491,6 +492,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				classList.removeAll(allPacifistClasses);
 				classList.removeAll(allMeleeLockedClasses);
 			}
+			
+			classList.retainAll(allValidClasses);
 			
 			return classList;
 		}
@@ -1160,9 +1163,18 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		CHAPTER_FINAL(0x97);
 		
 		public int chapterID;
+		public int worldMapEvents;
 		
 		private ChapterPointer(int chapterID) {
 			this.chapterID = chapterID;
+			worldMapEvents = chapterID + 1; // This is true for every chapter (except final).
+		}
+		
+		public boolean hasWorldMapEvents() {
+			switch (this) {
+			case CHAPTER_FINAL: return false;
+			default: return true;
+			}
 		}
 		
 		public FE6Data.CharacterClass[] blacklistedClasses() {
@@ -1190,6 +1202,15 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			switch (this) {
 			default:
 				return false;
+			}
+		}
+		
+		public CharacterNudge[] nudgesRequired() {
+			switch(this) {
+			case CHAPTER_6:
+				return new CharacterNudge[] {new CharacterNudge(Character.CASS.ID, 17, 23, 16, 23) }; // Cath spwans in a wall for some reason in vanilla. Move her out of the wall so she doesn't softlock the game.
+			default:
+				return new CharacterNudge[] {};
 			}
 		}
 	}
