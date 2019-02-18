@@ -43,6 +43,10 @@ public class CharacterDataLoader {
 		}
 	}
 	
+	public String debugStringForCharacter(int characterID) {
+		return provider.characterWithID(characterID).toString();
+	}
+	
 	public GBAFECharacterData characterWithID(int characterID) {
 		return characterMap.get(characterID);
 	}
@@ -110,6 +114,11 @@ public class CharacterDataLoader {
 	public Boolean isFemale(int characterID) {
 		GBAFECharacter character = provider.characterWithID(characterID);
 		return provider.femaleSet().contains(character);
+	}
+	
+	public Boolean mustPromote(int characterID) {
+		GBAFECharacter character = provider.characterWithID(characterID);
+		return provider.mustPromote().contains(character);
 	}
 	
 	public GBAFECharacterData characterRequiresCounterToCharacter(GBAFECharacterData character) {

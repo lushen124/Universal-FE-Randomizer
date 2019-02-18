@@ -1,5 +1,8 @@
 package random.gba.loader;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterItemData;
 import fedata.gba.GBAFEChapterUnitData;
@@ -27,6 +30,7 @@ public class ChapterLoader {
 	private FEBase.GameType gameType;
 	
 	private GBAFEChapterData[] chapters;
+	private Map<Integer, GBAFEChapterData> mappedChapters = new HashMap<Integer, GBAFEChapterData>();
 	
 	public static final String RecordKeeperCategoryKey = "Chapters";
 
@@ -41,6 +45,7 @@ public class ChapterLoader {
 				int i = 0;
 				long baseAddress = FileReadHelper.readAddress(handler, FE6Data.ChapterTablePointer);
 				for (FE6Data.ChapterPointer chapter : FE6Data.ChapterPointer.values()) {
+					int chapterID = chapter.chapterID;
 					int[] classBlacklist = new int[chapter.blacklistedClasses().length];
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {
 						classBlacklist[index] = chapter.blacklistedClasses()[index].ID;
@@ -49,6 +54,7 @@ public class ChapterLoader {
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
 					FE6Chapter fe6Chapter = new FE6Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy()); 
 					chapters[i++] = fe6Chapter;
+					mappedChapters.put(chapterID, fe6Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe6Chapter.allUnits().length + " characters and " + fe6Chapter.allRewards().length + " rewards");
 				}
 				break;
@@ -58,6 +64,7 @@ public class ChapterLoader {
 				i = 0;
 				baseAddress = FileReadHelper.readAddress(handler, FE7Data.ChapterTablePointer);
 				for (FE7Data.ChapterPointer chapter : FE7Data.ChapterPointer.values()) {
+					int chapterID = chapter.chapterID;
 					int[] classBlacklist = new int[chapter.blacklistedClasses().length];
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {
 						classBlacklist[index] = chapter.blacklistedClasses()[index].ID;
@@ -66,6 +73,7 @@ public class ChapterLoader {
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
 					FE7Chapter fe7Chapter = new FE7Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy()); 
 					chapters[i++] = fe7Chapter;
+					mappedChapters.put(chapterID, fe7Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe7Chapter.allUnits().length + " characters and " + fe7Chapter.allRewards().length + " rewards");
 				}
 				break;
@@ -75,6 +83,7 @@ public class ChapterLoader {
 				i = 0;
 				baseAddress = FileReadHelper.readAddress(handler, FE8Data.ChapterTablePointer);
 				for (FE8Data.ChapterPointer chapter : FE8Data.ChapterPointer.values()) {
+					int chapterID = chapter.chapterID;
 					int[] classBlacklist = new int[chapter.blacklistedClasses().length];
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {
 						classBlacklist[index] = chapter.blacklistedClasses()[index].ID;
@@ -94,6 +103,7 @@ public class ChapterLoader {
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
 					FE8Chapter fe8Chapter = new FE8Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy(), trackedRewardRecipients, unarmedCharacterIDs, chapter.additionalUnitOffsets(), nudges); 
 					chapters[i++] = fe8Chapter;
+					mappedChapters.put(chapterID, fe8Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe8Chapter.allUnits().length + " characters and " + fe8Chapter.allRewards().length + " rewards");
 				}
 				break; 
@@ -111,6 +121,10 @@ public class ChapterLoader {
 			default:
 				return new GBAFEChapterData[] {};
 		}
+	}
+	
+	public GBAFEChapterData chapterWithID(int chapterID) {
+		return mappedChapters.get(chapterID);
 	}
 	
 	public int getStartingLevelForCharacter(int characterID) {

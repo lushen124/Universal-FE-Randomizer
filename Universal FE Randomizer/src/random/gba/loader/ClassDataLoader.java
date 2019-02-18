@@ -71,6 +71,10 @@ public class ClassDataLoader {
 		return classMap.get(classID);
 	}
 	
+	public String debugStringForClass(int classID) {
+		return provider.classWithID(classID).toString();
+	}
+	
 	public void commit() {
 		for (GBAFEClassData charClass : classMap.values()) {
 			charClass.commitChanges();

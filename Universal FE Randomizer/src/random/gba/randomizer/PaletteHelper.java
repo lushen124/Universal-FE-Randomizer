@@ -16,11 +16,19 @@ public class PaletteHelper {
 			int characterID = playableCharacter.getID();
 			int classID = playableCharacter.getClassID();
 			
+			if (charData.canChangeCharacterID(characterID) == false) { continue; }
+			
 			if (type == GameType.FE8) {
 				if (slotToReference != null && slotToReference.get(playableCharacter) != null) {
 					paletteData.adaptFE8CharacterToClass(characterID, slotToReference.get(playableCharacter).getID(), classID, false);
 				} else {
 					paletteData.adaptFE8CharacterToClass(characterID, classID, false);
+				}
+			} else {
+				if (slotToReference != null && slotToReference.get(playableCharacter) != null) {
+					paletteData.enqueueChange(playableCharacter, slotToReference.get(playableCharacter), charData, classData, classID, true);
+				} else {
+					paletteData.enqueueChange(playableCharacter, playableCharacter, charData, classData, classID, true);
 				}
 			}
 		}
@@ -31,10 +39,12 @@ public class PaletteHelper {
 			
 			if (type == GameType.FE8) {
 				paletteData.adaptFE8CharacterToClass(characterID, classID, true);
+			} else {
+				paletteData.enqueueChange(bossCharacter, bossCharacter, charData, classData, classID, false);
 			}
 		}
 		
-		paletteData.flushChangeQueue(freeSpace);
+		paletteData.flushChangeQueue(charData, freeSpace);
 	}
 
 }

@@ -87,12 +87,37 @@ public class RecruitmentRandomizer {
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
 		
+		// Prioritize anybody that HAS to promote. This usually isn't an issue except for FE6, where the one class that can attack but can't promote is thieves.
+		List<GBAFECharacterData> mustPromoteSlots = slotsRemaining.stream().filter(character -> (characterData.mustPromote(character.getID()))).collect(Collectors.toList());
+		List<GBAFECharacterData> promotablePool = characterPool.stream().filter(character -> {
+			GBAFEClassData charClass = classData.classForID(character.getClassID());
+			if (classData.isPromotedClass(charClass.getID()) && classData.canClassDemote(charClass.getID())) {
+				// Roll in the requires attack here as well.
+				for (GBAFEClassData demotedClass : classData.demotionOptions(charClass.getID())) {
+					if (classData.canClassAttack(demotedClass.getID()) == false) { return false; }
+				}
+				return true;
+			} else if (!classData.isPromotedClass(charClass.getID()) && classData.canClassPromote(charClass.getID())) {
+				return classData.canClassAttack(charClass.getID()); // Roll in the attack requirement as well.
+			}
+			return false; // Everything else is not allowed.
+		}).collect(Collectors.toList());
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Promotion Slots...");
+		assignedSlots = shuffleCharactersInPool(false, mustPromoteSlots, promotablePool, characterMap, referenceData, characterData, classData, textData, rng);
+		for (SlotAssignment assignment : assignedSlots) {
+			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
+		}
+		
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
+		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
+		
 		// Prioritize those that require attack next. This generally means lords.
 		// Note: these also have to be able to demote.
 		List<GBAFECharacterData> attackingSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.mustAttack(character.getID()))).collect(Collectors.toList());
 		List<GBAFECharacterData> attackingPool = characterPool.stream().filter(character -> {
 			GBAFEClassData charClass = classData.classForID(character.getClassID());
-			// Promoted class taht can demote should check all of their demotion options. Any demotion that can't attack disqualifies the class.
+			// Promoted class that can demote should check all of their demotion options. Any demotion that can't attack disqualifies the class.
 			if (classData.isPromotedClass(charClass.getID()) && classData.canClassDemote(charClass.getID())) {
 				for (GBAFEClassData demotedClass : classData.demotionOptions(charClass.getID())) {
 					if (classData.canClassAttack(demotedClass.getID()) == false) { return false; }

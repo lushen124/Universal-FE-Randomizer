@@ -14,7 +14,6 @@ import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8PaletteMapper;
 import fedata.gba.fe8.FE8PromotionManager;
 import fedata.gba.fe8.FE8PaletteMapper.SlotType;
-import fedata.gba.general.Palette;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.PaletteV2;
@@ -31,15 +30,13 @@ import util.WhyDoesJavaNotHaveThese;
 public class PaletteLoader {
 	private FEBase.GameType gameType;
 	
-	private Map<Integer, Map<Integer, Palette>> characterPalettes = new HashMap<Integer, Map<Integer, Palette>>();
-	private Map<Integer, Palette> templates = new HashMap<Integer, Palette>();
-	private Map<Integer, Palette> paletteByPaletteID = new HashMap<Integer, Palette>();
-	
-	// CharacterID -> (ClassID, Palette)
-	private Map<Integer, Map<Integer, Palette>> referencePalettes = new HashMap<Integer, Map<Integer, Palette>>();
+	private static class PaletteEntry {
+		private PaletteV2 unpromotedPalette;
+		private PaletteV2 promotedPalette;
+	}
 	
 	// V2
-	private Map<Integer, Map<Integer, PaletteV2>> characterPalettesV2 = new HashMap<Integer, Map<Integer, PaletteV2>>();
+	private Map<Integer, PaletteEntry> characterPalettesV2 = new HashMap<Integer, PaletteEntry>(); // FE6 and FE7 only.
 	private Map<Integer, PaletteV2> templatesV2 = new HashMap<Integer, PaletteV2>();
 	private Map<Integer, PaletteV2> paletteByPaletteIDV2 = new HashMap<Integer, PaletteV2>();
 	
@@ -49,6 +46,8 @@ public class PaletteLoader {
 	// CharacterID -> (ClassID, Palette)
 	private Map<Integer, Map<Integer, PaletteV2>> referencePalettesV2 = new HashMap<Integer, Map<Integer, PaletteV2>>();
 	
+	private Map<Integer, PaletteColor[]> supplementalHairColors = new HashMap<Integer, PaletteColor[]>();
+	
 	// TODO: Put this somewhere else.
 	private PaletteMapper mapper;
 	
@@ -56,7 +55,6 @@ public class PaletteLoader {
 	private FE8PromotionManager fe8Promotions;
 	
 	private List<Integer> emptyPaletteIDs = new ArrayList<Integer>();
-	private Map<Integer, Palette> appendedPaletteIDs = new HashMap<Integer, Palette>();
 	
 	public PaletteLoader(FEBase.GameType gameType, FileHandler handler, CharacterDataLoader charData, ClassDataLoader classData) {
 		this.gameType = gameType;
@@ -65,17 +63,21 @@ public class PaletteLoader {
 		case FE6:
 			for (FE6Data.Character character : FE6Data.Character.allPlayableCharacters) {
 				int charID = FE6Data.Character.canonicalIDForCharacterID(character.ID);
-				Map<Integer, Palette> map = new HashMap<Integer, Palette>();
-				characterPalettes.put(charID, map);
+				PaletteEntry paletteEntry = new PaletteEntry();
+				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
+				referencePalettesV2.put(charID, referenceMap);
+				characterPalettesV2.put(charID, paletteEntry);
+				PaletteColor[] supplementalHair = FE6Data.Palette.supplementaryHairColorForCharacter(charID);
+				if (supplementalHair != null) {
+					supplementalHairColors.put(charID, supplementalHair);
+				}
 				for (PaletteInfo paletteInfo : FE6Data.Palette.palettesForCharacter(charID)) {
 					int classID = paletteInfo.getClassID();
-					Palette palette = new Palette(handler, paletteInfo, 40, null);
-					paletteByPaletteID.put(paletteInfo.getPaletteID(), palette);
-					map.put(classID, palette);
-					PaletteColor[] supplementalHairColor = FE6Data.Palette.supplementaryHairColorForCharacter(charID);
-					if (supplementalHairColor != null) {
-						palette.assignSupplementalHairColor(supplementalHairColor);
-					}
+					PaletteV2 palette = new PaletteV2(handler, paletteInfo);
+					paletteByPaletteIDV2.put(paletteInfo.getPaletteID(), palette);
+					if (classData.isPromotedClass(classID)) { paletteEntry.promotedPalette = palette; }
+					else { paletteEntry.unpromotedPalette = palette; }
+					referenceMap.put(classID, new PaletteV2(handler, paletteInfo));
 					FE6Data.CharacterClass fe6class = FE6Data.CharacterClass.valueOf(classID);
 					FE6Data.Character fe6char = FE6Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe6char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe6class.toString() + "))");
@@ -83,45 +85,59 @@ public class PaletteLoader {
 			}
 			for (FE6Data.Character boss : FE6Data.Character.allBossCharacters) {
 				int charID = FE6Data.Character.canonicalIDForCharacterID(boss.ID);
-				Map<Integer, Palette> map = new HashMap<Integer, Palette>();
-				characterPalettes.put(charID, map);
+				PaletteEntry paletteEntry = new PaletteEntry();
+				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
+				referencePalettesV2.put(charID, referenceMap);
+				characterPalettesV2.put(charID, paletteEntry);
+				PaletteColor[] supplementalHair = FE6Data.Palette.supplementaryHairColorForCharacter(charID);
+				if (supplementalHair != null) {
+					supplementalHairColors.put(charID, supplementalHair);
+				}
 				for (PaletteInfo paletteInfo : FE6Data.Palette.palettesForCharacter(charID)) {
-					Palette palette = new Palette(handler, paletteInfo, 40, null);
-					paletteByPaletteID.put(paletteInfo.getPaletteID(), palette);
-					map.put(paletteInfo.getClassID(), palette);
-					PaletteColor[] supplementalHairColor = FE6Data.Palette.supplementaryHairColorForCharacter(charID);
-					if (supplementalHairColor != null) {
-						palette.assignSupplementalHairColor(supplementalHairColor);
-					}
+					int classID = paletteInfo.getClassID();
+					PaletteV2 palette = new PaletteV2(handler, paletteInfo);
+					paletteByPaletteIDV2.put(paletteInfo.getPaletteID(), palette);
+					if (classData.isPromotedClass(classID)) { paletteEntry.promotedPalette = palette; }
+					else { paletteEntry.unpromotedPalette = palette; }
+					referenceMap.put(classID, new PaletteV2(handler, paletteInfo));
 					FE6Data.Character fe6char = FE6Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Boss 0x" + Integer.toHexString(charID) + " (" + fe6char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()));
 				}
 			}
 			
 			for (FE6Data.CharacterClass characterClass : FE6Data.CharacterClass.allValidClasses) {
-				templates.put(characterClass.ID, new Palette(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID), 40, null));
+				templatesV2.put(characterClass.ID, new PaletteV2(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID)));
 			}
 			
 			for (int i = FE6Data.Palette.maxUsedPaletteIndex() + 1; i < FE6Data.Palette.maxPaletteIndex(); i++) {
 				emptyPaletteIDs.add(i);
 			}
 			
-			mapper = new PaletteMapper(charData, classData);
+			mapper = new PaletteMapper(charData, emptyPaletteIDs);
+			
+			for (int paletteID : paletteByPaletteIDV2.keySet()) {
+				mapper.registerPalette(paletteID, paletteByPaletteIDV2.get(paletteID).getOriginalCompressedLength(), paletteByPaletteIDV2.get(paletteID).getDestinationOffset());
+			}
+			
 			break;
 		case FE7:
 			for (FE7Data.Character character : FE7Data.Character.allPlayableCharacters) {
 				int charID = FE7Data.Character.canonicalIDForCharacterID(character.ID);
-				Map<Integer, Palette> map = new HashMap<Integer, Palette>();
-				characterPalettes.put(charID, map);
+				PaletteEntry paletteEntry = new PaletteEntry();
+				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
+				referencePalettesV2.put(charID, referenceMap);
+				characterPalettesV2.put(charID, paletteEntry);
+				PaletteColor[] supplementalHair = FE7Data.Palette.supplementaryHairColorForCharacter(charID);
+				if (supplementalHair != null) {
+					supplementalHairColors.put(charID, supplementalHair);
+				}
 				for (PaletteInfo paletteInfo : FE7Data.Palette.palettesForCharacter(charID)) {
 					int classID = paletteInfo.getClassID();
-					Palette palette = new Palette(handler, paletteInfo, 40, null);
-					paletteByPaletteID.put(paletteInfo.getPaletteID(), palette);
-					map.put(classID, palette);
-					PaletteColor[] supplementalHairColor = FE7Data.Palette.supplementaryHairColorForCharacter(charID);
-					if (supplementalHairColor != null) {
-						palette.assignSupplementalHairColor(supplementalHairColor);
-					}
+					PaletteV2 palette = new PaletteV2(handler, paletteInfo);
+					paletteByPaletteIDV2.put(paletteInfo.getPaletteID(), palette);
+					if (classData.isPromotedClass(classID)) { paletteEntry.promotedPalette = palette; }
+					else { paletteEntry.unpromotedPalette = palette; }
+					referenceMap.put(classID, new PaletteV2(handler, paletteInfo));
 					FE7Data.CharacterClass fe7class = FE7Data.CharacterClass.valueOf(classID);
 					FE7Data.Character fe7char = FE7Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe7class.toString() + "))");
@@ -129,44 +145,50 @@ public class PaletteLoader {
 			}
 			for (FE7Data.Character boss : FE7Data.Character.allBossCharacters) {
 				int charID = FE7Data.Character.canonicalIDForCharacterID(boss.ID);
-				Map<Integer, Palette> map = new HashMap<Integer, Palette>();
-				characterPalettes.put(charID, map);
+				PaletteEntry paletteEntry = new PaletteEntry();
+				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
+				referencePalettesV2.put(charID, referenceMap);
+				characterPalettesV2.put(charID, paletteEntry);
+				PaletteColor[] supplementalHair = FE7Data.Palette.supplementaryHairColorForCharacter(charID);
+				if (supplementalHair != null) {
+					supplementalHairColors.put(charID, supplementalHair);
+				}
 				for (PaletteInfo paletteInfo : FE7Data.Palette.palettesForCharacter(charID)) {
-					Palette palette = new Palette(handler, paletteInfo, 40, null);
-					paletteByPaletteID.put(paletteInfo.getPaletteID(), palette);
-					map.put(paletteInfo.getClassID(), palette);
-					PaletteColor[] supplementalHairColor = FE7Data.Palette.supplementaryHairColorForCharacter(charID);
-					if (supplementalHairColor != null) {
-						palette.assignSupplementalHairColor(supplementalHairColor);
-					}
+					int classID = paletteInfo.getClassID();
+					PaletteV2 palette = new PaletteV2(handler, paletteInfo);
+					paletteByPaletteIDV2.put(paletteInfo.getPaletteID(), palette);
+					if (classData.isPromotedClass(classID)) { paletteEntry.promotedPalette = palette; }
+					else { paletteEntry.unpromotedPalette = palette; }
+					referenceMap.put(classID, new PaletteV2(handler, paletteInfo));
 					FE7Data.Character fe7char = FE7Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Boss 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()));
 				}
 			}
 			
 			for (FE7Data.CharacterClass characterClass : FE7Data.CharacterClass.allValidClasses) {
-				templates.put(characterClass.ID, new Palette(handler, FE7Data.Palette.defaultPaletteForClass(characterClass.ID), 40, null));
+				templatesV2.put(characterClass.ID, new PaletteV2(handler, FE7Data.Palette.defaultPaletteForClass(characterClass.ID)));
 			}
 			
 			for (int i = FE7Data.Palette.maxUsedPaletteIndex() + 1; i < FE7Data.Palette.maxPaletteIndex(); i++) {
 				emptyPaletteIDs.add(i);
 			}
 			
-			mapper = new PaletteMapper(charData, classData);
+			mapper = new PaletteMapper(charData, emptyPaletteIDs);
+			
+			for (int paletteID : paletteByPaletteIDV2.keySet()) {
+				mapper.registerPalette(paletteID, paletteByPaletteIDV2.get(paletteID).getOriginalCompressedLength(), paletteByPaletteIDV2.get(paletteID).getDestinationOffset());
+			}
+			
 			break;
 		case FE8:
-			paletteByPaletteID = new HashMap<Integer, Palette>();
 			for (FE8Data.Character character : FE8Data.Character.allPlayableCharacters) {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(character.ID);
-				Map<Integer, PaletteV2> map = new HashMap<Integer, PaletteV2>();
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
 				referencePalettesV2.put(charID, referenceMap);
-				characterPalettesV2.put(charID, map);
 				for (PaletteInfo paletteInfo : FE8Data.Palette.palettesForCharacter(charID)) {
 					int classID = paletteInfo.getClassID();
 					PaletteV2 palette = new PaletteV2(handler, paletteInfo);
 					paletteByPaletteIDV2.put(paletteInfo.getPaletteID(), palette);
-					map.put(classID, palette);
 					referenceMap.put(classID, new PaletteV2(handler, paletteInfo));
 					FE8Data.CharacterClass fe8class = FE8Data.CharacterClass.valueOf(classID);
 					FE8Data.Character fe8char = FE8Data.Character.valueOf(charID);
@@ -176,14 +198,11 @@ public class PaletteLoader {
 			}
 			for (FE8Data.Character boss : FE8Data.Character.allBossCharacters) {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(boss.ID);
-				Map<Integer, PaletteV2> map = new HashMap<Integer, PaletteV2>();
-				characterPalettesV2.put(charID, map);
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
 				referencePalettesV2.put(charID, referenceMap);
 				for (PaletteInfo paletteInfo : FE8Data.Palette.palettesForCharacter(charID)) {
 					PaletteV2 palette = new PaletteV2(handler, paletteInfo);
 					paletteByPaletteIDV2.put(paletteInfo.getPaletteID(), palette);
-					map.put(paletteInfo.getClassID(), palette);
 					referenceMap.put(paletteInfo.getClassID(), new PaletteV2(handler, paletteInfo));
 					FE8Data.Character fe8char = FE8Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Boss 0x" + Integer.toHexString(charID) + " (" + fe8char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()));
@@ -209,18 +228,9 @@ public class PaletteLoader {
 				emptyPaletteIDs.add(i);
 			}
 			
-			return;
+			break;
 		default:
 			break;
-		}
-		
-		for (Integer characterID : characterPalettes.keySet()) {
-			Map<Integer, Palette> paletteMap = characterPalettes.get(characterID);
-			Map<Integer, Palette> copy = new HashMap<Integer, Palette>();
-			for (Integer classID : paletteMap.keySet()) {
-				copy.put(classID, new Palette(paletteMap.get(classID)));
-			}
-			referencePalettes.put(characterID, copy);
 		}
 	}
 	
@@ -234,20 +244,6 @@ public class PaletteLoader {
 			fe8Mapper.registerPaletteID(paletteID, paletteByPaletteIDV2.get(paletteID).getOriginalCompressedLength(), paletteByPaletteIDV2.get(paletteID).getDestinationOffset());
 		}
 		return fe8Mapper;
-	}
-	
-	public Palette getPalette(int characterID, int classID) {
-		return characterPalettes.get(canonicalCharacterID(characterID)).get(classID);
-	}
-	
-	public Palette[] getAllPalettesForCharacter(int characterID) {
-		Collection<Palette> allPalettes = characterPalettes.get(canonicalCharacterID(characterID)).values();
-		return allPalettes.toArray(new Palette[allPalettes.size()]);
-	}
-	
-	public Palette[] getReferencePalettesForCharacter(int characterID) {
-		Collection<Palette> allPalettes = referencePalettes.get(canonicalCharacterID(characterID)).values();
-		return allPalettes.toArray(new Palette[allPalettes.size()]);
 	}
 	
 	public PaletteV2[] getV2ReferencePalettesForCharacter(int characterID) {
@@ -272,31 +268,10 @@ public class PaletteLoader {
 		assert gameType == GameType.FE8 : "This method is only for FE8.";
 		assert fe8Mapper != null : "FE8 requires additional setup before it can adapt palettes.";
 		
-		int[] characterIDsThatNeedBackfilling = fe8Mapper.getCharactersNeedingAdditionalPalettes();
-		for (int characterID : characterIDsThatNeedBackfilling) {
-			Map<Integer, PaletteV2> paletteMap = characterPalettesV2.get(characterID);
-			
-			Map<SlotType, Integer> recycledIndices = fe8Mapper.requestRecycledPaletteIndicesForCharacter(characterID);
-			if (recycledIndices.size() == 0) {
-				// We don't have anymore indices to use.
-				// Everyone left is just going to have to deal with default palettes. :/
-				break;
-			}
-			
-			for (SlotType type : recycledIndices.keySet()) {
-				int paletteIndex = recycledIndices.get(type);
-				PaletteV2 adaptedPalette = paletteMap.get(fe8Mapper.classIDMappedToCharacterForType(characterID, type)); 
-				PaletteV2 recipientPalette = paletteByPaletteIDV2.get(paletteIndex);
-				
-				if (recipientPalette != null) {
-					adaptedPalette.overrideOffset(recipientPalette.getDestinationOffset());
-				} else if (paletteIndex != 0) {
-					newPalettesV2.put(paletteIndex, adaptedPalette);
-				}
-				
-				fe8Mapper.registerPaletteID(paletteIndex, adaptedPalette.getCompressedData().length, recipientPalette.getDestinationOffset());
-			}
-		}
+		if (fe8Mapper.getCharactersNeedingAdditionalPalettes().length == 0) { return; }
+		
+		// TODO: Implement this if we actually need it. I don't think we do...
+		assert false : "Not implemented.";
 	}
 	
 	public void adaptFE8CharacterToClass(int characterID, int newClassID, Boolean isBoss) {
@@ -318,7 +293,6 @@ public class PaletteLoader {
 		
 		int charID = canonicalCharacterID(characterID);
 		PaletteV2[] referencePalettes = getV2ReferencePalettesForCharacter(referenceID);
-		Map<Integer, PaletteV2> paletteMap = characterPalettesV2.get(charID);
 		
 		PaletteColor[] supplementalHair = FE8Data.Palette.supplementaryHairColorForCharacter(referenceID);
 		
@@ -356,14 +330,6 @@ public class PaletteLoader {
 			integrateFE8PaletteIfPossible(charID, adaptedPromoted3, SlotType.THIRD_PROMOTION);
 			integrateFE8PaletteIfPossible(charID, adaptedPromoted4, SlotType.FOURTH_PROMOTION);
 			
-			paletteMap.clear();
-			if (adaptedTrainee != null) { paletteMap.put(newClassID, adaptedTrainee); }
-			if (adaptedBase1 != null) { paletteMap.put(base1, adaptedBase1); }
-			if (adaptedBase2 != null) { paletteMap.put(base2, adaptedBase2); }
-			if (adaptedPromoted1 != null) { paletteMap.put(promoted1, adaptedPromoted1); }
-			if (adaptedPromoted2 != null) { paletteMap.put(promoted2, adaptedPromoted2); }
-			if (adaptedPromoted3 != null) { paletteMap.put(promoted3, adaptedPromoted3); }
-			if (adaptedPromoted4 != null) { paletteMap.put(promoted4, adaptedPromoted4); }
 		} else if (!newClassIsPromoted) {
 			if (newClassHasPromotions && !isBoss) {
 				int promoted1 = newPromotion1;
@@ -379,31 +345,16 @@ public class PaletteLoader {
 				
 				integrateFE8PaletteIfPossible(charID, adaptedBase, SlotType.PRIMARY_BASE);
 				integrateFE8PaletteIfPossible(charID, adaptedPromotion1, SlotType.FIRST_PROMOTION);
-				if (adaptedPromotion2 != null) { integrateFE8PaletteIfPossible(charID, adaptedPromotion2, SlotType.SECOND_PROMOTION); }
-				
-				paletteMap.clear();
-				
-				if (adaptedBase != null) { paletteMap.put(newClassID, adaptedBase); }
-				if (adaptedPromotion1 != null) { paletteMap.put(promoted1, adaptedPromotion1); }
-				if (adaptedPromotion2 != null) { paletteMap.put(promoted2, adaptedPromotion2); }
-				
+				if (adaptedPromotion2 != null) { integrateFE8PaletteIfPossible(charID, adaptedPromotion2, SlotType.SECOND_PROMOTION); }		
 			} else {
 				PaletteV2 adaptedBase = v2PaletteForClass(newClassID, referencePalettes, isBoss ? PaletteType.ENEMY : PaletteType.PLAYER, supplementalHair);
 				fe8Mapper.setUnpromotedClass(newClassID, charID, !isBoss, adaptedBase.getCompressedData().length, 0, 0);
 				integrateFE8PaletteIfPossible(charID, adaptedBase, SlotType.PRIMARY_BASE);
-				paletteMap.clear();
-				if (adaptedBase != null) {
-					paletteMap.put(newClassID, adaptedBase);
-				}
 			}
 		} else { // New class is promoted
 			PaletteV2 adaptedPromotion = v2PaletteForClass(newClassID, referencePalettes, isBoss ? PaletteType.ENEMY : PaletteType.PLAYER, supplementalHair);
 			fe8Mapper.setPromotedClass(newClassID, charID, adaptedPromotion.getCompressedData().length);
 			integrateFE8PaletteIfPossible(charID, adaptedPromotion, SlotType.FIRST_PROMOTION);
-			paletteMap.clear();
-			if (adaptedPromotion != null) {
-				paletteMap.put(newClassID, adaptedPromotion);
-			}
 		}
 	}
 	
@@ -430,32 +381,6 @@ public class PaletteLoader {
 		}
 	}
 	
-	private Palette paletteForAdaptingCharacterToClass(int charID, int originalClassID, int newClassID, Palette[] referencePalettes, Map<Integer, Integer> customMap) {
-		Palette originalPalette = getPalette(charID, originalClassID);
-		Palette template = getTemplatePalette(newClassID);
-		
-		if (originalPalette == null) {
-			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No palette found for character 0x" + Integer.toHexString(charID) + " class 0x" + Integer.toHexString(originalClassID));
-			return null;
-		}
-		
-		if (template == null) {
-			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No template found for class 0x" + Integer.toHexString(newClassID));
-			return null;
-		}
-		
-		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Original palette offset: " + Long.toHexString(originalPalette.getInfo().getOffset()));
-		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Template palette offset: " + Long.toHexString(template.getInfo().getOffset()));
-		
-		Palette adaptedPalette = new Palette(template, originalPalette, referencePalettes, customMap);
-		return adaptedPalette;
-	}
-	
-	private Palette paletteForClass(int newClassID, Palette[] referencePalettes, Map<Integer, Integer> customMap) {
-		Palette template = getTemplatePalette(newClassID);
-		return new Palette(template, null, referencePalettes, customMap);
-	}
-	
 	private PaletteV2 v2PaletteForClass(int newClassID, PaletteV2[] referencePalettes, PaletteV2.PaletteType type, PaletteColor[] supplementalHairColors) {
 		PaletteV2 template = getV2TemplatePalette(newClassID);
 		PaletteV2 adapted = new PaletteV2(template);
@@ -471,34 +396,55 @@ public class PaletteLoader {
 	
 	private static class Change {
 		private GBAFECharacterData character;
-		private GBAFECharacterData reference;
-		private Integer sourceUnpromotedClassID;
-		private Integer targetUnpromotedClassID;
-		private Integer sourcePromotedClassID;
-		private Integer targetPromotedClassID;
+		
+		private PaletteV2 basePalette;
+		private PaletteV2 promotedPalette;
 	}
 	
 	private List<Change> queuedChanges = new ArrayList<Change>();
 	
-	public void enqueueChange(GBAFECharacterData character, GBAFECharacterData reference, Integer sourceUnpromotedClassID, Integer targetUnpromotedClassID, Integer sourcePromotedClassID, Integer targetPromotedClassID) {
-		if (targetUnpromotedClassID != null) {
-			mapper.prepareCharacterForClass(character.getID(), targetUnpromotedClassID);
-		} else {
-			mapper.prepareCharacterForClass(character.getID(), targetPromotedClassID);
-		}
+	public void enqueueChange(GBAFECharacterData character, GBAFECharacterData reference, CharacterDataLoader charData, ClassDataLoader classData, Integer targetClassID, boolean needsPromotion) {
+		boolean isPromoted = classData.isPromotedClass(targetClassID);
+		boolean canPromote = classData.canClassPromote(targetClassID) && needsPromotion;
+		
+		int characterID = character.getID();
+		int referenceID = reference.getID();
+		
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Enqueuing change for character " + charData.debugStringForCharacter(characterID) + " to class " + classData.debugStringForClass(targetClassID) + " using reference " + charData.debugStringForCharacter(referenceID));
 		
 		Change change = new Change();
 		change.character = character;
-		change.reference = reference;
-		change.sourceUnpromotedClassID = sourceUnpromotedClassID;
-		change.targetUnpromotedClassID = targetUnpromotedClassID;
-		change.sourcePromotedClassID = sourcePromotedClassID;
-		change.targetPromotedClassID = targetPromotedClassID;
+		
+		PaletteV2[] referencePalettes = getV2ReferencePalettesForCharacter(referenceID);
+		if (referencePalettes == null || referencePalettes.length == 0) {
+			return; // If we have no references, this character probably has no palettes to begin with.
+		}
+		
+		if (isPromoted) {
+			PaletteV2 adaptedPromotion = v2PaletteForClass(targetClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));
+			mapper.setCharacterToPromotedClass(characterID, targetClassID, adaptedPromotion.getCompressedData().length);
+			adaptedPromotion.setIdentifier(character.getPromotedPaletteIndex());
+			change.promotedPalette = adaptedPromotion;
+		} else if (!canPromote) {
+			PaletteV2 adaptedBase = v2PaletteForClass(targetClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));
+			mapper.setCharacterToUnpromotedOnlyClass(characterID, targetClassID, adaptedBase.getCompressedData().length);
+			adaptedBase.setIdentifier(character.getUnpromotedPaletteIndex());
+			change.basePalette = adaptedBase;
+		} else {
+			PaletteV2 adaptedBase = v2PaletteForClass(targetClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));
+			int promotedClassID = classData.classForID(targetClassID).getTargetPromotionID();
+			PaletteV2 adaptedPromotion = v2PaletteForClass(promotedClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));
+			mapper.setCharacterToUnpromotedClass(characterID, targetClassID, adaptedBase.getCompressedData().length, adaptedPromotion.getCompressedData().length);
+			adaptedBase.setIdentifier(character.getUnpromotedPaletteIndex());
+			adaptedPromotion.setIdentifier(character.getPromotedPaletteIndex());
+			change.basePalette = adaptedBase;
+			change.promotedPalette = adaptedPromotion;
+		}
 		
 		queuedChanges.add(change);
 	}
 	
-	public void flushChangeQueue(FreeSpaceManager freeSpace) {
+	public void flushChangeQueue(CharacterDataLoader charData, FreeSpaceManager freeSpace) {
 		finalizePreparations();
 		if (gameType == GameType.FE8) {
 			List<Integer> orderedIDsToWrite = newPalettesV2.keySet().stream().sorted().collect(Collectors.toList());
@@ -511,11 +457,36 @@ public class PaletteLoader {
 			}
 		} else {
 			for (Change change : queuedChanges) {
-				if (change.targetUnpromotedClassID != null) {
-					adaptCharacterToClass(change.character, change.reference, change.sourceUnpromotedClassID, change.targetUnpromotedClassID, false, freeSpace);
+				int unpromotedPaletteID = change.character.getUnpromotedPaletteIndex();
+				if (unpromotedPaletteID != 0) {
+					assert change.basePalette != null : "Unpromoted palette ID detected, but no palette was found.";
+					int availableLength = mapper.getPaletteLength(unpromotedPaletteID);
+					byte[] compressedBase = change.basePalette.getCompressedData();
+					assert compressedBase.length <= availableLength : "Insufficient Space to write palette.";
+					Long targetOffset = mapper.getPaletteOffset(unpromotedPaletteID);
+					if (targetOffset == null) { 
+						targetOffset = freeSpace.reserveInternalSpace(compressedBase.length, "Palette 0x" + Integer.toHexString(unpromotedPaletteID), true);
+						appendedPaletteIDsV2.put(unpromotedPaletteID, change.basePalette);
+					}
+					
+					change.basePalette.overrideOffset(targetOffset);
+					change.basePalette.setIdentifier(unpromotedPaletteID);
 				}
-				if (change.targetPromotedClassID != null) {
-					adaptCharacterToClass(change.character, change.reference, change.sourcePromotedClassID, change.targetPromotedClassID, true, freeSpace);
+				
+				int promotedPaletteID = change.character.getPromotedPaletteIndex();
+				if (promotedPaletteID != 0) {
+					assert change.promotedPalette != null : "Promoted palette ID detected, but no palette was found.";
+					int availableLength = mapper.getPaletteLength(promotedPaletteID);
+					byte[] compressedPromotion = change.promotedPalette.getCompressedData();
+					assert compressedPromotion.length <= availableLength : "Insufficient Space to write palette.";
+					Long targetOffset = mapper.getPaletteOffset(promotedPaletteID);
+					if (targetOffset == null) {
+						targetOffset = freeSpace.reserveInternalSpace(compressedPromotion.length, "Palette 0x" + Integer.toHexString(promotedPaletteID), true);
+						appendedPaletteIDsV2.put(promotedPaletteID, change.promotedPalette);
+					}
+					
+					change.promotedPalette.overrideOffset(targetOffset);
+					change.promotedPalette.setIdentifier(promotedPaletteID);
 				}
 			}
 		}
@@ -526,84 +497,14 @@ public class PaletteLoader {
 		if (gameType == GameType.FE8) {
 			backfillFE8Palettes();
 		} else {
-			mapper.flushWaitListWithEmptyPaletteIDs(emptyPaletteIDs);
-		}
-	}
-	
-	private void adaptCharacterToClass(GBAFECharacterData character, GBAFECharacterData reference, Integer sourceClassID, Integer targetClassID, boolean isPromoted, FreeSpaceManager freeSpace) {
-		int paletteID = isPromoted ? character.getPromotedPaletteIndex() : character.getUnpromotedPaletteIndex();
-		Palette existingPalette = paletteByPaletteID.get(paletteID);
-		Palette[] references = getReferencePalettesForCharacter(reference.getID());
-		Palette adaptedPalette = paletteForClass(targetClassID, references, null);
-		if (existingPalette != null) {
-			adaptedPalette.overrideOffset(existingPalette.getInfo().getOffset());
-		} else {
-			long newOffset = freeSpace.reserveSpace(adaptedPalette.getDataLength(), "Palette 0x" + Integer.toHexString(paletteID), true);
-			adaptedPalette.overrideOffset(newOffset);
-			// We also need to write this address.
-			appendedPaletteIDs.put(paletteID, adaptedPalette);
-		}
-		
-		Map<Integer, Palette> paletteMap = characterPalettes.get(character.getID());
-		if (sourceClassID != null) {
-			paletteMap.remove(sourceClassID);
-		}
-		paletteMap.put(targetClassID, adaptedPalette);
-	}
-	
-	public void adaptCharacterToClass(int characterID, int originalClassID, int originalPromotedClassID, int newClassID, int newPromotedClassID) {
-		assert gameType != GameType.FE8 : "FE8 should use a special method to adapt character palettes.";
-		
-		int charID = canonicalCharacterID(characterID);
-		
-		switch (gameType) {
-		case FE6: {
-			FE6Data.Character character = FE6Data.Character.valueOf(charID);
-			FE6Data.CharacterClass oldClass = FE6Data.CharacterClass.valueOf(originalClassID);
-			FE6Data.CharacterClass newClass = FE6Data.CharacterClass.valueOf(newClassID);
-			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting character 0x" + Integer.toHexString(charID) + " (" + character.toString() + ") " + 
-			" from class 0x" + Integer.toHexString(originalClassID) + "(" + oldClass.toString() + ")" + " to 0x" + Integer.toHexString(newClassID) + " (" + newClass.toString() + ")");
-			break;
-		}
-		case FE7: {
-			FE7Data.Character character = FE7Data.Character.valueOf(charID);
-			FE7Data.CharacterClass oldClass = FE7Data.CharacterClass.valueOf(originalClassID);
-			FE7Data.CharacterClass newClass = FE7Data.CharacterClass.valueOf(newClassID);
-			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting character 0x" + Integer.toHexString(charID) + " (" + character.toString() + ") " + 
-			" from class 0x" + Integer.toHexString(originalClassID) + "(" + oldClass.toString() + ")" + " to 0x" + Integer.toHexString(newClassID) + " (" + newClass.toString() + ")");
-			
-			if (newClass.ID == FE7Data.CharacterClass.BARD.ID || newClass.ID == FE7Data.CharacterClass.DANCER.ID) {
-				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Debugging dancer/bard palettes");
-			}
-			
-			break;
-		}
-		default:
-			break;
-		}
-		
-		Palette adaptedPalette = paletteForAdaptingCharacterToClass(charID, originalClassID, newClassID, getAllPalettesForCharacter(charID), null);
-		Map<Integer, Palette> paletteMap = characterPalettes.get(charID);
-		Palette adaptedPromotedPalette = paletteForAdaptingCharacterToClass(charID, originalPromotedClassID, newPromotedClassID, getAllPalettesForCharacter(charID), null);
-		if (adaptedPromotedPalette != null) {
-			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
-			paletteMap.put(newPromotedClassID, adaptedPromotedPalette);
-			paletteMap.remove(originalPromotedClassID);
-		}
-		if (adaptedPalette != null) {
-			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapted palette offset: " + Long.toHexString(adaptedPalette.getInfo().getOffset()));
-			paletteMap.put(newClassID, adaptedPalette);
-			paletteMap.remove(originalClassID);
+			mapper.flushWaitListWithEmptyPaletteIDs();
 		}
 	}
 	
 	public void compileDiffs(DiffCompiler compiler) {
 		if (gameType == GameType.FE8) {
-			
-			for (Map<Integer, PaletteV2> map : characterPalettesV2.values()) {
-				for (PaletteV2 palette : map.values()) {
-					palette.commitPalette(compiler);
-				}
+			for (PaletteV2 palette : paletteByPaletteIDV2.values()) {
+				palette.commitPalette(compiler);
 			}
 			
 			long baseOffset = FE8Data.PaletteTableOffset;
@@ -617,10 +518,9 @@ public class PaletteLoader {
 			}
 			
 		} else {
-			for (Map<Integer, Palette> map : characterPalettes.values()) {
-				for (Palette palette : map.values()) {
-					palette.commitPalette(compiler);
-				}
+			for (Change change : queuedChanges) {
+				if (change.basePalette != null) { change.basePalette.commitPalette(compiler); }
+				if (change.promotedPalette != null) { change.promotedPalette.commitPalette(compiler); }
 			}
 			
 			// Write the pointers to any palettes we added.
@@ -629,24 +529,12 @@ public class PaletteLoader {
 			if (gameType == GameType.FE6) { baseOffset = FE6Data.PaletteTableOffset; entrySize = FE6Data.PaletteEntrySize; }
 			else if (gameType == GameType.FE7) { baseOffset = FE7Data.PaletteTableOffset; entrySize = FE7Data.PaletteEntrySize; }
 			else { return; }
-			for (Integer appendedPaletteID : appendedPaletteIDs.keySet()) {
-				Palette appendedPalette = appendedPaletteIDs.get(appendedPaletteID);
+			for (Integer appendedPaletteID : appendedPaletteIDsV2.keySet()) {
+				PaletteV2 appendedPalette = appendedPaletteIDsV2.get(appendedPaletteID);
 				long offsetToWriteTo = baseOffset + (appendedPaletteID * entrySize);
-				byte[] bytesToWrite = WhyDoesJavaNotHaveThese.bytesFromAddress(appendedPalette.getInfo().getOffset());
+				byte[] bytesToWrite = WhyDoesJavaNotHaveThese.bytesFromAddress(appendedPalette.getDestinationOffset());
 				compiler.addDiff(new Diff(offsetToWriteTo, bytesToWrite.length, bytesToWrite, new byte[] {0, 0, 0, 0}));
 			}
-		}
-	}
-	
-	public Palette getTemplatePalette(int classID) {
-		switch (gameType) {
-		case FE6:
-		case FE7:
-			return templates.get(classID);
-		case FE8:
-			
-		default:
-			return null;
 		}
 	}
 	

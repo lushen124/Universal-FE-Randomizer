@@ -15,6 +15,9 @@ public interface GBAFEChapterUnitData extends FEModifiableData {
 	public int getLoadingX();
 	public int getLoadingY();
 	
+	public void setLoadingX(int newX);
+	public void setLoadingY(int newY);
+	
 	public int getStartingX();
 	public int getStartingY();
 	

@@ -25,6 +25,7 @@ public interface GBAFECharacterProvider {
 	public Set<GBAFECharacter> allFliers();
 	public Set<GBAFECharacter> mustAttack();
 	public Set<GBAFECharacter> femaleSet();
+	public Set<GBAFECharacter> mustPromote();
 	
 	public GBAFECharacter characterWithID(int characterID);
 	

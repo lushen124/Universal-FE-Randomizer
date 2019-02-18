@@ -223,6 +223,11 @@ public class PaletteV2 {
 	}
 	
 	public void commitPalette(DiffCompiler compiler) {
+		if (identifier == 0) {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No identifier assigned to palette. Dropping palette...");
+			return;
+		}
+		
 		applyColorsToData();
 		
 		byte[] compressed = LZ77.compress(decompressedData);

@@ -62,6 +62,16 @@ public class FE6ChapterUnit implements GBAFEChapterUnitData {
 		return data[5] & 0xFF;
 	}
 	
+	public void setLoadingX(int newX) {
+		data[4] = (byte)(newX & 0xFF);
+		wasModified = true;
+	}
+	
+	public void setLoadingY(int newY) {
+		data[5] = (byte)(newY & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getStartingX() {
 		return data[6] & 0xFF;
 	}

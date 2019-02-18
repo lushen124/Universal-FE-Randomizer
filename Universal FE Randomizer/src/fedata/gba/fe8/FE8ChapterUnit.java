@@ -59,6 +59,14 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		return 0; // FE8 doesn't use this.
 	}
 	
+	public void setLoadingX(int newX) {
+		// FE8 doesn't use this.
+	}
+	
+	public void setLoadingY(int newY) {
+		// FE8 doesn't use this.
+	}
+	
 	// FE8 does things a bit differently. Each position is only 6 bits instead of 8 bits. We need to read bytes 4, 5 to get the data.
 	public int getStartingX() {
 		// Little endian means the least significant bits are in the latter byte.

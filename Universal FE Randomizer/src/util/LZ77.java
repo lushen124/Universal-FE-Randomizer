@@ -94,8 +94,8 @@ public class LZ77 {
 				}
 			}
 		}
-		
-		return bytesRead;
+		// These have to be byte aligned, so they should be divisible by 4. Round up if it's not.
+		return bytesRead + (bytesRead % 4 == 0 ? 0 : 4 - (bytesRead % 4));
 	}
 	
 	public static byte[] decompress(byte[] inputBytes) {
