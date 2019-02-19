@@ -169,6 +169,12 @@ public class ClassDataLoader {
 		for (GBAFEClass option : options) {
 			result.add(classMap.get(option.getID()));
 		}
+		result.sort(new Comparator<GBAFEClassData>() {
+			@Override
+			public int compare(GBAFEClassData arg0, GBAFEClassData arg1) {
+				return Integer.compare(arg0.getID(), arg1.getID());
+			}
+		});
 		return result;
 	}
 	
