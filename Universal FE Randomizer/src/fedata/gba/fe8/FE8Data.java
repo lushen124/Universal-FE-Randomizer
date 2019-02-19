@@ -98,6 +98,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long HeavenSealPromotionPointer = 0x293D8L;
 	public static final long HeavenSealOldAddress = 0x8ADF96L;
 	
+	// FE8 world map events are split into two halves. Thankfully they are consecutive and the pointer table points to the first half of each.
+	public static final long WorldMapEventTableOffset = 0x8B39F0L;
+	public static final int WorldMapEventItemSize = 4;
+	public static final int WorldMapEventCount = 58;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();

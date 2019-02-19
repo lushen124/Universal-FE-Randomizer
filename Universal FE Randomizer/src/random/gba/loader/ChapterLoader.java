@@ -21,6 +21,7 @@ import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe7.FE7WorldMapEvent;
 import fedata.gba.fe8.FE8Chapter;
 import fedata.gba.fe8.FE8Data;
+import fedata.gba.fe8.FE8WorldMapEvent;
 import fedata.gba.general.CharacterNudge;
 import fedata.general.FEBase;
 import io.FileHandler;
@@ -131,6 +132,14 @@ public class ChapterLoader {
 					mappedChapters.put(chapterID, fe8Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe8Chapter.allUnits().length + " characters and " + fe8Chapter.allRewards().length + " rewards");
 				}
+				
+				for (int j = 0; j < FE8Data.WorldMapEventCount; j++) {
+					long offset = FE8Data.WorldMapEventTableOffset + (j * FE8Data.WorldMapEventItemSize);
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading World Map Events from offset 0x" + Long.toHexString(offset));
+					FE8WorldMapEvent fe8WorldMapEvent = new FE8WorldMapEvent(handler, offset);
+					worldMapEvents.add(fe8WorldMapEvent);
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loaded " + fe8WorldMapEvent.allPortraits().length + " world map portraits.");
+				}
 				break; 
 			default:
 				break;
@@ -152,10 +161,10 @@ public class ChapterLoader {
 		switch (gameType) {
 		case FE6:
 		case FE7:
-			return worldMapEvents.toArray(new GBAFEWorldMapData[worldMapEvents.size()]);
 		case FE8:
-			default:
-				return new GBAFEWorldMapData[] {};
+			return worldMapEvents.toArray(new GBAFEWorldMapData[worldMapEvents.size()]);
+		default:
+			return new GBAFEWorldMapData[] {};
 		}
 	}
 	
