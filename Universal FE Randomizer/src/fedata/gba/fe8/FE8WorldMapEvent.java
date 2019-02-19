@@ -202,16 +202,20 @@ public class FE8WorldMapEvent implements GBAFEWorldMapData {
 				spriteList.add(new FE8WorldMapSprite(handler.readBytesAtOffset(address, 12), address, SpriteType.PUTSPRITE));
 			}
 			// May be able to roll this into a universal sprite handler.
+			// I don't think these load in new sprites.
 			// WM_PUTMOVINGSPRITE (0xA8C0) - 24 bytes
 			else if (WhyDoesJavaNotHaveThese.byteArrayHasPrefix(opcode, new byte[] {(byte)0xC0, (byte)0xA8})) {
-				long address = handler.getNextReadOffset() - 4;
-				spriteList.add(new FE8WorldMapSprite(handler.readBytesAtOffset(address, 24), address, SpriteType.WM_PUTMOVINGSPRITE));
+				//long address = handler.getNextReadOffset() - 4;
+				//spriteList.add(new FE8WorldMapSprite(handler.readBytesAtOffset(address, 24), address, SpriteType.WM_PUTMOVINGSPRITE));
+				handler.continueReadingBytes(20);
 			}
 			// There's a third type of sprite. o_o
+			// I don't think these load in new sprites though, they just modify existing sprites.
 			// WM_PUTSPRITE (0xA760) - 12 bytes
 			else if (WhyDoesJavaNotHaveThese.byteArrayHasPrefix(opcode, new byte[] {(byte)0x60, (byte)0xA7})) {
-				long address = handler.getNextReadOffset() - 4;
-				spriteList.add(new FE8WorldMapSprite(handler.readBytesAtOffset(address, 12), address, SpriteType.WM_PUTSPRITE));
+				//long address = handler.getNextReadOffset() - 4;
+				//spriteList.add(new FE8WorldMapSprite(handler.readBytesAtOffset(address, 12), address, SpriteType.WM_PUTSPRITE));
+				handler.continueReadingBytes(8);
 			}
 			
 			// I have a sneaking suspicion that the number of bytes an instruction takes is encoded into that first half of the first byte.

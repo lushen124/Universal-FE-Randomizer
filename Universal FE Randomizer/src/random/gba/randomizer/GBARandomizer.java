@@ -538,15 +538,22 @@ public class GBARandomizer extends Randomizer {
 					Map<Integer, List<Integer>> perChapterMap = chapter.worldMapSpriteClassIDToCharacterIDMapping();
 					GBAFEWorldMapData worldMapData = chapterData.worldMapEventsForChapterID(chapter.chapterID);
 					for (GBAFEWorldMapSpriteData sprite : worldMapData.allSprites()) {
+						// If it's a class we don't touch, ignore it.
+						if (classData.classForID(sprite.getClassID()) == null) { continue; }
 						// Check Universal list first.
 						Integer characterID = FE8Data.ChapterPointer.universalWorldMapSpriteClassIDToCharacterIDMapping().get(sprite.getClassID());
 						if (characterID != null) {
+							if (characterID == FE8Data.Character.NONE.ID) { continue; }
 							syncWorldMapSpriteToCharacter(sprite, characterID);
 						} else {
 							// Check per chapter
 							List<Integer> charactersForClassID = perChapterMap.get(sprite.getClassID());
 							if (charactersForClassID != null && !charactersForClassID.isEmpty()) {
 								int charID = charactersForClassID.remove(0);
+								if (charID == FE8Data.Character.NONE.ID) {
+									charactersForClassID.add(FE8Data.Character.NONE.ID);
+									continue;
+								}
 								syncWorldMapSpriteToCharacter(sprite, charID);
 							} else {
 								assert false : "Unaccounted for world map sprite in " + chapter.toString();

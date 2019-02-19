@@ -142,6 +142,7 @@ public class ChapterLoader {
 					FE8WorldMapEvent fe8WorldMapEvent = new FE8WorldMapEvent(handler, offset);
 					long dereferencedAddress = FileReadHelper.readAddress(handler, offset);
 					FE8Data.ChapterPointer chapter = FE8Data.ChapterPointer.chapterForWorldMapEventOffset(dereferencedAddress);
+					if (chapter == null) { continue; }
 					worldMapEventsByChapterID.put(chapter.chapterID, fe8WorldMapEvent);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loaded " + fe8WorldMapEvent.allPortraits().length + " world map portraits.");
 				}

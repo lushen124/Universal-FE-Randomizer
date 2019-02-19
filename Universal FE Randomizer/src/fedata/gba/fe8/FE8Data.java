@@ -1638,12 +1638,47 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			map.put(CharacterClass.MAGE_KNIGHT_F.ID, Character.SELENA.ID);
 			map.put(CharacterClass.BISHOP.ID, Character.RIEV.ID);
 			map.put(CharacterClass.HERO.ID, Character.CAELLACH.ID);
+			map.put(CharacterClass.MANAKETE_2.ID, Character.MORVA.ID);
+			
+			// These never belong to anybody in vanilla.
+			map.put(CharacterClass.SOLDIER.ID, Character.NONE.ID);
 			return map;
 		}
 		
 		public Map<Integer, List<Integer>> worldMapSpriteClassIDToCharacterIDMapping() {
 			Map<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
 			switch (this) {
+			case PROLOGUE:
+				map.put(CharacterClass.GENERAL.ID, new ArrayList<Integer>(Arrays.asList(Character.VIGARDE.ID)));
+				break;
+			case CHAPTER_3:
+				map.put(CharacterClass.THIEF.ID, new ArrayList<Integer>(Arrays.asList(Character.COLM.ID)));
+				map.put(CharacterClass.BRIGAND.ID, new ArrayList<Integer>(Arrays.asList(Character.BAZBA.ID)));
+				break;
+			case CHAPTER_4:
+				map.put(CharacterClass.REVENANT.ID, new ArrayList<Integer>(Arrays.asList(Character.NONE.ID)));
+				break;
+			case CHAPTER_9_EIRIKA:
+				map.put(CharacterClass.SNIPER.ID, new ArrayList<Integer>(Arrays.asList(Character.INNES.ID)));
+				break;
+			case CHAPTER_10_EIRIKA:
+				map.put(CharacterClass.MERCENARY.ID, new ArrayList<Integer>(Arrays.asList(Character.NONE.ID)));
+				map.put(CharacterClass.SNIPER.ID, new ArrayList<Integer>(Arrays.asList(Character.INNES.ID)));
+				break;
+			case CHAPTER_16_EIRIKA:
+			case CHAPTER_16_EPHRAIM:
+				map.put(CharacterClass.PALADIN.ID, new ArrayList<Integer>(Arrays.asList(Character.ORSON.ID)));
+				break;
+			case CHAPTER_17_EIRIKA:
+			case CHAPTER_17_EPHRAIM:
+				map.put(CharacterClass.NECROMANCER.ID, new ArrayList<Integer>(Arrays.asList(Character.LYON.ID)));
+				break;
+			case CHAPTER_9_EPHRAIM:
+				map.put(CharacterClass.WARRIOR.ID, new ArrayList<Integer>(Arrays.asList(Character.GHEB.ID)));
+				break;
+			case CHAPTER_14_EPHRAIM:
+				map.put(CharacterClass.GENERAL.ID, new ArrayList<Integer>(Arrays.asList(Character.VIGARDE.ID)));
+				break;
 			default:
 				break;
 			}
@@ -1691,7 +1726,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			else if (offset == 0xA3C898L) { return FINAL_2_EIRIKA; }
 			else if (offset == 0xA3C8A0L) { return FINAL_2_EPHRAIM; }
 			else {
-				assert false : "Unknown chapter for world map event offset.";
+				// There's some events not tied to any specific chapter, so we can ignore those for now.
 				return null;
 			}
 		}
