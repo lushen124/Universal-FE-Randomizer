@@ -429,8 +429,8 @@ public class RecruitmentRandomizer {
 			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slot level: " + Integer.toString(targetLevel) + "\tFill Level: " + Integer.toString(sourceLevel));
 			
 			// Handle Promotion/Demotion leveling as necessary
-			if (shouldBePromoted) { targetLevel += 10; }
-			if (isPromoted) { sourceLevel += 10; }
+			if (shouldBePromoted) { targetLevel += 15; }
+			if (isPromoted) { sourceLevel += 15; }
 			
 			int levelsToAdd = targetLevel - sourceLevel;
 			
