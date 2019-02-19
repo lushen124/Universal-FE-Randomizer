@@ -71,10 +71,51 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		}
 	}
 	
-	public static PaletteColor[] darkenColors(PaletteColor[] colors) {
-		PaletteColor[] newColors = new PaletteColor[colors.length];
-		for (int i = 0; i < colors.length; i++) {
-			newColors[i] = darkerColor(colors[i]);
+	// Will slightly shift all colors to yield different colors.
+	public static List<PaletteColor> adjustColors(List<PaletteColor> colors, boolean favorBrightness, boolean favorSaturation) {
+		if (colors.size() == 0) { return new ArrayList<PaletteColor>(); }
+		List<PaletteColor> newColors = new ArrayList<PaletteColor>();
+		double averageBrightness = 0;
+		double averageSaturation = 0;
+		for (int i = 0; i < colors.size(); i++) {
+			averageBrightness += colors.get(i).brightness;
+			averageSaturation += colors.get(i).saturation;
+		}
+		
+		averageBrightness /= colors.size();
+		averageSaturation /= colors.size();
+		
+		double brightnessAdjust = 0;
+		double saturationAdjust = 0;
+		
+		if (averageBrightness <= 0.3) {
+			brightnessAdjust += 0.05;
+		} else if (averageBrightness >= 0.7) {
+			brightnessAdjust -= 0.05;
+		} else {
+			if (favorBrightness) {
+				brightnessAdjust += 0.02;
+			} else {
+				brightnessAdjust -= 0.02;
+			}
+		}
+		
+		if (averageSaturation <= 0.4) {
+			saturationAdjust += 0.05;
+		} else if (averageSaturation >= 0.6) {
+			saturationAdjust -= 0.05;
+		} else {
+			if (favorSaturation) {
+				saturationAdjust += 0.02;
+			} else {
+				saturationAdjust -= 0.02;
+			}
+		}
+		
+		for (int i = 0; i < colors.size(); i++) {
+			PaletteColor oldColor = colors.get(i);
+			PaletteColor adjustedColor = new PaletteColor(oldColor.hue, oldColor.saturation + saturationAdjust, oldColor.brightness + brightnessAdjust);
+			newColors.add(adjustedColor);
 		}
 		
 		return newColors;

@@ -201,19 +201,19 @@ public class PaletteV2 {
 		
 		if (referenceHair.isEmpty() && hasHair()) {
 			// If there's no hair info and we need hair info, reuse primary color.
-			referenceHair.addAll(referencePrimary);
+			referenceHair.addAll(PaletteColor.adjustColors(referencePrimary, true, true));
 		}
 		
 		// Primary usually exists.
 		
 		if (referenceSecondary.isEmpty() && hasSecondary()) {
 			// Use primary color for secondary if we don't have secondary colors and need one.
-			referenceSecondary.addAll(referencePrimary);
+			referenceSecondary.addAll(PaletteColor.adjustColors(referencePrimary, false, false));
 		}
 		
 		if (referenceTertiary.isEmpty() && hasTertiary()) {
 			// Use primary again if tertiary is required.
-			referenceTertiary.addAll(referencePrimary);
+			referenceTertiary.addAll(PaletteColor.adjustColors(referencePrimary, false, true));
 		}
 		
 		setHair(referenceHair, paletteType);
