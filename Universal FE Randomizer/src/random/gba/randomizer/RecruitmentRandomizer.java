@@ -11,9 +11,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEChapterData;
+import fedata.gba.GBAFEChapterItemData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapPortraitData;
 import fedata.gba.general.WeaponRank;
@@ -434,6 +436,13 @@ public class RecruitmentRandomizer {
 			
 			int levelsToAdd = targetLevel - sourceLevel;
 			
+			// To make newly created pre-promotes not completely busted (since they probably had higher growths than real pre-promotes)
+			// we'll subtract a few levels from their autoleveling amount.
+			if (!isPromoted && shouldBePromoted) {
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Dropping 5 additional levels for new prepromotes.");
+				levelsToAdd -= 5;
+			}
+			
 			int promoAdjustHP = 0;
 			int promoAdjustSTR = 0;
 			int promoAdjustSKL = 0;
@@ -660,6 +669,12 @@ public class RecruitmentRandomizer {
 		transferWeaponRanks(slot, targetClass, itemData, rng);
 		
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
+			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(slot.getID());
+			if (reward != null) {
+				GBAFEItemData item = itemData.getRandomWeaponForCharacter(slot, false, false, rng);
+				reward.setItemID(item.getID());
+			}
+			
 			for (GBAFEChapterUnitData unit : chapter.allUnits()) {
 				if (unit.getCharacterNumber() == slot.getID()) {
 					unit.setStartingClass(targetClass.getID());
