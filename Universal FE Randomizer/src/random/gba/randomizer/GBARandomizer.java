@@ -3,12 +3,17 @@ package random.gba.randomizer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEWorldMapData;
+import fedata.gba.GBAFEWorldMapSpriteData;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
@@ -496,6 +501,62 @@ public class GBARandomizer extends Randomizer {
 			PaletteHelper.synchronizePalettes(gameType, charData, classData, paletteData, characterMap, freeSpace);
 		}
 		
+		if (gameType == GameType.FE7 || gameType == GameType.FE8) {
+			// Fix world map sprites.
+			if (gameType == GameType.FE7) {
+				for (FE7Data.ChapterPointer chapter : FE7Data.ChapterPointer.values()) {
+					Map<Integer, List<Integer>> perChapterMap = chapter.worldMapSpriteClassIDToCharacterIDMapping();
+					GBAFEWorldMapData worldMapData = chapterData.worldMapEventsForChapterID(chapter.chapterID);
+					if (worldMapData == null) { continue; }
+					for (GBAFEWorldMapSpriteData sprite : worldMapData.allSprites()) {
+						// If it's a class we don't touch, ignore it.
+						if (classData.classForID(sprite.getClassID()) == null) { continue; }
+						// Check Universal list first.
+						Integer characterID = FE7Data.ChapterPointer.universalWorldMapSpriteClassIDToCharacterIDMapping().get(sprite.getClassID());
+						if (characterID != null) {
+							if (characterID == FE7Data.Character.NONE.ID) { continue; }
+							syncWorldMapSpriteToCharacter(sprite, characterID);
+						} else {
+							// Check per chapter
+							List<Integer> charactersForClassID = perChapterMap.get(sprite.getClassID());
+							if (charactersForClassID != null && !charactersForClassID.isEmpty()) {
+								int charID = charactersForClassID.remove(0);
+								if (charID == FE7Data.Character.NONE.ID) {
+									charactersForClassID.add(FE7Data.Character.NONE.ID);
+									continue;
+								}
+								syncWorldMapSpriteToCharacter(sprite, charID);
+							} else {
+								assert false : "Unaccounted for world map sprite in " + chapter.toString();
+							}
+						}
+					}
+				}
+			}
+			else {
+				for (FE8Data.ChapterPointer chapter : FE8Data.ChapterPointer.values()) {
+					Map<Integer, List<Integer>> perChapterMap = chapter.worldMapSpriteClassIDToCharacterIDMapping();
+					GBAFEWorldMapData worldMapData = chapterData.worldMapEventsForChapterID(chapter.chapterID);
+					for (GBAFEWorldMapSpriteData sprite : worldMapData.allSprites()) {
+						// Check Universal list first.
+						Integer characterID = FE8Data.ChapterPointer.universalWorldMapSpriteClassIDToCharacterIDMapping().get(sprite.getClassID());
+						if (characterID != null) {
+							syncWorldMapSpriteToCharacter(sprite, characterID);
+						} else {
+							// Check per chapter
+							List<Integer> charactersForClassID = perChapterMap.get(sprite.getClassID());
+							if (charactersForClassID != null && !charactersForClassID.isEmpty()) {
+								int charID = charactersForClassID.remove(0);
+								syncWorldMapSpriteToCharacter(sprite, charID);
+							} else {
+								assert false : "Unaccounted for world map sprite in " + chapter.toString();
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		if (gameType == GameType.FE8) {
 			// Create the Trainee Seal using the old heaven seal.
 			textData.setStringAtIndex(0x4AB, "Promotes Tier 0 Trainees at Lv 10.");
@@ -510,6 +571,22 @@ public class GBARandomizer extends Randomizer {
 						chapterUnit.giveItems(new int[] {FE8Data.Item.HEAVEN_SEAL.ID});
 					}
 				}
+			}
+		}
+	}
+	
+	private void syncWorldMapSpriteToCharacter(GBAFEWorldMapSpriteData sprite, int characterID) {
+		GBAFECharacterData character = charData.characterWithID(characterID);
+		boolean spriteIsPromoted = classData.isPromotedClass(sprite.getClassID());
+		int classID = character.getClassID();
+		boolean characterClassIsPromoted = classData.isPromotedClass(classID);
+		if (spriteIsPromoted == characterClassIsPromoted) {
+			sprite.setClassID(classID);
+		} else {
+			if (spriteIsPromoted) {
+				sprite.setClassID(classData.classForID(classID).getTargetPromotionID());
+			} else {
+				assert false : "This shouldn't ever be the case...";
 			}
 		}
 	}

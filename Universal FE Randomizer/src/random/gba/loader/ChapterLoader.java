@@ -13,6 +13,7 @@ import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapPortraitData;
+import fedata.gba.GBAFEWorldMapSpriteData;
 import fedata.gba.fe6.FE6Chapter;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe6.FE6WorldMapEvent;
@@ -37,7 +38,7 @@ public class ChapterLoader {
 	private FEBase.GameType gameType;
 	
 	private GBAFEChapterData[] chapters;
-	private List<GBAFEWorldMapData> worldMapEvents = new ArrayList<GBAFEWorldMapData>();
+	private Map<Integer, GBAFEWorldMapData> worldMapEventsByChapterID = new HashMap<Integer, GBAFEWorldMapData>();
 	private Map<Integer, GBAFEChapterData> mappedChapters = new HashMap<Integer, GBAFEChapterData>();
 	
 	public static final String RecordKeeperCategoryKey = "Chapters";
@@ -71,7 +72,7 @@ public class ChapterLoader {
 						long worldMapOffset = baseAddress + (4 * chapter.worldMapEvents);
 						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading World Map Events for " + chapter.toString());
 						FE6WorldMapEvent fe6WorldMapEvent = new FE6WorldMapEvent(handler, worldMapOffset);
-						worldMapEvents.add(fe6WorldMapEvent);
+						worldMapEventsByChapterID.put(chapterID, fe6WorldMapEvent);
 						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe6WorldMapEvent.allPortraits().length + " world map portraits.");
 					}
 				}
@@ -99,7 +100,9 @@ public class ChapterLoader {
 					long offset = FE7Data.WorldMapEventTableOffset + (j * FE7Data.WorldMapEventItemSize);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading World Map Events from offset 0x" + Long.toHexString(offset));
 					FE7WorldMapEvent fe7WorldMapEvent = new FE7WorldMapEvent(handler, offset);
-					worldMapEvents.add(fe7WorldMapEvent);
+					long dereferencedAddress = FileReadHelper.readAddress(handler, offset);
+					FE7Data.ChapterPointer chapter = FE7Data.ChapterPointer.chapterForWorldMapEventOffset(dereferencedAddress);
+					worldMapEventsByChapterID.put(chapter.chapterID, fe7WorldMapEvent);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loaded " + fe7WorldMapEvent.allPortraits().length + " world map portraits.");
 				}
 				break;
@@ -137,7 +140,9 @@ public class ChapterLoader {
 					long offset = FE8Data.WorldMapEventTableOffset + (j * FE8Data.WorldMapEventItemSize);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading World Map Events from offset 0x" + Long.toHexString(offset));
 					FE8WorldMapEvent fe8WorldMapEvent = new FE8WorldMapEvent(handler, offset);
-					worldMapEvents.add(fe8WorldMapEvent);
+					long dereferencedAddress = FileReadHelper.readAddress(handler, offset);
+					FE8Data.ChapterPointer chapter = FE8Data.ChapterPointer.chapterForWorldMapEventOffset(dereferencedAddress);
+					worldMapEventsByChapterID.put(chapter.chapterID, fe8WorldMapEvent);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loaded " + fe8WorldMapEvent.allPortraits().length + " world map portraits.");
 				}
 				break; 
@@ -162,10 +167,14 @@ public class ChapterLoader {
 		case FE6:
 		case FE7:
 		case FE8:
-			return worldMapEvents.toArray(new GBAFEWorldMapData[worldMapEvents.size()]);
+			return worldMapEventsByChapterID.values().toArray(new GBAFEWorldMapData[worldMapEventsByChapterID.values().size()]);
 		default:
 			return new GBAFEWorldMapData[] {};
 		}
+	}
+	
+	public GBAFEWorldMapData worldMapEventsForChapterID(int chapterID) {
+		return worldMapEventsByChapterID.get(chapterID);
 	}
 	
 	public GBAFEChapterData chapterWithID(int chapterID) {
@@ -201,9 +210,12 @@ public class ChapterLoader {
 			}
 		}
 		
-		for (GBAFEWorldMapData worldMapEvent : worldMapEvents) {
+		for (GBAFEWorldMapData worldMapEvent : worldMapEventsByChapterID.values()) {
 			for (GBAFEWorldMapPortraitData portrait : worldMapEvent.allPortraits()) {
 				portrait.commitChanges();
+			}
+			for (GBAFEWorldMapSpriteData sprite : worldMapEvent.allSprites()) {
+				sprite.commitChanges();
 			}
 		}
 	}
@@ -249,13 +261,21 @@ public class ChapterLoader {
 			}
 		}
 		
-		for (GBAFEWorldMapData worldMapEvent : worldMapEvents) {
+		for (GBAFEWorldMapData worldMapEvent : worldMapEventsByChapterID.values()) {
 			for (GBAFEWorldMapPortraitData portrait : worldMapEvent.allPortraits()) {
 				portrait.commitChanges();
 				if (portrait.hasCommittedChanges()) {
 					byte[] portraitData = portrait.getData();
 					Diff portraitDiff = new Diff(portrait.getAddressOffset(), portraitData.length, portraitData, null);
 					compiler.addDiff(portraitDiff);
+				}
+			}
+			for (GBAFEWorldMapSpriteData sprite : worldMapEvent.allSprites()) {
+				sprite.commitChanges();
+				if (sprite.hasCommittedChanges()) {
+					byte[] spriteData = sprite.getData();
+					Diff spriteDiff = new Diff(sprite.getAddressOffset(), spriteData.length, spriteData, null);
+					compiler.addDiff(spriteDiff);
 				}
 			}
 		}

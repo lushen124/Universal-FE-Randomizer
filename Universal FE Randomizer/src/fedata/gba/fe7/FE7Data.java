@@ -1317,6 +1317,127 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			
 			return new Character[] {};
 		}
+		
+		// These should always be true for every chapter.
+		public static Map<Integer, Integer> universalWorldMapSpriteClassIDToCharacterIDMapping() {
+			Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+			map.put(CharacterClass.LORD_LYN.ID, Character.LYN.ID);
+			map.put(CharacterClass.BLADE_LORD.ID, Character.LYN.ID);
+			map.put(CharacterClass.LORD_ELIWOOD.ID, Character.ELIWOOD.ID);
+			map.put(CharacterClass.LORD_KNIGHT.ID, Character.ELIWOOD.ID);
+			map.put(CharacterClass.LORD_HECTOR.ID, Character.HECTOR.ID);
+			map.put(CharacterClass.GREAT_LORD.ID, Character.HECTOR.ID);
+			map.put(CharacterClass.BARD.ID, Character.NILS.ID);
+			map.put(CharacterClass.DANCER.ID, Character.NINIAN.ID);
+			
+			map.put(CharacterClass.SOLDIER.ID, Character.NONE.ID); // Don't touch these.
+			return map;
+		}
+		
+		public Map<Integer, List<Integer>> worldMapSpriteClassIDToCharacterIDMapping() {
+			Map<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
+			switch (this) {
+			case CHAPTER_1:
+				map.put(CharacterClass.CAVALIER.ID, new ArrayList<Integer>(Arrays.asList(Character.SAIN.ID, Character.KENT.ID)));
+				break;
+			case CHAPTER_3:
+				map.put(CharacterClass.BRIGAND.ID, new ArrayList<Integer>(Arrays.asList(Character.MIGAL.ID)));
+				map.put(CharacterClass.PEGASUSKNIGHT.ID, new ArrayList<Integer>(Arrays.asList(Character.FLORINA.ID)));
+				break;
+			case CHAPTER_4:
+				map.put(CharacterClass.BRIGAND.ID, new ArrayList<Integer>(Arrays.asList(Character.CARJIGA.ID)));
+				break;
+			case CHAPTER_5:
+				map.put(CharacterClass.BRIGAND.ID, new ArrayList<Integer>(Arrays.asList(Character.BUG.ID)));
+				break;
+			case CHAPTER_6:
+				map.put(CharacterClass.GENERAL.ID, new ArrayList<Integer>(Arrays.asList(Character.LUNDGREN.ID)));
+				map.put(CharacterClass.KNIGHT.ID, new ArrayList<Integer>(Arrays.asList(Character.BOOL.ID)));
+				break;
+			case CHAPTER_7X:
+				map.put(CharacterClass.VALKYRIE.ID, new ArrayList<Integer>(Arrays.asList(Character.URSULA.ID)));
+				break;
+			case CHAPTER_8:
+				map.put(CharacterClass.KNIGHT.ID, new ArrayList<Integer>(Arrays.asList(Character.YOGI.ID)));
+				break;
+			case CHAPTER_10:
+				map.put(CharacterClass.GENERAL.ID, new ArrayList<Integer>(Arrays.asList(Character.LUNDGREN.ID)));
+				break;
+			case CHAPTER_11_E:
+				map.put(CharacterClass.PALADIN.ID, new ArrayList<Integer>(Arrays.asList(Character.NONE.ID)));
+				break;
+			case CHAPTER_15:
+				map.put(CharacterClass.NOMAD.ID, new ArrayList<Integer>(Arrays.asList(Character.SEALEN.ID)));
+				break;
+			case CHAPTER_17:
+				map.put(CharacterClass.GENERAL.ID, new ArrayList<Integer>(Arrays.asList(Character.BERNARD.ID)));
+				break;
+			case CHAPTER_19X:
+				map.put(CharacterClass.SAGE.ID, new ArrayList<Integer>(Arrays.asList(Character.AION.ID)));
+				break;
+			case CHAPTER_28:
+				map.put(CharacterClass.MAGE_F.ID, new ArrayList<Integer>(Arrays.asList(Character.NINO.ID)));
+				map.put(CharacterClass.ASSASSIN.ID, new ArrayList<Integer>(Arrays.asList(Character.JAFFAR.ID)));
+				break;
+			case CHAPTER_29:
+				map.put(CharacterClass.WYVERNKNIGHT.ID, new ArrayList<Integer>(Arrays.asList(Character.NONE.ID)));
+				break;
+			default:
+				break;
+			}
+			return map;
+		}
+		
+		// TODO: Figure out a better way of doing this...
+		public static ChapterPointer chapterForWorldMapEventOffset(long worldMapOffset) {
+			if (worldMapOffset == 0xCE7920L) { return CHAPTER_1; }
+			else if (worldMapOffset == 0xCE7AC0L) { return CHAPTER_2; }
+			else if (worldMapOffset == 0xCE7BB4L) { return CHAPTER_3; }
+			else if (worldMapOffset == 0xCE7E1CL) { return CHAPTER_4; }
+			else if (worldMapOffset == 0xCE7F30L) { return CHAPTER_5; }
+			else if (worldMapOffset == 0xCE8078L) { return CHAPTER_6; }
+			else if (worldMapOffset == 0xCE821CL) { return CHAPTER_7; }
+			else if (worldMapOffset == 0xCE833CL) { return CHAPTER_7X; }
+			else if (worldMapOffset == 0xCE84C8L) { return CHAPTER_8; }
+			else if (worldMapOffset == 0xCE8618L) { return CHAPTER_9; }
+			else if (worldMapOffset == 0xCE8894L) { return CHAPTER_10; }
+			else if (worldMapOffset == 0xCE89ECL) { return CHAPTER_11_E; }
+			else if (worldMapOffset == 0xCECDD8L) { return CHAPTER_11_H; }
+			else if (worldMapOffset == 0xCE8D50L) { return CHAPTER_12; }
+			else if (worldMapOffset == 0xCE8FACL) { return CHAPTER_13; }
+			else if (worldMapOffset == 0xCE9200L) { return CHAPTER_13X; }
+			else if (worldMapOffset == 0xCE9408L) { return CHAPTER_14; }
+			else if (worldMapOffset == 0xCECF0CL) { return CHAPTER_15; }
+			else if (worldMapOffset == 0xCE9BF8L) { return CHAPTER_16; }
+			else if (worldMapOffset == 0xCE9DD4L) { return CHAPTER_17; }
+			else if (worldMapOffset == 0xCE9F88L) { return CHAPTER_17X; }
+			else if (worldMapOffset == 0xCEA10CL) { return CHAPTER_18; }
+			else if (worldMapOffset == 0xCEA754L) { return CHAPTER_19; }
+			else if (worldMapOffset == 0xCEA8C8L) { return CHAPTER_19X; }
+			else if (worldMapOffset == 0xCED038L) { return CHAPTER_19XX; }
+			else if (worldMapOffset == 0xCEAA5CL) { return CHAPTER_20; }
+			else if (worldMapOffset == 0xCEAC48L) { return CHAPTER_21; }
+			else if (worldMapOffset == 0xCEAEA0L) { return CHAPTER_22; }
+			else if (worldMapOffset == 0xCEB0E8L) { return CHAPTER_23; }
+			else if (worldMapOffset == 0xCEB3ACL) { return CHAPTER_24_LINUS; }
+			else if (worldMapOffset == 0xCEB67CL) { return CHAPTER_24_LLOYD; }
+			else if (worldMapOffset == 0xCED188L) { return CHAPTER_25; }
+			else if (worldMapOffset == 0xCEB94CL) { return CHAPTER_26; }
+			else if (worldMapOffset == 0xCEBF5CL) { return CHAPTER_27_JERME; }
+			else if (worldMapOffset == 0xCEBD20L) { return CHAPTER_27_KENNETH; }
+			else if (worldMapOffset == 0xCEC198L) { return CHAPTER_28; }
+			else if (worldMapOffset == 0xCEC96CL) { return CHAPTER_28_E; }
+			else if (worldMapOffset == 0xCEC3F8L) { return CHAPTER_28X; }
+			else if (worldMapOffset == 0xCEC5B4L) { return CHAPTER_29; }
+			else if (worldMapOffset == 0xCED478L) { return CHAPTER_30_H; }
+			else if (worldMapOffset == 0xCECA24L) { return CHAPTER_31; }
+			else if (worldMapOffset == 0xCECBB0L) { return CHAPTER_32; }
+			else if (worldMapOffset == 0xCED554L) { return CHAPTER_32X; }
+			else {
+				assert false: "Shouldn't be requesting an unknown world map event offset.";
+				return null;
+			}
+		}
 	}
 	
 	public enum PromotionItem implements GBAFEPromotionItem {

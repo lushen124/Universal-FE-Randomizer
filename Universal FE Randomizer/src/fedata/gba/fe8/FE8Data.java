@@ -1624,6 +1624,77 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				return new long[] {};
 			}
 		}
+		
+		// These should always be true for every chapter.
+		public static Map<Integer, Integer> universalWorldMapSpriteClassIDToCharacterIDMapping() {
+			Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+			map.put(CharacterClass.EPHRAIM_LORD.ID, Character.EPHRAIM.ID);
+			map.put(CharacterClass.EPHRAIM_MASTER_LORD.ID, Character.EPHRAIM.ID);
+			map.put(CharacterClass.EIRIKA_LORD.ID, Character.EIRIKA.ID);
+			map.put(CharacterClass.EIRIKA_MASTER_LORD.ID, Character.EIRIKA.ID);
+		
+			// I think these are unique...
+			map.put(CharacterClass.WYVERN_KNIGHT.ID, Character.VALTER.ID);
+			map.put(CharacterClass.MAGE_KNIGHT_F.ID, Character.SELENA.ID);
+			map.put(CharacterClass.BISHOP.ID, Character.RIEV.ID);
+			map.put(CharacterClass.HERO.ID, Character.CAELLACH.ID);
+			return map;
+		}
+		
+		public Map<Integer, List<Integer>> worldMapSpriteClassIDToCharacterIDMapping() {
+			Map<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
+			switch (this) {
+			default:
+				break;
+			}
+			return map;
+		}
+		
+		// TODO: Figure out a better way of doing this...
+		public static ChapterPointer chapterForWorldMapEventOffset(long offset) {
+			if (offset == 0xA39768L) { return PROLOGUE; }
+			else if (offset == 0xA39D0CL) { return CHAPTER_1; }
+			else if (offset == 0xA39D44L) { return CHAPTER_2; }
+			else if (offset == 0xA39F20L) { return CHAPTER_3; }
+			else if (offset == 0xA3A0BCL) { return CHAPTER_4; }
+			else if (offset == 0xA3A1ECL) { return CHAPTER_5; }
+			else if (offset == 0xA3C890L) { return CHAPTER_5X; }
+			else if (offset == 0xA3A4D8L) { return CHAPTER_6; }
+			else if (offset == 0xA3A5C4L) { return CHAPTER_7; }
+			else if (offset == 0xA3A6B0L) { return CHAPTER_8; }
+			else if (offset == 0xA3A730L) { return CHAPTER_9_EIRIKA; }
+			else if (offset == 0xA3AE58L) { return CHAPTER_9_EPHRAIM; }
+			else if (offset == 0xA3A990L) { return CHAPTER_10_EIRIKA; }
+			else if (offset == 0xA3B08CL) { return CHAPTER_10_EPHRAIM; }
+			else if (offset == 0xA3C8A8L) { return CHAPTER_11_EIRIKA; }
+			else if (offset == 0xA3C9D0L) { return CHAPTER_11_EPHRAIM; }
+			else if (offset == 0xA3AB50L) { return CHAPTER_12_EIRIKA; }
+			else if (offset == 0xA3B1D8L) { return CHAPTER_12_EPHRAIM; }
+			else if (offset == 0xA3AB6CL) { return CHAPTER_13_EIRIKA; }
+			else if (offset == 0xA3B1F4L) { return CHAPTER_13_EPHRAIM; }
+			else if (offset == 0xA3ACB0L) { return CHAPTER_14_EIRIKA; }
+			else if (offset == 0xA3B2DCL) { return CHAPTER_14_EPHRAIM; }
+			else if (offset == 0xA3B528L) { return CHAPTER_15_EIRIKA; }
+			else if (offset == 0xA3BD74L) { return CHAPTER_15_EPHRAIM; }
+			else if (offset == 0xA3B594L) { return CHAPTER_16_EIRIKA; }
+			else if (offset == 0xA3BF28L) { return CHAPTER_16_EPHRAIM; }
+			else if (offset == 0xA3B738L) { return CHAPTER_17_EIRIKA; }
+			else if (offset == 0xA3C0B4L) { return CHAPTER_17_EPHRAIM; }
+			else if (offset == 0xA3B8E8L) { return CHAPTER_18_EIRIKA; }
+			else if (offset == 0xA3C260L) { return CHAPTER_18_EPHRAIM; }
+			else if (offset == 0xA3BA64L) { return CHAPTER_19_EIRIKA; }
+			else if (offset == 0xA3C3DCL) { return CHAPTER_19_EPHRAIM; }
+			else if (offset == 0xA3BB74L) { return CHAPTER_20_EIRIKA; }
+			else if (offset == 0xA3C4ECL) { return CHAPTER_20_EPHRAIM; }
+			else if (offset == 0xA3BD58L) { return FINAL_1_EIRIKA; }
+			else if (offset == 0xA3C6D0L) { return FINAL_1_EPHRAIM; }
+			else if (offset == 0xA3C898L) { return FINAL_2_EIRIKA; }
+			else if (offset == 0xA3C8A0L) { return FINAL_2_EPHRAIM; }
+			else {
+				assert false : "Unknown chapter for world map event offset.";
+				return null;
+			}
+		}
 	}
 	
 	public enum PromotionItem implements GBAFEPromotionItem {

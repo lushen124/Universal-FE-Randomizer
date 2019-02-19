@@ -5,6 +5,7 @@ import java.util.List;
 
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapPortraitData;
+import fedata.gba.GBAFEWorldMapSpriteData;
 import io.FileHandler;
 import util.FileReadHelper;
 
@@ -136,6 +137,10 @@ public class FE6WorldMapEvent implements GBAFEWorldMapData  {
 	public GBAFEWorldMapPortraitData[] allPortraits() {
 		if (portraitList.isEmpty()) { return new GBAFEWorldMapPortraitData[] {}; }
 		return portraitList.toArray(new GBAFEWorldMapPortraitData[portraitList.size()]);
+	}
+	
+	public GBAFEWorldMapSpriteData[] allSprites() {
+		return new GBAFEWorldMapSpriteData[] {}; // This isn't supported in FE6.
 	}
 
 }

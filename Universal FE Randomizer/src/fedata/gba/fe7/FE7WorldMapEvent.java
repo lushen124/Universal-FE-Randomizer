@@ -5,10 +5,75 @@ import java.util.List;
 
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapPortraitData;
+import fedata.gba.GBAFEWorldMapSpriteData;
 import io.FileHandler;
 import util.FileReadHelper;
 
 public class FE7WorldMapEvent implements GBAFEWorldMapData {
+	
+	public static class FE7WorldMapSprite implements GBAFEWorldMapSpriteData {
+
+		private byte[] originalData;
+		private byte[] data;
+		
+		private long originalOffset;
+		
+		private Boolean wasModified = false;
+		private Boolean hasChanges = false;
+		
+		public FE7WorldMapSprite(byte[] data, long offset) {
+			originalData = data.clone();
+			this.data = data.clone();
+			
+			originalOffset = offset;
+		}
+		
+		@Override
+		public void resetData() {
+			wasModified = false;
+			data = originalData;
+		}
+
+		@Override
+		public void commitChanges() {
+			if (wasModified) {
+				hasChanges = true;
+			}
+			
+			wasModified = false;
+		}
+
+		@Override
+		public byte[] getData() {
+			return data;
+		}
+
+		@Override
+		public Boolean hasCommittedChanges() {
+			return hasChanges;
+		}
+
+		@Override
+		public Boolean wasModified() {
+			return wasModified;
+		}
+
+		@Override
+		public long getAddressOffset() {
+			return originalOffset;
+		}
+
+		@Override
+		public int getClassID() {
+			return data[12] & 0xFF;
+		}
+
+		@Override
+		public void setClassID(int newClassID) {
+			data[12] = (byte)(newClassID & 0xFF);
+			wasModified = true;
+		}
+	}
 	
 	public static class FE7WorldMapPortrait implements GBAFEWorldMapPortraitData {
 
@@ -75,6 +140,7 @@ public class FE7WorldMapEvent implements GBAFEWorldMapData {
 	}
 	
 	private List<FE7WorldMapPortrait> portraitList = new ArrayList<FE7WorldMapPortrait>();
+	private List<FE7WorldMapSprite> spriteList = new ArrayList<FE7WorldMapSprite>();
 	
 	public FE7WorldMapEvent(FileHandler handler, long offset) {
 		// We need one jump.
@@ -97,8 +163,11 @@ public class FE7WorldMapEvent implements GBAFEWorldMapData {
 			// We'll need to do this later...
 			// PUTSPRITE (0xB7) - 20 bytes
 			else if (opcode == (byte)0xB7) {
-				// TODO: Replace map sprites appropriately.
-				handler.continueReadingBytes(19);
+				long address = handler.getNextReadOffset() - 1;
+				FE7WorldMapSprite sprite = new FE7WorldMapSprite(handler.readBytesAtOffset(address, 20), address);
+				if (sprite.getClassID() != 0) {
+					spriteList.add(sprite);
+				}
 			}
 			// These opcodes are 4 bytes and we don't care about them (right now).
 			// ? (0x87), STAL (0x02), ? (0x89), TEXTBOXTOBOTTOM (0xB4), SCRO (0x14), ? (0xCA), MUEN (0x7C), ? (0xAD), ? (0xAE), TEXTBOXTOTOP(0xB5)
@@ -142,6 +211,11 @@ public class FE7WorldMapEvent implements GBAFEWorldMapData {
 	public GBAFEWorldMapPortraitData[] allPortraits() {
 		if (portraitList.isEmpty()) { return new GBAFEWorldMapPortraitData[] {}; }
 		return portraitList.toArray(new GBAFEWorldMapPortraitData[portraitList.size()]);
+	}
+	
+	public GBAFEWorldMapSpriteData[] allSprites() {
+		if (spriteList.isEmpty()) { return new GBAFEWorldMapSpriteData[] {}; }
+		return spriteList.toArray(new GBAFEWorldMapSpriteData[spriteList.size()]);
 	}
 
 }

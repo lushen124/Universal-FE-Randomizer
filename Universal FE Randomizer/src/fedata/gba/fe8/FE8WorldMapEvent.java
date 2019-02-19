@@ -5,11 +5,103 @@ import java.util.List;
 
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapPortraitData;
+import fedata.gba.GBAFEWorldMapSpriteData;
 import io.FileHandler;
 import util.FileReadHelper;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE8WorldMapEvent implements GBAFEWorldMapData {
+	
+	private enum SpriteType {
+		PUTSPRITE, WM_PUTSPRITE, WM_PUTMOVINGSPRITE
+	}
+	
+	public static class FE8WorldMapSprite implements GBAFEWorldMapSpriteData {
+
+		private byte[] originalData;
+		private byte[] data;
+		
+		private long originalOffset;
+		
+		private Boolean wasModified = false;
+		private Boolean hasChanges = false;
+		
+		private SpriteType type;
+		
+		public FE8WorldMapSprite(byte[] data, long offset, SpriteType type) {
+			originalData = data.clone();
+			this.data = data.clone();
+			
+			originalOffset = offset;
+			this.type = type;
+		}
+		
+		@Override
+		public void resetData() {
+			wasModified = false;
+			data = originalData;
+		}
+
+		@Override
+		public void commitChanges() {
+			if (wasModified) {
+				hasChanges = true;
+			}
+			
+			wasModified = false;
+		}
+
+		@Override
+		public byte[] getData() {
+			return data;
+		}
+
+		@Override
+		public Boolean hasCommittedChanges() {
+			return hasChanges;
+		}
+
+		@Override
+		public Boolean wasModified() {
+			return wasModified;
+		}
+
+		@Override
+		public long getAddressOffset() {
+			return originalOffset;
+		}
+
+		@Override
+		public int getClassID() {
+			switch (type) {
+			case PUTSPRITE:
+				return data[6] & 0xFF;
+			case WM_PUTMOVINGSPRITE:
+			case WM_PUTSPRITE:
+				return data[4] & 0xFF;
+			default:
+				assert false : "This doesn't exist.";
+			return 0;
+			}
+			
+		}
+
+		@Override
+		public void setClassID(int newClassID) {
+			switch (type) {
+			case PUTSPRITE:
+				data[6] = (byte)(newClassID & 0xFF);
+				wasModified = true;
+				break;
+			case WM_PUTMOVINGSPRITE:
+			case WM_PUTSPRITE:
+				data[4] = (byte)(newClassID & 0xFF);
+				wasModified = true;
+				break;
+			}
+		}
+		
+	}
 
 	public static class FE8WorldMapPortrait implements GBAFEWorldMapPortraitData {
 		
@@ -76,6 +168,7 @@ public class FE8WorldMapEvent implements GBAFEWorldMapData {
 	}
 	
 	private List<FE8WorldMapPortrait> portraitList = new ArrayList<FE8WorldMapPortrait>();
+	private List<FE8WorldMapSprite> spriteList = new ArrayList<FE8WorldMapSprite>();
 	
 	public FE8WorldMapEvent(FileHandler handler, long offset) {
 		// We need one jump.
@@ -105,13 +198,20 @@ public class FE8WorldMapEvent implements GBAFEWorldMapData {
 			// Will probably have to tackle this later.
 			// PUTSPRITE (0x9E60) - 12 bytes
 			else if (WhyDoesJavaNotHaveThese.byteArrayHasPrefix(opcode, new byte[] {(byte)0x60, (byte)0x9E})) {
-				// TODO: Fix world map sprites.
-				handler.continueReadingBytes(8);
+				long address = handler.getNextReadOffset() - 4;
+				spriteList.add(new FE8WorldMapSprite(handler.readBytesAtOffset(address, 12), address, SpriteType.PUTSPRITE));
 			}
 			// May be able to roll this into a universal sprite handler.
 			// WM_PUTMOVINGSPRITE (0xA8C0) - 24 bytes
 			else if (WhyDoesJavaNotHaveThese.byteArrayHasPrefix(opcode, new byte[] {(byte)0xC0, (byte)0xA8})) {
-				handler.continueReadingBytes(20);
+				long address = handler.getNextReadOffset() - 4;
+				spriteList.add(new FE8WorldMapSprite(handler.readBytesAtOffset(address, 24), address, SpriteType.WM_PUTMOVINGSPRITE));
+			}
+			// There's a third type of sprite. o_o
+			// WM_PUTSPRITE (0xA760) - 12 bytes
+			else if (WhyDoesJavaNotHaveThese.byteArrayHasPrefix(opcode, new byte[] {(byte)0x60, (byte)0xA7})) {
+				long address = handler.getNextReadOffset() - 4;
+				spriteList.add(new FE8WorldMapSprite(handler.readBytesAtOffset(address, 12), address, SpriteType.WM_PUTSPRITE));
 			}
 			
 			// I have a sneaking suspicion that the number of bytes an instruction takes is encoded into that first half of the first byte.
@@ -176,5 +276,10 @@ public class FE8WorldMapEvent implements GBAFEWorldMapData {
 	public GBAFEWorldMapPortraitData[] allPortraits() {
 		if (portraitList.isEmpty()) { return new GBAFEWorldMapPortraitData[] {}; }
 		return portraitList.toArray(new GBAFEWorldMapPortraitData[portraitList.size()]);
+	}
+	
+	public GBAFEWorldMapSpriteData[] allSprites() {
+		if (spriteList.isEmpty()) { return new GBAFEWorldMapSpriteData[] {}; }
+		return spriteList.toArray(new GBAFEWorldMapSpriteData[spriteList.size()]);
 	}
 }
