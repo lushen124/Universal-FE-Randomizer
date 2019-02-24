@@ -381,6 +381,14 @@ public class PaletteLoader {
 		}
 	}
 	
+	public PaletteV2 generatePalette(int classID, int characterID, PaletteV2.PaletteType type, PaletteColor[] supplementalHairColors) {
+		PaletteV2 template = getV2TemplatePalette(classID);
+		PaletteV2 adapted = new PaletteV2(template);
+		PaletteV2[] referencePalettes = getV2ReferencePalettesForCharacter(characterID);
+		adapted.adaptPalette(referencePalettes, type, supplementalHairColors);
+		return adapted;
+	}
+	
 	private PaletteV2 v2PaletteForClass(int newClassID, PaletteV2[] referencePalettes, PaletteV2.PaletteType type, PaletteColor[] supplementalHairColors) {
 		PaletteV2 template = getV2TemplatePalette(newClassID);
 		PaletteV2 adapted = new PaletteV2(template);

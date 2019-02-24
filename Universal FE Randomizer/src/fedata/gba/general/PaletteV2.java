@@ -222,6 +222,16 @@ public class PaletteV2 {
 		setTertiary(referenceTertiary, paletteType);
 	}
 	
+	public void forceCommit(DiffCompiler compiler) {
+		applyColorsToData();
+		
+		byte[] compressed = LZ77.compress(decompressedData);
+		
+		compiler.addDiff(new Diff(getDestinationOffset(), compressed.length, compressed, null));
+		
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "[PaletteID: 0x" + Integer.toHexString(identifier) + "] Wrote " + Integer.toString(compressed.length) + " bytes to address 0x" + Long.toHexString(getDestinationOffset()));
+	}
+	
 	public void commitPalette(DiffCompiler compiler) {
 		if (identifier == 0) {
 			DebugPrinter.log(DebugPrinter.Key.PALETTE, "No identifier assigned to palette. Dropping palette...");

@@ -3,6 +3,7 @@ package random.gba.randomizer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -499,6 +500,65 @@ public class GBARandomizer extends Randomizer {
 		// Fix the palettes based on final classes.
 		if (needsPaletteFix) {
 			PaletteHelper.synchronizePalettes(gameType, charData, classData, paletteData, characterMap, freeSpace);
+		}
+		
+		// Hack in mode select without needing clear data for FE7.
+		if (gameType == GameType.FE7) {
+			try {
+				InputStream stream = UPSPatcher.class.getClassLoader().getResourceAsStream("FE7ClearSRAM.bin");
+				byte[] bytes = new byte[0x6F];
+				stream.read(bytes);
+				stream.close();
+				
+				long offset = freeSpace.setValue(bytes, "FE7 Hardcoded SRAM", true);
+				long pointer = freeSpace.setValue(WhyDoesJavaNotHaveThese.bytesFromAddress(offset), "FE7 Hardcoded SRAM Pointer", true);
+				diffCompiler.addDiff(new Diff(FE7Data.HardcodedSRAMHeaderOffset, 4, WhyDoesJavaNotHaveThese.bytesFromAddress(pointer), WhyDoesJavaNotHaveThese.bytesFromAddress(FE7Data.DefaultSRAMHeaderPointer)));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			// Fix up the portraits in mode select, since they're hardcoded.
+			// Only necessary if we randomized recruitment.
+			// All of the data should have been commited at this point, so asking for Lyn will get you the Lyn replacement.
+			if (miscOptions.randomizeRecruitment) {
+				GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
+				GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
+				GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
+				
+				byte lynReplacementFaceID = (byte)lyn.getFaceID();
+				byte eliwoodReplacementFaceID = (byte)eliwood.getFaceID();
+				byte hectorReplacementFaceID = (byte)hector.getFaceID();
+				
+				diffCompiler.addDiff(new Diff(FE7Data.ModeSelectPortraitOffset, 12,
+						new byte[] {lynReplacementFaceID, 0, 0, 0, eliwoodReplacementFaceID, 0, 0, 0, hectorReplacementFaceID, 0, 0, 0}, null));
+				
+				// Conveniently, the class animations are here too, in the same format.
+				FE7Data.CharacterClass lynClass = FE7Data.CharacterClass.valueOf(lyn.getClassID());
+				FE7Data.CharacterClass eliwoodClass = FE7Data.CharacterClass.valueOf(eliwood.getClassID());
+				FE7Data.CharacterClass hectorClass = FE7Data.CharacterClass.valueOf(hector.getClassID());
+				
+				byte lynReplacementAnimationID = (byte)lynClass.animationID();
+				byte eliwoodReplacementAnimationID = (byte)eliwoodClass.animationID();
+				byte hectorReplacementAnimationID = (byte)hectorClass.animationID();
+				
+				diffCompiler.addDiff(new Diff(FE7Data.ModeSelectClassAnimationOffset, 12,
+						new byte[] {lynReplacementAnimationID, 0, 0, 0, eliwoodReplacementAnimationID, 0, 0, 0, hectorReplacementAnimationID, 0, 0, 0}, null));
+				
+				// See if we can apply their palettes to the class default.
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(lyn), lyn.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(eliwood), eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(hector), hector.getClassID(), paletteData, freeSpace, diffCompiler);
+				
+				// Finally, fix the weapon text.
+				textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType());
+				textData.setStringAtIndex(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex, eliwoodClass.primaryWeaponType());
+				textData.setStringAtIndex(FE7Data.ModeSelectTextHectorWeaponTypeIndex, hectorClass.primaryWeaponType());
+				
+				// Eliwood is the one we're going to override, since he normally shares the weapon string with Lyn.
+				diffCompiler.addDiff(new Diff(FE7Data.ModeSelectEliwoodWeaponOffset, 2, 
+						new byte[] {(byte)(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex & 0xFF), (byte)((FE7Data.ModeSelectTextEliwoodWeaponTypeIndex >> 8) & 0xFF)}, null));
+			}
 		}
 		
 		if (gameType == GameType.FE7 || gameType == GameType.FE8) {

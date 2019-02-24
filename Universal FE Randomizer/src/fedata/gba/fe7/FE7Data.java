@@ -80,6 +80,45 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int WorldMapEventItemSize = 4;
 	public static final int WorldMapEventCount = 43;
 	
+	public static final long AnimationPointerTableOffset = 0xE00008L;
+	public static final int AnimationPointerTableCount = 256;
+	public static final int AnimationPointerTableEntrySize = 32;
+	
+	// We can hack the check for mode select by embedding a header that is sufficient to enable mode select from the beginning without real clear data
+	// by hijacking the part of the ASM that checks the SRAM header. It's apparently sufficient for the first 0x64 bytes of SRAM to figure out
+	// whether there exists clear data, so when the game tries to read the SRAM header, we modify it to read from ROM instead of SRAM and
+	// bake in a known good "cleared" header into the ROM. We can then repoint it to read from our own pointer to the hardcoded header instead of
+	// the usual SRAM offset (normally mapped to 0xE000000).
+	public static final long HardcodedSRAMHeaderOffset = 0x9E554L;
+	public static final long DefaultSRAMHeaderPointer = 0xCE3B58L; // This is what it normally is (the value at this address is 0xE000000, which is how SRAM is mapped).
+	
+	// The mode select hard codes the portraits and classes that show up.
+	// We should figure out who our lords are (if we randomize recruitment) and replace those faces accordingly.
+	// The faces are stored in 12 bytes, 4 bytes each, starting with Lyn, then Eliwood, then Hector
+	// The default data was 16 00 00 00 02 00 00 00 0C 00 00 00 with 16 being Lyn's FaceID, 02 being Eliwood's FaceID, and 0C being Hector's FaceID.
+	public static final long ModeSelectPortraitOffset = 0x418DB4L;
+	// Sprite played is actually right before it, formatted int he same way, just with animation IDs.
+	// The default data was 0E 00 00 00 00 00 00 00 06 00 00 00 with 0E being Lyn Lord's battle animation, 00 being Eliwood Lord's Battle Animation, and 06 being Hector Lord's battle animation.
+	public static final long ModeSelectClassAnimationOffset = 0x418DA8L;
+	// The weapon type is stored elsewhere. Stored in triplets of text indices. Each entry is 12 bytes long and contains their name, their weapon type, and a short description (not sure where that's used)
+	// The default data is:
+	// DE 04 00 00 - 'Lyn' 
+	// B3 12 00 00 - 'Swordfighter of Sacae'
+	// B8 12 00 00 - 'Swd'
+	// DC 04 00 00 - 'Eliwood'
+	// B4 12 00 00 - 'Nobleman of Pherae'
+	// B8 12 00 00 - 'Swd'
+	// DD 04 00 00 - 'Hector'
+	// B5 12 00 00 - 'Marquess Ostia's brother'
+	// B9 12 00 00 - 'Axe'
+	// Obviously, there's some sharing for Lyn and Eliwood's weapon, so we'll jack an unused string's text entry. This is the only one we'll need to change.
+	public static final long ModeSelectEliwoodWeaponOffset = 0xCE48D4L;
+	public static final int ModeSelectTextLynWeaponTypeIndex = 0x12B8;
+	public static final int ModeSelectTextHectorWeaponTypeIndex = 0x12B9;
+	// 0x123D - 'This unit has no SRAM information[.][X]
+	// I'm not sure if this is used, but we're going to steal it for Eliwood's slot's weapon.
+	public static final int ModeSelectTextEliwoodWeaponTypeIndex = 0x123D;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
@@ -592,6 +631,126 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 		public Boolean canAttack() {
 			return !CharacterClass.allPacifistClasses.contains(this);
+		}
+		
+		public int animationID() {
+			switch (this) {
+			case LORD_ELIWOOD: return 0x0;
+			case LORD_KNIGHT: return 0x2;
+			case LORD_HECTOR: return 0x6;
+			case GREAT_LORD: return 0x9;
+			case LORD_LYN: return 0x0E;
+			case BLADE_LORD: return 0x10;
+			case BRIGAND: return 0x14;
+			case CORSAIR:
+			case PIRATE: return 0x17;
+			case FIGHTER: return 0x1D;
+			case WARRIOR: return 0x20;
+			case ARCHER: return 0x24;
+			case ARCHER_F: return 0x26;
+			case SNIPER: return 0x28;
+			case SNIPER_F: return 0x2A;
+			case MERCENARY: return 0x2C;
+			case HERO: return 0x2E;
+			case MYRMIDON: return 0x32;
+			case SWORDMASTER: return 0x34;
+			case SWORDMASTER_F: return 0x38;
+			case CAVALIER: return 0x3A;
+			case PALADIN: return 0x43;
+			case PALADIN_F: return 0x4D;
+			case SOLDIER: return 0x4F;
+			case KNIGHT: return 0x51;
+			case GENERAL: return 0x53;
+			case MAGE: return 0x57;
+			case MAGE_F: return 0x58;
+			case SAGE: return 0x59;
+			case SAGE_F: return 0x5B;
+			case CLERIC: return 0x61;
+			case MONK: return 0x63;
+			case BISHOP: return 0x64;
+			case BISHOP_F: return 0x66;
+			case SHAMAN: return 0x68;
+			case DRUID: return 0x69;
+			case TROUBADOUR: return 0x6D;
+			case VALKYRIE: return 0x6F;
+			case NOMAD: return 0x73;
+			case NOMADTROOPER: return 0x76;
+			case THIEF: return 0x78;
+			case ASSASSIN: return 0x7E;
+			case PEGASUSKNIGHT: return 0x80;
+			case FALCONKNIGHT: return 0x83;
+			case WYVERNKNIGHT: return 0x85;
+			case WYVERNLORD_F:
+			case WYVERNLORD: return 0x87;
+			case DANCER: return 0x8C;
+			case BARD: return 0x8D;
+			case BERSERKER: return 0x9C;
+			default: 
+				assert false: "Unhandled class animation ID.";
+				return 0x1;
+			}
+		}
+		
+		public String primaryWeaponType() {
+			switch (this) {
+			case LORD_ELIWOOD:
+			case LORD_KNIGHT:
+			case LORD_LYN:
+			case BLADE_LORD:
+			case MERCENARY:
+			case HERO:
+			case MYRMIDON:
+			case SWORDMASTER:
+			case SWORDMASTER_F:
+			case THIEF:
+			case ASSASSIN:
+				return "Sword";
+			case CAVALIER:
+			case PALADIN:
+			case PALADIN_F:
+			case SOLDIER:
+			case KNIGHT:
+			case GENERAL:
+			case PEGASUSKNIGHT:
+			case FALCONKNIGHT:
+			case WYVERNKNIGHT:
+			case WYVERNLORD:
+			case WYVERNLORD_F:
+				return "Lance";
+			case LORD_HECTOR:
+			case GREAT_LORD:
+			case PIRATE:
+			case CORSAIR:
+			case FIGHTER:
+			case WARRIOR:
+			case BERSERKER:
+				return "Axe";
+			case ARCHER:
+			case ARCHER_F:
+			case SNIPER:
+			case SNIPER_F:
+			case NOMAD:
+			case NOMADTROOPER:
+				return "Bow";
+			case MAGE:
+			case MAGE_F:
+			case SAGE:
+			case SAGE_F:
+				return "Anima";
+			case MONK:
+			case BISHOP:
+			case BISHOP_F:
+			case VALKYRIE:
+				return "Light";
+			case SHAMAN:
+			case DRUID:
+				return "Dark";
+			case CLERIC:
+			case TROUBADOUR:
+				return "Staff";
+			default:
+				return "None";
+			}
 		}
 	}
 	
@@ -1625,7 +1784,58 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		WYVERNKNIGHT_HEATH(0x25, Character.HEATH.ID, CharacterClass.WYVERNKNIGHT.ID, 0xFD9D44), // May need hair override.
 		
 		WYVERNLORD_HEATH(0x26, Character.HEATH.ID, CharacterClass.WYVERNLORD.ID, 0xFD9DB4),
-		WYVERNLORD_VAIDA(0x27, Character.VAIDA.ID, CharacterClass.WYVERNLORD_F.ID, 0xFD9E34); // Hair override
+		WYVERNLORD_VAIDA(0x27, Character.VAIDA.ID, CharacterClass.WYVERNLORD_F.ID, 0xFD9E34), // Hair override
+		
+		GENERIC_ELIWOOD_LORD(0x0, Character.NONE.ID, CharacterClass.LORD_ELIWOOD.ID, 0xE07958),
+		GENERIC_LORD_KNIGHT(0x0, Character.NONE.ID, CharacterClass.LORD_KNIGHT.ID, 0xE10654),
+		GENERIC_HECTOR_LORD(0x0, Character.NONE.ID, CharacterClass.LORD_HECTOR.ID, 0xE26D60),
+		GENERIC_GREAT_LORD(0x0, Character.NONE.ID, CharacterClass.GREAT_LORD.ID, 0xE2E570),
+		GENERIC_LYN_LORD(0x0, Character.NONE.ID, CharacterClass.LORD_LYN.ID, 0xE3F400),
+		GENERIC_BLADE_LORD(0x0, Character.NONE.ID, CharacterClass.BLADE_LORD.ID, 0xE45118),
+		GENERIC_BRIGAND(0x0, Character.NONE.ID, CharacterClass.BRIGAND.ID, 0xE520B4),
+		GENERIC_PIRATE(0x0, Character.NONE.ID, CharacterClass.PIRATE.ID, 0xE55B68),
+		GENERIC_FIGHTER(0x0, Character.NONE.ID, CharacterClass.FIGHTER.ID, 0xE61810),
+		GENERIC_WARRIOR(0x0, Character.NONE.ID, CharacterClass.WARRIOR.ID, 0xE6B45C),
+		GENERIC_ARCHER(0x0, Character.NONE.ID, CharacterClass.ARCHER.ID, 0xE74CFC),
+		GENERIC_ARCHER_F(0x0, Character.NONE.ID, CharacterClass.ARCHER_F.ID, 0xE778EC),
+		GENERIC_SNIPER(0x0, Character.NONE.ID, CharacterClass.SNIPER.ID, 0xE7A5D0),
+		GENERIC_SNIPER_F(0x0, Character.NONE.ID, CharacterClass.SNIPER_F.ID, 0xE7D0FC),
+		GENERIC_MERCENARY(0x0, Character.NONE.ID, CharacterClass.MERCENARY.ID, 0xE819FC),
+		GENERIC_HERO(0x0, Character.NONE.ID, CharacterClass.HERO.ID, 0xE880CC),
+		GENERIC_MYRMIDON(0x0, Character.NONE.ID, CharacterClass.MYRMIDON.ID, 0xE93AAC),
+		GENERIC_SWORDMASTER(0x0, Character.NONE.ID, CharacterClass.SWORDMASTER.ID, 0xE99428),
+		GENERIC_SWORDMASTER_F(0x0, Character.NONE.ID, CharacterClass.SWORDMASTER_F.ID, 0xEA44D8),
+		GENERIC_CAVALIER(0x0, Character.NONE.ID, CharacterClass.CAVALIER.ID, 0xEAA4A8),
+		GENERIC_PALADIN(0x0, Character.NONE.ID, CharacterClass.PALADIN.ID, 0xEC7E30),
+		GENERIC_PALADIN_F(0x0, Character.NONE.ID, CharacterClass.PALADIN_F.ID, 0xEE13A0),
+		GENERIC_SOLDIER(0x0, Character.NONE.ID, CharacterClass.SOLDIER.ID, 0xEE67A8),
+		GENERIC_KNIGHT(0x0, Character.NONE.ID, CharacterClass.KNIGHT.ID, 0xEEAD0C),
+		GENERIC_GENERAL(0x0, Character.NONE.ID, CharacterClass.GENERAL.ID, 0xEF3B00),
+		GENERIC_MAGE(0x0, Character.NONE.ID, CharacterClass.MAGE.ID, 0xEFA0F4),
+		GENERIC_MAGE_F(0x0, Character.NONE.ID, CharacterClass.MAGE_F.ID, 0xEFCD98),
+		GENERIC_SAGE(0x0, Character.NONE.ID, CharacterClass.SAGE.ID, 0xF00AFC),
+		GENERIC_SAGE_F(0x0, Character.NONE.ID, CharacterClass.SAGE_F.ID, 0xF05DD0),
+		GENERIC_CLERIC(0x0, Character.NONE.ID, CharacterClass.CLERIC.ID, 0xF0A3D0),
+		GENERIC_MONK(0x0, Character.NONE.ID, CharacterClass.MONK.ID, 0xF0D108),
+		GENERIC_BISHOP(0x0, Character.NONE.ID, CharacterClass.BISHOP.ID, 0xF10980),
+		GENERIC_BISHOP_F(0x0, Character.NONE.ID, CharacterClass.BISHOP_F.ID, 0xF137C4),
+		GENERIC_SHAMAN(0x0, Character.NONE.ID, CharacterClass.SHAMAN.ID, 0xF1773C),
+		GENERIC_DRUID(0x0, Character.NONE.ID, CharacterClass.DRUID.ID, 0xF1BE98),
+		GENERIC_TROUBADOUR(0x0, Character.NONE.ID, CharacterClass.TROUBADOUR.ID, 0xF24490),
+		GENERIC_VALKYRIE(0x0, Character.NONE.ID, CharacterClass.VALKYRIE.ID, 0xF2817C),
+		GENERIC_NOMAD(0x0, Character.NONE.ID, CharacterClass.NOMAD.ID, 0xF2FF14),
+		GENERIC_NOMADTROOPER(0x0, Character.NONE.ID, CharacterClass.NOMADTROOPER.ID, 0xF39590),
+		GENERIC_THIEF(0x0, Character.NONE.ID, CharacterClass.THIEF.ID, 0xF3E024),
+		GENERIC_ASSASSIN(0x0, Character.NONE.ID, CharacterClass.ASSASSIN.ID, 0xF43390),
+		GENERIC_PEGASUSKNIGHT(0x0, Character.NONE.ID, CharacterClass.PEGASUSKNIGHT.ID, 0xF4BC70),
+		GENERIC_FALCONKNIGHT(0x0, Character.NONE.ID, CharacterClass.FALCONKNIGHT.ID, 0xF5A7E0),
+		GENERIC_WYVERNKNIGHT(0x0, Character.NONE.ID, CharacterClass.WYVERNKNIGHT.ID, 0xF64434),
+		GENERIC_WYVERNLORD(0x0, Character.NONE.ID, CharacterClass.WYVERNLORD.ID, 0xF718C8),
+		GENERIC_DANCER(0x0, Character.NONE.ID, CharacterClass.DANCER.ID, 0xF816D4),
+		GENERIC_BARD(0x0, Character.NONE.ID, CharacterClass.BARD.ID, 0xF83F80),
+		GENERIC_BERSERKER(0x0, Character.NONE.ID, CharacterClass.BERSERKER.ID, 0xFA106C)
+		
+		;
 		
 		int characterID;
 		int classID;
@@ -1638,6 +1848,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		static Map<Integer, Map<Integer, PaletteInfo>> charactersByClass = new HashMap<Integer, Map<Integer, PaletteInfo>>();
 		static Map<Integer, PaletteInfo> defaultPaletteForClass = new HashMap<Integer, PaletteInfo>();
 		static Map<Integer, Palette> palettesByID = new HashMap<Integer, Palette>();
+		
+		static Map<Integer, PaletteInfo> spritePalettesByClass = new HashMap<Integer, PaletteInfo>();
 		
 		static {
 			for (Palette palette : Palette.values()) {
@@ -1657,6 +1869,55 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				
 				palettesByID.put(palette.paletteID, palette);
 			}
+			
+			spritePalettesByClass.put(CharacterClass.LORD_ELIWOOD.ID, GENERIC_ELIWOOD_LORD.info);
+			spritePalettesByClass.put(CharacterClass.LORD_KNIGHT.ID, GENERIC_LORD_KNIGHT.info);
+			spritePalettesByClass.put(CharacterClass.LORD_HECTOR.ID, GENERIC_HECTOR_LORD.info);
+			spritePalettesByClass.put(CharacterClass.GREAT_LORD.ID, GENERIC_GREAT_LORD.info);
+			spritePalettesByClass.put(CharacterClass.LORD_LYN.ID, GENERIC_LYN_LORD.info);
+			spritePalettesByClass.put(CharacterClass.BLADE_LORD.ID, GENERIC_BLADE_LORD.info);
+			spritePalettesByClass.put(CharacterClass.BRIGAND.ID, GENERIC_BRIGAND.info);
+			spritePalettesByClass.put(CharacterClass.CORSAIR.ID, GENERIC_PIRATE.info); // Corsair doesn't have one, so we're just going to use pirate.
+			spritePalettesByClass.put(CharacterClass.PIRATE.ID, GENERIC_PIRATE.info);
+			spritePalettesByClass.put(CharacterClass.FIGHTER.ID, GENERIC_FIGHTER.info);
+			spritePalettesByClass.put(CharacterClass.WARRIOR.ID, GENERIC_WARRIOR.info);
+			spritePalettesByClass.put(CharacterClass.ARCHER.ID, GENERIC_ARCHER.info);
+			spritePalettesByClass.put(CharacterClass.ARCHER_F.ID, GENERIC_ARCHER_F.info);
+			spritePalettesByClass.put(CharacterClass.SNIPER.ID, GENERIC_SNIPER.info);
+			spritePalettesByClass.put(CharacterClass.SNIPER_F.ID, GENERIC_SNIPER_F.info);
+			spritePalettesByClass.put(CharacterClass.MERCENARY.ID, GENERIC_MERCENARY.info);
+			spritePalettesByClass.put(CharacterClass.HERO.ID, GENERIC_HERO.info);
+			spritePalettesByClass.put(CharacterClass.MYRMIDON.ID, GENERIC_MYRMIDON.info);
+			spritePalettesByClass.put(CharacterClass.SWORDMASTER.ID, GENERIC_SWORDMASTER.info);
+			spritePalettesByClass.put(CharacterClass.CAVALIER.ID, GENERIC_CAVALIER.info);
+			spritePalettesByClass.put(CharacterClass.PALADIN.ID, GENERIC_PALADIN.info);
+			spritePalettesByClass.put(CharacterClass.PALADIN_F.ID, GENERIC_PALADIN_F.info);
+			spritePalettesByClass.put(CharacterClass.SOLDIER.ID, GENERIC_SOLDIER.info);
+			spritePalettesByClass.put(CharacterClass.KNIGHT.ID, GENERIC_KNIGHT.info);
+			spritePalettesByClass.put(CharacterClass.GENERAL.ID, GENERIC_GENERAL.info);
+			spritePalettesByClass.put(CharacterClass.MAGE.ID, GENERIC_MAGE.info);
+			spritePalettesByClass.put(CharacterClass.MAGE_F.ID, GENERIC_MAGE_F.info);
+			spritePalettesByClass.put(CharacterClass.SAGE.ID, GENERIC_SAGE.info);
+			spritePalettesByClass.put(CharacterClass.SAGE_F.ID, GENERIC_SAGE_F.info);
+			spritePalettesByClass.put(CharacterClass.CLERIC.ID, GENERIC_CLERIC.info);
+			spritePalettesByClass.put(CharacterClass.MONK.ID, GENERIC_MONK.info);
+			spritePalettesByClass.put(CharacterClass.BISHOP.ID, GENERIC_BISHOP.info);
+			spritePalettesByClass.put(CharacterClass.BISHOP_F.ID, GENERIC_BISHOP_F.info);
+			spritePalettesByClass.put(CharacterClass.SHAMAN.ID, GENERIC_SHAMAN.info);
+			spritePalettesByClass.put(CharacterClass.DRUID.ID, GENERIC_DRUID.info);
+			spritePalettesByClass.put(CharacterClass.TROUBADOUR.ID, GENERIC_TROUBADOUR.info);
+			spritePalettesByClass.put(CharacterClass.VALKYRIE.ID, GENERIC_VALKYRIE.info);
+			spritePalettesByClass.put(CharacterClass.NOMAD.ID, GENERIC_NOMAD.info);
+			spritePalettesByClass.put(CharacterClass.NOMADTROOPER.ID, GENERIC_NOMADTROOPER.info);
+			spritePalettesByClass.put(CharacterClass.THIEF.ID, GENERIC_THIEF.info);
+			spritePalettesByClass.put(CharacterClass.ASSASSIN.ID, GENERIC_ASSASSIN.info);
+			spritePalettesByClass.put(CharacterClass.PEGASUSKNIGHT.ID, GENERIC_PEGASUSKNIGHT.info);
+			spritePalettesByClass.put(CharacterClass.FALCONKNIGHT.ID, GENERIC_FALCONKNIGHT.info);
+			spritePalettesByClass.put(CharacterClass.WYVERNKNIGHT.ID, GENERIC_WYVERNKNIGHT.info);
+			spritePalettesByClass.put(CharacterClass.WYVERNLORD.ID, GENERIC_WYVERNLORD.info);
+			spritePalettesByClass.put(CharacterClass.DANCER.ID, GENERIC_DANCER.info);
+			spritePalettesByClass.put(CharacterClass.BARD.ID, GENERIC_BARD.info);
+			spritePalettesByClass.put(CharacterClass.BERSERKER.ID, GENERIC_BERSERKER.info);
 			
 			defaultPaletteForClass.put(CharacterClass.SOLDIER.ID, ARCHER_WIL.info); // No idea.
 			defaultPaletteForClass.put(CharacterClass.ARCHER.ID, ARCHER_WIL.info);
@@ -1718,6 +1979,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			CharacterClass charClass = CharacterClass.valueOf(classID);
 			if (charClass != null) {
 				switch (charClass) {
+				case SOLDIER:
 				case ARCHER:
 				case ARCHER_F:
 				case BLADE_LORD:
@@ -1853,6 +2115,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {10, 11, 12, 13}, new int[] {1, 9}, new int[] {});
 					break;
 				default:
+					assert false: "Unable to create palette info.";
 					break;
 				}
 			}
@@ -1901,6 +2164,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static PaletteInfo defaultPaletteForClass(int classID) {
 			return defaultPaletteForClass.get(classID);
+		}
+		
+		public static PaletteInfo spritePaletteForClass(int classID) {
+			return spritePalettesByClass.get(classID);
 		}
 	}
 	

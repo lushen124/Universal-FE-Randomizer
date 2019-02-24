@@ -707,7 +707,19 @@ public class HuffmanHelper {
 				Character nextChar = provider.peekNext() != null ? (char)((int)provider.peekNext() & 0xFF) : null;
 				
 				if (nextChar == null) {
-					result.appendStream(entry.stream);
+					if (entry.stream != null) {
+						result.appendStream(entry.stream);
+					} else {
+						// Use a terminator.
+						if (entry.followups.get((char)0) != null) {
+							result.appendStream(entry.followups.get((char)0).stream);
+						} else if (entry.followups.get((char)0x1f) != null) { 
+							// Try the short pause.
+							result.appendStream(entry.followups.get((char)0x1f).stream);
+						} else {
+							assert false : "Unencodable string.";
+						}
+					}
 					break;
 				}
 				

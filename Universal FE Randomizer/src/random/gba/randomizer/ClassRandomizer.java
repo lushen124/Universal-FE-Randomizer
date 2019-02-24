@@ -132,6 +132,7 @@ public class ClassRandomizer {
 			GBAFEClassData targetClass = null;
 			
 			Boolean forceBasicWeaponry = false;
+			Boolean shouldNerf = false;
 			
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
@@ -141,6 +142,7 @@ public class ClassRandomizer {
 				if (mustLoseToCharacter != null) {
 					mustLoseToClass = classData.classForID(mustLoseToCharacter.getClassID());
 					forceBasicWeaponry = true;
+					shouldNerf = true;
 				}
 				
 				GBAFEClassData[] possibleClasses = hasMonsters ? 
@@ -161,6 +163,12 @@ public class ClassRandomizer {
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
+				if (shouldNerf) { // Halve skill, speed, defense, and resistance if we need to make sure he loses to us.
+					linked.setBaseSKL(linked.getBaseSKL() >> 1);
+					linked.setBaseSPD(linked.getBaseSPD() >> 1);
+					linked.setBaseDEF(linked.getBaseDEF() >> 1);
+					linked.setBaseRES(linked.getBaseRES() >> 1);
+				}
 			}
 		}
 	}
@@ -259,6 +267,9 @@ public class ClassRandomizer {
 		character.setBaseDEF(character.getBaseDEF() + defDelta);
 		int resDelta = sourceClass.getBaseRES() - targetClass.getBaseRES();
 		character.setBaseRES(character.getBaseRES() + resDelta);
+		
+		int conDelta = sourceClass.getCON() - targetClass.getCON();
+		character.setConstitution(character.getConstitution() + conDelta);
 	}
 	
 	// TODO: Offer an option for sidegrade strictness?
