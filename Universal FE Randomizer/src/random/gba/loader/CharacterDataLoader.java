@@ -94,6 +94,10 @@ public class CharacterDataLoader {
 		return provider.characterWithID(characterID).isThief();
 	}
 	
+	public Boolean canBuff(int characterID) {
+		return provider.characterWithID(characterID).canBuff();
+	}
+	
 	public int[] validAffinityValues() {
 		return provider.affinityValues();
 	}

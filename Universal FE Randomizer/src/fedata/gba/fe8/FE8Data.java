@@ -218,6 +218,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(EIRIKA, VANESSA, NEIMI, LUTE, NATASHA, AMELIA, TETHYS, MARISA, LARACHEL, MYRRH, SYRENE, TANA, SELENA, SELENA_10B_13B, ISMAIRE));
 		public static Set<Character> requiresPromotion = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM));
 		
+		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList(VALTER_PROLOGUE)); // This is scripted, and Seth shouldn't die here.
+		
 		// Playable characters only.
 		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
 		private static Map<Character, Set<Integer>> createMultiPortraitMap() {
@@ -264,6 +266,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean isClassLimited() {
 			return restrictedClassCharacters.contains(this);
+		}
+		
+		public Boolean canBuff() {
+			return !doNotBuff.contains(this);
 		}
 		
 		public static Set<Character> allLinkedCharactersFor(Character character) {

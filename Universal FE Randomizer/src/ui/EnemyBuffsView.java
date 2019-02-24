@@ -48,7 +48,7 @@ public class EnemyBuffsView extends Composite {
 		
 		buffEnemyGrowthsButton = new Button(container, SWT.CHECK);
 		buffEnemyGrowthsButton.setText("Buff Enemy Growths");
-		buffEnemyGrowthsButton.setToolTipText("Enemy stats are calculated by a set of class growths. This option increases those growths by the amount specified. The higher the enemy's level, the more this scales up.");
+		buffEnemyGrowthsButton.setToolTipText("Minions: Increases enemy growth rates.\nBosses: Increases base stats.");
 		buffEnemyGrowthsButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -97,13 +97,13 @@ public class EnemyBuffsView extends Composite {
 		
 		flatBonusButton = new Button(buffModeContainer, SWT.RADIO);
 		flatBonusButton.setText("Flat Buff");
-		flatBonusButton.setToolTipText("The buff amount above is directly added to the enemy's growth rates for all stats. This generally patches up class weaknesses. It's not recommended to go beyond 15 or 20 with this mode.");
+		flatBonusButton.setToolTipText("Minions: The buff amount above is directly added to the enemy's growth rates for all stats.\nBosses: All base stats increase by 1 for every 5%.");
 		flatBonusButton.setSelection(true);
 		flatBonusButton.setEnabled(false);
 		
 		scalingBonusButton = new Button(buffModeContainer, SWT.RADIO);
 		scalingBonusButton.setText("Scaling Buff");
-		scalingBonusButton.setToolTipText("The buff amount is multiplied as a percentage to the enemy's growth rates for all stats. This results in classes that are emphasized in their strong stats. A value of 100(%) is a 2x increase.");
+		scalingBonusButton.setToolTipText("The buff amount is multiplied as a percentage to the enemy's growth rates for all stats.\nBosses: All base stats scaled up by a multiplier equal to half of the amount. (e.g. 50% is a 1.25x increase)");
 		scalingBonusButton.setEnabled(false);
 		
 		FormData buffModeData = new FormData();

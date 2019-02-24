@@ -196,6 +196,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<Character> requiresPromotion = new HashSet<Character>(Arrays.asList(ROY));
 		
+		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList());
+		
 		public Boolean isLord() {
 			return allLords.contains(this);
 		}
@@ -226,6 +228,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean isClassLimited() {
 			return restrictedClassCharacters.contains(this);
+		}
+		
+		public Boolean canBuff() {
+			return !doNotBuff.contains(this);
 		}
 		
 		public static Set<Character> allLinkedCharactersFor(Character character) {

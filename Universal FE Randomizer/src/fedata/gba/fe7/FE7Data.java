@@ -245,6 +245,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				NATALIE, LYN_TUTORIAL, FLORINA_TUTORIAL, URSULA, SONIA, LIMSTELLA, URSULA_MORPH, LYN));
 		public static Set<Character> requiresPromotion = new HashSet<Character>(Arrays.asList(ELIWOOD, HECTOR));
 		
+		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList());
+		
 		// Playable characters only.
 		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
 		private static Map<Character, Set<Integer>> createMultiPortraitMap() {
@@ -291,6 +293,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean isClassLimited() {
 			return restrictedClassCharacters.contains(this);
+		}
+		
+		public Boolean canBuff() {
+			return !doNotBuff.contains(this);
 		}
 		
 		public static Set<Character> allLinkedCharactersFor(Character character) {

@@ -465,10 +465,10 @@ public class GBARandomizer extends Randomizer {
 		if (enemies != null) {
 			if (enemies.mode == EnemyOptions.BuffMode.FLAT) {
 				updateStatusString("Buffing enemies...");
-				EnemyBuffer.buffEnemyGrowthRates(enemies.buffAmount, classData);
+				EnemyBuffer.buffEnemyGrowthRates(enemies.buffAmount, charData, classData);
 			} else if (enemies.mode == EnemyOptions.BuffMode.SCALING) {
 				updateStatusString("Buffing enemies...");
-				EnemyBuffer.scaleEnemyGrowthRates(enemies.buffAmount, classData);
+				EnemyBuffer.scaleEnemyGrowthRates(enemies.buffAmount, charData, classData);
 			}
 			
 			if (enemies.improveWeapons) {

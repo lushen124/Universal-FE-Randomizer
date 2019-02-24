@@ -6,6 +6,7 @@ import java.util.Random;
 
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
+import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.general.WeaponRank;
@@ -19,7 +20,7 @@ public class EnemyBuffer {
 	
 	static final int rngSalt = 252521;
 
-	public static void buffEnemyGrowthRates(int buffAmount, ClassDataLoader classData) {
+	public static void buffEnemyGrowthRates(int buffAmount, CharacterDataLoader charData, ClassDataLoader classData) {
 		GBAFEClassData[] allClasses = classData.allClasses();
 		for (GBAFEClassData currentClass : allClasses) {
 			currentClass.setHPGrowth(currentClass.getHPGrowth() + buffAmount);
@@ -30,9 +31,22 @@ public class EnemyBuffer {
 			currentClass.setRESGrowth(currentClass.getRESGrowth() + buffAmount);
 			currentClass.setLCKGrowth(currentClass.getLCKGrowth() + buffAmount);
 		}
+		
+		int statBoostAmount = buffAmount / 5;
+		
+		for (GBAFECharacterData boss : charData.bossCharacters()) {
+			if (charData.canBuff(boss.getID()) == false) { continue; }
+			boss.setBaseHP(boss.getBaseHP() + statBoostAmount);
+			boss.setBaseSTR(boss.getBaseSTR() + statBoostAmount);
+			boss.setBaseSKL(boss.getBaseSKL() + statBoostAmount);
+			boss.setBaseSPD(boss.getBaseSPD() + statBoostAmount);
+			boss.setBaseLCK(boss.getBaseLCK() + statBoostAmount);
+			boss.setBaseDEF(boss.getBaseDEF() + statBoostAmount);
+			boss.setBaseRES(boss.getBaseRES() + statBoostAmount);
+		}
 	}
 	
-	public static void scaleEnemyGrowthRates(int scaleAmount, ClassDataLoader classData) {
+	public static void scaleEnemyGrowthRates(int scaleAmount, CharacterDataLoader charData, ClassDataLoader classData) {
 		GBAFEClassData[] allClasses = classData.allClasses();
 		float multiplier = 1 + scaleAmount / 100;
 		for (GBAFEClassData currentClass : allClasses) {
@@ -43,6 +57,19 @@ public class EnemyBuffer {
 			currentClass.setDEFGrowth((int)(currentClass.getDEFGrowth() * multiplier));
 			currentClass.setRESGrowth((int)(currentClass.getRESGrowth() * multiplier));
 			currentClass.setLCKGrowth((int)(currentClass.getLCKGrowth() * multiplier));
+		}
+		
+		float bossMultiplier = 1 + (scaleAmount / 200);
+		
+		for (GBAFECharacterData boss : charData.bossCharacters()) {
+			if (charData.canBuff(boss.getID()) == false) { continue; }
+			boss.setBaseHP((int)(boss.getBaseHP() * bossMultiplier));
+			boss.setBaseSTR((int)(boss.getBaseSTR() * bossMultiplier));
+			boss.setBaseSKL((int)(boss.getBaseSKL() * bossMultiplier));
+			boss.setBaseSPD((int)(boss.getBaseSPD() * bossMultiplier));
+			boss.setBaseDEF((int)(boss.getBaseDEF() * bossMultiplier));
+			boss.setBaseRES((int)(boss.getBaseRES() * bossMultiplier));
+			boss.setBaseLCK((int)(boss.getBaseLCK() * bossMultiplier));
 		}
 	}
 	
