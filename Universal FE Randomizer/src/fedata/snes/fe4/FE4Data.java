@@ -971,8 +971,8 @@ public class FE4Data {
 		// Quan and Ethlyn (and their squad) must lose to Travant (and Magorn) and his squad.
 		public static final Set<Character> MustWin2 = new HashSet<Character>(Arrays.asList(TRAVANT_CH5, CH5_THRACIA_ARMY, MAGORN));
 		public static final Set<Character> MustLose2 = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN, CH5_LEONSTER_ARMY));
-		// Mahnya and her Squad must lose to Andorey and the Beige Ritter. (Andorey is here in both chapters just to keep consistency.)
-		public static final Set<Character> MustWin3 = new HashSet<Character>(Arrays.asList(ANDOREY_CH4, ANDOREY_CH5, CH4_BEIGE_RITTER));
+		// Mahnya and her Squad must lose to Andorey and the Beige Ritter. (Andorey himself probably isn't necessary, since his squad gets all Brave Bows.)
+		public static final Set<Character> MustWin3 = new HashSet<Character>(Arrays.asList(CH4_BEIGE_RITTER));
 		public static final Set<Character> MustLose3 = new HashSet<Character>(Arrays.asList(MAHNYA, CH4_MAHNYA_SQUAD));
 		
 		public static final Set<Character> Gen1PlayableCharacters = new HashSet<Character>(Arrays.asList(SIGURD, NAOISE, ALEC, ARDEN, FINN_GEN_1, QUAN, MIDIR, LEWYN, CHULAINN, AZELLE,
@@ -1181,6 +1181,9 @@ public class FE4Data {
 			case ELDIGAN_CH1_SCENE: // This is just to make sure he doesn't get stuck with Yewfelle in chapter 1.
 				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA};
+			case ARVIS_CH5: // Make sure we don't get Ulir, since it'll crash the Ch. 5 scene. He also shouldn't get Naga because it forces animations on.
+				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
+						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI};
 			default: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 					HolyBlood.NEIR, HolyBlood.ULIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA, HolyBlood.BRAGI};
 			}
