@@ -242,7 +242,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(FIORA, FARINA, VAIDA));
 		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(LYN, LYN_TUTORIAL, ELIWOOD, HECTOR, JAFFAR, RATH, ERK, RATH_TUTORIAL));
 		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(REBECCA, LOUISE, SERRA, NINO, PRISCILLA, FIORA, FARINA, VAIDA, FLORINA, ISADORA, KARLA, VAIDA_BOSS, ELENORA, LEILA, 
-				NATALIE, LYN_TUTORIAL, FLORINA_TUTORIAL, URSULA, SONIA, LIMSTELLA, URSULA_MORPH, LYN));
+				NATALIE, LYN_TUTORIAL, FLORINA_TUTORIAL, URSULA, SONIA, LIMSTELLA, URSULA_MORPH, LYN, NINIAN));
 		public static Set<Character> requiresPromotion = new HashSet<Character>(Arrays.asList(ELIWOOD, HECTOR));
 		
 		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList());
