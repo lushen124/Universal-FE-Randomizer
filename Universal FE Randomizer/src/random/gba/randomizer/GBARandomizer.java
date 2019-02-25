@@ -4,11 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
@@ -37,9 +35,13 @@ import ui.model.BaseOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
 import ui.model.GrowthOptions;
+import ui.model.ItemAssignmentOptions;
 import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
+import ui.model.RecruitmentOptions;
 import ui.model.WeaponOptions;
+import ui.model.ItemAssignmentOptions.ShopAdjustment;
+import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
 import util.Diff;
 import util.DiffCompiler;
 import util.FreeSpaceManager;
@@ -63,6 +65,8 @@ public class GBARandomizer extends Randomizer {
 	private OtherCharacterOptions otherCharacterOptions;
 	private EnemyOptions enemies;
 	private MiscellaneousOptions miscOptions;
+	private RecruitmentOptions recruitOptions;
+	private ItemAssignmentOptions itemAssignmentOptions;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -87,7 +91,8 @@ public class GBARandomizer extends Randomizer {
 
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, String seed) {
+			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -102,6 +107,9 @@ public class GBARandomizer extends Randomizer {
 		otherCharacterOptions = other;
 		this.enemies = enemies;
 		miscOptions = otherOptions;
+		recruitOptions = recruit;
+		itemAssignmentOptions = itemAssign;
+		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE); }
 		
 		this.gameType = gameType;
 	}
@@ -166,18 +174,20 @@ public class GBARandomizer extends Randomizer {
 		
 		updateStatusString("Randomizing...");
 		randomizeGrowthsIfNecessary(seed);
-		updateProgress(0.55);
+		updateProgress(0.45);
 		randomizeClassesIfNecessary(seed); // This MUST come before bases.
-		updateProgress(0.60);
+		updateProgress(0.50);
 		randomizeBasesIfNecessary(seed);
-		updateProgress(0.70);
+		updateProgress(0.55);
 		randomizeWeaponsIfNecessary(seed);
-		updateProgress(0.75);
+		updateProgress(0.60);
 		randomizeOtherCharacterTraitsIfNecessary(seed);
-		updateProgress(0.80);
+		updateProgress(0.65);
 		buffEnemiesIfNecessary(seed);
-		updateProgress(0.85);
+		updateProgress(0.70);
 		randomizeOtherThingsIfNecessary(seed); // i.e. Miscellaneous options.
+		updateProgress(0.75);
+		randomizeRecruitmentIfNecessary(seed);
 		updateProgress(0.90);
 		makeFinalAdjustments(seed);
 		
@@ -254,24 +264,24 @@ public class GBARandomizer extends Randomizer {
 		updateProgress(0.02);
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7, FE7Data.InternalFreeRange);
 		updateStatusString("Loading Text...");
-		updateProgress(0.02);
+		updateProgress(0.05);
 		textData = new TextLoader(FEBase.GameType.FE7, handler);
 		textData.allowTextChanges = true;
 		
 		updateStatusString("Loading Character Data...");
-		updateProgress(0.20);
+		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE7Data.characterProvider, handler);
 		updateStatusString("Loading Class Data...");
-		updateProgress(0.25);
+		updateProgress(0.15);
 		classData = new ClassDataLoader(FE7Data.classProvider, handler);
 		updateStatusString("Loading Chapter Data...");
-		updateProgress(0.30);
+		updateProgress(0.20);
 		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
 		updateStatusString("Loading Item Data...");
-		updateProgress(0.45);
+		updateProgress(0.25);
 		itemData = new ItemDataLoader(FE7Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
-		updateProgress(0.50);
+		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler, charData, classData);
 		
 		handler.clearAppliedDiffs();
@@ -281,29 +291,29 @@ public class GBARandomizer extends Randomizer {
 		handler.setAppliedDiffs(diffCompiler);
 		
 		updateStatusString("Detecting Free Space...");
-		updateProgress(0.12);
+		updateProgress(0.02);
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6, FE6Data.InternalFreeRange);
 		updateStatusString("Loading Text...");
-		updateProgress(0.15);
+		updateProgress(0.05);
 		textData = new TextLoader(FEBase.GameType.FE6, handler);
 		if (miscOptions.applyEnglishPatch) {
 			textData.allowTextChanges = true;
 		}
 		
 		updateStatusString("Loading Character Data...");
-		updateProgress(0.30);
+		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE6Data.characterProvider, handler);
 		updateStatusString("Loading Class Data...");
-		updateProgress(0.33);
+		updateProgress(0.15);
 		classData = new ClassDataLoader(FE6Data.classProvider, handler);
 		updateStatusString("Loading Chapter Data...");
-		updateProgress(0.36);
+		updateProgress(0.20);
 		chapterData = new ChapterLoader(FEBase.GameType.FE6, handler);
 		updateStatusString("Loading Item Data...");
-		updateProgress(0.45);
+		updateProgress(0.25);
 		itemData = new ItemDataLoader(FE6Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
-		updateProgress(0.50);
+		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler, charData, classData);
 		
 		handler.clearAppliedDiffs();
@@ -334,18 +344,18 @@ public class GBARandomizer extends Randomizer {
 		updateProgress(0.20);
 		chapterData = new ChapterLoader(FEBase.GameType.FE8, handler);
 		updateStatusString("Loading Item Data...");
-		updateProgress(0.35);
+		updateProgress(0.25);
 		itemData = new ItemDataLoader(FE8Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
-		updateProgress(0.40);
+		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler, charData, classData);
 		
 		updateStatusString("Loading Summoner Module...");
-		updateProgress(0.45);
+		updateProgress(0.35);
 		fe8_summonerModule = new FE8SummonerModule(handler);
 		
 		updateStatusString("Loading Palette Mapper...");
-		updateProgress(0.50);
+		updateProgress(0.40);
 		fe8_paletteMapper = paletteData.setupFE8SpecialManagers(handler, fe8_promotionManager);
 		
 		
@@ -393,18 +403,18 @@ public class GBARandomizer extends Randomizer {
 			if (classes.randomizePCs) {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 1));
-				ClassRandomizer.randomizePlayableCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, textData, rng);
+				ClassRandomizer.randomizePlayableCharacterClasses(classes, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, textData, rng);
 				needsPaletteFix = true;
 			}
 			if (classes.randomizeEnemies) {
 				updateStatusString("Randomizing minions...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 2));
-				ClassRandomizer.randomizeMinionClasses(classes, gameType, charData, classData, chapterData, itemData, rng);
+				ClassRandomizer.randomizeMinionClasses(classes, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, rng);
 			}
 			if (classes.randomizeBosses) {
 				updateStatusString("Randomizing boss classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 3));
-				ClassRandomizer.randomizeBossCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, textData, rng);
+				ClassRandomizer.randomizeBossCharacterClasses(classes, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, textData, rng);
 				needsPaletteFix = true;
 			}
 		}
@@ -486,13 +496,15 @@ public class GBARandomizer extends Randomizer {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt));
 				RandomRandomizer.randomizeRewards(itemData, chapterData, rng);
 			}
-			
-			if (miscOptions.randomizeRecruitment) {
-				updateStatusString("Randomizing recruitment...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RecruitmentRandomizer.rngSalt));
-				characterMap = RecruitmentRandomizer.randomizeRecruitment(gameType, charData, classData, itemData, chapterData, textData, freeSpace, rng);
-				needsPaletteFix = true;
-			}
+		}
+	}
+	
+	private void randomizeRecruitmentIfNecessary(String seed) {
+		if (recruitOptions != null) {
+			updateStatusString("Randomizing recruitment...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, RecruitmentRandomizer.rngSalt));
+			characterMap = RecruitmentRandomizer.randomizeRecruitment(recruitOptions, itemAssignmentOptions, gameType, charData, classData, itemData, chapterData, textData, freeSpace, rng);
+			needsPaletteFix = true;
 		}
 	}
 	
@@ -521,7 +533,7 @@ public class GBARandomizer extends Randomizer {
 			// Fix up the portraits in mode select, since they're hardcoded.
 			// Only necessary if we randomized recruitment.
 			// All of the data should have been commited at this point, so asking for Lyn will get you the Lyn replacement.
-			if (miscOptions.randomizeRecruitment) {
+			if (recruitOptions != null) {
 				GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
 				GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
 				GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);

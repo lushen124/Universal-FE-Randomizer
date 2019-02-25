@@ -1,7 +1,6 @@
 package random.gba.randomizer;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,9 @@ import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
+import ui.model.ItemAssignmentOptions;
+import ui.model.RecruitmentOptions;
+import ui.model.RecruitmentOptions.StatAdjustmentMode;
 import util.DebugPrinter;
 import util.FreeSpaceManager;
 
@@ -32,7 +34,7 @@ public class RecruitmentRandomizer {
 	
 	static final int rngSalt = 911;
 	
-	public static Map<GBAFECharacterData, GBAFECharacterData> randomizeRecruitment(GameType type, 
+	public static Map<GBAFECharacterData, GBAFECharacterData> randomizeRecruitment(RecruitmentOptions options, ItemAssignmentOptions inventoryOptions, GameType type, 
 			CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, ChapterLoader chapterData, TextLoader textData, FreeSpaceManager freeSpace,
 			Random rng) {
 		
@@ -205,7 +207,7 @@ public class RecruitmentRandomizer {
 				// TODO: pronouns?
 				
 				// Apply the change to the data.
-				fillSlot(slot, fill, characterData, classData, itemData, chapterData, textData, type, rng);
+				fillSlot(options, inventoryOptions, slot, fill, characterData, classData, itemData, chapterData, textData, type, rng);
 			}
 		}
 		
@@ -401,7 +403,7 @@ public class RecruitmentRandomizer {
 		return additions;
 	}
 
-	private static void fillSlot(GBAFECharacterData slot, GBAFECharacterData fill, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, ChapterLoader chapterData, TextLoader textData, GameType type, Random rng) {
+	private static void fillSlot(RecruitmentOptions options, ItemAssignmentOptions inventoryOptions, GBAFECharacterData slot, GBAFECharacterData fill, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, ChapterLoader chapterData, TextLoader textData, GameType type, Random rng) {
 		// Create copy for reference, since we're about to overwrite the slot data.
 		// slot is the target for the changes. All changes should be on slot.
 		// fill is the source of all of the changes. Fill should NOT be modified.
@@ -474,7 +476,7 @@ public class RecruitmentRandomizer {
 					if (targetClass.getBaseRES() < fillSourceClass.getBaseRES()) { promoAdjustRES = fillSourceClass.getBaseRES() - targetClass.getBaseRES() + targetClass.getPromoRES(); }
 				}
 				
-				setSlotClass(linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
+				setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			} else if (!shouldBePromoted && isPromoted) {
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Demoting [" + textData.getStringAtIndex(fill.getNameIndex()) + "]");
 				// Demote Fill.
@@ -497,62 +499,111 @@ public class RecruitmentRandomizer {
 					if (targetClass.getBaseRES() > fillSourceClass.getBaseRES()) { promoAdjustRES = targetClass.getBaseRES() - fillSourceClass.getBaseRES() + fillSourceClass.getPromoRES(); promoAdjustRES *= -1; }
 				}
 				
-				setSlotClass(linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
+				setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			} else {
 				// Transfer as is.
 				if (targetClass == null) {
 					targetClass = fillSourceClass;
 				}
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "No Promotion/Demotion Needed. Class: " + (targetClass != null ? textData.getStringAtIndex(targetClass.getNameIndex()) : "None"));
-				setSlotClass(linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
+				setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			}
 			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== Stat Adjustment from Class Bases ==");
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + promoAdjustHP);
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + promoAdjustSTR);
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SKL: " + promoAdjustSKL);
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SPD: " + promoAdjustSPD);
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + promoAdjustDEF);
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + promoAdjustRES);
+			int newHP = 0;
+			int newSTR = 0;
+			int newSKL = 0;
+			int newSPD = 0;
+			int newLCK = 0;
+			int newDEF = 0;
+			int newRES = 0;
 			
-			// Adjust bases based on level difference and promotion changes.
-			int hpDelta = (int)Math.floor((float)(fill.getHPGrowth() / 100.0) * levelsToAdd) + promoAdjustHP;
-			int strDelta = (int)Math.floor((float)(fill.getSTRGrowth() / 100.0) * levelsToAdd) + promoAdjustSTR;
-			int sklDelta = (int)Math.floor((float)(fill.getSKLGrowth() / 100.0) * levelsToAdd) + promoAdjustSKL;
-			int spdDelta = (int)Math.floor((float)(fill.getSPDGrowth() / 100.0) * levelsToAdd) + promoAdjustSPD;
-			int lckDelta = (int)Math.floor((float)(fill.getLCKGrowth() / 100.0) * levelsToAdd);
-			int defDelta = (int)Math.floor((float)(fill.getDEFGrowth() / 100.0) * levelsToAdd) + promoAdjustDEF;
-			int resDelta = (int)Math.floor((float)(fill.getRESGrowth() / 100.0) * levelsToAdd) + promoAdjustRES;
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== Base Deltas ==");
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + Integer.toString(hpDelta));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + Integer.toString(strDelta));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SKL: " + Integer.toString(sklDelta));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SPD: " + Integer.toString(spdDelta));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + Integer.toString(defDelta));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + Integer.toString(resDelta));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "LCK: " + Integer.toString(lckDelta));
-			
-			// Clamp the delta to make sure we're not overflowing caps or underflowing to negative.
-			// Clamp the minimum so that people aren't force to 0 base stats, but they can go down as far as 25% of their normal bases.
-			int newHP = Math.min(targetClass.getMaxHP() - targetClass.getBaseHP(), Math.max(fill.getBaseHP() + hpDelta, -3 * targetClass.getBaseHP() / 4));
-			int newSTR = Math.min(targetClass.getMaxSTR() - targetClass.getBaseSTR(), Math.max(fill.getBaseSTR() + strDelta, -3 * targetClass.getBaseSTR() / 4));
-			int newSKL = Math.min(targetClass.getMaxSKL() - targetClass.getBaseSKL(), Math.max(fill.getBaseSKL() + sklDelta, -3 * targetClass.getBaseSKL() / 4));
-			int newSPD = Math.min(targetClass.getMaxSPD() - targetClass.getBaseSPD(), Math.max(fill.getBaseSPD() + spdDelta, -3 * targetClass.getBaseSPD() / 4));
-			int newLCK = Math.min(targetClass.getMaxLCK() - targetClass.getBaseLCK(), Math.max(fill.getBaseLCK() + lckDelta, -3 * targetClass.getBaseLCK() / 4));
-			int newDEF = Math.min(targetClass.getMaxDEF() - targetClass.getBaseDEF(), Math.max(fill.getBaseDEF() + defDelta, -3 * targetClass.getBaseDEF() / 4));
-			int newRES = Math.min(targetClass.getMaxRES() - targetClass.getBaseRES(), Math.max(fill.getBaseRES() + resDelta, -3 * targetClass.getBaseRES() / 4));
-			
-			// Add their original bases back into the new value.
-			
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== New Bases ==");
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + Integer.toString(fillSourceClass.getBaseHP()) + " + " + Integer.toString(fill.getBaseHP()) + " -> " + Integer.toString(targetClass.getBaseHP()) + " + " + Integer.toString(newHP));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + Integer.toString(fillSourceClass.getBaseSTR()) + " + " + Integer.toString(fill.getBaseSTR()) + " -> " + Integer.toString(targetClass.getBaseSTR()) + " + " + Integer.toString(newSTR));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SKL: " + Integer.toString(fillSourceClass.getBaseSKL()) + " + " + Integer.toString(fill.getBaseSKL()) + " -> " + Integer.toString(targetClass.getBaseSKL()) + " + " + Integer.toString(newSKL));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SPD: " + Integer.toString(fillSourceClass.getBaseSPD()) + " + " + Integer.toString(fill.getBaseSPD()) + " -> " + Integer.toString(targetClass.getBaseSPD()) + " + " + Integer.toString(newSPD));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + Integer.toString(fillSourceClass.getBaseDEF()) + " + " + Integer.toString(fill.getBaseDEF()) + " -> " + Integer.toString(targetClass.getBaseDEF()) + " + " + Integer.toString(newDEF));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + Integer.toString(fillSourceClass.getBaseRES()) + " + " + Integer.toString(fill.getBaseRES()) + " -> " + Integer.toString(targetClass.getBaseRES()) + " + " + Integer.toString(newRES));
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "LCK: " + Integer.toString(fillSourceClass.getBaseLCK()) + " + " + Integer.toString(fill.getBaseLCK()) + " -> " + Integer.toString(targetClass.getBaseLCK()) + " + " + Integer.toString(newLCK));
+			if (options.statMode == StatAdjustmentMode.AUTOLEVEL) {
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== Stat Adjustment from Class Bases ==");
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + promoAdjustHP);
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + promoAdjustSTR);
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SKL: " + promoAdjustSKL);
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SPD: " + promoAdjustSPD);
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + promoAdjustDEF);
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + promoAdjustRES);
+				
+				// Adjust bases based on level difference and promotion changes.
+				int hpDelta = (int)Math.floor((float)(fill.getHPGrowth() / 100.0) * levelsToAdd) + promoAdjustHP;
+				int strDelta = (int)Math.floor((float)(fill.getSTRGrowth() / 100.0) * levelsToAdd) + promoAdjustSTR;
+				int sklDelta = (int)Math.floor((float)(fill.getSKLGrowth() / 100.0) * levelsToAdd) + promoAdjustSKL;
+				int spdDelta = (int)Math.floor((float)(fill.getSPDGrowth() / 100.0) * levelsToAdd) + promoAdjustSPD;
+				int lckDelta = (int)Math.floor((float)(fill.getLCKGrowth() / 100.0) * levelsToAdd);
+				int defDelta = (int)Math.floor((float)(fill.getDEFGrowth() / 100.0) * levelsToAdd) + promoAdjustDEF;
+				int resDelta = (int)Math.floor((float)(fill.getRESGrowth() / 100.0) * levelsToAdd) + promoAdjustRES;
+				
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== Base Deltas ==");
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + Integer.toString(hpDelta));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + Integer.toString(strDelta));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SKL: " + Integer.toString(sklDelta));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SPD: " + Integer.toString(spdDelta));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + Integer.toString(defDelta));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + Integer.toString(resDelta));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "LCK: " + Integer.toString(lckDelta));
+				
+				// Clamp the delta to make sure we're not overflowing caps or underflowing to negative.
+				// Clamp the minimum so that people aren't force to 0 base stats, but they can go down as far as 50% of their normal bases.
+				newHP = Math.min(targetClass.getMaxHP() - targetClass.getBaseHP(), Math.max(fill.getBaseHP() + hpDelta, -2 * targetClass.getBaseHP() / 4));
+				newSTR = Math.min(targetClass.getMaxSTR() - targetClass.getBaseSTR(), Math.max(fill.getBaseSTR() + strDelta, -2 * targetClass.getBaseSTR() / 4));
+				newSKL = Math.min(targetClass.getMaxSKL() - targetClass.getBaseSKL(), Math.max(fill.getBaseSKL() + sklDelta, -2 * targetClass.getBaseSKL() / 4));
+				newSPD = Math.min(targetClass.getMaxSPD() - targetClass.getBaseSPD(), Math.max(fill.getBaseSPD() + spdDelta, -2 * targetClass.getBaseSPD() / 4));
+				newLCK = Math.min(targetClass.getMaxLCK() - targetClass.getBaseLCK(), Math.max(fill.getBaseLCK() + lckDelta, -2 * targetClass.getBaseLCK() / 4));
+				newDEF = Math.min(targetClass.getMaxDEF() - targetClass.getBaseDEF(), Math.max(fill.getBaseDEF() + defDelta, -2 * targetClass.getBaseDEF() / 4));
+				newRES = Math.min(targetClass.getMaxRES() - targetClass.getBaseRES(), Math.max(fill.getBaseRES() + resDelta, -2 * targetClass.getBaseRES() / 4));
+				
+				// Add their original bases back into the new value.
+				
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== New Bases ==");
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + Integer.toString(fillSourceClass.getBaseHP()) + " + " + Integer.toString(fill.getBaseHP()) + " -> " + Integer.toString(targetClass.getBaseHP()) + " + " + Integer.toString(newHP));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + Integer.toString(fillSourceClass.getBaseSTR()) + " + " + Integer.toString(fill.getBaseSTR()) + " -> " + Integer.toString(targetClass.getBaseSTR()) + " + " + Integer.toString(newSTR));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SKL: " + Integer.toString(fillSourceClass.getBaseSKL()) + " + " + Integer.toString(fill.getBaseSKL()) + " -> " + Integer.toString(targetClass.getBaseSKL()) + " + " + Integer.toString(newSKL));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "SPD: " + Integer.toString(fillSourceClass.getBaseSPD()) + " + " + Integer.toString(fill.getBaseSPD()) + " -> " + Integer.toString(targetClass.getBaseSPD()) + " + " + Integer.toString(newSPD));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + Integer.toString(fillSourceClass.getBaseDEF()) + " + " + Integer.toString(fill.getBaseDEF()) + " -> " + Integer.toString(targetClass.getBaseDEF()) + " + " + Integer.toString(newDEF));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + Integer.toString(fillSourceClass.getBaseRES()) + " + " + Integer.toString(fill.getBaseRES()) + " -> " + Integer.toString(targetClass.getBaseRES()) + " + " + Integer.toString(newRES));
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "LCK: " + Integer.toString(fillSourceClass.getBaseLCK()) + " + " + Integer.toString(fill.getBaseLCK()) + " -> " + Integer.toString(targetClass.getBaseLCK()) + " + " + Integer.toString(newLCK));
+			} else if (options.statMode == StatAdjustmentMode.MATCH_SLOT) {
+				newHP = slotReference.getBaseHP() + slotSourceClass.getBaseHP() - targetClass.getBaseHP();
+				newSTR = slotReference.getBaseSTR() + slotSourceClass.getBaseSTR() - targetClass.getBaseSTR();
+				newSKL = slotReference.getBaseSKL() + slotSourceClass.getBaseSKL() - targetClass.getBaseSKL();
+				newSPD = slotReference.getBaseSPD() + slotSourceClass.getBaseSPD() - targetClass.getBaseSPD();
+				newLCK = slotReference.getBaseLCK() + slotSourceClass.getBaseLCK() - targetClass.getBaseLCK();
+				newDEF = slotReference.getBaseDEF() + slotSourceClass.getBaseDEF() - targetClass.getBaseDEF();
+				newRES = slotReference.getBaseRES() + slotSourceClass.getBaseRES() - targetClass.getBaseRES();
+			} else if (options.statMode == StatAdjustmentMode.RELATIVE_TO_SLOT) {
+				newHP = slotReference.getBaseHP() + slotSourceClass.getBaseHP() - targetClass.getBaseHP(); // Keep HP the same logic as above.
+				
+				int slotSTR = slotReference.getBaseSTR() + slotSourceClass.getBaseSTR();
+				int slotSKL = slotReference.getBaseSKL() + slotSourceClass.getBaseSKL();
+				int slotSPD = slotReference.getBaseSPD() + slotSourceClass.getBaseSPD();
+				int slotLCK = slotReference.getBaseLCK() + slotSourceClass.getBaseLCK();
+				int slotDEF = slotReference.getBaseDEF() + slotSourceClass.getBaseDEF();
+				int slotRES = slotReference.getBaseRES() + slotSourceClass.getBaseRES();
+				
+				int slotMaxValue = Math.max(Math.max(Math.max(Math.max(Math.max(slotSTR, slotSKL), slotSPD), slotLCK), slotDEF), slotRES);
+				
+				int fillSTR = fill.getBaseSTR() + fillSourceClass.getBaseSTR();
+				int fillSKL = fill.getBaseSKL() + fillSourceClass.getBaseSKL();
+				int fillSPD = fill.getBaseSPD() + fillSourceClass.getBaseSPD();
+				int fillLCK = fill.getBaseLCK() + fillSourceClass.getBaseLCK();
+				int fillDEF = fill.getBaseDEF() + fillSourceClass.getBaseDEF();
+				int fillRES = fill.getBaseRES() + fillSourceClass.getBaseRES();
+				
+				int fillMaxValue = Math.max(Math.max(Math.max(Math.max(Math.max(fillSTR, fillSKL), fillSPD), fillLCK), fillDEF), fillRES);
+				
+				int delta = slotMaxValue - fillMaxValue;
+				
+				newSTR = Math.max(fillSTR + delta - targetClass.getBaseSTR(), -1 * targetClass.getBaseSTR());
+				newSKL = Math.max(fillSKL + delta - targetClass.getBaseSKL(), -1 * targetClass.getBaseSKL());
+				newSPD = Math.max(fillSPD + delta - targetClass.getBaseSPD(), -1 * targetClass.getBaseSPD());
+				newLCK = Math.max(fillLCK + delta - targetClass.getBaseLCK(), -1 * targetClass.getBaseLCK());
+				newDEF = Math.max(fillDEF + delta - targetClass.getBaseDEF(), -1 * targetClass.getBaseDEF());
+				newRES = Math.max(fillRES + delta - targetClass.getBaseRES(), -1 * targetClass.getBaseRES());
+			} else {
+				assert false : "Invalid stat adjustment mode for random recruitment.";
+			}
 			
 			linkedSlot.setBaseHP(newHP);
 			linkedSlot.setBaseSTR(newSTR);
@@ -663,7 +714,7 @@ public class RecruitmentRandomizer {
 		} else { target.setStaffRank(0); }
 	}
 	
-	private static void setSlotClass(GBAFECharacterData slot, GBAFEClassData targetClass, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, ChapterLoader chapterData, Random rng) {
+	private static void setSlotClass(ItemAssignmentOptions inventoryOptions, GBAFECharacterData slot, GBAFEClassData targetClass, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, ChapterLoader chapterData, Random rng) {
 		
 		slot.setClassID(targetClass.getID());
 		transferWeaponRanks(slot, targetClass, itemData, rng);
@@ -680,7 +731,7 @@ public class RecruitmentRandomizer {
 					unit.setStartingClass(targetClass.getID());
 					
 					// Set Inventory.
-					ClassRandomizer.validateCharacterInventory(slot, targetClass, unit, characterData.characterIDRequiresRange(slot.getID()), characterData.characterIDRequiresMelee(slot.getID()), classData, itemData, textData, false, rng);
+					ClassRandomizer.validateCharacterInventory(inventoryOptions, slot, targetClass, unit, characterData.characterIDRequiresRange(slot.getID()), characterData.characterIDRequiresMelee(slot.getID()), classData, itemData, textData, false, rng);
 					if (characterData.isThiefCharacterID(slot.getID())) {
 						ClassRandomizer.validateFormerThiefInventory(unit, itemData);
 					}

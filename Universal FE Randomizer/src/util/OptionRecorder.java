@@ -14,8 +14,10 @@ import ui.model.BaseOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
 import ui.model.GrowthOptions;
+import ui.model.ItemAssignmentOptions;
 import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
+import ui.model.RecruitmentOptions;
 import ui.model.WeaponOptions;
 
 public class OptionRecorder {
@@ -38,6 +40,8 @@ public class OptionRecorder {
 		public OtherCharacterOptions other;
 		public EnemyOptions enemies;
 		public MiscellaneousOptions otherOptions;
+		public RecruitmentOptions recruitmentOptions;
+		public ItemAssignmentOptions itemAssignmentOptions;
 		public String seed;
 		public Integer version;
 	}
@@ -103,7 +107,7 @@ public class OptionRecorder {
 	}
 	
 	public static void recordGBAFEOptions(FEBase.GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, String seed) {
+			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, String seed) {
 		GBAOptionBundle bundle = new GBAOptionBundle();
 		bundle.growths = growths;
 		bundle.bases = bases;
@@ -112,6 +116,8 @@ public class OptionRecorder {
 		bundle.other = other;
 		bundle.enemies = enemies;
 		bundle.otherOptions = otherOptions;
+		bundle.recruitmentOptions = recruitment;
+		bundle.itemAssignmentOptions = itemAssignment;
 		bundle.seed = seed;
 		bundle.version = GBAOptionBundleVersion;
 		

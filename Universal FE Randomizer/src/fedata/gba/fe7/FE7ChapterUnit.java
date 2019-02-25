@@ -125,6 +125,7 @@ public class FE7ChapterUnit implements GBAFEChapterUnitData {
 	public void giveItems(int[] itemIDs) {
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
 		for (int i = 0; i < itemIDs.length; i++) {
+			if (getItem1() == itemIDs[i] || getItem2() == itemIDs[i] || getItem3() == itemIDs[i] || getItem4() == itemIDs[i]) { continue; }
 			workingIDs.add(itemIDs[i]);
 		}
 		

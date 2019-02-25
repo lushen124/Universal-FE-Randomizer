@@ -1,6 +1,5 @@
 package random.gba.loader;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +16,7 @@ import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEItem;
 import fedata.gba.general.GBAFEItemProvider;
+import fedata.gba.general.GBAFEItemProvider.WeaponRanks;
 import fedata.gba.general.GBAFEPromotionItem;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
@@ -330,9 +330,28 @@ public class ItemDataLoader {
 			return null;
 		}
 		
-		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), originalWeapon, strict);
+		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), new WeaponRanks(targetClass, provider), originalWeapon, strict);
 		if (potentialItems.isEmpty()) { 
 			potentialItems = provider.basicWeaponsForClass(targetClass.getID());
+			
+			if (potentialItems.isEmpty()) {
+				return null;
+			}
+		}
+		
+		GBAFEItem[] itemsArray = potentialItems.toArray(new GBAFEItem[potentialItems.size()]);
+		int index = rng.nextInt(potentialItems.size());
+		return itemMap.get(itemsArray[index].getID());
+	}
+	
+	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEItemData originalWeapon, boolean strict, Random rng) {
+		if (!isWeapon(originalWeapon)) {
+			return null;
+		}
+		
+		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(character.getClassID(), new WeaponRanks(character, provider), originalWeapon, strict);
+		if (potentialItems.isEmpty()) { 
+			potentialItems = provider.basicWeaponsForClass(character.getClassID());
 			
 			if (potentialItems.isEmpty()) {
 				return null;

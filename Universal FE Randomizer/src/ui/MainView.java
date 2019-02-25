@@ -91,6 +91,8 @@ public class MainView implements FileFlowDelegate {
 	private WeaponsView weaponView;
 	private EnemyBuffsView enemyView; 
 	private MiscellaneousView miscView;
+	private RecruitmentView recruitView;
+	private ItemAssignmentView itemAssignmentView;
 	
 	// FE4
 	private SkillsView skillsView;
@@ -290,6 +292,8 @@ public class MainView implements FileFlowDelegate {
 		if (classView != null) { classView.dispose(); }
 		if (enemyView != null) { enemyView.dispose(); }
 		if (miscView != null) { miscView.dispose(); }
+		if (recruitView != null) { recruitView.dispose(); }
+		if (itemAssignmentView != null) { itemAssignmentView.dispose(); }
 		if (randomizeButton != null) { randomizeButton.dispose(); }
 		
 		if (seedField != null) { seedField.dispose(); }
@@ -328,7 +332,9 @@ public class MainView implements FileFlowDelegate {
 				weaponView.setWeaponOptions(bundle.weapons);
 				classView.setClassOptions(bundle.classes);
 				enemyView.setEnemyOptions(bundle.enemies);
-				miscView.setMiscellaneousOptions(bundle.otherOptions);				
+				miscView.setMiscellaneousOptions(bundle.otherOptions);		
+				recruitView.setRecruitmentOptions(bundle.recruitmentOptions);
+				itemAssignmentView.setItemAssignmentOptions(bundle.itemAssignmentOptions);
 			}
 		}
 	}
@@ -507,7 +513,6 @@ public class MainView implements FileFlowDelegate {
 			FormData classData = new FormData();
 			classData.top = new FormAttachment(weaponView, 0, SWT.TOP);
 			classData.left = new FormAttachment(weaponView, 5);
-			classData.right = new FormAttachment(100, -5);
 			classView.setLayoutData(classData);
 			
 			enemyView = new EnemyBuffsView(container, SWT.NONE);
@@ -519,25 +524,46 @@ public class MainView implements FileFlowDelegate {
 			enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
 			enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
 			enemyView.setLayoutData(enemyData);
-			  
+			
+			recruitView = new RecruitmentView(container, SWT.NONE);
+			recruitView.setSize(200, 200);
+			recruitView.setVisible(false);
+			
+			FormData recruitData = new FormData();
+			recruitData.top = new FormAttachment(classView, 0, SWT.TOP);
+			recruitData.left = new FormAttachment(classView, 5);
+			recruitData.right = new FormAttachment(100, -5);
+			recruitView.setLayoutData(recruitData);
+			
+			itemAssignmentView = new ItemAssignmentView(container, SWT.NONE);
+			itemAssignmentView.setSize(200, 200);
+			itemAssignmentView.setVisible(false);
+			
+			FormData itemAssignData = new FormData();
+			itemAssignData.top = new FormAttachment(recruitView, 5);
+			itemAssignData.left = new FormAttachment(recruitView, 0, SWT.LEFT);
+			itemAssignData.right = new FormAttachment(recruitView, 0, SWT.RIGHT);
+			itemAssignmentView.setLayoutData(itemAssignData);
+			
 			miscView = new MiscellaneousView(container, SWT.NONE, type);
 			miscView.setSize(200, 200);
 			miscView.setVisible(false);
-			  
-			FormData miscData = new FormData();
-			miscData.top = new FormAttachment(enemyView, 5);
-			miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
-			miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
-			miscView.setLayoutData(miscData);
 			
 			randomizeButton = new Button(container, SWT.PUSH);
 			randomizeButton.setText("Randomize!");
 			randomizeButton.setVisible(false);
+			
+			FormData miscData = new FormData();
+			miscData.top = new FormAttachment(itemAssignmentView, 5);
+			miscData.left = new FormAttachment(itemAssignmentView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(itemAssignmentView, 0, SWT.RIGHT);
+			miscData.bottom = new FormAttachment(randomizeButton, -5);
+			miscView.setLayoutData(miscData);
 			  
 			FormData randomizeData = new FormData();
-			randomizeData.top = new FormAttachment(miscView, 5);
-			randomizeData.left = new FormAttachment(miscView, 0, SWT.LEFT);
-			randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
+			randomizeData.top = new FormAttachment(enemyView, 5);
+			randomizeData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
+			randomizeData.right = new FormAttachment(recruitView, 0, SWT.RIGHT);
 			randomizeData.bottom = new FormAttachment(100, -10);
 			randomizeButton.setLayoutData(randomizeData);
 		}
@@ -620,6 +646,8 @@ public class MainView implements FileFlowDelegate {
 					otherCharOptionView.setVisible(true);
 					weaponView.setVisible(true);
 					enemyView.setVisible(true);
+					recruitView.setVisible(true);
+					itemAssignmentView.setVisible(true);
 				}
 		
 				miscView.setVisible(true);
@@ -683,6 +711,8 @@ public class MainView implements FileFlowDelegate {
 										otherCharOptionView.getOtherCharacterOptions(),
 										enemyView.getEnemyOptions(),
 										miscView.getMiscellaneousOptions(),
+										recruitView.getRecruitmentOptions(),
+										itemAssignmentView.getAssignmentOptions(),
 										seedField.getText());
 								
 								OptionRecorder.recordGBAFEOptions(gameType, 
@@ -693,6 +723,8 @@ public class MainView implements FileFlowDelegate {
 										otherCharOptionView.getOtherCharacterOptions(),
 										enemyView.getEnemyOptions(),
 										miscView.getMiscellaneousOptions(),
+										recruitView.getRecruitmentOptions(),
+										itemAssignmentView.getAssignmentOptions(),
 										seedField.getText());
 							} else if (gameType.isSFC()) {
 								if (gameType == GameType.FE4) {
