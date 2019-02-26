@@ -46,9 +46,9 @@ public class RecruitmentView extends Composite {
 		enableButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				autolevelButton.setEnabled(true);
-				absoluteButton.setEnabled(true);
-				relativeButton.setEnabled(true);
+				autolevelButton.setEnabled(enableButton.getSelection());
+				absoluteButton.setEnabled(enableButton.getSelection());
+				relativeButton.setEnabled(enableButton.getSelection());
 			}
 		});
 		

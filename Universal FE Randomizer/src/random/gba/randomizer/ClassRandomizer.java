@@ -316,7 +316,7 @@ public class ClassRandomizer {
 		if (unitClass != null) {
 			int item1ID = chapterUnit.getItem1();
 			GBAFEItemData item1 = itemData.itemWithID(item1ID);
-			if (itemData.isWeapon(item1)) {
+			if (itemData.isWeapon(item1) || item1.getType() == WeaponType.STAFF) {
 				if (!unitClass.canUseWeapon(item1)) {
 					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					if (replacementItem != null) {
@@ -329,7 +329,7 @@ public class ClassRandomizer {
 			
 			int item2ID = chapterUnit.getItem2();
 			GBAFEItemData item2 = itemData.itemWithID(item2ID);
-			if (itemData.isWeapon(item2)) {
+			if (itemData.isWeapon(item2) || item2.getType() == WeaponType.STAFF) {
 				if (!unitClass.canUseWeapon(item2)) {
 					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					if (replacementItem != null) {
@@ -342,7 +342,7 @@ public class ClassRandomizer {
 			
 			int item3ID = chapterUnit.getItem3();
 			GBAFEItemData item3 = itemData.itemWithID(item3ID);
-			if (itemData.isWeapon(item3)) {
+			if (itemData.isWeapon(item3) || item3.getType() == WeaponType.STAFF) {
 				if (!unitClass.canUseWeapon(item3)) {
 					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					if (replacementItem != null) {
@@ -355,7 +355,7 @@ public class ClassRandomizer {
 			
 			int item4ID = chapterUnit.getItem4();
 			GBAFEItemData item4 = itemData.itemWithID(item4ID);
-			if (itemData.isWeapon(item1)) {
+			if (itemData.isWeapon(item4) || item4.getType() == WeaponType.STAFF) {
 				if (!unitClass.canUseWeapon(item4)) {
 					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					if (replacementItem != null) {
