@@ -1,5 +1,6 @@
 package random.snes.fe4.randomizer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -128,12 +129,7 @@ public class FE4PromotionRandomizer {
 			if (classPool.isEmpty()) {
 				promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
 			} else {
-				List<FE4Data.CharacterClass> classList = classPool.stream().sorted(new Comparator<FE4Data.CharacterClass>() {
-					@Override
-					public int compare(CharacterClass arg0, CharacterClass arg1) {
-						return Integer.compare(arg0.ID, arg1.ID);
-					}
-				}).collect(Collectors.toList());
+				List<FE4Data.CharacterClass> classList = classPool.stream().sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
 				
 				FE4Data.CharacterClass promotion = classList.get(rng.nextInt(classList.size()));
 				if (FE4Data.CharacterClass.reducedChanceClasses.contains(promotion)) {
@@ -164,15 +160,18 @@ public class FE4PromotionRandomizer {
 			List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(staticChar.getHolyBlood2Value());
 			List<FE4Data.HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(staticChar.getHolyBlood3Value());
 			
-			FE4Data.CharacterClass[] promoOptions = baseClass.getLoosePromotionOptions(staticChar.isFemale(), allowMountChange, allowEnemyClasses, slot1Blood, slot2Blood, slot3Blood);
-			if (promoOptions.length > 0) {
-				FE4Data.CharacterClass promotion = promoOptions[rng.nextInt(promoOptions.length)];
+			List<FE4Data.CharacterClass> blacklistedClasses = Arrays.asList(fe4Char.blacklistedClasses());
+			List<FE4Data.CharacterClass> promoOptions = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(baseClass.getLoosePromotionOptions(staticChar.isFemale(), allowMountChange, allowEnemyClasses, slot1Blood, slot2Blood, slot3Blood)));
+			promoOptions = promoOptions.stream().filter(charClass -> (blacklistedClasses.contains(charClass))).sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+			
+			if (promoOptions.size() > 0) {
+				FE4Data.CharacterClass promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
 				if (FE4Data.CharacterClass.reducedChanceClasses.contains(promotion)) {
 					// Reroll once for anybody ending up in these classes.
-					promotion = promoOptions[rng.nextInt(promoOptions.length)];
+					promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
 				}
 				while (FE4Data.Character.CharactersThatRequireHorses.contains(fe4Char) && !promotion.isHorseback()) {
-					promotion = promoOptions[rng.nextInt(promoOptions.length)];
+					promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
 				}
 				promotionMap.setPromotionForCharacter(fe4Char, promotion);
 			}
@@ -197,20 +196,23 @@ public class FE4PromotionRandomizer {
 				continue;
 			}
 			
-			FE4Data.CharacterClass[] promoOptions = FE4Data.CharacterClass.promotedClasses.toArray(new FE4Data.CharacterClass[FE4Data.CharacterClass.promotedClasses.size()]);
+			FE4Data.CharacterClass[] options = FE4Data.CharacterClass.promotedClasses.toArray(new FE4Data.CharacterClass[FE4Data.CharacterClass.promotedClasses.size()]);
 			if (commonWeapons) {
-				promoOptions = baseClass.sharedWeaponPromotions(gen2Child.isFemale());
+				options = baseClass.sharedWeaponPromotions(gen2Child.isFemale());
 			}
 			
-			if (promoOptions.length > 0) {
-				FE4Data.CharacterClass promotion = promoOptions[rng.nextInt(promoOptions.length)];
+			List<FE4Data.CharacterClass> blacklistedClasses = Arrays.asList(fe4Char.blacklistedClasses());
+			List<FE4Data.CharacterClass> promoOptions = Arrays.asList(options).stream().filter(charClass -> (blacklistedClasses.contains(charClass))).sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+			
+			if (promoOptions.size() > 0) {
+				FE4Data.CharacterClass promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
 				if (FE4Data.CharacterClass.reducedChanceClasses.contains(promotion)) {
 					// Reroll once for anybody ending up in these classes.
-					promotion = promoOptions[rng.nextInt(promoOptions.length)];
+					promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
 				}
 				
 				while (FE4Data.Character.CharactersThatRequireHorses.contains(fe4Char) && !promotion.isHorseback()) {
-					promotion = promoOptions[rng.nextInt(promoOptions.length)];
+					promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
 				}
 				
 				promotionMap.setPromotionForCharacter(fe4Char, promotion);
@@ -225,20 +227,23 @@ public class FE4PromotionRandomizer {
 			if (targetPromotion == FE4Data.CharacterClass.NONE) { continue; } // Probably already promoted.
 			FE4Data.CharacterClass baseClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID());
 			
-			FE4Data.CharacterClass[] promoOptions = FE4Data.CharacterClass.promotedClasses.toArray(new FE4Data.CharacterClass[FE4Data.CharacterClass.promotedClasses.size()]);
+			FE4Data.CharacterClass[] options = FE4Data.CharacterClass.promotedClasses.toArray(new FE4Data.CharacterClass[FE4Data.CharacterClass.promotedClasses.size()]);
 			if (commonWeapons) {
-				promoOptions = baseClass.sharedWeaponPromotions(staticChar.isFemale());
+				options = baseClass.sharedWeaponPromotions(staticChar.isFemale());
 			}
 			
-			if (promoOptions.length > 0) {
-				FE4Data.CharacterClass promotion = promoOptions[rng.nextInt(promoOptions.length)];
+			List<FE4Data.CharacterClass> blacklistedClasses = Arrays.asList(fe4Char.blacklistedClasses());
+			List<FE4Data.CharacterClass> promoOptions = Arrays.asList(options).stream().filter(charClass -> (blacklistedClasses.contains(charClass))).sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+			
+			if (promoOptions.size() > 0) {
+				FE4Data.CharacterClass promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
 				if (FE4Data.CharacterClass.reducedChanceClasses.contains(promotion)) {
 					// Reroll once for anybody ending up in these classes.
-					promotion = promoOptions[rng.nextInt(promoOptions.length)];
+					promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
 				}
 				
 				while (FE4Data.Character.CharactersThatRequireHorses.contains(fe4Char) && !promotion.isHorseback()) {
-					promotion = promoOptions[rng.nextInt(promoOptions.length)];
+					promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
 				}
 				
 				promotionMap.setPromotionForCharacter(fe4Char, promotion);
