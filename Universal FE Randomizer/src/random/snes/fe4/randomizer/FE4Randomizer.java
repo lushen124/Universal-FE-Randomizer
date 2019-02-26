@@ -134,30 +134,30 @@ public class FE4Randomizer extends Randomizer {
 		
 		updateStatusString("Loading Data...");
 		updateProgress(0.1);
-		addUniversalDiffs(isHeadered);
-		generateDataLoaders();
+		try { addUniversalDiffs(isHeadered); } catch (Exception e) { notifyError("Encountered error while applying universal diffs.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		try { generateDataLoaders(); } catch (Exception e) { notifyError("Encountered error while generating data loaders.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		
 		RecordKeeper recordKeeper = initializeRecordKeeper();
 		recordKeeper.addHeaderItem("Randomizer Seed Phrase", seed);
 		
 		updateStatusString("Randomizing...");
-		randomizeClassesIfNecessary(seed);
+		try { randomizeClassesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing classes.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.40);
-		randomizeSkillsIfNecessary(seed);
+		try { randomizeSkillsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing skills.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.45);
-		randomizeGrowthsIfNecessary(seed);
+		try { randomizeGrowthsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing growths.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.50);
-		randomizeBasesIfNecessary(seed);
+		try { randomizeBasesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing bases.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.55);
-		randomizeBloodIfNecessary(seed);
+		try { randomizeBloodIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing holy blood.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.65);
-		randomizeRingsIfNecessary(seed);
+		try { randomizeRingsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing rings.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.75);
-		randomizePromotionsIfNecessary(seed);
+		try { randomizePromotionsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered while when randomizing promotions.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.85);
-		buffEnemiesIfNecessary(seed);
+		try { buffEnemiesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while buffing enemies.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.90);
-		makeFinalAdjustments(seed);
+		try { makeFinalAdjustments(seed); } catch (Exception e) { notifyError("Encountered error while finalizing adjustments.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.95);
 		
 		updateStatusString("Compiling changes...");
@@ -489,6 +489,7 @@ public class FE4Randomizer extends Randomizer {
 	}
 	
 	// Should be called after all other randomizations.
+	@SuppressWarnings("null")
 	private void makeFinalAdjustments(String seed) {
 		updateStatusString("Making final adjustments...");
 		
