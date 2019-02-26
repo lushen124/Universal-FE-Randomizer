@@ -489,7 +489,6 @@ public class FE4Randomizer extends Randomizer {
 	}
 	
 	// Should be called after all other randomizations.
-	@SuppressWarnings("null")
 	private void makeFinalAdjustments(String seed) {
 		updateStatusString("Making final adjustments...");
 		

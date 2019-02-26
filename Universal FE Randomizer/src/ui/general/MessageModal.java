@@ -91,8 +91,8 @@ public class MessageModal {
 		descriptionData.top = new FormAttachment(titleLabel, 10);
 		descriptionData.bottom = new FormAttachment(100, -5);
 		Point expectedSize = descriptionLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		descriptionData.width = expectedSize.x;
-		descriptionData.height = expectedSize.y;
+		descriptionData.width = Math.max(200, expectedSize.x);
+		descriptionData.height = Math.max(60, expectedSize.y);
 		descriptionLabel.setLayoutData(descriptionData);
 		
 		FormData groupData = new FormData();
