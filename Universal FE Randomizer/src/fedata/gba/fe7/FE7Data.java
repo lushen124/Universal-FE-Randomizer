@@ -1610,7 +1610,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		// It's pointer can be found at 0x27574.
 		// Remember that the actual address of the class IDs starts at byte 4 after the jump.
 		// The class IDs are 00 terminated.
-		HERO_CREST(0x01), KNIGHT_CREST(0x02), ORION_BOLT(0x03), ELYSIAN_WHIP(0x04), GUIDING_RING(0x05), MASTER_SEAL(0x25), FALLEN_CONTRACT(0x29);
+		HERO_CREST(0x01), KNIGHT_CREST(0x02), ORION_BOLT(0x03), ELYSIAN_WHIP(0x04), GUIDING_RING(0x05), MASTER_SEAL(0x25), FALLEN_CONTRACT(0x29), 
+		
+		// Ocean seal is special because there's no indirect reference to it...
+		OCEAN_SEAL(0x0);
 		
 		int offset;
 		
@@ -1619,6 +1622,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public long getPointerAddress() {
+			if (this == OCEAN_SEAL) {
+				return OceanSealAddressPointer;
+			}
+			
 			return (offset * 4) + PromotionItemTablePointer;
 		}
 		
@@ -1627,7 +1634,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public Boolean isIndirected() {
-			return true;
+			return this != OCEAN_SEAL; // Ocean seal being the special case.
 		}
 		
 		public String itemName() {
@@ -2844,6 +2851,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					CharacterClass.LORD_ELIWOOD,
 					CharacterClass.LORD_HECTOR,
 					CharacterClass.LORD_LYN
+					));
+		}
+		if (promotionItem == PromotionItem.OCEAN_SEAL) {
+			return new ArrayList<GBAFEClass>(Arrays.asList(
+					CharacterClass.CORSAIR
 					));
 		}
 		
