@@ -402,6 +402,8 @@ public class FE8Chapter implements GBAFEChapterData {
 					addressesLoaded.addAll(addressesFound);
 					currentAddress += 4;
 				}
+			} else if (WhyDoesJavaNotHaveThese.byteArrayHasPrefix(commandWord, new byte[] {0x20, 0x06})) {
+				// SADD - Does simple math between memory slots. We need to handle this because this mechanism is used in a few chapters to load some units.
 			}
 			
 			// LOAD4 is not used, it seems. SPAWN_* looks like it's only for cutscenes. There's only Character ID, so presumably it reads the class from the character data, so we don't care.
