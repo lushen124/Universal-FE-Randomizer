@@ -179,7 +179,7 @@ public class GrowthsRandomizer {
 			if (adjustHP) {
 				int threshold = range / 2 + minGrowth;
 				if (newHPGrowth < threshold) {
-					if (newHPGrowth + threshold <= maxGrowth) {
+					if (newHPGrowth + range / 2 <= maxGrowth) {
 						newHPGrowth += range / 2;
 					} else {
 						newHPGrowth = maxGrowth;

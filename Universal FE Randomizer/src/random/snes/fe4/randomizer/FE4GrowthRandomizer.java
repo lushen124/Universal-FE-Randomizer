@@ -256,19 +256,19 @@ public class FE4GrowthRandomizer {
 			
 			int range = maxGrowth - minGrowth;
 			
-			int newHPGrowth = range != 0 ? rng.nextInt(range) : 0 + minGrowth;
-			int newSTRGrowth = range != 0 ? rng.nextInt(range) : 0 + minGrowth;
-			int newMAGGrowth = range != 0 ? rng.nextInt(range) : 0 + minGrowth;
-			int newSKLGrowth = range != 0 ? rng.nextInt(range) : 0 + minGrowth;
-			int newSPDGrowth = range != 0 ? rng.nextInt(range) : 0 + minGrowth;
-			int newLCKGrowth = range != 0 ? rng.nextInt(range) : 0 + minGrowth;
-			int newDEFGrowth = range != 0 ? rng.nextInt(range) : 0 + minGrowth;
-			int newRESGrowth = range != 0 ? rng.nextInt(range) : 0 + minGrowth;
+			int newHPGrowth = (range != 0 ? rng.nextInt(range) : 0) + minGrowth;
+			int newSTRGrowth = (range != 0 ? rng.nextInt(range) : 0) + minGrowth;
+			int newMAGGrowth = (range != 0 ? rng.nextInt(range) : 0) + minGrowth;
+			int newSKLGrowth = (range != 0 ? rng.nextInt(range) : 0) + minGrowth;
+			int newSPDGrowth = (range != 0 ? rng.nextInt(range) : 0) + minGrowth;
+			int newLCKGrowth = (range != 0 ? rng.nextInt(range) : 0) + minGrowth;
+			int newDEFGrowth = (range != 0 ? rng.nextInt(range) : 0) + minGrowth;
+			int newRESGrowth = (range != 0 ? rng.nextInt(range) : 0) + minGrowth;
 			
 			if (adjustHPGrowths) {
 				int threshold = range / 2 + minGrowth; // This ensures the HP is always in the upper half of the range specified.
 				if (newHPGrowth < threshold) {
-					if (newHPGrowth + threshold <= maxGrowth) {
+					if (newHPGrowth + range / 2 <= maxGrowth) {
 						newHPGrowth += range / 2;
 					} else {
 						newHPGrowth = maxGrowth;
