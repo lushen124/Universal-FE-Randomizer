@@ -2032,6 +2032,7 @@ public class FE4Data {
 			case QUEEN: return EMPEROR;
 			default:
 				// There's no good option for Dancer, so just return Junior Lord or something.
+				if (isPromoted()) { return LORD_KNIGHT; }
 				return JUNIOR_LORD;
 			}
 		}
@@ -2067,6 +2068,7 @@ public class FE4Data {
 				return SAGE;
 			default:
 				// There shouldn't be anything here, but just return Princess or something if we get here.
+				if (isPromoted()) { return MASTER_KNIGHT; }
 				return PRINCESS;
 			}
 		}

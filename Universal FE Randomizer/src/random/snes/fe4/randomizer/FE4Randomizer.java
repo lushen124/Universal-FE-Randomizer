@@ -462,7 +462,7 @@ public class FE4Randomizer extends Randomizer {
 			if (promoOptions.promotionMode == FE4PromotionOptions.Mode.STRICT && (classOptions == null || !classOptions.randomizePlayableCharacters)) { return; }
 			updateStatusString("Randomizing Promotions...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4PromotionRandomizer.rngSalt + 1));
-			FE4PromotionRandomizer.randomizePromotions(promoOptions, charData, promotionMapper, rng);
+			FE4PromotionRandomizer.randomizePromotions(promoOptions, classOptions, charData, promotionMapper, rng);
 			// Special case, since Finn is the only character to go between both gens and is unpromoted.
 			// It's possible for him to get two different promotions in Gen2, so we want to make sure he's synced across both gens.
 			promotionMapper.setPromotionForCharacter(FE4Data.Character.FINN_GEN_2, promotionMapper.getPromotionForCharacter(FE4Data.Character.FINN_GEN_1));

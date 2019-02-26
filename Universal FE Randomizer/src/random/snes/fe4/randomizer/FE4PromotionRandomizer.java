@@ -15,16 +15,19 @@ import fedata.snes.fe4.FE4Data.CharacterClass;
 import fedata.snes.fe4.FE4StaticCharacter;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.PromotionMapper;
+import ui.fe4.FE4ClassOptions;
+import ui.fe4.FE4ClassOptions.ChildOptions;
 import ui.fe4.FE4PromotionOptions;
 
 public class FE4PromotionRandomizer {
 	
 	static final int rngSalt = 192168;
 	
-	public static void randomizePromotions(FE4PromotionOptions options, CharacterDataLoader charData, PromotionMapper promotionMap, Random rng) {
+	public static void randomizePromotions(FE4PromotionOptions options, FE4ClassOptions classOptions, CharacterDataLoader charData, PromotionMapper promotionMap, Random rng) {
+		boolean matchAnalogueForChildren = classOptions != null ? classOptions.childOption == ChildOptions.MATCH_STRICT : false;
 		if (options.promotionMode == FE4PromotionOptions.Mode.STRICT) { setPromotions(charData, promotionMap, rng); }
-		if (options.promotionMode == FE4PromotionOptions.Mode.LOOSE) { randomizePromotionsLoosely(charData, promotionMap, options.allowMountChanges, options.allowEnemyOnlyPromotedClasses, rng); }
-		if (options.promotionMode == FE4PromotionOptions.Mode.RANDOM) { randomizePromotionsRandomly(charData, promotionMap, options.requireCommonWeapon, rng); }
+		if (options.promotionMode == FE4PromotionOptions.Mode.LOOSE) { randomizePromotionsLoosely(charData, promotionMap, options.allowMountChanges, options.allowEnemyOnlyPromotedClasses, matchAnalogueForChildren, rng); }
+		if (options.promotionMode == FE4PromotionOptions.Mode.RANDOM) { randomizePromotionsRandomly(charData, promotionMap, options.requireCommonWeapon, matchAnalogueForChildren, rng); }
 	}
 	
 	private static void setPromotions(CharacterDataLoader charData, PromotionMapper promotionMap, Random rng) {
@@ -89,7 +92,7 @@ public class FE4PromotionRandomizer {
 		}
 	}
 
-	private static void randomizePromotionsLoosely(CharacterDataLoader charData, PromotionMapper promotionMap, boolean allowMountChange, boolean allowEnemyClasses, Random rng) {
+	private static void randomizePromotionsLoosely(CharacterDataLoader charData, PromotionMapper promotionMap, boolean allowMountChange, boolean allowEnemyClasses, boolean matchAnalogue, Random rng) {
 		// Gen 1
 		randomizeStaticCharacterPromotionsLoosely(charData.getGen1Characters(), promotionMap, allowMountChange, allowEnemyClasses, rng);
 		// Gen 2 Common
@@ -108,6 +111,23 @@ public class FE4PromotionRandomizer {
 			}
 			
 			FE4Data.Character parent = fe4Char.primaryParent();
+			FE4Data.Character analogue = fe4Char.getGen1Analogue();
+			
+			FE4StaticCharacter analogueCharacter = charData.getStaticCharacter(analogue);
+			if (matchAnalogue && analogueCharacter != null) {
+				FE4Data.CharacterClass analogueClass = FE4Data.CharacterClass.valueOf(analogueCharacter.getClassID());
+				// We can only do this if the classes are available, otherwise, we'll need to see if a close analogue exists.
+				if (analogueClass.isPromoted()) {
+					if (((gen2Child.isFemale() && analogueClass.canBeFemale()) || (!gen2Child.isFemale() && analogueClass.canBeMale()))) {
+						promotionMap.setPromotionForCharacter(fe4Char, analogueClass);
+					} else {
+						// Try to get the one that's closest.
+						if (gen2Child.isFemale()) { promotionMap.setPromotionForCharacter(fe4Char, analogueClass.toFemale()); }
+						else { promotionMap.setPromotionForCharacter(fe4Char, analogueClass.toMale()); }
+					}
+					continue;
+				}
+			}
 			
 			FE4StaticCharacter parentCharacter = charData.getStaticCharacter(parent);
 			List<FE4Data.HolyBloodSlot1> slot1Blood = null;
@@ -162,7 +182,7 @@ public class FE4PromotionRandomizer {
 			
 			List<FE4Data.CharacterClass> blacklistedClasses = Arrays.asList(fe4Char.blacklistedClasses());
 			List<FE4Data.CharacterClass> promoOptions = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(baseClass.getLoosePromotionOptions(staticChar.isFemale(), allowMountChange, allowEnemyClasses, slot1Blood, slot2Blood, slot3Blood)));
-			promoOptions = promoOptions.stream().filter(charClass -> (blacklistedClasses.contains(charClass))).sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+			promoOptions = promoOptions.stream().filter(charClass -> (!blacklistedClasses.contains(charClass))).sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
 			
 			if (promoOptions.size() > 0) {
 				FE4Data.CharacterClass promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
@@ -178,7 +198,7 @@ public class FE4PromotionRandomizer {
 		}
 	}
 	
-	private static void randomizePromotionsRandomly(CharacterDataLoader charData, PromotionMapper promotionMap, boolean commonWeapons, Random rng) {
+	private static void randomizePromotionsRandomly(CharacterDataLoader charData, PromotionMapper promotionMap, boolean commonWeapons, boolean matchAnalogue, Random rng) {
 		// Gen 1
 		randomizeStaticCharacterPromotionsRandomly(charData.getGen1Characters(), promotionMap, commonWeapons, rng);
 		// Gen 2 Common
@@ -196,13 +216,31 @@ public class FE4PromotionRandomizer {
 				continue;
 			}
 			
+			FE4Data.Character analogue = fe4Char.getGen1Analogue();
+			
+			FE4StaticCharacter analogueCharacter = charData.getStaticCharacter(analogue);
+			if (matchAnalogue && analogueCharacter != null) {
+				FE4Data.CharacterClass analogueClass = FE4Data.CharacterClass.valueOf(analogueCharacter.getClassID());
+				// We can only do this if the classes are available, otherwise, we'll need to see if a close analogue exists.
+				if (analogueClass.isPromoted()) {
+					if (((gen2Child.isFemale() && analogueClass.canBeFemale()) || (!gen2Child.isFemale() && analogueClass.canBeMale()))) {
+						promotionMap.setPromotionForCharacter(fe4Char, analogueClass);
+					} else {
+						// Try to get the one that's closest.
+						if (gen2Child.isFemale()) { promotionMap.setPromotionForCharacter(fe4Char, analogueClass.toFemale()); }
+						else { promotionMap.setPromotionForCharacter(fe4Char, analogueClass.toMale()); }
+					}
+					continue;
+				}
+			}
+			
 			FE4Data.CharacterClass[] options = FE4Data.CharacterClass.promotedClasses.toArray(new FE4Data.CharacterClass[FE4Data.CharacterClass.promotedClasses.size()]);
 			if (commonWeapons) {
 				options = baseClass.sharedWeaponPromotions(gen2Child.isFemale());
 			}
 			
 			List<FE4Data.CharacterClass> blacklistedClasses = Arrays.asList(fe4Char.blacklistedClasses());
-			List<FE4Data.CharacterClass> promoOptions = Arrays.asList(options).stream().filter(charClass -> (blacklistedClasses.contains(charClass))).sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+			List<FE4Data.CharacterClass> promoOptions = Arrays.asList(options).stream().filter(charClass -> (!blacklistedClasses.contains(charClass))).sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
 			
 			if (promoOptions.size() > 0) {
 				FE4Data.CharacterClass promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
@@ -233,7 +271,7 @@ public class FE4PromotionRandomizer {
 			}
 			
 			List<FE4Data.CharacterClass> blacklistedClasses = Arrays.asList(fe4Char.blacklistedClasses());
-			List<FE4Data.CharacterClass> promoOptions = Arrays.asList(options).stream().filter(charClass -> (blacklistedClasses.contains(charClass))).sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+			List<FE4Data.CharacterClass> promoOptions = Arrays.asList(options).stream().filter(charClass -> (!blacklistedClasses.contains(charClass))).sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
 			
 			if (promoOptions.size() > 0) {
 				FE4Data.CharacterClass promotion = promoOptions.get(rng.nextInt(promoOptions.size()));
