@@ -63,8 +63,13 @@ public class FE4ClassRandomizer {
 		if (!options.includeDancers) {
 			hasDancer = true;
 		}
+		
+		// We want to avoid anybody else getting Sigurd's major blood
+		// since all instances of that weapon will not pass down.
+		// This happens to work because getGen1Characters() returns the characters in order of ID, and Sigurd's ID is first.
+		// So we can just check Sigurd's blood whenever we look at everybody else.
 		List<FE4StaticCharacter> gen1Characters = charData.getGen1Characters();
-		for  (FE4StaticCharacter staticChar : gen1Characters) {
+		for (FE4StaticCharacter staticChar : gen1Characters) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
 			if (blacklistedCharacters.contains(fe4Char)) { continue; }
 			
@@ -102,6 +107,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			Set<FE4Data.CharacterClass> potentialClasses = new HashSet<FE4Data.CharacterClass>();
+			boolean hasMajorBlood = false;
 			
 			if (fe4Char.isHealer() && options.retainHealers) {
 				Collections.addAll(potentialClasses, originalClass.getClassPool(true, false, true, staticChar.isFemale(), false, false, options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), FE4Data.Item.HEAL, null));
@@ -120,10 +126,13 @@ public class FE4ClassRandomizer {
 					
 					if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
 						mustUseItem = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
+						hasMajorBlood = true;
 					} else if (slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
 						mustUseItem = slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
+						hasMajorBlood = true;
 					} else if (slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
 						mustUseItem = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
+						hasMajorBlood = true;
 					}
 				}
 				
@@ -139,6 +148,33 @@ public class FE4ClassRandomizer {
 						Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, false, staticChar.isFemale(), false, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), mustUseItem, null));
 					} else {
 						Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, false, staticChar.isFemale(), false, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), mustUseItem, null));
+					}
+				}
+				
+				if (options.randomizeBlood && hasMajorBlood) {
+					// If we do randomize blood, make sure nobody is stuck with the same major blood as Sigurd or at least stuck in a class
+					// that MUST have the same major blood as Sigurd (blood like Fjalar, Neir, and Ulir have classes
+					// that only use one weapon type.) This is because we don't allow Sigurd's holy weapon to pass to Seliph.
+					// That means anybody sharing his weapon also won't pass down. This only applies to gen 1 for characters
+					// that normally have major blood (i.e. Claud, Brigid, Lewyn, and Quan).
+					FE4Data.HolyBlood sigurdBlood = null;
+					if (fe4Char != FE4Data.Character.SIGURD) {
+						FE4StaticCharacter sigurd = charData.getStaticCharacter(FE4Data.Character.SIGURD);
+						List<HolyBloodSlot1> sigurdSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(sigurd.getHolyBlood1Value());
+						List<HolyBloodSlot2> sigurdSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(sigurd.getHolyBlood2Value());
+						// Slot3 is not allowed since Seliph only has 2 bytes available.
+						if (sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { sigurdBlood = sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType(); }
+						else if (sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { sigurdBlood = sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType(); }
+					}
+					
+					final FE4Data.HolyBlood finalSigurd = sigurdBlood;
+					
+					if (sigurdBlood != null) {
+						// Only allow classes
+						potentialClasses = potentialClasses.stream().filter(charClass -> {
+							Set<FE4Data.HolyBlood> bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(charClass.supportedHolyBlood()));
+							return bloodSet.size() > 1 || !bloodSet.contains(finalSigurd);
+						}).collect(Collectors.toSet());
 					}
 				}
 			}
@@ -1526,6 +1562,16 @@ public class FE4ClassRandomizer {
 		}
 		
 		if (options.randomizeBlood) {
+			FE4Data.HolyBlood sigurdBlood = null;
+			if (character.getCharacterID() != FE4Data.Character.SIGURD.ID) {
+				FE4StaticCharacter sigurd = charData.getStaticCharacter(FE4Data.Character.SIGURD);
+				List<HolyBloodSlot1> sigurdSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(sigurd.getHolyBlood1Value());
+				List<HolyBloodSlot2> sigurdSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(sigurd.getHolyBlood2Value());
+				// Slot3 is not allowed since Seliph only has 2 bytes available.
+				if (sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { sigurdBlood = sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType(); }
+				else if (sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { sigurdBlood = sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType(); }
+			}
+			
 			// Anybody with major blood is keeping major blood, but that blood might have to be adjusted.
 			if (hasMajorBlood && majorBloodType != null) {
 				
@@ -1554,6 +1600,9 @@ public class FE4ClassRandomizer {
 				Set<FE4Data.HolyBlood> bloodOptions = new HashSet<FE4Data.HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
 				Set<HolyBlood> limitedOptions = new HashSet<HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
 				bloodOptions.retainAll(limitedOptions);
+				if (sigurdBlood != null) {
+					bloodOptions.remove(sigurdBlood);
+				}
 				
 				List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodOptions);
 				if (!bloodList.isEmpty()) {
