@@ -2,6 +2,7 @@ package random.snes.fe4.randomizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -217,6 +218,7 @@ public class FE4BloodRandomizer {
 					// Also remove Sigurd's blood from consideration. (Gen 1 only.)
 					if (fe4Char.isGen1()) { bloodSet.remove(sigurdBlood); }
 					List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodSet);
+					Collections.sort(bloodList, FE4Data.HolyBlood.defaultComparator);
 					FE4Data.HolyBlood selectedBlood = bloodList.isEmpty() ? null : bloodList.get(rng.nextInt(bloodList.size()));
 					
 					// If we have a blood selected, use that, but otherwise (probably because Sigurd took it)
@@ -282,7 +284,7 @@ public class FE4BloodRandomizer {
 					bloodSet.remove(minorBloodType);
 				}
 				List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodSet);
-				
+				Collections.sort(bloodList, FE4Data.HolyBlood.defaultComparator);
 				FE4Data.HolyBlood selectedBlood = bloodList.get(rng.nextInt(bloodList.size()));
 				
 				FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(selectedBlood, false);

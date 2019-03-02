@@ -93,11 +93,13 @@ public class FE4ClassRandomizer {
 					if (referenceClass != null) {
 						if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
 							List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(staticChar.isFemale())));
+							Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
 							if (!demotedClasses.isEmpty()) {
 								referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
 							}
 						} else if (!referenceClass.isPromoted() && originalClass.isPromoted()) {
 							List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(staticChar.isFemale())));
+							Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
 							if (!promotedClasses.isEmpty()) {
 								referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
 							}
@@ -205,8 +207,10 @@ public class FE4ClassRandomizer {
 			if (potentialClasses.isEmpty()) { continue; }
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
+			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
 			
 			Set<HolyBlood> bloodOptions = new HashSet<HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
+			
 			targetClass = classList.get(rng.nextInt(classList.size()));
 			if (FE4Data.CharacterClass.reducedChanceClasses.contains(targetClass)) {
 				// Reroll once for anybody ending up in these classes.
@@ -260,11 +264,13 @@ public class FE4ClassRandomizer {
 					referenceClass = predeterminedClasses.get(referenceCharacter);
 					if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
 						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(staticChar.isFemale())));
+						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (!demotedClasses.isEmpty()) {
 							referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
 						}
 					} else if (!referenceClass.isPromoted() && originalClass.isPromoted()) {
 						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(staticChar.isFemale())));
+						Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (!promotedClasses.isEmpty()) {
 							referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
 						}
@@ -318,6 +324,7 @@ public class FE4ClassRandomizer {
 			if (potentialClasses.isEmpty()) { continue; }
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
+			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
 			
 			targetClass = classList.get(rng.nextInt(classList.size()));
 			if (FE4Data.CharacterClass.reducedChanceClasses.contains(targetClass)) {
@@ -372,23 +379,26 @@ public class FE4ClassRandomizer {
 				targetClass = predeterminedClasses.get(referenceCharacter);
 				if (targetClass != null) {
 					if (targetClass.isPromoted() && !currentClass.isPromoted()) {
-						FE4Data.CharacterClass[] demotedClasses = targetClass.demotedClasses(child.isFemale());
-						if (demotedClasses.length > 0) {
-							targetClass = demotedClasses[rng.nextInt(demotedClasses.length)];
+						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(targetClass.demotedClasses(child.isFemale())));
+						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
+						if (demotedClasses.size() > 0) {
+							targetClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
 						}
 					} else if (!targetClass.isPromoted() && currentClass.isPromoted()) {
-						FE4Data.CharacterClass[] promotedClasses = targetClass.promotionClasses(child.isFemale());
-						if (promotedClasses.length > 0) {
-							targetClass = promotedClasses[rng.nextInt(promotedClasses.length)];
+						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(targetClass.promotionClasses(child.isFemale())));
+						Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
+						if (promotedClasses.size() > 0) {
+							targetClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
 						}
 					}
 				}
 				
 				if (currentClass.isFlier()) {
 					// Override for Altena, who needs to remain flying to not break stuff.
-					FE4Data.CharacterClass[] classPool = currentClass.getClassPool(true, false, true, child.isFemale(), false, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), fe4Char.requiresWeapon(), null);
-					if (classPool.length > 0) {
-						targetClass = classPool[rng.nextInt(classPool.length)];
+					List<FE4Data.CharacterClass> classPool = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(currentClass.getClassPool(true, false, true, child.isFemale(), false, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), fe4Char.requiresWeapon(), null)));
+					Collections.sort(classPool, FE4Data.CharacterClass.defaultComparator);
+					if (classPool.size() > 0) {
+						targetClass = classPool.get(rng.nextInt(classPool.size()));
 					}
 				}
 			} else if (options.childOption == ChildOptions.MATCH_LOOSE) {
@@ -400,11 +410,13 @@ public class FE4ClassRandomizer {
 				if (referenceClass != null) {
 					if (referenceClass.isPromoted() && !currentClass.isPromoted()) {
 						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(child.isFemale())));
+						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (demotedClasses.size() > 0) {
 							referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
 						}
 					} else if (!referenceClass.isPromoted() && currentClass.isPromoted()) {
 						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(child.isFemale())));
+						Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (promotedClasses.size() > 0) {
 							referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
 						}
@@ -428,12 +440,7 @@ public class FE4ClassRandomizer {
 				}
 				
 				if (poolList.isEmpty() && !poolSet.isEmpty()) {
-					poolList = poolSet.stream().sorted(new Comparator<FE4Data.CharacterClass>() {
-						@Override
-						public int compare(CharacterClass arg0, CharacterClass arg1) {
-							return Integer.compare(arg0.ID, arg1.ID);
-						}
-					}).collect(Collectors.toList());
+					poolList = poolSet.stream().sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
 				}
 				
 				if (!poolList.isEmpty()) {
@@ -451,7 +458,7 @@ public class FE4ClassRandomizer {
 					poolSet.retainAll(Arrays.asList(whitelistedClasses));
 				}
 				List<FE4Data.CharacterClass> poolList = new ArrayList<FE4Data.CharacterClass>(poolSet);
-				
+				Collections.sort(poolList, FE4Data.CharacterClass.defaultComparator);
 				if (!poolList.isEmpty()) {
 					targetClass = poolList.get(rng.nextInt(poolList.size()));
 					if (targetClass == FE4Data.CharacterClass.DANCER) { hasDancer = true; }
@@ -510,7 +517,8 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
-				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -544,6 +552,7 @@ public class FE4ClassRandomizer {
 			
 			if (!possibleWeapons.isEmpty()) {
 				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -575,7 +584,8 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
-				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -607,7 +617,8 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
-				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -638,7 +649,8 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeAll(FE4Data.Item.siegeTomes); // Except Siege tomes
 			
 			if (!possibleWeapons.isEmpty()) {
-				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -671,7 +683,8 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
-				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -696,7 +709,8 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
-				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -719,7 +733,8 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeAll(FE4Data.Item.siegeTomes); // Still no Siege tomes.
 			
 			if (!possibleWeapons.isEmpty()) {
-				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -740,7 +755,8 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
-				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -761,7 +777,8 @@ public class FE4ClassRandomizer {
 			possibleWeapons.removeAll(FE4Data.Item.siegeTomes);
 			
 			if (!possibleWeapons.isEmpty()) {
-				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons); 
+				List<FE4Data.Item> currentList = new ArrayList<FE4Data.Item>(possibleWeapons);
+				Collections.sort(currentList, FE4Data.Item.defaultComparator);
 				for (Integer i : inventoryIndices) {
 					FE4Data.Item currentItem = itemMap.getItemAtIndex(i);
 					if (currentItem.isRing()) { continue; }
@@ -781,6 +798,8 @@ public class FE4ClassRandomizer {
 			weapons.addAll(FE4Data.Item.aWeapons);
 			weapons.removeAll(FE4Data.Item.brokenWeapons);
 			weapons.removeAll(FE4Data.Item.siegeTomes);
+			
+			Collections.sort(weapons, FE4Data.Item.defaultComparator);
 			
 			for (int index : inventoryIndices) {
 				FE4Data.Item currentItem = itemMap.getItemAtIndex(index);
@@ -832,11 +851,13 @@ public class FE4ClassRandomizer {
 					referenceClass = FE4Data.CharacterClass.valueOf(playableCharacter.getClassID());
 					if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
 						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(holyBoss.isFemale())));
+						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (!demotedClasses.isEmpty()) {
 							referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
 						}
 					} else if (!referenceClass.isPromoted() && originalClass.isPromoted()) {
 						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(holyBoss.isFemale())));
+						Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (!promotedClasses.isEmpty()) {
 							referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
 						}
@@ -887,6 +908,7 @@ public class FE4ClassRandomizer {
 			if (potentialClasses.isEmpty()) { continue; }
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
+			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
 			
 			targetClass = classList.get(rng.nextInt(potentialClasses.size()));
 			randomizeHolyBossBlood(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng);
@@ -964,11 +986,13 @@ public class FE4ClassRandomizer {
 					referenceClass = FE4Data.CharacterClass.valueOf(playableCharacter.getClassID());
 					if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
 						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(holyBoss.isFemale())));
+						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (!demotedClasses.isEmpty()) {
 							referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
 						}
 					} else if (!referenceClass.isPromoted() && originalClass.isPromoted()) {
 						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(holyBoss.isFemale())));
+						Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (!promotedClasses.isEmpty()) {
 							referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
 						}
@@ -1028,7 +1052,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
-			
+			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
 			targetClass = classList.get(rng.nextInt(potentialClasses.size()));
 			
 			
@@ -1070,7 +1094,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(possibleClasses);
-			
+			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
 			FE4Data.CharacterClass targetClass = classList.get(rng.nextInt(classList.size()));
 			FE4Data.Item item1 = null;
 			FE4Data.Item item2 = null;
@@ -1105,6 +1129,7 @@ public class FE4ClassRandomizer {
 					filteredWeapons = possibleWeapons;
 				}
 				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(filteredWeapons);
+				Collections.sort(weaponList, FE4Data.Item.defaultComparator);
 				item1 = weaponList.get(rng.nextInt(weaponList.size()));
 				hasMelee = true;
 				hasRange = FE4Data.Item.rangedWeapons.contains(item1);
@@ -1129,6 +1154,7 @@ public class FE4ClassRandomizer {
 					filteredWeapons = possibleWeapons;
 				}
 				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(filteredWeapons);
+				Collections.sort(weaponList, FE4Data.Item.defaultComparator);
 				item1 = weaponList.get(rng.nextInt(weaponList.size()));
 				hasRange = true;
 				hasMelee = FE4Data.Item.meleeWeapons.contains(item1);
@@ -1155,6 +1181,7 @@ public class FE4ClassRandomizer {
 					filteredWeapons = possibleWeapons;
 				}
 				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(filteredWeapons);
+				Collections.sort(weaponList, FE4Data.Item.defaultComparator);
 				item2 = weaponList.get(rng.nextInt(weaponList.size()));
 				hasMelee = true;
 			}
@@ -1178,6 +1205,7 @@ public class FE4ClassRandomizer {
 					filteredWeapons = possibleWeapons;
 				}
 				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(filteredWeapons);
+				Collections.sort(weaponList, FE4Data.Item.defaultComparator);
 				item2 = weaponList.get(rng.nextInt(weaponList.size()));
 				hasRange = true;
 			} else {
@@ -1185,6 +1213,7 @@ public class FE4ClassRandomizer {
 				boolean hasRing = rng.nextInt(3) < 2;
 				if (hasRing) {
 					List<FE4Data.Item> rings = new ArrayList<FE4Data.Item>(FE4Data.Item.statRings);
+					Collections.sort(rings, FE4Data.Item.defaultComparator);
 					FE4Data.Item ring = rings.get(rng.nextInt(rings.size()));
 					if (!targetClass.primaryAttackIsMagic() && ring == FE4Data.Item.MAGIC_RING) {
 						ring = FE4Data.Item.POWER_RING;
@@ -1267,7 +1296,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(classPool);
-			
+			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
 			FE4Data.CharacterClass targetClass = classList.get(rng.nextInt(classPool.size()));
 			// Put reduced weight on fliers, since they're maybe a bit too powerful. Re-randomize once if they get fliers the first time
 			if (targetClass.isFlier()) { 
@@ -1322,7 +1351,7 @@ public class FE4ClassRandomizer {
 			
 			Set<FE4Data.HolyBlood> bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
 			bloodSet.retainAll(new HashSet<FE4Data.HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection())));
-			List<FE4Data.HolyBlood> bloodOptions = bloodSet.stream().collect(Collectors.toList());
+			List<FE4Data.HolyBlood> bloodOptions = bloodSet.stream().sorted(FE4Data.HolyBlood.defaultComparator).collect(Collectors.toList());
 			// Bosses should never get Bragi Blood. That's a staff as a weapon if that's the case.
 			bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
 			bloodOptions.remove(FE4Data.HolyBlood.NAGA); // Probably shouldn't get Naga either, in case they end up with the Naga tome (and wipe the floor with everybody).
@@ -1355,6 +1384,7 @@ public class FE4ClassRandomizer {
 		slot3Blood.removeIf(blood -> (blood.isMajor() == false));
 		
 		List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
+		Collections.sort(bloodOptions, FE4Data.HolyBlood.defaultComparator);
 		if (majorBloodType != null) {
 			bloodOptions.remove(majorBloodType);
 		}
@@ -1409,6 +1439,7 @@ public class FE4ClassRandomizer {
 		
 		// Verify equipment.
 		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
+		Collections.sort(usableItems, FE4Data.Item.defaultComparator);
 		usableItems.removeIf(item -> (item.getRank() == FE4Data.Item.WeaponRank.PRF));
 		usableItems.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
 		if (!holyBoss.isFemale()) {
@@ -1493,12 +1524,7 @@ public class FE4ClassRandomizer {
 			
 			Set<FE4Data.Item> usable = new HashSet<FE4Data.Item>(Arrays.asList(charClass.usableItems(slot1Blood, slot2Blood, slot3Blood, false)));
 			if (usable.isEmpty()) { return; }
-			List<FE4Data.Item> list = usable.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).sorted(new Comparator<FE4Data.Item>() {
-				@Override
-				public int compare(Item o1, Item o2) {
-					return Integer.compare(o1.ID, o2.ID);
-				}
-			}).collect(Collectors.toList());
+			List<FE4Data.Item> list = usable.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).sorted(FE4Data.Item.defaultComparator).collect(Collectors.toList());
 			
 			FE4Data.Item randomStaff = list.get(rng.nextInt(list.size()));
 			Integer inventoryID = itemMap.obtainFreeInventoryID(randomStaff);
@@ -1605,6 +1631,7 @@ public class FE4ClassRandomizer {
 				}
 				
 				List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodOptions);
+				Collections.sort(bloodList, FE4Data.HolyBlood.defaultComparator);
 				if (!bloodList.isEmpty()) {
 					FE4Data.HolyBlood newMajorBlood = bloodList.get(rng.nextInt(bloodOptions.size()));
 					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajorBlood, true);
@@ -1659,6 +1686,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
+			Collections.sort(bloodOptions, FE4Data.HolyBlood.defaultComparator);
 			if (majorBloodType != null) { bloodOptions.remove(majorBloodType); }
 			if (bloodOptions.isEmpty()) { 
 				// Some classes only have one choice for blood type, and it might have already been taken by the major blood.
@@ -1726,12 +1754,7 @@ public class FE4ClassRandomizer {
 			usableSet.removeAll(FE4Data.Item.statusSet);
 		}
 		
-		List<FE4Data.Item> usableItems = usableSet.stream().sorted(new Comparator<FE4Data.Item>() {
-			@Override
-			public int compare(Item o1, Item o2) {
-				return Integer.compare(o1.ID, o2.ID);
-			}
-		}).collect(Collectors.toList());
+		List<FE4Data.Item> usableItems = usableSet.stream().sorted(FE4Data.Item.defaultComparator).collect(Collectors.toList());
 		
 		// Remove Hel, if it's in here.
 		usableItems.remove(FE4Data.Item.HEL);
@@ -1757,6 +1780,7 @@ public class FE4ClassRandomizer {
 			} else {
 				if (isHealer && !healingStaves.isEmpty()) {
 					List<FE4Data.Item> healStaffList = new ArrayList<FE4Data.Item>(healingStaves); 
+					Collections.sort(healStaffList, FE4Data.Item.defaultComparator);
 					replacement = healStaffList.get(rng.nextInt(healStaffList.size()));
 				} else {
 					if (options.itemOptions == ItemAssignmentOptions.SIDEGRADE_STRICT) {
@@ -1791,7 +1815,8 @@ public class FE4ClassRandomizer {
 				replacement = majorBloodType.holyWeapon;
 			} else {
 				if (isHealer && !healingStaves.isEmpty()) {
-					List<FE4Data.Item> healStaffList = new ArrayList<FE4Data.Item>(healingStaves); 
+					List<FE4Data.Item> healStaffList = new ArrayList<FE4Data.Item>(healingStaves);
+					Collections.sort(healStaffList, FE4Data.Item.defaultComparator);
 					replacement = healStaffList.get(rng.nextInt(healStaffList.size()));
 				} else {
 					if (options.itemOptions == ItemAssignmentOptions.SIDEGRADE_STRICT) {
@@ -1942,6 +1967,7 @@ public class FE4ClassRandomizer {
 		FE4Data.Character fe4Char = FE4Data.Character.valueOf(child.getCharacterID());
 		
 		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(new ArrayList<FE4Data.HolyBloodSlot1>(), new ArrayList<FE4Data.HolyBloodSlot2>(), new ArrayList<FE4Data.HolyBloodSlot3>())));
+		Collections.sort(usableItems, FE4Data.Item.defaultComparator);
 		if (!child.isFemale()) {
 			usableItems.removeIf(item -> (FE4Data.Item.femaleOnlyWeapons.contains(item)));
 		}
@@ -2098,6 +2124,7 @@ public class FE4ClassRandomizer {
 		itemSet.removeAll(FE4Data.Item.femaleOnlyWeapons);
 		itemSet.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
 		List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet);
+		Collections.sort(usableItems, FE4Data.Item.defaultComparator);
 		
 		int item1ID = enemy.getEquipment1();
 		FE4Data.Item item1 = FE4Data.Item.valueOf(item1ID);
@@ -2152,6 +2179,7 @@ public class FE4ClassRandomizer {
 			itemSet.removeAll(FE4Data.Item.femaleOnlyWeapons);
 			itemSet.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
 			List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet);
+			Collections.sort(usableItems, FE4Data.Item.defaultComparator);
 			
 			int item2ID = enemy.getEquipment2();
 			FE4Data.Item existingItem = FE4Data.Item.valueOf(item2ID);
@@ -2215,6 +2243,7 @@ public class FE4ClassRandomizer {
 		if (filtered) { // Some filter happened. We should use that filter and return something from that list.
 			if (!workingSet.isEmpty()) {
 				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(workingSet);
+				Collections.sort(weaponList, FE4Data.Item.defaultComparator);
 				return weaponList.get(rng.nextInt(weaponList.size()));
 			}
 		}
@@ -2233,6 +2262,7 @@ public class FE4ClassRandomizer {
 		if (filtered) {
 			if (!workingSet.isEmpty()) {
 				List<FE4Data.Item> weaponList = new ArrayList<FE4Data.Item>(workingSet);
+				Collections.sort(weaponList, FE4Data.Item.defaultComparator);
 				return weaponList.get(rng.nextInt(weaponList.size()));
 			}
 		}
@@ -2259,9 +2289,11 @@ public class FE4ClassRandomizer {
 		
 		if (!workingSet.isEmpty()) {
 			List<FE4Data.Item> replacementList = new ArrayList<FE4Data.Item>(workingSet);
+			Collections.sort(replacementList, FE4Data.Item.defaultComparator);
 			return replacementList.get(rng.nextInt(replacementList.size()));
 		} else {
 			List<FE4Data.Item> replacementList = new ArrayList<FE4Data.Item>(allUsableItems);
+			Collections.sort(replacementList, FE4Data.Item.defaultComparator);
 			return replacementList.get(rng.nextInt(replacementList.size()));
 		}
 	}

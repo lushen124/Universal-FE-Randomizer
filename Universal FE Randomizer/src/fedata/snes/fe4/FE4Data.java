@@ -2450,6 +2450,13 @@ public class FE4Data {
 		CIRCLET(0x89)
 		;
 		
+		public static Comparator<Item> defaultComparator = new Comparator<Item>() {
+			@Override
+			public int compare(Item o1, Item o2) {
+				return Integer.compare(o1.ID, o2.ID);
+			}
+		};
+		
 		public static final Set<Item> swords = new HashSet<Item>(Arrays.asList(IRON_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, MIRACLE_SWORD,
 				THIEF_SWORD, BARRIER_BLADE, BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD,
 				SAFEGUARD, FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, MYSTLETAINN, TYRFING,
@@ -3041,9 +3048,16 @@ public class FE4Data {
 		private HolyBlood(Item weapon, Item.ItemType type) { this.holyWeapon = weapon; this.weaponType = type; }
 		
 		// They're not IDs because they're not referenced this way, but they are stored in data in this order.
-		public static HolyBlood[] orderedByDataTable() {
-			return new HolyBlood[] {BALDR, NAGA, DAIN, NJORUN, OD, ULIR, NEIR, FJALAR, THRUD, FORSETI, BRAGI, HEZUL, LOPTOUS};
+		public static List<HolyBlood> orderedByDataTable() {
+			return new ArrayList<HolyBlood>(Arrays.asList(BALDR, NAGA, DAIN, NJORUN, OD, ULIR, NEIR, FJALAR, THRUD, FORSETI, BRAGI, HEZUL, LOPTOUS));
 		}
+		
+		public static Comparator<HolyBlood> defaultComparator = new Comparator<HolyBlood>() {
+			@Override
+			public int compare(HolyBlood o1, HolyBlood o2) {
+				return Integer.compare(orderedByDataTable().indexOf(o1), orderedByDataTable().indexOf(o2));
+			}
+		};
 		
 		public CharacterClass[] classPool() {
 			switch (this) {
