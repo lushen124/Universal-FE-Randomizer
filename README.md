@@ -1,18 +1,16 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-### Latest Version: 0.7.5
-#### Additions
-* Added the ability to resize the window vertically, if necessary.
-#### Changes
-* Removed Bard from the Male-only class list (female bards work, apparently).
-* Added Paladin to the Male-only class list (female cavs will always promote to the female variant of the Paladin)
-#### Bugfixes
-* Removed Axe Armor from the A rank axe users list.
-* Moved Dragon Rider from B Swords/B Lances to C Swords/C Lances as they're supposed to be.
-* Fixed an issue where Quan and Ethlyn could end up with one less skill than intended.
-* Fixed an issue where Weapon Effects settings were not being resotred properly for GBA games.
-* Fixed a crash that could happen when restoring GBA settings.
-* Fixed an issue with item assignment in FE8 for monster classes that use human weapons.
+## Latest Version: 0.8.0
+
+### Compatability
+* Fire Emblem: Genealogy of the Holy War (aka FE4 or ファイアーエムブレム　聖戦の系譜)
+* Fire Emblem: Binding Blade (aka FE6 or ファイアーエムブレム　封印の剣)
+* Fire Emblem: Blazing Sword (aka FE7 or ファイアーエムブレム 烈火の剣)
+* Fire Emblem: The Sacred Stones (aka FE8 or ファイアーエムブレム 聖魔の光石)
+
+Note that FE4 and FE6 require clean JP versions of those games. The randomizer will do a cheksum comparison to make sure of this. A Checksum failure error indicates an altered or otherwise invalid file. Additionally, FE4 is ok with either a Headered version of the ROM or an Unheadered version.
+
+FE7 and FE8 currently require US versions of those games. Like above, a cheksum comparison will be performed to make sure the game is valid for randomization.
 
 * * *
 
@@ -31,19 +29,19 @@ And hey, name change! It's actually perfect in a lot of ways because it encapsul
 Executables are found in the above executables folder and are separated by platform. The raw JAR file is available if you want to run it directly, but MacOS and Windows users also have the option of using an executable that generally makes things easier to launch.
 
 ### Windows
-![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows.png)
-
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20Windows.jar
+https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20Windows%20(x86).jar
 
 Executable:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Windows/Yune.exe
+https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Windows/Yune%20(x86).exe
 
 **Requirements**: JRE >= 1.8.0. I was thinking about bundling this into the executable, but that's just a massive waste of space, and most of you probably can get JRE relatively easily. And if you can't, here you to: http://www.oracle.com/technetwork/java/javase/downloads/index.html. I've only tested this with Windows 10, but I don't see why older versions of Windows would be excluded so long as you have JRE.
 
-### MacOS
-![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS.png)
+Important note: There are two versions of the JAR and binary. **The one you need depends on the version of JRE you have installed and NOT the version of Windows you have installed.** That is to say, you can have a 64-bit version of Windows but still be running an x86 (32-bit) version of JRE. I recommend you update your JRE to match the architecture for your Windows installation, but if you want to retain your x86 JRE, use the x86 version. Chances are, if you see a splash screen and then nothing happens, you have the wrong version.
 
+### MacOS
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20MacOS.jar
 
@@ -54,11 +52,9 @@ https://github.com/lushen124/Universal-FE-Randomizer/tree/master/Executables/Mac
 java -jar -XstartOnFirstThread Yune\ -\ MacOS.jar
 ```
 
-**Requirements**: Like Windows, you need a JRE to run it, though most versions of MacOS have one included that should be sufficient. If it doesn't work, go ahead and grab the newest one at http://www.oracle.com/technetwork/java/javase/downloads/index.html. Tested with OS X 10.13 (High Sierra).
+**Requirements**: Like Windows, you need a JRE to run it, though most versions of MacOS have one included that should be sufficient. If it doesn't work, go ahead and grab the newest one at http://www.oracle.com/technetwork/java/javase/downloads/index.html. Tested with OS X 10.13 (High Sierra). Unlike Windows, if you have any Mac from the last 8 years, you should have a 64-bit machine (Mac OS X 10.7 Lion and above).
 
 ### GTK
-![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux.png)
-
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20GTK(x86_64).jar
 
@@ -74,41 +70,53 @@ $ sudo apt-get install default-jre
 
 And then run it with
 
-```
+``` 
 $ java -jar Yune\ -\ GTK(x86_64).jar
 ```
 
 ...or something like that. Tested with Ubuntu 16.04.4.
 
-## Compatability
-* **NEW!** Fire Emblem: Genealogy of the Holy War (aka FE4 or ファイアーエムブレム　聖戦の系譜)
-* Fire Emblem: Binding Blade (aka FE6 or ファイアーエムブレム　封印の剣)
-* Fire Emblem: Blazing Sword (aka FE7 or ファイアーエムブレム 烈火の剣)
-* Fire Emblem: The Sacred Stones (aka FE8 or ファイアーエムブレム 聖魔の光石)
+Also, you may need to `chmod` it so that it's runnable. That can be done with
 
-Note that FE4 and FE6 require clean JP versions of those games. The randomizer will do a cheksum comparison to make sure of this. A Checksum failure error indicates an altered or otherwise invalid file. Additionally, FE4 is ok with either a Headered version of the ROM or an Unheadered version.
-
-FE7 and FE8 currently require US versions of those games. Like above, a cheksum comparison will be performed to make sure the game is valid for randomization.
+```
+chmod 777 Yune\ -\ GTK(x86_64).jar
+```
 
 ## Randomization Options
 
-### FE4 Additions
-
-<p align="center">
-  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/FE4Mac.png?raw=true">
-</p>
+### Fire Emblem: Genealogy of the Holy War
 
 #### Growths
-Mostly the same as GBA. A character's personal growth rates are redistributed. Note that growth bonuses due to holy blood is added on top of the fact. Two new options have been added as well, one to put extra weight when considering HP growths, and one to make sure growth rates for STR and MAG (since they're separate in FE4) reflect the class. Meaning a class using Magic will make sure their MAG growth is higher than their STR growth, and vice versa with a class using physical weapons. Note that this does NOT guarantee the actual value of those growths. They can still be low overall, but their primary attacking stat will be guaranteed to grow better than their other stat. Characters that can use both physical and magic are not weighted specially in either direction.
+Randomizes the growths of each character. This only involves a character's personal growths. For characters that have holy blood of some kind, their growths are boosted from the holy blood, but that boost is not accounted for here. There are three modes of randomization:
+
+* **Redistribute** - Sums up the character's total growths and randomly redistributes it across all stat areas. Optionally applies variance to the sum.
+* **Delta** - Applies a random delta to each stat area's growth, adding or subtracting an amount up to the variance specified.
+* **Full** - Discards the character's usual growth rate and generates completely new ones between the specified range. 
+
+On top of that, there are two additional options that can be applied.
+
+* **Adjust STR/MAG by Class** - Since this game separates Strength and Magic into different stats, this option will swap a character's STR/MAG stats to ensure that the stat with the higher growth is on the character's primary attack stat. In other words, physical attackers are guaranteed to have a greater or equal growth rate for Strength than Magic, and vice versa for magic users.
+* **Adjust HP Growths** - This option gives HP growths additional weight when redistributing growths and ensures HP growths are in the upper half of the range when fully randomizing growths. This option does nothing when the randomization mode is Delta.
+
+*Note: In order to prevent issues with overflow during inheritence, the maximum growth rate for any character in any area is 85%.*
 
 #### Bases
-Also mostly the same as GBA, except for one major change: HP bases are not affected. This is because unlike GBA, playable characters do not add their personal HP base to a class HP base, which makes it almost guaranteed that any redistribution will drastically lower HP (and subsequently raise all of their other stats). Randomizing bases by delta will, however, affect HP as well. Like growths, an option is added to make sure a character's personal base for MAG will be favored if they primarily use magic and STR will be favored if they primarily use physical attacks.
+Randomizes the base stats for each character. A character's effective bases are determined by the sum of their personal bases and the bases for their class. This randomization option only involves a character's personal bases. There are two modes of randomization:
+
+* **Redistribute** - Sums up the character's total personal bases and randomly redistributes it across all stat areas. HP is **not** included in this, as there is no contribution from the class when determining a character's effective base HP. Optionally applies a variance to the sum of growths for a character.
+* **Delta** - Applies a random delta to each stat area, adding or subtracting a random amount up to the variance specified.
+
+On top of that, one more option is available in both cases.
+
+* **Adjust STR/MAG by Class** - Much like with growths, this option will ensure that the character's primary attacking stat will be higher than or equal to the secondary attacking stat.
 
 #### Holy Blood
-A new group of options, only for FE4, obviously. These options randomize the statistics of the holy blood in the game, from their growth bonuses to their holy weapon's stat bonus when equipped. The value specified for growth bonus total is the total bonus for MINOR holy blood. MAJOR holy blood will double the bonuses in each area.
+
+* **Randomize Growth Bonuses** - Holy blood grants its carrier bonuses in their growth rates, independent from the character's personal growths. This option randomly redistributes the bonus growth areas for each holy blood, redistributing up to the growth amount specified between all growth areas.
+* **Randomize Holy Weapon Bonuses** - Characters with Major holy blood gain access to holy weapons, depending on the blood that they have. These weapons generally give large stat bonuses when equipped. This option redistributes the bonuses conferred to the user of each type of holy weapon.
+* **Assign Holy Blood to Playable Characters** - This option randomly assigns holy blood to playable characters. The type of blood can be limited to a set that matches their class's weapon usage if the **Match Blood to Weapon Usage** option is checked. The chance of receiving Major, Minor, or no Holy Blood can also be customized. 
 
 #### Skills
-You'll realize that unlike GBA, the large section on weapons is completely gone, and in its place is an even larger section for skills. There's two methods of randomization here: shuffling and randomizing. In both cases, there is an option to retain the number of skills for each character. The effect of this when enabled is obvious, but when disabled, it depends on the option. The other universal fact here is that child characters are not affected by any of these directly, as they run entirely on inheritence of skills from their parents. (For the purposes of randomizing and due to the way the game is coded, Julia is not considered a child.)
 
 ##### Shuffle
 This option takes all of the skills from every character and then randomly doles them back out again. If the option to retain the number of skills is enabled, this makes sure a character that contributed 2 skills to the pool, for example, will be assigned 2 skills back. Disabling the option will not limit a character to the number of skills they started with, though each character is capped at a max of 4 skills. The other option for this mode is to separate the pool of skills by generation, which should be self-explanatory what it does.
