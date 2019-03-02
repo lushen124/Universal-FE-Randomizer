@@ -1017,7 +1017,7 @@ public class FE4Data {
 		// Midir will make the game confused if he can't attack in his opening scene.
 		// Seliph *technically* doesn't need to attack.
 		public static final Set<Character> CharactersThatMustBeAbleToAttack = new HashSet<Character>(Arrays.asList(SIGURD, /*SELIPH,*/ MIDIR));
-		public static final Set<Character> CharactersThatMustAttackAtMeleeRange = new HashSet<Character>(Arrays.asList(CHULAINN));
+		public static final Set<Character> CharactersThatMustAttackAtMeleeRange = new HashSet<Character>(Arrays.asList(CHULAINN, BEOWOLF)); // For whatever reason, Beowolf's AI likes to attack at melee range, even if he's bow locked.
 		public static final Set<Character> CharactersThatRequireHorses = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN)); // :(
 		
 		// These bosses can drop their holy weapon if they were randomized to get them.
