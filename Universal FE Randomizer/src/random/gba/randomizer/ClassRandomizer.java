@@ -220,6 +220,13 @@ public class ClassRandomizer {
 					int randomIndex = rng.nextInt(possibleClasses.length);
 					GBAFEClassData targetClass = possibleClasses[randomIndex];
 					
+					if (classData.isFlying(originalClass.getID()) == false && classData.isFlying(targetClass.getID())) {
+						// If this is a new flier, roll one more time. 
+						// Reduce the number of non-flying minions that become fliers.
+						randomIndex = rng.nextInt(possibleClasses.length);
+						targetClass = possibleClasses[randomIndex];
+					}
+					
 					updateMinionToClass(inventoryOptions, chapterUnit, targetClass, classData, itemData, rng);
 				}
 			}
