@@ -82,7 +82,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	//public static final long DefaultPaletteIndexTableOffset = 0x95EEA4;
 	public static final int BytesPerPaletteIndexTableEntry = 7;
 	
-	public static final long SummonerTablePointer = 0x2442C;
+	// I think all three of these pointers need to be set appropriately. I think they determine different pieces of the summoner logic.
+	public static final long SummonerTablePointer = 0x2442CL;
+	public static final long SummonerTablePointer2 = 0x7AD54L; 
+	public static final long SummonerTablePointer3 = 0x7AE00L;
 	//public static final long DefaultSummonerTableOffset = 0x95F5A4;
 	public static final int BytesPerSummonerEntry = 2;
 	

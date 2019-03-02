@@ -230,7 +230,12 @@ public class FE8SummonerModule {
 			// Repoint the table.
 			byte[] addressBytes = WhyDoesJavaNotHaveThese.gbaAddressFromOffset(newTableOffset);
 			Diff repointDiff = new Diff(FE8Data.SummonerTablePointer, addressBytes.length, addressBytes, null);
+			// Make sure we write the address to all three pointers.
+			Diff repointDiff2 = new Diff(FE8Data.SummonerTablePointer2, addressBytes.length, addressBytes, null);
+			Diff repointDiff3 = new Diff(FE8Data.SummonerTablePointer3, addressBytes.length, addressBytes, null);
 			compiler.addDiff(repointDiff);
+			compiler.addDiff(repointDiff2);
+			compiler.addDiff(repointDiff3);
 			
 			DebugPrinter.log(DebugPrinter.Key.FE8_SUMMONER_MODULE, "Repointing data to 0x" + Long.toHexString(newTableOffset) + "...");
 		} else {
