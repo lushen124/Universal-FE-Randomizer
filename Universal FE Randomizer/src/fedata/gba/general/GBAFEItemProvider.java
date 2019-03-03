@@ -4,10 +4,45 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
 
 public interface GBAFEItemProvider {
+	
+	public static class WeaponRanks {
+		public final WeaponRank swordRank;
+		public final WeaponRank lanceRank;
+		public final WeaponRank axeRank;
+		public final WeaponRank bowRank;
+		public final WeaponRank animaRank;
+		public final WeaponRank lightRank;
+		public final WeaponRank darkRank;
+		public final WeaponRank staffRank;
+		
+		public WeaponRanks(GBAFECharacterData character, GBAFEItemProvider provider) {
+			swordRank = provider.rankWithValue(character.getSwordRank());
+			lanceRank = provider.rankWithValue(character.getLanceRank());
+			axeRank = provider.rankWithValue(character.getAxeRank());
+			bowRank = provider.rankWithValue(character.getBowRank());
+			animaRank = provider.rankWithValue(character.getAnimaRank());
+			lightRank = provider.rankWithValue(character.getLightRank());
+			darkRank = provider.rankWithValue(character.getDarkRank());
+			staffRank = provider.rankWithValue(character.getStaffRank());
+		}
+		
+		public WeaponRanks(GBAFEClassData characterClass, GBAFEItemProvider provider) {
+			swordRank = provider.rankWithValue(characterClass.getSwordRank());
+			lanceRank = provider.rankWithValue(characterClass.getLanceRank());
+			axeRank = provider.rankWithValue(characterClass.getAxeRank());
+			bowRank = provider.rankWithValue(characterClass.getBowRank());
+			animaRank = provider.rankWithValue(characterClass.getAnimaRank());
+			lightRank = provider.rankWithValue(characterClass.getLightRank());
+			darkRank = provider.rankWithValue(characterClass.getDarkRank());
+			staffRank = provider.rankWithValue(characterClass.getStaffRank());
+		}
+	}
 	
 	public long itemTablePointer();
 	public int numberOfItems();
@@ -34,7 +69,7 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> weaponsLockedToClass(int classID);
 	public Set<GBAFEItem> weaponsForClass(int classID);
 	public Set<GBAFEItem> basicWeaponsForClass(int classID);
-	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem);
+	public Set<GBAFEItem> comparableWeaponsForClass(int classID, WeaponRanks ranks, GBAFEItemData originalItem, boolean strict);
 	public Set<GBAFEItem> formerThiefInventory();
 	public Set<GBAFEItem> thiefItemsToRemove();
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng);

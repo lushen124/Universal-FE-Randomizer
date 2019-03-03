@@ -21,7 +21,6 @@ public class MiscellaneousView extends Composite {
 	private Button applyEnglishPatch; // pre-FE6 only
 	
 	private Button randomizeChestVillageRewards;
-	private Button randomizeRecruitmentOrder;
 	
 	public MiscellaneousView(Composite parent, int style, GameType gameType) {
 		super(parent, style);
@@ -75,41 +74,27 @@ public class MiscellaneousView extends Composite {
 			chestVillageData.top = new FormAttachment(0, 5);
 		}
 		randomizeChestVillageRewards.setLayoutData(chestVillageData);
-
-		//////////////////////////////////////////////////////////////////
-	
-		if (gameType != GameType.FE4) {
-			randomizeRecruitmentOrder = new Button(container, SWT.CHECK);
-			randomizeRecruitmentOrder.setText("Randomize Recruitment Order");
-			randomizeRecruitmentOrder.setToolTipText("Mixes up the order in which characters join the party.");
-			randomizeRecruitmentOrder.setEnabled(false);
-			
-			FormData randomRecruitData = new FormData();
-			randomRecruitData.left = new FormAttachment(0, 5);
-			randomRecruitData.top = new FormAttachment(randomizeChestVillageRewards, 5);
-			randomizeRecruitmentOrder.setLayoutData(randomRecruitData);
-		}
 	}
 
 	public MiscellaneousOptions getMiscellaneousOptions() {
 		if (type.isGBA()) {
 			switch (type) {
 			case FE6:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection());
 			case FE7:
 			default:
-				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), false);
+				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection());
 			}
 		} else if (type.isSFC()) {
 			switch (type) {
 			case FE4:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection());
 			default:
-				return new MiscellaneousOptions(false, false, false);
+				return new MiscellaneousOptions(false, false);
 			}
 		}
 		
-		return new MiscellaneousOptions(false, false, false);
+		return new MiscellaneousOptions(false, false);
 	}
 	
 	public void setMiscellaneousOptions(MiscellaneousOptions options) {
@@ -121,9 +106,6 @@ public class MiscellaneousView extends Composite {
 			}
 			if (randomizeChestVillageRewards != null) {
 				randomizeChestVillageRewards.setSelection(options.randomizeRewards);
-			}
-			if (randomizeRecruitmentOrder != null) {
-				randomizeRecruitmentOrder.setSelection(options.randomizeRecruitment);
 			}
 		}
 	}

@@ -191,6 +191,21 @@ public class FE8Chapter implements GBAFEChapterData {
 		}
 	}
 	
+	private static class MemoryValues {
+		private long values[] = new long[0xE];
+		
+		public void setValue(long value, int index) {
+			assert index < 0xE : "Attempted to set memory value out of bounds.";
+			if (index == 0) { return; } // Writing to 0 has no effect.
+			values[index] = value; 
+		}
+		
+		public long getValue(int index) {
+			assert index < 0xE : "Attempted to read memory value out of bounds.";
+			return values[index];
+		}
+	}
+	
 	private void loadUnits(FileHandler handler) {
 		Set<Long> addressesSearched = new HashSet<Long>();
 		// Look in the obvious places first.
@@ -323,16 +338,14 @@ public class FE8Chapter implements GBAFEChapterData {
 	}
 	
 	private Set<Long> unitAddressesFromEventBlob(FileHandler handler, long eventAddress) {
-		return unitAddressesFromEventBlob(handler, eventAddress, 0);
+		return unitAddressesFromEventBlob(handler, eventAddress, new MemoryValues());
 	}
 	
-	private Set<Long> unitAddressesFromEventBlob(FileHandler handler, long eventAddress, long storedSlot1Value) {
+	private Set<Long> unitAddressesFromEventBlob(FileHandler handler, long eventAddress, MemoryValues memSlots) {
 		Set<Long> addressesLoaded = new HashSet<Long>();
 		if (eventAddress >= 0x1000000) { return addressesLoaded; }
 		
 		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Searching for unit addresses beginning at 0x" + Long.toHexString(eventAddress));
-		
-		long lastStoredValueInSlot1 = storedSlot1Value;
 		
 		byte[] commandWord;
 		long currentAddress = eventAddress;
@@ -348,13 +361,14 @@ public class FE8Chapter implements GBAFEChapterData {
 				long bytes = FileReadHelper.readWord(handler, currentAddress + 4, false);
 				if (bytes == 0xFFFFFFFFL) {
 					// LOAD_SLOT1
-					if (lastStoredValueInSlot1 >= 0x8000000) {
-						long address = lastStoredValueInSlot1 - 0x8000000;
+					// It says LOAD_SLOT1, but it always reads from slot 2 actually.
+					if (memSlots.getValue(0x2) >= 0x8000000) {
+						long address = memSlots.getValue(0x2) - 0x8000000;
 						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found LOAD_SLOT1 at 0x" + Long.toHexString(currentAddress) + ". Unit Address: 0x" + Long.toHexString(address));
 						addressesLoaded.add(address);
 						currentAddress += 4;
 					} else {
-						System.err.println("Invalid looking unit address found for LOAD_SLOT1 at 0x" + Long.toHexString(currentAddress) + ". Address found in slot 1: 0x" + Long.toHexString(lastStoredValueInSlot1));
+						System.err.println("Invalid looking unit address found for LOAD_SLOT1 at 0x" + Long.toHexString(currentAddress) + ". Address found in slot 1: 0x" + Long.toHexString(memSlots.getValue(0x2)));
 					}
 				} else {
 					// LOAD1
@@ -383,24 +397,59 @@ public class FE8Chapter implements GBAFEChapterData {
 				} else {
 					System.err.println("Invalid unit address found for LOAD3 at 0x" + Long.toHexString(currentAddress));
 				}
-			} else if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(commandWord, new byte[] {0x40, 0x05, 0x02, 0x00})) {
+			} else if (WhyDoesJavaNotHaveThese.byteArrayHasPrefix(commandWord, new byte[] {0x40, 0x05})) {
 				// SETVAL - Since LOAD_SLOT1 uses this, we need to keep track of this if we ever see it set a value to memory slot 1.
 				// I say slot 1, but the events always write the address to slot 2 instead, as seen in the command word. So *shrugs*
-				lastStoredValueInSlot1 = FileReadHelper.readWord(handler, currentAddress + 4, false); // We'll subtract the 0x8000000 later.
-				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Storing value 0x" + Long.toHexString(lastStoredValueInSlot1) + " into slot 1 for potential loading. Current Address: 0x" + Long.toHexString(currentAddress));
+				// The third byte is the slot that the value is written to...
+				long value = FileReadHelper.readWord(handler, currentAddress + 4, false);
+				int slot = commandWord[2];
+				memSlots.setValue(value, slot);
+				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Storing value 0x" + Long.toHexString(value) + " into slot " + Integer.toHexString(slot) + " for potential loading. Current Address: 0x" + Long.toHexString(currentAddress));
 				currentAddress += 4;
 			} else if (WhyDoesJavaNotHaveThese.byteArrayHasPrefix(commandWord, new byte[] {0x40, 0x0A})) {
 				// CALL - Look for unit addresses in the jump and add them to our set.
 				long address = FileReadHelper.readAddress(handler, currentAddress + 4);
 				if (address != -1) {
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "CALLing to address 0x" + Long.toHexString(address) + " to look for more unit addresses. Current Address: 0x" + Long.toHexString(currentAddress));
-					Set<Long> addressesFound = unitAddressesFromEventBlob(handler, address, lastStoredValueInSlot1);
+					Set<Long> addressesFound = unitAddressesFromEventBlob(handler, address, memSlots);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Returned from address 0x" + Long.toHexString(address));
 					for (long addressFound : addressesFound) {
 						DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found unit address in CALL: 0x" + Long.toHexString(addressFound));
 					}
 					addressesLoaded.addAll(addressesFound);
 					currentAddress += 4;
+				}
+			} else if ((commandWord[0] & 0xF0) == 0x20 && commandWord[1] == 0x6) { // Matches 0x062X, which all deal with memory management.
+				// The argument is in the following 2 bytes, in the format of 0x0XYZ (which in little endian is stored as YZ 0X).
+				// X - Source slot for Operand 1
+				// Y - Source slot for Operand 2
+				// Z - Destination
+				int sourceSlotX = commandWord[3] & 0xF;
+				int sourceSlotY = (commandWord[2] >> 4) & 0xF;
+				int destinationZ = commandWord[2] & 0xF;
+				if (commandWord[0] == 0x20) { // SADD - We need to handle this because this mechanism is used in a few chapters to load some units.
+					// Often times, X is set to 0, which turns the operation into a "move Y to Z"
+					memSlots.setValue(memSlots.getValue(sourceSlotX) + memSlots.getValue(sourceSlotY), destinationZ);
+				} else if (commandWord[0] == 0x21) { // SSUB (technically RSUB, as X is subtracted from Y)
+					memSlots.setValue(memSlots.getValue(sourceSlotY) - memSlots.getValue(sourceSlotX), destinationZ);
+				} else if (commandWord[0] == 0x22) { // SMUL
+					memSlots.setValue(memSlots.getValue(sourceSlotX) * memSlots.getValue(sourceSlotY), destinationZ);
+				} else if (commandWord[0] == 0x23) { // SDIV
+					memSlots.setValue((int)memSlots.getValue(sourceSlotY) / (int)memSlots.getValue(sourceSlotX), destinationZ);
+				} else if (commandWord[0] == 0x24) { // SMOD (modulo)
+					memSlots.setValue((int)memSlots.getValue(sourceSlotY) % (int)memSlots.getValue(sourceSlotX), destinationZ);
+				} else if (commandWord[0] == 0x25) { // SAND (bitwise AND)
+					memSlots.setValue(memSlots.getValue(sourceSlotX) & memSlots.getValue(sourceSlotY), destinationZ);
+				} else if (commandWord[0] == 0x26) { // SORR (bitwise OR)
+					memSlots.setValue(memSlots.getValue(sourceSlotX) | memSlots.getValue(sourceSlotY), destinationZ);
+				} else if (commandWord[0] == 0x27) { // SXOR (bitwise XOR)
+					memSlots.setValue(memSlots.getValue(sourceSlotX) ^ memSlots.getValue(sourceSlotY), destinationZ);
+				} else if (commandWord[0] == 0x28) { // SLSL (left shift)
+					memSlots.setValue(memSlots.getValue(sourceSlotY) << memSlots.getValue(sourceSlotX), destinationZ);
+				} else if (commandWord[0] == 0x29) { // SLSR (right shift)
+					memSlots.setValue(memSlots.getValue(sourceSlotY) >> memSlots.getValue(sourceSlotX), destinationZ);
+				} else {
+					assert false : "Unhandled slot operation.";
 				}
 			}
 			

@@ -230,6 +230,30 @@ public class FE8Class implements GBAFEClassData {
 		return 30;
 	}
 	
+	public int getPromoHP() {
+		return data[34] & 0xFF;
+	}
+	
+	public int getPromoSTR() {
+		return data[35] & 0xFF;
+	}
+	
+	public int getPromoSKL() {
+		return data[36] & 0xFF;
+	}
+	
+	public int getPromoSPD() {
+		return data[37] & 0xFF;
+	}
+	
+	public int getPromoDEF() {
+		return data[38] & 0xFF;
+	}
+	
+	public int getPromoRES() {
+		return data[39] & 0xFF;
+	}
+	
 	public int getSwordRank() {
 		return data[44] & 0xFF;
 	}

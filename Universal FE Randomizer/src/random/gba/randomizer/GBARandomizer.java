@@ -3,8 +3,18 @@ package random.gba.randomizer;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
+import fedata.gba.GBAFEChapterData;
+import fedata.gba.GBAFEChapterUnitData;
+import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEWorldMapData;
+import fedata.gba.GBAFEWorldMapSpriteData;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
@@ -27,12 +37,18 @@ import ui.model.BaseOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
 import ui.model.GrowthOptions;
+import ui.model.ItemAssignmentOptions;
 import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
+import ui.model.RecruitmentOptions;
 import ui.model.WeaponOptions;
+import ui.model.ItemAssignmentOptions.ShopAdjustment;
+import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
+import util.Diff;
 import util.DiffCompiler;
 import util.FreeSpaceManager;
 import util.SeedGenerator;
+import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.RecordKeeper;
 
 public class GBARandomizer extends Randomizer {
@@ -51,6 +67,8 @@ public class GBARandomizer extends Randomizer {
 	private OtherCharacterOptions otherCharacterOptions;
 	private EnemyOptions enemies;
 	private MiscellaneousOptions miscOptions;
+	private RecruitmentOptions recruitOptions;
+	private ItemAssignmentOptions itemAssignmentOptions;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -58,6 +76,9 @@ public class GBARandomizer extends Randomizer {
 	private ItemDataLoader itemData;
 	private PaletteLoader paletteData;
 	private TextLoader textData;
+	
+	private boolean needsPaletteFix;
+	private Map<GBAFECharacterData, GBAFECharacterData> characterMap; // valid with random recruitment. Maps slots to reference character.
 	
 	// FE8 only
 	private FE8PaletteMapper fe8_paletteMapper;
@@ -72,7 +93,8 @@ public class GBARandomizer extends Randomizer {
 
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, String seed) {
+			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -87,6 +109,9 @@ public class GBARandomizer extends Randomizer {
 		otherCharacterOptions = other;
 		this.enemies = enemies;
 		miscOptions = otherOptions;
+		recruitOptions = recruit;
+		itemAssignmentOptions = itemAssign;
+		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE); }
 		
 		this.gameType = gameType;
 	}
@@ -129,17 +154,17 @@ public class GBARandomizer extends Randomizer {
 			}
 			updateStatusString("Loading Data...");
 			updateProgress(0.1);
-			generateFE6DataLoaders();
+			try { generateFE6DataLoaders(); } catch (Exception e) { notifyError("Encountered error while loading data.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 			break;
 		case FE7:
 			updateStatusString("Loading Data...");
 			updateProgress(0.01);
-			generateFE7DataLoaders();
+			try { generateFE7DataLoaders(); } catch (Exception e) { notifyError("Encountered error while loading data.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 			break;
 		case FE8:
 			updateStatusString("Loading Data...");
 			updateProgress(0.01);
-			generateFE8DataLoaders();
+			try { generateFE8DataLoaders(); } catch (Exception e) { notifyError("Encountered error while loading data.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 			break;
 		default:
 			notifyError("This game is not supported.");
@@ -150,19 +175,23 @@ public class GBARandomizer extends Randomizer {
 		recordKeeper.addHeaderItem("Randomizer Seed Phrase", seed);
 		
 		updateStatusString("Randomizing...");
-		randomizeGrowthsIfNecessary(seed);
+		try { randomizeGrowthsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing growths.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.45);
+		try { randomizeClassesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing classes.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; } 
+		updateProgress(0.50);
+		try { randomizeBasesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing bases.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.55);
-		randomizeClassesIfNecessary(seed); // This MUST come before bases.
+		try { randomizeWeaponsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing weapons.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.60);
+		try { randomizeOtherCharacterTraitsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing other character traits.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.65);
+		try { buffEnemiesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while buffing enemies.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.70);
-		randomizeBasesIfNecessary(seed);
+		try { randomizeOtherThingsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing miscellaneous settings.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; } // i.e. Miscellaneous options.
 		updateProgress(0.75);
-		randomizeWeaponsIfNecessary(seed);
-		updateProgress(0.80);
-		randomizeOtherCharacterTraitsIfNecessary(seed);
-		updateProgress(0.85);
-		buffEnemiesIfNecessary(seed);
+		try { randomizeRecruitmentIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing recruitment.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.90);
-		randomizeOtherThingsIfNecessary(seed); // i.e. Miscellaneous options.
+		try { makeFinalAdjustments(seed); } catch (Exception e) { notifyError("Encountered error while making final adjustments.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
@@ -235,27 +264,27 @@ public class GBARandomizer extends Randomizer {
 		
 		updateStatusString("Detecting Free Space...");
 		updateProgress(0.02);
-		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7);
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7, FE7Data.InternalFreeRange);
 		updateStatusString("Loading Text...");
-		updateProgress(0.02);
+		updateProgress(0.05);
 		textData = new TextLoader(FEBase.GameType.FE7, handler);
 		textData.allowTextChanges = true;
 		
 		updateStatusString("Loading Character Data...");
-		updateProgress(0.20);
+		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE7Data.characterProvider, handler);
 		updateStatusString("Loading Class Data...");
-		updateProgress(0.25);
+		updateProgress(0.15);
 		classData = new ClassDataLoader(FE7Data.classProvider, handler);
 		updateStatusString("Loading Chapter Data...");
-		updateProgress(0.30);
+		updateProgress(0.20);
 		chapterData = new ChapterLoader(FEBase.GameType.FE7, handler);
 		updateStatusString("Loading Item Data...");
-		updateProgress(0.45);
+		updateProgress(0.25);
 		itemData = new ItemDataLoader(FE7Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
-		updateProgress(0.50);
-		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler);
+		updateProgress(0.30);
+		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler, charData, classData);
 		
 		handler.clearAppliedDiffs();
 	}
@@ -264,30 +293,30 @@ public class GBARandomizer extends Randomizer {
 		handler.setAppliedDiffs(diffCompiler);
 		
 		updateStatusString("Detecting Free Space...");
-		updateProgress(0.12);
-		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6);
+		updateProgress(0.02);
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6, FE6Data.InternalFreeRange);
 		updateStatusString("Loading Text...");
-		updateProgress(0.15);
+		updateProgress(0.05);
 		textData = new TextLoader(FEBase.GameType.FE6, handler);
 		if (miscOptions.applyEnglishPatch) {
 			textData.allowTextChanges = true;
 		}
 		
 		updateStatusString("Loading Character Data...");
-		updateProgress(0.30);
+		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE6Data.characterProvider, handler);
 		updateStatusString("Loading Class Data...");
-		updateProgress(0.33);
+		updateProgress(0.15);
 		classData = new ClassDataLoader(FE6Data.classProvider, handler);
 		updateStatusString("Loading Chapter Data...");
-		updateProgress(0.36);
+		updateProgress(0.20);
 		chapterData = new ChapterLoader(FEBase.GameType.FE6, handler);
 		updateStatusString("Loading Item Data...");
-		updateProgress(0.45);
+		updateProgress(0.25);
 		itemData = new ItemDataLoader(FE6Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
-		updateProgress(0.50);
-		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler);
+		updateProgress(0.30);
+		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler, charData, classData);
 		
 		handler.clearAppliedDiffs();
 	}
@@ -297,7 +326,7 @@ public class GBARandomizer extends Randomizer {
 		
 		updateStatusString("Detecting Free Space...");
 		updateProgress(0.02);
-		freeSpace = new FreeSpaceManager(FEBase.GameType.FE8);
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE8, FE8Data.InternalFreeRange);
 		updateStatusString("Loading Text...");
 		updateProgress(0.04);
 		textData = new TextLoader(FEBase.GameType.FE8, handler);
@@ -317,18 +346,18 @@ public class GBARandomizer extends Randomizer {
 		updateProgress(0.20);
 		chapterData = new ChapterLoader(FEBase.GameType.FE8, handler);
 		updateStatusString("Loading Item Data...");
-		updateProgress(0.35);
+		updateProgress(0.25);
 		itemData = new ItemDataLoader(FE8Data.itemProvider, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
-		updateProgress(0.40);
-		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler);
+		updateProgress(0.30);
+		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler, charData, classData);
 		
 		updateStatusString("Loading Summoner Module...");
-		updateProgress(0.45);
+		updateProgress(0.35);
 		fe8_summonerModule = new FE8SummonerModule(handler);
 		
 		updateStatusString("Loading Palette Mapper...");
-		updateProgress(0.50);
+		updateProgress(0.40);
 		fe8_paletteMapper = paletteData.setupFE8SpecialManagers(handler, fe8_promotionManager);
 		
 		
@@ -376,17 +405,19 @@ public class GBARandomizer extends Randomizer {
 			if (classes.randomizePCs) {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 1));
-				ClassRandomizer.randomizePlayableCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, paletteData, textData, rng);
+				ClassRandomizer.randomizePlayableCharacterClasses(classes, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, textData, rng);
+				needsPaletteFix = true;
 			}
 			if (classes.randomizeEnemies) {
 				updateStatusString("Randomizing minions...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 2));
-				ClassRandomizer.randomizeMinionClasses(classes, gameType, charData, classData, chapterData, itemData, rng);
+				ClassRandomizer.randomizeMinionClasses(classes, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, rng);
 			}
 			if (classes.randomizeBosses) {
 				updateStatusString("Randomizing boss classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 3));
-				ClassRandomizer.randomizeBossCharacterClasses(classes, gameType, charData, classData, chapterData, itemData, paletteData, textData, rng);
+				ClassRandomizer.randomizeBossCharacterClasses(classes, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, textData, rng);
+				needsPaletteFix = true;
 			}
 		}
 	}
@@ -446,10 +477,10 @@ public class GBARandomizer extends Randomizer {
 		if (enemies != null) {
 			if (enemies.mode == EnemyOptions.BuffMode.FLAT) {
 				updateStatusString("Buffing enemies...");
-				EnemyBuffer.buffEnemyGrowthRates(enemies.buffAmount, classData);
+				EnemyBuffer.buffEnemyGrowthRates(enemies.buffAmount, charData, classData);
 			} else if (enemies.mode == EnemyOptions.BuffMode.SCALING) {
 				updateStatusString("Buffing enemies...");
-				EnemyBuffer.scaleEnemyGrowthRates(enemies.buffAmount, classData);
+				EnemyBuffer.scaleEnemyGrowthRates(enemies.buffAmount, charData, classData);
 			}
 			
 			if (enemies.improveWeapons) {
@@ -466,6 +497,177 @@ public class GBARandomizer extends Randomizer {
 				updateStatusString("Randomizing rewards...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt));
 				RandomRandomizer.randomizeRewards(itemData, chapterData, rng);
+			}
+		}
+	}
+	
+	private void randomizeRecruitmentIfNecessary(String seed) {
+		if (recruitOptions != null) {
+			updateStatusString("Randomizing recruitment...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, RecruitmentRandomizer.rngSalt));
+			characterMap = RecruitmentRandomizer.randomizeRecruitment(recruitOptions, itemAssignmentOptions, gameType, charData, classData, itemData, chapterData, textData, freeSpace, rng);
+			needsPaletteFix = true;
+		}
+	}
+	
+	private void makeFinalAdjustments(String seed) {
+		// Fix the palettes based on final classes.
+		if (needsPaletteFix) {
+			PaletteHelper.synchronizePalettes(gameType, charData, classData, paletteData, characterMap, freeSpace);
+		}
+		
+		// Hack in mode select without needing clear data for FE7.
+		if (gameType == GameType.FE7) {
+			try {
+				InputStream stream = UPSPatcher.class.getClassLoader().getResourceAsStream("FE7ClearSRAM.bin");
+				byte[] bytes = new byte[0x6F];
+				stream.read(bytes);
+				stream.close();
+				
+				long offset = freeSpace.setValue(bytes, "FE7 Hardcoded SRAM", true);
+				long pointer = freeSpace.setValue(WhyDoesJavaNotHaveThese.bytesFromAddress(offset), "FE7 Hardcoded SRAM Pointer", true);
+				diffCompiler.addDiff(new Diff(FE7Data.HardcodedSRAMHeaderOffset, 4, WhyDoesJavaNotHaveThese.bytesFromAddress(pointer), WhyDoesJavaNotHaveThese.bytesFromAddress(FE7Data.DefaultSRAMHeaderPointer)));
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			// Fix up the portraits in mode select, since they're hardcoded.
+			// Only necessary if we randomized recruitment.
+			// All of the data should have been commited at this point, so asking for Lyn will get you the Lyn replacement.
+			if (recruitOptions != null) {
+				GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
+				GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
+				GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
+				
+				byte lynReplacementFaceID = (byte)lyn.getFaceID();
+				byte eliwoodReplacementFaceID = (byte)eliwood.getFaceID();
+				byte hectorReplacementFaceID = (byte)hector.getFaceID();
+				
+				diffCompiler.addDiff(new Diff(FE7Data.ModeSelectPortraitOffset, 12,
+						new byte[] {lynReplacementFaceID, 0, 0, 0, eliwoodReplacementFaceID, 0, 0, 0, hectorReplacementFaceID, 0, 0, 0}, null));
+				
+				// Conveniently, the class animations are here too, in the same format.
+				FE7Data.CharacterClass lynClass = FE7Data.CharacterClass.valueOf(lyn.getClassID());
+				FE7Data.CharacterClass eliwoodClass = FE7Data.CharacterClass.valueOf(eliwood.getClassID());
+				FE7Data.CharacterClass hectorClass = FE7Data.CharacterClass.valueOf(hector.getClassID());
+				
+				byte lynReplacementAnimationID = (byte)lynClass.animationID();
+				byte eliwoodReplacementAnimationID = (byte)eliwoodClass.animationID();
+				byte hectorReplacementAnimationID = (byte)hectorClass.animationID();
+				
+				diffCompiler.addDiff(new Diff(FE7Data.ModeSelectClassAnimationOffset, 12,
+						new byte[] {lynReplacementAnimationID, 0, 0, 0, eliwoodReplacementAnimationID, 0, 0, 0, hectorReplacementAnimationID, 0, 0, 0}, null));
+				
+				// See if we can apply their palettes to the class default.
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(lyn), lyn.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(eliwood), eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(hector), hector.getClassID(), paletteData, freeSpace, diffCompiler);
+				
+				// Finally, fix the weapon text.
+				textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType());
+				textData.setStringAtIndex(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex, eliwoodClass.primaryWeaponType());
+				textData.setStringAtIndex(FE7Data.ModeSelectTextHectorWeaponTypeIndex, hectorClass.primaryWeaponType());
+				
+				// Eliwood is the one we're going to override, since he normally shares the weapon string with Lyn.
+				diffCompiler.addDiff(new Diff(FE7Data.ModeSelectEliwoodWeaponOffset, 2, 
+						new byte[] {(byte)(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex & 0xFF), (byte)((FE7Data.ModeSelectTextEliwoodWeaponTypeIndex >> 8) & 0xFF)}, null));
+			}
+		}
+		
+		if (gameType == GameType.FE7 || gameType == GameType.FE8) {
+			// Fix world map sprites.
+			if (gameType == GameType.FE7) {
+				for (FE7Data.ChapterPointer chapter : FE7Data.ChapterPointer.values()) {
+					Map<Integer, List<Integer>> perChapterMap = chapter.worldMapSpriteClassIDToCharacterIDMapping();
+					GBAFEWorldMapData worldMapData = chapterData.worldMapEventsForChapterID(chapter.chapterID);
+					if (worldMapData == null) { continue; }
+					for (GBAFEWorldMapSpriteData sprite : worldMapData.allSprites()) {
+						// If it's a class we don't touch, ignore it.
+						if (classData.classForID(sprite.getClassID()) == null) { continue; }
+						// Check Universal list first.
+						Integer characterID = FE7Data.ChapterPointer.universalWorldMapSpriteClassIDToCharacterIDMapping().get(sprite.getClassID());
+						if (characterID != null) {
+							if (characterID == FE7Data.Character.NONE.ID) { continue; }
+							syncWorldMapSpriteToCharacter(sprite, characterID);
+						} else {
+							// Check per chapter
+							List<Integer> charactersForClassID = perChapterMap.get(sprite.getClassID());
+							if (charactersForClassID != null && !charactersForClassID.isEmpty()) {
+								int charID = charactersForClassID.remove(0);
+								if (charID == FE7Data.Character.NONE.ID) {
+									charactersForClassID.add(FE7Data.Character.NONE.ID);
+									continue;
+								}
+								syncWorldMapSpriteToCharacter(sprite, charID);
+							} else {
+								assert false : "Unaccounted for world map sprite in " + chapter.toString();
+							}
+						}
+					}
+				}
+			}
+			else {
+				for (FE8Data.ChapterPointer chapter : FE8Data.ChapterPointer.values()) {
+					Map<Integer, List<Integer>> perChapterMap = chapter.worldMapSpriteClassIDToCharacterIDMapping();
+					GBAFEWorldMapData worldMapData = chapterData.worldMapEventsForChapterID(chapter.chapterID);
+					for (GBAFEWorldMapSpriteData sprite : worldMapData.allSprites()) {
+						// If it's a class we don't touch, ignore it.
+						if (classData.classForID(sprite.getClassID()) == null) { continue; }
+						// Check Universal list first.
+						Integer characterID = FE8Data.ChapterPointer.universalWorldMapSpriteClassIDToCharacterIDMapping().get(sprite.getClassID());
+						if (characterID != null) {
+							if (characterID == FE8Data.Character.NONE.ID) { continue; }
+							syncWorldMapSpriteToCharacter(sprite, characterID);
+						} else {
+							// Check per chapter
+							List<Integer> charactersForClassID = perChapterMap.get(sprite.getClassID());
+							if (charactersForClassID != null && !charactersForClassID.isEmpty()) {
+								int charID = charactersForClassID.remove(0);
+								if (charID == FE8Data.Character.NONE.ID) {
+									charactersForClassID.add(FE8Data.Character.NONE.ID);
+									continue;
+								}
+								syncWorldMapSpriteToCharacter(sprite, charID);
+							} else {
+								assert false : "Unaccounted for world map sprite in " + chapter.toString();
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		if (gameType == GameType.FE8) {
+			// Create the Trainee Seal using the old heaven seal.
+			textData.setStringAtIndex(0x4AB, "Promotes Tier 0 Trainees at Lv 10.");
+			textData.setStringAtIndex(0x403, "Trainee Seal");
+			long offset = freeSpace.setValue(new byte[] {(byte)FE8Data.CharacterClass.TRAINEE.ID, (byte)FE8Data.CharacterClass.PUPIL.ID, (byte)FE8Data.CharacterClass.RECRUIT.ID}, "TraineeSeal");
+			diffCompiler.addDiff(new Diff(FE8Data.HeavenSealPromotionPointer, 4, WhyDoesJavaNotHaveThese.bytesFromAddress(offset), WhyDoesJavaNotHaveThese.bytesFromAddress(FE8Data.HeavenSealOldAddress)));
+			
+			for (GBAFEChapterData chapter : chapterData.allChapters()) {
+				for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
+					FE8Data.CharacterClass charClass = FE8Data.CharacterClass.valueOf(chapterUnit.getStartingClass());
+					if (FE8Data.CharacterClass.allTraineeClasses.contains(charClass)) {
+						chapterUnit.giveItems(new int[] {FE8Data.Item.HEAVEN_SEAL.ID});
+					}
+				}
+			}
+		}
+	}
+	
+	private void syncWorldMapSpriteToCharacter(GBAFEWorldMapSpriteData sprite, int characterID) {
+		GBAFECharacterData character = charData.characterWithID(characterID);
+		boolean spriteIsPromoted = classData.isPromotedClass(sprite.getClassID());
+		int classID = character.getClassID();
+		boolean characterClassIsPromoted = classData.isPromotedClass(classID);
+		if (spriteIsPromoted == characterClassIsPromoted) {
+			sprite.setClassID(classID);
+		} else {
+			if (spriteIsPromoted) {
+				sprite.setClassID(classData.classForID(classID).getTargetPromotionID());
+			} else {
+				assert false : "This shouldn't ever be the case...";
 			}
 		}
 	}

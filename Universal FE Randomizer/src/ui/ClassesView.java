@@ -152,7 +152,7 @@ public class ClassesView extends Composite {
 			randomizeBossesButton.setSelection(options.randomizeBosses);
 			if (hasMonsterOption) {
 				mixMonsterClasses.setEnabled(true);
-				mixMonsterClasses.setSelection(options.separateMonsters);
+				mixMonsterClasses.setSelection(!options.separateMonsters);
 			}
 		}
 	}

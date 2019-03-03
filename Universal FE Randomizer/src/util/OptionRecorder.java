@@ -6,14 +6,18 @@ import com.google.gson.Gson;
 
 import fedata.general.FEBase;
 import ui.fe4.FE4ClassOptions;
+import ui.fe4.FE4EnemyBuffOptions;
+import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
 import ui.model.GrowthOptions;
+import ui.model.ItemAssignmentOptions;
 import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
+import ui.model.RecruitmentOptions;
 import ui.model.WeaponOptions;
 
 public class OptionRecorder {
@@ -36,6 +40,8 @@ public class OptionRecorder {
 		public OtherCharacterOptions other;
 		public EnemyOptions enemies;
 		public MiscellaneousOptions otherOptions;
+		public RecruitmentOptions recruitmentOptions;
+		public ItemAssignmentOptions itemAssignmentOptions;
 		public String seed;
 		public Integer version;
 	}
@@ -46,6 +52,8 @@ public class OptionRecorder {
 		public HolyBloodOptions holyBlood;
 		public SkillsOptions skills;
 		public FE4ClassOptions classes;
+		public FE4PromotionOptions promo;
+		public FE4EnemyBuffOptions enemyBuff;
 		public MiscellaneousOptions misc;
 		public String seed;
 		public Integer version;
@@ -80,13 +88,15 @@ public class OptionRecorder {
 	}
 	
 	public static void recordFE4Options(GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions, 
-			FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
+			FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, MiscellaneousOptions miscOptions, String seed) {
 		FE4OptionBundle bundle = new FE4OptionBundle();
 		bundle.growths = growthOptions;
 		bundle.bases = basesOptions;
 		bundle.holyBlood = bloodOptions;
 		bundle.skills = skillOptions;
 		bundle.classes = classOptions;
+		bundle.promo = promoOptions;
+		bundle.enemyBuff = buffOptions;
 		bundle.misc = miscOptions;
 		bundle.seed = seed;
 		bundle.version = FE4OptionBundleVersion;
@@ -97,7 +107,7 @@ public class OptionRecorder {
 	}
 	
 	public static void recordGBAFEOptions(FEBase.GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, String seed) {
+			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, String seed) {
 		GBAOptionBundle bundle = new GBAOptionBundle();
 		bundle.growths = growths;
 		bundle.bases = bases;
@@ -106,6 +116,8 @@ public class OptionRecorder {
 		bundle.other = other;
 		bundle.enemies = enemies;
 		bundle.otherOptions = otherOptions;
+		bundle.recruitmentOptions = recruitment;
+		bundle.itemAssignmentOptions = itemAssignment;
 		bundle.seed = seed;
 		bundle.version = GBAOptionBundleVersion;
 		

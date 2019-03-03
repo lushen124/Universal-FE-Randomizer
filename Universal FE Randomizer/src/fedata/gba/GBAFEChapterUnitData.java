@@ -8,10 +8,15 @@ public interface GBAFEChapterUnitData extends FEModifiableData {
 	public int getStartingClass();
 	public void setStartingClass(int classID);
 	
+	public int getStartingLevel();
+	
 	public int getLeaderID();
 	
 	public int getLoadingX();
 	public int getLoadingY();
+	
+	public void setLoadingX(int newX);
+	public void setLoadingY(int newY);
 	
 	public int getStartingX();
 	public int getStartingY();

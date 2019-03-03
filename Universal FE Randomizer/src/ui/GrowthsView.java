@@ -220,6 +220,10 @@ public class GrowthsView extends Composite {
 		}
 	}
 	
+	public void overrideMaxGrowthAllowed(int maxGrowth) {
+		growthRangeControl.getMaxSpinner().setMaximum(maxGrowth);
+	}
+	
 	private void setEnableGrowths(Boolean enabled) {
 		redistributeOption.setEnabled(enabled);
 		byDeltaOption.setEnabled(enabled);

@@ -29,10 +29,10 @@ public class HolyBloodLoader {
 		
 		long tableOffset = FE4Data.HolyBloodDataOffset;
 		if (!this.isHeadered) { tableOffset -= 0x200; }
-		FE4Data.HolyBlood[] bloodOrder = FE4Data.HolyBlood.orderedByDataTable();
-		assert bloodOrder.length == FE4Data.HolyBloodDataCount;
+		List<FE4Data.HolyBlood> bloodOrder = FE4Data.HolyBlood.orderedByDataTable();
+		assert bloodOrder.size() == FE4Data.HolyBloodDataCount;
 		for (int i = 0; i < FE4Data.HolyBloodDataCount; i++) {
-			FE4Data.HolyBlood currentBlood = bloodOrder[i];
+			FE4Data.HolyBlood currentBlood = bloodOrder.get(i);
 			long address = tableOffset + (i * FE4Data.HolyBloodDataSize);
 			byte[] data = handler.readBytesAtOffset(address, FE4Data.HolyBloodDataSize);
 			FE4HolyBlood holyBlood = new FE4HolyBlood(data, address);

@@ -62,8 +62,12 @@ public class MessageModal {
 		imageData.top = new FormAttachment(0, 10);
 		imageLabel.setLayoutData(imageData);
 		
-		Composite contentGroup = new Composite(dialogShell, SWT.NONE);
+		contentGroup = new Composite(dialogShell, SWT.NONE);
 		FormLayout contentLayout = new FormLayout();
+		contentLayout.marginTop = 5;
+		contentLayout.marginLeft = 5;
+		contentLayout.marginBottom = 5;
+		contentLayout.marginRight = 5;
 		contentGroup.setLayout(contentLayout);
 		
 		titleLabel = new Label(contentGroup, SWT.LEFT);
@@ -73,7 +77,9 @@ public class MessageModal {
 		titleLabel.setFont(boldFont);
 		
 		FormData titleData = new FormData();
-		titleData.width = 200;
+		titleData.top = new FormAttachment(0, 0);
+		titleData.left = new FormAttachment(0, 0);
+		titleData.right = new FormAttachment(100, 0);
 		titleLabel.setLayoutData(titleData);
 		
 		descriptionLabel = new Label(contentGroup, SWT.LEFT | SWT.WRAP);
@@ -83,11 +89,15 @@ public class MessageModal {
 		descriptionData.left = new FormAttachment(titleLabel, 0, SWT.LEFT);
 		descriptionData.right = new FormAttachment(titleLabel, 0, SWT.RIGHT);
 		descriptionData.top = new FormAttachment(titleLabel, 10);
+		descriptionData.bottom = new FormAttachment(100, -5);
+		Point expectedSize = descriptionLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		descriptionData.width = Math.max(200, expectedSize.x);
+		descriptionData.height = Math.max(60, expectedSize.y);
 		descriptionLabel.setLayoutData(descriptionData);
 		
 		FormData groupData = new FormData();
 		groupData.left = new FormAttachment(imageLabel, 10);
-		groupData.top = new FormAttachment(imageLabel, 0, SWT.CENTER);
+		groupData.top = new FormAttachment(imageLabel, 0, SWT.TOP);
 		groupData.right = new FormAttachment(100, -10);
 		contentGroup.setLayoutData(groupData);
 		
@@ -106,6 +116,9 @@ public class MessageModal {
 			FillLayout buttonGroupLayout = new FillLayout(SWT.HORIZONTAL);
 			buttonGroupLayout.spacing = 10;
 			buttonGroup.setLayout(buttonGroupLayout);
+			
+			FormData contentData = (FormData)contentGroup.getLayoutData();
+			contentData.bottom = new FormAttachment(buttonGroup, -10);
 		}
 		
 		numberOfButtons++;
@@ -122,7 +135,6 @@ public class MessageModal {
 		FormData groupData = new FormData();
 		groupData.width = ButtonWidth * numberOfButtons;
 		groupData.height = ButtonHeight;
-		groupData.top = new FormAttachment(imageLabel, 10);
 		groupData.right = new FormAttachment(100, -10);
 		groupData.bottom = new FormAttachment(100, -10);
 		buttonGroup.setLayoutData(groupData);

@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +13,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.snes.fe4.FE4ChildCharacter;
+import fedata.snes.fe4.FE4Class.ClassSkills;
 import fedata.snes.fe4.FE4Data;
+import fedata.snes.fe4.FE4Data.CharacterClass;
 import fedata.snes.fe4.FE4StaticCharacter;
 import io.DiffApplicator;
 import io.FileHandler;
@@ -19,10 +23,14 @@ import io.UPSPatcher;
 import random.general.Randomizer;
 import random.general.WeightedDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
+import random.snes.fe4.loader.ClassDataLoader;
+import random.snes.fe4.loader.ItemDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
 import random.snes.fe4.loader.PromotionMapper;
 import ui.fe4.FE4ClassOptions;
+import ui.fe4.FE4EnemyBuffOptions;
+import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
 import ui.fe4.SkillsOptions.Mode;
@@ -45,10 +53,14 @@ public class FE4Randomizer extends Randomizer {
 	private HolyBloodOptions bloodOptions;
 	private SkillsOptions skillsOptions;
 	private FE4ClassOptions classOptions;
+	private FE4PromotionOptions promoOptions;
+	private FE4EnemyBuffOptions buffOptions;
 	private MiscellaneousOptions miscOptions;
 	
 	HolyBloodLoader bloodData;
 	CharacterDataLoader charData;
+	ClassDataLoader classData;
+	ItemDataLoader itemData;
 	ItemMapper itemMapper;
 	PromotionMapper promotionMapper;
 	
@@ -58,7 +70,8 @@ public class FE4Randomizer extends Randomizer {
 	
 	private FileHandler handler;
 	
-	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions, FE4ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, 
+			SkillsOptions skillOptions, FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -73,6 +86,8 @@ public class FE4Randomizer extends Randomizer {
 		this.bloodOptions = bloodOptions;
 		this.skillsOptions = skillOptions;
 		this.classOptions = classOptions;
+		this.promoOptions = promoOptions;
+		this.buffOptions = buffOptions;
 		this.miscOptions = miscOptions;
 	}
 	
@@ -119,27 +134,31 @@ public class FE4Randomizer extends Randomizer {
 		
 		updateStatusString("Loading Data...");
 		updateProgress(0.1);
-		addUniversalDiffs(isHeadered);
-		generateDataLoaders();
+		try { addUniversalDiffs(isHeadered); } catch (Exception e) { notifyError("Encountered error while applying universal diffs.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		try { generateDataLoaders(); } catch (Exception e) { notifyError("Encountered error while generating data loaders.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		
 		RecordKeeper recordKeeper = initializeRecordKeeper();
 		recordKeeper.addHeaderItem("Randomizer Seed Phrase", seed);
 		
 		updateStatusString("Randomizing...");
-		randomizeClassesIfNecessary(seed);
-		updateProgress(0.60);
-		randomizeSkillsIfNecessary(seed);
+		try { randomizeClassesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing classes.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.40);
+		try { randomizeSkillsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing skills.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.45);
+		try { randomizeGrowthsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing growths.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.50);
+		try { randomizeBasesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing bases.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.55);
+		try { randomizeBloodIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing holy blood.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.65);
-		randomizeGrowthsIfNecessary(seed);
-		updateProgress(0.70);
-		randomizeBasesIfNecessary(seed);
+		try { randomizeRingsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing rings.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.75);
-		randomizeBloodIfNecessary(seed);
-		updateProgress(0.80);
-		randomizeRingsIfNecessary(seed);
+		try { randomizePromotionsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered while when randomizing promotions.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.85);
-		makeFinalAdjustments(seed);
+		try { buffEnemiesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while buffing enemies.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.90);
+		try { makeFinalAdjustments(seed); } catch (Exception e) { notifyError("Encountered error while finalizing adjustments.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.95);
 		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
@@ -147,6 +166,8 @@ public class FE4Randomizer extends Randomizer {
 		itemMapper.compileDiff(diffCompiler);
 		bloodData.compileDiffs(diffCompiler);
 		promotionMapper.compileDiff(diffCompiler);
+		itemData.compileDiffs(diffCompiler);
+		classData.compileDiffs(diffCompiler);
 		
 		updateStatusString("Applying changes...");
 		updateProgress(0.99);
@@ -173,10 +194,35 @@ public class FE4Randomizer extends Randomizer {
 			}
 		}
 		
+		charData.registerInventories(itemMapper);
+		// Register shop items.
+		for (FE4Data.ShopItem shopItem : FE4Data.ShopItems) {
+			itemMapper.registerInventoryID(shopItem.itemInventoryID, "Shop (Ch. " + Integer.toString(shopItem.chapter) + ")");
+		}
+		// Register known event items.
+		for (FE4Data.EventGift eventItem : FE4Data.EventGifts) {
+			if (eventItem.donor != FE4Data.Character.NONE) {
+				itemMapper.registerInventoryID(eventItem.giftInventoryID, "Event (" + eventItem.donor.toString() + " -> " + eventItem.recipient.toString() + ")");
+			} else {
+				itemMapper.registerInventoryID(eventItem.giftInventoryID, "Event (" + eventItem.recipient.toString() + ")");
+			}
+		}
+		// Register village items.
+		for (FE4Data.VillageGift villageItem : FE4Data.VillageGifts) {
+			if (villageItem.chapter == 0) {
+				itemMapper.registerInventoryID(villageItem.giftInventoryID, "Village (Prologue)");
+			} else {
+				itemMapper.registerInventoryID(villageItem.giftInventoryID, "Village (Ch. " + villageItem.chapter + ")");
+			}
+		}
+		
 		charData.recordCharacters(recordKeeper, false, itemMapper);
 		bloodData.recordHolyBlood(recordKeeper, false);
-		itemMapper.recordRingMap(recordKeeper, false);
+		itemMapper.recordItemMap(recordKeeper, false);
 		promotionMapper.recordPromotions(recordKeeper, false);
+		classData.recordClasses(recordKeeper, false);
+		
+		charData.recordAdditionalData(recordKeeper, bloodData, classData);
 		
 		recordKeeper.sortKeysInCategoryAndSubcategories(CharacterDataLoader.RecordKeeperCategoryKey);
 		
@@ -221,6 +267,12 @@ public class FE4Randomizer extends Randomizer {
 			// Diffs to allow holy weapons to be sellable.
 			diffCompiler.addDiff(new Diff(FE4Data.SellableHolyWeaponsOffset, 1, new byte[] {FE4Data.SellableHolyWeaponEnabledValue}, new byte[] {FE4Data.SellableHolyWeaponsDisabledValue}));
 			
+			// Diff to fix Female Emperor battle animation.
+			diffCompiler.addDiff(new Diff(FE4Data.FemaleEmperorStaffAnimationFixOffset, 1, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixNewValue}, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixOldValue}));
+			
+			// Diff to remove 0x34 from the Ch. 8 shop, since we're using it for Deirdre's Aura.
+			diffCompiler.addDiff(new Diff(FE4Data.Chapter8ShopListOffset, FE4Data.Chapter8ShopOldListByteArray.length, FE4Data.Chapter8ShopNewListByteArray, FE4Data.Chapter8ShopOldListByteArray));
+			
 		} else {
 			// Diffs for allowing Sigurd/Seliph to sieze, regardless of their class.
 			diffCompiler.addDiff(new Diff(0x5E43CL, 4, new byte[] {(byte)0x22, (byte)0x33, (byte)0xA3, (byte)0x84}, new byte[] {(byte)0x22, (byte)0x2D, (byte)0xA0, (byte)0x84}));
@@ -255,6 +307,12 @@ public class FE4Randomizer extends Randomizer {
 			
 			// Diffs to allow holy weapons to be sellable.
 			diffCompiler.addDiff(new Diff(FE4Data.SellableHolyWeaponsOffset - 0x200, 1, new byte[] {FE4Data.SellableHolyWeaponEnabledValue}, new byte[] {FE4Data.SellableHolyWeaponsDisabledValue}));
+			
+			// Diff to fix Female Emperor battle animation.
+			diffCompiler.addDiff(new Diff(FE4Data.FemaleEmperorStaffAnimationFixOffset - 0x200, 1, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixNewValue}, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixOldValue}));
+			
+			// Diff to remove 0x34 from the Ch. 8 shop, since we're using it for Deirdre's Aura.
+			diffCompiler.addDiff(new Diff(FE4Data.Chapter8ShopListOffset - 0x200, FE4Data.Chapter8ShopOldListByteArray.length, FE4Data.Chapter8ShopNewListByteArray, FE4Data.Chapter8ShopOldListByteArray));
 		}
 	}
 
@@ -264,16 +322,24 @@ public class FE4Randomizer extends Randomizer {
 		charData = new CharacterDataLoader(handler, isHeadered);
 		
 		updateStatusString("Loading Item Map...");
-		updateProgress(0.20);
-		itemMapper = new ItemMapper(handler, isHeadered);
+		updateProgress(0.15);
+		itemMapper = new ItemMapper(handler, isHeadered, new ArrayList<Integer>(FE4Data.UnusedInventoryIDs));
 		
 		updateStatusString("Loading Holy Blood Data...");
-		updateProgress(0.30);
+		updateProgress(0.20);
 		bloodData = new HolyBloodLoader(handler, isHeadered);
 		
 		updateStatusString("Loading Promotion Map...");
-		updateProgress(0.40);
+		updateProgress(0.25);
 		promotionMapper = new PromotionMapper(handler, charData, isHeadered);
+		
+		updateStatusString("Loading Item Data...");
+		updateProgress(0.30);
+		itemData = new ItemDataLoader(handler, isHeadered);
+		
+		updateStatusString("Loading Class Data...");
+		updateProgress(0.40);
+		classData = new ClassDataLoader(handler, isHeadered);
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
@@ -330,7 +396,7 @@ public class FE4Randomizer extends Randomizer {
 			if (bloodOptions.giveHolyBlood) {
 				updateStatusString("Assigning Holy Blood...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 3));
-				FE4BloodRandomizer.assignHolyBlood(bloodOptions.majorBloodChance, bloodOptions.minorBloodChance, bloodOptions.matchClass, charData, itemMapper, rng);
+				FE4BloodRandomizer.assignHolyBlood(bloodOptions.majorBloodChance, bloodOptions.minorBloodChance, bloodOptions.matchClass, charData, bloodData, itemMapper, rng);
 			}
 		}
 	}
@@ -340,7 +406,7 @@ public class FE4Randomizer extends Randomizer {
 			if (classOptions.randomizePlayableCharacters) {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 1));
-				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, charData, itemMapper, rng);
+				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, buffOptions != null ? !buffOptions.majorHolyBloodBosses : true, charData, bloodData, itemMapper, rng);
 				charData.commit();
 				itemMapper.commitChanges();
 			}
@@ -390,9 +456,51 @@ public class FE4Randomizer extends Randomizer {
 		}
 	}
 	
+	private void randomizePromotionsIfNecessary(String seed) {
+		if (promoOptions != null) {
+			// Don't touch promotions if they're supposed to be strict and we didn't randomize playable character classes.
+			if (promoOptions.promotionMode == FE4PromotionOptions.Mode.STRICT && (classOptions == null || !classOptions.randomizePlayableCharacters)) { return; }
+			updateStatusString("Randomizing Promotions...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4PromotionRandomizer.rngSalt + 1));
+			FE4PromotionRandomizer.randomizePromotions(promoOptions, classOptions, charData, promotionMapper, rng);
+			// Special case, since Finn is the only character to go between both gens and is unpromoted.
+			// It's possible for him to get two different promotions in Gen2, so we want to make sure he's synced across both gens.
+			promotionMapper.setPromotionForCharacter(FE4Data.Character.FINN_GEN_2, promotionMapper.getPromotionForCharacter(FE4Data.Character.FINN_GEN_1));
+		}
+	}
+	
+	private void buffEnemiesIfNecessary(String seed) {
+		if (buffOptions != null) {
+			if (buffOptions.increaseEnemyScaling) {
+				updateStatusString("Scaling up enemies...");
+				FE4EnemyBuffer.buffEnemyStats(buffOptions, charData, classData);
+			}
+			if (buffOptions.improveMinionWeapons) {
+				updateStatusString("Improving Enemy Weapons...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4EnemyBuffer.rngSalt + 1));
+				FE4EnemyBuffer.improveEquipment(buffOptions, charData, rng);
+			}
+			if (buffOptions.majorHolyBloodBosses) {
+				updateStatusString("Upgrading Holy Bosses...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4EnemyBuffer.rngSalt + 2));
+				FE4EnemyBuffer.forceMajorBloodOnHolyBosses(buffOptions, true, charData, itemMapper, rng);
+			}
+		}
+	}
+	
 	// Should be called after all other randomizations.
 	private void makeFinalAdjustments(String seed) {
 		updateStatusString("Making final adjustments...");
+		
+		// Give Dark magic a price
+		itemData.itemForID(FE4Data.Item.YOTSMUNGAND.ID).setPrice(15000);
+		itemData.itemForID(FE4Data.Item.HEL.ID).setPrice(20000);
+		
+		// Remove Charm from Princess
+		classData.classForID(FE4Data.CharacterClass.PRINCESS.ID).setSlot2ClassSkills(new ArrayList<ClassSkills>());
+		
+		// Gotta fix Oifey's promotion so that he doesn't somehow promote even though he's already promoted.
+		promotionMapper.setPromotionForCharacter(FE4Data.Character.OIFEY, FE4Data.CharacterClass.NONE);
 		
 		// These only need to be performed if playable character classes were randomized. Otherwise, the default values should still work.
 		if (classOptions.randomizePlayableCharacters) {
@@ -407,40 +515,6 @@ public class FE4Randomizer extends Randomizer {
 			int equip1 = lex.getEquipment1();
 			FE4Data.Item item1 = itemMapper.getItemAtIndex(equip1);
 			diffCompiler.addDiff(new Diff(FE4Data.LexHeroAxeEventItemRequirementOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)item1.ID}, new byte[] {FE4Data.LexHeroAxeEventItemRequirementOldID}));
-			
-			// Finalize promotions (which are stored away from the character data).
-			Random rng = new Random(SeedGenerator.generateSeedValue(seed, 2));
-			for (FE4Data.Character fe4Char : promotionMapper.allPromotableCharacters()) {
-				int classID = FE4Data.CharacterClass.NONE.ID;
-				boolean isFemale = false;
-				if (fe4Char.isChild()) {
-					FE4ChildCharacter child = charData.getChildCharacter(fe4Char);
-					if (child != null) {
-						classID = child.getClassID();
-						isFemale = child.isFemale();
-					}
-				} else {
-					FE4StaticCharacter staticChar = charData.getStaticCharacter(fe4Char);
-					if (staticChar != null) {
-						classID = staticChar.getClassID();
-						isFemale = staticChar.isFemale();
-					}
-				}
-				
-				if (classID == FE4Data.CharacterClass.NONE.ID) { continue; }
-				
-				FE4Data.CharacterClass fe4CharClass = FE4Data.CharacterClass.valueOf(classID);
-				if (fe4CharClass.isPromoted()) { 
-					promotionMapper.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);
-				} else {
-					FE4Data.CharacterClass[] possiblePromotions = fe4CharClass.promotionClasses(isFemale);
-					FE4Data.CharacterClass promotedClass = FE4Data.CharacterClass.NONE;
-					if (possiblePromotions.length > 0) {
-						promotedClass = possiblePromotions[rng.nextInt(possiblePromotions.length)];
-					}
-					promotionMapper.setPromotionForCharacter(fe4Char, promotedClass);
-				}
-			}
 		}
 		
 		if (classOptions.randomizeBlood || bloodOptions.giveHolyBlood) {
@@ -529,6 +603,61 @@ public class FE4Randomizer extends Randomizer {
 			
 			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte1Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot1Value}, null));
 			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte2Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot2Value}, null));
+			
+			if (classOptions != null && promoOptions != null && promoOptions.promotionMode != FE4PromotionOptions.Mode.STRICT) {
+				// Make sure Seliph's class can use Sigurd's major blood weapon.
+				FE4ChildCharacter seliph = charData.getChildCharacter(FE4Data.Character.SELIPH);
+				FE4Data.CharacterClass seliphClass = FE4Data.CharacterClass.valueOf(seliph.getClassID());
+				Set<FE4Data.HolyBlood> supportedBlood = new HashSet<FE4Data.HolyBlood>(Arrays.asList(seliphClass.supportedHolyBlood()));
+				if (supportedBlood.contains(sigurdMajorBlood) == false) {
+					FE4Data.CharacterClass[] fullPool = sigurdMajorBlood.classPool();
+					Set<FE4Data.CharacterClass> unpromotedPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(FE4Data.CharacterClass.filteredClasses(fullPool, false, false)));
+					unpromotedPool.removeAll(Arrays.asList(FE4Data.Character.SELIPH.blacklistedClasses()));
+					List<FE4Data.CharacterClass> unpromotedList = unpromotedPool.stream().sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+					
+					if (!unpromotedList.isEmpty()) {
+						Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
+						FE4Data.CharacterClass unpromotedClass = unpromotedList.get(rng.nextInt(unpromotedList.size()));
+						FE4ClassRandomizer.setChildCharacterToClass(classOptions, seliph, sigurd, unpromotedClass, itemMapper, rng);
+						if (promoOptions.promotionMode == FE4PromotionOptions.Mode.RANDOM) {
+							FE4Data.CharacterClass[] promotedPool = FE4Data.CharacterClass.filteredClasses(fullPool, true, false);
+							promotionMapper.setPromotionForCharacter(FE4Data.Character.SELIPH, promotedPool[rng.nextInt(promotedPool.length)]);
+						} else { // LOOSE
+							FE4Data.CharacterClass[] promotedPool = unpromotedClass.getLoosePromotionOptions(false, promoOptions.allowMountChanges, promoOptions.allowEnemyOnlyPromotedClasses, seliphSlot1, seliphSlot2, null);
+							promotionMapper.setPromotionForCharacter(FE4Data.Character.SELIPH, promotedPool[rng.nextInt(promotedPool.length)]);
+						}
+					}
+				}
+			}
+		}
+		
+		// Correct STR/MAG on bosses if necessary.
+		for (FE4StaticCharacter holyBoss : charData.getHolyBossCharacters()) {
+			FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
+			if (charClass == null) { continue; }
+			boolean isSTRBased = charClass.primaryAttackIsStrength();
+			boolean isMAGBased = charClass.primaryAttackIsMagic();
+			
+			List<FE4Data.HolyBlood> majorBlood = FE4Data.HolyBloodSlot1.slot1HolyBlood(holyBoss.getHolyBlood1Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
+			majorBlood.addAll(FE4Data.HolyBloodSlot2.slot2HolyBlood(holyBoss.getHolyBlood2Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+			majorBlood.addAll(FE4Data.HolyBloodSlot3.slot3HolyBlood(holyBoss.getHolyBlood3Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			
+			if (majorBlood.isEmpty()) {			
+				if ((isSTRBased && !isMAGBased && holyBoss.getBaseSTR() < holyBoss.getBaseMAG()) ||
+						(isMAGBased && !isSTRBased && holyBoss.getBaseMAG() < holyBoss.getBaseSTR())) {
+					int oldSTR = holyBoss.getBaseSTR();
+					holyBoss.setBaseSTR(holyBoss.getBaseMAG());
+					holyBoss.setBaseMAG(oldSTR);
+				}
+			} else {
+				FE4Data.HolyBlood majorBloodType = majorBlood.get(0);
+				if ((majorBloodType.holyWeapon.getType().isPhysical() && holyBoss.getBaseSTR() < holyBoss.getBaseMAG()) ||
+						(majorBloodType.holyWeapon.getType().isPhysical() == false & holyBoss.getBaseMAG() < holyBoss.getBaseSTR())) {
+					int oldSTR = holyBoss.getBaseSTR();
+					holyBoss.setBaseSTR(holyBoss.getBaseMAG());
+					holyBoss.setBaseMAG(oldSTR);
+				}
+			}
 		}
 	}
 	
@@ -681,6 +810,22 @@ public class FE4Randomizer extends Randomizer {
 			rk.addHeaderItem("Randomize Classes", "NO");
 		}
 		
+		if (promoOptions != null) {
+			switch (promoOptions.promotionMode) {
+			case STRICT:
+				rk.addHeaderItem("Promotion Assignment", "Default");
+				break;
+			case LOOSE:
+				rk.addHeaderItem("Promotion Assignment", "Similar");
+				rk.addHeaderItem("Allow Mount Change", promoOptions.allowMountChanges ? "YES" : "NO");
+				rk.addHeaderItem("Allow Enemy-only Classes", promoOptions.allowEnemyOnlyPromotedClasses ? "YES" : "NO");
+				break;
+			case RANDOM:
+				rk.addHeaderItem("Promotion Assignment", "Random");
+				rk.addHeaderItem("Require Common Weapons", promoOptions.requireCommonWeapon ? "YES" : "NO");
+			}
+		}
+		
 		if (miscOptions != null) {
 			rk.addHeaderItem("Apply English Patch", miscOptions.applyEnglishPatch ? "YES" : "NO");
 			rk.addHeaderItem("Randomize Rings", miscOptions.randomizeRewards ? "YES" : "NO");
@@ -688,8 +833,9 @@ public class FE4Randomizer extends Randomizer {
 		
 		charData.recordCharacters(rk, true, itemMapper);
 		bloodData.recordHolyBlood(rk, true);
-		itemMapper.recordRingMap(rk, true);
+		itemMapper.recordItemMap(rk, true);
 		promotionMapper.recordPromotions(rk, true);
+		classData.recordClasses(rk, true);
 		
 		return rk;
 	}

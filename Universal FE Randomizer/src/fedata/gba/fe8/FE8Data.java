@@ -27,6 +27,7 @@ import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
+import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
@@ -81,12 +82,39 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	//public static final long DefaultPaletteIndexTableOffset = 0x95EEA4;
 	public static final int BytesPerPaletteIndexTableEntry = 7;
 	
-	public static final long SummonerTablePointer = 0x2442C;
+	// I think all three of these pointers need to be set appropriately. I think they determine different pieces of the summoner logic.
+	public static final long SummonerTablePointer = 0x2442CL;
+	public static final long SummonerTablePointer2 = 0x7AD54L; 
+	public static final long SummonerTablePointer3 = 0x7AE00L;
 	//public static final long DefaultSummonerTableOffset = 0x95F5A4;
 	public static final int BytesPerSummonerEntry = 2;
 	
-	public static final int BytesPerBossPalette = 80; // Play around with this. Hopefully it doesn't collide with another palette.
-	public static final int BytesPerPalette = 40;
+	// Palettes are variable size, so we have to parse until we get to the "end" of it. We know the next palette starts with 10 A0 or 10 80, so we could use that...
+	//public static final int BytesPerBossPalette = 80; // Play around with this. Hopefully it doesn't collide with another palette.
+	//public static final int BytesPerPalette = 0x54;
+	
+	public static final long PaletteTableOffset = 0xEF8004L;
+	public static final int PaletteEntryCount = 256;
+	public static final int PaletteEntrySize = 16;
+	
+	// This is where the pointer to the heaven seal promotion classes resides. We're overriding this to promote trainees, so it'll be rewritten to the new address.
+	public static final long HeavenSealPromotionPointer = 0x293D8L;
+	public static final long HeavenSealOldAddress = 0x8ADF96L;
+	
+	// FE8 world map events are split into two halves. Thankfully they are consecutive and the pointer table points to the first half of each.
+	public static final long WorldMapEventTableOffset = 0x8B39F0L;
+	public static final int WorldMapEventItemSize = 4;
+	public static final int WorldMapEventCount = 58;
+	
+	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
+	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
+	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
+	private static final List<AddressRange> createFreeRangeList() {
+		List<AddressRange> ranges = new ArrayList<AddressRange>();
+		ranges.add(new AddressRange(0xB2A610L, 0xC00000L));
+		ranges.add(new AddressRange(0xEF2F20L, 0xEF8000L));
+		return ranges;
+	}
 	
 	private static final FE8Data sharedInstance = new FE8Data();
 	
@@ -178,14 +206,38 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> allBossCharacters = new HashSet<Character>(Arrays.asList(ORSON, SELENA, SELENA_10B_13B, VALTER, VALTER_CH15, VALTER_PROLOGUE, RIEV, CAELLACH, BREGUET, BONE, BAZBA, MUMMY_CH4,
 				SAAR, NOVALA, MURRAY, TIRADO, BINKS, PABLO, MACDAIRE_12A, AIAS, CARLYLE, CAELLACH_CH15, PABLO_13A, GORGON_CH18,
 				RIEV_CH19_CH20, GHEB, BERAN, CYCLOPS_CH12B, HELLBONE_11A, DEATHGOYLE_11B, ONEILL, GLEN_CUTSCENE, ZONTA, VIGARDE, ORSON_CH16));
-		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE, BONE));
+		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(VANESSA, CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE, BONE));
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(COLM, RENNAC));
-		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(MORVA, LYON, LYON_CH17, LYON_FINAL, DEMON_KING, DARA, KLIMT));
+		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(MORVA, LYON, LYON_CH17, LYON_FINAL, DEMON_KING, DARA, KLIMT, MYRRH));
 		
 		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList(SETH)); // The prologue scripted battle.
+		
+		// Vanessa isn't strictly required, but Ross is likely screwed otherwise.
+		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(VANESSA, CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE));
+		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM, SETH, ARTUR, GARCIA));
+		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(EIRIKA, VANESSA, NEIMI, LUTE, NATASHA, AMELIA, TETHYS, MARISA, LARACHEL, MYRRH, SYRENE, TANA, SELENA, SELENA_10B_13B, ISMAIRE));
+		public static Set<Character> requiresPromotion = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM));
+		
+		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList(VALTER_PROLOGUE)); // This is scripted, and Seth shouldn't die here.
+		
+		// Playable characters only.
+		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
+		private static Map<Character, Set<Integer>> createMultiPortraitMap() {
+			Map<Character, Set<Integer>> map = new HashMap<Character, Set<Integer>>();
+			map.put(EIRIKA, new HashSet<Integer>(Arrays.asList(0x02, 0x03)));
+			map.put(NEIMI, new HashSet<Integer>(Arrays.asList(0x0A, 0x0B)));
+			map.put(COLM, new HashSet<Integer>(Arrays.asList(0x0C, 0x0D)));
+			map.put(NATASHA, new HashSet<Integer>(Arrays.asList(0x11, 0x12)));
+			map.put(EPHRAIM, new HashSet<Integer>(Arrays.asList(0x14, 0x15)));
+			map.put(FORDE, new HashSet<Integer>(Arrays.asList(0x16, 0x17)));
+			map.put(TETHYS, new HashSet<Integer>(Arrays.asList(0x1C, 0x1D)));
+			map.put(MARISA, new HashSet<Integer>(Arrays.asList(0x1E, 0x1F)));
+			map.put(MYRRH, new HashSet<Integer>(Arrays.asList(0x26, 0x27, 0x28)));
+			return map;
+		}
 		
 		public Boolean isLord() {
 			return allLords.contains(this);
@@ -217,6 +269,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean isClassLimited() {
 			return restrictedClassCharacters.contains(this);
+		}
+		
+		public Boolean canBuff() {
+			return !doNotBuff.contains(this);
 		}
 		
 		public static Set<Character> allLinkedCharactersFor(Character character) {
@@ -348,8 +404,59 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				FIGHTER, BRIGAND, PIRATE, MONK, PRIEST, SOLDIER, TRAINEE_2, PUPIL_2, EPHRAIM_MASTER_LORD, PALADIN, GENERAL, HERO, SWORDMASTER, ASSASSIN, SNIPER, RANGER, WYVERN_LORD, WYVERN_KNIGHT, SAGE, 
 				MAGE_KNIGHT, BISHOP, DRUID, SUMMONER, ROGUE, GREAT_KNIGHT, SUPER_TRAINEE, SUPER_PUPIL, WARRIOR, BERSERKER, EIRIKA_LORD, CAVALIER_F, KNIGHT_F, MYRMIDON_F, ARCHER_F, MAGE_F, PEGASUS_KNIGHT, CLERIC, 
 				TROUBADOUR, DANCER, RECRUIT_2, EIRIKA_MASTER_LORD, PALADIN_F, GENERAL_F, SWORDMASTER_F, ASSASSIN_F, SNIPER_F, RANGER_F, WYVERN_KNIGHT_F, SAGE_F, MAGE_KNIGHT_F, BISHOP_F,
-				GREAT_KNIGHT_F, SUPER_RECRUIT, MANAKETE_F, FALCON_KNIGHT, VALKYRIE, REVENANT, BONEWALKER, BONEWALKER_BOW, BAEL, MAUTHE_DOOG, TARVOS, MOGALL, GARGOYLE,
+				GREAT_KNIGHT_F, SUPER_RECRUIT, /*MANAKETE_F,*/ FALCON_KNIGHT, VALKYRIE, REVENANT, BONEWALKER, BONEWALKER_BOW, BAEL, MAUTHE_DOOG, TARVOS, MOGALL, GARGOYLE,
 				ENTOMBED, WIGHT, WIGHT_BOW, ELDER_BAEL, CYCLOPS, GWYLLGI, MAELDUIN, ARCH_MOGALL, GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2));
+		
+		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, PEGASUS_KNIGHT, MOGALL, GARGOYLE, WYVERN_LORD, WYVERN_KNIGHT, WYVERN_KNIGHT_F, FALCON_KNIGHT, ARCH_MOGALL, DEATHGOYLE));
+		
+		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, MERCENARY, MYRMIDON, SWORDMASTER, ASSASSIN, ROGUE, EIRIKA_LORD, MYRMIDON_F, MANAKETE_F, SWORDMASTER_F, ASSASSIN_F, REVENANT,
+				BAEL, MAUTHE_DOOG, ENTOMBED, ELDER_BAEL, GWYLLGI, ELDER_BAEL_2));
+		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, SNIPER, ARCHER_F, SNIPER_F, BONEWALKER_BOW, WIGHT_BOW));
+		
+		public static Map<CharacterClass, Set<CharacterClass>> promotionMap = createPromotionMap();
+		private static Map<CharacterClass, Set<CharacterClass>> createPromotionMap() {
+			Map<CharacterClass, Set<CharacterClass>> map = new HashMap<CharacterClass, Set<CharacterClass>>();
+			map.put(EPHRAIM_LORD, new HashSet<CharacterClass>(Arrays.asList(EPHRAIM_MASTER_LORD)));
+			map.put(CAVALIER, new HashSet<CharacterClass>(Arrays.asList(PALADIN, GREAT_KNIGHT)));
+			map.put(KNIGHT, new HashSet<CharacterClass>(Arrays.asList(GREAT_KNIGHT, GENERAL)));
+			map.put(THIEF, new HashSet<CharacterClass>(Arrays.asList(ROGUE, ASSASSIN)));
+			map.put(MERCENARY, new HashSet<CharacterClass>(Arrays.asList(HERO, RANGER)));
+			map.put(MYRMIDON, new HashSet<CharacterClass>(Arrays.asList(SWORDMASTER, ASSASSIN)));
+			map.put(ARCHER, new HashSet<CharacterClass>(Arrays.asList(SNIPER, RANGER)));
+			map.put(WYVERN_RIDER, new HashSet<CharacterClass>(Arrays.asList(WYVERN_KNIGHT, WYVERN_LORD)));
+			map.put(MAGE, new HashSet<CharacterClass>(Arrays.asList(SAGE, MAGE_KNIGHT)));
+			map.put(SHAMAN, new HashSet<CharacterClass>(Arrays.asList(SUMMONER, DRUID)));
+			map.put(RECRUIT_2, new HashSet<CharacterClass>(Arrays.asList(SUPER_RECRUIT, PALADIN))); 
+			map.put(FIGHTER, new HashSet<CharacterClass>(Arrays.asList(WARRIOR, HERO))); 
+			map.put(BRIGAND, new HashSet<CharacterClass>(Arrays.asList(BERSERKER, WARRIOR)));
+			map.put(PIRATE, new HashSet<CharacterClass>(Arrays.asList(BERSERKER, WARRIOR)));
+			map.put(MONK, new HashSet<CharacterClass>(Arrays.asList(BISHOP, SAGE)));
+			map.put(PRIEST, new HashSet<CharacterClass>(Arrays.asList(BISHOP, SAGE)));
+			map.put(SOLDIER, new HashSet<CharacterClass>(Arrays.asList(PALADIN, GENERAL)));
+			map.put(TRAINEE_2, new HashSet<CharacterClass>(Arrays.asList(SUPER_TRAINEE, WARRIOR)));
+			map.put(PUPIL_2, new HashSet<CharacterClass>(Arrays.asList(SUPER_PUPIL, SAGE)));
+			map.put(EIRIKA_LORD, new HashSet<CharacterClass>(Arrays.asList(EIRIKA_MASTER_LORD)));
+			map.put(CAVALIER_F, new HashSet<CharacterClass>(Arrays.asList(PALADIN_F, GREAT_KNIGHT_F)));
+			map.put(KNIGHT_F, new HashSet<CharacterClass>(Arrays.asList(GENERAL_F, GREAT_KNIGHT_F)));
+			map.put(MYRMIDON_F, new HashSet<CharacterClass>(Arrays.asList(SWORDMASTER_F, ASSASSIN_F)));
+			map.put(ARCHER_F, new HashSet<CharacterClass>(Arrays.asList(SNIPER_F, RANGER_F)));
+			map.put(MAGE_F, new HashSet<CharacterClass>(Arrays.asList(SAGE_F, MAGE_KNIGHT_F)));
+			map.put(PEGASUS_KNIGHT, new HashSet<CharacterClass>(Arrays.asList(FALCON_KNIGHT, WYVERN_KNIGHT_F)));
+			map.put(CLERIC, new HashSet<CharacterClass>(Arrays.asList(BISHOP_F, VALKYRIE)));
+			map.put(TROUBADOUR, new HashSet<CharacterClass>(Arrays.asList(VALKYRIE, MAGE_KNIGHT_F)));
+			map.put(REVENANT, new HashSet<CharacterClass>(Arrays.asList(ENTOMBED)));
+			map.put(BONEWALKER, new HashSet<CharacterClass>(Arrays.asList(WIGHT))); 
+			map.put(BONEWALKER_BOW, new HashSet<CharacterClass>(Arrays.asList(WIGHT_BOW)));
+			map.put(BAEL, new HashSet<CharacterClass>(Arrays.asList(ELDER_BAEL, ELDER_BAEL_2)));
+			map.put(MAUTHE_DOOG, new HashSet<CharacterClass>(Arrays.asList(GWYLLGI)));
+			map.put(TARVOS, new HashSet<CharacterClass>(Arrays.asList(MAELDUIN)));
+			map.put(MOGALL, new HashSet<CharacterClass>(Arrays.asList(ARCH_MOGALL)));
+			map.put(GARGOYLE, new HashSet<CharacterClass>(Arrays.asList(DEATHGOYLE)));
+			map.put(TRAINEE, new HashSet<CharacterClass>(Arrays.asList(TRAINEE_2, FIGHTER, PIRATE)));
+			map.put(RECRUIT, new HashSet<CharacterClass>(Arrays.asList(RECRUIT_2, CAVALIER_F, KNIGHT_F)));
+			map.put(PUPIL, new HashSet<CharacterClass>(Arrays.asList(PUPIL_2, MAGE, SHAMAN)));
+			return map;
+		}
 		
 		private static Boolean isClassPromoted(CharacterClass sourceClass) {
 			return allPromotedClasses.contains(sourceClass);
@@ -479,6 +586,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				classList.removeAll(allRangeLockedClasses);
 			}
 			
+			classList.retainAll(allValidClasses);
+			
 			return classList;
 		}
 		
@@ -569,9 +678,22 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public Boolean isPromoted() {
 			return CharacterClass.allPromotedClasses.contains(this);
 		}
+		
+		public Boolean isTrainee() {
+			return CharacterClass.allTraineeClasses.contains(this);
+		}
 
 		public Boolean canAttack() {
 			return !CharacterClass.allPacifistClasses.contains(this);
+		}
+		
+		public int getIDForPalette() {
+			switch (this) {
+			case TRAINEE: return TRAINEE_2.ID;
+			case RECRUIT: return RECRUIT_2.ID;
+			case PUPIL: return PUPIL_2.ID;
+			default: return this.ID;
+			}
 		}
 	}
 	
@@ -608,6 +730,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		ANGELIC_ROBE(0x5B), ENERGY_RING(0x5C), SECRET_BOOK(0x5D), SPEEDWINGS(0x5E), GODDESS_ICON(0x5F), DRAGONSHIELD(0x60), TALISMAN(0x61), BOOTS(0x62), BODY_RING(0x63),
 		
 		HERO_CREST(0x64), KNIGHT_CREST(0x65), ORION_BOLT(0x66), ELYSIAN_WHIP(0x67), GUIDING_RING(0x68), MASTER_SEAL(0x88), CONQUORER_PROOF(0x97), MOON_BRACELET(0x98), SUN_BRACELET(0x99),
+		HEAVEN_SEAL(0x8A), // We're going to recycle this for use with trainee classes.
 		
 		CHEST_KEY(0x69), DOOR_KEY(0x6A), LOCKPICK(0x6B), CHEST_KEY_5(0x79),
 		
@@ -946,6 +1069,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allRangedOnlyWeapons = new HashSet<Item>(Arrays.asList(IRON_BOW, STEEL_BOW, SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONG_BOW, BEACON_BOW, NIDHOGG));
 		public static Set<Item> allStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER, SILENCE, SLEEP, BERSERK));
 		
+		public static Set<Item> allSiegeTomes = new HashSet<Item>(Arrays.asList(BOLTING, PURGE, ECLIPSE, SHADOWSHOT));
+		
 		public static Set<Item> allERank = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, SHADOWKILLER, IRON_LANCE, SLIM_LANCE, TOXIN_LANCE, JAVELIN, BRIGHT_LANCE, IRON_AXE, STEEL_AXE, DEVIL_AXE,
 				HAND_AXE, HATCHET, FIENDCLEAVER, IRON_BOW, BEACON_BOW, HEAL, FIRE, LIGHTNING));
 		public static Set<Item> allDRank = new HashSet<Item>(Arrays.asList(STEEL_SWORD, IRON_BLADE, POISON_SWORD, SHAMSHIR, ARMORSLAYER, ZANBATO, STEEL_LANCE, HORSESLAYER, HEAVY_SPEAR,
@@ -956,6 +1081,25 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allARank = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, SILVER_AXE, TOMAHAWK, SILVER_BOW, FORTIFY, WARP, FIMBULVETR, AURA, FENRIR));
 		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(AUDHULMA, VIDOFNIR, GARM, NIDHOGG, LATONA, EXCALIBUR, IVALDI, GLEIPNIR, NAGLFAR));
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(REGINLEIF, RAPIER, SIEGMUND, SIEGLINDE));
+		
+		public static Set<Item> normalSet = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, IRON_LANCE, SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, 
+				IRON_AXE, STEEL_AXE, SILVER_AXE, BATTLE_AXE, IRON_BOW, STEEL_BOW, SILVER_BOW, SHORT_BOW, BEACON_BOW, FIRE, THUNDER, ELFIRE, FIMBULVETR, LIGHTNING, SHINE, DIVINE, AURA, FLUX, FENRIR,
+				SHARP_CLAW, WRETCHED_AIR, DRAGONSTONE, DEMON_SURGE, ROTTEN_CLAW, FETID_CLAW, FIERY_FANG, HELLFANG, EVIL_EYE, CRIMSON_EYE));
+		public static Set<Item> interestingSet = new HashSet<Item>(Arrays.asList(POISON_SWORD, RAPIER, BRAVE_SWORD, SHAMSHIR, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, ZANBATO, 
+				SHADOWKILLER, WIND_SWORD, TOXIN_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN, SPEAR, AXEREAVER, REGINLEIF, BRIGHT_LANCE, DRAGONSPEAR, HEAVY_SPEAR, SHORT_SPEAR,
+				POISON_AXE, BRAVE_AXE, KILLER_AXE, HALBERD, HAMMER, DEVIL_AXE, HAND_AXE, TOMAHAWK, SWORDREAVER, SWORDSLAYER, HATCHET, DRAGON_AXE, FIENDCLEAVER,
+				POISON_BOW, KILLER_BOW, BRAVE_BOW, LONG_BOW, BEACON_BOW, BOLTING, PURGE, LUNA, NOSFERATU, ECLIPSE, SHADOWSHOT, POISON_CLAW, LETHAL_TALON, STONE));
+		
+		// These must be of lower rank than the siege tomes set, and each weapon type needs to have an equivalent analogue.
+		public static Set<Item> siegeReplacementSet = new HashSet<Item>(Arrays.asList(NOSFERATU, DIVINE, ELFIRE, DEMON_SURGE));
+		
+		public static Set<Item> killerSet = new HashSet<Item>(Arrays.asList(KILLING_EDGE, SHAMSHIR, KILLER_LANCE, KILLER_AXE, KILLER_BOW));
+		public static Set<Item> effectiveSet = new HashSet<Item>(Arrays.asList(RAPIER, ARMORSLAYER, WYRMSLAYER, ZANBATO, SHADOWKILLER, HORSESLAYER, REGINLEIF, BRIGHT_LANCE, DRAGONSPEAR, HEAVY_SPEAR,
+				HALBERD, HAMMER, SWORDSLAYER, DRAGON_AXE, FIENDCLEAVER, BEACON_BOW));
+		public static Set<Item> poisonSet = new HashSet<Item>(Arrays.asList(POISON_SWORD, POISON_AXE, TOXIN_LANCE, POISON_BOW, POISON_CLAW, LETHAL_TALON));
+		public static Set<Item> rangedSet = new HashSet<Item>(Arrays.asList(LIGHT_BRAND, RUNE_SWORD, WIND_SWORD, JAVELIN, SPEAR, SHORT_SPEAR, HAND_AXE, TOMAHAWK, HATCHET, LONG_BOW, BOLTING, PURGE, ECLIPSE, SHADOWSHOT));
+		public static Set<Item> reaverSet = new HashSet<Item>(Arrays.asList(LANCEREAVER, AXEREAVER, SWORDREAVER, SWORDSLAYER));
+		public static Set<Item> braveSet = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, BRAVE_LANCE, BRAVE_AXE, BRAVE_BOW));
 		
 		public static Set<Item> allRestrictedWeapons = new HashSet<Item>(Arrays.asList(SHAMSHIR));
 		
@@ -1489,6 +1633,112 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				return new long[] {};
 			}
 		}
+		
+		// These should always be true for every chapter.
+		public static Map<Integer, Integer> universalWorldMapSpriteClassIDToCharacterIDMapping() {
+			Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+			map.put(CharacterClass.EPHRAIM_LORD.ID, Character.EPHRAIM.ID);
+			map.put(CharacterClass.EPHRAIM_MASTER_LORD.ID, Character.EPHRAIM.ID);
+			map.put(CharacterClass.EIRIKA_LORD.ID, Character.EIRIKA.ID);
+			map.put(CharacterClass.EIRIKA_MASTER_LORD.ID, Character.EIRIKA.ID);
+		
+			// I think these are unique...
+			map.put(CharacterClass.WYVERN_KNIGHT.ID, Character.VALTER.ID);
+			map.put(CharacterClass.MAGE_KNIGHT_F.ID, Character.SELENA.ID);
+			map.put(CharacterClass.BISHOP.ID, Character.RIEV.ID);
+			map.put(CharacterClass.HERO.ID, Character.CAELLACH.ID);
+			map.put(CharacterClass.MANAKETE_2.ID, Character.MORVA.ID);
+			
+			// These never belong to anybody in vanilla.
+			map.put(CharacterClass.SOLDIER.ID, Character.NONE.ID);
+			return map;
+		}
+		
+		public Map<Integer, List<Integer>> worldMapSpriteClassIDToCharacterIDMapping() {
+			Map<Integer, List<Integer>> map = new HashMap<Integer, List<Integer>>();
+			switch (this) {
+			case PROLOGUE:
+				map.put(CharacterClass.GENERAL.ID, new ArrayList<Integer>(Arrays.asList(Character.VIGARDE.ID)));
+				break;
+			case CHAPTER_3:
+				map.put(CharacterClass.THIEF.ID, new ArrayList<Integer>(Arrays.asList(Character.COLM.ID)));
+				map.put(CharacterClass.BRIGAND.ID, new ArrayList<Integer>(Arrays.asList(Character.BAZBA.ID)));
+				break;
+			case CHAPTER_4:
+				map.put(CharacterClass.REVENANT.ID, new ArrayList<Integer>(Arrays.asList(Character.NONE.ID)));
+				break;
+			case CHAPTER_9_EIRIKA:
+				map.put(CharacterClass.SNIPER.ID, new ArrayList<Integer>(Arrays.asList(Character.INNES.ID)));
+				break;
+			case CHAPTER_10_EIRIKA:
+				map.put(CharacterClass.MERCENARY.ID, new ArrayList<Integer>(Arrays.asList(Character.NONE.ID)));
+				map.put(CharacterClass.SNIPER.ID, new ArrayList<Integer>(Arrays.asList(Character.INNES.ID)));
+				break;
+			case CHAPTER_16_EIRIKA:
+			case CHAPTER_16_EPHRAIM:
+				map.put(CharacterClass.PALADIN.ID, new ArrayList<Integer>(Arrays.asList(Character.ORSON.ID)));
+				break;
+			case CHAPTER_17_EIRIKA:
+			case CHAPTER_17_EPHRAIM:
+				map.put(CharacterClass.NECROMANCER.ID, new ArrayList<Integer>(Arrays.asList(Character.LYON.ID)));
+				break;
+			case CHAPTER_9_EPHRAIM:
+				map.put(CharacterClass.WARRIOR.ID, new ArrayList<Integer>(Arrays.asList(Character.GHEB.ID)));
+				break;
+			case CHAPTER_14_EPHRAIM:
+				map.put(CharacterClass.GENERAL.ID, new ArrayList<Integer>(Arrays.asList(Character.VIGARDE.ID)));
+				break;
+			default:
+				break;
+			}
+			return map;
+		}
+		
+		// TODO: Figure out a better way of doing this...
+		public static ChapterPointer chapterForWorldMapEventOffset(long offset) {
+			if (offset == 0xA39768L) { return PROLOGUE; }
+			else if (offset == 0xA39D0CL) { return CHAPTER_1; }
+			else if (offset == 0xA39D44L) { return CHAPTER_2; }
+			else if (offset == 0xA39F20L) { return CHAPTER_3; }
+			else if (offset == 0xA3A0BCL) { return CHAPTER_4; }
+			else if (offset == 0xA3A1ECL) { return CHAPTER_5; }
+			else if (offset == 0xA3C890L) { return CHAPTER_5X; }
+			else if (offset == 0xA3A4D8L) { return CHAPTER_6; }
+			else if (offset == 0xA3A5C4L) { return CHAPTER_7; }
+			else if (offset == 0xA3A6B0L) { return CHAPTER_8; }
+			else if (offset == 0xA3A730L) { return CHAPTER_9_EIRIKA; }
+			else if (offset == 0xA3AE58L) { return CHAPTER_9_EPHRAIM; }
+			else if (offset == 0xA3A990L) { return CHAPTER_10_EIRIKA; }
+			else if (offset == 0xA3B08CL) { return CHAPTER_10_EPHRAIM; }
+			else if (offset == 0xA3C8A8L) { return CHAPTER_11_EIRIKA; }
+			else if (offset == 0xA3C9D0L) { return CHAPTER_11_EPHRAIM; }
+			else if (offset == 0xA3AB50L) { return CHAPTER_12_EIRIKA; }
+			else if (offset == 0xA3B1D8L) { return CHAPTER_12_EPHRAIM; }
+			else if (offset == 0xA3AB6CL) { return CHAPTER_13_EIRIKA; }
+			else if (offset == 0xA3B1F4L) { return CHAPTER_13_EPHRAIM; }
+			else if (offset == 0xA3ACB0L) { return CHAPTER_14_EIRIKA; }
+			else if (offset == 0xA3B2DCL) { return CHAPTER_14_EPHRAIM; }
+			else if (offset == 0xA3B528L) { return CHAPTER_15_EIRIKA; }
+			else if (offset == 0xA3BD74L) { return CHAPTER_15_EPHRAIM; }
+			else if (offset == 0xA3B594L) { return CHAPTER_16_EIRIKA; }
+			else if (offset == 0xA3BF28L) { return CHAPTER_16_EPHRAIM; }
+			else if (offset == 0xA3B738L) { return CHAPTER_17_EIRIKA; }
+			else if (offset == 0xA3C0B4L) { return CHAPTER_17_EPHRAIM; }
+			else if (offset == 0xA3B8E8L) { return CHAPTER_18_EIRIKA; }
+			else if (offset == 0xA3C260L) { return CHAPTER_18_EPHRAIM; }
+			else if (offset == 0xA3BA64L) { return CHAPTER_19_EIRIKA; }
+			else if (offset == 0xA3C3DCL) { return CHAPTER_19_EPHRAIM; }
+			else if (offset == 0xA3BB74L) { return CHAPTER_20_EIRIKA; }
+			else if (offset == 0xA3C4ECL) { return CHAPTER_20_EPHRAIM; }
+			else if (offset == 0xA3BD58L) { return FINAL_1_EIRIKA; }
+			else if (offset == 0xA3C6D0L) { return FINAL_1_EPHRAIM; }
+			else if (offset == 0xA3C898L) { return FINAL_2_EIRIKA; }
+			else if (offset == 0xA3C8A0L) { return FINAL_2_EPHRAIM; }
+			else {
+				// There's some events not tied to any specific chapter, so we can ignore those for now.
+				return null;
+			}
+		}
 	}
 	
 	public enum PromotionItem implements GBAFEPromotionItem {
@@ -1666,7 +1916,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		WYVERN_RIDER_CORMAG(0x16, Character.CORMAG.ID, CharacterClass.WYVERN_RIDER.ID, 0xEF97AC),
 		
-		// Unique palettes
+		// Unique palettes (should be read only, as they map to sprites)
 		LORD_EIRIKA(0x00, Character.EIRIKA.ID, CharacterClass.EIRIKA_LORD.ID, 0xC0EB30),
 		LORD_EPHRAIM(0x00, Character.EPHRAIM.ID, CharacterClass.EPHRAIM_LORD.ID, 0xC09B10),
 		MASTER_LORD_EIRIKA(0x00, Character.EIRIKA.ID, CharacterClass.EIRIKA_MASTER_LORD.ID, 0xC2165C),
@@ -1835,84 +2085,84 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (charClass != null) {
 				switch (charClass) {
 				case EIRIKA_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {25, 27, 29}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EIRIKA_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20, 23}, new int[] {25, 27, 29}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EPHRAIM_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {}, new int[] {25, 27}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {}, new int[] {9, 10}, new int[] {12, 13, 14});
 					break;
 				case EPHRAIM_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {}, new int[] {23, 25}, new int[] {34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {}, new int[] {8, 9}, new int[] {13, 14});
 					break;
 				case TRAINEE:
 				case TRAINEE_2:
 				case SUPER_TRAINEE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 23}, new int[] {25, 27, 29}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {9, 10, 11}, new int[] {});
 					break;
 				case RECRUIT:
 				case RECRUIT_2:
 				case SUPER_RECRUIT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {25, 27, 29}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {9, 10, 11}, new int[] {});
 					break;
 				case PUPIL:
 				case PUPIL_2:
 				case SUPER_PUPIL:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {25, 27, 29});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {9, 10, 11});
 					break;
 				case MANAKETE_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32}, new int[] {34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {8, 9, 10}, new int[] {11, 12}, new int[] {13, 14});
 					break;
 				case REVENANT:
 				case ENTOMBED:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {18, 20}, new int[] {32, 34, 36}, new int[] {}); // These guys actually have hair. The second color is the remnants of their pants.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {}); // These guys actually have hair. The second color is the remnants of their pants.
 					break;
 				case BONEWALKER:
 				case BONEWALKER_BOW:
 				case WIGHT:
 				case WIGHT_BOW:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {23, 25, 27}, new int[] {9, 11, 14}); // No hair. Primary is their loincloth. Secondary is their breastplate.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {8, 9, 10}, new int[] {2, 3, 4}); // No hair. Primary is their loincloth. Secondary is their breastplate.
 					break;
 				case BAEL:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {16, 14, 18, 11, 20}, new int[] {}, new int[] {}); // They have two hair colors, but in the case of the Bael, they're the same color, so we're keeping it that way.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {5, 4, 6, 3, 7}, new int[] {}, new int[] {}); // They have two hair colors, but in the case of the Bael, they're the same color, so we're keeping it that way.
 					break;
 				case ELDER_BAEL:
 				case ELDER_BAEL_2:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {16, 18, 20}, new int[] {14, 11}, new int[] {}); // Unlike Baels, Elder Baels gain a different color streak through their "hair". That's reflected here.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {5, 6, 7}, new int[] {4, 3}, new int[] {}); // Unlike Baels, Elder Baels gain a different color streak through their "hair". That's reflected here.
 					break;
 				case CYCLOPS:
 				case CYCLOPS_2:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {18, 20, 9, 11, 14, 16}, new int[] {34, 36}); // No hair again, but lots of armor colors. Secondary is the color of their loincloth.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {6, 7, 2, 3, 4, 5}, new int[] {13, 14}); // No hair again, but lots of armor colors. Secondary is the color of their loincloth.
 					break;
 				case MAUTHE_DOOG:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {25, 27, 29}, new int[] {32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 10, 11}, new int[] {12, 13, 14}, new int[] {});
 					break;
 				case GWYLLGI:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {25, 27, 29}, new int[] {32, 34, 36}, new int[] {18, 20, 23}); // Gwyllgis get a tail color in addition to what they had as Mauth Doogs.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 10, 11}, new int[] {12, 13, 14}, new int[] {6, 7, 8}); // Gwyllgis get a tail color in addition to what they had as Mauth Doogs.
 					break;
 				case TARVOS:
 				case MAELDUIN:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {18, 20}, new int[] {9, 11, 14, 16}, new int[] {}); // They have a body color, but since they share the same as Maelduins, we want to have some difference between the two.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {6, 7}, new int[] {2, 3, 4, 5}, new int[] {}); // They have a body color, but since they share the same as Maelduins, we want to have some difference between the two.
 					break;
 				case MOGALL:
 				case ARCH_MOGALL:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {32, 34, 36}, new int[] {14, 16, 18}, new int[] {}); // "Hair" is the tentacles. "Armor" is the membrane.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {12, 13, 14}, new int[] {4, 5, 6}, new int[] {}); // "Hair" is the tentacles. "Armor" is the membrane.
 					break;
 				case GORGON:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {9, 11, 14});
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {2, 3, 4});
 					break;
 				case GARGOYLE:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 11, 14}, new int[] {}, new int[] {}); // "Hair" is their horns and claws. Let's not touch anything else for now. They'll get their colors when promoted
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {2, 3, 4}, new int[] {}, new int[] {}); // "Hair" is their horns and claws. Let's not touch anything else for now. They'll get their colors when promoted
 					break;
 				case DEATHGOYLE:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {9, 11, 14}, new int[] {29, 32, 34, 36}, new int[] {25, 27}); // Now they get a non-gray body.
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {2, 3, 4}, new int[] {11, 12, 13, 14}, new int[] {9, 10}); // Now they get a non-gray body.
 					break;
 				case MERCENARY:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20, 32}, new int[] {25, 11, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 12}, new int[] {9, 3, 14}, new int[] {});
 					break;
 				case HERO:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13}, new int[] {});
 					break;
 				case MYRMIDON:
 				case MYRMIDON_F:
@@ -1925,111 +2175,111 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case MONK:
 				case PRIEST:
 				case CLERIC:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case FIGHTER:
 				case BRIGAND:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {});
 					break;
 				case WARRIOR:
 				case BERSERKER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {});
 					break;
 				case RANGER:
 				case RANGER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {34, 16}, new int[] {23, 25, 27, 29});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {13, 5}, new int[] {8, 9, 10, 11});
 					break;
 				case CAVALIER:
 				case CAVALIER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 11, 25, 16, 27, 29}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 3, 9, 5, 10, 11}, new int[] {});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {23, 25, 27, 29}, new int[] {20}, new int[] {16, 11, 14}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {7}, new int[] {5, 3, 4}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
 					break;
 				case PALADIN_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27}, new int[] {16, 11, 14}); // Hair also affects shield. Secondary is mane + shield crest.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {5, 3, 4}); // Hair also affects shield. Secondary is mane + shield crest.
 					break;
 				case KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 14, 16, 11, 9, 7}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 5, 3, 2, 1}, new int[] {});
 					break;
 				case KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {18, 14, 9, 7}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 2, 1}, new int[] {});
 					break;
 				case GENERAL:
 				case GENERAL_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {14, 16, 20});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {4, 5, 7});
 					break;
 				case GREAT_KNIGHT:
 				case GREAT_KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {});
 					break;
 				case WYVERN_RIDER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 9}, new int[] {27, 29, 32, 34}, new int[] {25});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {3, 2}, new int[] {10, 11, 12, 13}, new int[] {9});
 					break;
 				case WYVERN_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {20, 23}, new int[] {27, 29, 32, 34}, new int[] {25});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {7, 8}, new int[] {10, 11, 12, 13}, new int[] {9});
 					break;
 				case WYVERN_KNIGHT:
 				case WYVERN_KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {25, 23, 20}, new int[] {27, 29, 32, 34}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {9, 8, 7}, new int[] {10, 11, 12, 13}, new int[] {});
 					break;
 				case PEGASUS_KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 18}, new int[] {25, 27}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10}, new int[] {});
 					break;
 				case FALCON_KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 18}, new int[] {25, 27, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10, 14}, new int[] {});
 					break;
 				case MAGE:
 				case MAGE_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {32, 34, 36}, new int[] {23, 25, 27});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {8, 9, 10});
 					break;
 				case SAGE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {29, 32, 34, 36}, new int[] {23, 25, 27});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {8, 9, 10});
 					break;
 				case SAGE_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {29, 23, 25, 27});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {11, 8, 9, 10});
 					break;
 				case MAGE_KNIGHT:
 				case MAGE_KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {27, 29}, new int[] {23, 25}, new int[] {32, 34, 36}); // Primary is cape, secondary is shirt, tertiary is horse armor.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {10, 11}, new int[] {8, 9}, new int[] {12, 13, 14}); // Primary is cape, secondary is shirt, tertiary is horse armor.
 					break;
 				case SHAMAN:
 				case DRUID:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25, 27}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {8, 9, 10}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case SUMMONER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {20, 23}, new int[] {32, 34, 36}, new int[] {25, 27, 29});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 8}, new int[] {12, 13, 14}, new int[] {9, 10, 11});
 					break;
 				case BISHOP:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18}, new int[] {23, 34, 36}, new int[] {29, 32});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {8, 13, 14}, new int[] {11, 12});
 					break;
 				case BISHOP_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case TROUBADOUR:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27, 29}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11}, new int[] {});
 					break;
 				case VALKYRIE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {23, 25, 27, 29, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11, 14}, new int[] {});
 					break;
 				case THIEF:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 29, 14}, new int[] {34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 11, 4}, new int[] {13, 14});
 					break;
 				case ASSASSIN:
 				case ASSASSIN_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {18, 20}, new int[] {16, 27}, new int[] {32, 34, 36});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {5, 10}, new int[] {12, 13, 14});
 					break;
 				case ROGUE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {23, 25}, new int[] {32, 34, 36}, new int[] {16, 18, 20});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {8, 9}, new int[] {12, 13, 14}, new int[] {5, 6, 7});
 					break;
 				case DANCER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {16, 18, 20}, new int[] {32, 34, 36}, new int[] {23, 25, 27});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {8, 9, 10});
 					break;
 				case PIRATE:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case SOLDIER:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {29, 32, 34, 36}, new int[] {});
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				default:
 					break;
@@ -2052,106 +2302,16 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return list.toArray(new PaletteInfo[list.size()]);
 		}
 		
-		public static int paletteSizeForCharacter(int characterID) {
-			FE8Data.Character character = FE8Data.Character.valueOf(characterID);
-			switch (character) {
-			case ONEILL:
-			case BREGUET:
-			case SAAR:
-			case BONE:
-			case BAZBA:
-				// Only return this if we're sure.
-				return BytesPerBossPalette;
-			default:
-				return BytesPerPalette;
-			}
+		public static int maxUsedPaletteIndex() {
+			return 0x6C; // Caellach
 		}
 		
-		public static Map<Integer, Integer> customMappingForCharacter(int characterID) {
-			FE8Data.Character character = FE8Data.Character.valueOf(characterID);
-			if (FE8Data.Character.allPlayableCharacters.contains(character)) { return null; }
-			switch (character) {
-			case ONEILL: {
-				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-				map.put(32, 45);
-				map.put(33, 46);
-				map.put(34, 47);
-				map.put(35, 48);
-				map.put(36, 49);
-				map.put(37, 50);
-				return map;
-			}
-			case BREGUET:
-			case SAAR: {
-				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-				map.put(5, 41);
-				map.put(6, 42);
-				map.put(7, 43);
-				map.put(8, 44);
-				map.put(9, 45);
-				map.put(10, 46);
-				map.put(11, 47);
-				map.put(12, 48);
-				
-				map.put(14, 50);
-				map.put(15, 51);
-				map.put(16, 52);
-				map.put(17, 53);
-				map.put(18, 54);
-				map.put(19, 55);
-				map.put(20, 56);
-				map.put(21, 57);
-				
-				map.put(23, 59);
-				map.put(24, 60);
-				map.put(25, 61);
-				map.put(26, 62);
-				
-				map.put(32, 65);
-				map.put(33, 66);
-				
-				return map;
-			}
-			case BONE:
-			case BAZBA: {
-				Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-				map.put(9, 43);
-				map.put(10, 44);
-				map.put(11, 45);
-				map.put(12, 46);
-				
-				map.put(14, 47);
-				map.put(15, 48);
-				map.put(16, 49);
-				map.put(17, 51);
-				
-				map.put(23, 54);
-				map.put(24, 55);
-				map.put(25, 56);
-				map.put(26, 57);
-				map.put(27, 58);
-				map.put(28, 59);
-				map.put(29, 61);
-				map.put(30, 62);
-				
-				map.put(32, 63);
-				map.put(33, 64);
-				map.put(34, 65);
-				map.put(35, 66);
-				map.put(36, 67);
-				map.put(37, 68);
-				map.put(38, 70);
-				map.put(39, 71);
-				
-				return map;
-			}
-			default:
-				return null;
-			}
+		public static int maxPaletteIndex() {
+			return 0xF0; // There's space for this many, but they're all 0s. Seems like they could be used. It actually goes to FF, but we'll leave some space.
 		}
 		
 		public static PaletteColor[] supplementaryHairColorForCharacter(int characterID) {
-			Character character = Character.valueOf(characterID);
+			Character character = Character.valueOf(Character.canonicalIDForCharacterID(characterID));
 			switch (character) {
 			case SETH:
 				return new PaletteColor[] {new PaletteColor(189, 16, 8), new PaletteColor(132, 0, 0), new PaletteColor(99, 16, 24)};
@@ -2225,6 +2385,35 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public Set<GBAFECharacter> charactersExcludedFromRandomRecruitment() {
+		return new HashSet<GBAFECharacter>(Arrays.asList(Character.MYRRH));
+	}
+	
+	public Set<Integer> linkedPortraitIDs(int characterID) {
+		Character character = Character.valueOf(characterID);
+		if (Character.charactersWithMultiplePortraits.containsKey(character)) {
+			return Character.charactersWithMultiplePortraits.get(character);
+		}
+		
+		return new HashSet<Integer>();
+	}
+	
+	public Set<GBAFECharacter> allFliers() {
+		return new HashSet<GBAFECharacter>(Character.requiredFliers);
+	}
+	
+	public Set<GBAFECharacter> mustAttack() {
+		return new HashSet<GBAFECharacter>(Character.requiredAttackers);
+	}
+	
+	public Set<GBAFECharacter> femaleSet() {
+		return new HashSet<GBAFECharacter>(Character.femaleSet);
+	}
+	
+	public Set<GBAFECharacter> mustPromote() {
+		return new HashSet<GBAFECharacter>(Character.requiresPromotion);
+	}
+	
 	public GBAFECharacter characterWithID(int characterID) {
 		GBAFECharacter character = Character.valueOf(characterID);
 		if (character == null) {
@@ -2273,9 +2462,65 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEClass> allValidClasses() {
 		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 	}
+	
+	public Set<GBAFEClass> meleeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.rangedOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
+	
+	public Set<GBAFEClass> rangeSupportedClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
+		classes.removeAll(CharacterClass.meleeOnlyClasses);
+		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
 
 	public GBAFEClass classWithID(int classID) {
 		return CharacterClass.valueOf(classID);
+	}
+	
+	public boolean canClassDemote(GBAFEClass charClass) {
+		for (GBAFEClass baseClass : CharacterClass.promotionMap.keySet()) {
+			Set<CharacterClass> promotionOptions = CharacterClass.promotionMap.get(baseClass);
+			if (promotionOptions.contains(charClass)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	public boolean canClassPromote(GBAFEClass charClass) {
+		return CharacterClass.promotionMap.keySet().contains(charClass);
+	}
+	
+	public GBAFEClass[] promotedClass(GBAFEClass baseClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass charClass : CharacterClass.promotionMap.keySet()) {
+			if (charClass.ID == baseClass.getID()) {
+				classList.addAll(CharacterClass.promotionMap.get(charClass));
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public GBAFEClass[] demotedClass(GBAFEClass promotedClass) {
+		List<GBAFEClass> classList = new ArrayList<GBAFEClass>();
+		for (CharacterClass baseClass : CharacterClass.promotionMap.keySet()) {
+			Set<CharacterClass> classes = CharacterClass.promotionMap.get(baseClass);
+			if (classes.contains(promotedClass)) {
+				classList.add(baseClass);
+			}
+		}
+		
+		return classList.toArray(new GBAFEClass[classList.size()]);
+	}
+	
+	public boolean isFlier(GBAFEClass charClass) {
+		return CharacterClass.flyingClasses.contains(charClass);
 	}
 
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options) {
@@ -2313,7 +2558,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		// This is handled by a separate helper.
 	}
 
-	public GBAFEClassData classDataWithData(byte[] data, long offset) {
+	public GBAFEClassData classDataWithData(byte[] data, long offset, GBAFEClassData demotedClass) {
 		return new FE8Class(data, offset);
 	}
 	
@@ -2611,7 +2856,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		itemsUsableByClass.retainAll(Item.allBasicWeapons);
 		return itemsUsableByClass;
 	}
-	public Set<GBAFEItem> comparableWeaponsForClass(int classID, GBAFEItemData originalItem) {
+	public Set<GBAFEItem> comparableWeaponsForClass(int classID, WeaponRanks ranks, GBAFEItemData originalItem, boolean strict) {
 		if (originalItem == null) { return new HashSet<GBAFEItem>(); }
 		Item item = Item.valueOf(originalItem.getID());
 		if (item == null) { return new HashSet<GBAFEItem>(); }
@@ -2629,28 +2874,55 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		Set<GBAFEItem> itemsUsableByClass = new HashSet<GBAFEItem>(weaponsForClass(classID));
 		
-		switch (rank) {
-		case E:
-			itemsUsableByClass.retainAll(Item.allERank);
-			break;
-		case D:
-			itemsUsableByClass.retainAll(Item.allDRank);
-			break;
-		case C:
-			itemsUsableByClass.retainAll(Item.allCRank);
-			break;
-		case B:
-			itemsUsableByClass.retainAll(Item.allBRank);
-			break;
-		case A:
-			itemsUsableByClass.retainAll(Item.allARank);
-			break;
-		case S:
-			itemsUsableByClass.retainAll(Item.allSRank);
-			break;
-		default:
-			itemsUsableByClass.clear();
-			break;
+		itemsUsableByClass.removeIf(weapon -> (weapon.getType() == WeaponType.SWORD && ranks.swordRank.isLowerThan(weapon.getRank())));
+		itemsUsableByClass.removeIf(weapon -> (weapon.getType() == WeaponType.LANCE && ranks.lanceRank.isLowerThan(weapon.getRank())));
+		itemsUsableByClass.removeIf(weapon -> (weapon.getType() == WeaponType.AXE && ranks.axeRank.isLowerThan(weapon.getRank())));
+		itemsUsableByClass.removeIf(weapon -> (weapon.getType() == WeaponType.BOW && ranks.bowRank.isLowerThan(weapon.getRank())));
+		itemsUsableByClass.removeIf(weapon -> (weapon.getType() == WeaponType.ANIMA && ranks.animaRank.isLowerThan(weapon.getRank())));
+		itemsUsableByClass.removeIf(weapon -> (weapon.getType() == WeaponType.LIGHT && ranks.lightRank.isLowerThan(weapon.getRank())));
+		itemsUsableByClass.removeIf(weapon -> (weapon.getType() == WeaponType.DARK && ranks.darkRank.isLowerThan(weapon.getRank())));
+		itemsUsableByClass.removeIf(weapon -> (weapon.getType() == WeaponType.STAFF && ranks.staffRank.isLowerThan(weapon.getRank())));
+		
+		Set<GBAFEItem> usableSet = new HashSet<GBAFEItem>(itemsUsableByClass);
+		
+		final WeaponRank effectiveRank = rank;
+		itemsUsableByClass.removeIf(weapon -> (effectiveRank.isLowerThan(weapon.getRank())));
+		
+		if (strict) {
+			Set<GBAFEItem> usableByRank = new HashSet<GBAFEItem>(itemsUsableByClass);
+			if (Item.braveSet.contains(item) && !Collections.disjoint(Item.braveSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.braveSet);
+			} else if (Item.reaverSet.contains(item) && !Collections.disjoint(Item.reaverSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.reaverSet);
+			} else if (Item.rangedSet.contains(item) && !Collections.disjoint(Item.rangedSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.rangedSet);
+				if (!Item.allSiegeTomes.contains(item)) {
+					itemsUsableByClass.removeAll(Item.allSiegeTomes);
+					Set<GBAFEItem> usableSiegeReplacements = new HashSet<GBAFEItem>(usableSet);
+					usableSiegeReplacements.retainAll(Item.siegeReplacementSet);
+					itemsUsableByClass.addAll(usableSiegeReplacements);
+				}
+			} else if (Item.poisonSet.contains(item) && !Collections.disjoint(Item.poisonSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.poisonSet);
+			} else if (Item.effectiveSet.contains(item) && !Collections.disjoint(Item.effectiveSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.effectiveSet);
+			} else if (Item.killerSet.contains(item) && !Collections.disjoint(Item.killerSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.killerSet);
+			} else if (Item.interestingSet.contains(item) && !Collections.disjoint(Item.interestingSet, itemsUsableByClass)) {
+				itemsUsableByClass.retainAll(Item.interestingSet);
+				if (!Item.allSiegeTomes.contains(item)) {
+					itemsUsableByClass.removeAll(Item.allSiegeTomes);
+					Set<GBAFEItem> usableSiegeReplacements = new HashSet<GBAFEItem>(usableSet);
+					usableSiegeReplacements.retainAll(Item.siegeReplacementSet);
+					itemsUsableByClass.addAll(usableSiegeReplacements);
+				}
+			} else {
+				itemsUsableByClass.retainAll(Item.normalSet);
+			}
+			
+			if (itemsUsableByClass.isEmpty() && !usableByRank.isEmpty()) {
+				itemsUsableByClass = usableByRank;
+			}
 		}
 		
 		return itemsUsableByClass;

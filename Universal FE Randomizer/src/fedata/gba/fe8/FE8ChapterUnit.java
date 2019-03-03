@@ -1,6 +1,7 @@
 package fedata.gba.fe8;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import fedata.gba.GBAFEChapterUnitData;
 
@@ -34,6 +35,18 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		wasModified = true;
 	}
 	
+	public int getStartingLevel() {
+		// Level and alliance are stored in byte 3, but we need to interpret it properly.
+		// LLLL LENA
+		// L = Level (5 bits, 0 - 31)
+		// E = Set if enemy
+		// N = Set if NPC
+		// A = Set if autolevel
+		// Note: playable characters are defined as not enemies and not NPCs.
+		int value = data[3] & 0xFF;
+		return value >> 3;
+	}
+	
 	public int getLeaderID() {
 		return 0; // FE8 doesn't use Leader IDs
 	}
@@ -44,6 +57,14 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 
 	public int getLoadingY() {
 		return 0; // FE8 doesn't use this.
+	}
+	
+	public void setLoadingX(int newX) {
+		// FE8 doesn't use this.
+	}
+	
+	public void setLoadingY(int newY) {
+		// FE8 doesn't use this.
 	}
 	
 	// FE8 does things a bit differently. Each position is only 6 bits instead of 8 bits. We need to read bytes 4, 5 to get the data.
@@ -119,6 +140,7 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 	public void giveItems(int[] itemIDs) {
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
 		for (int i = 0; i < itemIDs.length; i++) {
+			if (getItem1() == itemIDs[i] || getItem2() == itemIDs[i] || getItem3() == itemIDs[i] || getItem4() == itemIDs[i]) { continue; }
 			workingIDs.add(itemIDs[i]);
 		}
 		
@@ -156,30 +178,43 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 	}
 	
 	private void collapseItems() {
-		int[] items = new int[4];
-		int counter = 0;
+		List<Integer> items = new ArrayList<Integer>();
 		
 		if (getItem1() != 0) {
-			items[counter] = getItem1();
-			counter++;
+			if (FE8Data.Item.valueOf(getItem1()).isWeapon()) {
+				items.add(0, getItem1());
+			} else {
+				items.add(getItem1());
+			}
 		}
 		if (getItem2() != 0) {
-			items[counter] = getItem2();
-			counter++;
+			if (FE8Data.Item.valueOf(getItem2()).isWeapon()) {
+				items.add(0, getItem2());
+			} else {
+				items.add(getItem2());
+			}
 		}
 		if (getItem3() != 0) {
-			items[counter] = getItem3();
-			counter++;
+			if (FE8Data.Item.valueOf(getItem3()).isWeapon()) {
+				items.add(0, getItem3());
+			} else {
+				items.add(getItem3());
+			}
 		}
 		if (getItem4() != 0) {
-			items[counter] = getItem4();
-			counter++;
+			if (FE8Data.Item.valueOf(getItem4()).isWeapon()) {
+				items.add(0, getItem4());
+			} else {
+				items.add(getItem4());
+			}
 		}
 		
-		setItem1(items[0]);
-		setItem2(items[1]);
-		setItem3(items[2]);
-		setItem4(items[3]);
+		
+		
+		setItem1(items.size() > 0 ? items.get(0) : 0);
+		setItem2(items.size() > 1 ? items.get(1) : 0);
+		setItem3(items.size() > 2 ? items.get(2) : 0);
+		setItem4(items.size() > 3 ? items.get(3) : 0);
 	}
 	
 	public void resetData() {

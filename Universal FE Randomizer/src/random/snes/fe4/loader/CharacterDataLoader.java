@@ -6,8 +6,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import fedata.snes.fe4.FE4ChildCharacter;
+import fedata.snes.fe4.FE4Class;
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4Data.EnemyTable;
 import fedata.snes.fe4.FE4EnemyCharacter;
@@ -404,6 +406,57 @@ public class CharacterDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE4_CHARACTER_LOADER, "Finished loading bosses with holy blood!");
 	}
 	
+	public void registerInventories(ItemMapper itemMap) {
+		for (FE4StaticCharacter staticChar : staticPlayableCharacters.values()) {
+			int item1 = staticChar.getEquipment1();
+			if (item1 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item1, "Starting Inventory (" + FE4Data.Character.valueOf(staticChar.getCharacterID()).toString() + ")");
+			}
+			
+			int item2 = staticChar.getEquipment2();
+			if (item2 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item2, "Starting Inventory (" + FE4Data.Character.valueOf(staticChar.getCharacterID()).toString() + ")");
+			}
+			
+			int item3 = staticChar.getEquipment3();
+			if (item3 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item3, "Starting Inventory (" + FE4Data.Character.valueOf(staticChar.getCharacterID()).toString() + ")");
+			}
+		}
+		for (FE4ChildCharacter childChar : childCharacters.values()) {
+			int item1 = childChar.getEquipment1();
+			if (item1 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item1, "Starting Inventory (" + FE4Data.Character.valueOf(childChar.getCharacterID()).toString() + ")");
+			}
+			
+			int item2 = childChar.getEquipment2();
+			if (item2 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item2, "Starting Inventory (" + FE4Data.Character.valueOf(childChar.getCharacterID()).toString() + ")");
+			}
+		}
+		
+		for (FE4EnemyCharacter enemyChar : enemyCharacters.values()) {
+			int item3 = enemyChar.getDropableEquipment();
+			if (item3 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item3, "Enemy Drop (" + FE4Data.Character.valueOf(enemyChar.getCharacterID()).toString() + ")");
+			}
+		}
+		
+		for (FE4EnemyCharacter bossChar : bossCharacters.values()) {
+			int item3 = bossChar.getDropableEquipment();
+			if (item3 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item3, "Boss Drop (" + FE4Data.Character.valueOf(bossChar.getCharacterID()).toString() + ")");
+			}
+		}
+		
+		for (FE4StaticCharacter holyBoss : holyBloodBossCharacters.values()) {
+			int item3 = holyBoss.getEquipment3();
+			if (item3 != FE4Data.Item.NONE.ID) {
+				itemMap.registerInventoryID(item3, "Boss Drop (" + FE4Data.Character.valueOf(holyBoss.getCharacterID()).toString() + ")");
+			}
+		}
+	}
+	
 	public void commit() {
 		for (FE4StaticCharacter staticChar : staticPlayableCharacters.values()) {
 			staticChar.commitChanges();
@@ -475,6 +528,70 @@ public class CharacterDataLoader {
 				Diff holyDiff = new Diff(holyBoss.getAddressOffset(), holyBoss.getData().length, holyBoss.getData(), null);
 				compiler.addDiff(holyDiff);
 			}
+		}
+	}
+	
+	public void recordAdditionalData(RecordKeeper rk, HolyBloodLoader bloodData, ClassDataLoader classData) {
+		for (FE4Data.Character fe4Char : staticPlayableCharacters.keySet()) {
+			String category = RecordKeeperCategoryKey + " - " + (fe4Char.isGen1() ? RecordKeeperSubcategoryGen1 : (fe4Char.isSubstitute() ? RecordKeeperSubcategoryGen2Subs : RecordKeeperSubcategoryGen2Static));
+			FE4StaticCharacter staticChar = staticPlayableCharacters.get(fe4Char);
+			
+			List<FE4Data.HolyBlood> majorBloodList = FE4Data.HolyBloodSlot1.slot1HolyBlood(staticChar.getHolyBlood1Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
+			majorBloodList.addAll(FE4Data.HolyBloodSlot2.slot2HolyBlood(staticChar.getHolyBlood2Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+			majorBloodList.addAll(FE4Data.HolyBloodSlot3.slot3HolyBlood(staticChar.getHolyBlood3Value()).stream().filter(blood -> (blood.isMajor() == true)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			
+			List<FE4Data.HolyBlood> minorBloodList = FE4Data.HolyBloodSlot1.slot1HolyBlood(staticChar.getHolyBlood1Value()).stream().filter(blood -> (blood.isMajor() == false)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
+			minorBloodList.addAll(FE4Data.HolyBloodSlot2.slot2HolyBlood(staticChar.getHolyBlood2Value()).stream().filter(blood -> (blood.isMajor() == false)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+			minorBloodList.addAll(FE4Data.HolyBloodSlot3.slot3HolyBlood(staticChar.getHolyBlood3Value()).stream().filter(blood -> (blood.isMajor() == false)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			
+			int additionalHPGrowth = 0;
+			int additionalSTRGrowth = 0;
+			int additionalMAGGrowth = 0;
+			int additionalSKLGrowth = 0;
+			int additionalSPDGrowth = 0;
+			int additionalLCKGrowth = 0;
+			int additionalDEFGrowth = 0;
+			int additionalRESGrowth = 0;
+			
+			for (FE4Data.HolyBlood majorBlood : majorBloodList) {
+				additionalHPGrowth += bloodData.holyBloodByType(majorBlood).getHPGrowthBonus() * 2;
+				additionalSTRGrowth += bloodData.holyBloodByType(majorBlood).getSTRGrowthBonus() * 2;
+				additionalMAGGrowth += bloodData.holyBloodByType(majorBlood).getMAGGrowthBonus() * 2;
+				additionalSKLGrowth += bloodData.holyBloodByType(majorBlood).getSKLGrowthBonus() * 2;
+				additionalSPDGrowth += bloodData.holyBloodByType(majorBlood).getSPDGrowthBonus() * 2;
+				additionalLCKGrowth += bloodData.holyBloodByType(majorBlood).getLCKGrowthBonus() * 2;
+				additionalDEFGrowth += bloodData.holyBloodByType(majorBlood).getDEFGrowthBonus() * 2;
+				additionalRESGrowth += bloodData.holyBloodByType(majorBlood).getRESGrowthBonus() * 2;
+			}
+			
+			for (FE4Data.HolyBlood minorBlood : minorBloodList) {
+				additionalHPGrowth += bloodData.holyBloodByType(minorBlood).getHPGrowthBonus();
+				additionalSTRGrowth += bloodData.holyBloodByType(minorBlood).getSTRGrowthBonus();
+				additionalMAGGrowth += bloodData.holyBloodByType(minorBlood).getMAGGrowthBonus();
+				additionalSKLGrowth += bloodData.holyBloodByType(minorBlood).getSKLGrowthBonus();
+				additionalSPDGrowth += bloodData.holyBloodByType(minorBlood).getSPDGrowthBonus();
+				additionalLCKGrowth += bloodData.holyBloodByType(minorBlood).getLCKGrowthBonus();
+				additionalDEFGrowth += bloodData.holyBloodByType(minorBlood).getDEFGrowthBonus();
+				additionalRESGrowth += bloodData.holyBloodByType(minorBlood).getRESGrowthBonus();
+			}
+			
+			if (additionalHPGrowth > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Personal HP Growth", String.format("+%d%%", additionalHPGrowth)); }
+			if (additionalSTRGrowth > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Personal STR Growth", String.format("+%d%%", additionalSTRGrowth)); }
+			if (additionalMAGGrowth > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Personal MAG Growth", String.format("+%d%%", additionalMAGGrowth)); }
+			if (additionalSKLGrowth > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Personal SKL Growth", String.format("+%d%%", additionalSKLGrowth)); }
+			if (additionalSPDGrowth > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Personal SPD Growth", String.format("+%d%%", additionalSPDGrowth)); }
+			if (additionalDEFGrowth > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Personal DEF Growth", String.format("+%d%%", additionalDEFGrowth)); }
+			if (additionalRESGrowth > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Personal RES Growth", String.format("+%d%%", additionalRESGrowth)); }
+			if (additionalLCKGrowth > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Personal LCK Growth", String.format("+%d%%", additionalLCKGrowth)); }
+			
+			FE4Class charClassData = classData.classForID(staticChar.getClassID());
+			
+			if (charClassData.getBaseSTR() > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Base STR", String.format("+%d", charClassData.getBaseSTR())); }
+			if (charClassData.getBaseMAG() > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Base MAG", String.format("+%d", charClassData.getBaseMAG())); }
+			if (charClassData.getBaseSKL() > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Base SKL", String.format("+%d", charClassData.getBaseSKL())); }
+			if (charClassData.getBaseSPD() > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Base SPD", String.format("+%d", charClassData.getBaseSPD())); }
+			if (charClassData.getBaseDEF() > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Base DEF", String.format("+%d", charClassData.getBaseDEF())); }
+			if (charClassData.getBaseRES() > 0) { rk.setAdditionalInfo(category, fe4Char.toString(), "Base RES", String.format("+%d", charClassData.getBaseRES())); }
 		}
 	}
 

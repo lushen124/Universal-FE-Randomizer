@@ -3,11 +3,13 @@ package fedata.snes.fe4;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import fedata.snes.fe4.FE4Data.Item.ItemType;
 import fedata.snes.fe4.FE4Data.Item.WeaponRank;
@@ -96,6 +98,228 @@ public class FE4Data {
 	public static final byte SellableHolyWeaponEnabledValue = 0x00;
 	public static final byte SellableHolyWeaponsDisabledValue = 0x16;
 	
+	public static final long ItemTableOffset = 0x3ECE4L;
+	public static final int ItemTableCount = 107;
+	public static final int ItemSize = 19;
+	
+	// Emperor has a 1 byte mistake in its battle animation data that breaks for female emperors using staves. We can fix this and re-enable Emperor as a class.
+	public static final long FemaleEmperorStaffAnimationFixOffset = 0x178E7CL;
+	public static final byte FemaleEmperorStaffAnimationFixOldValue = 0x00;
+	public static final byte FemaleEmperorStaffAnimationFixNewValue = 0x01;
+	
+	// Aura shenanigans.
+	// 0x34 is a Steel Lance freely available in Ch. 8 that we can use
+	// This allows us to swap it for Deirdre's Aura, which can side-step the duplicate item issue in gen 2.
+	// This means Deirdre gets 0x34 randomized to her usage, which frees up 0x60 (what used to be Aura) to be unique to Julia.
+	public static final int Chapter8ShopSteelLanceInventoryID = 0x34;
+	public static final int DeirdreAuraInventoryID = 0x60;
+	
+	// Remove 0x34 from the Ch. 8 shop.
+	public static final long Chapter8ShopListOffset = 0x6F54CL;
+	public static final byte[] Chapter8ShopOldListByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x34, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67};
+	public static final byte[] Chapter8ShopNewListByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67, (byte)0xFF};
+	public static final byte[] Chapter8ShopNewListWithFillByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x40, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67};
+	
+	// These don't seem to be used by anybody in the game. Free holy weapons? Or free staves!
+	// The last two may or may not work. They're empty right now, but they may be serving as terminator bytes.
+	public static final List<Integer> UnusedInventoryIDs = new ArrayList<Integer>(Arrays.asList(0x12, 0x40, 0x8D, 0x8E));
+	public static final List<Integer> UnusedInventoryIDsWithFill = new ArrayList<Integer>(Arrays.asList(0x12, 0x8D, 0x8E));
+	
+	public static class EventGift {
+		public Character recipient;
+		public Character donor;
+		public int giftInventoryID;
+		
+		public EventGift(Character donor, Character recipient, int giftInventoryID) {
+			this.recipient = recipient;
+			this.donor = donor;
+			this.giftInventoryID = giftInventoryID;
+		}
+	}
+	
+	public static final List<EventGift> EventGifts = createEventGiftList();
+	private static List<EventGift> createEventGiftList() {
+		List<EventGift> gifts = new ArrayList<EventGift>();
+		gifts.add(new EventGift(Character.ARVIS_CH5, Character.SIGURD, 0x0A)); // Silver Sword
+		gifts.add(new EventGift(Character.EDAIN, Character.ETHLYN, 0x6D)); // Return Staff
+		gifts.add(new EventGift(Character.DEW, Character.EDAIN, 0x6E)); // Warp Staff
+		gifts.add(new EventGift(Character.DEIRDRE, Character.ETHLYN, 0x25)); // Light Brand
+		gifts.add(new EventGift(Character.DEW, Character.LACHESIS, 0x16)); // Thief Sword
+		gifts.add(new EventGift(Character.QUAN, Character.FINN_GEN_1, 0x3B)); // Brave Lance
+		gifts.add(new EventGift(Character.LEX, Character.AYRA, 0x19)); // Brave Sword
+		gifts.add(new EventGift(Character.CHULAINN, Character.AYRA, 0x19)); // Brave Sword (Same as Lex)
+		gifts.add(new EventGift(Character.ELDIGAN_CH3, Character.LACHESIS, 0x22)); // Earth Sword
+		gifts.add(new EventGift(Character.ETHLYN, Character.QUAN, 0x3E)); // Gae Bolg
+		gifts.add(new EventGift(Character.EDAIN, Character.BRIGID, 0x4F)); // Yewfelle
+		gifts.add(new EventGift(Character.EDAIN, Character.MIDIR, 0x4D)); // Brave Bow
+		gifts.add(new EventGift(Character.EDAIN, Character.JAMKE, 0x4D)); // Brave Bow (Same as Midir)
+		gifts.add(new EventGift(Character.AZELLE, Character.EDAIN, 0x6F)); // Rescue Staff
+		gifts.add(new EventGift(Character.BYRON, Character.SIGURD, 0x27)); // Tyrfing
+		gifts.add(new EventGift(Character.LANA, Character.JULIA, 0x66)); // Mend Staff
+		gifts.add(new EventGift(Character.MUIRNE, Character.JULIA, 0x66)); // Mend Staff (Same as Lana)
+		gifts.add(new EventGift(Character.SELIPH, Character.JULIA, 0x60)); // Aura
+		gifts.add(new EventGift(Character.SELIPH, Character.JULIA, 0x5F)); // Nosferatu
+		gifts.add(new EventGift(Character.PATTY, Character.SHANNAN, 0x28)); // Balmung
+		gifts.add(new EventGift(Character.DAISY, Character.SHANNAN, 0x28)); // Balmung (Same as Patty)
+		gifts.add(new EventGift(Character.PATTY, Character.SELIPH, 0x1A)); // Hero Sword
+		gifts.add(new EventGift(Character.DAISY, Character.SELIPH, 0x1A)); // Hero Sword (Same as Patty)
+		gifts.add(new EventGift(Character.HANNIBAL, Character.CHARLOT, 0x74)); // Berserk Staff
+		gifts.add(new EventGift(Character.PALMARK, Character.SELIPH, 0x27)); // Tyrfing (Same as for Sigurd)
+		
+		gifts.add(new EventGift(Character.NONE, Character.LEX, 0x45)); // Brave Axe
+		gifts.add(new EventGift(Character.NONE, Character.ARDEN, 0x89)); // Pursuit Ring
+		gifts.add(new EventGift(Character.NONE, Character.DEW, 0x24)); // Wind Sword
+		gifts.add(new EventGift(Character.NONE, Character.SILVIA, 0x20)); // Defender
+		gifts.add(new EventGift(Character.NONE, Character.LEWYN, 0x5C)); // Foresti
+		gifts.add(new EventGift(Character.NONE, Character.LAYLEA, 0x17)); // Barrier Sword
+		gifts.add(new EventGift(Character.NONE, Character.SELIPH, 0x84)); // Life Ring
+		gifts.add(new EventGift(Character.NONE, Character.JULIA, 0x61)); // Naga
+		
+		gifts.add(new EventGift(Character.ALVA, Character.LACHESIS, 0x88)); // Knight Ring
+		return gifts;
+	}
+	
+	public static class ShopItem {
+		public int itemInventoryID;
+		public int chapter;
+		
+		public ShopItem(int itemInventoryID, int chapter) {
+			this.itemInventoryID = itemInventoryID;
+			this.chapter = chapter;
+		}
+	}
+	
+	public static final List<ShopItem> ShopItems = createShopItemList();
+	private static List<ShopItem> createShopItemList() {
+		List<ShopItem> shopItems = new ArrayList<ShopItem>();
+		// Ch. 1
+		shopItems.add(new ShopItem(0x1D, 1));
+		shopItems.add(new ShopItem(0x2F, 1));
+		shopItems.add(new ShopItem(0x38, 1));
+		shopItems.add(new ShopItem(0x41, 1));
+		// Ch. 2
+		shopItems.add(new ShopItem(0x33, 2));
+		shopItems.add(new ShopItem(0x55, 2));
+		shopItems.add(new ShopItem(0x10, 2));
+		shopItems.add(new ShopItem(0x4A, 2));
+		// Ch. 3
+		shopItems.add(new ShopItem(0x0B, 3));
+		shopItems.add(new ShopItem(0x36, 3));
+		shopItems.add(new ShopItem(0x44, 3));
+		shopItems.add(new ShopItem(0x4B, 3));
+		shopItems.add(new ShopItem(0x52, 3));
+		// Ch. 4
+		shopItems.add(new ShopItem(0x58, 4));
+		shopItems.add(new ShopItem(0x68, 4));
+		shopItems.add(new ShopItem(0x83, 4));
+		// Ch. 6
+		shopItems.add(new ShopItem(0x01, 6));
+		shopItems.add(new ShopItem(0x03, 6));
+		shopItems.add(new ShopItem(0x04, 6));
+		shopItems.add(new ShopItem(0x0A, 6));
+		shopItems.add(new ShopItem(0x0C, 6));
+		shopItems.add(new ShopItem(0x25, 6));
+		// Ch. 7
+		shopItems.add(new ShopItem(0x07, 7));
+		shopItems.add(new ShopItem(0x10, 7));
+		shopItems.add(new ShopItem(0x1D, 7));
+		shopItems.add(new ShopItem(0x21, 7));
+		shopItems.add(new ShopItem(0x2D, 7));
+		shopItems.add(new ShopItem(0x2E, 7));
+		shopItems.add(new ShopItem(0x2F, 7));
+		shopItems.add(new ShopItem(0x3C, 7));
+		shopItems.add(new ShopItem(0x3F, 7));
+		shopItems.add(new ShopItem(0x41, 7));
+		shopItems.add(new ShopItem(0x46, 7));
+		shopItems.add(new ShopItem(0x49, 7));
+		shopItems.add(new ShopItem(0x51, 7));
+		shopItems.add(new ShopItem(0x54, 7));
+		shopItems.add(new ShopItem(0x62, 7));
+		shopItems.add(new ShopItem(0x63, 7));
+		shopItems.add(new ShopItem(0x69, 7));
+		shopItems.add(new ShopItem(0x6D, 7));
+		shopItems.add(new ShopItem(0x05, 7));
+		shopItems.add(new ShopItem(0x0E, 7));
+		shopItems.add(new ShopItem(0x0F, 7));
+		shopItems.add(new ShopItem(0x1F, 7));
+		shopItems.add(new ShopItem(0x3D, 7));
+		// Ch. 8
+		shopItems.add(new ShopItem(0x08, 8));
+		shopItems.add(new ShopItem(0x1C, 8));
+		shopItems.add(new ShopItem(0x23, 8));
+		shopItems.add(new ShopItem(0x29, 8));
+		shopItems.add(new ShopItem(0x32, 8));
+		shopItems.add(new ShopItem(0x33, 8));
+		shopItems.add(new ShopItem(0x34, 8));
+		shopItems.add(new ShopItem(0x44, 8));
+		shopItems.add(new ShopItem(0x47, 8));
+		shopItems.add(new ShopItem(0x4A, 8));
+		shopItems.add(new ShopItem(0x50, 8));
+		shopItems.add(new ShopItem(0x55, 8));
+		shopItems.add(new ShopItem(0x58, 8));
+		shopItems.add(new ShopItem(0x65, 8));
+		shopItems.add(new ShopItem(0x72, 8));
+		shopItems.add(new ShopItem(0x06, 8));
+		shopItems.add(new ShopItem(0x30, 8));
+		shopItems.add(new ShopItem(0x48, 8));
+		shopItems.add(new ShopItem(0x5D, 8));
+		shopItems.add(new ShopItem(0x64, 8));
+		shopItems.add(new ShopItem(0x67, 8));
+		// Ch. 9
+		shopItems.add(new ShopItem(0x09, 9));
+		shopItems.add(new ShopItem(0x0B, 9));
+		shopItems.add(new ShopItem(0x1E, 9));
+		shopItems.add(new ShopItem(0x22, 9));
+		shopItems.add(new ShopItem(0x2B, 9));
+		shopItems.add(new ShopItem(0x35, 9));
+		shopItems.add(new ShopItem(0x36, 9));
+		shopItems.add(new ShopItem(0x37, 9));
+		shopItems.add(new ShopItem(0x38, 9));
+		shopItems.add(new ShopItem(0x4B, 9));
+		shopItems.add(new ShopItem(0x52, 9));
+		shopItems.add(new ShopItem(0x5A, 9));
+		shopItems.add(new ShopItem(0x6E, 9));
+		shopItems.add(new ShopItem(0x70, 9));
+		shopItems.add(new ShopItem(0x59, 9));
+		// CH. 10
+		shopItems.add(new ShopItem(0x0D, 10));
+		shopItems.add(new ShopItem(0x24, 10));
+		shopItems.add(new ShopItem(0x68, 10));
+		shopItems.add(new ShopItem(0x6A, 10));
+		shopItems.add(new ShopItem(0x6F, 10));
+		shopItems.add(new ShopItem(0x73, 10));
+		shopItems.add(new ShopItem(0x6B, 10));
+		
+		return shopItems;
+	}
+	
+	public static class VillageGift {
+		public int giftInventoryID;
+		public int chapter;
+		
+		public VillageGift(int giftInventoryID, int chapter) {
+			this.giftInventoryID = giftInventoryID;
+			this.chapter = chapter;
+		}
+	}
+	
+	public static final List<VillageGift> VillageGifts = createVillageGiftList();
+	private static List<VillageGift> createVillageGiftList() {
+		List<VillageGift> gifts = new ArrayList<VillageGift>();
+		gifts.add(new VillageGift(0x29, 2)); // Armorslayer
+		gifts.add(new VillageGift(0x2B, 3)); // Wing Clipper
+		gifts.add(new VillageGift(0x70, 3)); // Restore Staff
+		gifts.add(new VillageGift(0x7B, 0)); // Speed Ring
+		gifts.add(new VillageGift(0x76, 8)); // Power Ring
+		gifts.add(new VillageGift(0x78, 10)); // Magic Ring
+		gifts.add(new VillageGift(0x7A, 6)); // Skill Ring
+		gifts.add(new VillageGift(0x7C, 7)); // Speed Ring
+		gifts.add(new VillageGift(0x7E, 7)); // Shield Ring
+		gifts.add(new VillageGift(0x80, 9)); // Barrier Ring
+		gifts.add(new VillageGift(0x8B, 8)); // Thief Ring
+		return gifts;
+	}
+	
 	public static final Map<Character, List<Integer>> EventItemInventoryIDsByRecipient = createEventItemMap();
 	private static Map<Character, List<Integer>> createEventItemMap() {
 		Map<Character, List<Integer>> map = new HashMap<Character, List<Integer>>();
@@ -116,8 +340,8 @@ public class FE4Data {
 		map.put(Character.LAYLEA, new ArrayList<Integer>(Arrays.asList(0x17))); // Barrier Sword
 		map.put(Character.SELIPH, new ArrayList<Integer>(Arrays.asList(0x1A))); // Hero Sword
 		/*map.put(Character.SHANNAN, 0x28); // Balmung*/
-		map.put(Character.JULIA, new ArrayList<Integer>(Arrays.asList(0x5E, 0x5F, 0x66))); // Lightning, Nosferatu, Mend Staff
-		// Aura (0x60) should be here, but it's shared with Deirdre (her starting equipment), so they have to use the same weapon type.
+		map.put(Character.JULIA, new ArrayList<Integer>(Arrays.asList(0x5E, 0x5F, 0x60, 0x66))); // Lightning, Nosferatu, Mend Staff
+		// With the change to give Deirdre 0x34 instead (a Chapter 8 Shop Steel Lance), this frees up 0x60 for Julia.
 		/*map.put(Character.JULIA, 0x61); // Naga*/
 		map.put(Character.CHARLOT, new ArrayList<Integer>(Arrays.asList(0x74))); // Berserk Staff
 		return map;
@@ -133,9 +357,6 @@ public class FE4Data {
 		
 		map.put(Character.MIDIR, Character.JAMKE);
 		map.put(Character.JAMKE, Character.MIDIR);
-	
-		map.put(Character.JULIA, Character.DEIRDRE);
-		map.put(Character.DEIRDRE, Character.JULIA);
 		
 		return map;
 	}
@@ -152,12 +373,6 @@ public class FE4Data {
 		map.put(Item.NAGA, 0x61); // Naga
 		return map;
 	}
-	
-	// 0x7B is shared with Johan's inventory. (Speed Ring)
-	// 0x88 is received from an event (Knight ring from saving Lachesis' bodyguards.)
-	// 0x89 is received from the Arden event (Pursuit Ring)
-	public static final Set<Integer> VillageItemInventoryIDs = new HashSet<Integer>(Arrays.asList(0x29, 0x2B, 0x70, 0x7B, 0x88, 0x89,
-			0x76, 0x78, 0x7A, 0x7C, 0x7E, 0x80, 0x8B)); 
 	
 	public static final long HolyBloodDataOffset = 0x38BE3L;
 	public static final int HolyBloodDataCount = 13;
@@ -212,7 +427,7 @@ public class FE4Data {
 		CH1_VERDANE_THIEF_1(0x57),
 		CH1_HEIRHEIN_ARMY(0x59),
 		CH1_CROSS_KNIGHTS(0x5B),
-		CH1_COMMANDER(0x5C),
+		CH1_GENOA_COMMANDER(0x5C),
 		
 		// CH 2
 		BOLDOR(0x005D), // 0x5E = HEIRHEIN ARMY
@@ -416,6 +631,7 @@ public class FE4Data {
 		
 		// CH 7
 		KUTUZOV(0x0114), // 0x115 - 0x116 = YIED MAGE, 0x117 = MERCENARY, 0x118 = YIED MAGE, 0x119 = COMMANDER, 0x11A - 0x11B = ALSTER ARMY, 0x11C = THIEF
+		KUTUZOV_TURN_12(0x1DE), // This boss reappears after turn 12 with a new inventory, which the game treats as a completely new character.
 		BLOOM_CH7(0x011D), // 0x11E = ALSTER ARMY, 0x11F = DARNA ARMY
 		ISHTORE(0x0120), // 0x121 = MELGAN ARMY
 		LIZA(0x0122), // 0x123 - 0x128 = MELGAN ARMY
@@ -598,7 +814,6 @@ public class FE4Data {
 		MAYBELL(0x01D7),
 		BLEG(0x01D8), // 0x1D9 - 0x1DC = BELHALLA ARMY
 		BARAN(0x01DD),
-		CUTUZOV_FINAL(0x1DE), // Not sure why he's here again. 0x1DF = THIEF
 		
 		ENDGAME_MERCENARY_1(0x1A5),
 		ENDGAME_MERCENARY_2(0x1A6),
@@ -750,20 +965,20 @@ public class FE4Data {
 		public static final Set<Character> DancerCharacters = new HashSet<Character>(Arrays.asList(SILVIA, LENE, LAYLEA));
 		public static final Set<Character> HealerCharacters = new HashSet<Character>(Arrays.asList(EDAIN, CLAUD, LANA, MUIRNE, COIRPRE, CHARLOT));
 		
-		// Elliot and his squad must lose to Eldigan and his Cross Knights.
-		public static final Set<Character> MustWin1 = new HashSet<Character>(Arrays.asList(ELDIGAN_CH1_SCENE, CH1_CROSS_KNIGHTS));
-		public static final Set<Character> MustLose1 = new HashSet<Character>(Arrays.asList(ELLIOT_CH1_SCENE, CH1_HEIRHEIN_ARMY));
+		// Elliot and his squad must lose to Eldigan and his Cross Knights. We'll make sure the minions win or lose, but Eldigan can probably solo all of them.
+		public static final Set<Character> MustWin1 = new HashSet<Character>(Arrays.asList(CH1_CROSS_KNIGHTS));
+		public static final Set<Character> MustLose1 = new HashSet<Character>(Arrays.asList(CH1_HEIRHEIN_ARMY));
 		// Quan and Ethlyn (and their squad) must lose to Travant (and Magorn) and his squad.
 		public static final Set<Character> MustWin2 = new HashSet<Character>(Arrays.asList(TRAVANT_CH5, CH5_THRACIA_ARMY, MAGORN));
 		public static final Set<Character> MustLose2 = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN, CH5_LEONSTER_ARMY));
-		// Mahnya and her Squad must lose to Andorey and the Beige Ritter.
-		public static final Set<Character> MustWin3 = new HashSet<Character>(Arrays.asList(ANDOREY_CH4, CH4_BEIGE_RITTER));
+		// Mahnya and her Squad must lose to Andorey and the Beige Ritter. (Andorey himself probably isn't necessary, since his squad gets all Brave Bows.)
+		public static final Set<Character> MustWin3 = new HashSet<Character>(Arrays.asList(CH4_BEIGE_RITTER));
 		public static final Set<Character> MustLose3 = new HashSet<Character>(Arrays.asList(MAHNYA, CH4_MAHNYA_SQUAD));
 		
 		public static final Set<Character> Gen1PlayableCharacters = new HashSet<Character>(Arrays.asList(SIGURD, NAOISE, ALEC, ARDEN, FINN_GEN_1, QUAN, MIDIR, LEWYN, CHULAINN, AZELLE,
 				JAMKE, CLAUD, BEOWOLF, LEX, DEW, DEIRDRE, ETHLYN, LACHESIS, AYRA, ERINYS, TAILTIU, SILVIA, EDAIN, BRIGID));
-		public static final Set<Character> Gen2StaticCharacters = new HashSet<Character>(Arrays.asList(SHANNAN, IUCHAR, FINN_GEN_2, HANNIBAL, ARES, OIFEY, IUCHARBA));
-		public static final Set<Character> Gen2ChildCharacters = new HashSet<Character>(Arrays.asList(SELIPH, LEIF, JULIA, ALTENA, ULSTER, FEBAIL, COIRPRE, CED, DIARMUID, LESTER, ARTHUR, 
+		public static final Set<Character> Gen2StaticCharacters = new HashSet<Character>(Arrays.asList(SHANNAN, IUCHAR, FINN_GEN_2, HANNIBAL, ARES, OIFEY, IUCHARBA, JULIA));
+		public static final Set<Character> Gen2ChildCharacters = new HashSet<Character>(Arrays.asList(SELIPH, LEIF, ALTENA, ULSTER, FEBAIL, COIRPRE, CED, DIARMUID, LESTER, ARTHUR, 
 				PATTY, LARCEI, LANA, FEE, TINE, LENE, NANNA));
 		public static final Set<Character> Gen2SubstituteCharacters = new HashSet<Character>(Arrays.asList(DALVIN, ASAELLO, CHARLOT, HAWK, TRISTAN, DEIMNE, AMID, DAISY, CREIDNE, MUIRNE,
 				HERMINA, LINDA, LAYLEA, JEANNE));
@@ -778,16 +993,39 @@ public class FE4Data {
 		
 		public static final Set<Character> Gen2Bosses = new HashSet<Character>(Arrays.asList(
 				HAROLD, SCHMIDT, DANANN,
-				KUTUZOV, LIZA, ISHTORE, JAVARRO, BRAMSEL, VAMPA_CH7, FETRA_CH7, ELIU_CH7, BLOOM_CH7,
+				KUTUZOV, KUTUZOV_TURN_12, LIZA, ISHTORE, JAVARRO, BRAMSEL, VAMPA_CH7, FETRA_CH7, ELIU_CH7, BLOOM_CH7,
 				MUHAMMAD, OVO, VAMPA_CH8, FETRA_CH8, ELIU_CH8, ISHTAR_CH8, BLOOM_CH8, CORUTA, MAIKOV,
 				KANATZ, DISLER, TRAVANT_CH9, MUSAR, JUDAH, ARION_CH9,
 				RIDALE, HILDA_CH10, MORRIGAN, ISHTAR_CH10, JULIUS_CH10, ZAGAM, ARVIS_CH10,
 				ROBERT, BOYCE, RODAN, YUPHEEL, FISHER, BRIAN, DAGGON, SCIPIO, HILDA_FINAL, BARAN, MENG, BLEG, MAYBELL, ISHTAR_FINAL, ARION_FINAL, MANFROY, MUS, BOVIS, TIGRIS, LEPUS, DRACO, ANGUILLA, EQUUS, OVIS, SIMIA, GALLUS, CANIS, PORCUS, JULIUS_FINAL));
 		
+		public static final Set<Character> CastleGuards = new HashSet<Character>(Arrays.asList(
+				DIMAGGIO, GERRARD,
+				CH1_GENOA_COMMANDER, MUNNIR, SANDIMA,
+				BOLDOR, MACBETH, CLEMENT, CHAGALL_CH2,
+				JACOBAN, CHAGALL_CH3, DOBARL,
+				MAIOS, DACCAR,
+				LOMBARD, VAHA,
+				HAROLD, DANANN,
+				KUTUZOV, KUTUZOV_TURN_12, ISHTORE, BRAMSEL, BLOOM_CH7,
+				BLOOM_CH8, MAIKOV,
+				DISLER, JUDAH,
+				MORRIGAN, HILDA_CH10, ARVIS_CH10,
+				YUPHEEL, HILDA_FINAL, MANFROY, JULIUS_FINAL
+				));
+		
 		// Midir will make the game confused if he can't attack in his opening scene.
 		// Seliph *technically* doesn't need to attack.
 		public static final Set<Character> CharactersThatMustBeAbleToAttack = new HashSet<Character>(Arrays.asList(SIGURD, /*SELIPH,*/ MIDIR));
-		public static final Set<Character> CharactersThatMustAttackAtMeleeRange = new HashSet<Character>(Arrays.asList(CHULAINN));
+		public static final Set<Character> CharactersThatMustAttackAtMeleeRange = new HashSet<Character>(Arrays.asList(CHULAINN, BEOWOLF)); // For whatever reason, Beowolf's AI likes to attack at melee range, even if he's bow locked.
+		public static final Set<Character> CharactersThatRequireHorses = new HashSet<Character>(Arrays.asList(QUAN, ETHLYN)); // :(
+		
+		// These bosses can drop their holy weapon if they were randomized to get them.
+		public static final Set<Character> HolyBossesWithFreeDrops = new HashSet<Character>(Arrays.asList(HILDA_CH10, MUSAR, ARION_CH9));
+		// These bosses can be assigned holy blood, even if they didn't have any before.
+		public static final Set<Character> HolyBossesThatReceiveNewHolyBlood = new HashSet<Character>(Arrays.asList(VAMPA_CH7, VAMPA_CH8, RIDALE, ROBERT, BOYCE, SCIPIO, MUS, BOVIS, TIGRIS, LEPUS, DRACO, SIMIA, GALLUS, CANIS, PORCUS, MANFROY));
+		// These are the only bosses that can drop their holy weapon.
+		public static final Set<Character> HolyBossesThatCanDropHolyWeapons = new HashSet<Character>(Arrays.asList(ANDOREY_CH5, LOMBARD, VAMPA_CH7, VAMPA_CH8, ISHTAR_CH8, BLOOM_CH8, MUSAR, ARION_CH9, HILDA_CH10, RIDALE, ROBERT, BOYCE, BRIAN, SCIPIO));
 
 		public int ID;
 		
@@ -888,10 +1126,50 @@ public class FE4Data {
 				Set<CharacterClass> blacklist = new HashSet<CharacterClass>(CharacterClass.armoredClasses);
 				blacklist.addAll(CharacterClass.fliers);
 				return blacklist.toArray(new CharacterClass[blacklist.size()]);
+			case LARCEI:
+			case CREIDNE: // Be careful about sequence breaking Ch. 6. They can recruit Iuchar and Iucharba earlier than they're supposed to if they can fly.
+			case SELIPH: // Seliph can also seize castles out of order if he turns out to be able to fly.
+				return CharacterClass.fliers.toArray(new CharacterClass[CharacterClass.fliers.size()]);
 			case LEWYN:  // Needs holy weapon from ch. 4 castle.
 				return CharacterClass.armoredClasses.toArray(new CharacterClass[CharacterClass.armoredClasses.size()]);
+			case DEW: // Patty as a possible child means Dew needs to be limited in case of strictly matched children.
+				blacklist = new HashSet<CharacterClass>(CharacterClass.maleOnlyClasses);
+				blacklist.addAll(CharacterClass.femaleOnlyClasses);
+				return blacklist.toArray(new CharacterClass[blacklist.size()]);
+			case ELDIGAN_CH1_SCENE:
+			case ELDIGAN_CH3: // Eldigan shouldn't get bow-locked. He might not win against Elliot if he is.
+				return CharacterClass.rangedOnlyClasses.toArray(new CharacterClass[CharacterClass.rangedOnlyClasses.size()]);
+				
 			default: return new CharacterClass[] {};
 			}
+		}
+		
+		// If this returns a non-empty array, then the result should be restricted to classes in the set.
+		public CharacterClass[] whitelistedClasses(boolean isRandomizingMinions) {
+			Set<CharacterClass> whitelistedClasses = new HashSet<CharacterClass>();
+			// Otherwise, there are some characters that have to be careful with what they pass down to gen 2 enemies if their weapons are not inerhited.
+			switch (this) {
+			case CLAUD: // Some random minion has one of Claud's items, so we need to make sure that remains working.
+				if (!isRandomizingMinions) {
+					whitelistedClasses.addAll(CharacterClass.fireUsers);
+					whitelistedClasses.removeAll(CharacterClass.B_fireUsers);
+					whitelistedClasses.addAll(CharacterClass.thunderUsers);
+					whitelistedClasses.removeAll(CharacterClass.B_thunderUsers);
+					whitelistedClasses.addAll(CharacterClass.windUsers);
+					whitelistedClasses.removeAll(CharacterClass.B_windUsers);
+					whitelistedClasses.addAll(CharacterClass.staffUsers);
+				}
+				break;
+			case ERINYS:
+			case FEE:
+			case HERMINA:
+			case ALTENA:
+				whitelistedClasses.addAll(CharacterClass.fliers);
+			default:
+				break;
+			}
+			
+			return whitelistedClasses.toArray(new CharacterClass[whitelistedClasses.size()]);
 		}
 		
 		public HolyBlood[] limitedHolyBloodSelection() {
@@ -900,6 +1178,16 @@ public class FE4Data {
 			case SIGURD:
 			case DEIRDRE: // Seliph's blood inheritence only supports the first two bytes, so neither parent can go beyond that.
 				return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.NAGA, HolyBlood.DAIN, HolyBlood.NJORUN, HolyBlood.OD, HolyBlood.ULIR, HolyBlood.NEIR, HolyBlood.FJALAR};
+			case ELDIGAN_CH1_SCENE: // This is just to make sure he doesn't get stuck with Yewfelle in chapter 1.
+				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
+						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA};
+			case ARVIS_CH5: // Make sure we don't get Ulir, since it'll crash the Ch. 5 scene. He also shouldn't get Naga because it forces animations on.
+				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
+						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI};
+			case SHANNAN: // Just to make sure he can escape with Patty, make sure he doesn't get stuck with a staff.
+				return new HolyBlood[] {
+						HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
+						HolyBlood.NEIR, HolyBlood.ULIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA};
 			default: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 					HolyBlood.NEIR, HolyBlood.ULIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA, HolyBlood.BRAGI};
 			}
@@ -1007,7 +1295,7 @@ public class FE4Data {
 		}
 		
 		public boolean requiresMelee() {
-			return !RangedOnlyArenaCharacters.contains(this) || CharactersThatMustAttackAtMeleeRange.contains(this);
+			return (isArena() && !RangedOnlyArenaCharacters.contains(this)) || CharactersThatMustAttackAtMeleeRange.contains(this);
 		}
 		
 		public boolean requiresRange() {
@@ -1080,6 +1368,9 @@ public class FE4Data {
 			case REPTOR_CH3_SCENE:
 			case REPTOR:
 				return new Character[] {REPTOR, REPTOR_CH3_SCENE};
+			case KUTUZOV:
+			case KUTUZOV_TURN_12:
+				return new Character[] {KUTUZOV, KUTUZOV_TURN_12};
 			case VAMPA_CH7:
 			case VAMPA_CH8:
 				return new Character[] {VAMPA_CH7, VAMPA_CH8};
@@ -1222,6 +1513,13 @@ public class FE4Data {
 		DANCER(0x32),
 		;
 		
+		public static final Comparator<CharacterClass> defaultComparator = new Comparator<CharacterClass>() {
+			@Override
+			public int compare(CharacterClass o1, CharacterClass o2) {
+				return Integer.compare(o1.ID, o2.ID);
+			}
+		};
+		
 		public enum GenderType {
 			ANY, MALE_ONLY, FEMALE_ONLY;
 		}
@@ -1233,8 +1531,11 @@ public class FE4Data {
 				MAGE_KNIGHT, GREAT_KNIGHT, FALCON_KNIGHT, DRAGON_MASTER, SWORD_MASTER, SNIPER, FORREST, GENERAL, WARRIOR, MAGE_FIGHTER, MAGE_FIGHTER_F, HIGH_PRIEST, SAGE, THIEF_FIGHTER, EMPEROR,
 				BARON, QUEEN, BISHOP, DARK_BISHOP));
 		
-		public static final Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, EMPEROR, BARON, QUEEN, BISHOP, DARK_BISHOP));
-		public static final Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS)); // This one seems to make the game go nuts for enemies.
+		// We can blacklist as necessary, but this list includes all of the classes we don't give out to playable characters freely.
+		// Emperor and Queen are blocked as we don't give out advanced classes freely (but we allow playable characters to promote into them under the right settings).
+		public static final Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(/*BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, EMPEROR,*/ BARON/*, QUEEN*/, BISHOP, DARK_BISHOP));
+		// Princess should be ok, so long as we adhere to gender flags.
+		public static final Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(/*PRINCESS*/));
 		
 		public static final Set<CharacterClass> swordUsers = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, PRINCESS, MASTER_KNIGHT, SWORD_FIGHTER, SWORD_MASTER, FORREST, THIEF,
 				THIEF_FIGHTER, DANCER, SOCIAL_KNIGHT, PALADIN, TROUBADOUR, PALADIN_F, FREE_KNIGHT, FORREST_KNIGHT, SWORD_ARMOR, GENERAL, BARON, EMPEROR, PEGASUS_KNIGHT, FALCON_KNIGHT, DRAGON_RIDER,
@@ -1285,15 +1586,18 @@ public class FE4Data {
 		public static final Set<CharacterClass> A_staffUsers = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, BARON, EMPEROR, HIGH_PRIEST, BISHOP, QUEEN, DARK_BISHOP));
 		
 		public static final Set<CharacterClass> maleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT, PRINCE, AXE_FIGHTER, WARRIOR, BARBARIAN, PIRATE, HUNTER, SWORD_ARMOR, ARMOR, 
-				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, GENERAL, MAGE_FIGHTER, FREE_KNIGHT, FORREST_KNIGHT, PALADIN));
-		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS));
+				AXE_ARMOR, BOW_ARMOR, DRAGON_RIDER, MAGE_FIGHTER, FREE_KNIGHT, FORREST_KNIGHT, PALADIN, MOUNTAIN_THIEF, BISHOP, DARK_MAGE));
+		public static final Set<CharacterClass> femaleOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(PRINCESS, DANCER, TROUBADOUR, PALADIN_F, FALCON_KNIGHT, PEGASUS_KNIGHT, MAGE_FIGHTER_F, LIGHT_PRIESTESS, QUEEN));
 		
 		public static final Set<CharacterClass> noWeaknessClasses = new HashSet<CharacterClass>(Arrays.asList(BOW_FIGHTER, SWORD_FIGHTER, AXE_FIGHTER, JUNIOR_LORD, PRINCE, PRINCESS, PRIEST, MAGE,
 				FIRE_MAGE, THUNDER_MAGE, WIND_MAGE, BARD, LIGHT_PRIESTESS, THIEF, BARBARIAN, MOUNTAIN_THIEF, PIRATE, HUNTER, DARK_MAGE, DANCER, SWORD_MASTER, SNIPER, FORREST, WARRIOR, MAGE_FIGHTER, MAGE_FIGHTER_F, HIGH_PRIEST, 
 				SAGE, THIEF_FIGHTER, QUEEN, BISHOP, DARK_BISHOP));
 		
+		public static final Set<CharacterClass> lordClasses = new HashSet<CharacterClass>(Arrays.asList(JUNIOR_LORD, LORD_KNIGHT));
+		public static final Set<CharacterClass> thiefClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, THIEF_FIGHTER));
+		
 		public static final Set<CharacterClass> pacifistClasses = new HashSet<CharacterClass>(Arrays.asList(PRIEST, DANCER));
-		public static final Set<CharacterClass> healingClasses = new HashSet<CharacterClass>(Arrays.asList(PRIEST, TROUBADOUR, HIGH_PRIEST, PRINCESS));
+		public static final Set<CharacterClass> healingClasses = new HashSet<CharacterClass>(Arrays.asList(PRIEST, TROUBADOUR, PRINCESS));
 		
 		public static final Set<CharacterClass> horsebackClasses = new HashSet<CharacterClass>(Arrays.asList(SOCIAL_KNIGHT, LANCE_KNIGHT, ARCH_KNIGHT, AXE_KNIGHT, FREE_KNIGHT, TROUBADOUR, 
 				LORD_KNIGHT, DUKE_KNIGHT, MASTER_KNIGHT, PALADIN, PALADIN_F, BOW_KNIGHT, FORREST_KNIGHT, MAGE_KNIGHT, GREAT_KNIGHT));
@@ -1303,6 +1607,8 @@ public class FE4Data {
 		public static final Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCH_KNIGHT, BOW_KNIGHT, HUNTER, BOW_ARMOR, BOW_FIGHTER, SNIPER));
 		
 		public static final Set<CharacterClass> advancedClasses = new HashSet<CharacterClass>(Arrays.asList(EMPEROR, QUEEN));
+		
+		public static final Set<CharacterClass> reducedChanceClasses = new HashSet<CharacterClass>(Arrays.asList(MASTER_KNIGHT, EMPEROR, QUEEN, BARON));
 		
 		public int ID;
 		
@@ -1342,6 +1648,10 @@ public class FE4Data {
 		}
 		
 		public Item[] usableItems(List<HolyBloodSlot1> slot1Blood, List<HolyBloodSlot2> slot2Blood, List<HolyBloodSlot3> slot3Blood) {
+			return usableItems(slot1Blood, slot2Blood, slot3Blood, false);
+		}
+		
+		public Item[] usableItems(List<HolyBloodSlot1> slot1Blood, List<HolyBloodSlot2> slot2Blood, List<HolyBloodSlot3> slot3Blood, boolean allowSiegeTomes) {
 			if (slot1Blood == null) { slot1Blood = new ArrayList<HolyBloodSlot1>(); }
 			if (slot2Blood == null) { slot2Blood = new ArrayList<HolyBloodSlot2>(); }
 			if (slot3Blood == null) { slot3Blood = new ArrayList<HolyBloodSlot3>(); }
@@ -1395,6 +1705,10 @@ public class FE4Data {
 				boolean hasMajorBlood = slot3Blood.contains(HolyBloodSlot3.MAJOR_BRAGI);
 				boolean hasMinorBlood = slot3Blood.contains(HolyBloodSlot3.MINOR_BRAGI);
 				addItemsOfTypeAndRank(items, ItemType.STAFF, hasMajorBlood, hasMinorBlood);
+			}
+			
+			if (!allowSiegeTomes) {
+				items.removeAll(Item.siegeTomes);
 			}
 			
 			return items.toArray(new Item[items.size()]);
@@ -1492,24 +1806,34 @@ public class FE4Data {
 			if (blood2 == null) { blood2 = new ArrayList<HolyBloodSlot2>(); }
 			if (blood3 == null) { blood3 = new ArrayList<HolyBloodSlot3>(); }
 			
-			boolean majorSwordBlood = blood1.contains(HolyBloodSlot1.MAJOR_BALDR) || blood2.contains(HolyBloodSlot2.MAJOR_OD) || blood3.contains(HolyBloodSlot3.MAJOR_HEZUL);
-			boolean minorSwordBlood = blood1.contains(HolyBloodSlot1.MINOR_BALDR) || blood2.contains(HolyBloodSlot2.MINOR_OD) || blood3.contains(HolyBloodSlot3.MINOR_HEZUL);
-			boolean majorLanceBlood = blood1.contains(HolyBloodSlot1.MAJOR_DAIN) || blood1.contains(HolyBloodSlot1.MAJOR_NJORUN);
-			boolean minorLanceBlood = blood1.contains(HolyBloodSlot1.MINOR_DAIN) || blood1.contains(HolyBloodSlot1.MINOR_NJORUN);
-			boolean majorAxeBlood = blood2.contains(HolyBloodSlot2.MAJOR_NEIR);
-			boolean minorAxeBlood = blood2.contains(HolyBloodSlot2.MINOR_NEIR);
-			boolean majorBowBlood = blood2.contains(HolyBloodSlot2.MAJOR_ULIR);
-			boolean minorBowBlood = blood2.contains(HolyBloodSlot2.MINOR_ULIR);
-			boolean majorFireBlood = blood2.contains(HolyBloodSlot2.MAJOR_FJALAR);
-			boolean minorFireBlood = blood2.contains(HolyBloodSlot2.MINOR_FJALAR);
-			boolean majorThunderBlood = blood3.contains(HolyBloodSlot3.MAJOR_THRUD);
-			boolean minorThunderBlood = blood3.contains(HolyBloodSlot3.MINOR_THRUD);
-			boolean majorWindBlood = blood3.contains(HolyBloodSlot3.MAJOR_FORSETI);
-			boolean minorWindBlood = blood3.contains(HolyBloodSlot3.MINOR_FORSETI);
-			boolean majorLightBlood = blood1.contains(HolyBloodSlot1.MAJOR_NAGA);
-			boolean minorLightBlood = blood1.contains(HolyBloodSlot1.MINOR_NAGA);
-			boolean majorStaffBlood = blood3.contains(HolyBloodSlot3.MAJOR_BRAGI);
-			boolean minorStaffBlood = blood3.contains(HolyBloodSlot3.MINOR_BRAGI);
+			List<HolyBlood> majorBlood = blood1.stream().filter(blood -> (blood.isMajor())).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
+			majorBlood.addAll(blood2.stream().filter(blood -> (blood.isMajor())).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+			majorBlood.addAll(blood3.stream().filter(blood -> (blood.isMajor())).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			
+			List<HolyBlood> minorBlood = blood1.stream().filter(blood -> (blood.isMajor() == false)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
+			minorBlood.addAll(blood2.stream().filter(blood -> (blood.isMajor() == false)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+			minorBlood.addAll(blood3.stream().filter(blood -> (blood.isMajor() == false)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			
+			boolean majorSwordBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.BALDR, HolyBlood.HEZUL, HolyBlood.OD));
+			boolean minorSwordBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.BALDR, HolyBlood.HEZUL, HolyBlood.OD));
+			boolean majorLanceBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.NJORUN, HolyBlood.DAIN));
+			boolean minorLanceBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.NJORUN, HolyBlood.DAIN));
+			boolean majorAxeBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.NEIR));
+			boolean minorAxeBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.NEIR));
+			boolean majorBowBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.ULIR));
+			boolean minorBowBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.ULIR));
+			boolean majorFireBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.FJALAR));
+			boolean minorFireBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.FJALAR));
+			boolean majorThunderBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.THRUD));
+			boolean minorThunderBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.THRUD));
+			boolean majorWindBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.FORSETI));
+			boolean minorWindBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.FORSETI));
+			boolean majorLightBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.NAGA));
+			boolean minorLightBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.NAGA));
+			boolean majorStaffBlood = !Collections.disjoint(majorBlood, Arrays.asList(HolyBlood.BRAGI));
+			boolean minorStaffBlood = !Collections.disjoint(minorBlood, Arrays.asList(HolyBlood.BRAGI));
+			
+			HolyBlood majorHolyBlood = majorBlood.isEmpty() ? null : majorBlood.get(0);
 			
 			if (weapon.getType() == ItemType.RING) {
 				// Everybody can use rings.
@@ -1517,49 +1841,49 @@ public class FE4Data {
 			}
 			
 			if (weapon.getType() == ItemType.SWORD) {
-				if (majorSwordBlood && swordUsers.contains(this)) { return true; }
+				if (majorSwordBlood && swordUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return swordUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_swordUsers.contains(this) || (swordUsers.contains(this) && minorSwordBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_swordUsers.contains(this) || (B_swordUsers.contains(this) && minorSwordBlood); }
 			}
 			else if (weapon.getType() == ItemType.LANCE) {
-				if (majorLanceBlood && lanceUsers.contains(this)) { return true; }
+				if (majorLanceBlood && lanceUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return lanceUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_lanceUsers.contains(this) || (lanceUsers.contains(this) && minorLanceBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_lanceUsers.contains(this) || (B_lanceUsers.contains(this) && minorLanceBlood); }
 			}
 			else if (weapon.getType() == ItemType.AXE) {
-				if (majorAxeBlood && axeUsers.contains(this)) { return true; }
+				if (majorAxeBlood && axeUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return axeUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_axeUsers.contains(this) || (axeUsers.contains(this) && minorAxeBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_axeUsers.contains(this) || (B_axeUsers.contains(this) && minorAxeBlood); }
 			}
 			else if (weapon.getType() == ItemType.BOW) {
-				if (majorBowBlood && bowUsers.contains(this)) { return true; }
+				if (majorBowBlood && bowUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return bowUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_bowUsers.contains(this) || (bowUsers.contains(this) && minorBowBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_bowUsers.contains(this) || (B_bowUsers.contains(this) && minorBowBlood); }
 			}
 			else if (weapon.getType() == ItemType.FIRE_MAGIC) {
-				if (majorFireBlood && fireUsers.contains(this)) { return true; }
+				if (majorFireBlood && fireUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return fireUsers.contains(this) || (fireUsers.contains(this) && minorFireBlood); }
 				if (weapon.getRank() == WeaponRank.B) { return B_fireUsers.contains(this) || (B_fireUsers.contains(this) && minorFireBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_fireUsers.contains(this); }
 			}
 			else if (weapon.getType() == ItemType.THUNDER_MAGIC) {
-				if (majorThunderBlood && thunderUsers.contains(this)) { return true; }
+				if (majorThunderBlood && thunderUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return thunderUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_thunderUsers.contains(this) || (thunderUsers.contains(this) && minorThunderBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_thunderUsers.contains(this) || (B_thunderUsers.contains(this) && minorThunderBlood); }
 			}
 			else if (weapon.getType() == ItemType.WIND_MAGIC) {
-				if (majorWindBlood && windUsers.contains(this)) { return true; }
+				if (majorWindBlood && windUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return windUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_windUsers.contains(this) || (windUsers.contains(this) && minorWindBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_windUsers.contains(this) || (B_windUsers.contains(this) && minorWindBlood); }
 			}
 			else if (weapon.getType() == ItemType.LIGHT_MAGIC) {
-				if (majorLightBlood && lightUsers.contains(this)) { return true; }
+				if (majorLightBlood && lightUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return lightUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_lightUsers.contains(this) || (lightUsers.contains(this) && minorLightBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_lightUsers.contains(this) || (B_lightUsers.contains(this) && minorLightBlood); }
@@ -1570,7 +1894,7 @@ public class FE4Data {
 				if (weapon.getRank() == WeaponRank.A) { return A_darkUsers.contains(this); }
 			}
 			else if (weapon.getType() == ItemType.STAFF) {
-				if (majorStaffBlood && staffUsers.contains(this)) { return true; }
+				if (majorStaffBlood && staffUsers.contains(this)) { return majorHolyBlood != null ? majorHolyBlood.holyWeapon.ID == weapon.ID : false; }
 				if (weapon.getRank() == WeaponRank.C) { return staffUsers.contains(this); }
 				if (weapon.getRank() == WeaponRank.B) { return B_staffUsers.contains(this) || (staffUsers.contains(this) && minorStaffBlood); }
 				if (weapon.getRank() == WeaponRank.A) { return A_staffUsers.contains(this) || (B_staffUsers.contains(this) && minorStaffBlood); }
@@ -1592,7 +1916,11 @@ public class FE4Data {
 			if (promotedClasses.contains(this)) { workingSet.addAll(promotedClasses); }
 			else { workingSet.addAll(unpromotedClasses); }
 			
-			if (!isEnemy) { workingSet.removeAll(enemyOnlyClasses); }
+			if (!isEnemy) { 
+				workingSet.removeAll(enemyOnlyClasses);
+				// Nobody is going to immediately randomize into advanced classes though.
+				workingSet.removeAll(advancedClasses);
+			}
 			else { workingSet.removeAll(playerOnlyClasses); }
 			
 			if (!allowSame) { workingSet.remove(this); }
@@ -1663,6 +1991,8 @@ public class FE4Data {
 			if (mustUseWeapon != null && (mustUseWeapon.isWeapon() || mustUseWeapon.getType() == Item.ItemType.STAFF)) {
 				Set<CharacterClass> weaponFilter = new HashSet<CharacterClass>();
 				for (CharacterClass charClass : workingSet) {
+					// TODO: Pass holy blood from the character in, if we have it.
+					// Might be a bit dangerous if we go and later change the holy blood to something else though...
 					if (charClass.canUseWeapon(mustUseWeapon, null, null, null)) { weaponFilter.add(charClass); }
 				}
 				
@@ -1687,6 +2017,60 @@ public class FE4Data {
 		
 		public boolean canBeFemale() {
 			return !maleOnlyClasses.contains(this);
+		}
+		
+		public CharacterClass toMale() {
+			if (!femaleOnlyClasses.contains(this)) { return this; }
+			switch (this) {
+			case PRINCESS: return PRINCE;
+			case TROUBADOUR: return SOCIAL_KNIGHT;
+			case PALADIN_F: return PALADIN;
+			case FALCON_KNIGHT: return DRAGON_MASTER;
+			case PEGASUS_KNIGHT: return DRAGON_RIDER;
+			case MAGE_FIGHTER_F: return MAGE_FIGHTER;
+			case LIGHT_PRIESTESS: return BARD;
+			case QUEEN: return EMPEROR;
+			default:
+				// There's no good option for Dancer, so just return Junior Lord or something.
+				if (isPromoted()) { return LORD_KNIGHT; }
+				return JUNIOR_LORD;
+			}
+		}
+		
+		public CharacterClass toFemale() {
+			if (!maleOnlyClasses.contains(this)) { return this; }
+			switch (this) {
+			case JUNIOR_LORD:
+			case PRINCE:
+				return PRINCESS; // Close enough for Junior Lord.
+			case LORD_KNIGHT:
+				return MASTER_KNIGHT;
+			case AXE_FIGHTER:
+			case BARBARIAN:
+			case PIRATE:
+			case MOUNTAIN_THIEF:
+			case AXE_ARMOR:
+				return AXE_KNIGHT;
+			case ARMOR:
+				return LANCE_KNIGHT;
+			case SWORD_ARMOR:
+				return SWORD_FIGHTER;
+			case WARRIOR: return GREAT_KNIGHT;
+			case BOW_ARMOR: return BOW_FIGHTER;
+			case DRAGON_RIDER: return PEGASUS_KNIGHT;
+			case MAGE_FIGHTER: return MAGE_FIGHTER_F;
+			case FREE_KNIGHT: return TROUBADOUR;
+			case FORREST_KNIGHT: 
+			case PALADIN:
+				return PALADIN_F;
+			case BISHOP:
+			case DARK_MAGE:
+				return SAGE;
+			default:
+				// There shouldn't be anything here, but just return Princess or something if we get here.
+				if (isPromoted()) { return MASTER_KNIGHT; }
+				return PRINCESS;
+			}
 		}
 		
 		public static CharacterClass[] filteredClasses(CharacterClass[] classArray, boolean promoted, boolean isFemale) {
@@ -1722,101 +2106,300 @@ public class FE4Data {
 		
 		public CharacterClass[] demotedClasses(boolean isFemale) {
 			if (unpromotedClasses.contains(this)) { return new CharacterClass[] {}; }
+			Set<CharacterClass> classSet = new HashSet<CharacterClass>();
+			
 			switch (this) {
-			case LORD_KNIGHT: return new CharacterClass[] {JUNIOR_LORD};
-			case DUKE_KNIGHT: return new CharacterClass[] {LANCE_KNIGHT};
-			case MASTER_KNIGHT:
-				if (isFemale) {
-					return new CharacterClass[] {PRINCESS};
-				} else {
-					return new CharacterClass[] {PRINCE};
-				}
-			case PALADIN: return new CharacterClass[] {SOCIAL_KNIGHT};
-			case PALADIN_F: return new CharacterClass[] {TROUBADOUR};
-			case BOW_KNIGHT: return new CharacterClass[] {ARCH_KNIGHT};
-			case FORREST_KNIGHT: return new CharacterClass[] {FREE_KNIGHT};
-			case MAGE_KNIGHT: return new CharacterClass[] {MAGE};
-			case GREAT_KNIGHT: return new CharacterClass[] {AXE_KNIGHT};
-			case FALCON_KNIGHT: return new CharacterClass[] {PEGASUS_KNIGHT};
-			case DRAGON_MASTER: 
-				if (isFemale) {
-					return new CharacterClass[] {DRAGON_KNIGHT};
-				} else {
-					return new CharacterClass[] {DRAGON_RIDER, DRAGON_KNIGHT};
-				}
+			case LORD_KNIGHT: classSet.add(JUNIOR_LORD); break;
+			case DUKE_KNIGHT: classSet.add(LANCE_KNIGHT); break;
+			case MASTER_KNIGHT: classSet.add(isFemale ? PRINCESS : PRINCE); break;
+			case PALADIN: classSet.add(SOCIAL_KNIGHT); break;
+			case PALADIN_F: classSet.add(TROUBADOUR); break;
+			case BOW_KNIGHT: classSet.add(ARCH_KNIGHT); break;
+			case FORREST_KNIGHT: classSet.add(FREE_KNIGHT); break;
+			case MAGE_KNIGHT: classSet.add(MAGE); break;
+			case GREAT_KNIGHT: classSet.add(AXE_KNIGHT); break;
+			case FALCON_KNIGHT: classSet.add(PEGASUS_KNIGHT); break;
+			case DRAGON_MASTER:
+				classSet.add(DRAGON_KNIGHT);
+				if (!isFemale) { classSet.add(DRAGON_RIDER); }
+				break;
 			case SWORD_MASTER: 
 			case FORREST:
-				return new CharacterClass[] {SWORD_FIGHTER};
-			case SNIPER: return new CharacterClass[] {BOW_FIGHTER};
-			case GENERAL:
-				return new CharacterClass[] {ARMOR, SWORD_ARMOR, AXE_ARMOR, BOW_ARMOR};
-			case WARRIOR:
-				return new CharacterClass[] {HUNTER, BARBARIAN, MOUNTAIN_THIEF, PIRATE};
+				classSet.add(SWORD_FIGHTER); 
+				break;
+			case SNIPER: classSet.add(BOW_FIGHTER); break;
+			case GENERAL: classSet.addAll(Arrays.asList(ARMOR, SWORD_ARMOR, AXE_ARMOR, BOW_ARMOR)); break;
+			case WARRIOR: classSet.addAll(Arrays.asList(HUNTER, BARBARIAN, MOUNTAIN_THIEF, PIRATE, AXE_FIGHTER)); break;
 			case MAGE_FIGHTER:
 			case MAGE_FIGHTER_F:
-				return new CharacterClass[] {MAGE, FIRE_MAGE, THUNDER_MAGE, WIND_MAGE};
+				classSet.addAll(Arrays.asList(MAGE, FIRE_MAGE, THUNDER_MAGE, WIND_MAGE)); 
+				break;
 			case HIGH_PRIEST:
-			case BISHOP:
-				return new CharacterClass[] {PRIEST};
-			case SAGE: return new CharacterClass[] {BARD, LIGHT_PRIESTESS};
-			case THIEF_FIGHTER: return new CharacterClass[] {THIEF};
-			case DARK_BISHOP: return new CharacterClass[] {DARK_MAGE};
-			default: return new CharacterClass[] {};
+			case BISHOP: classSet.add(PRIEST); break;
+			case SAGE: classSet.addAll(Arrays.asList(BARD, LIGHT_PRIESTESS)); break;
+			case THIEF_FIGHTER: classSet.add(THIEF); break;
+			case DARK_BISHOP: classSet.add(DARK_MAGE); break;
+			default: break;
 			}
+			
+			List<CharacterClass> classList = classSet.stream().map(charClass -> (isFemale ? charClass.toFemale() : charClass.toMale())).distinct().sorted(new Comparator<CharacterClass>() {
+				@Override
+				public int compare(CharacterClass arg0, CharacterClass arg1) {
+					return Integer.compare(arg0.ID, arg1.ID);
+				}
+			}).collect(Collectors.toList());
+			
+			return classList.toArray(new CharacterClass[classList.size()]);
 		}
 		
 		public CharacterClass[] promotionClasses(boolean isFemale) {
 			if (promotedClasses.contains(this)) { return new CharacterClass[] {}; }
+			Set<CharacterClass> classSet = new HashSet<CharacterClass>();
 			switch (this) {
-			case SOCIAL_KNIGHT: 
-				if (isFemale) {
-					return new CharacterClass[] {PALADIN_F};
-				} else {
-					return new CharacterClass[] {PALADIN};
-				}
-			case LANCE_KNIGHT: return new CharacterClass[] {DUKE_KNIGHT}; 
-			case ARCH_KNIGHT: return new CharacterClass[] {BOW_KNIGHT}; 
-			case AXE_KNIGHT: return new CharacterClass[] {GREAT_KNIGHT};
-			case FREE_KNIGHT: return new CharacterClass[] {FORREST_KNIGHT};
-			case TROUBADOUR: return new CharacterClass[] {PALADIN_F}; 
-			case PEGASUS_KNIGHT: return new CharacterClass[] {FALCON_KNIGHT};
+			case SOCIAL_KNIGHT: classSet.add(isFemale ? PALADIN_F : PALADIN); break; 
+			case LANCE_KNIGHT: classSet.add(DUKE_KNIGHT); break; 
+			case ARCH_KNIGHT: classSet.add(BOW_KNIGHT); break;
+			case AXE_KNIGHT: classSet.add(GREAT_KNIGHT); break;
+			case FREE_KNIGHT: classSet.add(FORREST_KNIGHT); break;
+			case TROUBADOUR: classSet.add(PALADIN_F); break; 
+			case PEGASUS_KNIGHT: classSet.add(FALCON_KNIGHT); break;
 			case DRAGON_RIDER:
 			case DRAGON_KNIGHT:
-				return new CharacterClass[] {DRAGON_MASTER};
-			case BOW_FIGHTER: return new CharacterClass[] {SNIPER};
-			case SWORD_FIGHTER: return new CharacterClass[] {SWORD_MASTER, FORREST};
+				classSet.add(DRAGON_MASTER); 
+				break;
+			case BOW_FIGHTER: classSet.add(SNIPER); break;
+			case SWORD_FIGHTER: classSet.addAll(Arrays.asList(SWORD_MASTER, FORREST)); break;
 			case ARMOR:
 			case AXE_ARMOR:
 			case BOW_ARMOR:
 			case SWORD_ARMOR:
-				return new CharacterClass[] {GENERAL};
-			case AXE_FIGHTER: return new CharacterClass[] {WARRIOR};
-			case JUNIOR_LORD: return new CharacterClass[] {LORD_KNIGHT};
-			case PRINCE:
-			case PRINCESS:
-				return new CharacterClass[] {MASTER_KNIGHT};
-			case PRIEST: return new CharacterClass[] {HIGH_PRIEST};
-			case MAGE:
-			case FIRE_MAGE:
-			case THUNDER_MAGE:
-			case WIND_MAGE:
-				if (isFemale) {
-					return new CharacterClass[] {MAGE_KNIGHT, MAGE_FIGHTER_F};	
-				} else {
-					return new CharacterClass[] {MAGE_KNIGHT, MAGE_FIGHTER};
-				}
-			case BARD:
-			case LIGHT_PRIESTESS: 
-				return new CharacterClass[] {SAGE};
-			case THIEF: return new CharacterClass[] {THIEF_FIGHTER};
+				classSet.add(GENERAL);
+				break;
 			case BARBARIAN:
 			case MOUNTAIN_THIEF:
 			case PIRATE:
 			case HUNTER:
-				return new CharacterClass[] {WARRIOR};
-			case DARK_MAGE: return new CharacterClass[] {DARK_BISHOP};
-			default: return new CharacterClass[] {};
+			case AXE_FIGHTER: 
+				classSet.add(WARRIOR);
+				break;
+			case JUNIOR_LORD: classSet.add(LORD_KNIGHT); break;
+			case PRINCE:
+			case PRINCESS:
+				classSet.add(MASTER_KNIGHT);
+				break;
+			case PRIEST: classSet.add(HIGH_PRIEST); break;
+			case MAGE:
+			case FIRE_MAGE:
+			case THUNDER_MAGE:
+			case WIND_MAGE: 
+				classSet.addAll(Arrays.asList(MAGE_KNIGHT, isFemale ? MAGE_FIGHTER_F : MAGE_FIGHTER)); 
+				break;
+			case BARD:
+			case LIGHT_PRIESTESS: 
+				classSet.add(SAGE);
+				break;
+			case THIEF: classSet.add(THIEF_FIGHTER); break;
+			case DARK_MAGE: classSet.add(DARK_BISHOP); break;
+			default: break;
 			}
+			
+			List<CharacterClass> classList = classSet.stream().map(charClass -> (isFemale ? charClass.toFemale() : charClass.toMale())).distinct().sorted(new Comparator<CharacterClass>() {
+				@Override
+				public int compare(CharacterClass arg0, CharacterClass arg1) {
+					return Integer.compare(arg0.ID, arg1.ID);
+				}
+			}).collect(Collectors.toList());
+			
+			return classList.toArray(new CharacterClass[classList.size()]);
+		}
+		
+		public CharacterClass[] getLoosePromotionOptions(boolean isFemale, boolean includeAlternateMounts, boolean includeEnemyClasses, List<HolyBloodSlot1> slot1Blood, List<HolyBloodSlot2> slot2Blood, List<HolyBloodSlot3> slot3Blood) {
+			List<CharacterClass> resultList = new ArrayList<CharacterClass>();
+			
+			if (slot1Blood == null) { slot1Blood = new ArrayList<HolyBloodSlot1>(); }
+			if (slot2Blood == null) { slot2Blood = new ArrayList<HolyBloodSlot2>(); }
+			if (slot3Blood == null) { slot3Blood = new ArrayList<HolyBloodSlot3>(); }
+			
+			switch (this) {
+			case SOCIAL_KNIGHT:
+				resultList.add(isFemale ? PALADIN_F : PALADIN);
+				if (!isFemale) { resultList.add(LORD_KNIGHT); }
+				resultList.add(MASTER_KNIGHT);
+				if (includeAlternateMounts) {
+					resultList.add(DRAGON_MASTER);
+					if (isFemale) { resultList.add(FALCON_KNIGHT); }
+				}
+				break;
+			case LANCE_KNIGHT:
+				if (!isFemale) { resultList.addAll(Arrays.asList(PALADIN, LORD_KNIGHT)); }
+				resultList.addAll(Arrays.asList(DUKE_KNIGHT, MASTER_KNIGHT));
+				if (isFemale && (slot1Blood.contains(HolyBloodSlot1.MAJOR_DAIN) || slot1Blood.contains(HolyBloodSlot1.MAJOR_NJORUN))) { resultList.add(PALADIN_F); }
+				if (includeAlternateMounts) {
+					resultList.add(DRAGON_MASTER);
+					if (isFemale) { resultList.add(FALCON_KNIGHT); }
+				}
+				break;
+			case ARCH_KNIGHT:
+				resultList.addAll(Arrays.asList(BOW_KNIGHT, MASTER_KNIGHT));
+				break;
+			case AXE_KNIGHT:
+				resultList.addAll(Arrays.asList(GREAT_KNIGHT, MASTER_KNIGHT));
+				break;
+			case FREE_KNIGHT:
+				assert !isFemale : "Free Knights can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(FORREST_KNIGHT, PALADIN, LORD_KNIGHT, MASTER_KNIGHT));
+				if (includeAlternateMounts) { resultList.add(DRAGON_MASTER); }
+				break;
+			case TROUBADOUR:
+				assert isFemale : "Troubadours can only be loosely promoted by females.";
+				resultList.addAll(Arrays.asList(PALADIN_F, MASTER_KNIGHT));
+				if (includeAlternateMounts) { resultList.add(FALCON_KNIGHT); }
+				break;
+			case PEGASUS_KNIGHT:
+				assert isFemale : "Pegasus Knights can only be loosely promoted by females.";
+				resultList.add(FALCON_KNIGHT);
+				if (includeAlternateMounts) { resultList.add(MASTER_KNIGHT); }
+				break;
+			case DRAGON_RIDER:
+				assert !isFemale : "Dragon Rider can only be loosely promoted by males.";
+				resultList.add(DRAGON_MASTER);
+				if (includeAlternateMounts) { resultList.addAll(Arrays.asList(PALADIN, MASTER_KNIGHT)); }
+				break;
+			case DRAGON_KNIGHT:
+				resultList.add(DRAGON_MASTER);
+				if (includeAlternateMounts) { 
+					resultList.add(MASTER_KNIGHT);
+				}
+				break;
+			case BOW_FIGHTER:
+				resultList.addAll(Arrays.asList(SNIPER, MASTER_KNIGHT));
+				break;
+			case SWORD_FIGHTER:
+				resultList.addAll(Arrays.asList(SWORD_MASTER, FORREST, MASTER_KNIGHT));
+				break;
+			case ARMOR:
+				assert !isFemale : "Armors can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(GENERAL, DRAGON_MASTER, MASTER_KNIGHT));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, EMPEROR)); }
+				break;
+			case AXE_ARMOR:
+				assert !isFemale : "Axe Armors can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(GENERAL, GREAT_KNIGHT, MASTER_KNIGHT));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, EMPEROR)); }
+				break;
+			case BOW_ARMOR:
+				assert !isFemale : "Bow Armors can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(GENERAL, MASTER_KNIGHT));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, EMPEROR)); }
+				break;
+			case SWORD_ARMOR:
+				assert !isFemale : "Sword Armors can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(GENERAL, DRAGON_MASTER, MASTER_KNIGHT));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, EMPEROR)); }
+				break;
+			case AXE_FIGHTER:
+				assert !isFemale : "Axe Fighters can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(WARRIOR, MASTER_KNIGHT));
+				break;
+			case JUNIOR_LORD:
+				assert !isFemale : "Junior Lords can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(PALADIN, LORD_KNIGHT, FORREST_KNIGHT, DRAGON_MASTER, FORREST, SWORD_MASTER, THIEF_FIGHTER, MAGE_KNIGHT, MASTER_KNIGHT));
+				if (slot1Blood.contains(HolyBloodSlot1.MAJOR_BALDR) || slot2Blood.contains(HolyBloodSlot2.MAJOR_OD) || slot3Blood.contains(HolyBloodSlot3.MAJOR_HEZUL)) {
+					resultList.add(MAGE_FIGHTER);
+				}
+				break;
+			case PRINCE:
+				assert !isFemale : "Princes can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(LORD_KNIGHT, FORREST_KNIGHT, DRAGON_MASTER, FORREST, SWORD_MASTER, MASTER_KNIGHT));
+				if (slot1Blood.contains(HolyBloodSlot1.MINOR_BALDR) || slot1Blood.contains(HolyBloodSlot1.MAJOR_BALDR) ||
+						slot2Blood.contains(HolyBloodSlot2.MINOR_OD) || slot2Blood.contains(HolyBloodSlot2.MAJOR_OD) ||
+						slot3Blood.contains(HolyBloodSlot3.MINOR_HEZUL) || slot3Blood.contains(HolyBloodSlot3.MAJOR_HEZUL)) {
+					resultList.add(PALADIN);
+				}
+				break;
+			case PRINCESS:
+				assert isFemale : "Princesses can only be loosely promoted by females.";
+				resultList.addAll(Arrays.asList(PALADIN_F, FALCON_KNIGHT, MASTER_KNIGHT));
+				break;
+			case PRIEST:
+				resultList.addAll(Arrays.asList(HIGH_PRIEST, SAGE, MASTER_KNIGHT));
+				if (isFemale && slot3Blood.contains(HolyBloodSlot3.MAJOR_BRAGI)) { resultList.add(FALCON_KNIGHT); }
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, DARK_BISHOP, EMPEROR)); }
+				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
+				break;
+			case MAGE:
+				resultList.addAll(Arrays.asList(SAGE, MAGE_KNIGHT, MASTER_KNIGHT, (isFemale ? MAGE_FIGHTER_F : MAGE_FIGHTER)));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(BARON, DARK_BISHOP, EMPEROR)); }
+				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
+				break;
+			case FIRE_MAGE:
+				resultList.addAll(Arrays.asList(SAGE, MAGE_KNIGHT, MASTER_KNIGHT, (isFemale ? MAGE_FIGHTER_F : MAGE_FIGHTER)));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(DARK_BISHOP, EMPEROR)); }
+				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
+				break;
+			case THUNDER_MAGE:
+			case WIND_MAGE:
+				resultList.addAll(Arrays.asList(SAGE, MASTER_KNIGHT, (isFemale ? MAGE_FIGHTER_F : MAGE_FIGHTER)));
+				if (includeEnemyClasses) { resultList.addAll(Arrays.asList(DARK_BISHOP, EMPEROR)); }
+				if (isFemale && includeEnemyClasses) { resultList.add(QUEEN); }
+				break;
+			case BARD:
+				resultList.addAll(Arrays.asList(SAGE, MASTER_KNIGHT));
+				break;
+			case LIGHT_PRIESTESS:
+				assert isFemale : "Light Priestess can only be loosely promoted by females.";
+				resultList.add(SAGE);
+				break;
+			case THIEF:
+				resultList.add(THIEF_FIGHTER);
+				break;
+			case DARK_MAGE:
+				assert !isFemale : "Dark Mages can only be loosely promoted by males.";
+				resultList.add(DARK_BISHOP);
+				break;
+			case HUNTER:
+				assert !isFemale : "Hunters can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(SNIPER, BOW_KNIGHT, MASTER_KNIGHT));
+				if (slot2Blood.contains(HolyBloodSlot2.MINOR_ULIR) || slot2Blood.contains(HolyBloodSlot2.MAJOR_ULIR)) { resultList.add(WARRIOR); }
+				break;
+			case MOUNTAIN_THIEF:
+			case PIRATE:
+			case BARBARIAN:
+				assert !isFemale : "Mountain Thieves, Barbarians, and Pirates can only be loosely promoted by males.";
+				resultList.addAll(Arrays.asList(WARRIOR, GREAT_KNIGHT, MASTER_KNIGHT));
+				break;
+			default:
+				break;
+			}
+			
+			if (resultList.isEmpty()) {
+				return promotionClasses(isFemale);
+			}
+			
+			return resultList.toArray(new CharacterClass[resultList.size()]);
+		}
+		
+		public CharacterClass[] sharedWeaponPromotions(boolean isFemale) {
+			Set<CharacterClass> promotions = new HashSet<CharacterClass>();
+			if (swordUsers.contains(this)) { promotions.addAll(swordUsers); }
+			if (lanceUsers.contains(this)) { promotions.addAll(lanceUsers); }
+			if (axeUsers.contains(this)) { promotions.addAll(axeUsers); }
+			if (bowUsers.contains(this)) { promotions.addAll(bowUsers); }
+			if (fireUsers.contains(this)) { promotions.addAll(fireUsers); }
+			if (thunderUsers.contains(this)) { promotions.addAll(thunderUsers); }
+			if (windUsers.contains(this)) { promotions.addAll(windUsers); }
+			if (lightUsers.contains(this)) { promotions.addAll(lightUsers); }
+			if (darkUsers.contains(this)) { promotions.addAll(darkUsers); }
+			if (staffUsers.contains(this)) { promotions.addAll(staffUsers); }
+			
+			promotions.removeAll(unpromotedClasses);
+			if (isFemale) {
+				promotions.removeAll(maleOnlyClasses);
+			} else {
+				promotions.removeAll(femaleOnlyClasses);
+			}
+			
+			return promotions.toArray(new CharacterClass[promotions.size()]);
 		}
 	}
 	
@@ -1867,6 +2450,13 @@ public class FE4Data {
 		CIRCLET(0x89)
 		;
 		
+		public static Comparator<Item> defaultComparator = new Comparator<Item>() {
+			@Override
+			public int compare(Item o1, Item o2) {
+				return Integer.compare(o1.ID, o2.ID);
+			}
+		};
+		
 		public static final Set<Item> swords = new HashSet<Item>(Arrays.asList(IRON_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, MIRACLE_SWORD,
 				THIEF_SWORD, BARRIER_BLADE, BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD,
 				SAFEGUARD, FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, MYSTLETAINN, TYRFING,
@@ -1913,10 +2503,10 @@ public class FE4Data {
 		public static final Set<Item> interestingWeapons = new HashSet<Item>(Arrays.asList(MIRACLE_SWORD, THIEF_SWORD,
 				BARRIER_BLADE, BERSERK_SWORD, BRAVE_SWORD, SILENCE_SWORD, SLEEP_SWORD, SLIM_SWORD, SAFEGUARD,
 				FLAME_SWORD, EARTH_SWORD, LEVIN_SWORD, WIND_SWORD, LIGHT_BRAND, ARMORSLAYER, WING_CLIPPER, BRAVE_AXE, 
-				BRAVE_LANCE, HORSESLAYER, BRAVE_BOW, KILLER_BOW, NOSFERATU));
+				BRAVE_LANCE, HORSESLAYER, BRAVE_BOW, KILLER_BOW, NOSFERATU, HEL));
 		
 		public static final Set<Item> powerfulWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, STEEL_BLADE, SILVER_BLADE, SILVER_LANCE,
-				SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, AURA));
+				SILVER_AXE, SILVER_BOW, BOLGANONE, THORON, TORNADO, AURA, FENRIR));
 		
 		public static final Set<Item> ironSet = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_BLADE, SLIM_SWORD, IRON_LANCE, SLIM_LANCE, IRON_AXE, IRON_BOW, FIRE, WIND, THUNDER, LIGHT, YOTSMUNGAND, HEAL));
 		public static final Set<Item> steelSet = new HashSet<Item>(Arrays.asList(STEEL_SWORD, STEEL_BLADE, STEEL_LANCE, STEEL_AXE, STEEL_BOW, ELFIRE, ELTHUNDER, ELWIND, LIGHT, YOTSMUNGAND, MEND));
@@ -1966,7 +2556,18 @@ public class FE4Data {
 		}
 		
 		public enum WeaponRank {
-			NONE, C, B, A, PRF
+			NONE, C, B, A, PRF;
+			
+			public boolean isHigher(WeaponRank other) {
+				switch (this) {
+				case NONE:
+				case C: return false;
+				case B: return other == C;
+				case A: return other == C || other == B;
+				case PRF: return other != PRF;
+				default: return false;
+				}
+			}
 		}
 		
 		public enum ItemType {
@@ -2447,8 +3048,35 @@ public class FE4Data {
 		private HolyBlood(Item weapon, Item.ItemType type) { this.holyWeapon = weapon; this.weaponType = type; }
 		
 		// They're not IDs because they're not referenced this way, but they are stored in data in this order.
-		public static HolyBlood[] orderedByDataTable() {
-			return new HolyBlood[] {BALDR, NAGA, DAIN, NJORUN, OD, ULIR, NEIR, FJALAR, THRUD, FORSETI, BRAGI, HEZUL, LOPTOUS};
+		public static List<HolyBlood> orderedByDataTable() {
+			return new ArrayList<HolyBlood>(Arrays.asList(BALDR, NAGA, DAIN, NJORUN, OD, ULIR, NEIR, FJALAR, THRUD, FORSETI, BRAGI, HEZUL, LOPTOUS));
+		}
+		
+		public static Comparator<HolyBlood> defaultComparator = new Comparator<HolyBlood>() {
+			@Override
+			public int compare(HolyBlood o1, HolyBlood o2) {
+				return Integer.compare(orderedByDataTable().indexOf(o1), orderedByDataTable().indexOf(o2));
+			}
+		};
+		
+		public CharacterClass[] classPool() {
+			switch (this) {
+			case BALDR:
+			case OD:
+			case HEZUL:
+				return CharacterClass.swordUsers.toArray(new CharacterClass[CharacterClass.swordUsers.size()]);
+			case NJORUN:
+			case DAIN:
+				return CharacterClass.lanceUsers.toArray(new CharacterClass[CharacterClass.lanceUsers.size()]);
+			case NEIR: CharacterClass.axeUsers.toArray(new CharacterClass[CharacterClass.axeUsers.size()]);
+			case FJALAR: CharacterClass.fireUsers.toArray(new CharacterClass[CharacterClass.fireUsers.size()]);
+			case THRUD: CharacterClass.thunderUsers.toArray(new CharacterClass[CharacterClass.thunderUsers.size()]);
+			case FORSETI: CharacterClass.windUsers.toArray(new CharacterClass[CharacterClass.windUsers.size()]);
+			case NAGA: CharacterClass.lightUsers.toArray(new CharacterClass[CharacterClass.lightUsers.size()]);
+			case LOPTOUS: CharacterClass.darkUsers.toArray(new CharacterClass[CharacterClass.darkUsers.size()]);
+			case BRAGI: CharacterClass.staffUsers.toArray(new CharacterClass[CharacterClass.staffUsers.size()]);
+			default: return new CharacterClass[] {};
+			}
 		}
 	}
 	
@@ -2806,7 +3434,7 @@ public class FE4Data {
 		CHAPTER_5(new HashSet<Integer>(Arrays.asList())), 
 		CHAPTER_6(new HashSet<Integer>(Arrays.asList())), 
 		CHAPTER_7(new HashSet<Integer>(Arrays.asList(0x21, 0x51, 0x69))), 
-		CHAPTER_8(new HashSet<Integer>(Arrays.asList(0x34))), 
+		CHAPTER_8(new HashSet<Integer>(Arrays.asList())), 
 		CHAPTER_9(new HashSet<Integer>(Arrays.asList())), 
 		CHAPTER_10(new HashSet<Integer>(Arrays.asList()));
 		

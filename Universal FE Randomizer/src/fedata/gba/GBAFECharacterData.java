@@ -1,20 +1,30 @@
 package fedata.gba;
 
+import fedata.general.FELockableData;
 import fedata.general.FEModifiableData;
 
-public interface GBAFECharacterData extends FEModifiableData {
+public interface GBAFECharacterData extends FEModifiableData, FELockableData {
 	
 	public Boolean isClassRestricted();
 	
-	// Info
+	public GBAFECharacterData createCopy(boolean useOriginalData);
 	
+	// Info
 	public int getNameIndex();
+	public void setNameIndex(int nameIndex);
+	
 	public int getDescriptionIndex();
+	public void setDescriptionIndex(int descriptionIndex);
 	
 	public int getID();
 	
 	public int getClassID();
 	public void setClassID(int classID);
+	
+	public int getFaceID();
+	public void setFaceID(int faceID);
+	
+	public int getLevel();
 	
 	// Growths
 	
@@ -95,6 +105,11 @@ public interface GBAFECharacterData extends FEModifiableData {
 	public int getAffinityValue();
 	public void setAffinityValue(int newAffinity);
 	public String getAffinityName();
+	
+	public int getUnpromotedPaletteIndex();
+	public void setUnpromotedPaletteIndex(int newIndex);
+	public int getPromotedPaletteIndex();
+	public void setPromotedPaletteIndex(int newIndex);
 	
 	public void prepareForClassRandomization();
 	

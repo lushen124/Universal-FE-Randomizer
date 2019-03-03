@@ -36,6 +36,18 @@ public class FE6ChapterUnit implements GBAFEChapterUnitData {
 		data[1] = (byte)(classID & 0xFF);
 		wasModified = true;
 	}
+	
+	public int getStartingLevel() {
+		// Level and alliance are stored in byte 3, but we need to interpret it properly.
+		// LLLL LENA
+		// L = Level (5 bits, 0 - 31)
+		// E = Set if enemy
+		// N = Set if NPC
+		// A = Set if autolevel
+		// Note: playable characters are defined as not enemies and not NPCs.
+		int value = data[3] & 0xFF;
+		return value >> 3;
+	}
 
 	@Override
 	public int getLeaderID() {
@@ -48,6 +60,16 @@ public class FE6ChapterUnit implements GBAFEChapterUnitData {
 
 	public int getLoadingY() {
 		return data[5] & 0xFF;
+	}
+	
+	public void setLoadingX(int newX) {
+		data[4] = (byte)(newX & 0xFF);
+		wasModified = true;
+	}
+	
+	public void setLoadingY(int newY) {
+		data[5] = (byte)(newY & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getStartingX() {
@@ -107,6 +129,7 @@ public class FE6ChapterUnit implements GBAFEChapterUnitData {
 	public void giveItems(int[] itemIDs) {
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
 		for (int i = 0; i < itemIDs.length; i++) {
+			if (getItem1() == itemIDs[i] || getItem2() == itemIDs[i] || getItem3() == itemIDs[i] || getItem4() == itemIDs[i]) { continue; }
 			workingIDs.add(itemIDs[i]);
 		}
 		

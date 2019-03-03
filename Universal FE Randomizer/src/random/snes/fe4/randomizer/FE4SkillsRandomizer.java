@@ -309,6 +309,8 @@ public class FE4SkillsRandomizer {
 			DebugPrinter.log(DebugPrinter.Key.FE4_SKILL_RANDOM, String.format("%s: %.2f%%", skill.toString(), skillDistributor.chanceOfResult(skill) * 100));	
 		}
 		
+		Map<FE4Data.Character, List<FE4Data.Skill>> predeterminedSkills = new HashMap<FE4Data.Character, List<FE4Data.Skill>>();
+		
 		// Gen 1
 		List<FE4StaticCharacter> gen1Characters = charData.getGen1Characters();
 		for (FE4StaticCharacter staticChar : gen1Characters) {
@@ -322,7 +324,16 @@ public class FE4SkillsRandomizer {
 				numberOfSkills = skillCountDistributor.getRandomItem(rng);
 			}
 			
-			assignSkillsToStaticCharacter(options, staticChar, fe4Char, numberOfSkills, skillDistributor, rng);
+			List<FE4Data.Skill> skillsAssigned = predeterminedSkills.get(fe4Char); 
+			if (skillsAssigned != null) {
+				assignSkillsToStaticCharacter(staticChar, skillsAssigned);
+			} else {
+				skillsAssigned = assignSkillsToStaticCharacter(options, staticChar, fe4Char, numberOfSkills, skillDistributor, rng);
+			
+				for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
+					predeterminedSkills.put(linked, skillsAssigned);
+				}
+			}
 		}
 		
 		// Gen 2 (Common and Substitutes only)
@@ -339,7 +350,16 @@ public class FE4SkillsRandomizer {
 				numberOfSkills = skillCountDistributor.getRandomItem(rng);
 			}
 			
-			assignSkillsToStaticCharacter(options, staticChar, fe4Char, numberOfSkills, skillDistributor, rng);
+			List<FE4Data.Skill> skillsAssigned = predeterminedSkills.get(fe4Char); 
+			if (skillsAssigned != null) {
+				assignSkillsToStaticCharacter(staticChar, skillsAssigned);
+			} else {
+				skillsAssigned = assignSkillsToStaticCharacter(options, staticChar, fe4Char, numberOfSkills, skillDistributor, rng);
+			
+				for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
+					predeterminedSkills.put(linked, skillsAssigned);
+				}
+			}
 		}
 	}
 	
@@ -411,12 +431,12 @@ public class FE4SkillsRandomizer {
 		return skillDistributor;
 	}
 	
-	private static void assignSkillsToStaticCharacter(SkillsOptions options, FE4StaticCharacter staticChar, FE4Data.Character fe4Char, int numberOfSkills, WeightedDistributor<FE4Data.Skill> skillDistributor, Random rng) {
+	private static List<FE4Data.Skill> assignSkillsToStaticCharacter(SkillsOptions options, FE4StaticCharacter staticChar, FE4Data.Character fe4Char, int numberOfSkills, WeightedDistributor<FE4Data.Skill> skillDistributor, Random rng) {
 		staticChar.setSkillSlot1Value(0);
 		staticChar.setSkillSlot2Value(0);
 		staticChar.setSkillSlot3Value(0);
 		
-		if (numberOfSkills == 0) { return; }
+		if (numberOfSkills == 0) { return new ArrayList<FE4Data.Skill>(); }
 		
 		boolean assignPursuit = false;
 		if (options.skillWeights.pursuitChance > 0) {
@@ -444,6 +464,12 @@ public class FE4SkillsRandomizer {
 			if (workingSkillDistributor.possibleResults().isEmpty()) { break; }
 		}
 		
+		assignSkillsToStaticCharacter(staticChar, skillsGiven);
+		
+		return skillsGiven;
+	}
+	
+	private static void assignSkillsToStaticCharacter(FE4StaticCharacter staticChar, List<FE4Data.Skill> skillsGiven) {
 		List<FE4Data.SkillSlot1> slot1Skills = new ArrayList<FE4Data.SkillSlot1>();
 		List<FE4Data.SkillSlot2> slot2Skills = new ArrayList<FE4Data.SkillSlot2>();
 		List<FE4Data.SkillSlot3> slot3Skills = new ArrayList<FE4Data.SkillSlot3>();

@@ -45,7 +45,7 @@ public class FE6Chapter implements GBAFEChapterData {
 	
 	private CharacterNudge[] nudges;
 	
-	public FE6Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple) {
+	public FE6Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, CharacterNudge[] nudgesRequired) {
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
 		for (int classID : blacklistedClassIDs) {
@@ -81,6 +81,8 @@ public class FE6Chapter implements GBAFEChapterData {
 		
 		knownAllyIDs = new HashSet<Integer>();
 		knownEnemyIDs = new HashSet<Integer>();
+		
+		nudges = nudgesRequired;
 		
 		loadUnits(handler);
 		loadRewards(handler);
@@ -154,6 +156,10 @@ public class FE6Chapter implements GBAFEChapterData {
 			for (GBAFEChapterUnitData unit : allUnits()) {
 				if (unit.getCharacterNumber() == nudge.getCharacterID() && unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getStartingX() + ", " + unit.getStartingY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+					if (unit.getStartingX() == unit.getLoadingX() && unit.getStartingY() == unit.getLoadingY()) { 
+						unit.setLoadingX(nudge.getNewX());
+						unit.setLoadingY(nudge.getNewY());
+					}
 					unit.setStartingX(nudge.getNewX());
 					unit.setStartingY(nudge.getNewY());
 				}

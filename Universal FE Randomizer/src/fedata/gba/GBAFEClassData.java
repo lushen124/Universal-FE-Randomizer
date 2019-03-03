@@ -58,6 +58,15 @@ public interface GBAFEClassData extends FEModifiableData {
 	public int getMaxRES();
 	public int getMaxLCK();
 	
+	// Promo Bonuses
+	
+	public int getPromoHP();
+	public int getPromoSTR();
+	public int getPromoSKL();
+	public int getPromoSPD();
+	public int getPromoDEF();
+	public int getPromoRES();
+	
 	// Weapon Ranks
 	
 	public int getSwordRank();

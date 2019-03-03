@@ -449,12 +449,12 @@ public class FE8Item implements GBAFEItemData {
 		if ((getAbility1() & Ability1Mask.MAGIC_DAMAGE.ID) != 0) { traitStrings.add("Targets Res"); shortStrings.put("Targets Res", "Magic"); }
 		
 		if ((getAbility2() & Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) != 0) {
-			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong vs Lances"); shortStrings.put("Strong vs Lances", "Bests lances"); }
-			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong vs Axes"); shortStrings.put("Strong vs Axes", "Bests axes"); }
-			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong vs Swords"); shortStrings.put("Strong vs Swords", "Bests Swords"); }
-			else if (getType() == WeaponType.ANIMA) { traitStrings.add("Strong vs Dark"); shortStrings.put("Strong vs Dark", "Bests Dark"); }
-			else if (getType() == WeaponType.LIGHT) { traitStrings.add("Strong vs Anima"); shortStrings.put("Strong vs Anima", "Bests Anima"); }
-			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong vs Light"); shortStrings.put("Strong vs Light", "Bests Light"); }
+			if (getType() == WeaponType.SWORD) { traitStrings.add("Strong v. Lances"); shortStrings.put("Strong v. Lances", "Bests lances"); }
+			else if (getType() == WeaponType.LANCE) { traitStrings.add("Strong v. Axes"); shortStrings.put("Strong v. Axes", "Bests axes"); }
+			else if (getType() == WeaponType.AXE) { traitStrings.add("Strong v. Swords"); shortStrings.put("Strong v. Swords", "Bests Swords"); }
+			else if (getType() == WeaponType.ANIMA) { traitStrings.add("Strong v. Dark"); shortStrings.put("Strong v. Dark", "Bests Dark"); }
+			else if (getType() == WeaponType.LIGHT) { traitStrings.add("Strong v. Anima"); shortStrings.put("Strong v. Anima", "Bests Anima"); }
+			else if (getType() == WeaponType.DARK) { traitStrings.add("Strong v. Light"); shortStrings.put("Strong v. Light", "Bests Light"); }
 		}
 		
 		if (getWeaponEffect() == FE8Data.Item.WeaponEffect.POISON.ID) { traitStrings.add("Poisons on hit"); shortStrings.put("Poisons on hit", "Poison"); }

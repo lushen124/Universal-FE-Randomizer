@@ -1,8 +1,29 @@
 package util;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class WhyDoesJavaNotHaveThese {
+	
+	public static enum ComparatorResult {
+		SECOND_GREATER, EQUAL, FIRST_GREATER;
+		
+		public int returnValue() {
+			switch (this) {
+			case FIRST_GREATER: return 1;
+			case EQUAL: return 0;
+			case SECOND_GREATER: return -1;
+			default: return 0;
+			}
+		}
+	}
+	
+	public static final Comparator<Integer> ascendingIntegerComparator = new Comparator<Integer>() {
+		@Override
+		public int compare(Integer arg0, Integer arg1) {
+			return arg0 > arg1 ? ComparatorResult.FIRST_GREATER.returnValue() : (arg0 == arg1 ? ComparatorResult.EQUAL.returnValue() : ComparatorResult.SECOND_GREATER.returnValue());
+		}
+	};
 
 	public static int clamp(int value, int min, int max) {
 		return Math.min(max, Math.max(min, value));
@@ -100,5 +121,14 @@ public class WhyDoesJavaNotHaveThese {
 		result[3] = (byte)((actualOffset >> 24) & 0xFF);
 		
 		return result;
+	}
+	
+	public static void copyBytesIntoByteArrayAtIndex(byte[] source, byte[] destination, int offset, int copyLength) {
+		assert destination.length >= copyLength + offset : "Attempted to copy source into destination with insufficient space";
+		assert copyLength <= source.length : "Copy length is too large for source array";
+		
+		for (int i = 0; i < copyLength; i++) {
+			destination[offset + i] = source[i];
+		}
 	}
 }

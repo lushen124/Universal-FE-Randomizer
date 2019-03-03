@@ -247,31 +247,27 @@ public class HolyBloodView extends Composite {
 		if (options == null) {
 			// Shouldn't happen.
 		} else {
-			if (options.randomizeGrowthBonuses) {
-				randomizeGrowthBonusesButton.setSelection(true);
-				growthBonusTotalSpinner.setEnabled(true);
-				growthBonusTotalSpinner.setSelection(options.growthTotal);
-			}
+			randomizeGrowthBonusesButton.setSelection(options.randomizeGrowthBonuses);
+			growthBonusTotalSpinner.setEnabled(options.randomizeGrowthBonuses);
+			growthBonusTotalSpinner.setSelection(options.growthTotal);
 			
 			randomizeHolyWeaponBonusesButton.setSelection(options.randomizeWeaponBonuses);
-			
-			if (options.giveHolyBlood) {
-				giveHolyBlood.setSelection(true);
+
+			giveHolyBlood.setSelection(options.giveHolyBlood);
 				
-				matchClass.setEnabled(true);
-				majorBloodChance.setEnabled(true);
-				minorBloodChance.setEnabled(true);
+			matchClass.setEnabled(options.giveHolyBlood);
+			majorBloodChance.setEnabled(options.giveHolyBlood);
+			minorBloodChance.setEnabled(options.giveHolyBlood);
 				
-				majorBloodLabel.setEnabled(true);
-				minorBloodLabel.setEnabled(true);
-				noBloodLabel.setEnabled(true);
+			majorBloodLabel.setEnabled(options.giveHolyBlood);
+			minorBloodLabel.setEnabled(options.giveHolyBlood);
+			noBloodLabel.setEnabled(options.giveHolyBlood);
 				
-				matchClass.setSelection(options.matchClass);
+			matchClass.setSelection(options.matchClass);
 				
-				majorBloodChance.setSelection(options.majorBloodChance);
-				minorBloodChance.setSelection(options.minorBloodChance);
-				noBloodChance.setSelection(100 - options.majorBloodChance - options.minorBloodChance);
-			}
+			majorBloodChance.setSelection(options.majorBloodChance);
+			minorBloodChance.setSelection(options.minorBloodChance);
+			noBloodChance.setSelection(100 - options.majorBloodChance - options.minorBloodChance);
 		}
 	}
 }

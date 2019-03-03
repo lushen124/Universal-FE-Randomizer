@@ -1,20 +1,8 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-### Latest Version: 0.7.5
-#### Additions
-* Added the ability to resize the window vertically, if necessary.
-#### Changes
-* Removed Bard from the Male-only class list (female bards work, apparently).
-* Added Paladin to the Male-only class list (female cavs will always promote to the female variant of the Paladin)
-#### Bugfixes
-* Removed Axe Armor from the A rank axe users list.
-* Moved Dragon Rider from B Swords/B Lances to C Swords/C Lances as they're supposed to be.
-* Fixed an issue where Quan and Ethlyn could end up with one less skill than intended.
-* Fixed an issue where Weapon Effects settings were not being resotred properly for GBA games.
-* Fixed a crash that could happen when restoring GBA settings.
-* Fixed an issue with item assignment in FE8 for monster classes that use human weapons.
+# Latest Version: 0.8.0
 
-* * *
+## Introduction
 
 Properly universal this time. Those of you that used the original may recall that it supported all the GBA FEs, but was locked to Windows machines, mostly because I wrote it in Visual Basic, which has zero cross compatability. This time around, we're taking the opposite approach and starting with a single game first, but working on the three major desktop platforms.
 
@@ -27,23 +15,33 @@ And hey, name change! It's actually perfect in a lot of ways because it encapsul
   <i>That's Yune!</i>
 </p>
 
+## Compatability
+* <a href="#fe4">Fire Emblem: Genealogy of the Holy War (aka FE4 or ファイアーエムブレム　聖戦の系譜)</a>
+* <a href="#gbafe">Fire Emblem: Binding Blade (aka FE6 or ファイアーエムブレム　封印の剣)</a>
+* <a href="#gbafe">Fire Emblem: Blazing Sword (aka FE7 or ファイアーエムブレム 烈火の剣)</a>
+* <a href="#gbafe">Fire Emblem: The Sacred Stones (aka FE8 or ファイアーエムブレム 聖魔の光石)</a>
+
+Note that FE4 and FE6 require clean JP versions of those games. The randomizer will do a cheksum comparison to make sure of this. A Checksum failure error indicates an altered or otherwise invalid file. Additionally, FE4 is ok with either a Headered version of the ROM or an Unheadered version.
+
+FE7 and FE8 currently require US versions of those games. Like above, a cheksum comparison will be performed to make sure the game is valid for randomization.
+
 ## Installation
 Executables are found in the above executables folder and are separated by platform. The raw JAR file is available if you want to run it directly, but MacOS and Windows users also have the option of using an executable that generally makes things easier to launch.
 
 ### Windows
-![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows.png)
-
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20Windows.jar
+https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20Windows%20(x86).jar
 
 Executable:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Windows/Yune.exe
+https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Windows/Yune%20(x86).exe
 
 **Requirements**: JRE >= 1.8.0. I was thinking about bundling this into the executable, but that's just a massive waste of space, and most of you probably can get JRE relatively easily. And if you can't, here you to: http://www.oracle.com/technetwork/java/javase/downloads/index.html. I've only tested this with Windows 10, but I don't see why older versions of Windows would be excluded so long as you have JRE.
 
-### MacOS
-![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/MacOS.png)
+Important note: There are two versions of the JAR and binary. **The one you need depends on the version of JRE you have installed and NOT the version of Windows you have installed.** That is to say, you can have a 64-bit version of Windows but still be running an x86 (32-bit) version of JRE. I recommend you update your JRE to match the architecture for your Windows installation, but if you want to retain your x86 JRE, use the x86 version. Chances are, if you see a splash screen and then nothing happens, you have the wrong version.
 
+### MacOS
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20MacOS.jar
 
@@ -54,11 +52,9 @@ https://github.com/lushen124/Universal-FE-Randomizer/tree/master/Executables/Mac
 java -jar -XstartOnFirstThread Yune\ -\ MacOS.jar
 ```
 
-**Requirements**: Like Windows, you need a JRE to run it, though most versions of MacOS have one included that should be sufficient. If it doesn't work, go ahead and grab the newest one at http://www.oracle.com/technetwork/java/javase/downloads/index.html. Tested with OS X 10.13 (High Sierra).
+**Requirements**: Like Windows, you need a JRE to run it, though most versions of MacOS have one included that should be sufficient. If it doesn't work, go ahead and grab the newest one at http://www.oracle.com/technetwork/java/javase/downloads/index.html. Tested with OS X 10.13 (High Sierra). Unlike Windows, if you have any Mac from the last 8 years, you should have a 64-bit machine (Mac OS X 10.7 Lion and above).
 
 ### GTK
-![Randomizer Image](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux.png)
-
 Raw JAR:
 https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20GTK(x86_64).jar
 
@@ -74,76 +70,144 @@ $ sudo apt-get install default-jre
 
 And then run it with
 
-```
+``` 
 $ java -jar Yune\ -\ GTK(x86_64).jar
 ```
 
 ...or something like that. Tested with Ubuntu 16.04.4.
 
-## Compatability
-* **NEW!** Fire Emblem: Genealogy of the Holy War (aka FE4 or ファイアーエムブレム　聖戦の系譜)
-* Fire Emblem: Binding Blade (aka FE6 or ファイアーエムブレム　封印の剣)
-* Fire Emblem: Blazing Sword (aka FE7 or ファイアーエムブレム 烈火の剣)
-* Fire Emblem: The Sacred Stones (aka FE8 or ファイアーエムブレム 聖魔の光石)
+Also, you may need to `chmod` it so that it's runnable. That can be done with
 
-Note that FE4 and FE6 require clean JP versions of those games. The randomizer will do a cheksum comparison to make sure of this. A Checksum failure error indicates an altered or otherwise invalid file. Additionally, FE4 is ok with either a Headered version of the ROM or an Unheadered version.
+```
+chmod 777 Yune\ -\ GTK(x86_64).jar
+```
 
-FE7 and FE8 currently require US versions of those games. Like above, a cheksum comparison will be performed to make sure the game is valid for randomization.
+# Randomization Options
 
-## Randomization Options
+## <div id="fe4">Fire Emblem: Genealogy of the Holy War</div>
 
-### FE4 Additions
+### Growths
+Randomizes the growths of each character. This only involves a character's personal growths. For characters that have holy blood of some kind, their growths are boosted from the holy blood, but that boost is not accounted for here. There are three modes of randomization:
 
-<p align="center">
-  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/FE4Mac.png?raw=true">
-</p>
+* **Redistribute** - Sums up the character's total growths and randomly redistributes it across all stat areas. Optionally applies variance to the sum.
+* **Delta** - Applies a random delta to each stat area's growth, adding or subtracting an amount up to the variance specified.
+* **Full** - Discards the character's usual growth rate and generates completely new ones between the specified range. 
 
-#### Growths
-Mostly the same as GBA. A character's personal growth rates are redistributed. Note that growth bonuses due to holy blood is added on top of the fact. Two new options have been added as well, one to put extra weight when considering HP growths, and one to make sure growth rates for STR and MAG (since they're separate in FE4) reflect the class. Meaning a class using Magic will make sure their MAG growth is higher than their STR growth, and vice versa with a class using physical weapons. Note that this does NOT guarantee the actual value of those growths. They can still be low overall, but their primary attacking stat will be guaranteed to grow better than their other stat. Characters that can use both physical and magic are not weighted specially in either direction.
+On top of that, there are two additional options that can be applied.
 
-#### Bases
-Also mostly the same as GBA, except for one major change: HP bases are not affected. This is because unlike GBA, playable characters do not add their personal HP base to a class HP base, which makes it almost guaranteed that any redistribution will drastically lower HP (and subsequently raise all of their other stats). Randomizing bases by delta will, however, affect HP as well. Like growths, an option is added to make sure a character's personal base for MAG will be favored if they primarily use magic and STR will be favored if they primarily use physical attacks.
+* **Adjust STR/MAG by Class** - Since this game separates Strength and Magic into different stats, this option will swap a character's STR/MAG stats to ensure that the stat with the higher growth is on the character's primary attack stat. In other words, physical attackers are guaranteed to have a greater or equal growth rate for Strength than Magic, and vice versa for magic users.
+* **Adjust HP Growths** - This option gives HP growths additional weight when redistributing growths and ensures HP growths are in the upper half of the range when fully randomizing growths. This option does nothing when the randomization mode is Delta.
 
-#### Holy Blood
-A new group of options, only for FE4, obviously. These options randomize the statistics of the holy blood in the game, from their growth bonuses to their holy weapon's stat bonus when equipped. The value specified for growth bonus total is the total bonus for MINOR holy blood. MAJOR holy blood will double the bonuses in each area.
+*Note: In order to prevent issues with overflow during inheritence, the maximum growth rate for any character in any area is 85%.*
 
-#### Skills
-You'll realize that unlike GBA, the large section on weapons is completely gone, and in its place is an even larger section for skills. There's two methods of randomization here: shuffling and randomizing. In both cases, there is an option to retain the number of skills for each character. The effect of this when enabled is obvious, but when disabled, it depends on the option. The other universal fact here is that child characters are not affected by any of these directly, as they run entirely on inheritence of skills from their parents. (For the purposes of randomizing and due to the way the game is coded, Julia is not considered a child.)
+### Bases
+Randomizes the base stats for each character. A character's effective bases are determined by the sum of their personal bases and the bases for their class. This randomization option only involves a character's personal bases. There are two modes of randomization:
 
-##### Shuffle
-This option takes all of the skills from every character and then randomly doles them back out again. If the option to retain the number of skills is enabled, this makes sure a character that contributed 2 skills to the pool, for example, will be assigned 2 skills back. Disabling the option will not limit a character to the number of skills they started with, though each character is capped at a max of 4 skills. The other option for this mode is to separate the pool of skills by generation, which should be self-explanatory what it does.
+* **Redistribute** - Sums up the character's total personal bases and randomly redistributes it across all stat areas. HP is **not** included in this, as there is no contribution from the class when determining a character's effective base HP. Optionally applies a variance to the sum of growths for a character.
+* **Delta** - Applies a random delta to each stat area, adding or subtracting a random amount up to the variance specified.
 
-##### Randomize
-This option takes up most of the space and will randomly assign skills based on a weighted distribution set using the controls for each skill. A skill can be disabled entirely to remove it from the pool, or it can choose from 5 levels of likelyhood. Note that the likelyhood is all relative, as they must add up to 100%, so putting everything on Least Likely is equivalent to putting everything on Most Likely. If the option to retain the number of skills is enabled, a character's original number of skills is used to determine how many skills they are randomized and the controls for distributing number of skills is disabled. If the option to retain the number of skills is disabled, the skill count distribution controls are enabled and, in a similar way, the number of skills to give each character can be customized (in more or less the same way).
+On top of that, one more option is available in both cases.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/Windows/FE4Skills.png">
-</p>
+* **Adjust STR/MAG by Class** - Much like with growths, this option will ensure that the character's primary attacking stat will be higher than or equal to the secondary attacking stat.
 
-#### Classes
-This section grew drastically, mostly due to how many safeguards you might need to make sure the game is still enjoyable. As usaul, the randomize playable characters, enemies, and bosses are back, and for enemies, not much has changed, though an option to randomize arena fights has also been added since it's possible and slightly entertaining. Bosses also have another option to randomize holy blood for the bosses that have it, should you want to expand the pool of classes for bosses later in the game. This option is also available for playable classes, and for the same reason. If this option is disabled, the class pool for those characters that have major holy blood is reduced to make sure they can still use their holy weapon. If this option is enabled, then characters will have their major blood be determined by what kind of weapons their class can actually use. For example, if Sigurd randomizes into a Bow Knight, then he will also have Major Ulir blood. Byron in Chapter 5 will also deliver him Yewfelle instead of Tyrfing.
+### Holy Blood
 
-<p align="center" float="left">
-  <img width="45%" src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/Windows/FE4Enemies.png">
-  <img width="45%" src="https://raw.githubusercontent.com/lushen124/Universal-FE-Randomizer/master/Screenshots/Windows/FE4Classes.png">
-</p>
+* **Randomize Growth Bonuses** - Holy blood grants its carrier bonuses in their growth rates, independent from the character's personal growths. This option randomly redistributes the bonus growth areas for each holy blood, redistributing up to the growth amount specified between all growth areas.
+* **Randomize Holy Weapon Bonuses** - Characters with Major holy blood gain access to holy weapons, depending on the blood that they have. These weapons generally give large stat bonuses when equipped. This option redistributes the bonuses conferred to the user of each type of holy weapon.
+* **Assign Holy Blood to Playable Characters** - This option randomly assigns holy blood to playable characters. The type of blood can be limited to a set that matches their class's weapon usage if the **Match Blood to Weapon Usage** option is checked. The chance of receiving Major, Minor, or no Holy Blood can also be customized. 
 
-For children, there are three options on how they are assigned their class. When matching strictly, children derive their class from their closest Gen 1 analogue, determined by their class equivalency in the original game (so since Lester is an Arch Knight, and Midir is an Arch Knight, Lester will match Midir's class). When matching loosely, children get a randomized class, but are limited to classes that share weapon usage for at least one weapon with their Gen 1 analogue. Using the above example, if Midir randomized into an Axe Fighter, then Lester will randomize into a class that can use axes (i.e. Axe Fighter, Barbarian, Pirate, Axe Armor, or Axe Knight).
+### Skills
+Modifies the skills each character has. There are two modes of assigning skills.
 
-The option to adjust conversation rewards updates all of the items received from conversations (and most events) into items the recipient can actually use. If disabled, all of the original weapons/items will be given instead. For example, in the Prologue, Arvis delivers Sigurd a Silver Sword normally. Disabling the option retains the Silver Sword, regardless of Sigurd's class. Enabling the option will change the Silver Sword into another weapon in the case that Sigurd is a class that can't use swords.
+* **Shuffle** - Uses the pool of skills normally available between the characters and simply shuffles them around.
+  * **Separate Pools by Generation** - Shuffles skills only between characters of the same generation. 
+* **Randomize** - Assigns skills at random using the specified weights for skills. Specific skills can be enabled, disabled, or weighted higher or lower than other skills. Note that these are specifying weights of a total, so it's the relation to other skills that counts. Pursuit is also treated separately from other skills, due to the important nature of it. It has its own independent chance of showing up on playable characters. A chance of 100% means all playable characters will receive Pursuit as a skill (as long as they are eligible to receive a skill).
 
-Another set of options involves shop items, which have the option of not being touched, randomized to weapons usable by your party at the time, or completely randomized. Should be pretty self-explanatory what each of those means.
+Regardless of the option above, the number of skills a character receives can also be set to either match their normal amount of skills (e.g. Alec will always have two skills, Sigurd will always have one skill, Claud will always have no skills, etc), or the be randomly determined in the case of randomizing skills, or not be limited in the case of shuffling skills, as dictated by the **Retain Number of Skills** option. Much like the skill weights for randomizing skills, skill counts can be enabled, disabled, or any weight in between when randomizing skills. Much like skill weights, these weights are also only in relation to the other options.
 
-Finally, there's an option to swap a character's growths and bases for STR and MAG if their target class uses the other stat for attacking. Similar to the option for Growths and Bases randomization, except this one just swaps instead of randomizes. Like the other options, a character that ends up in a class that can use both will not swap their growths/bases.
+*Note: Child units do not have any skill information defined. Their skills are entirely determined by their parents. For the purposes of the randomizer, Julia is **not** considered a child character.*
 
-#### Miscellaneous
-The option to apply an English patch will apply the translation patch found [here](https://serenesforest.net/forums/index.php?/topic/63676-fe4-translation-patch-open-beta-v7/).
+### Classes
+Randomly assigns classes to units. Some universal restrictions are in place for this option. Namely, any unit that is normally a flier class will remain a flier class to maintain compatibility. Other restrictions are defined below.
 
-The other option that I wasn't sure where to place it was an option to randomize all of the player-obtainable rings in this game. FE4's invenotry system is unique in that any item the player can obtain is tracked separately from generic weapons. This means it becomes challenging to freely give out weapons or items for classes. In most cases, I simply change the item in the inventory "slot", but I can't create new slots. This means I can't, say, give Naoise a second weapon if he randomizes into a class that could use one. However, this does mean it's easy to scan through the list for rings and select a random ring for each occurrence, which is what this option does.
+#### Playable Characters
+Randomizes character classes for all playable characters. By default, Lords (Sigurd and Seliph), Thieves (Dew, Patty, and Daisy), Dancers (Silvia, Lene, Laylea), and Julia are not randomized to avoid compatibility issues. Additionally, in order to make sure scripted events play out properly, Quan and Ethlyn will always be on horseback, and Quan will be restricted from any class that prevents Altena from flying (i.e. only able to use Lances and Swords).
 
-### GBA FE Options
+**Include Lords** - Allows Sigurd and Seliph to be randomized. This option also adds Lord Knight and Junior Lord to the class pool.
 
-#### Growths
+**Include Thieves** - Allows Dew, Patty, and Daisy to be randomized. This option also adds Thief and Thief Fighter to the class pool.
+
+**Include Dancers** - Allows Silvia, Lene, and Laylea to be randomized. This option also adds Dancer to the class pool, albeit limited to one dancer per generation. Note that this option will break Silvia's village event in Chapter 4, as it requires her to be a dancer.
+
+**Include Julia** - Julia is a special case, as the endgame heavily relies on her with her holy weapon to reliably complete the game. Enabling this option removes the safeguard from the endgame.
+
+**Retain Healers** - This option ensures Edain, Claud, Lana, Muirne, Coirpre, and Charlot can all still use staves. This provides a baseline of healers that you will have at least a couple of healers on the field in each generation.
+
+**Retain Horseback Units** - By default, there is no weight on the classes selected. Since the maps in this game are quite large, this option restricts units that are normally on horseback to horseback classes in order to keep chapters moving at their normal speed.
+
+**Children Options** - There are three options to dictate how children units are assigned their classes. Note that in all cases, substitute characters will have the same class as their child counterparts.
+
+* **Match Parents (Strict)** - This option attempts to match children as closely as possible to their First Generation analogues. For example, in the base game, Edain's children are Lana and Lester, with Lana sharing a class with Edain herself and Lester sharing a class with Midir. Using this option will set Lana's class to match Edain's exactly and Lester's class to match Midir's exactly. 
+* **Match Parents (Loose)** - Similar to above, except instead of matching the class exactly, it ensures that the child shares at least one weapon with his/her First Generation analogue. Using the same example above, if Edain were a Myrmidon and Midir were a Cavalier, then Lana would be any class that can use a sword and Lester would be any class that can use either a Sword or a Lance.
+* **Randomize** - Child characters have entirely random classes.
+
+**Randomize Holy Blood** - Allows characters to change their holy blood. If this option is not enabled, then characters with major holy blood normally are restricted to classes that can use their normal holy blood. For example, Sigurd would be locked to sword classes and Quan would be locked to lance classes. If this option is enabled, then the character's class is not restricted and their holy blood will be adjusted to match their new class.
+
+**Shop Options** - Determines how weapon shop items are set. Three options are available. Note that this primarily affects the first generation. The second generation shops largely are determined by your inventory from generation 1.
+
+* **No Change** - Do not change the shop items.
+* **Adjust to Party** - Adjusts shop items based on the classes of the characters you would normally have in each chapter. Shop items are generally scaled based on the chapter they show up, with more powerful weapons only showing up in later shops.
+* **Randomize** - Exactly as it says: randomly assigns weapons to the shops. No logic is applied to scale shops based on chapter.
+
+**Adjust Conversation Gifts** - If this option is enabled, updates what items characters give to other characters when talking to them to match their new class. Only affects conversations in which characters normally gain items.
+
+**Adjust STR/MAG Growths and Bases** - If a character changes from a physical-only attacker to a magic-only attacker, this option will swap their Strength and Magic stats so that their primary attacking stat is the higher stat. Note that hybrid classes that use at least one physical weapon and one magical weapon (including staves) will not swap their stats.
+
+**Weapon Assignment** - Determines how weapons are assigned after a character changes his/her class. There are three options.
+
+* **Sidegrade (Strict)** - Uses the closest counterpart to the original weapon they had for their new class, where possible. When not possible, falls back to the loose sidegrade.
+* **Sidegrade (Loose)** - Uses any weapon that matches the rank of their original weapon.
+* **Randomize** - Uses any weapon that the character can normally use, based on their class and holy blood.
+
+#### Regular Enemies
+Randomizes the minor generic enemies throughout the game. Due to the way the game is designed, these enemies are randomized in blocks, as whenever the game spawns a platoon of enemies, they are all identical.
+
+#### Arena Enemies
+Randomizes the enemies that show up in the arena for each chapter. Whether each character is a melee character or a ranged character remains unchanged. Additional logic is applied to avoid having more advanced classes in earlier chapters and in earlier levels of the arena, though this is by no means guaranteed. Arena enemies are assigned random weapons, though there is also logic to avoid stronger weapons in the earlier levels.
+
+#### Bosses
+Randomizes the bosses that show up throughout the game, where a boss is defined as any non-recruitable unit with a portrait. Additionally regular bosses are defined as those that have no special holy blood or skills. Those bosses that do have holy blood or skills beyond their class skills are defined as Holy Bosses. The sub-option here is an option to **Randomize Boss Holy Blood** which only applies to the aforementioned Holy Bosses and allows those bosses to change their holy blood with their class, though it will not assign new holy blood to those that didn't originally have them. Disabling this option will lock those bosses to classes that can use their original holy blood. For example, Ishtar normally has Major Thrud. If the option is disabled, then Ishtar is locked to classes that can use Thunder Magic. If this option is enabled, Ishtar can be of any class, and her holy blood will change to match her new class.
+
+### Promotions
+There are three options for determining promotions.
+
+* **Default Promotions** - Promotions are set based on the normal promotion path the class has.
+* **Similar Promotions** - Promotions are set to any class nothing is lost on promotion. This includes weapon ranks/usage, class skills, and movement types/ranges.
+  * **Allow Mount Change** - This option allows horseback units to promote into fliers and vice versa.
+  * **Allow Enemy-only Promotions** - This option allows units to promote into high-level enemy-only classes, including Baron, Emperor, and Queen.
+* **Random Promotions** - Promotions are set randomly, with no regard to the unpromoted class.
+  * **Requires Common Weapon** - Restrict the promotion options to those that share at least one weapon type with the unpromoted class.
+
+### Buff Enemies
+These options all make the game harder by increasing enemy stats, improving their weapons, or granting holy blood and weapons.
+
+**Improve Enemy Stats** - Increases the class growth rate, which increases the effective stats generic enemies have throughout the game. This also directly increases the base stats for boss characters. There are two methods to increase stats.
+
+* **Flat** - For generic enemies, this option adds a flat amount to growth rates. For bosses, this option increases their base stats in all areas by 1 for every 10% (increases HP by 2 instead of 1 for every 10%).
+* **Scaling** - For generic enemies, this option multiplies their growth in each stat area by (100 + value)%. For bosses, this option multiplies their base stat by (100 + value)% for each area.
+
+**Improve Enemy Equipment** - Gives generic enemies a chance to have more interesting or powerful weapons than they normally have. This option has no effect on boss equipment.
+
+**Force Major Blood and Holy Weapon** - This option only has an effect on holy bosses (bosses that normally have either holy blood or personal skills). For bosses without holy blood, this option assigns them Major Blood based on their class. For bosses with minor holy blood, this option promotes their minor blood to major holy blood. For all holy bosses, gives them the holy weapon corresponding to their major holy blood.
+
+### Miscellaneous
+**Apply English Patch** - Applies the English translation patch found [here](https://serenesforest.net/forums/index.php?/topic/63676-fe4-translation-patch-open-beta-v7/).
+
+**Randomize Rings** - Replaces all of the rings found in the game with a random ring.
+
+## <div id="gbafe">Fire Emblem: Binding Blade, Fire Emblem: Blazing Sword, Fire Emblem: The Sacred Stones</div>
+
+### Growths
 I made some illustrations to show what's going on here.
 
 **Redistribution** - This method simply sums a character's growth percentages and doles them back out randomly, which attempts to keep high growth characters with high growths, just in random areas. A variance is allowed to add or subtract a random amount from their totals before redistributing, offering some differences.
@@ -173,7 +237,7 @@ I made some illustrations to show what's going on here.
   <i>It should go without saying that this is assuming a minimum of 5% and a maximum of 100%.</i>
 </p>
 
-#### Bases
+### Bases
 As you may know, a character's base stats are the sum of their personal bases and the bases afforded to them by their class.
 
 <p align="center">
@@ -187,7 +251,7 @@ As you may know, a character's base stats are the sum of their personal bases an
 
 **Variance** - Adds (or subtracts) a random number up to the variance provided to all of a character's bases. Unlike redistribution, there is a chance of receiving negative personal bases here, though no character is allowed to have a negative base after applying their class bases in any area.
 
-#### Miscellaneous Character Options
+### Other Character Options
 
 **Randomize CON** - CON (short for Constitution) is a stat that has a base value, but no growth. Each character has a personal CON that's added to the class's base CON to derive their final value. This option randomizes the character's personal CON using a variance. A random number is added or subtracted from their original personal CON and clamped at the minimum CON specified.
 
@@ -195,7 +259,7 @@ As you may know, a character's base stats are the sum of their personal bases an
 
 **Randomize Affinity** - A relatively minor change. Affinity affects support bonuses that a character receives from supporting another unit. This option simply assigns random affinities to your characters, randomizing the support bonuses they receive from each unit.
 
-#### Weapons
+### Weapons
 
 **Randomize MT/Hit/WT/Durability** - This randomizes the main stats of every weapon in the game. All of these stats are randomized using a Minimum value, a Maximum value, and a Variance value. This basically adds or subtracts a random number up to the variance value to the stat affected, and then clamps the value between the specified minimum and maximum.
 
@@ -205,11 +269,11 @@ There's a new option under this to have safe basic weapons. This ensures that ba
 
 *Note: A few limitations are in place currently for this feature. Due to how ranged axes work, non-ranged axes are ineligible for gaining range or becoming magical weapons. Ranges are also limited to normally valid ranges in the game.*
 
-#### Classes
+### Classes
 
 **Randomize Playable Characters** - The obvious randomization feature, changes the class of every playable character to a random class. Starting equipment is modified accordingly. Options to **Include Lords** and **Include Thieves** do as they sound. They add the classes to the randomization pool and they add the characters originally posessing those classes to the character pool to randomize. Disabling them will ensure Lord characters and Thief characters remain untouched (usually safer).
 
-*Note: One new limitation that's in effect for now is limiting the pool for some characters. To keep things working with minimal issues, characters that have flying mounts can only randomize to another class with a flying mount. Characters that are a class that can cross water are limited to classes that can cross water normally (including flying classes). Same with characters that can cross mountains. These characters will be whitelisted over time to be randomizable. For now, Florina is in the whitelist, but Fiora, Farina, and Vaida remain locked to flying classes.*
+*Note: One new limitation that's in effect for now is limiting the pool for some characters. To keep things working with minimal issues, characters that have flying mounts can only randomize to another class with a flying mount. Characters that are a class that can cross water are limited to classes that can cross water normally (including flying classes). Same with characters that can cross mountains. These characters will be whitelisted over time to be randomizable.*
 
 **Randomize Boss Characters** - Same as above, except boss characters. On the note of limitations, even though they're usually sitting on thrones and are therefore not impacted by movement, scripted scenes might break if flying bosses are told to cross mountains or bodies of water, so for now, they are subject to the same restriction as playable characters.
 
@@ -222,9 +286,9 @@ There's a new option under this to have safe basic weapons. This ensures that ba
   <i>You can turn on all three!</i>
 </p>
 
-**Mix Monster Classes (FE8 only)** - By default, without this option, class randomization will stay divided between monsters and humans. Any human characters and minions will remain as a human class and any monster bosses and minions will remain as a monster class. If this box is checked, then it allows humans to randomize into monster classes and monsters to randomize into human classes.
+**[FE8] Mix Monster Classes** - By default, without this option, class randomization will stay divided between monsters and humans. Any human characters and minions will remain as a human class and any monster bosses and minions will remain as a monster class. If this box is checked, then it allows humans to randomize into monster classes and monsters to randomize into human classes.
 
-#### Enemy Buffs
+### Enemy Buffs
 Thought the game was too easy?
 
 **Buff Enemy Growths** - Random Enemies and their stats are dictated by class growth rates. Normally these growths would be overridden by a character's personal growths, but enemies don't have that quality, so they will scale based on these rates. Normally, they're pretty low, but this option will increase the growth rates so that, as the game progresses, the enemies will become tougher, due to the autoleveling routine. There are two options: **Flat** and **Scaling**. Flat buffs apply a constant to all of the growth rates. This generally makes up for weak points of enemies (tankier myrmidons and faster knights, etc.) A little boost will go a long way, especially for hard mode, so don't go too crazy with Flat buffs (10 - 20 is a pretty noticeable buff, especially later in the game). Scaling buffs apply a fraction based off of their original class growths. This generally emphasizes a class's strong points (myrmidons that are actually fast and knights that are actually tanky). As it's a fraction, the values is a percentage, where a value of 100% is a doubling of growth rates.
@@ -238,14 +302,26 @@ Thought the game was too easy?
 
 **Improve Enemy Weapons** - This option selects some enemies and upgrades their weapons to the next level. For example, if an enemy was using an Iron Sword (an E rank weapon), he/she might now be using a Steel Sword (a D rank weapon) or a Longsword (a D rank weapon effective against cavalry), or if he's a myrmidon, a Wo Dao is a possibility (D rank weapon locked to myrmidons and has a high critical rate). You can set how often this happens, anywhere between 1% and 100% of minions. Note that this does not affect boss weaponry.
 
-#### Miscellaneous Options
+### Miscellaneous Options
 Random stuff that may be funny.
 
-**Apply English Patch (FE6 Only)** - This option applies the English patch from Serenes Forest (https://serenesforest.net/forums/index.php?/topic/41095-fe6-localization-patch-v10-seriously-we-did-something/) onto the Japanese FE6 ROM.
+**[FE6] Apply English Patch** - This option applies the English patch from Serenes Forest (https://serenesforest.net/forums/index.php?/topic/41095-fe6-localization-patch-v10-seriously-we-did-something/) onto the Japanese FE6 ROM.
 
 **Randomize Rewards** - Rewards include chests and village items. This encapsultes any item you can get from villages and chests, but does not include villages that grant you gold. Also does not affect any items that are given specifically to a character (e.g. Mani Katti). 50% of the time, the item will be replaced with a related item, and the other 50% of the time will be a completely random item. Possible items include weapons, stat boosters, promotion items, and any other consumable items. Related items for non-weapons are those that fit into the same category (i.e. stat boosters or promotion item). Related items for weapons are those weapons with either the same rank or the same type.
 
-**Randomize Recruitment Order (WIP)** - A weird option from the original randomizer which more or less replaces character data completely with another, simulating a randomized recruitment order. Not sure if I'll make any changes to this or not.
+### Recruitment
+This option swaps around characters so that they join at different parts of the game than they normally do. The way this feature works is that the characters in the game are treated as slots to be filled by an arbitrary character from the playable character pool. The character that fills the slot is, for all intents and purposes, treated as if they were the slot character they replaced. This is important for determining supports. The options available determine how the stats for characters are calculated when they are leveled or de-leveled to match the slot they fill.
+
+* **Autolevel Base Stats** - This option uses the character's growth rates to simulate level gain and level loss to determine their base stats.
+* **Match Base Stats** - This option sets the character's base stats to be equal to the base stats of the slot they fill.
+* **Relative Base Stats** This option sets the character's base stats such that their highest stat matches the highest stat of the slot they fill and the remainder of the stats are based on the character's normal stat spread.
+
+### Weapon Assignment
+These determine how items are assigned when they need to be assigned (affects randomized classes and randomized recruitment).
+
+* **Strict Matching** - Replaces weapons using the closest counterpart to the original weapon.
+* **Match Rank** - Replaces weapons using any weapon that shares the same weapon rank as the original weapon.
+* **Random** - Uses any weapon the character can use based on his/her weapon ranks.
 
 ## Sample Screenshots
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/RandomClasses.png)
@@ -261,7 +337,7 @@ Random stuff that may be funny.
 ## Nice-to-have Features
 * ~~Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.~~ This is actually done now. It mostly works, though it occasionally gives an odd color.
 * ~~Fixing text to match items. Makes random weapon effects less infuriating to play.~~ Done!
-* Fixing world map sequences to be somewhat more accurate to a unit's class.
+* ~~Fixing world map sequences to be somewhat more accurate to a unit's class.~~ Done!
 * Allowing melee axes to gain range.
 * ~~Remove limitations on class randomization.~~ This is mostly resolved using a blacklist of characters and chapters which continue to limit class choices. All other characters and chapters are allowed to fully randomize classes.
 * Add random fun ASM changes (Ranging from streamlining changes like removing the need to stand adjacent to a unit for support, to infurating, like 1RN, or Thracia-style 1-99 HIT.)
@@ -271,8 +347,8 @@ Random stuff that may be funny.
 * Add in regional support outside of North America. (Should also be straightforward)
 * ~~Add in FE8 support.~~ Done!
 * ~~Add in FE4 support. (For the lulz, and mostly because it's possible and I have some fun ideas)~~
+* Add in FE9/10 support - There was a proof of concept for this randomizer made, so it might be time to start looking into seriously supporting this. (I mean, I can't call it Yune and then not support FE10.)
 
 ## Wishful thinking (probably not happening any time soon)
-* Research FE9/10 support. (How do I ISO)
 * Research FE3/5 support. (Need to actually finish these games to understand them)
 * Research 3DSFE support. (Similar to extracting data from ISO and recompiling)

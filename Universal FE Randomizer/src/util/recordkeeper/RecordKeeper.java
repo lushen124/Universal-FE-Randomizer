@@ -18,10 +18,13 @@ public class RecordKeeper {
 		Map<String, String> originalValues;
 		Map<String, String> updatedValues; 
 		
+		Map<String, String> additionalInfo;
+		
 		private Entry() {
 			allKeys = new ArrayList<String>();
 			originalValues = new HashMap<String, String>();
 			updatedValues = new HashMap<String, String>();
+			additionalInfo = new HashMap<String, String>();
 		}
 	}
 	
@@ -75,6 +78,24 @@ public class RecordKeeper {
 		EntryMap map = new EntryMap();
 		entriesByCategory.put(category, map);
 		allCategories.add(category);
+	}
+	
+	public void setAdditionalInfo(String category, String entryKey, String key, String info) {
+		EntryMap entryMap = entriesByCategory.get(category);
+		if (entryMap == null) { return; }
+		Entry entry = entryMap.entriesByKey.get(entryKey);
+		if (entry == null) { return; }
+		
+		entry.additionalInfo.put(key, info);
+	}
+	
+	public void clearAdditionalInfo(String category, String entryKey, String key) {
+		EntryMap entryMap = entriesByCategory.get(category);
+		if (entryMap == null) { return; }
+		Entry entry = entryMap.entriesByKey.get(entryKey);
+		if (entry == null) { return; }
+		
+		entry.additionalInfo.remove(key);
 	}
 
 	public void recordOriginalEntry(String category, String entryKey, String key, String originalValue) {
@@ -177,10 +198,16 @@ public class RecordKeeper {
 					Entry entry = entries.entriesByKey.get(entryKey);
 					writer.write("<h3 id=\"" + keyFromString(entryKey) + "\">" + entryKey + "</h3><br>\n");
 					writer.write("<table>\n");
+					boolean hasAdditionalInfo = !entry.additionalInfo.isEmpty();
 					for (String key : entry.allKeys) {
 						String oldValue = entry.originalValues.get(key);
 						String newValue = entry.updatedValues.get(key);
-						writer.write("<tr><td>" + key + "</td><td>" + (oldValue != null ? oldValue : "(null)") + "</td><td>" + (newValue != null ? newValue : "(null)") + "</td></tr>\n");
+						writer.write("<tr><td>" + key + "</td><td>" + (oldValue != null ? oldValue : "(null)") + "</td><td>" + (newValue != null ? newValue : "(null)") + "</td>");
+						if (hasAdditionalInfo) {
+							boolean hasInfoForKey = entry.additionalInfo.containsKey(key);
+							writer.write("<td>" + (hasInfoForKey ? entry.additionalInfo.get(key) : "") + "</td>");
+						}
+						writer.write("</tr>\n");
 					}
 					writer.write("</table>\n");
 					writer.write("<a href=\"#" + keyFromString(category) + "\">Back to " + category + "</a>\n");

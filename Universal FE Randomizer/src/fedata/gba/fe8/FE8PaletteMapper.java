@@ -7,12 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import fedata.gba.fe8.FE8Data.Palette;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
-
+import util.WhyDoesJavaNotHaveThese;
 import io.FileHandler;
 
 // FE8 uses two auxiliary tables to map palettes based on class.
@@ -50,6 +49,16 @@ public class FE8PaletteMapper {
 			data = originalData.clone();
 			
 			wasModified = false;
+		}
+		
+		public void synchronize(MapEntry otherMap) {
+			setByte0(otherMap.getByte0());
+			setByte1(otherMap.getByte1());
+			setByte2(otherMap.getByte2());
+			setByte3(otherMap.getByte3());
+			setByte4(otherMap.getByte4());
+			setByte5(otherMap.getByte5());
+			setByte6(otherMap.getByte6());
 		}
 		
 		public int getByte0() {
@@ -187,16 +196,21 @@ public class FE8PaletteMapper {
 	private Map<FE8Data.Character, ClassMapEntry> paletteClassMap;
 	private Map<FE8Data.Character, PaletteMapEntry> paletteIndexMap;
 	
-	private Map<Integer, FE8Data.Palette> freedPaletteIndices; // Maps indices to palettes.
+	private Map<Integer, Integer> registeredPaletteLengths;
+	private Map<Integer, Long> registeredPaletteOffsets;
+	private Set<Long> registeredOffsets;
+	
 	private Map<FE8Data.Character, List<SlotType>> charactersThatNeedPalettes; // Maps to array of slots.
+	
+	private List<Integer> emptyPaletteIDs; // Can be used as long as the address is written after the pointer table.
+	private Map<Integer, List<Integer>> recycledPaletteIDsByLength; // Maps lengths to recycled paletteIDs of that length.
 	
 	private FE8PromotionManager promotionManager;
 	
-	public FE8PaletteMapper(FileHandler handler, FE8PromotionManager promotionManager) {
+	public FE8PaletteMapper(FileHandler handler, FE8PromotionManager promotionManager, List<Integer> emptyIDs) {
 		paletteClassMap = new HashMap<FE8Data.Character, ClassMapEntry>();
 		paletteIndexMap = new HashMap<FE8Data.Character, PaletteMapEntry>();
 		
-		freedPaletteIndices = new HashMap<Integer, FE8Data.Palette>();
 		charactersThatNeedPalettes = new HashMap<FE8Data.Character, List<SlotType>>();
 		
 		long tableOffset = FileReadHelper.readAddress(handler, FE8Data.PaletteClassTablePointer);
@@ -221,6 +235,32 @@ public class FE8PaletteMapper {
 		}
 		
 		this.promotionManager = promotionManager;
+		
+		this.emptyPaletteIDs = new ArrayList<Integer>(emptyIDs);
+		this.registeredPaletteLengths = new HashMap<Integer, Integer>();
+		this.registeredPaletteOffsets = new HashMap<Integer, Long>();
+		this.recycledPaletteIDsByLength = new HashMap<Integer, List<Integer>>();
+		this.registeredOffsets = new HashSet<Long>();
+	}
+	
+	public void registerPaletteID(int paletteID, int length, Long offset) {
+		if (paletteID == 0) { return; }
+		if (registeredPaletteLengths.get(paletteID) != null) { return; }
+		registeredPaletteLengths.put(paletteID, length);
+		assert registeredPaletteOffsets.get(paletteID) == null : "Already registered this paletteID";
+		if (offset != null) {
+			assert registeredOffsets.contains(offset) == false : "This offset has already been registered.";
+			registeredOffsets.add(offset);
+			registeredPaletteOffsets.put(paletteID, offset);
+		}
+	}
+	
+	public Integer getRegisteredPaletteLength(int paletteID) {
+		return registeredPaletteLengths.get(paletteID);
+	}
+	
+	public Long getRegisteredPaletteOffset(int paletteID) {
+		return registeredPaletteOffsets.get(paletteID);
 	}
 	
 	public ClassMapType getMapTypeForCharacter(int characterID) {
@@ -230,8 +270,43 @@ public class FE8PaletteMapper {
 	}
 	
 	private void markPaletteIDAsFree(int paletteID) {
-		DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Freed up palette with ID 0x" + Integer.toHexString(paletteID));
-		freedPaletteIndices.put(paletteID, FE8Data.Palette.paletteForID(paletteID));
+		if (paletteID == 0) { return; }
+		Integer length = getRegisteredPaletteLength(paletteID);
+		assert length != null : "No length found for palette being marked as free. ID = 0x" + Integer.toHexString(paletteID);
+		DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Freed up palette with ID 0x" + Integer.toHexString(paletteID) + "(size: " + Integer.toString(length) + ")");
+		if (length != null) {
+			List<Integer> paletteIDList = recycledPaletteIDsByLength.get(length);
+			if (paletteIDList == null) {
+				paletteIDList = new ArrayList<Integer>();
+				recycledPaletteIDsByLength.put(length, paletteIDList);
+			}
+			
+			paletteIDList.add(paletteID);
+		}
+	}
+	
+	private Integer requestRecycledPaletteForSize(int paletteSize) {
+		if (recycledPaletteIDsByLength.keySet().stream().filter(size -> (size >= paletteSize)).min(WhyDoesJavaNotHaveThese.ascendingIntegerComparator).isPresent()) {
+			int length = recycledPaletteIDsByLength.keySet().stream().filter(size -> (size >= paletteSize)).min(WhyDoesJavaNotHaveThese.ascendingIntegerComparator).get();
+			List<Integer> availableIDs = recycledPaletteIDsByLength.get(length);
+			if (availableIDs.isEmpty()) {
+				recycledPaletteIDsByLength.remove(length);
+				return requestRecycledPaletteForSize(paletteSize); // Ask again for the next closest available slot.
+			} else {
+				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Recycled palette with ID 0x" + Integer.toHexString(availableIDs.get(0)) + "(size: " + Integer.toString(length) + ", requested size: " + Integer.toString(paletteSize) + ")");
+				return availableIDs.remove(0);
+			}
+		}
+		return null;
+	}
+	
+	private Integer requestEmptyPaletteForSize(int paletteSize) {
+		Integer emptyID = emptyPaletteIDs.remove(0);
+		if (emptyID != null) {
+			registerPaletteID(emptyID, paletteSize, null);
+		}
+		
+		return emptyID;
 	}
 	
 	public int[] getCharactersNeedingAdditionalPalettes() {
@@ -268,7 +343,31 @@ public class FE8PaletteMapper {
 		}
 	}
 	
+	public int paletteIDForCharacterInClassType(int characterID, SlotType type) {
+		FE8Data.Character character = FE8Data.Character.valueOf(FE8Data.Character.canonicalIDForCharacterID(characterID));
+		PaletteMapEntry paletteMap = paletteIndexMap.get(character);
+		switch (type) {
+		case TRAINEE:
+			return paletteMap.getTraineePaletteID();
+		case PRIMARY_BASE:
+			return paletteMap.getBasePaletteID();
+		case SECONDARY_BASE:
+			return paletteMap.getSecondaryBasePaletteID();
+		case FIRST_PROMOTION:
+			return paletteMap.getFirstPromotionPaletteID();
+		case SECOND_PROMOTION:
+			return paletteMap.getSecondaryPromotionPaletteID();
+		case THIRD_PROMOTION:
+			return paletteMap.getThirdPromotionPaletteID();
+		case FOURTH_PROMOTION:
+			return paletteMap.getFourthPromotionPaletteID();
+		default:
+			return 0;
+		}
+	}
+	
 	public Map<SlotType, Integer> requestRecycledPaletteIndicesForCharacter(int characterID) {
+		assert false : "Shouldn't be using this anymore.";
 		int canonicalID = FE8Data.Character.canonicalIDForCharacterID(characterID);
 		FE8Data.Character character = FE8Data.Character.valueOf(canonicalID);
 		List<SlotType> palettesNeeded = charactersThatNeedPalettes.get(character);
@@ -276,9 +375,10 @@ public class FE8PaletteMapper {
 		
 		DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Handing out free palettes to character 0x" + Integer.toHexString(characterID));
 		
-		if (palettesNeeded.size() < freedPaletteIndices.size()) {
+		if (palettesNeeded.size() < emptyPaletteIDs.size()) {
 			Map<SlotType, Integer> recycledIndices = new HashMap<SlotType, Integer>();
-			for (int paletteIndex : freedPaletteIndices.keySet()) {
+			while (!slotsRemaining.isEmpty()) {
+				int paletteIndex = emptyPaletteIDs.remove(0);
 				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Handed out palette index 0x" + Integer.toHexString(paletteIndex));
 				recycledIndices.put(slotsRemaining.remove(0), paletteIndex);
 				if (slotsRemaining.isEmpty()) {
@@ -290,70 +390,8 @@ public class FE8PaletteMapper {
 			return new HashMap<SlotType, Integer>();
 		}
 	}
-	
-	public Palette recycledPaletteForIndex(int paletteIndex) {
-		return freedPaletteIndices.get(paletteIndex);
-	}
-	
-	public void assignRecycledPaletteIndexToCharacterAndClass(int paletteIndex, int characterID, int classID) {
-		FE8Data.Character character = FE8Data.Character.valueOf(FE8Data.Character.canonicalIDForCharacterID(characterID));
-		SlotType slotType = SlotType.TRAINEE;
-		for (FE8Data.Character linked : FE8Data.Character.allLinkedCharactersFor(character)) {
-			ClassMapEntry map = paletteClassMap.get(linked);
-			PaletteMapEntry paletteMap = paletteIndexMap.get(linked);
-			Boolean assignedSuccessfully = false;
-			
-			if (map.getTraineeClassID() == classID) {
-				paletteMap.setTraineePaletteID(paletteIndex);
-				assignedSuccessfully = true;
-			} else if (map.getBaseClassID() == classID) {
-				paletteMap.setBasePaletteID(paletteIndex);
-				slotType = SlotType.PRIMARY_BASE;
-				assignedSuccessfully = true;
-			} else if (map.getSecondaryBaseClassID() == classID) {
-				paletteMap.setSecondaryBasePaletteID(paletteIndex);
-				slotType = SlotType.SECONDARY_BASE;
-				assignedSuccessfully = true;
-			} else if (map.getFirstPromotionClassID() == classID) {
-				paletteMap.setFirstPromotionPaletteID(paletteIndex);
-				slotType = SlotType.FIRST_PROMOTION;
-				assignedSuccessfully = true;
-			} else if (map.getSecondaryPromotionClassID() == classID) {
-				paletteMap.setSecondaryPromotionPaletteID(paletteIndex);
-				slotType = SlotType.SECOND_PROMOTION;
-				assignedSuccessfully = true;
-			} else if (map.getThirdPromotionClassID() == classID) {
-				paletteMap.setThirdPromotionPaletteID(paletteIndex);
-				slotType = SlotType.THIRD_PROMOTION;
-				assignedSuccessfully = true;
-			} else if (map.getFourthPromotionClassID() == classID) {
-				paletteMap.setFourthPromotionPaletteID(paletteIndex);
-				slotType = SlotType.FOURTH_PROMOTION;
-				assignedSuccessfully = true;
-			}
-			
-			if (!assignedSuccessfully) {
-				System.err.println("Invalid character class combination detected.");
-				break;
-			}
-		}
-		
-		DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Reused palette with ID 0x" + Integer.toHexString(paletteIndex) + " for character 0x" + Integer.toHexString(characterID) + " in class 0x" + Integer.toHexString(classID));
-		
-		freedPaletteIndices.remove(paletteIndex);
-		List<SlotType> slotsRemaining = charactersThatNeedPalettes.get(character);
-		if (slotsRemaining.contains(slotType)) {
-			slotsRemaining.remove(slotType);
-			if (slotsRemaining.isEmpty()) {
-				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Finished backfilling character 0x" + Integer.toHexString(characterID));
-				charactersThatNeedPalettes.remove(character);
-			}
-		} else {
-			System.err.println("Assigned a palette to an invalid slot.");
-		}
-	}
 
-	public void setUnpromotedClass(int unpromotedClassID, int characterID, Boolean setPromotions) {
+	public void setUnpromotedClass(int unpromotedClassID, int characterID, Boolean setPromotions, int basePaletteSize, int promotedPaletteSize, int secondPromotionPaletteSize) {
 		FE8Data.CharacterClass unpromotedClass = FE8Data.CharacterClass.valueOf(unpromotedClassID);
 		if (unpromotedClass == null) { return; }
 		if (!FE8Data.CharacterClass.allUnpromotedClasses.contains(unpromotedClass)) { return; }
@@ -365,90 +403,149 @@ public class FE8PaletteMapper {
 		FE8Data.Character character = FE8Data.Character.valueOf(canonicalCharID);
 		PaletteMapEntry existingPaletteMap = paletteIndexMap.get(character);
 		List<SlotType> palettesNeeded = new ArrayList<SlotType>();
-		if (existingPaletteMap.getBasePaletteID() == 0) { palettesNeeded.add(SlotType.PRIMARY_BASE); }
+		
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Assigning unpromoted class ID 0x" + Integer.toHexString(unpromotedClassID) + " (" + unpromotedClass.toString() + ") to character 0x" + Integer.toHexString(characterID) + " (" + character.toString() + ")");
+		
+		ClassMapEntry classMap = paletteClassMap.get(character);
+		classMap.setBaseClassID(unpromotedClassID);
+		
+		Integer paletteLength = registeredPaletteLengths.get(existingPaletteMap.getBasePaletteID());
+		
+		if (existingPaletteMap.getBasePaletteID() == 0 || (paletteLength != null && basePaletteSize > paletteLength)) {
+			if (existingPaletteMap.getBasePaletteID() != 0) {
+				// We're about to replace this ID. Go ahead and recycle it.
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Current palette (0x" + Integer.toHexString(existingPaletteMap.getBasePaletteID()) + ") is too small, looking for alternatives...");
+				markPaletteIDAsFree(existingPaletteMap.getBasePaletteID());
+				existingPaletteMap.setBasePaletteID(0);
+			}
+			
+			// This palette won't fit. We need to use a recycled one or use an empty one.
+			Integer recycledPaletteID = requestRecycledPaletteForSize(basePaletteSize);
+			if (recycledPaletteID != null) {
+				existingPaletteMap.setBasePaletteID(recycledPaletteID);
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Found recycled palette 0x" + Integer.toHexString(recycledPaletteID));
+			} else {
+				Integer emptyID = requestEmptyPaletteForSize(basePaletteSize);
+				if (emptyID != null) {
+					existingPaletteMap.setBasePaletteID(emptyID);
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Using empty palette 0x" + Integer.toHexString(emptyID));
+				} else {
+					palettesNeeded.add(SlotType.PRIMARY_BASE);
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "No Palettes currently available. Adding to waitlist.");
+				}
+			}
+		} else {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette (0x" + Integer.toHexString(existingPaletteMap.getBasePaletteID()) + ") OK! (oldSize: " + Integer.toString(paletteLength) + " newSize: " + Integer.toString(basePaletteSize) + ")");
+		}
+		
 		if (setPromotions) {
-			if (primaryPromotionID != 0 && existingPaletteMap.getFirstPromotionPaletteID() == 0) { palettesNeeded.add(SlotType.FIRST_PROMOTION); }
-			if (secondaryPromotionID != 0 && existingPaletteMap.getSecondaryPromotionPaletteID() == 0) { palettesNeeded.add(SlotType.SECOND_PROMOTION); }
+			if (primaryPromotionID != 0) {
+				classMap.setFirstPromotionClassID(primaryPromotionID);
+				paletteLength = registeredPaletteLengths.get(existingPaletteMap.getFirstPromotionPaletteID());
+				if (existingPaletteMap.getFirstPromotionPaletteID() == 0 || (paletteLength != null && promotedPaletteSize > paletteLength)) {
+					if (existingPaletteMap.getFirstPromotionPaletteID() != 0) {
+						DebugPrinter.log(DebugPrinter.Key.PALETTE, "Current palette (0x" + Integer.toHexString(existingPaletteMap.getFirstPromotionPaletteID()) + ") is too small or doesn't exist, looking for alternatives...");
+						markPaletteIDAsFree(existingPaletteMap.getFirstPromotionPaletteID());
+						existingPaletteMap.setFirstPromotionPaletteID(0);
+					}
+					
+					Integer recycledPaletteID = requestRecycledPaletteForSize(promotedPaletteSize);
+					if (recycledPaletteID != null) {
+						existingPaletteMap.setFirstPromotionPaletteID(recycledPaletteID);
+						DebugPrinter.log(DebugPrinter.Key.PALETTE, "Found recycled palette 0x" + Integer.toHexString(recycledPaletteID));
+					} else {
+						Integer emptyID = requestEmptyPaletteForSize(promotedPaletteSize);
+						if (emptyID != null) {
+							existingPaletteMap.setFirstPromotionPaletteID(emptyID);
+							DebugPrinter.log(DebugPrinter.Key.PALETTE, "Using empty palette 0x" + Integer.toHexString(emptyID));
+						} else {
+							palettesNeeded.add(SlotType.FIRST_PROMOTION);
+							DebugPrinter.log(DebugPrinter.Key.PALETTE, "No Palettes currently available. Adding to waitlist.");
+						}
+					}
+				} else {
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette (0x" + Integer.toHexString(existingPaletteMap.getFirstPromotionPaletteID()) + ") OK! (oldSize: " + Integer.toString(paletteLength) + " newSize: " + Integer.toString(promotedPaletteSize) + ")");
+				}
+			} else {
+				classMap.setFirstPromotionClassID(0);
+				if (existingPaletteMap.getFirstPromotionPaletteID() != 0) {
+					markPaletteIDAsFree(existingPaletteMap.getFirstPromotionPaletteID());
+					existingPaletteMap.setFirstPromotionPaletteID(0);
+				}
+			}
+			
+			if (secondaryPromotionID != 0) {
+				classMap.setSecondaryPromotionClassID(secondaryPromotionID);
+				paletteLength = registeredPaletteLengths.get(existingPaletteMap.getSecondaryPromotionPaletteID());
+				if (existingPaletteMap.getSecondaryPromotionPaletteID() == 0 || (paletteLength != null && secondPromotionPaletteSize > paletteLength)) {
+					if (existingPaletteMap.getSecondaryPromotionPaletteID() != 0) {
+						DebugPrinter.log(DebugPrinter.Key.PALETTE, "Current palette (0x" + Integer.toHexString(existingPaletteMap.getSecondaryPromotionPaletteID()) + ") is too small or doesn't exist, looking for alternatives...");
+						markPaletteIDAsFree(existingPaletteMap.getSecondaryPromotionPaletteID());
+						existingPaletteMap.setSecondaryPromotionPaletteID(0);
+					}
+					
+					Integer recycledPaletteID = requestRecycledPaletteForSize(secondPromotionPaletteSize);
+					if (recycledPaletteID != null) {
+						existingPaletteMap.setSecondaryPromotionPaletteID(recycledPaletteID);
+						DebugPrinter.log(DebugPrinter.Key.PALETTE, "Found recycled palette 0x" + Integer.toHexString(recycledPaletteID));
+					} else {
+						Integer emptyID = requestEmptyPaletteForSize(secondPromotionPaletteSize);
+						if (emptyID != null) {
+							existingPaletteMap.setSecondaryPromotionPaletteID(emptyID);
+							DebugPrinter.log(DebugPrinter.Key.PALETTE, "Using empty palette 0x" + Integer.toHexString(emptyID));
+						} else {
+							palettesNeeded.add(SlotType.SECOND_PROMOTION);
+							DebugPrinter.log(DebugPrinter.Key.PALETTE, "No Palettes currently available. Adding to waitlist.");
+						}
+					}
+				} else {
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette (0x" + Integer.toHexString(existingPaletteMap.getSecondaryPromotionPaletteID()) + ") OK! (oldSize: " + Integer.toString(paletteLength) + " newSize: " + Integer.toString(secondPromotionPaletteSize) + ")");
+				}
+			} else {
+				classMap.setSecondaryPromotionClassID(0);
+				if (existingPaletteMap.getSecondaryPromotionPaletteID() != 0) {
+					markPaletteIDAsFree(existingPaletteMap.getSecondaryPromotionPaletteID());
+					existingPaletteMap.setSecondaryPromotionPaletteID(0);
+				}
+			}
 		}
 		if (!palettesNeeded.isEmpty()) {
 			charactersThatNeedPalettes.put(character, palettesNeeded);
 		}
 		
-		Set<Integer> paletteIDsInUse = new HashSet<Integer>();
-		Set<Integer> unusedPaletteIDs = new HashSet<Integer>();
+		// We can recycle any existing third/fourth promotion, trainee, and secondary base class palettes.
+		classMap.setTraineeClassID(0);
+		if (existingPaletteMap.getTraineePaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getTraineePaletteID());
+			existingPaletteMap.setTraineePaletteID(0);
+		}
+		classMap.setSecondaryBaseClassID(0);
+		if (existingPaletteMap.getSecondaryBasePaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getSecondaryBasePaletteID());
+			existingPaletteMap.setSecondaryBasePaletteID(0);
+		}
+		classMap.setThirdPromotionClassID(0);
+		if (existingPaletteMap.getThirdPromotionPaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getThirdPromotionPaletteID());
+			existingPaletteMap.setThirdPromotionPaletteID(0);
+		}
+		classMap.setFourthPromotionClassID(0);
+		if (existingPaletteMap.getFourthPromotionPaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getFourthPromotionPaletteID());
+			existingPaletteMap.setFourthPromotionPaletteID(0);
+		}
 		
 		for (FE8Data.Character linked : FE8Data.Character.allLinkedCharactersFor(character)) {
-			ClassMapEntry map = paletteClassMap.get(linked);
-			PaletteMapEntry paletteMap = paletteIndexMap.get(linked);
+			// Sync all linked characters to the same palette and class map.
+			ClassMapEntry linkedClassMap = paletteClassMap.get(linked);
+			PaletteMapEntry linkedPaletteMap = paletteIndexMap.get(linked);
 			
-			map.setTraineeClassID(0);
-			if (paletteMap.getTraineePaletteID() != 0) {
-				unusedPaletteIDs.add(paletteMap.getTraineePaletteID());
-				paletteMap.setTraineePaletteID(0);
-			}
-			map.setBaseClassID(unpromotedClassID);
-			paletteIDsInUse.add(paletteMap.getBasePaletteID());
-			map.setSecondaryBaseClassID(0);
-			if (paletteMap.getSecondaryBasePaletteID() != 0) {
-				unusedPaletteIDs.add(paletteMap.getSecondaryBasePaletteID());
-				paletteMap.setSecondaryBasePaletteID(0);
-			}
-			
-			if (setPromotions) {
-				if (primaryPromotionID != 0) {
-					FE8Data.CharacterClass primaryPromotionClass = FE8Data.CharacterClass.valueOf(primaryPromotionID);
-					if (primaryPromotionClass != null) {
-						map.setFirstPromotionClassID(primaryPromotionID);
-						paletteIDsInUse.add(paletteMap.getFirstPromotionPaletteID());
-					} else {
-						System.err.println("Invalid class detected in promotion branch (Base Class: " + unpromotedClass.toString() + ").");
-					}
-				} else {
-					map.setFirstPromotionClassID(0);
-					if (paletteMap.getFirstPromotionPaletteID() != 0) {
-						unusedPaletteIDs.add(paletteMap.getFirstPromotionPaletteID());
-						paletteMap.setFirstPromotionPaletteID(0);
-					}
-				}
-				
-				if (secondaryPromotionID != 0) {
-					FE8Data.CharacterClass secondaryPromotionClass = FE8Data.CharacterClass.valueOf(secondaryPromotionID);
-					if (secondaryPromotionClass != null) {
-						map.setSecondaryPromotionClassID(secondaryPromotionID);
-						paletteIDsInUse.add(paletteMap.getSecondaryPromotionPaletteID());
-					} else {
-						System.err.println("Invalid class detected in promotion branch (Base Class: " + unpromotedClass.toString() + ").");
-					}
-				} else {
-					map.setSecondaryPromotionClassID(0);
-					if (paletteMap.getSecondaryPromotionPaletteID() != 0) {
-						unusedPaletteIDs.add(paletteMap.getSecondaryPromotionPaletteID());
-						paletteMap.setSecondaryPromotionPaletteID(0);
-					}
-				}
-			
-				map.setThirdPromotionClassID(0);
-				map.setFourthPromotionClassID(0);
-				
-				if (paletteMap.getThirdPromotionPaletteID() != 0) {
-					unusedPaletteIDs.add(paletteMap.getThirdPromotionPaletteID());
-					paletteMap.setThirdPromotionPaletteID(0);
-				}
-				if (paletteMap.getFourthPromotionPaletteID() != 0) {
-					unusedPaletteIDs.add(paletteMap.getFourthPromotionPaletteID());
-					paletteMap.setFourthPromotionPaletteID(0);
-				}
-			}
-			
-			// Some characters use the same palette for more than one promotion path (i.e. Amelia has Great Knight as an option in both Cavalier and Knight.)
-			unusedPaletteIDs.removeAll(paletteIDsInUse);
-			for (int paletteID : unusedPaletteIDs) {
-				markPaletteIDAsFree(paletteID);
-			}
+			linkedClassMap.synchronize(classMap);
+			linkedPaletteMap.synchronize(existingPaletteMap);
 		}
 	}
 	
-	public void setPromotedClass(int promotedClassID, int characterID) {
+	public void setPromotedClass(int promotedClassID, int characterID, int paletteSize) {
 		FE8Data.CharacterClass promotedClass = FE8Data.CharacterClass.valueOf(promotedClassID);
 		if (promotedClass == null) { return; }
 		if (!FE8Data.CharacterClass.allPromotedClasses.contains(promotedClass)) { return; }
@@ -458,50 +555,87 @@ public class FE8PaletteMapper {
 		FE8Data.Character character = FE8Data.Character.valueOf(canonicalCharID);
 		PaletteMapEntry existingPaletteMap = paletteIndexMap.get(character);
 		List<SlotType> palettesNeeded = new ArrayList<SlotType>();
-		if (existingPaletteMap.getFirstPromotionPaletteID() == 0) { palettesNeeded.add(SlotType.FIRST_PROMOTION); }
+		
+		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Assigning promoted class ID 0x" + Integer.toHexString(promotedClassID) + " (" + promotedClass.toString() + ") to character 0x" + Integer.toHexString(characterID) + " (" + character.toString() + ")");
+		
+		ClassMapEntry classMap = paletteClassMap.get(character);
+		
+		classMap.setFirstPromotionClassID(promotedClassID);
+
+		Integer paletteLength = registeredPaletteLengths.get(existingPaletteMap.getFirstPromotionPaletteID());
+		
+		if (existingPaletteMap.getFirstPromotionPaletteID() == 0 || (paletteLength != null && paletteSize > paletteLength)) {
+			if (existingPaletteMap.getFirstPromotionPaletteID() != 0) {
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Current palette (0x" + Integer.toHexString(existingPaletteMap.getFirstPromotionPaletteID()) + ") is too small, looking for alternatives...");
+				markPaletteIDAsFree(existingPaletteMap.getFirstPromotionPaletteID());
+				existingPaletteMap.setFirstPromotionPaletteID(0);
+			}
+			
+			Integer recycledPaletteID = requestRecycledPaletteForSize(paletteSize);
+			if (recycledPaletteID != null) {
+				existingPaletteMap.setFirstPromotionPaletteID(recycledPaletteID);
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Found recycled palette 0x" + Integer.toHexString(recycledPaletteID));
+			} else {
+				Integer emptyID = requestEmptyPaletteForSize(paletteSize);
+				if (emptyID != null) {
+					existingPaletteMap.setFirstPromotionPaletteID(emptyID);
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Using empty palette 0x" + Integer.toHexString(emptyID));
+				} else {
+					palettesNeeded.add(SlotType.FIRST_PROMOTION);
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "No Palettes currently available. Adding to waitlist.");
+				}
+			}
+		} else {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette (0x" + Integer.toHexString(existingPaletteMap.getFirstPromotionPaletteID()) + ") OK! (oldSize: " + Integer.toString(paletteLength) + " newSize: " + Integer.toString(paletteSize) + ")");
+		}
+		
 		if (!palettesNeeded.isEmpty()) {
 			charactersThatNeedPalettes.put(character, palettesNeeded);
 		}
 		
+		// We can free any trainee or base class palettes, as well as any other promoted palettes.
+		classMap.setTraineeClassID(0);
+		if (existingPaletteMap.getTraineePaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getTraineePaletteID());
+			existingPaletteMap.setTraineePaletteID(0);
+		}
+		classMap.setBaseClassID(0);
+		if (existingPaletteMap.getBasePaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getBasePaletteID());
+			existingPaletteMap.setBasePaletteID(0);
+		}
+		classMap.setSecondaryBaseClassID(0);
+		if (existingPaletteMap.getSecondaryBasePaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getSecondaryBasePaletteID());
+			existingPaletteMap.setSecondaryBasePaletteID(0);
+		}
+		classMap.setSecondaryPromotionClassID(0);
+		if (existingPaletteMap.getSecondaryPromotionPaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getSecondaryPromotionPaletteID());
+			existingPaletteMap.setSecondaryPromotionPaletteID(0);
+		}
+		classMap.setThirdPromotionClassID(0);
+		if (existingPaletteMap.getThirdPromotionPaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getThirdPromotionPaletteID());
+			existingPaletteMap.setThirdPromotionPaletteID(0);
+		}
+		classMap.setFourthPromotionClassID(0);
+		if (existingPaletteMap.getFourthPromotionPaletteID() != 0) {
+			markPaletteIDAsFree(existingPaletteMap.getFourthPromotionPaletteID());
+			existingPaletteMap.setFourthPromotionPaletteID(0);
+		}
+		
 		for (FE8Data.Character linked : FE8Data.Character.allLinkedCharactersFor(character)) {
-			ClassMapEntry map = paletteClassMap.get(linked);
-			PaletteMapEntry paletteMap = paletteIndexMap.get(linked);
+			// Sync all linked characters to the same palette and class map.
+			ClassMapEntry linkedClassMap = paletteClassMap.get(linked);
+			PaletteMapEntry linkedPaletteMap = paletteIndexMap.get(linked);
 			
-			map.setTraineeClassID(0);
-			if (paletteMap.getTraineePaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getTraineePaletteID());
-				paletteMap.setTraineePaletteID(0);
-			}
-			map.setBaseClassID(0);
-			if (paletteMap.getBasePaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getBasePaletteID());
-				paletteMap.setBasePaletteID(0);
-			}
-			map.setSecondaryBaseClassID(0);
-			if (paletteMap.getSecondaryBasePaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getSecondaryBasePaletteID());
-				paletteMap.setSecondaryBasePaletteID(0);
-			}
-			map.setFirstPromotionClassID(promotedClassID);
-			map.setSecondaryPromotionClassID(0);
-			if (paletteMap.getSecondaryPromotionPaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getSecondaryPromotionPaletteID());
-				paletteMap.setSecondaryPromotionPaletteID(0);
-			}
-			map.setThirdPromotionClassID(0);
-			if (paletteMap.getThirdPromotionPaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getThirdPromotionPaletteID());
-				paletteMap.setThirdPromotionPaletteID(0);
-			}
-			map.setFourthPromotionClassID(0);
-			if (paletteMap.getFourthPromotionPaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getFourthPromotionPaletteID());
-				paletteMap.setFourthPromotionPaletteID(0);
-			}
+			linkedClassMap.synchronize(classMap);
+			linkedPaletteMap.synchronize(existingPaletteMap);
 		}
 	}
 	
-	public void setTraineeClass(int traineeClassID, int characterID) {
+	public void setTraineeClass(int traineeClassID, int characterID, int traineePaletteSize, int base1PaletteSize, int base2PaletteSize, int promo1PaletteSize, int promo2PaletteSize, int promo3PaletteSize, int promo4PaletteSize) {
 		// This should only be done after we figure out how to universally promote trainees.
 		
 		FE8Data.CharacterClass traineeClass = FE8Data.CharacterClass.valueOf(traineeClassID);
@@ -533,53 +667,200 @@ public class FE8PaletteMapper {
 		FE8Data.Character character = FE8Data.Character.valueOf(canonicalCharID);
 		PaletteMapEntry existingPaletteMap = paletteIndexMap.get(character);
 		List<SlotType> palettesNeeded = new ArrayList<SlotType>();
-		if (existingPaletteMap.getTraineePaletteID() == 0) { palettesNeeded.add(SlotType.TRAINEE); }
-		if (existingPaletteMap.getBasePaletteID() == 0 && primaryBaseClassID != 0) { palettesNeeded.add(SlotType.PRIMARY_BASE); }
-		if (existingPaletteMap.getSecondaryBasePaletteID() == 0 && secondaryBaseClassID != 0) { palettesNeeded.add(SlotType.SECONDARY_BASE); }
-		if (existingPaletteMap.getFirstPromotionPaletteID() == 0 && primaryPromotedClassID != 0) { palettesNeeded.add(SlotType.FIRST_PROMOTION); }
-		if (existingPaletteMap.getSecondaryPromotionPaletteID() == 0 && secondaryPromotedClassID != 0) { palettesNeeded.add(SlotType.SECOND_PROMOTION); }
-		if (existingPaletteMap.getThirdPromotionPaletteID() == 0 && thirdPromotedClassID != 0) { palettesNeeded.add(SlotType.THIRD_PROMOTION); }
-		if (existingPaletteMap.getFourthPromotionPaletteID() == 0 && fourthPromotedClassID != 0) { palettesNeeded.add(SlotType.FOURTH_PROMOTION); }
+		
+		ClassMapEntry classMap = paletteClassMap.get(character);
+		classMap.setTraineeClassID(traineeClassID);
+		
+		Integer paletteLength = registeredPaletteLengths.get(existingPaletteMap.getTraineePaletteID());
+		
+		if (existingPaletteMap.getTraineePaletteID() == 0 || (paletteLength != null && traineePaletteSize > paletteLength)) {
+			if (existingPaletteMap.getTraineePaletteID() != 0) {
+				markPaletteIDAsFree(existingPaletteMap.getTraineePaletteID());
+				existingPaletteMap.setTraineePaletteID(0);
+			}
+			
+			Integer recycledPaletteID = requestRecycledPaletteForSize(traineePaletteSize);
+			if (recycledPaletteID != null) { existingPaletteMap.setTraineePaletteID(recycledPaletteID); }
+			else {
+				Integer emptyPaletteID = requestEmptyPaletteForSize(traineePaletteSize);
+				if (emptyPaletteID != null) { existingPaletteMap.setTraineePaletteID(emptyPaletteID); }
+				else { palettesNeeded.add(SlotType.TRAINEE); }
+			}
+		}
+		
+		if (primaryBaseClassID != 0) {
+			classMap.setBaseClassID(primaryBaseClassID);
+			paletteLength = registeredPaletteLengths.get(existingPaletteMap.getBasePaletteID());
+			if ((paletteLength != null && base1PaletteSize > paletteLength) || existingPaletteMap.getBasePaletteID() == 0) {
+				if (existingPaletteMap.getBasePaletteID() != 0) {
+					markPaletteIDAsFree(existingPaletteMap.getBasePaletteID());
+					existingPaletteMap.setBasePaletteID(0);
+				}
+				
+				Integer recycledPaletteID = requestRecycledPaletteForSize(base1PaletteSize);
+				if (recycledPaletteID != null) { existingPaletteMap.setBasePaletteID(recycledPaletteID); }
+				else {
+					Integer emptyPaletteID = requestEmptyPaletteForSize(base1PaletteSize);
+					if (emptyPaletteID != null) { existingPaletteMap.setBasePaletteID(emptyPaletteID); }
+					else { palettesNeeded.add(SlotType.PRIMARY_BASE); }
+				}
+			}
+		} else {
+			classMap.setBaseClassID(0);
+			if (existingPaletteMap.getBasePaletteID() != 0) {
+				markPaletteIDAsFree(existingPaletteMap.getBasePaletteID());
+				existingPaletteMap.setBasePaletteID(0);
+			}
+		}
+		
+		if (secondaryBaseClassID != 0) {
+			classMap.setSecondaryBaseClassID(secondaryBaseClassID);
+			paletteLength = registeredPaletteLengths.get(existingPaletteMap.getSecondaryBasePaletteID());
+			if (existingPaletteMap.getSecondaryBasePaletteID() == 0 || (paletteLength != null && base2PaletteSize > paletteLength)) {
+				if (existingPaletteMap.getSecondaryBasePaletteID() != 0) {
+					markPaletteIDAsFree(existingPaletteMap.getSecondaryBasePaletteID());
+					existingPaletteMap.setSecondaryBasePaletteID(0);
+				}
+				
+				Integer recycledPaletteID = requestRecycledPaletteForSize(base2PaletteSize);
+				if (recycledPaletteID != null) { existingPaletteMap.setSecondaryBasePaletteID(recycledPaletteID); }
+				else {
+					Integer emptyPaletteID = requestEmptyPaletteForSize(base2PaletteSize);
+					if (emptyPaletteID != null) { existingPaletteMap.setSecondaryBasePaletteID(emptyPaletteID); }
+					else { palettesNeeded.add(SlotType.SECONDARY_BASE); }
+				}
+			}
+		} else {
+			classMap.setSecondaryBaseClassID(0);
+			if (existingPaletteMap.getSecondaryBasePaletteID() != 0) {
+				markPaletteIDAsFree(existingPaletteMap.getSecondaryBasePaletteID());
+				existingPaletteMap.setSecondaryBasePaletteID(0);
+			}
+		}
+		
+		if (primaryPromotedClassID != 0) {
+			classMap.setFirstPromotionClassID(primaryPromotedClassID);
+			paletteLength = registeredPaletteLengths.get(existingPaletteMap.getFirstPromotionPaletteID());
+			if (existingPaletteMap.getFirstPromotionPaletteID() == 0 || (paletteLength != null && promo1PaletteSize > paletteLength)) {
+				if (existingPaletteMap.getFirstPromotionPaletteID() != 0) {
+					markPaletteIDAsFree(existingPaletteMap.getFirstPromotionPaletteID());
+					existingPaletteMap.setFirstPromotionPaletteID(0);
+				}
+				
+				Integer recycledPaletteID = requestRecycledPaletteForSize(promo1PaletteSize);
+				if (recycledPaletteID != null) { existingPaletteMap.setFirstPromotionPaletteID(recycledPaletteID); }
+				else {
+					Integer emptyPaletteID = requestEmptyPaletteForSize(promo1PaletteSize);
+					if (emptyPaletteID != null) { existingPaletteMap.setFirstPromotionPaletteID(emptyPaletteID); }
+					else { palettesNeeded.add(SlotType.FIRST_PROMOTION); }
+				}
+			}
+		} else {
+			classMap.setFirstPromotionClassID(0);
+			if (existingPaletteMap.getFirstPromotionPaletteID() != 0) {
+				markPaletteIDAsFree(existingPaletteMap.getFirstPromotionPaletteID());
+				existingPaletteMap.setFirstPromotionPaletteID(0);
+			}
+		}
+		
+		if (secondaryPromotedClassID != 0) {
+			classMap.setSecondaryPromotionClassID(secondaryPromotedClassID);
+			paletteLength = registeredPaletteLengths.get(existingPaletteMap.getSecondaryPromotionPaletteID());
+			if (existingPaletteMap.getSecondaryPromotionPaletteID() == 0 || (paletteLength != null && promo2PaletteSize > paletteLength)) {
+				if (existingPaletteMap.getSecondaryPromotionPaletteID() != 0) {
+					markPaletteIDAsFree(existingPaletteMap.getSecondaryPromotionPaletteID());
+					existingPaletteMap.setSecondaryPromotionPaletteID(0);
+				}
+				
+				Integer recycledPaletteID = requestRecycledPaletteForSize(promo2PaletteSize);
+				if (recycledPaletteID != null) { existingPaletteMap.setSecondaryPromotionPaletteID(recycledPaletteID); }
+				else {
+					Integer emptyPaletteID = requestEmptyPaletteForSize(promo2PaletteSize);
+					if (emptyPaletteID != null) { existingPaletteMap.setSecondaryPromotionPaletteID(emptyPaletteID); }
+					else { palettesNeeded.add(SlotType.SECOND_PROMOTION); }
+				}
+			}
+		} else {
+			classMap.setSecondaryPromotionClassID(0);
+			if (existingPaletteMap.getSecondaryPromotionPaletteID() != 0) {
+				markPaletteIDAsFree(existingPaletteMap.getSecondaryPromotionPaletteID());
+				existingPaletteMap.setSecondaryPromotionPaletteID(0);
+			}
+		}
+		
+		if (thirdPromotedClassID != 0) {
+			classMap.setThirdPromotionClassID(thirdPromotedClassID);
+			if (thirdPromotedClassID == primaryPromotedClassID) {
+				existingPaletteMap.setThirdPromotionPaletteID(existingPaletteMap.getFirstPromotionPaletteID());
+			} else if (thirdPromotedClassID == secondaryPromotedClassID) {
+				existingPaletteMap.setThirdPromotionPaletteID(existingPaletteMap.getSecondaryPromotionPaletteID());
+			} else {
+				paletteLength = registeredPaletteLengths.get(existingPaletteMap.getThirdPromotionPaletteID());
+				if (existingPaletteMap.getThirdPromotionPaletteID() == 0 || (paletteLength != null && promo3PaletteSize > paletteLength)) {
+					if (existingPaletteMap.getThirdPromotionPaletteID() != 0) {
+						markPaletteIDAsFree(existingPaletteMap.getThirdPromotionPaletteID());
+						existingPaletteMap.setThirdPromotionPaletteID(0);
+					}
+					
+					Integer recycledPaletteID = requestRecycledPaletteForSize(promo3PaletteSize);
+					if (recycledPaletteID != null) { existingPaletteMap.setThirdPromotionPaletteID(recycledPaletteID); }
+					else {
+						Integer emptyPaletteID = requestEmptyPaletteForSize(promo3PaletteSize);
+						if (emptyPaletteID != null) { existingPaletteMap.setThirdPromotionPaletteID(emptyPaletteID); }
+						else { palettesNeeded.add(SlotType.THIRD_PROMOTION); }
+					}
+				}
+			}
+		} else {
+			classMap.setThirdPromotionClassID(0);
+			if (existingPaletteMap.getThirdPromotionPaletteID() != 0) {
+				markPaletteIDAsFree(existingPaletteMap.getThirdPromotionPaletteID());
+				existingPaletteMap.setThirdPromotionPaletteID(0);
+			}
+		}
+		
+		if (fourthPromotedClassID != 0) {
+			classMap.setFourthPromotionClassID(fourthPromotedClassID);
+			if (fourthPromotedClassID == primaryPromotedClassID) {
+				existingPaletteMap.setFourthPromotionPaletteID(existingPaletteMap.getFirstPromotionPaletteID());
+			} else if (fourthPromotedClassID == secondaryPromotedClassID) {
+				existingPaletteMap.setFourthPromotionPaletteID(existingPaletteMap.getSecondaryPromotionPaletteID());
+			} else {
+				paletteLength = registeredPaletteLengths.get(existingPaletteMap.getFourthPromotionPaletteID());
+				if (existingPaletteMap.getFourthPromotionPaletteID() == 0 || (paletteLength != null && promo4PaletteSize > paletteLength)) {
+					if (existingPaletteMap.getFourthPromotionPaletteID() != 0) {
+						markPaletteIDAsFree(existingPaletteMap.getFourthPromotionPaletteID());
+						existingPaletteMap.setFourthPromotionPaletteID(0);
+					}
+					
+					Integer recycledPaletteID = requestRecycledPaletteForSize(promo4PaletteSize);
+					if (recycledPaletteID != null) { existingPaletteMap.setFourthPromotionPaletteID(recycledPaletteID); }
+					else {
+						Integer emptyPaletteID = requestEmptyPaletteForSize(promo4PaletteSize);
+						if (emptyPaletteID != null) { existingPaletteMap.setFourthPromotionPaletteID(emptyPaletteID); }
+						else { palettesNeeded.add(SlotType.FOURTH_PROMOTION); }
+					}
+				}
+			}
+		} else {
+			classMap.setFourthPromotionClassID(0);
+			if (existingPaletteMap.getFourthPromotionPaletteID() != 0) {
+				markPaletteIDAsFree(existingPaletteMap.getFourthPromotionPaletteID());
+				existingPaletteMap.setFourthPromotionPaletteID(0);
+			}
+		}
+		
 		if (!palettesNeeded.isEmpty()) {
 			charactersThatNeedPalettes.put(character, palettesNeeded);
 		}
 		
 		for (FE8Data.Character linked : FE8Data.Character.allLinkedCharactersFor(character)) {
-			ClassMapEntry map = paletteClassMap.get(linked);
-			PaletteMapEntry paletteMap = paletteIndexMap.get(linked);
+			// Sync all linked characters to the same palette and class map.
+			ClassMapEntry linkedClassMap = paletteClassMap.get(linked);
+			PaletteMapEntry linkedPaletteMap = paletteIndexMap.get(linked);
 			
-			map.setTraineeClassID(traineeClassID);
-			map.setBaseClassID(primaryBaseClassID);
-			map.setSecondaryBaseClassID(secondaryBaseClassID);
-			map.setFirstPromotionClassID(primaryPromotedClassID);
-			map.setSecondaryPromotionClassID(secondaryPromotedClassID);
-			map.setThirdPromotionClassID(thirdPromotedClassID);
-			map.setFourthPromotionClassID(fourthPromotedClassID);
-			
-			if (primaryBaseClassID == 0 && paletteMap.getBasePaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getBasePaletteID());
-				paletteMap.setBasePaletteID(0);
-			}
-			if (secondaryBaseClassID == 0 && paletteMap.getSecondaryBasePaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getSecondaryBasePaletteID());
-				paletteMap.setSecondaryBasePaletteID(0);
-			}
-			if (primaryPromotedClassID == 0 && paletteMap.getFirstPromotionPaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getFirstPromotionPaletteID());
-				paletteMap.setFirstPromotionPaletteID(0);
-			}
-			if (secondaryPromotedClassID == 0 && paletteMap.getSecondaryPromotionPaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getSecondaryPromotionPaletteID());
-				paletteMap.setSecondaryPromotionPaletteID(0);
-			}
-			if (thirdPromotedClassID == 0 && paletteMap.getThirdPromotionPaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getThirdPromotionPaletteID());
-				paletteMap.setThirdPromotionPaletteID(0);
-			}
-			if (fourthPromotedClassID == 0 && paletteMap.getFourthPromotionPaletteID() != 0) {
-				markPaletteIDAsFree(paletteMap.getFourthPromotionPaletteID());
-				paletteMap.setFourthPromotionPaletteID(0);
-			}
+			linkedClassMap.synchronize(classMap);
+			linkedPaletteMap.synchronize(existingPaletteMap);
 		}
 	}
 	
