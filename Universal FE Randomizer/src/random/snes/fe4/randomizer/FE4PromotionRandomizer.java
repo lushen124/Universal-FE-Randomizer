@@ -59,12 +59,7 @@ public class FE4PromotionRandomizer {
 			}
 			
 			// Otherwise, assign it based on the child's randomized class.
-			List<FE4Data.CharacterClass> promotions = Arrays.asList(fe4CharClass.promotionClasses(isFemale)).stream().sorted(new Comparator<FE4Data.CharacterClass>() {
-				@Override
-				public int compare(CharacterClass arg0, CharacterClass arg1) {
-					return Integer.compare(arg0.ID, arg1.ID);
-				}
-			}).collect(Collectors.toList());
+			List<FE4Data.CharacterClass> promotions = Arrays.asList(fe4CharClass.promotionClasses(isFemale)).stream().sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
 			
 			if (promotions.isEmpty()) {
 				promotionMap.setPromotionForCharacter(fe4Char, FE4Data.CharacterClass.NONE);

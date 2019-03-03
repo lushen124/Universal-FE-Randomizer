@@ -613,12 +613,7 @@ public class FE4Randomizer extends Randomizer {
 					FE4Data.CharacterClass[] fullPool = sigurdMajorBlood.classPool();
 					Set<FE4Data.CharacterClass> unpromotedPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(FE4Data.CharacterClass.filteredClasses(fullPool, false, false)));
 					unpromotedPool.removeAll(Arrays.asList(FE4Data.Character.SELIPH.blacklistedClasses()));
-					List<FE4Data.CharacterClass> unpromotedList = unpromotedPool.stream().sorted(new Comparator<FE4Data.CharacterClass>() {
-						@Override
-						public int compare(CharacterClass arg0, CharacterClass arg1) {
-							return Integer.compare(arg0.ID, arg1.ID);
-						}
-					 }).collect(Collectors.toList());
+					List<FE4Data.CharacterClass> unpromotedList = unpromotedPool.stream().sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
 					
 					if (!unpromotedList.isEmpty()) {
 						Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
