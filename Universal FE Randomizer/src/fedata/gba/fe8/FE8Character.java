@@ -434,10 +434,10 @@ public class FE8Character implements GBAFECharacterData {
 	}
 	
 	// We technically don't need this, but might as well make it complete.
-	public void setIsLord() {
+	public void setIsLord(boolean isLord) {
 		assert !isReadOnly : "Attempted to modify a locked character.";
 		byte oldValue = (byte)(data[41] & 0xFF);
-		byte newValue = (byte)(oldValue | 0x20);
+		byte newValue = isLord ? (byte)(oldValue | 0x20) : (byte)(oldValue & 0xDF);
 		data[41] = newValue;
 		wasModified = true;
 	}

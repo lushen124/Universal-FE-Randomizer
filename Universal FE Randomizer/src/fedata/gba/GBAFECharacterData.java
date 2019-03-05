@@ -113,5 +113,5 @@ public interface GBAFECharacterData extends FEModifiableData, FELockableData {
 	
 	public void prepareForClassRandomization();
 	
-	public void setIsLord();
+	public void setIsLord(boolean isLord);
 }

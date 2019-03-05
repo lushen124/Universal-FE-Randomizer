@@ -95,9 +95,7 @@ public class ClassRandomizer {
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, false, rng);
-				if (isLordCharacter) {
-					linked.setIsLord();
-				}
+				linked.setIsLord(isLordCharacter);
 			}
 		}
 	}
