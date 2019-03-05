@@ -1754,6 +1754,13 @@ public class FE4ClassRandomizer {
 			usableSet.removeAll(FE4Data.Item.statusSet);
 		}
 		
+		FE4Data.Character fe4Char = FE4Data.Character.valueOf(character.getCharacterID());
+		
+		// Remove any player only weapons for characters that can start as enemies (i.e. Berserk Sword, Berserk Staff)
+		if (FE4Data.Character.RecruitableEnemyCharacters.contains(fe4Char)) {
+			usableSet.removeAll(FE4Data.Item.playerOnlySet);
+		}
+		
 		List<FE4Data.Item> usableItems = usableSet.stream().sorted(FE4Data.Item.defaultComparator).collect(Collectors.toList());
 		
 		// Remove Hel, if it's in here.
@@ -1764,7 +1771,6 @@ public class FE4ClassRandomizer {
 		boolean isHealer = targetClass.isHealer();
 		// If we're not prioritizing healing staves, we don't need any special logic that relies on this being a healing class.
 		if (!prioritizeHealingStavesForHealers) { isHealer = false; }
-		FE4Data.Character fe4Char = FE4Data.Character.valueOf(character.getCharacterID());
 		
 		Set<FE4Data.Item> healingStaves = new HashSet<Item>(FE4Data.Item.healingStaves);
 		healingStaves.retainAll(usableItems);
