@@ -72,6 +72,7 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> comparableWeaponsForClass(int classID, WeaponRanks ranks, GBAFEItemData originalItem, boolean strict);
 	public Set<GBAFEItem> formerThiefInventory();
 	public Set<GBAFEItem> thiefItemsToRemove();
+	public Set<GBAFEItem> specialItemsToRetain();
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng);
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon);
