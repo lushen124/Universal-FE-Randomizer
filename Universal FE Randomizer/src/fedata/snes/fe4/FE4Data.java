@@ -1182,6 +1182,8 @@ public class FE4Data {
 				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA};
 			case ARVIS_CH5: // Make sure we don't get Ulir, since it'll crash the Ch. 5 scene. He also shouldn't get Naga because it forces animations on.
+			case ARVIS_CH3_SCENE:
+			case ARVIS_CH10:
 				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI};
 			case SHANNAN: // Just to make sure he can escape with Patty, make sure he doesn't get stuck with a staff.
