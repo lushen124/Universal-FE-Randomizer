@@ -146,6 +146,7 @@ public class FE4BloodRandomizer {
 			if (idsProcessed.contains(staticChar.getCharacterID())) { continue; }
 			
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
+			FE4Data.CharacterClass targetClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID());
 			
 			List<FE4Data.HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(staticChar.getHolyBlood1Value());
 			List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(staticChar.getHolyBlood2Value());
@@ -248,7 +249,7 @@ public class FE4BloodRandomizer {
 					staticChar.setLCKGrowth(staticChar.getLCKGrowth() - bloodData.holyBloodByType(majorBlood).getLCKGrowthBonus() * 2);
 				}
 				
-				if (majorBlood != null) {
+				if (majorBlood != null && new HashSet<FE4Data.HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood())).contains(majorBlood)) {
 					// See if this character has any chance for receiving an item specifically for him/her.
 					for (FE4Data.Character recipient : FE4Data.EventItemInventoryIDsByRecipient.keySet()) {
 						// They also can't be weakly linked to other characters (since we can potentially change a weapon that works for both units).
@@ -257,6 +258,7 @@ public class FE4BloodRandomizer {
 							List<Integer> inventoryIDs = FE4Data.EventItemInventoryIDsByRecipient.get(recipient);
 							int inventoryID = inventoryIDs.get(inventoryIDs.size() - 1);
 							itemMap.setItemAtIndex(inventoryID, majorBlood.holyWeapon);
+							break;
 						}
 					}
 				}
