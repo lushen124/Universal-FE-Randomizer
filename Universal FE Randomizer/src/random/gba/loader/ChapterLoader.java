@@ -1,8 +1,6 @@
 package random.gba.loader;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import fedata.gba.GBAFEChapterData;
@@ -316,9 +314,9 @@ public class ChapterLoader {
 			GBAFEItemData item = itemData.itemWithID(reward.getItemID());
 			
 			if (isInitial) {
-				rk.recordOriginalEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex()) : "Unknown (0x" + Integer.toHexString(reward.getItemID()).toUpperCase() + ")"));
+				rk.recordOriginalEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex(), true) : "Unknown (0x" + Integer.toHexString(reward.getItemID()).toUpperCase() + ")"));
 			} else {
-				rk.recordUpdatedEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex()) : "Unknown (0x" + Integer.toHexString(reward.getItemID()).toUpperCase() + ")"));
+				rk.recordUpdatedEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex(), true) : "Unknown (0x" + Integer.toHexString(reward.getItemID()).toUpperCase() + ")"));
 			}
 		}
 		
@@ -326,9 +324,9 @@ public class ChapterLoader {
 			String key = "Targeted Item";
 			GBAFEItemData item = itemData.itemWithID(targetedReward.getItemID());
 			if (isInitial) {
-				rk.recordOriginalEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex()) : "Unknown (0x" + Integer.toHexString(targetedReward.getItemID()).toUpperCase() + ")"));
+				rk.recordOriginalEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex(), true) : "Unknown (0x" + Integer.toHexString(targetedReward.getItemID()).toUpperCase() + ")"));
 			} else {
-				rk.recordUpdatedEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex()) : "Unknown (0x" + Integer.toHexString(targetedReward.getItemID()).toUpperCase() + ")"));
+				rk.recordUpdatedEntry(RecordKeeperCategoryKey, chapterName, key, (item != null ? textData.getStringAtIndex(item.getNameIndex(), true) : "Unknown (0x" + Integer.toHexString(targetedReward.getItemID()).toUpperCase() + ")"));
 			}
 		}
 	}
@@ -344,10 +342,10 @@ public class ChapterLoader {
 			sb.append("<tr><td>Character ID</td><td>0x" + Integer.toHexString(chapterUnit.getCharacterNumber()).toUpperCase() + "</td></tr>\n");
 		} else {
 			// This is a somewhat important character.
-			sb.append("<tr><td>Character ID</td><td>" + textData.getStringAtIndex(character.getNameIndex()) + "</td></tr>\n");
+			sb.append("<tr><td>Character ID</td><td>" + textData.getStringAtIndex(character.getNameIndex(), true) + "</td></tr>\n");
 		}
 		
-		sb.append("<tr><td>Class</td><td>" + (charClass != null ? textData.getStringAtIndex(charClass.getNameIndex()) + (classData.isFemale(charClass.getID()) ? " (F)" : "") : "Unknown (0x" + Integer.toHexString(chapterUnit.getStartingClass()) + ")") + "</td></tr>\n");
+		sb.append("<tr><td>Class</td><td>" + (charClass != null ? textData.getStringAtIndex(charClass.getNameIndex(), true) + (classData.isFemale(charClass.getID()) ? " (F)" : "") : "Unknown (0x" + Integer.toHexString(chapterUnit.getStartingClass()) + ")") + "</td></tr>\n");
 		sb.append("<tr><td>Loading Coordinates</td><td>(" + chapterUnit.getLoadingX() + ", " + chapterUnit.getLoadingY() + ")</td></tr>\n");
 		sb.append("<tr><td>Starting Coordinates</td><td>(" + chapterUnit.getStartingX() + ", " + chapterUnit.getStartingY() + ")</td></tr>\n");
 		GBAFEItemData item1 = itemData.itemWithID(chapterUnit.getItem1());
@@ -355,10 +353,10 @@ public class ChapterLoader {
 		GBAFEItemData item3 = itemData.itemWithID(chapterUnit.getItem3());
 		GBAFEItemData item4 = itemData.itemWithID(chapterUnit.getItem4());
 		
-		sb.append("<tr><td>Item 1</td><td>" + (item1 != null ? textData.getStringAtIndex(item1.getNameIndex()) : (chapterUnit.getItem1() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem1()).toUpperCase() + ")" : "")) + "</td></tr>\n");
-		sb.append("<tr><td>Item 2</td><td>" + (item2 != null ? textData.getStringAtIndex(item2.getNameIndex()) : (chapterUnit.getItem2() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem2()).toUpperCase() + ")" : "")) + "</td></tr>\n");
-		sb.append("<tr><td>Item 3</td><td>" + (item3 != null ? textData.getStringAtIndex(item3.getNameIndex()) : (chapterUnit.getItem3() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem3()).toUpperCase() + ")" : "")) + "</td></tr>\n");
-		sb.append("<tr><td>Item 4</td><td>" + (item4 != null ? textData.getStringAtIndex(item4.getNameIndex()) : (chapterUnit.getItem4() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem4()).toUpperCase() + ")" : "")) + "</td></tr>\n");
+		sb.append("<tr><td>Item 1</td><td>" + (item1 != null ? textData.getStringAtIndex(item1.getNameIndex(), true) : (chapterUnit.getItem1() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem1()).toUpperCase() + ")" : "")) + "</td></tr>\n");
+		sb.append("<tr><td>Item 2</td><td>" + (item2 != null ? textData.getStringAtIndex(item2.getNameIndex(), true) : (chapterUnit.getItem2() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem2()).toUpperCase() + ")" : "")) + "</td></tr>\n");
+		sb.append("<tr><td>Item 3</td><td>" + (item3 != null ? textData.getStringAtIndex(item3.getNameIndex(), true) : (chapterUnit.getItem3() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem3()).toUpperCase() + ")" : "")) + "</td></tr>\n");
+		sb.append("<tr><td>Item 4</td><td>" + (item4 != null ? textData.getStringAtIndex(item4.getNameIndex(), true) : (chapterUnit.getItem4() != 0 ? "Unknown (0x" + Integer.toHexString(chapterUnit.getItem4()).toUpperCase() + ")" : "")) + "</td></tr>\n");
 		
 		sb.append("</table>\n");
 		return sb.toString();
