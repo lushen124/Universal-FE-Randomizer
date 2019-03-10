@@ -1119,7 +1119,7 @@ public class FE4Data {
 			
 			case SELIPH: return SIGURD;
 			case LEIF: return ETHLYN;
-			case ALTENA: return QUAN;
+			//case ALTENA: return QUAN; // We don't need to specify this one, since we handle it elsewhere and they don't really match to begin with.
 			default: return null;
 			}
 		}
