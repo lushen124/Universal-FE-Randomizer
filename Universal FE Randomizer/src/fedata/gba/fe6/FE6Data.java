@@ -2195,6 +2195,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEItem> thiefItemsToRemove() {
 		return new HashSet<GBAFEItem>(Item.itemsToRemoveFromFormerThief());
 	}
+	
+	public Set<GBAFEItem> specialItemsToRetain() {
+		return new HashSet<GBAFEItem>(Arrays.asList(Item.MEMBER_CARD));
+	}
 
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng) {
 		Set<Item> kit = Item.specialClassKit(classID, rng);

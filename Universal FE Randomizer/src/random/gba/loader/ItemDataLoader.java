@@ -400,6 +400,10 @@ public class ItemDataLoader {
 		return feItemsFromItemSet(provider.thiefItemsToRemove());
 	}
 	
+	public GBAFEItemData[] specialItemsToRetain() {
+		return feItemsFromItemSet(provider.specialItemsToRetain());
+	}
+	
 	public GBAFEItemData[] specialInventoryForClass(int classID, Random rng) {
 		return feItemsFromItemSet(provider.itemKitForSpecialClass(classID, rng));
 	}
