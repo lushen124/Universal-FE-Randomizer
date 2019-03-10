@@ -72,7 +72,7 @@ public class FE4Data {
 	public static final int PromotionTableEntrySize = 1; // Each item is 1 byte (the class ID). The order is baked in, following the character IDs - 1 (because Sigurd is 1).
 	
 	// All player weapons are tracked by kills and usage, so they need special treatment here.
-	// While weapon stats are located elsewhere, these define which item is in which "slot" so to sepak.
+	// While weapon stats are located elsewhere, these define which item is in which "slot" so to speak.
 	public static final long PlayerItemMappingTableOffset = 0x3F688;
 	public static final int PlayerItemMappingTableCount = 145; // We only have 144 items to work with, technically. Don't use item 0.
 	public static final int PlayerItemMappingTableItemSize = 1; // Each item is a byte, representing the item ID in that slot. The index is how the items are referred to afterwards.
@@ -120,16 +120,23 @@ public class FE4Data {
 	public static final int Chapter8ShopSteelLanceInventoryID = 0x34;
 	public static final int DeirdreAuraInventoryID = 0x60;
 	
+	// Ethlyn's appearance in Ch. 5 gives her two items that aren't well documented: 0x2 (Iron Sword) and 0x67 (Mend).
+	// 0x2 is isolated from the rest of the game, but is programmatically inherited by Leif.
+	// 0x67 is the starting equipment for Nanna/Jeanne, and will be randomized by her, which might cause problems. Additionally, 0x67 is also found in the shop in Ch. 8. It's also possible for Leif to inherit this if he could.
+	// The solution then is to give Nanna/Jeanne a new inventory item to split it up. 0x67 will still fall into the Ch. 8 shop, but Jeanne and Nanna won't be able to give Ethlyn a problematic weapon now.
+	public static final int JeanneNannaOldStartingInventoryID = 0x67;
+	public static final int JeanneNannaNewStartingInventoryID = 0x40;
+	// We should also assign Leif 0x2 so that he can randomize that weapon. Ideally it's something both of them can use, but otherwise, defer to Leif.
+	public static final int LeifEthlynSharedInventoryID = 0x02;
+	
 	// Remove 0x34 from the Ch. 8 shop.
 	public static final long Chapter8ShopListOffset = 0x6F54CL;
 	public static final byte[] Chapter8ShopOldListByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x34, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67};
 	public static final byte[] Chapter8ShopNewListByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67, (byte)0xFF};
-	public static final byte[] Chapter8ShopNewListWithFillByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x40, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67};
 	
 	// These don't seem to be used by anybody in the game. Free holy weapons? Or free staves!
 	// The last two may or may not work. They're empty right now, but they may be serving as terminator bytes.
-	public static final List<Integer> UnusedInventoryIDs = new ArrayList<Integer>(Arrays.asList(0x12, 0x40, 0x8D, 0x8E));
-	public static final List<Integer> UnusedInventoryIDsWithFill = new ArrayList<Integer>(Arrays.asList(0x12, 0x8D, 0x8E));
+	public static final List<Integer> UnusedInventoryIDs = new ArrayList<Integer>(Arrays.asList(0x12, 0x8D, 0x8E));
 	
 	public static class EventGift {
 		public Character recipient;

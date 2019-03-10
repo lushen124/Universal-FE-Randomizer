@@ -138,6 +138,8 @@ public class FE4Randomizer extends Randomizer {
 		RecordKeeper recordKeeper = initializeRecordKeeper();
 		recordKeeper.addHeaderItem("Randomizer Seed Phrase", seed);
 		
+		try { makeInitialAdjustments(); } catch (Exception e) { notifyError("Encountered error while making initial adjustments.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		
 		updateStatusString("Randomizing...");
 		try { randomizeClassesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing classes.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.40);
@@ -340,6 +342,19 @@ public class FE4Randomizer extends Randomizer {
 		classData = new ClassDataLoader(handler, isHeadered);
 	}
 	
+	// These changes are made after data loaders are set up but before any randomization happens.
+	private void makeInitialAdjustments() {
+		// Fix Jeanne/Nanna's inventory so that it splits from Ethlyn's Ch. 5 inventory.
+		FE4ChildCharacter nanna = charData.getChildCharacter(FE4Data.Character.NANNA);
+		if (nanna.getEquipment1() == FE4Data.JeanneNannaOldStartingInventoryID) { nanna.setEquipment1(FE4Data.JeanneNannaNewStartingInventoryID); }
+		else if (nanna.getEquipment2() == FE4Data.JeanneNannaOldStartingInventoryID) { nanna.setEquipment2(FE4Data.JeanneNannaNewStartingInventoryID); }
+		
+		FE4StaticCharacter jeanne = charData.getStaticCharacter(FE4Data.Character.JEANNE);
+		if (jeanne.getEquipment1() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment1(FE4Data.JeanneNannaNewStartingInventoryID); }
+		else if (jeanne.getEquipment2() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment2(FE4Data.JeanneNannaNewStartingInventoryID); }
+		else if (jeanne.getEquipment3() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment3(FE4Data.JeanneNannaNewStartingInventoryID); }
+	}
+	
 	private void randomizeGrowthsIfNecessary(String seed) {
 		if (growthOptions != null) {
 			updateStatusString("Randomizing growths...");
@@ -517,6 +532,54 @@ public class FE4Randomizer extends Randomizer {
 			int equip1 = lex.getEquipment1();
 			FE4Data.Item item1 = itemMapper.getItemAtIndex(equip1);
 			diffCompiler.addDiff(new Diff(FE4Data.LexHeroAxeEventItemRequirementOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)item1.ID}, new byte[] {FE4Data.LexHeroAxeEventItemRequirementOldID}));
+			
+			// Handle item 0x2. It's Leif's starting equipment but it's not specifically coded to be because it's part of Ethlyn's kit in Ch. 5.
+			// See if there's a weapon they can both use. Otherwise, defer to Leif.
+			FE4StaticCharacter ethlyn = charData.getStaticCharacter(FE4Data.Character.ETHLYN);
+			FE4ChildCharacter leif = charData.getChildCharacter(FE4Data.Character.LEIF);
+			
+			FE4Data.CharacterClass ethlynClass = FE4Data.CharacterClass.valueOf(ethlyn.getClassID());
+			FE4Data.CharacterClass leifClass = FE4Data.CharacterClass.valueOf(leif.getClassID());
+			
+			List<FE4Data.HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(ethlyn.getHolyBlood1Value());
+			List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(ethlyn.getHolyBlood2Value());
+			List<FE4Data.HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(ethlyn.getHolyBlood3Value());
+			
+			Set<FE4Data.Item> ethlynUsableSet = new HashSet<FE4Data.Item>(Arrays.asList(ethlynClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
+			
+			// Leif also gets Quan's minor blood.
+			FE4StaticCharacter quan = charData.getStaticCharacter(FE4Data.Character.QUAN);
+			FE4Data.HolyBloodSlot1.slot1HolyBlood(quan.getHolyBlood1Value()).stream().forEach(blood -> {
+				FE4Data.HolyBloodSlot1 bloodToAdd = FE4Data.HolyBloodSlot1.blood(blood.bloodType(), false); 	
+				if (slot1Blood.contains(bloodToAdd)) {
+					slot1Blood.remove(bloodToAdd);
+					slot1Blood.add(FE4Data.HolyBloodSlot1.blood(blood.bloodType(), true));
+				}
+			});
+			FE4Data.HolyBloodSlot2.slot2HolyBlood(quan.getHolyBlood2Value()).stream().forEach(blood -> {
+				FE4Data.HolyBloodSlot2 bloodToAdd = FE4Data.HolyBloodSlot2.blood(blood.bloodType(), false); 	
+				if (slot2Blood.contains(bloodToAdd)) {
+					slot2Blood.remove(bloodToAdd);
+					slot2Blood.add(FE4Data.HolyBloodSlot2.blood(blood.bloodType(), true));
+				}
+			});
+			FE4Data.HolyBloodSlot3.slot3HolyBlood(quan.getHolyBlood3Value()).stream().forEach(blood -> {
+				FE4Data.HolyBloodSlot3 bloodToAdd = FE4Data.HolyBloodSlot3.blood(blood.bloodType(), false); 	
+				if (slot3Blood.contains(bloodToAdd)) {
+					slot3Blood.remove(bloodToAdd);
+					slot3Blood.add(FE4Data.HolyBloodSlot3.blood(blood.bloodType(), true));
+				}
+			});
+			
+			Set<FE4Data.Item> leifUsableSet = new HashSet<FE4Data.Item>(Arrays.asList(leifClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
+			
+			if (!Collections.disjoint(ethlynUsableSet, leifUsableSet)) {
+				leifUsableSet.retainAll(ethlynUsableSet);
+			}
+			
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
+			List<FE4Data.Item> usableList = leifUsableSet.stream().sorted(FE4Data.Item.defaultComparator).collect(Collectors.toList());
+			itemMapper.setItemAtIndex(FE4Data.LeifEthlynSharedInventoryID, usableList.get(rng.nextInt(usableList.size())));
 		}
 		
 		if (classOptions.randomizeBlood || bloodOptions.giveHolyBlood) {
