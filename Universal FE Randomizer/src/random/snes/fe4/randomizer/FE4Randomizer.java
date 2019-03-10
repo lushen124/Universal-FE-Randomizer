@@ -502,13 +502,17 @@ public class FE4Randomizer extends Randomizer {
 		// Gotta fix Oifey's promotion so that he doesn't somehow promote even though he's already promoted.
 		promotionMapper.setPromotionForCharacter(FE4Data.Character.OIFEY, FE4Data.CharacterClass.NONE);
 		
+		// Make sure Sigurd does NOT pass his holy weapon to Seliph.
+		// Tyrfing normally sits at inventory ID 0x27. Since we didn't change inventory IDs, this should still be safe.
+		diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)(itemMapper.getItemAtIndex(0x27).ID & 0xFF)}, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanOldID}));
+		diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset2 - (isHeadered ? 0 : 0x200), 1, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanNewValue}, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanOldValue}));
+		// Make sure there's only one instance of Altena/Quan's weapon as well, since it's hard coded onto Altena.
+		// Gae Bolg is usually 0x3E.
+		diffCompiler.addDiff(new Diff(FE4Data.QuanHolyWeaponInheritenceBanOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)(itemMapper.getItemAtIndex(0x3E).ID & 0xFF)}, new byte[] {FE4Data.QuanHolyWeaponInheritenceBanOldID}));
+		diffCompiler.addDiff(new Diff(FE4Data.QuanHolyWeaponInheritenceBanOffset2 - (isHeadered ? 0 : 0x200), 1, new byte[] {FE4Data.QuanHolyWeaponInheritenceBanNewValue}, new byte[] {FE4Data.QuanHolyWeaponInheritenceBanOldValue}));
+		
 		// These only need to be performed if playable character classes were randomized. Otherwise, the default values should still work.
 		if (classOptions.randomizePlayableCharacters) {
-			// Make sure Sigurd does NOT pass his holy weapon to Seliph.
-			// Tyrfing normally sits at inventory ID 0x27. Since we didn't change inventory IDs, this should still be safe.
-			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)(itemMapper.getItemAtIndex(0x27).ID & 0xFF)}, new byte[] {(FE4Data.SeliphHolyWeaponInheritenceBanOldID)}));
-			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset2 - (isHeadered ? 0 : 0x200), 1, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanNewValue}, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanOldValue}));
-			
 			// Make sure Lex's Hero Axe event still triggers (the reward should have already been updated if the "Adjust Conversation Items" option was enabled).
 			// Trigger it off of whatever equipment Lex started with.
 			FE4StaticCharacter lex = charData.getStaticCharacter(FE4Data.Character.LEX);

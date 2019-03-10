@@ -11,6 +11,9 @@ import java.util.Set;
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4HolyBlood;
 import fedata.snes.fe4.FE4StaticCharacter;
+import fedata.snes.fe4.FE4Data.HolyBloodSlot1;
+import fedata.snes.fe4.FE4Data.HolyBloodSlot2;
+import fedata.snes.fe4.FE4Data.HolyBloodSlot3;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
@@ -133,14 +136,20 @@ public class FE4BloodRandomizer {
 		
 		Set<Integer> idsProcessed = new HashSet<Integer>();
 		
-		// Get Sigurd's holy blood. We need to make sure nobody else
-		// has major blood matching his, since his holy weapon will NOT be passed down to Gen 2 directly.
-		FE4Data.HolyBlood sigurdBlood = null;
-		FE4StaticCharacter sigurd = charData.getStaticCharacter(FE4Data.Character.SIGURD);
-		List<FE4Data.HolyBloodSlot1> sigurdSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(sigurd.getHolyBlood1Value());
-		List<FE4Data.HolyBloodSlot2> sigurdSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(sigurd.getHolyBlood2Value());
-		if (sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { sigurdBlood = sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType(); }
-		else if (sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { sigurdBlood = sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType(); }
+		Set<FE4Data.HolyBlood> restrictedBlood = new HashSet<FE4Data.HolyBlood>(); 
+		
+		for (FE4Data.Character uniqueChar : FE4Data.Character.CharactersRequiringUniqueBlood) {
+			FE4StaticCharacter unique = charData.getStaticCharacter(uniqueChar);
+			if (unique == null) { continue; }
+			
+			List<HolyBloodSlot1> restrictedSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(unique.getHolyBlood1Value());
+			List<HolyBloodSlot2> restrictedSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(unique.getHolyBlood2Value());
+			List<HolyBloodSlot3> restrictedSlot3 = FE4Data.HolyBloodSlot3.slot3HolyBlood(unique.getHolyBlood3Value());
+			
+			if (restrictedSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { restrictedBlood.add(restrictedSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType()); }
+			if (restrictedSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { restrictedBlood.add(restrictedSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType()); }
+			if (restrictedSlot3.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) { restrictedBlood.add(restrictedSlot3.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType()); }
+		}
 		
 		for (FE4StaticCharacter staticChar : characterList) {
 			if (idsProcessed.contains(staticChar.getCharacterID())) { continue; }
@@ -178,7 +187,7 @@ public class FE4BloodRandomizer {
 			if (rngValue < majorBloodChance) {
 				// assign major blood
 				FE4Data.HolyBlood majorBlood = null;
-				if (hasMinorBlood && minorBloodType != sigurdBlood) { // Only promote their minor blood type to major if it doesn't match with Sigurd's.
+				if (hasMinorBlood) {
 					majorBlood = minorBloodType;
 					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(minorBloodType, true);
 					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(minorBloodType, true);
@@ -215,22 +224,13 @@ public class FE4BloodRandomizer {
 					Set<FE4Data.HolyBlood> bloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(bloodChoices));
 					bloodSet.retainAll(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
 					bloodSet.remove(FE4Data.HolyBlood.NONE);
-					// Also remove Sigurd's blood from consideration. (Gen 1 only.)
-					if (fe4Char.isGen1()) { bloodSet.remove(sigurdBlood); }
 					List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodSet);
 					Collections.sort(bloodList, FE4Data.HolyBlood.defaultComparator);
 					FE4Data.HolyBlood selectedBlood = bloodList.isEmpty() ? null : bloodList.get(rng.nextInt(bloodList.size()));
 					
-					// If we have a blood selected, use that, but otherwise (probably because Sigurd took it)
-					// make it a minor blood.
-					boolean isMajor = true;
-					if (selectedBlood == null) {
-						selectedBlood = sigurdBlood;
-						isMajor = false;
-					}
-					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(selectedBlood, isMajor);
-					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(selectedBlood, isMajor);
-					FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(selectedBlood, isMajor);
+					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(selectedBlood, true);
+					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(selectedBlood, true);
+					FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(selectedBlood, true);
 					if (slot1 != null) { slot1Blood.add(slot1); }
 					if (slot2 != null) { slot2Blood.add(slot2); }
 					if (slot3 != null) { slot3Blood.add(slot3); }
@@ -248,12 +248,12 @@ public class FE4BloodRandomizer {
 					staticChar.setLCKGrowth(staticChar.getLCKGrowth() - bloodData.holyBloodByType(majorBlood).getLCKGrowthBonus() * 2);
 				}
 				
-				if (majorBlood != null) {
+				if (majorBlood != null && !restrictedBlood.contains(majorBlood)) { // Only do this for characters getting major blood that aren't restricted.
 					// See if this character has any chance for receiving an item specifically for him/her.
 					for (FE4Data.Character recipient : FE4Data.EventItemInventoryIDsByRecipient.keySet()) {
 						// They also can't be weakly linked to other characters (since we can potentially change a weapon that works for both units).
-						// This also only has a 50% chance of happening.
-						if (recipient.ID == fe4Char.ID && !FE4Data.WeaklyLinkedCharacters.containsKey(fe4Char) && rng.nextInt(2) == 0) {
+						// This also only has a 80% chance of happening.
+						if (recipient.ID == fe4Char.ID && !FE4Data.WeaklyLinkedCharacters.containsKey(fe4Char) && rng.nextInt(5) != 0) {
 							List<Integer> inventoryIDs = FE4Data.EventItemInventoryIDsByRecipient.get(recipient);
 							int inventoryID = inventoryIDs.get(inventoryIDs.size() - 1);
 							itemMap.setItemAtIndex(inventoryID, majorBlood.holyWeapon);

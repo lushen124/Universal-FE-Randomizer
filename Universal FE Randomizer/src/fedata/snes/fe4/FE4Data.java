@@ -89,6 +89,12 @@ public class FE4Data {
 	public static final long SeliphHolyWeaponInheritenceBanOffset2 = 0x7AD59L; // This byte also needs to be set appropriately.
 	public static final byte SeliphHolyWeaponInheritenceBanOldValue = 0x18;
 	public static final byte SeliphHolyWeaponInheritenceBanNewValue = 0x1E;
+	// Same for Quan's but for a different reason, since Altena's weapon is hard coded on her, we don't want multiple copies flying around.
+	public static final long QuanHolyWeaponInheritenceBanOffset = 0x7AD5BL;
+	public static final byte QuanHolyWeaponInheritenceBanOldID = 0x62; // Was the Valkyrie Staff.
+	public static final long QuanHolyWeaponInheritenceBanOffset2 = 0x7AD5EL;
+	public static final byte QuanHolyWeaponInheritenceBanOldValue = 0x13;
+	public static final byte QuanHolyWeaponInheritenceBanNewValue = 0x19;
 	
 	// Seliph also has hard-coded blood. Since we limited the parent's blood. We can calculate what his blood should be.
 	public static final long SeliphHolyBloodByte1Offset = 0x4856DL;
@@ -983,6 +989,11 @@ public class FE4Data {
 		public static final Set<Character> Gen2SubstituteCharacters = new HashSet<Character>(Arrays.asList(DALVIN, ASAELLO, CHARLOT, HAWK, TRISTAN, DEIMNE, AMID, DAISY, CREIDNE, MUIRNE,
 				HERMINA, LINDA, LAYLEA, JEANNE));
 		
+		// These characters need to make sure no other characters get their blood (more specifically their holy weapon, as they will not be inherited).
+		public static final Set<Character> CharactersRequiringUniqueBlood = new HashSet<Character>(Arrays.asList(SIGURD, QUAN));
+
+		public static final Set<Character> RecruitableEnemyCharacters = new HashSet<Character>(Arrays.asList(AYRA, JAMKE, CHULAINN, BEOWOLF, ERINYS, ASAELLO, FEBAIL, ALTENA, TINE, IUCHAR, IUCHARBA, HANNIBAL, LINDA));
+		
 		public static final Set<Character> Gen1Bosses = new HashSet<Character>(Arrays.asList(
 				DIMAGGIO, GERRARD,
 				CIMBAETH, MUNNIR, SANDIMA,
@@ -1108,7 +1119,7 @@ public class FE4Data {
 			
 			case SELIPH: return SIGURD;
 			case LEIF: return ETHLYN;
-			case ALTENA: return QUAN;
+			//case ALTENA: return QUAN; // We don't need to specify this one, since we handle it elsewhere and they don't really match to begin with.
 			default: return null;
 			}
 		}
@@ -1182,6 +1193,8 @@ public class FE4Data {
 				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA};
 			case ARVIS_CH5: // Make sure we don't get Ulir, since it'll crash the Ch. 5 scene. He also shouldn't get Naga because it forces animations on.
+			case ARVIS_CH3_SCENE:
+			case ARVIS_CH10:
 				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI};
 			case SHANNAN: // Just to make sure he can escape with Patty, make sure he doesn't get stuck with a staff.
