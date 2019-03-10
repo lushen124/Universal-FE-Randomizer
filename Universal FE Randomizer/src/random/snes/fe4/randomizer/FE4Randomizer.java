@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Class.ClassSkills;
 import fedata.snes.fe4.FE4Data;
-import fedata.snes.fe4.FE4Data.CharacterClass;
 import fedata.snes.fe4.FE4StaticCharacter;
 import io.DiffApplicator;
 import io.FileHandler;
@@ -764,7 +762,9 @@ public class FE4Randomizer extends Randomizer {
 				rk.addHeaderItem("Include Lords", classOptions.includeLords ? "YES" : "NO");
 				rk.addHeaderItem("Include Thieves", classOptions.includeThieves ? "YES" : "NO");
 				rk.addHeaderItem("Include Dancers", classOptions.includeDancers ? "YES" : "NO");
+				rk.addHeaderItem("Include Julia", classOptions.includeJulia ? "YES" : "NO");
 				rk.addHeaderItem("Retain Healers", classOptions.retainHealers ? "YES" : "NO");
+				rk.addHeaderItem("Retain Horesback Units", classOptions.retainHorses ? "YES" : "NO");
 				
 				switch (classOptions.childOption) {
 				case MATCH_STRICT:
@@ -793,6 +793,18 @@ public class FE4Randomizer extends Randomizer {
 				
 				rk.addHeaderItem("Adjust Conversation Gifts", classOptions.adjustConversationWeapons ? "YES" : "NO");
 				rk.addHeaderItem("Adjust STR/MAG Growths and Bases", classOptions.adjustSTRMAG ? "YES" : "NO");
+				
+				switch (classOptions.itemOptions) {
+				case SIDEGRADE_STRICT:
+					rk.addHeaderItem("Weapon Assignment", "Sidegrade (Strict)");
+					break;
+				case SIDEGRADE_LOOSE:
+					rk.addHeaderItem("Weapon Assignment", "Sidegrade (Loose)");
+					break;
+				case RANDOMIZE:
+					rk.addHeaderItem("Weapon Assignment", "Randomize");
+					break;
+				}
 			} else {
 				rk.addHeaderItem("Randomize Playable Classes", "NO");
 			}
@@ -829,6 +841,29 @@ public class FE4Randomizer extends Randomizer {
 		if (miscOptions != null) {
 			rk.addHeaderItem("Apply English Patch", miscOptions.applyEnglishPatch ? "YES" : "NO");
 			rk.addHeaderItem("Randomize Rings", miscOptions.randomizeRewards ? "YES" : "NO");
+		}
+		
+		if (buffOptions != null) {
+			if (buffOptions.increaseEnemyScaling) {
+				switch (buffOptions.scalingOption) {
+				case FLAT:
+					rk.addHeaderItem("Improve Enemy Stats", "Flat Scaling (" + buffOptions.scalingAmount + "%)");
+					break;
+				case SCALING:
+					rk.addHeaderItem("Improve Enemy Stats", "Proportional Scaling (" + buffOptions.scalingAmount + "%)");
+					break;
+				}
+			} else {
+				rk.addHeaderItem("Improve Enemy Stats", "NO");
+			}
+			
+			if (buffOptions.improveMinionWeapons) {
+				rk.addHeaderItem("Improve Enemy Equipment", "YES (" + buffOptions.improvementChance + "%)");
+			} else {
+				rk.addHeaderItem("Improve Enemy Equipment", "NO");
+			}
+			
+			rk.addHeaderItem("Force Major Blood and Holy Weapon", buffOptions.majorHolyBloodBosses ? "YES" : "NO");
 		}
 		
 		charData.recordCharacters(rk, true, itemMapper);
