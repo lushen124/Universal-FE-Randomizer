@@ -458,9 +458,9 @@ public class ItemDataLoader {
 	
 	private void recordWeapon(RecordKeeper rk, GBAFEItemData item, Boolean isInitial, ClassDataLoader classData, TextLoader textData, FileHandler handler) {
 		int nameIndex = item.getNameIndex();
-		String name = textData.getStringAtIndex(nameIndex).trim();
+		String name = textData.getStringAtIndex(nameIndex, true).trim();
 		int descriptionIndex = item.getDescriptionIndex();
-		String description = textData.getStringAtIndex(descriptionIndex).trim();
+		String description = textData.getStringAtIndex(descriptionIndex, true).trim();
 		
 		if (isInitial) {
 			rk.recordOriginalEntry(RecordKeeperCategoryWeaponKey, name, "Description", description);
@@ -506,9 +506,9 @@ public class ItemDataLoader {
 							classList.add("Unknown (0x" + Integer.toHexString(classID).toUpperCase() + ")");
 						} else {
 							if (classData.isFemale(classID)) {
-								classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim() + " (F)");
+								classList.add(textData.getStringAtIndex(classObject.getNameIndex(), true).trim() + " (F)");
 							} else {
-								classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim());
+								classList.add(textData.getStringAtIndex(classObject.getNameIndex(), true).trim());
 							}
 						}
 					}
@@ -582,9 +582,9 @@ public class ItemDataLoader {
 							classList.add("Unknown (0x" + Integer.toHexString(classID).toUpperCase() + ")");
 						} else {
 							if (classData.isFemale(classID)) {
-								classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim() + " (F)");
+								classList.add(textData.getStringAtIndex(classObject.getNameIndex(), true).trim() + " (F)");
 							} else {
-								classList.add(textData.getStringAtIndex(classObject.getNameIndex()).trim());
+								classList.add(textData.getStringAtIndex(classObject.getNameIndex(), true).trim());
 							}
 						}
 					}

@@ -233,10 +233,10 @@ public class FE6Item implements GBAFEItemData {
 		if (selectedEffect != WeaponEffects.NONE) {
 			String updatedDescription = ingameDescriptionString(itemData);
 			if (updatedDescription != null) {
-				textData.setStringAtIndex(getDescriptionIndex(), updatedDescription);
-				DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex()) + " is now " + updatedDescription);
+				textData.setStringAtIndex(getDescriptionIndex(), updatedDescription + "[X]");
+				DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex(), true) + " is now " + updatedDescription);
 			} else {
-				DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex()) + " has no effect.");
+				DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex(), true) + " has no effect.");
 			}
 		}
 	}
