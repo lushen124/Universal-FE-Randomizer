@@ -90,14 +90,12 @@ public class ClassRandomizer {
 				continue;
 			}
 			
-			DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Assigning character 0x" + Integer.toHexString(character.getID()).toUpperCase() + " (" + textData.getStringAtIndex(character.getNameIndex()) + ") to class 0x" + Integer.toHexString(targetClass.getID()) + " (" + textData.getStringAtIndex(targetClass.getNameIndex()) + ")");
+			DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Assigning character 0x" + Integer.toHexString(character.getID()).toUpperCase() + " (" + textData.getStringAtIndex(character.getNameIndex(), true) + ") to class 0x" + Integer.toHexString(targetClass.getID()) + " (" + textData.getStringAtIndex(targetClass.getNameIndex(), true) + ")");
 			
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
 				updateCharacterToClass(inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, false, rng);
-				if (isLordCharacter) {
-					linked.setIsLord();
-				}
+				linked.setIsLord(isLordCharacter);
 			}
 		}
 	}
@@ -291,6 +289,8 @@ public class ClassRandomizer {
 	}
 	
 	public static void validateFormerThiefInventory(GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData) {
+		Set<GBAFEItemData> itemsToRetain = itemsToRetain(chapterUnit, itemData);
+		
 		GBAFEItemData[] requiredItems = itemData.formerThiefInventory();
 		if (requiredItems != null) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);
@@ -300,12 +300,65 @@ public class ClassRandomizer {
 		for (GBAFEItemData item : thiefItemsToRemove) {
 			chapterUnit.removeItem(item.getID());
 		}
+		
+		itemsToGiveBack(chapterUnit, itemsToRetain, itemData);
+		if (!itemsToRetain.isEmpty()) {
+			int[] idsToGiveBack = itemsToRetain.stream().mapToInt(item -> (item.getID())).toArray();
+			chapterUnit.giveItems(idsToGiveBack);
+		}
+	}
+	
+	private static Set<GBAFEItemData> itemsToRetain(GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData) {
+		int item1ID = chapterUnit.getItem1();
+		GBAFEItemData item1 = itemData.itemWithID(item1ID);
+		int item2ID = chapterUnit.getItem2();
+		GBAFEItemData item2 = itemData.itemWithID(item2ID);
+		int item3ID = chapterUnit.getItem3();
+		GBAFEItemData item3 = itemData.itemWithID(item3ID);
+		int item4ID = chapterUnit.getItem4();
+		GBAFEItemData item4 = itemData.itemWithID(item4ID);
+		
+		Set<GBAFEItemData> existingItemSet = new HashSet<GBAFEItemData>();
+		if (item1 != null) { existingItemSet.add(item1); }
+		if (item2 != null) { existingItemSet.add(item2); }
+		if (item3 != null) { existingItemSet.add(item3); }
+		if (item4 != null) { existingItemSet.add(item4); }
+		
+		Set<GBAFEItemData> itemsToRetain = new HashSet<GBAFEItemData>(Arrays.asList(itemData.specialItemsToRetain()));
+		itemsToRetain.retainAll(existingItemSet);
+		return itemsToRetain;
+	}
+	
+	private static void itemsToGiveBack(GBAFEChapterUnitData chapterUnit, Set<GBAFEItemData> itemsToRetain, ItemDataLoader itemData) {
+		int item1ID = chapterUnit.getItem1();
+		GBAFEItemData item1 = itemData.itemWithID(item1ID);
+		int item2ID = chapterUnit.getItem2();
+		GBAFEItemData item2 = itemData.itemWithID(item2ID);
+		int item3ID = chapterUnit.getItem3();
+		GBAFEItemData item3 = itemData.itemWithID(item3ID);
+		int item4ID = chapterUnit.getItem4();
+		GBAFEItemData item4 = itemData.itemWithID(item4ID);
+		
+		if (!itemsToRetain.isEmpty()) {
+			if (item1 != null) { itemsToRetain.remove(item1); }
+			if (item2 != null) { itemsToRetain.remove(item2); }
+			if (item3 != null) { itemsToRetain.remove(item3); }
+			if (item4 != null) { itemsToRetain.remove(item4); }
+		}
 	}
 	
 	public static void validateSpecialClassInventory(GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData, Random rng) {
+		Set<GBAFEItemData> itemsToRetain = itemsToRetain(chapterUnit, itemData);
+		
 		GBAFEItemData[] requiredItems = itemData.specialInventoryForClass(chapterUnit.getStartingClass(), rng);
 		if (requiredItems != null && requiredItems.length > 0) {
 			giveItemsToChapterUnit(chapterUnit, requiredItems);
+		}
+		
+		itemsToGiveBack(chapterUnit, itemsToRetain, itemData);
+		if (!itemsToRetain.isEmpty()) {
+			int[] idsToGiveBack = itemsToRetain.stream().mapToInt(item -> (item.getID())).toArray();
+			chapterUnit.giveItems(idsToGiveBack);
 		}
 	}
 	
@@ -397,8 +450,10 @@ public class ClassRandomizer {
 		Boolean classCanAttack = classData.canClassAttack(charClass.getID());
 		Boolean hasAtLeastOneWeapon = false;
 		
-		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Validating inventory for character 0x" + Integer.toHexString(character.getID()) + " (" + textData.getStringAtIndex(character.getNameIndex()) +") in class 0x" + Integer.toHexString(charClass.getID()) + " (" + textData.getStringAtIndex(charClass.getNameIndex()) + ")");
-		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Original Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex()) + ")") + "]");
+		Set<GBAFEItemData> itemsToRetain = itemsToRetain(chapterUnit, itemData);
+		
+		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Validating inventory for character 0x" + Integer.toHexString(character.getID()) + " (" + textData.getStringAtIndex(character.getNameIndex(), true) +") in class 0x" + Integer.toHexString(charClass.getID()) + " (" + textData.getStringAtIndex(charClass.getNameIndex(), true) + ")");
+		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Original Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex(), true) + ")") + "]");
 		
 		if (itemData.isWeapon(item1) || (item1 != null && item1.getType() == WeaponType.STAFF)) {
 			if (!canCharacterUseItem(character, item1, itemData) || (item1.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item1ID))) {
@@ -530,16 +585,13 @@ public class ClassRandomizer {
 			}
 		}
 		
-		item1ID = chapterUnit.getItem1();
-		item1 = itemData.itemWithID(item1ID);
-		item2ID = chapterUnit.getItem2();
-		item2 = itemData.itemWithID(item2ID);
-		item3ID = chapterUnit.getItem3();
-		item3 = itemData.itemWithID(item3ID);
-		item4ID = chapterUnit.getItem4();
-		item4 = itemData.itemWithID(item4ID);
+		itemsToGiveBack(chapterUnit, itemsToRetain, itemData);
+		if (!itemsToRetain.isEmpty()) {
+			int[] idsToGiveBack = itemsToRetain.stream().mapToInt(item -> (item.getID())).toArray();
+			chapterUnit.giveItems(idsToGiveBack);
+		}
 		
-		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Final Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex()) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex()) + ")") + "]");
+		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Final Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex(), true) + ")") + "]");
 	}
 	
 	private static GBAFEItemData[] topRankWeaponsForClass(GBAFEClassData characterClass, ItemDataLoader itemData) {

@@ -64,7 +64,7 @@ public class FE4ClassesView extends Composite {
 		
 		randomizePCs = new Button(container, SWT.CHECK);
 		randomizePCs.setText("Randomize Playable Characters");
-		randomizePCs.setToolTipText("Randomizes all playable characters and enables other options requiring flexible classes.");
+		randomizePCs.setToolTipText("Randomizes all playable characters and enables other options requiring flexible classes.\n\nNotes:\n1. All holy weapons can be sold and re-bought freely.\n2. Sigurd's and Quan's holy weapons will NOT pass down to their children.");
 		randomizePCs.setEnabled(true);
 		randomizePCs.setSelection(false);
 		randomizePCs.addListener(SWT.Selection, new Listener() {

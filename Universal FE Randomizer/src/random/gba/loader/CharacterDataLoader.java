@@ -193,8 +193,8 @@ public class CharacterDataLoader {
 		GBAFECharacter feChar = provider.characterWithID(character.getID());
 		String internalName = feChar.toString();
 		
-		String name = textData.getStringAtIndex(nameIndex).trim();
-		String className = textData.getStringAtIndex(classNameIndex).trim();
+		String name = textData.getStringAtIndex(nameIndex, true).trim();
+		String className = textData.getStringAtIndex(classNameIndex, true).trim();
 		
 		String classValue = className + " (0x" + Integer.toHexString(classID).toUpperCase() + ")";
 		if (isInitial) {
