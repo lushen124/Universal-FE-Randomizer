@@ -983,6 +983,8 @@ public class FE4Data {
 		public static final Set<Character> Gen2SubstituteCharacters = new HashSet<Character>(Arrays.asList(DALVIN, ASAELLO, CHARLOT, HAWK, TRISTAN, DEIMNE, AMID, DAISY, CREIDNE, MUIRNE,
 				HERMINA, LINDA, LAYLEA, JEANNE));
 		
+		public static final Set<Character> RecruitableEnemyCharacters = new HashSet<Character>(Arrays.asList(AYRA, JAMKE, CHULAINN, BEOWOLF, ERINYS, ASAELLO, FEBAIL, ALTENA, TINE, IUCHAR, IUCHARBA, HANNIBAL, LINDA));
+		
 		public static final Set<Character> Gen1Bosses = new HashSet<Character>(Arrays.asList(
 				DIMAGGIO, GERRARD,
 				CIMBAETH, MUNNIR, SANDIMA,
