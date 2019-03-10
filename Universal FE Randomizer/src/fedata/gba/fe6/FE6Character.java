@@ -433,16 +433,16 @@ public class FE6Character implements GBAFECharacterData {
 		wasModified = true;
 	}
 	
-	public void setIsLord() {
+	public void setIsLord(boolean isLord) {
 		assert !isReadOnly : "Attempted to modify a locked character.";
 		// Mark as Lord (Ability 2)
 		byte oldValue = (byte)(data[41] & 0xFF);
-		byte newValue = (byte)(oldValue | 0x20);
+		byte newValue = isLord ? (byte)(oldValue | 0x20) : (byte)(oldValue & 0xDF);
 		data[41] = newValue;
 		
 		// Give Sword of Seals lock (Ability 3)
 		oldValue = (byte)(data[42] & 0xFF);
-		newValue = (byte)(oldValue | 0x01);
+		newValue = isLord ? (byte)(oldValue | 0x01) : (byte)(oldValue & 0xFE);
 		data[42] = newValue; 
 		
 		wasModified = true;

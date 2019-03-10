@@ -565,9 +565,9 @@ public class GBARandomizer extends Randomizer {
 				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(hector), hector.getClassID(), paletteData, freeSpace, diffCompiler);
 				
 				// Finally, fix the weapon text.
-				textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType());
-				textData.setStringAtIndex(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex, eliwoodClass.primaryWeaponType());
-				textData.setStringAtIndex(FE7Data.ModeSelectTextHectorWeaponTypeIndex, hectorClass.primaryWeaponType());
+				textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType() + "[X]");
+				textData.setStringAtIndex(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex, eliwoodClass.primaryWeaponType() + "[X]");
+				textData.setStringAtIndex(FE7Data.ModeSelectTextHectorWeaponTypeIndex, hectorClass.primaryWeaponType() + "[X]");
 				
 				// Eliwood is the one we're going to override, since he normally shares the weapon string with Lyn.
 				diffCompiler.addDiff(new Diff(FE7Data.ModeSelectEliwoodWeaponOffset, 2, 
@@ -640,8 +640,8 @@ public class GBARandomizer extends Randomizer {
 		
 		if (gameType == GameType.FE8) {
 			// Create the Trainee Seal using the old heaven seal.
-			textData.setStringAtIndex(0x4AB, "Promotes Tier 0 Trainees at Lv 10.");
-			textData.setStringAtIndex(0x403, "Trainee Seal");
+			textData.setStringAtIndex(0x4AB, "Promotes Tier 0 Trainees at Lv 10.[X]");
+			textData.setStringAtIndex(0x403, "Trainee Seal[X]");
 			long offset = freeSpace.setValue(new byte[] {(byte)FE8Data.CharacterClass.TRAINEE.ID, (byte)FE8Data.CharacterClass.PUPIL.ID, (byte)FE8Data.CharacterClass.RECRUIT.ID}, "TraineeSeal");
 			diffCompiler.addDiff(new Diff(FE8Data.HeavenSealPromotionPointer, 4, WhyDoesJavaNotHaveThese.bytesFromAddress(offset), WhyDoesJavaNotHaveThese.bytesFromAddress(FE8Data.HeavenSealOldAddress)));
 			
@@ -846,6 +846,36 @@ public class GBARandomizer extends Randomizer {
 			rk.addHeaderItem("Randomize Rewards", "YES");
 		} else {
 			rk.addHeaderItem("Randomize Rewards", "NO");
+		}
+		
+		if (recruitOptions != null) {
+			switch (recruitOptions.statMode) {
+			case AUTOLEVEL:
+				rk.addHeaderItem("Randomize Recruitment", "Autolevel Base Stats");
+				break;
+			case RELATIVE_TO_SLOT:
+				rk.addHeaderItem("Randomize Recruitment", "Relative Base Stats");
+				break;
+			case MATCH_SLOT:
+				rk.addHeaderItem("Randomize Recruitment", "Match Base Stats");
+				break;
+			}
+		} else {
+			rk.addHeaderItem("Randomize Recruitment", "NO");
+		}
+		
+		if (itemAssignmentOptions != null) {
+			switch (itemAssignmentOptions.weaponPolicy) {
+			case STRICT:
+				rk.addHeaderItem("Weapon Assignment Policy", "Strict Matching");
+				break;
+			case EQUAL_RANK:
+				rk.addHeaderItem("Weapon Assignment Policy", "Match Rank");
+				break;
+			case ANY_USABLE:
+				rk.addHeaderItem("Weapon Assignment Policy", "Random");
+				break;
+			}
 		}
 		
 		charData.recordCharacters(rk, true, classData, textData);

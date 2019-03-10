@@ -2,7 +2,6 @@ package random.snes.fe4.randomizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +10,6 @@ import java.util.stream.Collectors;
 
 import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Data;
-import fedata.snes.fe4.FE4Data.CharacterClass;
 import fedata.snes.fe4.FE4StaticCharacter;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.PromotionMapper;

@@ -28,8 +28,7 @@ public class TextLoader {
 	
 	private long treeAddress;
 	private long rootAddress;
-	
-	private Map<Integer, String> replacements = new HashMap<Integer, String>();
+
 	private Map<Integer, String> replacementsWithCodes = new HashMap<Integer, String>();
 	
 	public Boolean allowTextChanges = false;
@@ -100,10 +99,6 @@ public class TextLoader {
 	public int getStringCount() {
 		return allStrings.length;
 	}
-	
-	public String getStringAtIndex(int index) {
-		return getStringAtIndex(index, true);
-	}
 
 	// Note that we save strings with codes and without codes in separate tables.
 	// When fetching, specifying whether to strip codes determines which to pull from.
@@ -112,38 +107,17 @@ public class TextLoader {
 	public String getStringAtIndex(int index, boolean stripCodes) {
 		if (index > 0xFFFF) { return null; }
 		
-		String replacement = replacements.get(index);
-		if (stripCodes) {
-			if (replacement != null) { return replacement; }
-			else { replacement = replacementsWithCodes.get(index); }
-		} else {
-			replacement = replacementsWithCodes.get(index);
-			if (replacement != null) { return replacement; }
-		}
+		String replacement = replacementsWithCodes.get(index);
 		
-		String result = allStrings[index];
+		String result = replacement != null ? replacement : allStrings[index];
 		if (result == null) { return ""; }
 		if (!stripCodes) { return result; }
 		return result.replaceAll("\\[[^\\[]*\\]", "");
 	}
 	
 	public void setStringAtIndex(int index, String string) {
-		setStringAtIndex(index, string, false);
-	}
-	
-	public void setStringAtIndex(int index, String string, boolean containsCodes) {
 		if (allowTextChanges) {
-			if (!containsCodes) {
-				replacements.put(index, string);
-				if (replacementsWithCodes.containsKey(index)) {
-					replacementsWithCodes.remove(index);
-				}
-			} else {
-				replacementsWithCodes.put(index, string);
-				if (replacements.containsKey(index)) {
-					replacements.remove(index);
-				}
-			}
+			replacementsWithCodes.put(index, string);
 		}
 	}
 	
@@ -153,18 +127,6 @@ public class TextLoader {
 	
 	public void commitChanges(FreeSpaceManager freeSpace, DiffCompiler compiler) {
 		if (!allowTextChanges) { return; }
-		
-		for (int index : replacements.keySet()) {
-			String replacement = replacements.get(index);
-			if (replacementsWithCodes.containsKey(index)) { continue; } // If this index has a version with codes, use that.
-			
-			byte[] newByteArray = gameType == GameType.FE6 ? huffman.encodeNonHuffmanString(replacement, false) : huffman.encodeString(replacement, false);
-			long offset = freeSpace.setValue(newByteArray, "Text At Index 0x" + Integer.toHexString(index));
-			if (gameType == GameType.FE6) { offset |= 0x80000000; } // Mark this as uncompressed.
-			long pointer = textArrayOffset + 4 * index;
-			byte[] addressBytes = WhyDoesJavaNotHaveThese.bytesFromAddress(offset);
-			compiler.addDiff(new Diff(pointer, 4, addressBytes, null));
-		}
 		
 		// Let replacements with codes override any replacements without codes, if both exist.
 		for (int index : replacementsWithCodes.keySet()) {

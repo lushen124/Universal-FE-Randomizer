@@ -226,7 +226,7 @@ public class ClassDataLoader {
 	
 	private void recordClass(RecordKeeper rk, GBAFEClassData charClass, Boolean isInitial, TextLoader textData) {
 		int nameIndex = charClass.getNameIndex();
-		String name = textData.getStringAtIndex(nameIndex).trim();
+		String name = textData.getStringAtIndex(nameIndex, true).trim();
 		
 		Boolean isFemale = isFemale(charClass.getID());
 		if (isFemale) { name = name + " (F)"; }
