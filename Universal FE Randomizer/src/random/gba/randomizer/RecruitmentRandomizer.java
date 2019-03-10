@@ -427,6 +427,8 @@ public class RecruitmentRandomizer {
 			linkedSlot.setDescriptionIndex(fill.getDescriptionIndex());
 			linkedSlot.setFaceID(fill.getFaceID());
 			
+			linkedSlot.setIsLord(characterData.isLordCharacterID(slotReference.getID()));
+			
 			int targetLevel = linkedSlot.getLevel();
 			int sourceLevel = fill.getLevel();
 			

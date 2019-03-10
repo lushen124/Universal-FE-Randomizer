@@ -991,6 +991,8 @@ public class FE4Data {
 		
 		// These characters need to make sure no other characters get their blood (more specifically their holy weapon, as they will not be inherited).
 		public static final Set<Character> CharactersRequiringUniqueBlood = new HashSet<Character>(Arrays.asList(SIGURD, QUAN));
+
+		public static final Set<Character> RecruitableEnemyCharacters = new HashSet<Character>(Arrays.asList(AYRA, JAMKE, CHULAINN, BEOWOLF, ERINYS, ASAELLO, FEBAIL, ALTENA, TINE, IUCHAR, IUCHARBA, HANNIBAL, LINDA));
 		
 		public static final Set<Character> Gen1Bosses = new HashSet<Character>(Arrays.asList(
 				DIMAGGIO, GERRARD,
