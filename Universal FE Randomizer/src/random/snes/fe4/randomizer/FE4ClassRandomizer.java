@@ -376,13 +376,11 @@ public class FE4ClassRandomizer {
 			majorBlood.addAll(parentSlot2.stream().filter(blood -> (blood.isMajor() == true)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
 			majorBlood.addAll(parentSlot3.stream().filter(blood -> (blood.isMajor() == true)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
 			
-			FE4Data.CharacterClass originalClass = FE4Data.CharacterClass.valueOf(child.getClassID());
-			
 			FE4Data.Character referenceCharacter = fe4Char.getGen1Analogue();
 			boolean requiresWeakness = fe4Char.mustLoseToCharacters().length > 0;
 			boolean restrictedHealer = fe4Char.isHealer() && options.retainHealers;
 			
-			FE4Data.CharacterClass currentClass = FE4Data.CharacterClass.valueOf(child.getClassID());
+			final FE4Data.CharacterClass currentClass = FE4Data.CharacterClass.valueOf(child.getClassID());
 			
 			if (options.childOption == ChildOptions.MATCH_STRICT) {
 				targetClass = predeterminedClasses.get(referenceCharacter);
@@ -404,7 +402,7 @@ public class FE4ClassRandomizer {
 				
 				if (currentClass.isFlier()) {
 					// Override for Altena, who needs to remain flying to not break stuff.
-					List<FE4Data.CharacterClass> classPool = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(currentClass.getClassPool(true, false, true, child.isFemale(), false, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), fe4Char.requiresWeapon(), null)));
+					List<FE4Data.CharacterClass> classPool = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(currentClass.getClassPool(true, false, true, child.isFemale(), false, fe4Char.requiresAttack(), options.retainHorses && currentClass.isHorseback(), fe4Char.requiresMelee(), fe4Char.requiresWeapon(), null)));
 					Collections.sort(classPool, FE4Data.CharacterClass.defaultComparator);
 					if (classPool.size() > 0) {
 						targetClass = classPool.get(rng.nextInt(classPool.size()));
@@ -431,7 +429,9 @@ public class FE4ClassRandomizer {
 						}
 					}
 				}
-				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
+				
+				if (referenceClass == null) { referenceClass = currentClass; }
+				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && currentClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
 				if (hasDancer) { poolSet.remove(FE4Data.CharacterClass.DANCER); }
 				poolSet.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
 				FE4Data.CharacterClass[] whitelistedClasses = fe4Char.whitelistedClasses(options.randomizeMinions);
@@ -458,7 +458,7 @@ public class FE4ClassRandomizer {
 				}
 			} else {
 				FE4Data.CharacterClass referenceClass = FE4Data.CharacterClass.valueOf(child.getClassID());
-				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
+				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && currentClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
 				if (hasDancer) { poolSet.remove(FE4Data.CharacterClass.DANCER); }
 				poolSet.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
 				poolSet.removeAll(blacklistedClasses);
@@ -488,7 +488,7 @@ public class FE4ClassRandomizer {
 				if (sub != null) {
 					FE4StaticCharacter subChar = charData.getStaticCharacter(sub);
 					if (subChar != null) {
-						FE4Data.CharacterClass[] pool = referenceClass.getClassPool(true, false, true, subChar.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : sub.requiresWeapon(), null);
+						FE4Data.CharacterClass[] pool = referenceClass.getClassPool(true, false, true, subChar.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && currentClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : sub.requiresWeapon(), null);
 						FE4Data.CharacterClass subClass = referenceClass; // Use this as a fallback.
 						if (pool.length > 0) {
 							 subClass = pool[rng.nextInt(pool.length)];
