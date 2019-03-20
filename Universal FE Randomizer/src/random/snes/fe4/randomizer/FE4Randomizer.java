@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Class.ClassSkills;
+import fedata.snes.fe4.FE4Data.Item.WeaponRank;
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4StaticCharacter;
 import io.DiffApplicator;
@@ -512,6 +513,9 @@ public class FE4Randomizer extends Randomizer {
 		
 		// Remove Charm from Princess
 		classData.classForID(FE4Data.CharacterClass.PRINCESS.ID).setSlot2ClassSkills(new ArrayList<ClassSkills>());
+		
+		// Give A rank Light magic to Sages.
+		classData.classForID(FE4Data.CharacterClass.SAGE.ID).setLightRank(WeaponRank.A);
 		
 		// Gotta fix Oifey's promotion so that he doesn't somehow promote even though he's already promoted.
 		promotionMapper.setPromotionForCharacter(FE4Data.Character.OIFEY, FE4Data.CharacterClass.NONE);
