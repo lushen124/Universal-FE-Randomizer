@@ -355,6 +355,9 @@ public class FE4Randomizer extends Randomizer {
 		if (jeanne.getEquipment1() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment1(FE4Data.JeanneNannaNewStartingInventoryID); }
 		else if (jeanne.getEquipment2() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment2(FE4Data.JeanneNannaNewStartingInventoryID); }
 		else if (jeanne.getEquipment3() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment3(FE4Data.JeanneNannaNewStartingInventoryID); }
+		
+		// Give A rank Light magic to Sages.
+		classData.classForID(FE4Data.CharacterClass.SAGE.ID).setLightRank(WeaponRank.A);
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
@@ -513,9 +516,6 @@ public class FE4Randomizer extends Randomizer {
 		
 		// Remove Charm from Princess
 		classData.classForID(FE4Data.CharacterClass.PRINCESS.ID).setSlot2ClassSkills(new ArrayList<ClassSkills>());
-		
-		// Give A rank Light magic to Sages.
-		classData.classForID(FE4Data.CharacterClass.SAGE.ID).setLightRank(WeaponRank.A);
 		
 		// Gotta fix Oifey's promotion so that he doesn't somehow promote even though he's already promoted.
 		promotionMapper.setPromotionForCharacter(FE4Data.Character.OIFEY, FE4Data.CharacterClass.NONE);
