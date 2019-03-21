@@ -1022,14 +1022,14 @@ public class FE4Data {
 				CH1_GENOA_COMMANDER, MUNNIR, SANDIMA,
 				BOLDOR, MACBETH, CLEMENT, CHAGALL_CH2,
 				JACOBAN, CHAGALL_CH3, DOBARL,
-				MAIOS, DACCAR,
+				MAIOS, DACCAR, DONOVAN,
 				LOMBARD, VAHA,
 				HAROLD, DANANN,
 				KUTUZOV, KUTUZOV_TURN_12, ISHTORE, BRAMSEL, BLOOM_CH7,
 				BLOOM_CH8, MAIKOV,
 				DISLER, JUDAH,
-				MORRIGAN, HILDA_CH10, ARVIS_CH10,
-				YUPHEEL, HILDA_FINAL, MANFROY, JULIUS_FINAL
+				MORRIGAN, HILDA_CH10, ZAGAM, ARVIS_CH10,
+				YUPHEEL, DAGGON, MANFROY, JULIUS_FINAL
 				));
 		
 		// Midir will make the game confused if he can't attack in his opening scene.
@@ -2495,6 +2495,8 @@ public class FE4Data {
 		public static final Set<Item> healingStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, PHYSIC, FORTIFY));
 		public static final Set<Item> siegeTomes = new HashSet<Item>(Arrays.asList(METEOR, BOLTING, BLIZZARD, FENRIR));
 		
+		public static final Set<Item> meleeStaves = new HashSet<Item>(Arrays.asList(HEAL, MEND, RECOVER, RETURN, WARP, RESTORE));
+		
 		public static final Set<Item> brokenWeapons = new HashSet<Item>(Arrays.asList(BROKEN_SWORD_A, BROKEN_SWORD_B, BROKEN_SWORD_C, BROKEN_LANCE_A, BROKEN_LANCE_B, BROKEN_LANCE_C, BROKEN_AXE_A, BROKEN_AXE_B, BROKEN_AXE_C,
 				BROKEN_BOW_A, BROKEN_BOW_B, BROKEN_BOW_C, BROKEN_STAFF_A, BROKEN_STAFF_B, BROKEN_STAFF_C, EMPTY_BOOK_A_FIRE, EMPTY_BOOK_A_THUNDER, EMPTY_BOOK_A_WIND, EMPTY_BOOK_A_LIGHT, EMPTY_BOOK_B_FIRE, EMPTY_BOOK_B_THUNDER, 
 				EMPTY_BOOK_B_WIND, EMPTY_BOOK_B_LIGHT, EMPTY_BOOK_C_FIRE, EMPTY_BOOK_C_THUNDER, EMPTY_BOOK_C_WIND, EMPTY_BOOK_C_LIGHT, 
@@ -2537,7 +2539,7 @@ public class FE4Data {
 		
 		public static final Set<Item> statusSet = new HashSet<Item>(Arrays.asList(THIEF_SWORD, BERSERK_SWORD, SILENCE_SWORD, SLEEP_SWORD));
 		
-		public static final Set<Item> playerOnlySet = new HashSet<Item>(Arrays.asList(BERSERK, BERSERK_SWORD));
+		public static final Set<Item> playerOnlySet = new HashSet<Item>(Arrays.asList(BERSERK, BERSERK_SWORD, RETURN, WARP));
 		
 		public static final Set<Item> rings = new HashSet<Item>(Arrays.asList(LIFE_RING, ELITE_RING, THIEF_RING, PRAYER_RING, PURSUIT_RING, RECOVER_RING, BARGAIN_RING, 
 				KNIGHT_RING, RETURN_RING, SPEED_RING, MAGIC_RING, POWER_RING, SHIELD_RING, BARRIER_RING, LEG_RING, SKILL_RING));
