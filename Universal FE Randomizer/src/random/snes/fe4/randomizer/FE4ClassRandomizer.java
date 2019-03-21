@@ -1246,6 +1246,8 @@ public class FE4ClassRandomizer {
 		for (FE4EnemyCharacter enemy : enemies) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(enemy.getCharacterID());
 			
+			if (FE4Data.Character.DoNotTouchEnemies.contains(fe4Char)) { continue; } // Some enemies have scripted events on the map (Ch. 5 ending scene comes to mind). We shouldn't touch those.
+			
 			if (predeterminedClasses.containsKey(fe4Char)) {
 				FE4Data.Item mustUseItem = null;
 				if (fe4Char.mustBeatCharacter().length > 0) {
