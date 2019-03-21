@@ -1029,7 +1029,7 @@ public class FE4Data {
 				BLOOM_CH8, MAIKOV,
 				DISLER, JUDAH,
 				MORRIGAN, HILDA_CH10, ZAGAM, ARVIS_CH10,
-				YUPHEEL, DAGGON, MANFROY, JULIUS_FINAL
+				YUPHEEL, DAGGON, BARAN, MANFROY, JULIUS_FINAL
 				));
 		
 		// Midir will make the game confused if he can't attack in his opening scene.
