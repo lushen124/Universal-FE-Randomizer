@@ -554,14 +554,14 @@ public class MainView implements FileFlowDelegate {
 			randomizeButton.setVisible(false);
 			
 			FormData miscData = new FormData();
-			miscData.top = new FormAttachment(itemAssignmentView, 5);
-			miscData.left = new FormAttachment(itemAssignmentView, 0, SWT.LEFT);
-			miscData.right = new FormAttachment(itemAssignmentView, 0, SWT.RIGHT);
-			miscData.bottom = new FormAttachment(randomizeButton, -5);
+			miscData.top = new FormAttachment(enemyView, 5);
+			miscData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(enemyView, 0, SWT.RIGHT);
+			//miscData.bottom = new FormAttachment(randomizeButton, -5);
 			miscView.setLayoutData(miscData);
 			  
 			FormData randomizeData = new FormData();
-			randomizeData.top = new FormAttachment(enemyView, 5);
+			randomizeData.top = new FormAttachment(itemAssignmentView, 5);
 			randomizeData.left = new FormAttachment(enemyView, 0, SWT.LEFT);
 			randomizeData.right = new FormAttachment(recruitView, 0, SWT.RIGHT);
 			randomizeData.bottom = new FormAttachment(100, -10);

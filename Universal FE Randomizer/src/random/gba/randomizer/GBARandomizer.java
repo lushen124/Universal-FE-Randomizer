@@ -849,17 +849,40 @@ public class GBARandomizer extends Randomizer {
 		}
 		
 		if (recruitOptions != null) {
-			switch (recruitOptions.statMode) {
-			case AUTOLEVEL:
-				rk.addHeaderItem("Randomize Recruitment", "Autolevel Base Stats");
+			StringBuilder sb = new StringBuilder();
+			switch (recruitOptions.growthMode) {
+			case USE_FILL:
+				sb.append("Use Fill Growths" + System.lineSeparator());
+				break;
+			case USE_SLOT:
+				sb.append("Use Slot Growths" + System.lineSeparator());
 				break;
 			case RELATIVE_TO_SLOT:
-				rk.addHeaderItem("Randomize Recruitment", "Relative Base Stats");
-				break;
-			case MATCH_SLOT:
-				rk.addHeaderItem("Randomize Recruitment", "Match Base Stats");
+				sb.append("Use Slot Relative Growths" + System.lineSeparator());
 				break;
 			}
+			
+			switch (recruitOptions.baseMode) {
+			case AUTOLEVEL:
+				sb.append("Autolevel Base Stats" + System.lineSeparator());
+				switch (recruitOptions.autolevelMode) {
+				case USE_ORIGINAL:
+					sb.append("Autolevel w/ Original Growths");
+					break;
+				case USE_NEW:
+					sb.append("Autolevel w/ New Growths");
+					break;
+				}
+				break;
+			case RELATIVE_TO_SLOT:
+				sb.append("Relative Base Stats");
+				break;
+			case MATCH_SLOT:
+				sb.append("Match Base Stats");
+				break;
+			}
+			
+			rk.addHeaderItem("Randomize Recruitment", sb.toString());
 		} else {
 			rk.addHeaderItem("Randomize Recruitment", "NO");
 		}

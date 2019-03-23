@@ -1,6 +1,7 @@
 package random.gba.randomizer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,8 +25,11 @@ import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
+import random.general.RelativeValueMapper;
 import ui.model.ItemAssignmentOptions;
 import ui.model.RecruitmentOptions;
+import ui.model.RecruitmentOptions.BaseStatAutolevelType;
+import ui.model.RecruitmentOptions.GrowthAdjustmentMode;
 import ui.model.RecruitmentOptions.StatAdjustmentMode;
 import util.DebugPrinter;
 import util.FreeSpaceManager;
@@ -511,6 +515,37 @@ public class RecruitmentRandomizer {
 				setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			}
 			
+			int targetHPGrowth = fill.getHPGrowth();
+			int targetSTRGrowth = fill.getSTRGrowth();
+			int targetSKLGrowth = fill.getSKLGrowth();
+			int targetSPDGrowth = fill.getSPDGrowth();
+			int targetDEFGrowth = fill.getDEFGrowth();
+			int targetRESGrowth = fill.getRESGrowth();
+			int targetLCKGrowth = fill.getLCKGrowth();
+			
+			if (options.growthMode == GrowthAdjustmentMode.USE_FILL) {
+				// Do nothing in this case. This is the default.
+			} else if (options.growthMode == GrowthAdjustmentMode.USE_SLOT) {
+				// Overwrite with slot growths.
+				targetHPGrowth = slot.getHPGrowth();
+				targetSTRGrowth = slot.getSTRGrowth();
+				targetSKLGrowth = slot.getSKLGrowth();
+				targetSPDGrowth = slot.getSPDGrowth();
+				targetDEFGrowth = slot.getDEFGrowth();
+				targetRESGrowth = slot.getRESGrowth();
+				targetLCKGrowth = slot.getLCKGrowth();
+			} else if (options.growthMode == GrowthAdjustmentMode.RELATIVE_TO_SLOT) {
+				List<Integer> mappedStats = RelativeValueMapper.mappedValues(Arrays.asList(slot.getHPGrowth(), slot.getSTRGrowth(), slot.getSKLGrowth(), slot.getSPDGrowth(), slot.getDEFGrowth(), slot.getRESGrowth(), slot.getLCKGrowth()), 
+						Arrays.asList(fill.getHPGrowth(), fill.getSTRGrowth(), fill.getSKLGrowth(), fill.getSPDGrowth(), fill.getDEFGrowth(), fill.getRESGrowth(), fill.getLCKGrowth()));
+				targetHPGrowth = mappedStats.get(0);
+				targetSTRGrowth = mappedStats.get(1);
+				targetSKLGrowth = mappedStats.get(2);
+				targetSPDGrowth = mappedStats.get(3);
+				targetDEFGrowth = mappedStats.get(4);
+				targetRESGrowth = mappedStats.get(5);
+				targetLCKGrowth = mappedStats.get(6);
+			}
+			
 			int newHP = 0;
 			int newSTR = 0;
 			int newSKL = 0;
@@ -519,7 +554,26 @@ public class RecruitmentRandomizer {
 			int newDEF = 0;
 			int newRES = 0;
 			
-			if (options.statMode == StatAdjustmentMode.AUTOLEVEL) {
+			if (options.baseMode == StatAdjustmentMode.AUTOLEVEL) {
+				
+				int hpGrowth = fill.getHPGrowth();
+				int strGrowth = fill.getSTRGrowth();
+				int sklGrowth = fill.getSKLGrowth();
+				int spdGrowth = fill.getSPDGrowth();
+				int defGrowth = fill.getDEFGrowth();
+				int resGrowth = fill.getRESGrowth();
+				int lckGrowth = fill.getLCKGrowth();
+				
+				if (options.autolevelMode == BaseStatAutolevelType.USE_NEW) {
+					hpGrowth = targetHPGrowth;
+					strGrowth = targetSTRGrowth;
+					sklGrowth = targetSKLGrowth;
+					spdGrowth = targetSPDGrowth;
+					defGrowth = targetDEFGrowth;
+					resGrowth = targetRESGrowth;
+					lckGrowth = targetLCKGrowth;
+				}
+				
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== Stat Adjustment from Class Bases ==");
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + promoAdjustHP);
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "STR: " + promoAdjustSTR);
@@ -529,13 +583,13 @@ public class RecruitmentRandomizer {
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + promoAdjustRES);
 				
 				// Adjust bases based on level difference and promotion changes.
-				int hpDelta = (int)Math.floor((float)(fill.getHPGrowth() / 100.0) * levelsToAdd) + promoAdjustHP;
-				int strDelta = (int)Math.floor((float)(fill.getSTRGrowth() / 100.0) * levelsToAdd) + promoAdjustSTR;
-				int sklDelta = (int)Math.floor((float)(fill.getSKLGrowth() / 100.0) * levelsToAdd) + promoAdjustSKL;
-				int spdDelta = (int)Math.floor((float)(fill.getSPDGrowth() / 100.0) * levelsToAdd) + promoAdjustSPD;
-				int lckDelta = (int)Math.floor((float)(fill.getLCKGrowth() / 100.0) * levelsToAdd);
-				int defDelta = (int)Math.floor((float)(fill.getDEFGrowth() / 100.0) * levelsToAdd) + promoAdjustDEF;
-				int resDelta = (int)Math.floor((float)(fill.getRESGrowth() / 100.0) * levelsToAdd) + promoAdjustRES;
+				int hpDelta = (int)Math.floor((float)(hpGrowth / 100.0) * levelsToAdd) + promoAdjustHP;
+				int strDelta = (int)Math.floor((float)(strGrowth / 100.0) * levelsToAdd) + promoAdjustSTR;
+				int sklDelta = (int)Math.floor((float)(sklGrowth / 100.0) * levelsToAdd) + promoAdjustSKL;
+				int spdDelta = (int)Math.floor((float)(spdGrowth / 100.0) * levelsToAdd) + promoAdjustSPD;
+				int lckDelta = (int)Math.floor((float)(lckGrowth / 100.0) * levelsToAdd);
+				int defDelta = (int)Math.floor((float)(defGrowth / 100.0) * levelsToAdd) + promoAdjustDEF;
+				int resDelta = (int)Math.floor((float)(resGrowth / 100.0) * levelsToAdd) + promoAdjustRES;
 				
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== Base Deltas ==");
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "HP: " + Integer.toString(hpDelta));
@@ -566,7 +620,7 @@ public class RecruitmentRandomizer {
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "DEF: " + Integer.toString(fillSourceClass.getBaseDEF()) + " + " + Integer.toString(fill.getBaseDEF()) + " -> " + Integer.toString(targetClass.getBaseDEF()) + " + " + Integer.toString(newDEF));
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + Integer.toString(fillSourceClass.getBaseRES()) + " + " + Integer.toString(fill.getBaseRES()) + " -> " + Integer.toString(targetClass.getBaseRES()) + " + " + Integer.toString(newRES));
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "LCK: " + Integer.toString(fillSourceClass.getBaseLCK()) + " + " + Integer.toString(fill.getBaseLCK()) + " -> " + Integer.toString(targetClass.getBaseLCK()) + " + " + Integer.toString(newLCK));
-			} else if (options.statMode == StatAdjustmentMode.MATCH_SLOT) {
+			} else if (options.baseMode == StatAdjustmentMode.MATCH_SLOT) {
 				newHP = slotReference.getBaseHP() + slotSourceClass.getBaseHP() - targetClass.getBaseHP();
 				newSTR = slotReference.getBaseSTR() + slotSourceClass.getBaseSTR() - targetClass.getBaseSTR();
 				newSKL = slotReference.getBaseSKL() + slotSourceClass.getBaseSKL() - targetClass.getBaseSKL();
@@ -574,7 +628,7 @@ public class RecruitmentRandomizer {
 				newLCK = slotReference.getBaseLCK() + slotSourceClass.getBaseLCK() - targetClass.getBaseLCK();
 				newDEF = slotReference.getBaseDEF() + slotSourceClass.getBaseDEF() - targetClass.getBaseDEF();
 				newRES = slotReference.getBaseRES() + slotSourceClass.getBaseRES() - targetClass.getBaseRES();
-			} else if (options.statMode == StatAdjustmentMode.RELATIVE_TO_SLOT) {
+			} else if (options.baseMode == StatAdjustmentMode.RELATIVE_TO_SLOT) {
 				newHP = slotReference.getBaseHP() + slotSourceClass.getBaseHP() - targetClass.getBaseHP(); // Keep HP the same logic as above.
 				
 				int slotSTR = slotReference.getBaseSTR() + slotSourceClass.getBaseSTR();
@@ -584,8 +638,6 @@ public class RecruitmentRandomizer {
 				int slotDEF = slotReference.getBaseDEF() + slotSourceClass.getBaseDEF();
 				int slotRES = slotReference.getBaseRES() + slotSourceClass.getBaseRES();
 				
-				int slotMaxValue = Math.max(Math.max(Math.max(Math.max(Math.max(slotSTR, slotSKL), slotSPD), slotLCK), slotDEF), slotRES);
-				
 				int fillSTR = fill.getBaseSTR() + fillSourceClass.getBaseSTR();
 				int fillSKL = fill.getBaseSKL() + fillSourceClass.getBaseSKL();
 				int fillSPD = fill.getBaseSPD() + fillSourceClass.getBaseSPD();
@@ -593,16 +645,15 @@ public class RecruitmentRandomizer {
 				int fillDEF = fill.getBaseDEF() + fillSourceClass.getBaseDEF();
 				int fillRES = fill.getBaseRES() + fillSourceClass.getBaseRES();
 				
-				int fillMaxValue = Math.max(Math.max(Math.max(Math.max(Math.max(fillSTR, fillSKL), fillSPD), fillLCK), fillDEF), fillRES);
+				List<Integer> mappedStats = RelativeValueMapper.mappedValues(Arrays.asList(slotSTR, slotSKL, slotSPD, slotDEF, slotRES, slotLCK), 
+						Arrays.asList(fillSTR, fillSKL, fillSPD, fillDEF, fillRES, fillLCK));
 				
-				int delta = slotMaxValue - fillMaxValue;
-				
-				newSTR = Math.max(fillSTR + delta - targetClass.getBaseSTR(), -1 * targetClass.getBaseSTR());
-				newSKL = Math.max(fillSKL + delta - targetClass.getBaseSKL(), -1 * targetClass.getBaseSKL());
-				newSPD = Math.max(fillSPD + delta - targetClass.getBaseSPD(), -1 * targetClass.getBaseSPD());
-				newLCK = Math.max(fillLCK + delta - targetClass.getBaseLCK(), -1 * targetClass.getBaseLCK());
-				newDEF = Math.max(fillDEF + delta - targetClass.getBaseDEF(), -1 * targetClass.getBaseDEF());
-				newRES = Math.max(fillRES + delta - targetClass.getBaseRES(), -1 * targetClass.getBaseRES());
+				newSTR = Math.max(mappedStats.get(0) - targetClass.getBaseSTR(), -1 * targetClass.getBaseSTR());
+				newSKL = Math.max(mappedStats.get(1) - targetClass.getBaseSKL(), -1 * targetClass.getBaseSKL());
+				newSPD = Math.max(mappedStats.get(2) - targetClass.getBaseSPD(), -1 * targetClass.getBaseSPD());
+				newLCK = Math.max(mappedStats.get(5) - targetClass.getBaseLCK(), -1 * targetClass.getBaseLCK());
+				newDEF = Math.max(mappedStats.get(3) - targetClass.getBaseDEF(), -1 * targetClass.getBaseDEF());
+				newRES = Math.max(mappedStats.get(4) - targetClass.getBaseRES(), -1 * targetClass.getBaseRES());
 			} else {
 				assert false : "Invalid stat adjustment mode for random recruitment.";
 			}
@@ -616,13 +667,13 @@ public class RecruitmentRandomizer {
 			linkedSlot.setBaseRES(newRES);
 			
 			// Transfer growths.
-			linkedSlot.setHPGrowth(fill.getHPGrowth());
-			linkedSlot.setSTRGrowth(fill.getSTRGrowth());
-			linkedSlot.setSKLGrowth(fill.getSKLGrowth());
-			linkedSlot.setSPDGrowth(fill.getSPDGrowth());
-			linkedSlot.setLCKGrowth(fill.getLCKGrowth());
-			linkedSlot.setDEFGrowth(fill.getDEFGrowth());
-			linkedSlot.setRESGrowth(fill.getRESGrowth());
+			linkedSlot.setHPGrowth(targetHPGrowth);
+			linkedSlot.setSTRGrowth(targetSTRGrowth);
+			linkedSlot.setSKLGrowth(targetSKLGrowth);
+			linkedSlot.setSPDGrowth(targetSPDGrowth);
+			linkedSlot.setDEFGrowth(targetDEFGrowth);
+			linkedSlot.setRESGrowth(targetRESGrowth);
+			linkedSlot.setLCKGrowth(targetLCKGrowth);
 			
 			linkedSlot.setConstitution(fill.getConstitution());
 			linkedSlot.setAffinityValue(fill.getAffinityValue());
