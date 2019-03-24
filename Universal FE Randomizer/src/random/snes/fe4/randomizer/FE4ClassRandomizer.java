@@ -70,7 +70,10 @@ public class FE4ClassRandomizer {
 		List<FE4StaticCharacter> gen1Characters = charData.getGen1Characters();
 		for (FE4StaticCharacter staticChar : gen1Characters) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
-			if (blacklistedCharacters.contains(fe4Char)) { continue; }
+			if (blacklistedCharacters.contains(fe4Char)) {
+				predeterminedClasses.put(fe4Char, FE4Data.CharacterClass.valueOf(staticChar.getClassID()));
+				continue;
+			}
 			
 			FE4Data.CharacterClass targetClass = predeterminedClasses.get(fe4Char);
 			if (targetClass != null) {
