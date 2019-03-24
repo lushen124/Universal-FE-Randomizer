@@ -671,27 +671,26 @@ public class FE4Randomizer extends Randomizer {
 			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte2Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot2Value}, null));
 			
 			if (classOptions != null && promoOptions != null && promoOptions.promotionMode != FE4PromotionOptions.Mode.STRICT) {
-				// Make sure Seliph's class can use Sigurd's major blood weapon.
+				// Make sure Seliph's promoted class can use Sigurd's major blood weapon.
 				FE4ChildCharacter seliph = charData.getChildCharacter(FE4Data.Character.SELIPH);
 				FE4Data.CharacterClass seliphClass = FE4Data.CharacterClass.valueOf(seliph.getClassID());
-				Set<FE4Data.HolyBlood> supportedBlood = new HashSet<FE4Data.HolyBlood>(Arrays.asList(seliphClass.supportedHolyBlood()));
+				FE4Data.CharacterClass seliphPromotedClass = promotionMapper.getPromotionForCharacter(FE4Data.Character.SELIPH);
+				Set<FE4Data.HolyBlood> supportedBlood = new HashSet<FE4Data.HolyBlood>(Arrays.asList(seliphPromotedClass.supportedHolyBlood()));
 				if (supportedBlood.contains(sigurdMajorBlood) == false) {
 					FE4Data.CharacterClass[] fullPool = sigurdMajorBlood.classPool();
-					Set<FE4Data.CharacterClass> unpromotedPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(FE4Data.CharacterClass.filteredClasses(fullPool, false, false)));
-					unpromotedPool.removeAll(Arrays.asList(FE4Data.Character.SELIPH.blacklistedClasses()));
-					List<FE4Data.CharacterClass> unpromotedList = unpromotedPool.stream().sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+					Set<FE4Data.CharacterClass> promotedPool = new HashSet<FE4Data.CharacterClass>(Arrays.asList(FE4Data.CharacterClass.filteredClasses(fullPool, true, false)));
+					promotedPool.removeAll(Arrays.asList(FE4Data.Character.SELIPH.blacklistedClasses()));
+					List<FE4Data.CharacterClass> promotedList = promotedPool.stream().sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+					List<FE4Data.CharacterClass> filteredPromotedList = promotedList.stream().filter(charClass -> {
+						Set<FE4Data.CharacterClass> demotedSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(charClass.demotedClasses(false)));
+						return demotedSet.contains(seliphClass);
+					}).collect(Collectors.toList());
 					
-					if (!unpromotedList.isEmpty()) {
+					if (!filteredPromotedList.isEmpty()) { promotedList = filteredPromotedList; }
+					
+					if (!promotedList.isEmpty()) {
 						Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
-						FE4Data.CharacterClass unpromotedClass = unpromotedList.get(rng.nextInt(unpromotedList.size()));
-						FE4ClassRandomizer.setChildCharacterToClass(classOptions, seliph, sigurd, unpromotedClass, itemMapper, rng);
-						if (promoOptions.promotionMode == FE4PromotionOptions.Mode.RANDOM) {
-							FE4Data.CharacterClass[] promotedPool = FE4Data.CharacterClass.filteredClasses(fullPool, true, false);
-							promotionMapper.setPromotionForCharacter(FE4Data.Character.SELIPH, promotedPool[rng.nextInt(promotedPool.length)]);
-						} else { // LOOSE
-							FE4Data.CharacterClass[] promotedPool = unpromotedClass.getLoosePromotionOptions(false, promoOptions.allowMountChanges, promoOptions.allowEnemyOnlyPromotedClasses, seliphSlot1, seliphSlot2, null);
-							promotionMapper.setPromotionForCharacter(FE4Data.Character.SELIPH, promotedPool[rng.nextInt(promotedPool.length)]);
-						}
+						promotionMapper.setPromotionForCharacter(FE4Data.Character.SELIPH, promotedList.get(rng.nextInt(promotedList.size())));
 					}
 				}
 			}
