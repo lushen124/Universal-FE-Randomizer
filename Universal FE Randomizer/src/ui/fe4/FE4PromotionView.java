@@ -140,6 +140,8 @@ public class FE4PromotionView extends Composite {
 		} else {
 			currentMode = options.promotionMode;
 			
+			if (currentMode == null) { currentMode = FE4PromotionOptions.Mode.STRICT; }
+			
 			strictButton.setSelection(currentMode == FE4PromotionOptions.Mode.STRICT);
 			
 			looseButton.setSelection(currentMode == FE4PromotionOptions.Mode.LOOSE);
