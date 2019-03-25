@@ -1555,22 +1555,6 @@ public class FE4ClassRandomizer {
 	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, boolean prioritizeHealingStavesForHealers, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, 
 			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.Character, FE4Data.Item> requiredItems, FE4Data.CharacterClass relatedClass, Random rng) {
 		FE4Data.CharacterClass oldClass = FE4Data.CharacterClass.valueOf(character.getClassID());
-		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
-		boolean wasMAGBased = oldClass.primaryAttackIsMagic();
-		
-		boolean isSTRBased = targetClass.primaryAttackIsStrength();
-		boolean isMAGBased = targetClass.primaryAttackIsMagic();
-		
-		if ((wasSTRBased && !wasMAGBased && isMAGBased && !isSTRBased) || (wasMAGBased && !wasMAGBased && isSTRBased && !isMAGBased)) {
-			// Swap in the case that we've randomized across the STR/MAG split.
-			int oldSTR = character.getSTRGrowth();
-			character.setSTRGrowth(character.getMAGGrowth());
-			character.setMAGGrowth(oldSTR);
-			
-			oldSTR = character.getBaseSTR();
-			character.setBaseSTR(character.getBaseMAG());
-			character.setBaseMAG(oldSTR);
-		}
 		
 		character.setClassID(targetClass.ID);
 		
@@ -1653,7 +1637,7 @@ public class FE4ClassRandomizer {
 				
 				List<FE4Data.HolyBlood> bloodList = new ArrayList<FE4Data.HolyBlood>(bloodOptions);
 				Collections.sort(bloodList, FE4Data.HolyBlood.defaultComparator);
-				assert !bloodList.isEmpty() : "No valid holy blood available.";
+				//assert !bloodList.isEmpty() : "No valid holy blood available.";
 				if (!bloodList.isEmpty()) {
 					FE4Data.HolyBlood newMajorBlood = bloodList.get(rng.nextInt(bloodList.size()));
 					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajorBlood, true);
@@ -1751,6 +1735,23 @@ public class FE4ClassRandomizer {
 			character.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
 			character.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
 			character.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
+		}
+		
+		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
+		boolean wasMAGBased = oldClass.primaryAttackIsMagic();
+		
+		boolean isSTRBased = targetClass.primaryAttackIsStrength();
+		boolean isMAGBased = targetClass.primaryAttackIsMagic();
+		
+		if ((wasSTRBased && !wasMAGBased && isMAGBased && !isSTRBased) || (wasMAGBased && !wasSTRBased && isSTRBased && !isMAGBased)) {
+			// Swap in the case that we've randomized across the STR/MAG split.
+			int oldSTR = character.getSTRGrowth();
+			character.setSTRGrowth(character.getMAGGrowth());
+			character.setMAGGrowth(oldSTR);
+			
+			oldSTR = character.getBaseSTR();
+			character.setBaseSTR(character.getBaseMAG());
+			character.setBaseMAG(oldSTR);
 		}
 		
 		// Verify equipment.
