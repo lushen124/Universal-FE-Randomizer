@@ -1,6 +1,6 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-# Latest Version: 0.8.1
+# Latest Version: 0.8.2
 
 ## Introduction
 
@@ -312,9 +312,24 @@ Random stuff that may be funny.
 ### Recruitment
 This option swaps around characters so that they join at different parts of the game than they normally do. The way this feature works is that the characters in the game are treated as slots to be filled by an arbitrary character from the playable character pool. The character that fills the slot is, for all intents and purposes, treated as if they were the slot character they replaced. This is important for determining supports. The options available determine how the stats for characters are calculated when they are leveled or de-leveled to match the slot they fill.
 
+#### Growth Options
+
+* **Use Fill Growths** - Uses the character's original growths. That means, for example, Karel replacing Roy will use Karel's growths.
+* **Use Slot Growths** - Characters use the growths of the character they replace. That means, for example, Nino replacing Rebecca will use Rebecca's growths.
+* **Slot Relative Growths** - Characters' growths are determined by mapping the slot character's growth values to the fill character's growth spread. 
+
+<p align="center">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Readme/RR_StatRelative.png">
+</p>
+<p align="center">
+  <i>An example of Slot Relative Growths with Gerik replacing Knoll.</i>
+</p>
+
 * **Autolevel Base Stats** - This option uses the character's growth rates to simulate level gain and level loss to determine their base stats.
+  * **Use Original Growths** - Uses the character's original growths to do the autoleveling. Has no effect if the original growth is identical to the new growth (i.e. if "Use Fill Growths" was selected above).
+  * **Use New Growths** - Uses the character's new growths to do the autoleveling. It's only different from original growths if the latter two growth options above are used.
 * **Match Base Stats** - This option sets the character's base stats to be equal to the base stats of the slot they fill.
-* **Relative Base Stats** This option sets the character's base stats such that their highest stat matches the highest stat of the slot they fill and the remainder of the stats are based on the character's normal stat spread.
+* **Relative Base Stats** This option sets the character's base stats such that their highest stat matches the highest stat of the slot they fill and the remainder of the stats are based on the character's normal stat spread. See the growth example above, except with bases.
 
 ### Weapon Assignment
 These determine how items are assigned when they need to be assigned (affects randomized classes and randomized recruitment).
