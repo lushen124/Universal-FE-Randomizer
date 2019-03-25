@@ -2197,7 +2197,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public Set<GBAFEItem> specialItemsToRetain() {
-		return new HashSet<GBAFEItem>(Arrays.asList(Item.MEMBER_CARD));
+		return new HashSet<GBAFEItem>(Arrays.asList(Item.MEMBER_CARD, Item.MURGLEIS, Item.MALTET, Item.HOLY_MAIDEN));
 	}
 
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng) {
