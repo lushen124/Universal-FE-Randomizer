@@ -99,6 +99,17 @@ public class ClassDataLoader {
 		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Base DEF", Integer.toString(classObject.getBaseDEF()));
 		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Base RES", Integer.toString(classObject.getBaseRES()));
 		
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Sword Rank", classObject.getSwordRank().displayString());
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Lance Rank", classObject.getLanceRank().displayString());
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Axe Rank", classObject.getAxeRank().displayString());
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Bow Rank", classObject.getBowRank().displayString());
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Fire Rank", classObject.getFireRank().displayString());
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Thunder Rank", classObject.getThunderRank().displayString());
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Wind Rank", classObject.getWindRank().displayString());
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Light Rank", classObject.getLightRank().displayString());
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Dark Rank", classObject.getDarkRank().displayString());
+		recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Staff Rank", classObject.getStaffRank().displayString());
+		
 		List<FE4Class.ClassSkills> slot1 = classObject.getSlot1ClassSkills();
 		if (slot1.isEmpty()) {
 			recordData(rk, isInitial, RecordKeeperCategoryKey, name, "Class Skills 1", "None");

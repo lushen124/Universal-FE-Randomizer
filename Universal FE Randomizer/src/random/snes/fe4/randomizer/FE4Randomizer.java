@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Class.ClassSkills;
+import fedata.snes.fe4.FE4Data.Item.WeaponRank;
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4StaticCharacter;
 import io.DiffApplicator;
@@ -354,6 +355,9 @@ public class FE4Randomizer extends Randomizer {
 		if (jeanne.getEquipment1() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment1(FE4Data.JeanneNannaNewStartingInventoryID); }
 		else if (jeanne.getEquipment2() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment2(FE4Data.JeanneNannaNewStartingInventoryID); }
 		else if (jeanne.getEquipment3() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment3(FE4Data.JeanneNannaNewStartingInventoryID); }
+		
+		// Give A rank Light magic to Sages.
+		classData.classForID(FE4Data.CharacterClass.SAGE.ID).setLightRank(WeaponRank.A);
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {

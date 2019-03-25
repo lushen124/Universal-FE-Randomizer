@@ -2588,6 +2588,18 @@ public class FE4Data {
 				default: return false;
 				}
 			}
+			
+			public String displayString() {
+				switch (this) {
+				case NONE: return "-";
+				case C: return "C";
+				case B: return "B";
+				case A: return "A";
+				case PRF: return "S";
+				}
+				
+				return "?";
+			}
 		}
 		
 		public enum ItemType {
