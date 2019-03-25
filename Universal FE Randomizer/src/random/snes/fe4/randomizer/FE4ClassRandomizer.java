@@ -478,6 +478,8 @@ public class FE4ClassRandomizer {
 			}
 			
 			if (targetClass != null) {
+				if (child.isFemale()) { targetClass = targetClass.toFemale(); }
+				else { targetClass = targetClass.toMale(); }
 				setChildCharacterToClass(options, child, parent, targetClass, itemMap, rng);
 				
 				for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
