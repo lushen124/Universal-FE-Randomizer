@@ -195,17 +195,23 @@ public class FE4EnemyBuffer {
 				FE4Data.Item randomHolyWeapon = holyWeapons.get(rng.nextInt(holyWeapons.size()));
 				holyBoss.setEquipment1(randomHolyWeapon.ID);
 				
-				if (useFreeInventoryForDrops && FE4Data.Character.HolyBossesThatCanDropHolyWeapons.contains(fe4Char)) {
-					if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
-						// Clear it out and add it to the list of potential drops.
-						potentialDrops.add(new HolyBossDrop(holyBoss, randomHolyWeapon));
-						itemMap.freeInventoryID(holyBoss.getEquipment3());
-						holyBoss.setEquipment3(FE4Data.Item.NONE.ID);
-					} else {
-						potentialDrops.add(new HolyBossDrop(holyBoss, randomHolyWeapon));
+				// Make sure Sigurd's holy weapon doesn't drop in Gen 1.
+				FE4Data.Item sigurdHolyWeapon = itemMap.getItemAtIndex(FE4Data.HolyWeaponInventoryIDs.get(FE4Data.Item.TYRFING));
+				boolean canDrop = (randomHolyWeapon.ID != sigurdHolyWeapon.ID) || fe4Char.isGen2();
+				
+				if (canDrop) {
+					if (useFreeInventoryForDrops && FE4Data.Character.HolyBossesThatCanDropHolyWeapons.contains(fe4Char)) {
+						if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID) {
+							// Clear it out and add it to the list of potential drops.
+							potentialDrops.add(new HolyBossDrop(holyBoss, randomHolyWeapon));
+							itemMap.freeInventoryID(holyBoss.getEquipment3());
+							holyBoss.setEquipment3(FE4Data.Item.NONE.ID);
+						} else {
+							potentialDrops.add(new HolyBossDrop(holyBoss, randomHolyWeapon));
+						}
+					} else if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID && FE4Data.Character.HolyBossesWithFreeDrops.contains(fe4Char)) {
+						itemMap.setItemAtIndex(holyBoss.getEquipment3(), randomHolyWeapon);
 					}
-				} else if (holyBoss.getEquipment3() != FE4Data.Item.NONE.ID && FE4Data.Character.HolyBossesWithFreeDrops.contains(fe4Char)) {
-					itemMap.setItemAtIndex(holyBoss.getEquipment3(), randomHolyWeapon);
 				}
 			}
 		}
