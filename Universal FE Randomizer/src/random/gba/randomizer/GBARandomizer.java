@@ -850,21 +850,25 @@ public class GBARandomizer extends Randomizer {
 		
 		if (recruitOptions != null) {
 			StringBuilder sb = new StringBuilder();
+			if (recruitOptions.allowCrossGender) {
+				sb.append("Allow Cross-Gender<br>");
+			}
+			
 			switch (recruitOptions.growthMode) {
 			case USE_FILL:
-				sb.append("Use Fill Growths" + System.lineSeparator());
+				sb.append("Use Fill Growths<br>");
 				break;
 			case USE_SLOT:
-				sb.append("Use Slot Growths" + System.lineSeparator());
+				sb.append("Use Slot Growths<br>");
 				break;
 			case RELATIVE_TO_SLOT:
-				sb.append("Use Slot Relative Growths" + System.lineSeparator());
+				sb.append("Use Slot Relative Growths<br>");
 				break;
 			}
 			
 			switch (recruitOptions.baseMode) {
 			case AUTOLEVEL:
-				sb.append("Autolevel Base Stats" + System.lineSeparator());
+				sb.append("Autolevel Base Stats<br>");
 				switch (recruitOptions.autolevelMode) {
 				case USE_ORIGINAL:
 					sb.append("Autolevel w/ Original Growths");

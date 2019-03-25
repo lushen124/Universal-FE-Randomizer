@@ -35,6 +35,8 @@ public class RecruitmentView extends Composite {
 	private Button absoluteButton;
 	private Button relativeButton;
 	
+	private Button crossGenderButton;
+	
 	public RecruitmentView(Composite parent, int style) {
 		super(parent, style);
 		
@@ -68,6 +70,8 @@ public class RecruitmentView extends Composite {
 				absoluteButton.setEnabled(enableButton.getSelection());
 				relativeButton.setEnabled(enableButton.getSelection());
 				
+				crossGenderButton.setEnabled(enableButton.getSelection());
+				
 				autolevelTypeContainer.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
 				autolevelOriginalButton.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
 				autolevelNewButton.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
@@ -95,6 +99,7 @@ public class RecruitmentView extends Composite {
 		FormData groupData = new FormData();
 		groupData.left = new FormAttachment(enableButton, 10, SWT.LEFT);
 		groupData.top = new FormAttachment(enableButton, 10);
+		groupData.right = new FormAttachment(100, -5);
 		growthContainer.setLayoutData(groupData);
 		
 		fillGrowthButton = new Button(growthContainer, SWT.RADIO);
@@ -147,6 +152,7 @@ public class RecruitmentView extends Composite {
 		groupData = new FormData();
 		groupData.left = new FormAttachment(growthContainer, 0, SWT.LEFT);
 		groupData.top = new FormAttachment(growthContainer, 10);
+		groupData.right = new FormAttachment(100, -5);
 		basesContainer.setLayoutData(groupData);
 		
 		autolevelButton = new Button(basesContainer, SWT.RADIO);
@@ -213,6 +219,17 @@ public class RecruitmentView extends Composite {
 		optionData.left = new FormAttachment(absoluteButton, 0, SWT.LEFT);
 		optionData.top = new FormAttachment(absoluteButton, 5);
 		relativeButton.setLayoutData(optionData);
+		
+		crossGenderButton = new Button(container, SWT.CHECK);
+		crossGenderButton.setText("Allow Cross-gender Assignments");
+		crossGenderButton.setToolTipText("Allows males to be assigned to female slots and vice versa.");
+		crossGenderButton.setEnabled(false);
+		crossGenderButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(basesContainer, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(basesContainer, 10);
+		crossGenderButton.setLayoutData(optionData);
 	}
 	
 	public RecruitmentOptions getRecruitmentOptions() {
@@ -233,7 +250,7 @@ public class RecruitmentView extends Composite {
 		else if (slotRelativeGrowthButton.getSelection()) { growthMode = GrowthAdjustmentMode.RELATIVE_TO_SLOT; }
 		
 		if (isEnabled && basesMode != null && growthMode != null) {
-			return new RecruitmentOptions(growthMode, basesMode, autolevel);
+			return new RecruitmentOptions(growthMode, basesMode, autolevel, crossGenderButton.getSelection());
 		} else {
 			return null;
 		}
@@ -257,6 +274,8 @@ public class RecruitmentView extends Composite {
 			
 			absoluteButton.setEnabled(false);
 			relativeButton.setEnabled(false);
+			
+			crossGenderButton.setEnabled(false);
 		} else {
 			enableButton.setSelection(true);
 			
@@ -271,6 +290,8 @@ public class RecruitmentView extends Composite {
 			absoluteButton.setEnabled(true);
 			relativeButton.setEnabled(true);
 			
+			crossGenderButton.setEnabled(true);
+			
 			fillGrowthButton.setSelection(options.growthMode == GrowthAdjustmentMode.USE_FILL || options.growthMode == null);
 			slotGrowthButton.setSelection(options.growthMode == GrowthAdjustmentMode.USE_SLOT);
 			slotRelativeGrowthButton.setSelection(options.growthMode == GrowthAdjustmentMode.RELATIVE_TO_SLOT);
@@ -284,6 +305,8 @@ public class RecruitmentView extends Composite {
 			
 			autolevelOriginalButton.setEnabled(autolevelButton.getSelection());
 			autolevelNewButton.setEnabled(autolevelButton.getSelection());
+			
+			crossGenderButton.setSelection(options.allowCrossGender);
 		}
 	}
 }
