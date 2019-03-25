@@ -906,9 +906,9 @@ public class FE4ClassRandomizer {
 				}
 				
 				if (referenceClass != null) {
-					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, false, holyBoss.isFemale(), false, fe4Char.requiresAttack(), false, fe4Char.requiresMelee(), mustUseItem, null));
+					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, true, holyBoss.isFemale(), false, fe4Char.requiresAttack(), false, fe4Char.requiresMelee(), mustUseItem, null));
 				} else {
-					Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, false, holyBoss.isFemale(), false, fe4Char.requiresAttack(), false, fe4Char.requiresMelee(), mustUseItem, null));
+					Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, true, holyBoss.isFemale(), false, fe4Char.requiresAttack(), false, fe4Char.requiresMelee(), mustUseItem, null));
 				}
 			}
 			
@@ -1041,9 +1041,9 @@ public class FE4ClassRandomizer {
 				}
 				
 				if (referenceClass != null) {
-					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, true, false, holyBoss.isFemale(), false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
+					Collections.addAll(potentialClasses, referenceClass.getClassPool(true, true, true, holyBoss.isFemale(), false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
 				} else {
-					Collections.addAll(potentialClasses, originalClass.getClassPool(false, true, false, holyBoss.isFemale(), false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
+					Collections.addAll(potentialClasses, originalClass.getClassPool(false, true, true, holyBoss.isFemale(), false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
 				}
 			}
 			
@@ -1090,7 +1090,7 @@ public class FE4ClassRandomizer {
 			boolean requiresMelee = arenaCharacter.requiresMelee();
 			boolean requiresRange = arenaCharacter.requiresRange();
 			
-			Set<FE4Data.CharacterClass> possibleClasses = new HashSet<FE4Data.CharacterClass>(Arrays.asList(currentClass.getClassPool(false, true, false, combatant.isFemale(), false, true, false, requiresMelee, null, null)));
+			Set<FE4Data.CharacterClass> possibleClasses = new HashSet<FE4Data.CharacterClass>(Arrays.asList(currentClass.getClassPool(false, true, true, combatant.isFemale(), false, true, false, requiresMelee, null, null)));
 			if (requiresMelee) {
 				possibleClasses.removeAll(FE4Data.CharacterClass.rangedOnlyClasses);
 			} else if (requiresRange) {
