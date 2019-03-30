@@ -99,8 +99,11 @@ public class ClassRandomizer {
 					}
 					classSet.retainAll(classDistributor.possibleResults());
 					List<GBAFEClassData> classList = classSet.stream().sorted(GBAFEClassData.defaultComparator).collect(Collectors.toList());
-					int randomIndex = rng.nextInt(classList.size());
-					targetClass = classList.get(randomIndex);
+					PoolDistributor<GBAFEClassData> pool = new PoolDistributor<GBAFEClassData>();
+					for (GBAFEClassData charClass : classList) {
+						pool.addItem(charClass, classDistributor.itemCount(charClass));
+					}
+					targetClass = pool.getRandomItem(rng, true);
 					classDistributor.removeItem(targetClass, false);
 				} else {
 					int randomIndex = rng.nextInt(possibleClasses.length);
