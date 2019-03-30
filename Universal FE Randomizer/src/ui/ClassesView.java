@@ -86,7 +86,7 @@ public class ClassesView extends Composite {
 		
 		evenClassesButton = new Button(container, SWT.CHECK);
 		evenClassesButton.setText("Assign Classes Evenly");
-		evenClassesButton.setToolTipText("Attempts to assign classes so that all potential classes are represented as evenly as possible.");
+		evenClassesButton.setToolTipText("Attempts to assign classes so that the number of duplicates is minimized.");
 		evenClassesButton.setEnabled(false);
 		
 		FormData optionData = new FormData();
