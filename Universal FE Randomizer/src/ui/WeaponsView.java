@@ -39,7 +39,9 @@ public class WeaponsView extends Composite {
 	private MinMaxControl durabilityRangeControl;
 	
 	private Button enableRandomEffectsButton;
-	private Button noEffectsForIronButton;;
+	private Button noEffectsForIronButton;
+	private Label effectChanceLabel;
+	private Spinner effectChanceSpinner;
 	private WeaponEffectSelectionView effectsSelectionView;
 	
 	public WeaponsView(Composite parent, int style, GameType type) {
@@ -332,6 +334,26 @@ public class WeaponsView extends Composite {
 		ironData.top = new FormAttachment(enableRandomEffectsButton, 5);
 		noEffectsForIronButton.setLayoutData(ironData);
 		
+		effectChanceSpinner = new Spinner(container, SWT.NONE);
+		effectChanceSpinner.setToolTipText("Sets the chance of an effect being added to a weapon.");
+		effectChanceSpinner.setEnabled(false);
+		effectChanceSpinner.setValues(25, 1, 100, 0, 1, 5);
+		effectChanceSpinner.setEnabled(false);
+		
+		effectChanceLabel = new Label(container, SWT.NONE);
+		effectChanceLabel.setText("Effect Chance:");
+		effectChanceLabel.setEnabled(false);
+		
+		FormData spinnerData = new FormData();
+		spinnerData.left = new FormAttachment(effectChanceLabel, 10);
+		spinnerData.top = new FormAttachment(noEffectsForIronButton, 5);
+		effectChanceSpinner.setLayoutData(spinnerData);
+		
+		FormData labelData = new FormData();
+		labelData.left = new FormAttachment(noEffectsForIronButton, 0, SWT.LEFT);
+		labelData.top = new FormAttachment(effectChanceSpinner, 0, SWT.CENTER);
+		effectChanceLabel.setLayoutData(labelData);
+		
 		updateWeaponEffectSelectionViewForGame(type);
 	}
 	
@@ -343,7 +365,7 @@ public class WeaponsView extends Composite {
 		
 		FormData effectData = new FormData();
 		effectData.left = new FormAttachment(noEffectsForIronButton, 10, SWT.LEFT);
-		effectData.top = new FormAttachment(noEffectsForIronButton, 5);
+		effectData.top = new FormAttachment(effectChanceSpinner, 5);
 		effectData.bottom = new FormAttachment(100, -5);
 		effectData.width = 280;
 		effectsSelectionView.setLayoutData(effectData);
@@ -353,6 +375,9 @@ public class WeaponsView extends Composite {
 			public void onSelectionChanged() {
 				if (effectsSelectionView.isAllDisabled()) {
 					enableRandomEffectsButton.setSelection(false);
+					noEffectsForIronButton.setEnabled(false);
+					effectChanceLabel.setEnabled(false);
+					effectChanceSpinner.setEnabled(false);
 					effectsSelectionView.setEnabled(false);
 				}
 			}
@@ -368,6 +393,8 @@ public class WeaponsView extends Composite {
 				Boolean enabled = enableRandomEffectsButton.getSelection();
 				effectsSelectionView.setEnabled(enabled);
 				noEffectsForIronButton.setEnabled(enabled);
+				effectChanceLabel.setEnabled(enabled);
+				effectChanceSpinner.setEnabled(enabled);
 				if (enabled) {
 					effectsSelectionView.selectAll();
 					noEffectsForIronButton.setSelection(true);
@@ -398,7 +425,7 @@ public class WeaponsView extends Composite {
 			durabilityOptions = new MinMaxVarOption(durabilityRangeControl.getMinMaxOption(), durabilityVarianceSpinner.getSelection());
 		}
 		
-		return new WeaponOptions(mightOptions, hitOptions, weightOptions, durabilityOptions, enableRandomEffectsButton.getSelection(), effectsSelectionView.getOptions(), noEffectsForIronButton.getSelection());
+		return new WeaponOptions(mightOptions, hitOptions, weightOptions, durabilityOptions, enableRandomEffectsButton.getSelection(), effectChanceSpinner.getSelection(), effectsSelectionView.getOptions(), noEffectsForIronButton.getSelection());
 	}
 	
 	public void setWeaponOptions(WeaponOptions options) {
@@ -445,8 +472,11 @@ public class WeaponsView extends Composite {
 				enableRandomEffectsButton.setSelection(true);
 				effectsSelectionView.setEnabled(true);
 				noEffectsForIronButton.setEnabled(true);
+				effectChanceSpinner.setEnabled(true);
+				effectChanceLabel.setEnabled(true);
 				effectsSelectionView.setOptions(options.effectsList);
 				noEffectsForIronButton.setSelection(options.noEffectIronWeapons);
+				effectChanceSpinner.setSelection(options.effectChance);
 			}
 		}
 	}
