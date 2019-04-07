@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
@@ -176,6 +177,18 @@ public class ItemDataLoader {
 		return provider.getHighestWeaponRankValue();
 	}
 	
+	public WeaponRank rankForValue(int value) {
+		return provider.rankWithValue(value);
+	}
+	
+	public WeaponRanks ranksForCharacter(GBAFECharacterData character) {
+		return new WeaponRanks(character, provider);
+	}
+	
+	public WeaponRanks ranksForClass(GBAFEClassData charClass) {
+		return new WeaponRanks(charClass, provider);
+	}
+	
 	public GBAFEItemData[] getAllWeapons() {
 		return feItemsFromItemSet(provider.allWeapons());
 	}
@@ -339,9 +352,8 @@ public class ItemDataLoader {
 			}
 		}
 		
-		GBAFEItem[] itemsArray = potentialItems.toArray(new GBAFEItem[potentialItems.size()]);
-		int index = rng.nextInt(potentialItems.size());
-		return itemMap.get(itemsArray[index].getID());
+		List<GBAFEItem> itemList = potentialItems.stream().sorted(GBAFEItem.defaultComparator()).collect(Collectors.toList());
+		return itemMap.get(itemList.get(rng.nextInt(itemList.size())).getID());
 	}
 	
 	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEItemData originalWeapon, boolean strict, Random rng) {
@@ -358,9 +370,8 @@ public class ItemDataLoader {
 			}
 		}
 		
-		GBAFEItem[] itemsArray = potentialItems.toArray(new GBAFEItem[potentialItems.size()]);
-		int index = rng.nextInt(potentialItems.size());
-		return itemMap.get(itemsArray[index].getID());
+		List<GBAFEItem> itemList = potentialItems.stream().sorted(GBAFEItem.defaultComparator()).collect(Collectors.toList());
+		return itemMap.get(itemList.get(rng.nextInt(itemList.size())).getID());
 	}
 	
 	public GBAFEItemData getRandomWeaponForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, Random rng) {
