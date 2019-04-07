@@ -48,7 +48,7 @@ public class EnemyBuffer {
 	
 	public static void scaleEnemyGrowthRates(int scaleAmount, CharacterDataLoader charData, ClassDataLoader classData) {
 		GBAFEClassData[] allClasses = classData.allClasses();
-		float multiplier = 1 + scaleAmount / 100;
+		double multiplier = 1 + (double)scaleAmount / 100.0;
 		for (GBAFEClassData currentClass : allClasses) {
 			currentClass.setHPGrowth((int)(currentClass.getHPGrowth() * multiplier));
 			currentClass.setSTRGrowth((int)(currentClass.getSTRGrowth() * multiplier));
@@ -59,7 +59,7 @@ public class EnemyBuffer {
 			currentClass.setLCKGrowth((int)(currentClass.getLCKGrowth() * multiplier));
 		}
 		
-		float bossMultiplier = 1 + (scaleAmount / 200);
+		double bossMultiplier = 1 + ((double)scaleAmount / 200.0);
 		
 		for (GBAFECharacterData boss : charData.bossCharacters()) {
 			if (charData.canBuff(boss.getID()) == false) { continue; }
