@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterItemData;
@@ -23,6 +25,7 @@ import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
+import random.general.PoolDistributor;
 import ui.model.ClassOptions;
 import ui.model.ItemAssignmentOptions;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
@@ -55,6 +58,11 @@ public class ClassRandomizer {
 			separateMonsters = options.separateMonsters;
 		}
 		
+		PoolDistributor<GBAFEClassData> classDistributor = new PoolDistributor<GBAFEClassData>();
+		Arrays.asList(classData.allClasses()).stream().forEach(charClass -> {
+			classDistributor.addItem(charClass);
+		});
+		
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			
 			Boolean isLordCharacter = charactersData.isLordCharacterID(character.getID());
@@ -81,9 +89,26 @@ public class ClassRandomizer {
 				if (possibleClasses.length == 0) {
 					continue;
 				}
-			
-				int randomIndex = rng.nextInt(possibleClasses.length);
-				targetClass = possibleClasses[randomIndex];
+				
+				if (options.assignEvenly) {
+					Set<GBAFEClassData> classSet = new HashSet<GBAFEClassData>(Arrays.asList(possibleClasses));
+					if (Collections.disjoint(classDistributor.possibleResults(), classSet)) {
+						Arrays.asList(classData.allClasses()).stream().forEach(charClass -> {
+							classDistributor.addItem(charClass);
+						});
+					}
+					classSet.retainAll(classDistributor.possibleResults());
+					List<GBAFEClassData> classList = classSet.stream().sorted(GBAFEClassData.defaultComparator).collect(Collectors.toList());
+					PoolDistributor<GBAFEClassData> pool = new PoolDistributor<GBAFEClassData>();
+					for (GBAFEClassData charClass : classList) {
+						pool.addItem(charClass, classDistributor.itemCount(charClass));
+					}
+					targetClass = pool.getRandomItem(rng, true);
+					classDistributor.removeItem(targetClass, false);
+				} else {
+					int randomIndex = rng.nextInt(possibleClasses.length);
+					targetClass = possibleClasses[randomIndex];
+				}
 			}
 			
 			if (targetClass == null) {

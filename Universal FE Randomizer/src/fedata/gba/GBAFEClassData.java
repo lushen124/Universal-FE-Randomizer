@@ -1,9 +1,18 @@
 package fedata.gba;
 
+import java.util.Comparator;
+
 import fedata.gba.general.WeaponRank;
 import fedata.general.FEModifiableData;
 
 public interface GBAFEClassData extends FEModifiableData {
+	
+	static Comparator<GBAFEClassData> defaultComparator = new Comparator<GBAFEClassData>() {
+		@Override
+		public int compare(GBAFEClassData arg0, GBAFEClassData arg1) {
+			return Integer.compare(arg0.getID(), arg1.getID());
+		}
+	};
 	
 	// Info
 	
