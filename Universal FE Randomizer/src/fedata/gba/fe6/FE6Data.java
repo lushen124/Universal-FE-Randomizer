@@ -1714,6 +1714,55 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public int appearanceChapter(int characterID) {
+		Character character = Character.valueOf(characterID);
+		if (character == null) { return 0; }
+		switch (character) {
+		case ROY: case ALAN: case LANCE: case BORS: case WOLT: case MARCUS: case DAMAS: return 1;
+		case MERLINUS: case ELEN: case LOT: case WARD: case DIECK: case THANY: case RUDE: return 2;
+		case CHAD: case LUGH: case SLATER: return 3;
+		case CLARINE: case RUTGER: case ERIK: return 4;
+		case DORY: return 5;
+		case SAUL: case DOROTHY: case SUE: case WAGNER: return 6;
+		case ZEALOT: case TRECK: case NOAH: case DEVIAS: return 7;
+		case LILINA: case ASTOL: case OUJAY: case BARTH: case LEGYLANCE: return 8;
+		case HENNING : return 8;
+		case FIR: case SHIN: case SCOTT: return 9;
+		case GEESE: case GONZALES: case NORD: return 10; // Chapter 10A
+		case KLEIN: case THITO: case ZINC: case SCOLLAN: return 10; // Chapter 10B
+		case LALAM: case ECHIDNA: case ORO: case ROBARTS: return 11; // Chapter 11A
+		case ELFIN: case BARTRE: case MORGAN: return 11; // Chapter 11B
+		case REI: case CASS: case AINE: return 12;
+		case GRERO: return 12;
+		case MILEDY: case PERCIVAL: case FLAER: return 13;
+		case CECILIA: case SOPHIA: case RANDY: case MAGGIE: case ROSE: return 14;
+		case OHTZ: return 14;
+		case IGRENE: case GARET: case FA: case RAETH: return 15;
+		case ZEISS: case HUGH: case NARSHEN: return 16;
+		case DOUGLAS: case WINDAM: return 16;
+		case ARCARD: return 17; // Chapter 17A and 17B
+		case MARTEL: return 18; // Chapter 18A
+		case MONKE: return 18; // Chapter 18B
+		case NIIME: case SIGUNE: return 19; // Chapter 19A
+		case GEL: return 19; // Chapter 19B
+		case YUNNO: case ROARTZ: return 20; // Chapter 20A
+		case DAYAN: return 20; // Chapter 20B
+		case TECK: return 20; // Chapter 20Ax
+		case THORIL: case BRAKUL: case KUDOKA: case MARRAL: case KABUL: case CHAN: return 20; // Chapter 20Bx
+		case YODEL: case MURDOCK: case GALE: return 21;
+		case PERETH: return 21;
+		case ZEPHIEL: return 22;
+		case KAREL: case BRUNYA: return 23;
+		case YAHN: return 24;
+		case IDOUN: return 25;
+		default: return 0;
+		}
+	}
+	
+	public int chapterCount() {
+		return 25; // Including endgame. Gaiden chapters count as the same chapter.
+	}
+	
 	public Set<GBAFECharacter> extraCharacters() {
 		return new HashSet<GBAFECharacter>();
 	}

@@ -131,9 +131,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		LYON(0x23), LYON_CH17(0x40), MORVA(0x41), LYON_FINAL(0x6C), DEMON_KING(0xBE),
 		
-		ORSON(0x24), SELENA(0x26), SELENA_10B_13B(0x44), VALTER(0x27), VALTER_CH15(0x43), VALTER_PROLOGUE(0x45), RIEV(0x28), CAELLACH(0x29), BREGUET(0x46), BONE(0x47), BAZBA(0x48), MUMMY_CH4(0x49),
-		SAAR(0x4A), NOVALA(0x4B), MURRAY(0x4C), TIRADO(0x4D), BINKS(0x4E), PABLO(0x4F), MACDAIRE_12A(0x50), AIAS(0x51), CARLYLE(0x52), CAELLACH_CH15(0x53), PABLO_13A(0x54), GORGON_CH18(0x56),
-		RIEV_CH19_CH20(0x57), GHEB(0x5A), BERAN(0x5B), CYCLOPS_CH12B(0x5C), HELLBONE_11A(0x5D), DEATHGOYLE_11B(0x5E), ONEILL(0x68), GLEN_CUTSCENE(0x69), ZONTA(0x6A), VIGARDE(0x6B), ORSON_CH16(0x6D), 
+		ORSON(0x24), SELENA(0x26), SELENA_CH10B_CH13B(0x44), VALTER(0x27), VALTER_CH15(0x43), VALTER_PROLOGUE(0x45), RIEV(0x28), CAELLACH(0x29), BREGUET(0x46), BONE(0x47), BAZBA(0x48), MUMMY_CH4(0x49),
+		SAAR(0x4A), NOVALA(0x4B), MURRAY(0x4C), TIRADO(0x4D), BINKS(0x4E), PABLO(0x4F), MACDAIRE_CH12A(0x50), AIAS(0x51), CARLYLE(0x52), CAELLACH_CH15(0x53), PABLO_13A(0x54), GORGON_CH18(0x56),
+		RIEV_CH19_CH20(0x57), GHEB(0x5A), BERAN(0x5B), CYCLOPS_CH12B(0x5C), HELLBONE_CH11A(0x5D), DEATHGOYLE_CH11B(0x5E), ONEILL(0x68), GLEN_CUTSCENE(0x69), ZONTA(0x6A), VIGARDE(0x6B), ORSON_CH16(0x6D), 
 		
 		GLEN(0x25), FADO(0x2A), ISMAIRE(0x2B), HAYDEN(0x2C),
 		
@@ -180,7 +180,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			case VALTER_CH15:
 			case VALTER_PROLOGUE:
 				return VALTER.ID;
-			case SELENA_10B_13B: 
+			case SELENA_CH10B_CH13B: 
 				return SELENA.ID;
 			case ORSON_5X:
 			case ORSON_CH16: 
@@ -209,9 +209,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> allPlayableCharacters = new HashSet<Character>(Arrays.asList(EIRIKA, SETH, GILLIAM, FRANZ, MOULDER, VANESSA, ROSS, NEIMI, COLM, GARCIA, INNES, LUTE, NATASHA, CORMAG,
 				EPHRAIM, FORDE, KYLE, AMELIA, ARTUR, GERIK, TETHYS, MARISA, SALEH, EWAN, LARACHEL, DOZLA, RENNAC, DUESSEL, MYRRH, KNOLL, JOSHUA, SYRENE, TANA));
 		
-		public static Set<Character> allBossCharacters = new HashSet<Character>(Arrays.asList(ORSON, SELENA, SELENA_10B_13B, VALTER, VALTER_CH15, VALTER_PROLOGUE, RIEV, CAELLACH, BREGUET, BONE, BAZBA, MUMMY_CH4,
-				SAAR, NOVALA, MURRAY, TIRADO, BINKS, PABLO, MACDAIRE_12A, AIAS, CARLYLE, CAELLACH_CH15, PABLO_13A, GORGON_CH18,
-				RIEV_CH19_CH20, GHEB, BERAN, CYCLOPS_CH12B, HELLBONE_11A, DEATHGOYLE_11B, ONEILL, GLEN_CUTSCENE, ZONTA, VIGARDE, ORSON_CH16));
+		public static Set<Character> allBossCharacters = new HashSet<Character>(Arrays.asList(ORSON, SELENA, SELENA_CH10B_CH13B, VALTER, VALTER_CH15, VALTER_PROLOGUE, RIEV, CAELLACH, BREGUET, BONE, BAZBA, MUMMY_CH4,
+				SAAR, NOVALA, MURRAY, TIRADO, BINKS, PABLO, MACDAIRE_CH12A, AIAS, CARLYLE, CAELLACH_CH15, PABLO_13A, GORGON_CH18,
+				RIEV_CH19_CH20, GHEB, BERAN, CYCLOPS_CH12B, HELLBONE_CH11A, DEATHGOYLE_CH11B, ONEILL, GLEN_CUTSCENE, ZONTA, VIGARDE, ORSON_CH16));
 		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(VANESSA, CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE, BONE));
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM));
@@ -224,7 +224,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		// Vanessa isn't strictly required, but Ross is likely screwed otherwise.
 		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(VANESSA, CORMAG, VALTER, GLEN, GLEN_CUTSCENE, VALTER_CH15, VALTER_PROLOGUE));
 		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM, SETH, ARTUR, GARCIA));
-		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(EIRIKA, VANESSA, NEIMI, LUTE, NATASHA, AMELIA, TETHYS, MARISA, LARACHEL, MYRRH, SYRENE, TANA, SELENA, SELENA_10B_13B, ISMAIRE));
+		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(EIRIKA, VANESSA, NEIMI, LUTE, NATASHA, AMELIA, TETHYS, MARISA, LARACHEL, MYRRH, SYRENE, TANA, SELENA, SELENA_CH10B_CH13B, ISMAIRE));
 		public static Set<Character> requiresPromotion = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM));
 		
 		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList(VALTER_PROLOGUE)); // This is scripted, and Seth shouldn't die here.
@@ -293,8 +293,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			case LYON_FINAL:
 				return new HashSet<Character>(Arrays.asList(LYON, LYON_CH17, LYON_FINAL));
 			case SELENA:
-			case SELENA_10B_13B:
-				return new HashSet<Character>(Arrays.asList(SELENA, SELENA_10B_13B));
+			case SELENA_CH10B_CH13B:
+				return new HashSet<Character>(Arrays.asList(SELENA, SELENA_CH10B_CH13B));
 			case VALTER:
 			case VALTER_CH15:
 			case VALTER_PROLOGUE:
@@ -2390,6 +2390,45 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public Set<GBAFECharacter> linkedCharacters(int characterID) {
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
+	}
+	
+	public int appearanceChapter(int characterID) {
+		Character character = Character.valueOf(characterID);
+		if (character == null) { return 0; }
+		switch (character) {
+		case EIRIKA: case SETH: case ONEILL: return 1;
+		case FRANZ: case GILLIAM: case BREGUET: return 2;
+		case VANESSA: case MOULDER: case ROSS: case GARCIA: case BONE: return 3;
+		case NEIMI: case COLM: case BAZBA: return 4;
+		case ARTUR: case LUTE: case MUMMY_CH4: return 5;
+		case NATASHA: case JOSHUA: case SAAR: return 6;
+		case EPHRAIM: case KYLE: case FORDE: case ORSON_5X: case ZONTA: return 6;
+		case NOVALA: return 7;
+		case MURRAY: return 8;
+		case TIRADO: return 9;
+		case TANA: case AMELIA: case BINKS: case GHEB: return 10;
+		case INNES: case GERIK: case TETHYS: case MARISA: case PABLO: return 11;
+		case DUESSEL: case CORMAG: case BERAN: return 11;
+		case LARACHEL: case DOZLA: case HELLBONE_CH11A: case DEATHGOYLE_CH11B: return 12;
+		case SALEH: case EWAN: case MACDAIRE_CH12A: return 13;
+		case CYCLOPS_CH12B: return 13;
+		case AIAS: case PABLO_13A: return 14;
+		case SELENA_CH10B_CH13B: return 14;
+		case RENNAC: case CARLYLE: case KNOLL: case VIGARDE: return 15;
+		case CAELLACH_CH15: case VALTER_CH15: return 16;
+		case MYRRH: case ORSON_CH16: return 17;
+		case SYRENE: case LYON_CH17: return 18;
+		case GORGON_CH18: return 19;
+		case RIEV_CH19_CH20: return 20;
+		case MORVA: return 21;
+		case LYON_FINAL: return 22;
+		case FADO_NPC: case HAYDEN_NPC: case ISMAIRE_NPC: case GLEN: case CAELLACH: case LYON: case VALTER: case RIEV: case SELENA: case ORSON: return 23;
+		default: return 0;
+		}
+	}
+	
+	public int chapterCount() {
+		return 23; // Including prologue and Creature Campaign.
 	}
 	
 	public Set<GBAFECharacter> extraCharacters() {

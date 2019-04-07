@@ -2,21 +2,36 @@ package ui.model;
 
 public class EnemyOptions {
 
-	public enum BuffMode {
+	public enum MinionGrowthMode {
 		NONE, FLAT, SCALING
 	}
 	
-	public final BuffMode mode;
-	public final int buffAmount;
+	public enum BossStatMode {
+		NONE, LINEAR, EASE_IN_OUT
+	}
 	
-	public final Boolean improveWeapons;
-	public final int improvementChance;
+	public final MinionGrowthMode minionMode;
+	public final int minionBuff;
 	
-	public EnemyOptions(BuffMode mode, int buffAmount, Boolean improveWeapons, int improvementChance) {
+	public final boolean improveMinionWeapons;
+	public final int minionImprovementChance;
+	
+	public final BossStatMode bossMode;
+	public final int bossBuff;
+	
+	public final boolean improveBossWeapons;
+	public final int bossImprovementChance;
+	
+	public EnemyOptions(MinionGrowthMode mode, int buffAmount, boolean minionWeapons, int minionWeaponChance, BossStatMode bossMode, int bossBuff, boolean bossWeapons, int bossWeaponChance) {
 		super();
-		this.mode = mode;
-		this.buffAmount = buffAmount;
-		this.improveWeapons = improveWeapons;
-		this.improvementChance = improvementChance;
+		this.minionMode = mode;
+		this.minionBuff = buffAmount;
+		this.improveMinionWeapons = minionWeapons;
+		this.minionImprovementChance = minionWeaponChance;
+		
+		this.bossMode = bossMode;
+		this.bossBuff = bossBuff;
+		this.improveBossWeapons = bossWeapons;
+		this.bossImprovementChance = bossWeaponChance;
 	}
 }
