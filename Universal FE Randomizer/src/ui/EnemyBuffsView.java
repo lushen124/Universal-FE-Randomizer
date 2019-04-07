@@ -22,12 +22,14 @@ public class EnemyBuffsView extends Composite {
 	private Group container;
 	
 	private Button buffEnemyGrowthsButton;
+	private Label minionSpinnerLabel;
 	private Spinner buffSpinner;
 	
 	private Button flatBonusButton;
 	private Button scalingBonusButton;
 	
 	private Button improveEnemyWeaponsButton;
+	private Label minionWeaponSpinnerLabel;
 	private Spinner weaponSpinner;
 	
 	private Button buffBossStatButton;
@@ -81,6 +83,7 @@ public class EnemyBuffsView extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				buffSpinner.setEnabled(buffEnemyGrowthsButton.getSelection());
+				minionSpinnerLabel.setEnabled(buffEnemyGrowthsButton.getSelection());
 				
 				flatBonusButton.setEnabled(buffEnemyGrowthsButton.getSelection());
 				scalingBonusButton.setEnabled(buffEnemyGrowthsButton.getSelection());
@@ -101,8 +104,9 @@ public class EnemyBuffsView extends Composite {
 		buffParamLayout.marginBottom = 5;
 		buffParamContainer.setLayout(buffParamLayout);
 		
-		Label buffLabel = new Label(buffParamContainer, SWT.RIGHT);
-		buffLabel.setText("Buff Amount:");
+		minionSpinnerLabel = new Label(buffParamContainer, SWT.RIGHT);
+		minionSpinnerLabel.setText("Buff Amount:");
+		minionSpinnerLabel.setEnabled(false);
 		
 		buffSpinner = new Spinner(buffParamContainer, SWT.NONE);
 		buffSpinner.setValues(10, 0, 100, 0, 1, 1);
@@ -112,7 +116,7 @@ public class EnemyBuffsView extends Composite {
 		labelData.left = new FormAttachment(0, 5);
 		labelData.right = new FormAttachment(buffSpinner, -5);
 		labelData.top = new FormAttachment(buffSpinner, 0, SWT.CENTER);
-		buffLabel.setLayoutData(labelData);
+		minionSpinnerLabel.setLayoutData(labelData);
 		
 		FormData spinnerData = new FormData();
 		spinnerData.right = new FormAttachment(100, -5);
@@ -155,6 +159,7 @@ public class EnemyBuffsView extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				weaponSpinner.setEnabled(improveEnemyWeaponsButton.getSelection());
+				minionWeaponSpinnerLabel.setEnabled(improveEnemyWeaponsButton.getSelection());
 			}
 		});
 		
@@ -163,8 +168,9 @@ public class EnemyBuffsView extends Composite {
 		improveWeaponsData.top = new FormAttachment(buffParamContainer, 5);
 		improveEnemyWeaponsButton.setLayoutData(improveWeaponsData);
 		
-		Label chanceLabel = new Label(minionGroup, SWT.RIGHT);
-		chanceLabel.setText("Chance:");
+		minionWeaponSpinnerLabel = new Label(minionGroup, SWT.RIGHT);
+		minionWeaponSpinnerLabel.setText("Chance:");
+		minionWeaponSpinnerLabel.setEnabled(false);
 		
 		weaponSpinner = new Spinner(minionGroup, SWT.NONE);
 		weaponSpinner.setValues(25, 0, 100, 0, 1, 5);
@@ -174,7 +180,7 @@ public class EnemyBuffsView extends Composite {
 		chanceLabelData.left = new FormAttachment(0, 5);
 		chanceLabelData.right = new FormAttachment(weaponSpinner, -5);
 		chanceLabelData.top = new FormAttachment(weaponSpinner, 0, SWT.CENTER);
-		chanceLabel.setLayoutData(chanceLabelData);
+		minionWeaponSpinnerLabel.setLayoutData(chanceLabelData);
 		
 		FormData chanceSpinnerData = new FormData();
 		chanceSpinnerData.right = new FormAttachment(100, -10);
@@ -327,6 +333,7 @@ public class EnemyBuffsView extends Composite {
 					flatBonusButton.setEnabled(false);
 					scalingBonusButton.setEnabled(false);
 					buffSpinner.setEnabled(false);
+					minionSpinnerLabel.setEnabled(false);
 					break;
 				case FLAT:
 					buffEnemyGrowthsButton.setSelection(true);
@@ -335,6 +342,7 @@ public class EnemyBuffsView extends Composite {
 					flatBonusButton.setSelection(true);
 					scalingBonusButton.setSelection(false);
 					buffSpinner.setEnabled(true);
+					minionSpinnerLabel.setEnabled(true);
 					buffSpinner.setSelection(options.minionBuff);
 					break;
 				case SCALING:
@@ -344,6 +352,7 @@ public class EnemyBuffsView extends Composite {
 					flatBonusButton.setSelection(false);
 					scalingBonusButton.setSelection(true);
 					buffSpinner.setEnabled(true);
+					minionSpinnerLabel.setEnabled(true);
 					buffSpinner.setSelection(options.minionBuff);
 					break;
 				}
@@ -352,6 +361,7 @@ public class EnemyBuffsView extends Composite {
 				improveEnemyWeaponsButton.setSelection(true);
 				weaponSpinner.setEnabled(true);
 				weaponSpinner.setSelection(options.minionImprovementChance);
+				minionWeaponSpinnerLabel.setEnabled(true);
 			}
 			
 			if (options.bossMode != null) {
