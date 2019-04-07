@@ -672,6 +672,20 @@ public class ClassRandomizer {
 		Boolean applyDarkRank = targetClass.getDarkRank() > 0;
 		Boolean applyStaffRank = targetClass.getStaffRank() > 0;
 		
+		int weaponUsageCount = 0;
+		if (applySwordRank) { weaponUsageCount++; }
+		if (applyLanceRank) { weaponUsageCount++; }
+		if (applyAxeRank) { weaponUsageCount++; }
+		if (applyBowRank) { weaponUsageCount++; }
+		if (applyAnimaRank) { weaponUsageCount++; }
+		if (applyLightRank) { weaponUsageCount++; }
+		if (applyDarkRank) { weaponUsageCount++; }
+		if (applyStaffRank) { weaponUsageCount++; }
+		
+		while (ranks.size() > weaponUsageCount) {
+			ranks.remove(0); // Remove the lowest rank if we have more ranks to work with than slots to fill
+		}
+		
 		int[] targetRanks = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
 		
 		if (applySwordRank) {

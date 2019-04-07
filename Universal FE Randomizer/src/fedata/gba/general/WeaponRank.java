@@ -57,4 +57,13 @@ public enum WeaponRank {
 			return false;
 		}
 	}
+	
+	public String displayString() {
+		switch (this) {
+		case NONE:
+			return "-";
+		default:
+			return this.toString();
+		}
+	}
 }

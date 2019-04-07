@@ -245,7 +245,7 @@ public class GBARandomizer extends Randomizer {
 			return;
 		}
 		
-		charData.recordCharacters(recordKeeper, false, classData, textData);
+		charData.recordCharacters(recordKeeper, false, classData, itemData, textData);
 		classData.recordClasses(recordKeeper, false, classData, textData);
 		itemData.recordWeapons(recordKeeper, false, classData, textData, targetFileHandler);
 		chapterData.recordChapters(recordKeeper, false, charData, classData, itemData, textData);
@@ -904,7 +904,7 @@ public class GBARandomizer extends Randomizer {
 			}
 		}
 		
-		charData.recordCharacters(rk, true, classData, textData);
+		charData.recordCharacters(rk, true, classData, itemData, textData);
 		classData.recordClasses(rk, true, classData, textData);
 		itemData.recordWeapons(rk, true, classData, textData, handler);
 		chapterData.recordChapters(rk, true, charData, classData, itemData, textData);

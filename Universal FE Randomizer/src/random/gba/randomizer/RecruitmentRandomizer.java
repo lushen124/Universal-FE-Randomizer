@@ -2,6 +2,7 @@ package random.gba.randomizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -709,6 +710,21 @@ public class RecruitmentRandomizer {
 			target.setStaffRank(targetClass.getStaffRank());
 			
 			return;
+		}
+		
+		int targetWeaponUsage = 0;
+		if (targetClass.getSwordRank() > 0) { targetWeaponUsage++; }
+		if (targetClass.getLanceRank() > 0) { targetWeaponUsage++; }
+		if (targetClass.getAxeRank() > 0) { targetWeaponUsage++; }
+		if (targetClass.getBowRank() > 0) { targetWeaponUsage++; }
+		if (targetClass.getLightRank() > 0) { targetWeaponUsage++; }
+		if (targetClass.getDarkRank() > 0) { targetWeaponUsage++; }
+		if (targetClass.getAnimaRank() > 0) { targetWeaponUsage++; }
+		if (targetClass.getStaffRank() > 0) { targetWeaponUsage++; }
+		
+		Collections.sort(rankValues);
+		while (rankValues.size() > targetWeaponUsage) {
+			rankValues.remove(0); // Remove the lowest rank if we're filling less weapons than we have to work with.
 		}
 		
 		if (targetClass.getSwordRank() > 0) {
