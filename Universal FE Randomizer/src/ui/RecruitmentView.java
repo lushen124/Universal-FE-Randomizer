@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
+import fedata.general.FEBase.GameType;
 import ui.model.RecruitmentOptions;
 import ui.model.RecruitmentOptions.BaseStatAutolevelType;
 import ui.model.RecruitmentOptions.GrowthAdjustmentMode;
@@ -36,8 +37,9 @@ public class RecruitmentView extends Composite {
 	private Button relativeButton;
 	
 	private Button crossGenderButton;
+	private Button includeExtras;
 	
-	public RecruitmentView(Composite parent, int style) {
+	public RecruitmentView(Composite parent, int style, GameType type) {
 		super(parent, style);
 		
 		FillLayout layout = new FillLayout();
@@ -75,6 +77,10 @@ public class RecruitmentView extends Composite {
 				autolevelTypeContainer.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
 				autolevelOriginalButton.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
 				autolevelNewButton.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
+				
+				if (includeExtras != null) {
+					includeExtras.setEnabled(enableButton.getSelection());
+				}
 			}
 		});
 		
@@ -230,6 +236,20 @@ public class RecruitmentView extends Composite {
 		optionData.left = new FormAttachment(basesContainer, 0, SWT.LEFT);
 		optionData.top = new FormAttachment(basesContainer, 10);
 		crossGenderButton.setLayoutData(optionData);
+		
+		if (type == GameType.FE8) {
+			// Option to include Creature Campaign
+			includeExtras = new Button(container, SWT.CHECK);
+			includeExtras.setText("Include Creature Campaign NPCs");
+			includeExtras.setToolTipText("Includes NPCs from the creature campaign into the pool.\nSpecifically: Glen, Fado, Hayden, and Ismaire.");
+			includeExtras.setEnabled(false);
+			includeExtras.setSelection(false);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(crossGenderButton, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(crossGenderButton, 5);
+			includeExtras.setLayoutData(optionData);
+		}
 	}
 	
 	public RecruitmentOptions getRecruitmentOptions() {
@@ -249,8 +269,10 @@ public class RecruitmentView extends Composite {
 		else if (slotGrowthButton.getSelection()) { growthMode = GrowthAdjustmentMode.USE_SLOT; }
 		else if (slotRelativeGrowthButton.getSelection()) { growthMode = GrowthAdjustmentMode.RELATIVE_TO_SLOT; }
 		
+		boolean extras = includeExtras != null ? includeExtras.getSelection() : false;
+		
 		if (isEnabled && basesMode != null && growthMode != null) {
-			return new RecruitmentOptions(growthMode, basesMode, autolevel, crossGenderButton.getSelection());
+			return new RecruitmentOptions(growthMode, basesMode, autolevel, crossGenderButton.getSelection(), extras);
 		} else {
 			return null;
 		}
@@ -276,6 +298,9 @@ public class RecruitmentView extends Composite {
 			relativeButton.setEnabled(false);
 			
 			crossGenderButton.setEnabled(false);
+			if (includeExtras != null) {
+				includeExtras.setEnabled(false);
+			}
 		} else {
 			enableButton.setSelection(true);
 			
@@ -307,6 +332,11 @@ public class RecruitmentView extends Composite {
 			autolevelNewButton.setEnabled(autolevelButton.getSelection());
 			
 			crossGenderButton.setSelection(options.allowCrossGender);
+			
+			if (includeExtras != null) {
+				includeExtras.setEnabled(true);
+				includeExtras.setSelection(options.includeExtras);
+			}
 		}
 	}
 }
