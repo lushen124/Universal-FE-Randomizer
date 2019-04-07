@@ -21,10 +21,12 @@ import fedata.snes.fe4.FE4Data.HolyBloodSlot2;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot3;
 import fedata.snes.fe4.FE4Data.Item;
 import fedata.snes.fe4.FE4EnemyCharacter;
+import random.general.PoolDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
 import ui.fe4.FE4ClassOptions;
+import ui.fe4.FE4ClassOptions.BloodOptions;
 import ui.fe4.FE4ClassOptions.ChildOptions;
 import ui.fe4.FE4ClassOptions.ItemAssignmentOptions;
 import ui.fe4.FE4ClassOptions.ShopOptions;
@@ -33,7 +35,55 @@ public class FE4ClassRandomizer {
 	
 	static final int rngSalt = 1248;
 	
-	public static void randomizePlayableCharacterClasses(FE4ClassOptions options, boolean useFreeInventoryForStaves, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, Random rng) {
+	public static Map<FE4Data.HolyBlood, FE4Data.HolyBlood> generateBloodMapForBloodShuffle(FE4ClassOptions options, Random rng) {
+		Map<FE4Data.HolyBlood, FE4Data.HolyBlood> predeterminedBloodMap = new HashMap<FE4Data.HolyBlood, FE4Data.HolyBlood>();
+		PoolDistributor<FE4Data.HolyBlood> bloodDistributor = new PoolDistributor<FE4Data.HolyBlood>();
+		List<FE4Data.HolyBlood> workingSet = new ArrayList<FE4Data.HolyBlood>();
+		
+		for (FE4Data.HolyBlood blood : FE4Data.HolyBlood.values()) {
+			if (blood.isRestricted()) {
+				predeterminedBloodMap.put(blood, blood);
+				continue;
+			}
+			if (blood == HolyBlood.NONE) { continue; }
+			
+			if ((options.playerBloodOption == BloodOptions.SHUFFLE && !blood.isEnemyBlood()) ||
+					(options.bossBloodOption == BloodOptions.SHUFFLE && blood.isEnemyBlood())) {
+				bloodDistributor.addItem(blood);
+				workingSet.add(blood);
+			}
+		}
+		
+		for (FE4Data.HolyBlood blood : workingSet) {
+			if (blood.isRestricted()) { continue; }
+			if (blood == HolyBlood.NONE) { continue; }
+			FE4Data.Character representative = blood.representative;
+			Set<FE4Data.HolyBlood> limitedBloodSet = new HashSet<FE4Data.HolyBlood>(Arrays.asList(representative.limitedHolyBloodSelection()));
+			FE4Data.HolyBlood replacementBlood = null;
+			do {
+				assert !Collections.disjoint(limitedBloodSet, bloodDistributor.possibleResults()) : "Unable to satisfy blood constraints.";
+				replacementBlood = bloodDistributor.getRandomItem(rng, false);
+				if (!limitedBloodSet.contains(replacementBlood) && !Collections.disjoint(limitedBloodSet, bloodDistributor.possibleResults())) {
+					replacementBlood = null;
+				}
+				// Special case for Bragi, as we don't want it to end up on a boss.
+				if (blood.isEnemyBlood() && replacementBlood == HolyBlood.BRAGI) {
+					if (bloodDistributor.possibleResults().size() > 1) {
+						replacementBlood = null;
+					} else {
+						// Restart.
+						return generateBloodMapForBloodShuffle(options, rng);
+					}
+				}
+			} while (replacementBlood == null);
+			bloodDistributor.removeItem(replacementBlood, true);
+			predeterminedBloodMap.put(blood, replacementBlood);
+		}
+		
+		return predeterminedBloodMap;
+	}
+	
+	public static void randomizePlayableCharacterClasses(FE4ClassOptions options, boolean useFreeInventoryForStaves, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, Map<FE4Data.HolyBlood, FE4Data.HolyBlood> predeterminedBloodMap, Random rng) {
 		Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses = new HashMap<FE4Data.Character, FE4Data.CharacterClass>();
 		Set<FE4Data.Character> blacklistedCharacters = new HashSet<FE4Data.Character>();
 		Set<FE4Data.CharacterClass> blacklistedClasses = new HashSet<FE4Data.CharacterClass>();
@@ -70,14 +120,87 @@ public class FE4ClassRandomizer {
 		List<FE4StaticCharacter> gen1Characters = charData.getGen1Characters();
 		for (FE4StaticCharacter staticChar : gen1Characters) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
+			
+			int blood1Value = staticChar.getHolyBlood1Value();
+			int blood2Value = staticChar.getHolyBlood2Value();
+			int blood3Value = staticChar.getHolyBlood3Value();
+			// Blood 4 is only Loptous, which we're not dealing with player-side.
+			
+			List<HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(blood1Value);
+			List<HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(blood2Value);
+			List<HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(blood3Value);
+			
+			boolean hasMajorBlood = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ||
+					slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ||
+					slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent();
+			FE4Data.HolyBlood majorBloodType = null;
+			if (hasMajorBlood) {
+				if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+					majorBloodType = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+				} else if (slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+					majorBloodType = slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+				} else if (slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+					majorBloodType = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+				}
+			}
+			
+			boolean hasMinorBlood = slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent() ||
+					slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent() ||
+					slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent();
+			FE4Data.HolyBlood minorBloodType = null;
+			if (hasMinorBlood) {
+				if (slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+					minorBloodType = slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+				} else if (slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+					minorBloodType = slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+				} else if (slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+					minorBloodType = slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+				}
+			}
+			
 			if (blacklistedCharacters.contains(fe4Char)) {
 				predeterminedClasses.put(fe4Char, FE4Data.CharacterClass.valueOf(staticChar.getClassID()));
+				// We should still swap blood if necessary.
+				if (options.playerBloodOption == BloodOptions.SHUFFLE && predeterminedBloodMap != null) {
+					if (hasMajorBlood) {
+						FE4Data.HolyBlood newMajor = predeterminedBloodMap.get(majorBloodType);
+						final FE4Data.HolyBlood oldMajor = majorBloodType;
+						slot1Blood.removeIf(blood -> (blood.bloodType() == oldMajor && blood.isMajor()));
+						slot2Blood.removeIf(blood -> (blood.bloodType() == oldMajor && blood.isMajor()));
+						slot3Blood.removeIf(blood -> (blood.bloodType() == oldMajor && blood.isMajor()));
+						FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajor, true);
+						FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(newMajor, true);
+						FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(newMajor, true);
+						if (slot1 != null) { slot1Blood.add(slot1); }
+						else if (slot2 != null) { slot2Blood.add(slot2); }
+						else if (slot3 != null) { slot3Blood.add(slot3); }
+					}
+					
+					if (hasMinorBlood) {
+						FE4Data.HolyBlood newMinor = predeterminedBloodMap.get(minorBloodType);
+						final FE4Data.HolyBlood oldMinor = minorBloodType;
+						slot1Blood.removeIf(blood -> (blood.bloodType() == oldMinor && !blood.isMajor()));
+						slot2Blood.removeIf(blood -> (blood.bloodType() == oldMinor && !blood.isMajor()));
+						slot3Blood.removeIf(blood -> (blood.bloodType() == oldMinor && !blood.isMajor()));
+						FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMinor, false);
+						FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(newMinor, false);
+						FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(newMinor, false);
+						if (slot1 != null) { slot1Blood.add(slot1); }
+						else if (slot2 != null) { slot2Blood.add(slot2); }
+						else if (slot3 != null) { slot3Blood.add(slot3); }
+					}
+				}
+				
+				staticChar.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
+				staticChar.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
+				staticChar.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
+				
 				continue;
 			}
 			
 			FE4Data.CharacterClass targetClass = predeterminedClasses.get(fe4Char);
 			if (targetClass != null) {
-				setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
+				setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, rng);
 				continue;
 			}
 			
@@ -112,31 +235,21 @@ public class FE4ClassRandomizer {
 			
 			Set<FE4Data.CharacterClass> potentialClasses = new HashSet<FE4Data.CharacterClass>();
 			
-			int blood1Value = staticChar.getHolyBlood1Value();
-			int blood2Value = staticChar.getHolyBlood2Value();
-			int blood3Value = staticChar.getHolyBlood3Value();
-			// Blood 4 is only Loptous, which we're not dealing with player-side.
-			
-			List<HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(blood1Value);
-			List<HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(blood2Value);
-			List<HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(blood3Value);
-			
-			boolean hasMajorBlood = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ||
-					slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ||
-					slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent();
-			
 			if (fe4Char.isHealer() && options.retainHealers) {
 				Collections.addAll(potentialClasses, originalClass.getClassPool(true, false, true, staticChar.isFemale(), false, false, options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), FE4Data.Item.HEAL, null));
 			} else {
 				FE4Data.Item mustUseItem = null;
-				
-				if (!options.randomizeBlood) {
-					if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
-						mustUseItem = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
-					} else if (slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
-						mustUseItem = slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
-					} else if (slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
-						mustUseItem = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
+				if (options.playerBloodOption == BloodOptions.NO_CHANGE) {
+					if (hasMajorBlood) {
+						mustUseItem = majorBloodType.holyWeapon.getType().getBasic();
+					} else if (hasMinorBlood) {
+						mustUseItem = minorBloodType.holyWeapon.getType().getBasic();
+					}
+				} else if (options.playerBloodOption == BloodOptions.SHUFFLE) {
+					if (hasMajorBlood) {
+						mustUseItem = predeterminedBloodMap.get(majorBloodType).holyWeapon.getType().getBasic();
+					} else if (hasMinorBlood) {
+						mustUseItem = predeterminedBloodMap.get(minorBloodType).holyWeapon.getType().getBasic();
 					}
 				}
 				
@@ -156,7 +269,7 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
-			if (options.randomizeBlood && hasMajorBlood) {
+			if (options.playerBloodOption == BloodOptions.RANDOMIZE && hasMajorBlood) {
 				// If we do randomize blood, make sure nobody is stuck with the same major blood as Sigurd or at least stuck in a class
 				// that MUST have the same major blood as Sigurd (blood like Fjalar, Neir, and Ulir have classes
 				// that only use one weapon type.) This is because we don't allow Sigurd's holy weapon to pass to Seliph.
@@ -216,28 +329,82 @@ public class FE4ClassRandomizer {
 				potentialClasses.retainAll(Arrays.asList(whitelistedClasses));
 			}
 			
-			if (potentialClasses.isEmpty()) { continue; }
+			if (potentialClasses.isEmpty()) {
+				// Update blood if necessary.
+				if (options.playerBloodOption == BloodOptions.SHUFFLE && predeterminedBloodMap != null) {
+					if (hasMajorBlood) {
+						FE4Data.HolyBlood newMajor = predeterminedBloodMap.get(majorBloodType);
+						final FE4Data.HolyBlood oldMajor = majorBloodType;
+						slot1Blood.removeIf(blood -> (blood.bloodType() == oldMajor && blood.isMajor()));
+						slot2Blood.removeIf(blood -> (blood.bloodType() == oldMajor && blood.isMajor()));
+						slot3Blood.removeIf(blood -> (blood.bloodType() == oldMajor && blood.isMajor()));
+						FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajor, true);
+						FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(newMajor, true);
+						FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(newMajor, true);
+						if (slot1 != null) { slot1Blood.add(slot1); }
+						else if (slot2 != null) { slot2Blood.add(slot2); }
+						else if (slot3 != null) { slot3Blood.add(slot3); }
+					}
+					
+					if (hasMinorBlood) {
+						FE4Data.HolyBlood newMinor = predeterminedBloodMap.get(minorBloodType);
+						final FE4Data.HolyBlood oldMinor = minorBloodType;
+						slot1Blood.removeIf(blood -> (blood.bloodType() == oldMinor && !blood.isMajor()));
+						slot2Blood.removeIf(blood -> (blood.bloodType() == oldMinor && !blood.isMajor()));
+						slot3Blood.removeIf(blood -> (blood.bloodType() == oldMinor && !blood.isMajor()));
+						FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMinor, false);
+						FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(newMinor, false);
+						FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(newMinor, false);
+						if (slot1 != null) { slot1Blood.add(slot1); }
+						else if (slot2 != null) { slot2Blood.add(slot2); }
+						else if (slot3 != null) { slot3Blood.add(slot3); }
+					}
+				}
+				
+				staticChar.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
+				staticChar.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
+				staticChar.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
+
+				continue;
+			}
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
 			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
-			
 			Set<HolyBlood> bloodOptions = new HashSet<HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
+			
+			if (options.playerBloodOption == BloodOptions.SHUFFLE) {
+				if (hasMajorBlood) {
+					assert bloodOptions.contains(predeterminedBloodMap.get(majorBloodType)) : "Attempted to assign blacklisted holy blood to character.";
+					if (bloodOptions.contains(predeterminedBloodMap.get(majorBloodType))) {
+						bloodOptions = new HashSet<HolyBlood>(Arrays.asList(predeterminedBloodMap.get(majorBloodType)));
+					}
+					
+				} else if (hasMinorBlood) {
+					if (bloodOptions.contains(predeterminedBloodMap.get(minorBloodType))) {
+						bloodOptions = new HashSet<HolyBlood>(Arrays.asList(predeterminedBloodMap.get(minorBloodType)));
+					}
+				}
+			}
 			
 			targetClass = classList.get(rng.nextInt(classList.size()));
 			if (FE4Data.CharacterClass.reducedChanceClasses.contains(targetClass)) {
 				// Reroll once for anybody ending up in these classes.
 				targetClass = classList.get(rng.nextInt(classList.size()));
 			}
-			Set<HolyBlood> supportedBlood = new HashSet<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
-			supportedBlood.retainAll(bloodOptions);
-			while (supportedBlood.isEmpty()) {
-				targetClass = classList.get(rng.nextInt(classList.size()));
-				supportedBlood = new HashSet<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
-				supportedBlood.retainAll(bloodOptions);	
+			
+			final Set<FE4Data.HolyBlood> finalBlood = bloodOptions;
+			List<FE4Data.CharacterClass> fittingClasses = classList.stream().filter(charClass -> {
+				Set<HolyBlood> supportedBlood = new HashSet<HolyBlood>(Arrays.asList(charClass.supportedHolyBlood()));
+				supportedBlood.retainAll(finalBlood);
+				return !supportedBlood.isEmpty();
+			}).collect(Collectors.toList());
+			
+			if (!fittingClasses.isEmpty()) {
+				targetClass = fittingClasses.get(rng.nextInt(fittingClasses.size()));
 			}
 			
 			if (targetClass == FE4Data.CharacterClass.DANCER) { hasDancer = true; }
-			setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
+			setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, rng);
 			if (useFreeInventoryForStaves) { giveStaffIfNecessary(staticChar, charData, itemMap, rng); }
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
@@ -257,7 +424,7 @@ public class FE4ClassRandomizer {
 			
 			FE4Data.CharacterClass targetClass = predeterminedClasses.get(fe4Char);
 			if (targetClass != null) {
-				setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
+				setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, rng);
 				continue;
 			}
 			
@@ -290,28 +457,62 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			// Limit classes if this option is disabled for those with major holy blood (Sigurd, Quan, Brigid, Lewyn (and technically Claud)).
+			int blood1Value = staticChar.getHolyBlood1Value();
+			int blood2Value = staticChar.getHolyBlood2Value();
+			int blood3Value = staticChar.getHolyBlood3Value();
+			// Blood 4 is only Loptous, which we're not dealing with player-side.
+			
+			List<HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(blood1Value);
+			List<HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(blood2Value);
+			List<HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(blood3Value);
+			
+			boolean hasMajorBlood = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ||
+					slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ||
+					slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent();
+			FE4Data.HolyBlood majorBloodType = null;
+			if (hasMajorBlood) {
+				if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+					majorBloodType = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+				} else if (slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+					majorBloodType = slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+				} else if (slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+					majorBloodType = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+				}
+			}
+			
+			boolean hasMinorBlood = slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent() ||
+					slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent() ||
+					slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent();
+			FE4Data.HolyBlood minorBloodType = null;
+			if (hasMinorBlood) {
+				if (slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+					minorBloodType = slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+				} else if (slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+					minorBloodType = slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+				} else if (slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+					minorBloodType = slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+				}
+			}
+			
 			if (fe4Char.isHealer() && options.retainHealers) {
 				Collections.addAll(potentialClasses, originalClass.getClassPool(true, false, true, staticChar.isFemale(), false, false, options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), FE4Data.Item.HEAL, null));
 			} else {
 				FE4Data.Item mustUseItem = fe4Char.requiresWeapon();
-				if (!options.randomizeBlood) {
-					// Limit classes if this option is disabled for those with major holy blood (Sigurd, Quan, Brigid, Lewyn (and technically Claud)).
-					int blood1Value = staticChar.getHolyBlood1Value();
-					int blood2Value = staticChar.getHolyBlood2Value();
-					int blood3Value = staticChar.getHolyBlood3Value();
-					// Blood 4 is only Loptous, which we're not dealing with player-side.
-					
-					List<HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(blood1Value);
-					List<HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(blood2Value);
-					List<HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(blood3Value);
-					if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
-						mustUseItem = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
-					} else if (slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
-						mustUseItem = slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
-					} else if (slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
-						mustUseItem = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
+				if (options.playerBloodOption == BloodOptions.NO_CHANGE) {
+					if (hasMajorBlood) {
+						mustUseItem = majorBloodType.holyWeapon.getType().getBasic();
+					} else if (hasMinorBlood) {
+						mustUseItem = minorBloodType.holyWeapon.getType().getBasic();
+					}
+				} else if (options.playerBloodOption == BloodOptions.SHUFFLE) {
+					if (hasMajorBlood) {
+						mustUseItem = predeterminedBloodMap.get(majorBloodType).holyWeapon.getType().getBasic();
+					} else if (hasMinorBlood) {
+						mustUseItem = predeterminedBloodMap.get(minorBloodType).holyWeapon.getType().getBasic();
 					}
 				}
+				
 				if (fe4Char.mustLoseToCharacters().length > 0) {
 					// I'm not sure who would fit here, but we'll just force them to horseback. Armored units are male only, so a mix of genders is problematic.
 					if (referenceClass != null) {
@@ -337,13 +538,40 @@ public class FE4ClassRandomizer {
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
 			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
+			Set<HolyBlood> bloodOptions = new HashSet<HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
+			
+			if (options.playerBloodOption == BloodOptions.SHUFFLE) {
+				if (hasMajorBlood) {
+					assert bloodOptions.contains(predeterminedBloodMap.get(majorBloodType)) : "Attempted to assign blacklisted holy blood to character.";
+					if (bloodOptions.contains(predeterminedBloodMap.get(majorBloodType))) {
+						bloodOptions = new HashSet<HolyBlood>(Arrays.asList(predeterminedBloodMap.get(majorBloodType)));
+					}
+					
+				} else if (hasMinorBlood) {
+					if (bloodOptions.contains(predeterminedBloodMap.get(minorBloodType))) {
+						bloodOptions = new HashSet<HolyBlood>(Arrays.asList(predeterminedBloodMap.get(minorBloodType)));
+					}
+				}
+			}
 			
 			targetClass = classList.get(rng.nextInt(classList.size()));
 			if (FE4Data.CharacterClass.reducedChanceClasses.contains(targetClass)) {
 				// Reroll once for anybody ending up in these classes.
 				targetClass = classList.get(rng.nextInt(classList.size()));
 			}
-			setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, rng);
+			
+			final Set<FE4Data.HolyBlood> finalBlood = bloodOptions;
+			List<FE4Data.CharacterClass> fittingClasses = classList.stream().filter(charClass -> {
+				Set<HolyBlood> supportedBlood = new HashSet<HolyBlood>(Arrays.asList(charClass.supportedHolyBlood()));
+				supportedBlood.retainAll(finalBlood);
+				return !supportedBlood.isEmpty();
+			}).collect(Collectors.toList());
+			
+			if (!fittingClasses.isEmpty()) {
+				targetClass = fittingClasses.get(rng.nextInt(fittingClasses.size()));
+			}
+			
+			setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, rng);
 			if (useFreeInventoryForStaves) { giveStaffIfNecessary(staticChar, charData, itemMap, rng); }
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
@@ -499,7 +727,7 @@ public class FE4ClassRandomizer {
 							 subClass = pool[rng.nextInt(pool.length)];
 						}
 						
-						setStaticCharacterToClass(options, subChar, subClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, requiredItems, targetClass, rng);
+						setStaticCharacterToClass(options, subChar, subClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, targetClass, rng);
 						if (useFreeInventoryForStaves) { giveStaffIfNecessary(subChar, charData, itemMap, rng); }
 						
 						predeterminedClasses.put(sub, subClass);
@@ -826,7 +1054,7 @@ public class FE4ClassRandomizer {
 	}
 	
 	// Should be run after randomizing playable characters.
-	public static void randomizeMinions(FE4ClassOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
+	public static void randomizeMinions(FE4ClassOptions options, CharacterDataLoader charData, ItemMapper itemMap, Map<FE4Data.HolyBlood, FE4Data.HolyBlood> predeterminedBloodMap, Random rng) {
 		List<FE4EnemyCharacter> enemies = charData.getMinions();
 		randomizeEnemies(options, enemies, charData, itemMap, rng);
 		
@@ -882,7 +1110,7 @@ public class FE4ClassRandomizer {
 			Set<FE4Data.CharacterClass> potentialClasses = new HashSet<FE4Data.CharacterClass>();
 			
 			FE4Data.Item mustUseItem = null;
-			if (!options.randomizeBossBlood) {
+			if (options.bossBloodOption == BloodOptions.NO_CHANGE) {
 				// Limit classes if this option is disabled for those with major holy blood (most endgame bosses).
 				int blood1Value = holyBoss.getHolyBlood1Value();
 				int blood2Value = holyBoss.getHolyBlood2Value();
@@ -925,7 +1153,7 @@ public class FE4ClassRandomizer {
 			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
 			
 			targetClass = classList.get(rng.nextInt(potentialClasses.size()));
-			randomizeHolyBossBlood(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng);
+			randomizeHolyBossBlood(options, holyBoss, targetClass, charData, predeterminedClasses, predeterminedBloodMap, itemMap, rng);
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
 				predeterminedClasses.put(linked, targetClass);
@@ -952,7 +1180,7 @@ public class FE4ClassRandomizer {
 	}
 	
 	// Should be run after randomizing enemies.
-	public static void randomizeBosses(FE4ClassOptions options, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
+	public static void randomizeBosses(FE4ClassOptions options, CharacterDataLoader charData, ItemMapper itemMap, Map<FE4Data.HolyBlood, FE4Data.HolyBlood> predeterminedBloodMap, Random rng) {
 		List<FE4EnemyCharacter> bosses = charData.getPlainBossCharacters();
 		randomizeEnemies(options, bosses, charData, itemMap, rng);
 		
@@ -1016,24 +1244,52 @@ public class FE4ClassRandomizer {
 			
 			Set<FE4Data.CharacterClass> potentialClasses = new HashSet<FE4Data.CharacterClass>();
 			
+			// Limit classes if this option is disabled for those with major holy blood (most endgame bosses).
+			int blood1Value = holyBoss.getHolyBlood1Value();
+			int blood2Value = holyBoss.getHolyBlood2Value();
+			int blood3Value = holyBoss.getHolyBlood3Value();
+			// Blood 4 is only Loptous, which we're not dealing with player-side.
+			
+			List<HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(blood1Value);
+			List<HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(blood2Value);
+			List<HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(blood3Value);
+			
+			boolean hasMajorBlood = false;
+			FE4Data.HolyBlood majorBloodType = null;
+			
+			if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+				hasMajorBlood = true;
+				majorBloodType = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+			} else if (slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+				hasMajorBlood = true;
+				majorBloodType = slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+			} else if (slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
+				hasMajorBlood = true;
+				majorBloodType = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType();
+			}
+			
+			boolean hasMinorBlood = false;
+			FE4Data.HolyBlood minorBloodType = null;
+			
+			if (slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+				hasMinorBlood = true;
+				minorBloodType = slot1Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+			} else if (slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+				hasMinorBlood = true;
+				minorBloodType = slot2Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+			} else if (slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().isPresent()) {
+				hasMinorBlood = true;
+				minorBloodType = slot3Blood.stream().filter(blood -> (!blood.isMajor())).findFirst().get().bloodType();
+			}
+			
 			FE4Data.Item mustUseItem = null;
-			if (!options.randomizeBossBlood) {
-				// Limit classes if this option is disabled for those with major holy blood (most endgame bosses).
-				int blood1Value = holyBoss.getHolyBlood1Value();
-				int blood2Value = holyBoss.getHolyBlood2Value();
-				int blood3Value = holyBoss.getHolyBlood3Value();
-				// Blood 4 is only Loptous, which we're not dealing with player-side.
-				
-				List<HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(blood1Value);
-				List<HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(blood2Value);
-				List<HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(blood3Value);
-				
-				if (slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
-					mustUseItem = slot1Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
-				} else if (slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
-					mustUseItem = slot2Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
-				} else if (slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent()) {
-					mustUseItem = slot3Blood.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType().weaponType.getBasic();
+			if (options.bossBloodOption != BloodOptions.RANDOMIZE) {
+				if (hasMajorBlood) {
+					if (options.bossBloodOption == BloodOptions.NO_CHANGE) { mustUseItem = majorBloodType.holyWeapon.getType().getBasic(); }
+					else if (options.bossBloodOption == BloodOptions.SHUFFLE) { mustUseItem = predeterminedBloodMap.get(majorBloodType).holyWeapon.getType().getBasic(); }
+				} else if (hasMinorBlood) {
+					if (options.bossBloodOption == BloodOptions.NO_CHANGE) { mustUseItem = minorBloodType.holyWeapon.getType().getBasic(); }
+					else if (options.bossBloodOption == BloodOptions.SHUFFLE) { mustUseItem = predeterminedBloodMap.get(minorBloodType).holyWeapon.getType().getBasic(); }
 				}
 			}
 			
@@ -1056,7 +1312,7 @@ public class FE4ClassRandomizer {
 			
 			if (potentialClasses.isEmpty()) {
 				// Still randomize their blood if necessary.
-				if (options.randomizeBossBlood) { randomizeHolyBossBlood(options, holyBoss, originalClass, charData, predeterminedClasses, itemMap, rng); }
+				if (options.bossBloodOption != BloodOptions.NO_CHANGE) { randomizeHolyBossBlood(options, holyBoss, originalClass, charData, predeterminedClasses, predeterminedBloodMap, itemMap, rng); }
 				BloodArrays blood = new BloodArrays(holyBoss);
 				for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
 					predeterminedClasses.put(linked, originalClass);
@@ -1067,10 +1323,37 @@ public class FE4ClassRandomizer {
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
 			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
-			targetClass = classList.get(rng.nextInt(potentialClasses.size()));
+			Set<HolyBlood> bloodOptions = new HashSet<HolyBlood>(Arrays.asList(fe4Char.limitedHolyBloodSelection()));
+			
+			if (options.bossBloodOption == BloodOptions.SHUFFLE) {
+				if (hasMajorBlood) {
+					assert bloodOptions.contains(predeterminedBloodMap.get(majorBloodType)) : "Attempted to assign blacklisted holy blood to character.";
+					if (bloodOptions.contains(predeterminedBloodMap.get(majorBloodType))) {
+						bloodOptions = new HashSet<HolyBlood>(Arrays.asList(predeterminedBloodMap.get(majorBloodType)));
+					}
+					
+				} else if (hasMinorBlood) {
+					if (bloodOptions.contains(predeterminedBloodMap.get(minorBloodType))) {
+						bloodOptions = new HashSet<HolyBlood>(Arrays.asList(predeterminedBloodMap.get(minorBloodType)));
+					}
+				}
+			}
+			
+			targetClass = classList.get(rng.nextInt(classList.size()));
+			
+			final Set<FE4Data.HolyBlood> finalBlood = bloodOptions;
+			List<FE4Data.CharacterClass> fittingClasses = classList.stream().filter(charClass -> {
+				Set<HolyBlood> supportedBlood = new HashSet<HolyBlood>(Arrays.asList(charClass.supportedHolyBlood()));
+				supportedBlood.retainAll(finalBlood);
+				return !supportedBlood.isEmpty();
+			}).collect(Collectors.toList());
+			
+			if (!fittingClasses.isEmpty()) {
+				targetClass = fittingClasses.get(rng.nextInt(fittingClasses.size()));
+			}
 			
 			
-			if (options.randomizeBossBlood) { randomizeHolyBossBlood(options, holyBoss, targetClass, charData, predeterminedClasses, itemMap, rng); }
+			if (options.bossBloodOption != BloodOptions.NO_CHANGE) { randomizeHolyBossBlood(options, holyBoss, targetClass, charData, predeterminedClasses, predeterminedBloodMap, itemMap, rng); }
 			BloodArrays blood = new BloodArrays(holyBoss);
 			setHolyBossToClass(options, holyBoss, targetClass, blood.slot1Blood, blood.slot2Blood, blood.slot3Blood, charData, predeterminedClasses, itemMap, rng);
 			
@@ -1331,7 +1614,8 @@ public class FE4ClassRandomizer {
 		}
 	}
 	
-	private static void randomizeHolyBossBlood(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, ItemMapper itemMap, Random rng) {
+	private static void randomizeHolyBossBlood(FE4ClassOptions options, FE4StaticCharacter holyBoss, FE4Data.CharacterClass targetClass, CharacterDataLoader charData, 
+			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.HolyBlood, FE4Data.HolyBlood> predeterminedBloodMap, ItemMapper itemMap, Random rng) {
 		
 		int blood1Value = holyBoss.getHolyBlood1Value();
 		int blood2Value = holyBoss.getHolyBlood2Value();
@@ -1373,6 +1657,9 @@ public class FE4ClassRandomizer {
 			bloodOptions.remove(FE4Data.HolyBlood.NAGA); // Probably shouldn't get Naga either, in case they end up with the Naga tome (and wipe the floor with everybody).
 			if (!bloodOptions.isEmpty()) {
 				FE4Data.HolyBlood newMajorBlood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
+				if (options.bossBloodOption == BloodOptions.SHUFFLE && predeterminedBloodMap != null) {
+					newMajorBlood = predeterminedBloodMap.get(majorBloodType);
+				}
 				FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajorBlood, true);
 				FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(newMajorBlood, true);
 				FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(newMajorBlood, true);
@@ -1390,37 +1677,50 @@ public class FE4ClassRandomizer {
 		}
 		
 		// Look for Minor blood now.
-		int minorBloodCount = 0;
-		minorBloodCount += slot1Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
-		minorBloodCount += slot2Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
-		minorBloodCount += slot3Blood.stream().filter(blood -> (blood.isMajor() == false)).count();
+		List<FE4Data.HolyBlood> existingMinorBlood = new ArrayList<FE4Data.HolyBlood>();
+		existingMinorBlood.addAll(slot1Blood.stream().filter(blood -> (blood.isMajor() == false)).map(blood -> (blood.bloodType())).collect(Collectors.toList()));
+		existingMinorBlood.addAll(slot2Blood.stream().filter(blood -> (blood.isMajor() == false)).map(blood -> (blood.bloodType())).collect(Collectors.toList()));
+		existingMinorBlood.addAll(slot3Blood.stream().filter(blood -> (blood.isMajor() == false)).map(blood -> (blood.bloodType())).collect(Collectors.toList()));
 		
 		slot1Blood.removeIf(blood -> (blood.isMajor() == false));
 		slot2Blood.removeIf(blood -> (blood.isMajor() == false));
 		slot3Blood.removeIf(blood -> (blood.isMajor() == false));
 		
-		List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
-		Collections.sort(bloodOptions, FE4Data.HolyBlood.defaultComparator);
-		if (majorBloodType != null) {
-			bloodOptions.remove(majorBloodType);
-		}
-		// Once again, no Bragi or Naga.
-		bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
-		bloodOptions.remove(FE4Data.HolyBlood.NAGA);
-		for (int i = 0; i < minorBloodCount; i++) {
-			FE4Data.HolyBlood blood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
-			
-			if (blood == null) { break; }
-			
-			FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(blood, false);
-			FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(blood, false);
-			FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(blood, false);
-			
-			if (slot1 != null) { slot1Blood.add(slot1); }
-			if (slot2 != null) { slot2Blood.add(slot2); }
-			if (slot3 != null) { slot3Blood.add(slot3); }
-			
-			bloodOptions.remove(blood);
+		if (options.bossBloodOption == BloodOptions.SHUFFLE && predeterminedBloodMap != null) {
+			List<FE4Data.HolyBlood> replacementBlood = existingMinorBlood.stream().map(blood -> (predeterminedBloodMap.get(blood))).collect(Collectors.toList());
+			for (FE4Data.HolyBlood blood : replacementBlood) {
+				FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(blood, false);
+				FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(blood, false);
+				FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(blood, false);
+				
+				if (slot1 != null) { slot1Blood.add(slot1); }
+				if (slot2 != null) { slot2Blood.add(slot2); }
+				if (slot3 != null) { slot3Blood.add(slot3); }
+			}
+		} else if (options.bossBloodOption == BloodOptions.RANDOMIZE) {
+			List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
+			Collections.sort(bloodOptions, FE4Data.HolyBlood.defaultComparator);
+			if (majorBloodType != null) {
+				bloodOptions.remove(majorBloodType);
+			}
+			// Once again, no Bragi or Naga.
+			bloodOptions.remove(FE4Data.HolyBlood.BRAGI);
+			bloodOptions.remove(FE4Data.HolyBlood.NAGA);
+			for (int i = 0; i < existingMinorBlood.size(); i++) {
+				FE4Data.HolyBlood blood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
+				
+				if (blood == null) { break; }
+				
+				FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(blood, false);
+				FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(blood, false);
+				FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(blood, false);
+				
+				if (slot1 != null) { slot1Blood.add(slot1); }
+				if (slot2 != null) { slot2Blood.add(slot2); }
+				if (slot3 != null) { slot3Blood.add(slot3); }
+				
+				bloodOptions.remove(blood);
+			}
 		}
 		
 		holyBoss.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
@@ -1553,12 +1853,12 @@ public class FE4ClassRandomizer {
 	}
 	
 	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, boolean prioritizeHealingStavesForHealers, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, 
-			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.Character, FE4Data.Item> requiredItems, Random rng) {
-		setStaticCharacterToClass(options, character, targetClass, prioritizeHealingStavesForHealers, charData, bloodData, itemMap, predeterminedClasses, requiredItems, null, rng);
+			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.HolyBlood, FE4Data.HolyBlood> predeterminedBloodMap, Map<FE4Data.Character, FE4Data.Item> requiredItems, Random rng) {
+		setStaticCharacterToClass(options, character, targetClass, prioritizeHealingStavesForHealers, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, null, rng);
 	}
 	
 	private static void setStaticCharacterToClass(FE4ClassOptions options, FE4StaticCharacter character, FE4Data.CharacterClass targetClass, boolean prioritizeHealingStavesForHealers, CharacterDataLoader charData, HolyBloodLoader bloodData, ItemMapper itemMap, 
-			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.Character, FE4Data.Item> requiredItems, FE4Data.CharacterClass relatedClass, Random rng) {
+			Map<FE4Data.Character, FE4Data.CharacterClass> predeterminedClasses, Map<FE4Data.HolyBlood, FE4Data.HolyBlood> predeterminedBloodMap, Map<FE4Data.Character, FE4Data.Item> requiredItems, FE4Data.CharacterClass relatedClass, Random rng) {
 		FE4Data.CharacterClass oldClass = FE4Data.CharacterClass.valueOf(character.getClassID());
 		
 		character.setClassID(targetClass.ID);
@@ -1589,7 +1889,7 @@ public class FE4ClassRandomizer {
 		
 		FE4Data.Character fe4Char = FE4Data.Character.valueOf(character.getCharacterID());
 		
-		if (options.randomizeBlood) {
+		if (options.playerBloodOption != BloodOptions.NO_CHANGE) {
 			
 			Set<FE4Data.HolyBlood> restrictedBlood = new HashSet<FE4Data.HolyBlood>(); 
 			
@@ -1645,6 +1945,9 @@ public class FE4ClassRandomizer {
 				//assert !bloodList.isEmpty() : "No valid holy blood available.";
 				if (!bloodList.isEmpty()) {
 					FE4Data.HolyBlood newMajorBlood = bloodList.get(rng.nextInt(bloodList.size()));
+					if (options.playerBloodOption == BloodOptions.SHUFFLE && predeterminedBloodMap != null) {
+						newMajorBlood = predeterminedBloodMap.get(majorBloodType);
+					}
 					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(newMajorBlood, true);
 					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(newMajorBlood, true);
 					FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(newMajorBlood, true);
@@ -1695,34 +1998,51 @@ public class FE4ClassRandomizer {
 				character.setRESGrowth(character.getRESGrowth() + bloodData.holyBloodByType(oldBlood).getRESGrowthBonus());
 				character.setLCKGrowth(character.getLCKGrowth() + bloodData.holyBloodByType(oldBlood).getLCKGrowthBonus());
 			}
-			
-			List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
-			Collections.sort(bloodOptions, FE4Data.HolyBlood.defaultComparator);
-			if (majorBloodType != null) { bloodOptions.remove(majorBloodType); }
-			if (bloodOptions.isEmpty()) { 
-				// Some classes only have one choice for blood type, and it might have already been taken by the major blood.
-				// In that case, use anything else.
-				bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(HolyBlood.values())); 
-				bloodOptions.remove(HolyBlood.NONE); 
-				if (majorBloodType != null) { bloodOptions.remove(majorBloodType); } 
-			}
 			List<HolyBlood> newMinorBlood = new ArrayList<HolyBlood>();
-			for (int i = 0; i < minorBloodCount; i++) {
-				HolyBlood blood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
+			
+			if (options.playerBloodOption == BloodOptions.SHUFFLE && predeterminedBloodMap != null) {
+				newMinorBlood = existingMinorBlood.stream().map(existingBlood -> {
+					return predeterminedBloodMap.get(existingBlood);
+				}).collect(Collectors.toList());
 				
-				if (blood == null) { break; }
+				for (FE4Data.HolyBlood blood : newMinorBlood) {
+					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(blood, false);
+					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(blood, false);
+					FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(blood, false);
+					
+					if (slot1 != null) { slot1Blood.add(slot1); }
+					if (slot2 != null) { slot2Blood.add(slot2); }
+					if (slot3 != null) { slot3Blood.add(slot3); }
+				}
+			} else {
+				List<HolyBlood> bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(targetClass.supportedHolyBlood()));
+				Collections.sort(bloodOptions, FE4Data.HolyBlood.defaultComparator);
+				if (majorBloodType != null) { bloodOptions.remove(majorBloodType); }
+				if (bloodOptions.isEmpty()) { 
+					// Some classes only have one choice for blood type, and it might have already been taken by the major blood.
+					// In that case, use anything else.
+					bloodOptions = new ArrayList<HolyBlood>(Arrays.asList(HolyBlood.values())); 
+					bloodOptions.remove(HolyBlood.NONE); 
+					if (majorBloodType != null) { bloodOptions.remove(majorBloodType); } 
+				}
 				
-				newMinorBlood.add(blood);
-				
-				FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(blood, false);
-				FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(blood, false);
-				FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(blood, false);
-				
-				if (slot1 != null) { slot1Blood.add(slot1); }
-				if (slot2 != null) { slot2Blood.add(slot2); }
-				if (slot3 != null) { slot3Blood.add(slot3); }
-				
-				bloodOptions.remove(blood);
+				for (int i = 0; i < minorBloodCount; i++) {
+					HolyBlood blood = bloodOptions.get(rng.nextInt(bloodOptions.size()));
+					
+					if (blood == null) { break; }
+					
+					newMinorBlood.add(blood);
+					
+					FE4Data.HolyBloodSlot1 slot1 = FE4Data.HolyBloodSlot1.blood(blood, false);
+					FE4Data.HolyBloodSlot2 slot2 = FE4Data.HolyBloodSlot2.blood(blood, false);
+					FE4Data.HolyBloodSlot3 slot3 = FE4Data.HolyBloodSlot3.blood(blood, false);
+					
+					if (slot1 != null) { slot1Blood.add(slot1); }
+					if (slot2 != null) { slot2Blood.add(slot2); }
+					if (slot3 != null) { slot3Blood.add(slot3); }
+					
+					bloodOptions.remove(blood);
+				}
 			}
 			
 			// Adjust growths back down based on blood selected.

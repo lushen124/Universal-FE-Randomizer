@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
 import random.snes.fe4.loader.PromotionMapper;
 import ui.fe4.FE4ClassOptions;
+import ui.fe4.FE4ClassOptions.BloodOptions;
 import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
@@ -421,23 +423,24 @@ public class FE4Randomizer extends Randomizer {
 	
 	private void randomizeClassesIfNecessary(String seed) {
 		if (classOptions != null) {
+			Map<FE4Data.HolyBlood, FE4Data.HolyBlood> predeterminedBloodMap = FE4ClassRandomizer.generateBloodMapForBloodShuffle(classOptions, new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt)));
 			if (classOptions.randomizePlayableCharacters) {
 				updateStatusString("Randomizing player classes...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 1));
-				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, buffOptions != null ? !buffOptions.majorHolyBloodBosses : true, charData, bloodData, itemMapper, rng);
+				FE4ClassRandomizer.randomizePlayableCharacterClasses(classOptions, buffOptions != null ? !buffOptions.majorHolyBloodBosses : true, charData, bloodData, itemMapper, predeterminedBloodMap, rng);
 				charData.commit();
 				itemMapper.commitChanges();
 			}
 			if (classOptions.randomizeMinions) {
 				updateStatusString("Randomizing minions...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 2));
-				FE4ClassRandomizer.randomizeMinions(classOptions, charData, itemMapper, rng);
+				FE4ClassRandomizer.randomizeMinions(classOptions, charData, itemMapper, predeterminedBloodMap, rng);
 				charData.commit();
 			}
 			if (classOptions.randomizeBosses) {
 				updateStatusString("Randomizing bosses...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4ClassRandomizer.rngSalt + 3));
-				FE4ClassRandomizer.randomizeBosses(classOptions, charData, itemMapper, rng);
+				FE4ClassRandomizer.randomizeBosses(classOptions, charData, itemMapper, predeterminedBloodMap, rng);
 				charData.commit();
 			}
 			if (classOptions.randomizeArena) {
@@ -587,7 +590,7 @@ public class FE4Randomizer extends Randomizer {
 			itemMapper.setItemAtIndex(FE4Data.LeifEthlynSharedInventoryID, usableList.get(rng.nextInt(usableList.size())));
 		}
 		
-		if (classOptions.randomizeBlood || bloodOptions.giveHolyBlood) {
+		if (classOptions.playerBloodOption != BloodOptions.NO_CHANGE || bloodOptions.giveHolyBlood) {
 			// Hard code Seliph's Holy Blood, based on his parents.
 			// He only has the first two bytes, so drop the other blood (which they should be limited in already).
 			FE4StaticCharacter sigurd = charData.getStaticCharacter(FE4Data.Character.SIGURD);
@@ -849,7 +852,17 @@ public class FE4Randomizer extends Randomizer {
 					break;
 				}
 				
-				rk.addHeaderItem("Randomize Holy Blood", classOptions.randomizeBlood ? "YES" : "NO");
+				switch (classOptions.playerBloodOption) {
+				case NO_CHANGE:
+					rk.addHeaderItem("Player Blood", "No Change");
+					break;
+				case SHUFFLE:
+					rk.addHeaderItem("Player Blood", "Shuffle");
+					break;
+				case RANDOMIZE:
+					rk.addHeaderItem("Player Blood", "Randomize");
+				}
+				
 				switch (classOptions.shopOption) {
 				case DO_NOT_ADJUST:
 					rk.addHeaderItem("Shop Items", "No Change");
@@ -885,7 +898,16 @@ public class FE4Randomizer extends Randomizer {
 			
 			if (classOptions.randomizeBosses) {
 				rk.addHeaderItem("Randomize Bosses", "YES");
-				rk.addHeaderItem("Randomize Boss Holy Blood", classOptions.randomizeBossBlood ? "YES" : "NO");
+				switch (classOptions.bossBloodOption) {
+				case NO_CHANGE:
+					rk.addHeaderItem("Holy Boss Blood", "No Change");
+					break;
+				case SHUFFLE:
+					rk.addHeaderItem("Holy Boss Blood", "Shuffle");
+					break;
+				case RANDOMIZE:
+					rk.addHeaderItem("Holy Boss Blood", "Randomize");
+				}
 			} else {
 				rk.addHeaderItem("Randomize Bosses", "NO");
 			}
