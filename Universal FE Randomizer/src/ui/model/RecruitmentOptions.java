@@ -17,12 +17,15 @@ public class RecruitmentOptions {
 	
 	public final boolean allowCrossGender;
 	
-	public RecruitmentOptions(GrowthAdjustmentMode growthMode, StatAdjustmentMode baseMode, BaseStatAutolevelType autolevel, boolean crossGender) {
+	public final boolean includeExtras;
+	
+	public RecruitmentOptions(GrowthAdjustmentMode growthMode, StatAdjustmentMode baseMode, BaseStatAutolevelType autolevel, boolean crossGender, boolean includeExtras) {
 		super();
 		this.growthMode = growthMode;
 		this.baseMode = baseMode;
 		this.autolevelMode = autolevel;
 		
 		this.allowCrossGender = crossGender;
+		this.includeExtras = includeExtras;
 	}
 }

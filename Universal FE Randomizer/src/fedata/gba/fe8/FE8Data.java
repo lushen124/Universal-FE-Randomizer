@@ -196,6 +196,12 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			case LYON_CH17:
 			case LYON_FINAL:
 				return LYON.ID;
+			case ISMAIRE_NPC:
+				return ISMAIRE.ID;
+			case FADO_NPC:
+				return FADO.ID;
+			case HAYDEN_NPC:
+				return HAYDEN.ID;
 			default: return characterID;
 			}
 		}
@@ -222,6 +228,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> requiresPromotion = new HashSet<Character>(Arrays.asList(EIRIKA, EPHRAIM));
 		
 		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList(VALTER_PROLOGUE)); // This is scripted, and Seth shouldn't die here.
+		public static Set<Character> safeCreatureCampaignCharacters = new HashSet<Character>(Arrays.asList(FADO, GLEN, HAYDEN, ISMAIRE));
 		
 		// Playable characters only.
 		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
@@ -2383,6 +2390,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public Set<GBAFECharacter> linkedCharacters(int characterID) {
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
+	}
+	
+	public Set<GBAFECharacter> extraCharacters() {
+		return new HashSet<GBAFECharacter>(Character.safeCreatureCampaignCharacters);
 	}
 	
 	public Set<GBAFECharacter> charactersExcludedFromRandomRecruitment() {

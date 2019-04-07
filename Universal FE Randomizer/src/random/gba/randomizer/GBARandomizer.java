@@ -513,7 +513,7 @@ public class GBARandomizer extends Randomizer {
 	private void makeFinalAdjustments(String seed) {
 		// Fix the palettes based on final classes.
 		if (needsPaletteFix) {
-			PaletteHelper.synchronizePalettes(gameType, charData, classData, paletteData, characterMap, freeSpace);
+			PaletteHelper.synchronizePalettes(gameType, recruitOptions != null ? recruitOptions.includeExtras : false, charData, classData, paletteData, characterMap, freeSpace);
 		}
 		
 		// Hack in mode select without needing clear data for FE7.

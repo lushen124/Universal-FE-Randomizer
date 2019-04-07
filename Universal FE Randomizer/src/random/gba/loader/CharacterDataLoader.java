@@ -55,8 +55,11 @@ public class CharacterDataLoader {
 		return feCharactersFromSet(provider.allPlayableCharacters());
 	}
 	
-	public List<GBAFECharacterData> canonicalPlayableCharacters() {
+	public List<GBAFECharacterData> canonicalPlayableCharacters(boolean includeExtras) {
 		List<GBAFECharacterData> charList = new ArrayList<GBAFECharacterData>(Arrays.asList(playableCharacters()));
+		if (includeExtras) {
+			charList.addAll(Arrays.asList(feCharactersFromSet(provider.extraCharacters())));
+		}
 		return charList.stream().filter(character -> {
 			return provider.canonicalID(character.getID()) == character.getID();
 		}).collect(Collectors.toList());
@@ -177,7 +180,7 @@ public class CharacterDataLoader {
 	}
 	
 	public void recordCharacters(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, TextLoader textData) {
-		for (GBAFECharacterData character : playableCharacters()) {
+		for (GBAFECharacterData character : canonicalPlayableCharacters(true)) {
 			recordCharacter(rk, character, isInitial, classData, textData);
 		}
 		for (GBAFECharacterData boss : bossCharacters()) {
