@@ -2571,22 +2571,35 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			break;
 		case MAGE:
 		case MAGE_F:
+			usableItems.addAll(Item.allAnima);
+			break;
 		case SAGE:
 		case SAGE_F:
 		case VALKYRIE:
 		case UBER_SAGE:
+			usableItems.addAll(Item.allStaves);
 			usableItems.addAll(Item.allAnima);
 			break;
 		case SHAMAN:
 		case SHAMAN_F:
+			usableItems.addAll(Item.allDark);
+			break;
 		case DRUID:
 		case DRUID_F:
 			usableItems.addAll(Item.allDark);
+			usableItems.addAll(Item.allStaves);
 			break;
 		case MONK:
+			usableItems.addAll(Item.allLight);
+			break;
 		case BISHOP:
 		case BISHOP_F:
+			usableItems.addAll(Item.allStaves);
 			usableItems.addAll(Item.allLight);
+			break;
+		case CLERIC:
+		case TROUBADOUR:
+			usableItems.addAll(Item.allStaves);
 			break;
 		case LORD_KNIGHT:
 		case CAVALIER:
@@ -2697,6 +2710,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (itemsUsableByClass.isEmpty() && !usableByRank.isEmpty()) {
 				itemsUsableByClass = usableByRank;
 			}
+		} else {
+			// Try to match the rank.
+			Set<GBAFEItem> matchRank = new HashSet<GBAFEItem>(itemsUsableByClass);
+			matchRank.removeIf(weapon -> (weapon.getRank() != item.getRank()));
+			if (!matchRank.isEmpty()) { return matchRank; }
 		}
 		
 		return itemsUsableByClass;

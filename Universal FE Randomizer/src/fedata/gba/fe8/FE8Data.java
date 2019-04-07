@@ -2760,12 +2760,21 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		case PUPIL_2:
 		case MAGE:
 		case MAGE_F:
+			usableItems.addAll(Item.allAnima);
+			break;
+		case PRIEST:
+		case CLERIC:
+		case TROUBADOUR:
+			usableItems.addAll(Item.allStaves);
+			break;
 		case MAGE_KNIGHT:
 		case MAGE_KNIGHT_F:
+			usableItems.addAll(Item.allStaves);
 			usableItems.addAll(Item.allAnima);
 			break;
 		case SAGE:
 		case SAGE_F:
+			usableItems.addAll(Item.allStaves);
 			usableItems.addAll(Item.allAnima);
 			usableItems.addAll(Item.allLight);
 			break;
@@ -2776,20 +2785,26 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			break;
 		case SHAMAN:
 		case SHAMAN_F:
+			usableItems.addAll(Item.allDark);
 		case SUMMONER:
 		case SUMMONER_F:
 		case NECROMANCER:
+			usableItems.addAll(Item.allStaves);
 			usableItems.addAll(Item.allDark);
 			break;
 		case DRUID:
 		case DRUID_F:
+			usableItems.addAll(Item.allStaves);
 			usableItems.addAll(Item.allDark);
 			usableItems.addAll(Item.allAnima);
 			break;
 		case MONK:
+			usableItems.addAll(Item.allLight);
+			break;
 		case VALKYRIE:
 		case BISHOP:
 		case BISHOP_F:
+			usableItems.addAll(Item.allStaves);
 			usableItems.addAll(Item.allLight);
 			break;
 		case CAVALIER:
@@ -2886,7 +2901,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Set<GBAFEItem> usableSet = new HashSet<GBAFEItem>(itemsUsableByClass);
 		
 		final WeaponRank effectiveRank = rank;
-		itemsUsableByClass.removeIf(weapon -> (effectiveRank.isLowerThan(weapon.getRank())));
+		itemsUsableByClass.removeIf(weapon -> (effectiveRank.isLowerThan(weapon.getRank()))); // Remove anything that's higher the weapon passed in.
 		
 		if (strict) {
 			Set<GBAFEItem> usableByRank = new HashSet<GBAFEItem>(itemsUsableByClass);
@@ -2923,6 +2938,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (itemsUsableByClass.isEmpty() && !usableByRank.isEmpty()) {
 				itemsUsableByClass = usableByRank;
 			}
+		} else {
+			// Try to match the rank.
+			Set<GBAFEItem> matchRank = new HashSet<GBAFEItem>(itemsUsableByClass);
+			matchRank.removeIf(weapon -> (weapon.getRank() != effectiveRank));
+			if (!matchRank.isEmpty()) { return matchRank; }
 		}
 		
 		return itemsUsableByClass;
