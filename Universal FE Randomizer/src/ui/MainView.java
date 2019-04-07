@@ -525,7 +525,7 @@ public class MainView implements FileFlowDelegate {
 			enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
 			enemyView.setLayoutData(enemyData);
 			
-			recruitView = new RecruitmentView(container, SWT.NONE);
+			recruitView = new RecruitmentView(container, SWT.NONE, type);
 			recruitView.setSize(200, 200);
 			recruitView.setVisible(false);
 			

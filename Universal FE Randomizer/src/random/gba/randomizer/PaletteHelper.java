@@ -19,8 +19,8 @@ import util.WhyDoesJavaNotHaveThese;
 
 public class PaletteHelper {
 	
-	public static void synchronizePalettes(GameType type, CharacterDataLoader charData, ClassDataLoader classData, PaletteLoader paletteData, Map<GBAFECharacterData, GBAFECharacterData> slotToReference, FreeSpaceManager freeSpace) {
-		for (GBAFECharacterData playableCharacter : charData.canonicalPlayableCharacters()) {
+	public static void synchronizePalettes(GameType type, boolean includeExtras, CharacterDataLoader charData, ClassDataLoader classData, PaletteLoader paletteData, Map<GBAFECharacterData, GBAFECharacterData> slotToReference, FreeSpaceManager freeSpace) {
+		for (GBAFECharacterData playableCharacter : charData.canonicalPlayableCharacters(includeExtras)) {
 			int characterID = playableCharacter.getID();
 			int classID = playableCharacter.getClassID();
 			

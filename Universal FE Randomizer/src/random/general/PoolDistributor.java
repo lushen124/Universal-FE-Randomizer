@@ -53,6 +53,11 @@ public class PoolDistributor<T> {
 		return randomItem;
 	}
 	
+	public int itemCount(T item) {
+		if (item == null) { return 0; }
+		return (int) itemList.stream().filter(listItem -> (listItem == item)).count();
+	}
+	
 	public Set<T> possibleResults() {
 		return itemSet;
 	}

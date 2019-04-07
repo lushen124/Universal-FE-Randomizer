@@ -2221,6 +2221,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public Set<GBAFECharacter> extraCharacters() {
+		return new HashSet<GBAFECharacter>();
+	}
+	
 	public Set<GBAFECharacter> charactersExcludedFromRandomRecruitment() {
 		return new HashSet<GBAFECharacter>(Arrays.asList(Character.ATHOS));
 	}

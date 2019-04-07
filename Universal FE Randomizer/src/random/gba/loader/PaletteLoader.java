@@ -196,6 +196,21 @@ public class PaletteLoader {
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
 				}
 			}
+			for (FE8Data.Character character : FE8Data.Character.safeCreatureCampaignCharacters) {
+				int charID = FE8Data.Character.canonicalIDForCharacterID(character.ID);
+				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
+				referencePalettesV2.put(charID, referenceMap);
+				for (PaletteInfo paletteInfo : FE8Data.Palette.palettesForCharacter(charID)) {
+					int classID = paletteInfo.getClassID();
+					PaletteV2 palette = new PaletteV2(handler, paletteInfo);
+					paletteByPaletteIDV2.put(paletteInfo.getPaletteID(), palette);
+					referenceMap.put(classID, new PaletteV2(handler, paletteInfo));
+					FE8Data.CharacterClass fe8class = FE8Data.CharacterClass.valueOf(classID);
+					FE8Data.Character fe8char = FE8Data.Character.valueOf(charID);
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe8char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe8class.toString() + "))");
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
+				}
+			}
 			for (FE8Data.Character boss : FE8Data.Character.allBossCharacters) {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(boss.ID);
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();

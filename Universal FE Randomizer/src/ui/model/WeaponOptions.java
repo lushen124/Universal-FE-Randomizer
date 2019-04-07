@@ -10,6 +10,7 @@ public class WeaponOptions {
 	
 	public final Boolean shouldAddEffects;
 	public final Boolean noEffectIronWeapons;
+	public final int effectChance;
 	public final WeaponEffectOptions effectsList;
 	
 	public WeaponOptions(MinMaxVarOption mightOptions, 
@@ -18,6 +19,7 @@ public class WeaponOptions {
 			MinMaxVarOption weightOptions, 
 			MinMaxVarOption durabilityOptions, 
 			Boolean shouldAddEffects,
+			int effectChance,
 			WeaponEffectOptions effects,
 			Boolean noIrons) {
 		super();
@@ -30,6 +32,7 @@ public class WeaponOptions {
 		this.shouldAddEffects = shouldAddEffects;
 		effectsList = effects;
 		noEffectIronWeapons = noIrons;
+		this.effectChance = effectChance;
 	}
 	
 }

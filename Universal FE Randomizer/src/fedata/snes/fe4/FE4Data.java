@@ -1945,7 +1945,7 @@ public class FE4Data {
 			}
 			
 			Set<CharacterClass> workingSet = new HashSet<CharacterClass>();
-			if (promotedClasses.contains(this)) { workingSet.addAll(promotedClasses); }
+			if (isPromoted()) { workingSet.addAll(promotedClasses); }
 			else { workingSet.addAll(unpromotedClasses); }
 			
 			if (!isEnemy) { 
@@ -3074,25 +3074,30 @@ public class FE4Data {
 	}
 	
 	public enum HolyBlood {
-		NONE(Item.NONE, Item.ItemType.NONE),
-		BALDR(Item.TYRFING, Item.ItemType.SWORD), 
-		OD(Item.BALMUNG, Item.ItemType.SWORD), 
-		HEZUL(Item.MYSTLETAINN, Item.ItemType.SWORD), 
-		NJORUN(Item.GAE_BOLG, Item.ItemType.LANCE), 
-		DAIN(Item.GUNGNIR, Item.ItemType.LANCE), 
-		NEIR(Item.HELSWATH, Item.ItemType.AXE), 
-		ULIR(Item.YEWFELLE, Item.ItemType.BOW), 
-		FJALAR(Item.VALFLAME, Item.ItemType.FIRE_MAGIC), 
-		THRUD(Item.MJOLNIR, Item.ItemType.THUNDER_MAGIC), 
-		FORSETI(Item.FORSETI, Item.ItemType.WIND_MAGIC), 
-		NAGA(Item.NAGA, Item.ItemType.LIGHT_MAGIC), 
-		LOPTOUS(Item.LOPTYR, Item.ItemType.DARK_MAGIC), 
-		BRAGI(Item.VALKYRIE, Item.ItemType.STAFF);
+		NONE(Item.NONE, Item.ItemType.NONE, Character.NONE),
+		BALDR(Item.TYRFING, Item.ItemType.SWORD, Character.SIGURD), 
+		OD(Item.BALMUNG, Item.ItemType.SWORD, Character.SHANNAN), 
+		HEZUL(Item.MYSTLETAINN, Item.ItemType.SWORD, Character.ARES), 
+		NJORUN(Item.GAE_BOLG, Item.ItemType.LANCE, Character.QUAN), 
+		DAIN(Item.GUNGNIR, Item.ItemType.LANCE, Character.ARION_CH9), 
+		NEIR(Item.HELSWATH, Item.ItemType.AXE, Character.LOMBARD), 
+		ULIR(Item.YEWFELLE, Item.ItemType.BOW, Character.BRIGID), 
+		FJALAR(Item.VALFLAME, Item.ItemType.FIRE_MAGIC, Character.ARVIS_CH5), 
+		THRUD(Item.MJOLNIR, Item.ItemType.THUNDER_MAGIC, Character.REPTOR), 
+		FORSETI(Item.FORSETI, Item.ItemType.WIND_MAGIC, Character.LEWYN), 
+		NAGA(Item.NAGA, Item.ItemType.LIGHT_MAGIC, Character.JULIA), 
+		LOPTOUS(Item.LOPTYR, Item.ItemType.DARK_MAGIC, Character.JULIUS_FINAL), 
+		BRAGI(Item.VALKYRIE, Item.ItemType.STAFF, Character.CLAUD);
 		
 		public Item holyWeapon;
 		public Item.ItemType weaponType;
+		public Character representative;
 		
-		private HolyBlood(Item weapon, Item.ItemType type) { this.holyWeapon = weapon; this.weaponType = type; }
+		private HolyBlood(Item weapon, Item.ItemType type, Character representative) { 
+			this.holyWeapon = weapon; 
+			this.weaponType = type;
+			this.representative = representative;
+		}
 		
 		// They're not IDs because they're not referenced this way, but they are stored in data in this order.
 		public static List<HolyBlood> orderedByDataTable() {
@@ -3123,6 +3128,21 @@ public class FE4Data {
 			case LOPTOUS: CharacterClass.darkUsers.toArray(new CharacterClass[CharacterClass.darkUsers.size()]);
 			case BRAGI: CharacterClass.staffUsers.toArray(new CharacterClass[CharacterClass.staffUsers.size()]);
 			default: return new CharacterClass[] {};
+			}
+		}
+		
+		public boolean isEnemyBlood() {
+			return !representative.isPlayable();
+		}
+		
+		// These should not be doled out arbitrarily.
+		public boolean isRestricted() {
+			switch (this) {
+			case NAGA:
+			case LOPTOUS:
+				return true;
+			default:
+					return false;
 			}
 		}
 	}

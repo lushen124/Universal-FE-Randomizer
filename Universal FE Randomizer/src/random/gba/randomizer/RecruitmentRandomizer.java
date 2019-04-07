@@ -44,7 +44,7 @@ public class RecruitmentRandomizer {
 			Random rng) {
 		
 		// Figure out mapping first.
-		List<GBAFECharacterData> characterPool = new ArrayList<GBAFECharacterData>(characterData.canonicalPlayableCharacters());
+		List<GBAFECharacterData> characterPool = new ArrayList<GBAFECharacterData>(characterData.canonicalPlayableCharacters(options.includeExtras));
 		characterPool.removeIf(character -> (characterData.charactersExcludedFromRandomRecruitment().contains(character)));
 		
 		Map<Integer, GBAFECharacterData> referenceData = characterPool.stream().map(character -> {
