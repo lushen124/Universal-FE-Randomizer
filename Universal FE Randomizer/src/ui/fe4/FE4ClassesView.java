@@ -11,6 +11,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
+import ui.fe4.FE4ClassOptions.BloodOptions;
 import ui.fe4.FE4ClassOptions.ChildOptions;
 import ui.fe4.FE4ClassOptions.ItemAssignmentOptions;
 import ui.fe4.FE4ClassOptions.ShopOptions;
@@ -25,14 +26,20 @@ public class FE4ClassesView extends Composite {
 	private Button includeThieves;
 	private Button includeDancers;
 	private Button includeJulia;
+	
 	private Button adjustChildrenStrict;
 	private Button adjustChildrenLoose;
 	private Button randomizeChildren;
-	private Button randomizeBlood;
+	
+	private Button playerBloodNoChange;
+	private Button playerBloodShuffle;
+	private Button playerBloodRandomize;
+	
 	private Button retainShops;
 	private Button adjustShops;
 	private Button randomizeShops;
 	private Button adjustConvoItems;
+	
 	private Button adjustSTRMAG;
 	private Button strictSidgradeItems;
 	private Button looseSidegradeItems;
@@ -43,7 +50,10 @@ public class FE4ClassesView extends Composite {
 	private Button randomizeArenas;
 	
 	private Button randomizeBosses;
-	private Button randomizeBossBlood;
+	
+	private Button bossBloodNoChange;
+	private Button bossBloodShuffle;
+	private Button bossBloodRandomize;
 	
 	public FE4ClassesView(Composite parent, int style) {
 		super(parent, style);
@@ -82,7 +92,9 @@ public class FE4ClassesView extends Composite {
 				adjustChildrenLoose.setEnabled(enabled);
 				randomizeChildren.setEnabled(enabled);
 				
-				randomizeBlood.setEnabled(enabled);
+				playerBloodNoChange.setEnabled(enabled);
+				playerBloodShuffle.setEnabled(enabled && randomizeBosses.getSelection());
+				playerBloodRandomize.setEnabled(enabled);
 				
 				retainShops.setEnabled(enabled);
 				adjustShops.setEnabled(enabled);
@@ -94,6 +106,20 @@ public class FE4ClassesView extends Composite {
 				strictSidgradeItems.setEnabled(enabled);
 				looseSidegradeItems.setEnabled(enabled);
 				randomItems.setEnabled(enabled);
+				
+				if (!enabled) {
+					if (playerBloodShuffle.getSelection() && bossBloodShuffle.getSelection()) {
+						bossBloodShuffle.setSelection(false);
+						playerBloodShuffle.setSelection(false);
+						bossBloodNoChange.setSelection(true);
+						playerBloodNoChange.setSelection(true);
+					}
+					bossBloodShuffle.setEnabled(false);
+				} else {
+					if (randomizeBosses.getSelection()) {
+						bossBloodShuffle.setEnabled(true);
+					}
+				}
 			}
 		});
 		
@@ -219,16 +245,89 @@ public class FE4ClassesView extends Composite {
 			randomizeChildren.setLayoutData(optionData);
 		}
 		
-		randomizeBlood = new Button(container, SWT.CHECK);
-		randomizeBlood.setText("Randomize Holy Blood");
-		randomizeBlood.setToolTipText("Randomly assigns holy blood to characters. Note that if this option is not enabled, characters with Major Holy Blood will have a restricted class pool.");
-		randomizeBlood.setEnabled(false);
-		randomizeBlood.setSelection(false);
+		Group bloodGroup = new Group(container, SWT.NONE);
+		bloodGroup.setText("Holy Blood");
 		
-		optionData = new FormData();
-		optionData.left = new FormAttachment(childGroup, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(childGroup, 5);
-		randomizeBlood.setLayoutData(optionData);
+		groupLayout = new FormLayout();
+		groupLayout.marginLeft = 5;
+		groupLayout.marginRight = 5;
+		groupLayout.marginTop = 5;
+		groupLayout.marginBottom = 5;
+		bloodGroup.setLayout(groupLayout);
+		
+		groupData = new FormData();
+		groupData.left = new FormAttachment(childGroup, 0, SWT.LEFT);
+		groupData.top = new FormAttachment(childGroup, 5);
+		groupData.right = new FormAttachment(100, -5);
+		bloodGroup.setLayoutData(groupData);
+		
+		{
+			playerBloodNoChange = new Button(bloodGroup, SWT.RADIO);
+			playerBloodNoChange.setText("No Change");
+			playerBloodNoChange.setToolTipText("Playable Characters retain their original holy blood. Classes are limited to those that can support their original holy blood.");
+			playerBloodNoChange.setEnabled(false);
+			playerBloodNoChange.setSelection(true);
+			playerBloodNoChange.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					if (playerBloodNoChange.getSelection()) {
+						if (bossBloodShuffle.getSelection()) {
+							bossBloodNoChange.setSelection(true);
+							bossBloodShuffle.setSelection(false);
+						}
+					}
+				}
+			});
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(0, 0);
+			optionData.top = new FormAttachment(0, 0);
+			playerBloodNoChange.setLayoutData(optionData);
+			
+			playerBloodShuffle = new Button(bloodGroup, SWT.RADIO);
+			playerBloodShuffle.setText("Shuffle");
+			playerBloodShuffle.setToolTipText("Holy blood types are shuffled and assigned in a way such that relationships are preserved.\nUsing this option forces the corresponding setting on the boss blood.\nOnly available if bosses are allowed to be randomized.");
+			playerBloodShuffle.setEnabled(false);
+			playerBloodShuffle.setSelection(false);
+			playerBloodShuffle.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					if (playerBloodShuffle.getSelection()) {
+						bossBloodShuffle.setSelection(true);
+						
+						bossBloodNoChange.setSelection(false);
+						bossBloodRandomize.setSelection(false);
+					}
+				}
+			});
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(playerBloodNoChange, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(playerBloodNoChange, 5);
+			playerBloodShuffle.setLayoutData(optionData);
+			
+			playerBloodRandomize = new Button(bloodGroup, SWT.RADIO);
+			playerBloodRandomize.setText("Randomize");
+			playerBloodRandomize.setToolTipText("Playable characters are allowed to randomize their blood. Children continue to inherit blood based on their parents.");
+			playerBloodRandomize.setEnabled(false);
+			playerBloodRandomize.setSelection(false);
+			playerBloodRandomize.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					if (playerBloodRandomize.getSelection()) {
+						if (bossBloodShuffle.getSelection()) {
+							bossBloodRandomize.setSelection(true);
+							bossBloodShuffle.setSelection(false);
+						}
+					}
+				}
+			});
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(playerBloodShuffle, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(playerBloodShuffle, 5);
+			playerBloodRandomize.setLayoutData(optionData);
+		}
 		
 		Group shopGroup = new Group(container, SWT.NONE);
 		shopGroup.setText("Shop Options");
@@ -241,8 +340,8 @@ public class FE4ClassesView extends Composite {
 		shopGroup.setLayout(shopLayout);
 		
 		FormData shopData = new FormData();
-		shopData.left = new FormAttachment(randomizeBlood, 0, SWT.LEFT);
-		shopData.top = new FormAttachment(randomizeBlood, 5);
+		shopData.left = new FormAttachment(bloodGroup, 0, SWT.LEFT);
+		shopData.top = new FormAttachment(bloodGroup, 5);
 		shopData.right = new FormAttachment(100, -5);
 		shopGroup.setLayoutData(shopData);
 		
@@ -384,7 +483,23 @@ public class FE4ClassesView extends Composite {
 		randomizeBosses.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				randomizeBossBlood.setEnabled(randomizeBosses.getSelection());
+				bossBloodNoChange.setEnabled(randomizeBosses.getSelection());
+				bossBloodShuffle.setEnabled(randomizeBosses.getSelection() && randomizePCs.getSelection());
+				bossBloodRandomize.setEnabled(randomizeBosses.getSelection());
+				
+				if (!randomizeBosses.getSelection()) {
+					if (bossBloodShuffle.getSelection() && playerBloodShuffle.getSelection()) {
+						bossBloodShuffle.setSelection(false);
+						playerBloodShuffle.setSelection(false);
+						playerBloodNoChange.setSelection(true);
+						bossBloodNoChange.setSelection(true);
+					}
+					playerBloodShuffle.setEnabled(false);
+				} else {
+					if (randomizePCs.getSelection()) {
+						playerBloodShuffle.setEnabled(true);
+					}
+				}
 			}
 		});
 		
@@ -393,16 +508,90 @@ public class FE4ClassesView extends Composite {
 		optionData.top = new FormAttachment(randomizeArenas, 10);
 		randomizeBosses.setLayoutData(optionData);
 		
-		randomizeBossBlood = new Button(container, SWT.CHECK);
-		randomizeBossBlood.setText("Randomize Boss Holy Blood");
-		randomizeBossBlood.setToolTipText("Only applies to bosses with holy blood.\n\nIf disabled, boss class pools are restricted by their holy blood weapons.\nIf enabled, allows bosses to change their holy blood, widening the class pool.");
-		randomizeBossBlood.setEnabled(false);
-		randomizeBossBlood.setSelection(false);
+		Group bossBloodGroup = new Group(container, SWT.NONE);
+		bossBloodGroup.setText("Boss Holy Blood");
 		
-		optionData = new FormData();
-		optionData.left = new FormAttachment(randomizeBosses, 10, SWT.LEFT);
-		optionData.top = new FormAttachment(randomizeBosses, 5);
-		randomizeBossBlood.setLayoutData(optionData);
+		groupLayout = new FormLayout();
+		groupLayout.marginLeft = 5;
+		groupLayout.marginRight = 5;
+		groupLayout.marginTop = 5;
+		groupLayout.marginBottom = 5;
+		bossBloodGroup.setLayout(groupLayout);
+		
+		groupData = new FormData();
+		groupData.left = new FormAttachment(randomizeBosses, 0, SWT.LEFT);
+		groupData.top = new FormAttachment(randomizeBosses, 5);
+		groupData.right = new FormAttachment(100, -5);
+		bossBloodGroup.setLayoutData(groupData);
+		
+		{
+			bossBloodNoChange = new Button(bossBloodGroup, SWT.RADIO);
+			bossBloodNoChange.setText("No Change");
+			bossBloodNoChange.setToolTipText("Bosses retain the original holy blood. Class selection will be limited to those that support their original blood.");
+			bossBloodNoChange.setEnabled(false);
+			bossBloodNoChange.setSelection(true);
+			bossBloodNoChange.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					if (bossBloodNoChange.getSelection()) {
+						if (playerBloodShuffle.getSelection()) {
+							playerBloodNoChange.setSelection(true);
+							playerBloodShuffle.setSelection(false);
+						}
+					}
+				}
+			});
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(0, 0);
+			optionData.top = new FormAttachment(0, 0);
+			bossBloodNoChange.setLayoutData(optionData);
+			
+			bossBloodShuffle = new Button(bossBloodGroup, SWT.RADIO);
+			bossBloodShuffle.setText("Shuffle");
+			bossBloodShuffle.setToolTipText("Holy blood types are shuffled and assigned in a way such that relationships are preserved.\nUsing this option forces the corresponding setting on the player blood.\nOnly available if playable characters are allowed to be randomized.");
+			bossBloodShuffle.setEnabled(false);
+			bossBloodShuffle.setSelection(false);
+			bossBloodShuffle.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					if (bossBloodShuffle.getSelection()) {
+						playerBloodShuffle.setSelection(true);
+						
+						playerBloodNoChange.setSelection(false);
+						playerBloodRandomize.setSelection(false);
+					}
+				}
+			});
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(bossBloodNoChange, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(bossBloodNoChange, 5);
+			bossBloodShuffle.setLayoutData(optionData);
+			
+			
+			bossBloodRandomize = new Button(bossBloodGroup, SWT.RADIO);
+			bossBloodRandomize.setText("Randomize");
+			bossBloodRandomize.setToolTipText("Bosses with holy blood will randomize into a different holy blood, unlocking all classes for randomization.");
+			bossBloodRandomize.setEnabled(false);
+			bossBloodRandomize.setSelection(false);
+			bossBloodRandomize.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					if (bossBloodRandomize.getSelection()) {
+						if (playerBloodShuffle.getSelection()) {
+							playerBloodRandomize.setSelection(true);
+							playerBloodShuffle.setSelection(false);
+						}
+					}
+				}
+			});
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(bossBloodShuffle, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(bossBloodShuffle, 5);
+			bossBloodRandomize.setLayoutData(optionData);
+		}
 	}
 	
 	public FE4ClassOptions getClassOptions() {
@@ -417,8 +606,17 @@ public class FE4ClassesView extends Composite {
 		if (looseSidegradeItems.getSelection()) { itemOptions = ItemAssignmentOptions.SIDEGRADE_LOOSE; }
 		else if (randomItems.getSelection()) { itemOptions = ItemAssignmentOptions.RANDOMIZE; }
 		
-		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), retainHorses.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), includeJulia.getSelection(), childOptions, randomizeBlood.getSelection(), shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(), itemOptions,
-				randomizeMinions.getSelection(), randomizeArenas.getSelection(), randomizeBosses.getSelection(), randomizeBossBlood.getSelection());
+		BloodOptions playerBloodOptions = BloodOptions.NO_CHANGE;
+		BloodOptions bossBloodOptions = BloodOptions.NO_CHANGE;
+		
+		if (playerBloodShuffle.getSelection()) { playerBloodOptions = BloodOptions.SHUFFLE; }
+		if (playerBloodRandomize.getSelection()) { playerBloodOptions = BloodOptions.RANDOMIZE; }
+		
+		if (bossBloodShuffle.getSelection()) { bossBloodOptions = BloodOptions.SHUFFLE; }
+		if (bossBloodRandomize.getSelection()) { bossBloodOptions = BloodOptions.RANDOMIZE; }
+		
+		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), retainHorses.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), includeJulia.getSelection(), childOptions, playerBloodOptions, shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(), itemOptions,
+				randomizeMinions.getSelection(), randomizeArenas.getSelection(), randomizeBosses.getSelection(), bossBloodOptions);
 	}
 	
 	public void setClassOptions(FE4ClassOptions options) {
@@ -439,7 +637,9 @@ public class FE4ClassesView extends Composite {
 				adjustChildrenLoose.setEnabled(true);
 				randomizeChildren.setEnabled(true);
 				
-				randomizeBlood.setEnabled(true);
+				playerBloodNoChange.setEnabled(true);
+				playerBloodShuffle.setEnabled(true);
+				playerBloodRandomize.setEnabled(true);
 				
 				retainShops.setEnabled(true);
 				adjustShops.setEnabled(true);
@@ -463,7 +663,9 @@ public class FE4ClassesView extends Composite {
 				adjustChildrenLoose.setSelection(options.childOption == ChildOptions.MATCH_LOOSE);
 				randomizeChildren.setSelection(options.childOption == ChildOptions.RANDOM_CLASS);
 				
-				randomizeBlood.setSelection(options.randomizeBlood);
+				playerBloodNoChange.setSelection(options.playerBloodOption == BloodOptions.NO_CHANGE || options.playerBloodOption == null);
+				playerBloodShuffle.setSelection(options.playerBloodOption == BloodOptions.SHUFFLE);
+				playerBloodRandomize.setSelection(options.playerBloodOption == BloodOptions.RANDOMIZE);
 				
 				retainShops.setSelection(options.shopOption == ShopOptions.DO_NOT_ADJUST);
 				adjustShops.setSelection(options.shopOption == ShopOptions.ADJUST_TO_MATCH);
@@ -482,8 +684,14 @@ public class FE4ClassesView extends Composite {
 			
 			if (options.randomizeBosses) {
 				randomizeBosses.setSelection(true);
-				randomizeBossBlood.setSelection(options.randomizeBossBlood);
-				randomizeBossBlood.setEnabled(true);
+				
+				bossBloodNoChange.setEnabled(true);
+				bossBloodShuffle.setEnabled(true);
+				bossBloodRandomize.setEnabled(true);
+				
+				bossBloodNoChange.setSelection(options.bossBloodOption == BloodOptions.NO_CHANGE || options.bossBloodOption == null);
+				bossBloodShuffle.setSelection(options.bossBloodOption == BloodOptions.SHUFFLE);
+				bossBloodRandomize.setSelection(options.bossBloodOption == BloodOptions.RANDOMIZE);
 			}
 		}
 	}
