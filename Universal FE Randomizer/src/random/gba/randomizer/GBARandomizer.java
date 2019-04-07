@@ -448,7 +448,7 @@ public class GBARandomizer extends Randomizer {
 			if (weapons.shouldAddEffects && weapons.effectsList != null) {
 				updateStatusString("Adding random effects to weapons...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 4));
-				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, weapons.noEffectIronWeapons, rng);
+				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, weapons.noEffectIronWeapons, weapons.effectChance, rng);
 			}
 		}
 	}
@@ -765,10 +765,9 @@ public class GBARandomizer extends Randomizer {
 			rk.addHeaderItem("Randomize Weapon Durability", "NO");
 		}
 		if (weapons.shouldAddEffects) {
-			rk.addHeaderItem("Add Random Effects", "YES");
+			rk.addHeaderItem("Add Random Effects", "YES (" + weapons.effectChance + "%)");
 			StringBuilder sb = new StringBuilder();
 			sb.append("<ul>\n");
-			if (weapons.effectsList.none) { sb.append("<li>No Effect</li>\n"); }
 			if (weapons.effectsList.statBoosts) { sb.append("<li>Stat Boosts</li>\n"); }
 			if (weapons.effectsList.effectiveness) { sb.append("<li>Effectiveness</li>\n"); }
 			if (weapons.effectsList.unbreakable) { sb.append("<li>Unbreakable</li>\n"); }

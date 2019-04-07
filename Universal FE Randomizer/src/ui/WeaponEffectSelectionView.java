@@ -16,7 +16,6 @@ public class WeaponEffectSelectionView extends Composite {
 		public void onSelectionChanged();
 	}
 	
-	private Button noneCheckBox;
 	private Button statBoostsCheckBox;
 	private Button effectivenessCheckBox;
 	private Button unbreakableCheckBox;
@@ -56,16 +55,6 @@ public class WeaponEffectSelectionView extends Composite {
 	}
 	
 	protected void buildView(GameType type) {
-		noneCheckBox = new Button(this, SWT.CHECK);
-		noneCheckBox.setText("None");
-		noneCheckBox.setToolTipText("Allows random weapons to remain as they were and not receive a random effect.");
-		noneCheckBox.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				notifySelectionChange();
-			}
-		});
-		
 		statBoostsCheckBox = new Button(this, SWT.CHECK);
 		statBoostsCheckBox.setText("Stat Boosts");
 		statBoostsCheckBox.setToolTipText("Allows random weapons to grant minor stat boosts. (+5 to a random stat).");
@@ -187,7 +176,7 @@ public class WeaponEffectSelectionView extends Composite {
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		
-		noneCheckBox.setEnabled(enabled);
+		//noneCheckBox.setEnabled(enabled);
 		statBoostsCheckBox.setEnabled(enabled);
 		effectivenessCheckBox.setEnabled(enabled);
 		unbreakableCheckBox.setEnabled(enabled);
@@ -207,7 +196,7 @@ public class WeaponEffectSelectionView extends Composite {
 	
 	public void selectAll() {
 		squelchCallbacks = true;
-		noneCheckBox.setSelection(true);
+		//noneCheckBox.setSelection(true);
 		statBoostsCheckBox.setSelection(true);
 		effectivenessCheckBox.setSelection(true);
 		unbreakableCheckBox.setSelection(true);
@@ -226,7 +215,7 @@ public class WeaponEffectSelectionView extends Composite {
 	
 	public void deselectAll() {
 		squelchCallbacks = true;
-		noneCheckBox.setSelection(false);
+		//noneCheckBox.setSelection(false);
 		statBoostsCheckBox.setSelection(false);
 		effectivenessCheckBox.setSelection(false);
 		unbreakableCheckBox.setSelection(false);
@@ -248,12 +237,12 @@ public class WeaponEffectSelectionView extends Composite {
 	}
 	
 	public WeaponEffectOptions getOptions() {
-		return new WeaponEffectOptions(noneEnabled, statBoostsEnabled, effectivenessEnabled, unbreakableEnabled, braveEnabled, reverseEnabled, rangeEnabled, criticalEnabled, magicEnabled, poisonEnabled, eclipseEnabled, devilEnabled);
+		return new WeaponEffectOptions(statBoostsEnabled, effectivenessEnabled, unbreakableEnabled, braveEnabled, reverseEnabled, rangeEnabled, criticalEnabled, magicEnabled, poisonEnabled, eclipseEnabled, devilEnabled);
 	}
 	
 	public void setOptions(WeaponEffectOptions options) {
 		if (options != null) {
-			noneCheckBox.setSelection(options.none != null ? options.none : false);
+			//noneCheckBox.setSelection(options.none != null ? options.none : false);
 			statBoostsCheckBox.setSelection(options.statBoosts != null ? options.statBoosts : false);
 			effectivenessCheckBox.setSelection(options.effectiveness != null ? options.effectiveness : false);
 			unbreakableCheckBox.setSelection(options.unbreakable != null ? options.unbreakable : false);
@@ -271,7 +260,7 @@ public class WeaponEffectSelectionView extends Composite {
 	}
 	
 	public void notifySelectionChange() {
-		noneEnabled = noneCheckBox.getSelection();
+		//noneEnabled = noneCheckBox.getSelection();
 		statBoostsEnabled = statBoostsCheckBox.getSelection();
 		effectivenessEnabled = effectivenessCheckBox.getSelection();
 		unbreakableEnabled = unbreakableCheckBox.getSelection();
