@@ -638,7 +638,7 @@ public class FE4ClassesView extends Composite {
 				randomizeChildren.setEnabled(true);
 				
 				playerBloodNoChange.setEnabled(true);
-				playerBloodShuffle.setEnabled(true);
+				playerBloodShuffle.setEnabled(options.randomizeBosses);
 				playerBloodRandomize.setEnabled(true);
 				
 				retainShops.setEnabled(true);
@@ -686,12 +686,14 @@ public class FE4ClassesView extends Composite {
 				randomizeBosses.setSelection(true);
 				
 				bossBloodNoChange.setEnabled(true);
-				bossBloodShuffle.setEnabled(true);
+				bossBloodShuffle.setEnabled(options.randomizePlayableCharacters);
 				bossBloodRandomize.setEnabled(true);
 				
 				bossBloodNoChange.setSelection(options.bossBloodOption == BloodOptions.NO_CHANGE || options.bossBloodOption == null);
 				bossBloodShuffle.setSelection(options.bossBloodOption == BloodOptions.SHUFFLE);
 				bossBloodRandomize.setSelection(options.bossBloodOption == BloodOptions.RANDOMIZE);
+			} else {
+				
 			}
 		}
 	}
