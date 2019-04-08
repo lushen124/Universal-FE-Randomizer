@@ -113,6 +113,12 @@ public class FE4Data {
 	public static final byte FemaleEmperorStaffAnimationFixOldValue = 0x00;
 	public static final byte FemaleEmperorStaffAnimationFixNewValue = 0x01;
 	
+	// Lord Knight's map sprite is special for Sigurd, but it doesn't need to be.
+	// We can use enable Lord Knight's map sprite to be used for more than just Sigurd.
+	public static final long KnightLordMapSpriteFixOffset = 0x3830CL;
+	public static final byte KnightLordMapSpriteFixOldValue = 0x01;
+	public static final byte KnightLordMapSpriteFixNewValue = 0x00;
+	
 	// Aura shenanigans.
 	// 0x34 is a Steel Lance freely available in Ch. 8 that we can use
 	// This allows us to swap it for Deirdre's Aura, which can side-step the duplicate item issue in gen 2.
