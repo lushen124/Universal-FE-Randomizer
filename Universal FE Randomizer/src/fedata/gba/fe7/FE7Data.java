@@ -2221,6 +2221,59 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
 	}
 	
+	public int appearanceChapter(int characterID) {
+		Character character = Character.valueOf(characterID);
+		if (character == null) { return 0; }
+		switch (character) {
+		case LYN: case BATTA: return 1; // Prologue
+		case KENT: case SAIN: case ZUGU: return 2;
+		case GLASS: return 3;
+		case FLORINA: case WIL: case MIGAL: return 4;
+		case DORCAS: case CARJIGA: return 5;
+		case SERRA: case ERK: case BUG: return 6;
+		case RATH: case MATTHEW: case BOOL: return 7;
+		case NILS: case LUCIUS: case HEINTZ: return 8;
+		case BEYARD: return 8;
+		case YOGI: return 9;
+		case WALLACE: case EAGLER: return 10;
+		case LUNDGREN: return 11;
+		case HECTOR: case WIRE: return 12;
+		case OSWIN: case ELIWOOD: case MARCUS: case REBECCA: case BARTRE: case LOWEN: case ZAGAN: return 13;
+		case GUY: case BOIES: return 14;
+		case MERLINUS: case PUZON: return 14;
+		case PRISCILLA: case ERIK: return 15;
+		case SEALEN: return 16;
+		case BAUKER: return 17;
+		case RAVEN: case BERNARD: return 18;
+		case CANAS: case FARGUS: case DAMIAN: return 19;
+		case ZOLDAM: return 19;
+		case DART: case FIORA: case UHAI: return 20;
+		case AION: case KISHUNA: return 20;
+		case TEODOR: return 20;
+		case LEGAULT: case DARIN: case CAMERON: return 21;
+		case NINIAN: case OLEG: return 22;
+		case ISADORA: case HEATH: case EUBANS: return 23;
+		case HAWKEYE: case PAUL: case JASMINE: return 24;
+		case GEITZ: case LINUS_FFO: case LLOYD_FFO: return 25;
+		case FARINA: case PASCAL: return 26;
+		case LOUISE: case PENT: case VAIDA: return 27;
+		case HARKEN: case KAREL: case JERME: case KENNETH: return 28;
+		case NINO: case MAXIME: case URSULA: return 29;
+		case JAFFAR: case SONIA: return 29;
+		case LLOYD_COD: case LINUS_COD: return 30;
+		case GEORG: case KAIM: return 31;
+		case DENNING: return 32;
+		case KARLA: return 32;
+		case RENAULT: case LIMSTELLA: return 33;
+		case ATHOS: case NERGAL: case DRAGON: case BRENDAN_MORPH: case DARIN_MORPH: case JERME_MORPH: case KENNETH_MORPH: case LINUS_MORPH: case LLOYD_MORPH: case UHAI_MORPH: case URSULA_MORPH: return 34;
+		default: return 0;
+		}
+	}
+	
+	public int chapterCount() {
+		return 34; // Including lyn chapters and endgame. Gaiden chapters count as the same chapter.
+	}
+	
 	public Set<GBAFECharacter> extraCharacters() {
 		return new HashSet<GBAFECharacter>();
 	}

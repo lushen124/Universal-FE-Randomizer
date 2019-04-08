@@ -42,6 +42,7 @@ import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
 import ui.model.RecruitmentOptions;
 import ui.model.WeaponOptions;
+import ui.model.EnemyOptions.BossStatMode;
 import ui.model.ItemAssignmentOptions.ShopAdjustment;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
 import util.Diff;
@@ -475,18 +476,32 @@ public class GBARandomizer extends Randomizer {
 	
 	private void buffEnemiesIfNecessary(String seed) {
 		if (enemies != null) {
-			if (enemies.mode == EnemyOptions.BuffMode.FLAT) {
+			if (enemies.minionMode == EnemyOptions.MinionGrowthMode.FLAT) {
 				updateStatusString("Buffing enemies...");
-				EnemyBuffer.buffEnemyGrowthRates(enemies.buffAmount, charData, classData);
-			} else if (enemies.mode == EnemyOptions.BuffMode.SCALING) {
+				EnemyBuffer.buffMinionGrowthRates(enemies.minionBuff, classData);
+			} else if (enemies.minionMode == EnemyOptions.MinionGrowthMode.SCALING) {
 				updateStatusString("Buffing enemies...");
-				EnemyBuffer.scaleEnemyGrowthRates(enemies.buffAmount, charData, classData);
+				EnemyBuffer.scaleEnemyGrowthRates(enemies.minionBuff, classData);
 			}
 			
-			if (enemies.improveWeapons) {
+			if (enemies.improveMinionWeapons) {
 				updateStatusString("Upgrading enemy weapons...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt));
-				EnemyBuffer.improveWeapons(enemies.improvementChance, charData, classData, chapterData, itemData, rng);
+				EnemyBuffer.improveMinionWeapons(enemies.minionImprovementChance, charData, classData, chapterData, itemData, rng);
+			}
+			
+			if (enemies.bossMode == BossStatMode.LINEAR) {
+				updateStatusString("Buffing Bosses...");
+				EnemyBuffer.buffBossStatsLinearly(enemies.bossBuff, charData, classData);
+			} else if (enemies.bossMode == BossStatMode.EASE_IN_OUT) {
+				updateStatusString("Buffing Bosses...");
+				EnemyBuffer.buffBossStatsWithEaseInOutCurve(enemies.bossBuff, charData, classData);
+			}
+			
+			if (enemies.improveBossWeapons) {
+				updateStatusString("Upgrading boss weapons...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt + 1));
+				EnemyBuffer.improveBossWeapons(enemies.bossImprovementChance, charData, classData, chapterData, itemData, rng);
 			}
 		}
 	}
@@ -823,22 +838,40 @@ public class GBARandomizer extends Randomizer {
 			}
 		}
 		
-		switch (enemies.mode) {
+		switch (enemies.minionMode) {
 		case NONE:
-			rk.addHeaderItem("Buff Enemies", "NO");
+			rk.addHeaderItem("Buff Minions", "NO");
 			break;
 		case FLAT:
-			rk.addHeaderItem("Buff Enemies", "Flat Buff (Growths +" + enemies.buffAmount + "%)");
+			rk.addHeaderItem("Buff Minions", "Flat Buff (Growths +" + enemies.minionBuff + "%)");
 			break;
 		case SCALING:
-			rk.addHeaderItem("Buff Enemies", "Scaling Buff (Growths x" + String.format("%.2f", (enemies.buffAmount / 100.0) + 1) + ")");
+			rk.addHeaderItem("Buff Minions", "Scaling Buff (Growths x" + String.format("%.2f", (enemies.minionBuff / 100.0) + 1) + ")");
 			break;
 		}
 		
-		if (enemies.improveWeapons) {
-			rk.addHeaderItem("Improve Enemy Weapons", "" + enemies.improvementChance + "% of enemies");
+		if (enemies.improveMinionWeapons) {
+			rk.addHeaderItem("Improve Minion Weapons", "" + enemies.minionImprovementChance + "% of enemies");
 		} else {
-			rk.addHeaderItem("Improve Enemy Weapons", "NO");
+			rk.addHeaderItem("Improve Minion Weapons", "NO");
+		}
+		
+		switch (enemies.bossMode) {
+		case NONE:
+			rk.addHeaderItem("Buff Bosses", "NO");
+			break;
+		case LINEAR:
+			rk.addHeaderItem("Buff Bosses", "Linear - Max Gain: +" + enemies.bossBuff);
+			break;
+		case EASE_IN_OUT:
+			rk.addHeaderItem("Buff Bosses", "Ease In/Ease Out - Max Gain: +" + enemies.bossBuff);
+			break;
+		}
+		
+		if (enemies.improveBossWeapons) {
+			rk.addHeaderItem("Improve Boss Weapons", "" + enemies.bossImprovementChance + "% of bosses");
+		} else {
+			rk.addHeaderItem("Improve Boss Weapons", "NO");
 		}
 		
 		if (miscOptions.randomizeRewards) {

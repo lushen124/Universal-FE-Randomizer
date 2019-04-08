@@ -113,7 +113,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		DAMAS(0x4A), RUDE(0x4B), SLATER(0x4C), ERIK(0x4D), DORY(0x4E), WAGNER(0x4F), DEVIAS(0x50), LEGYLANCE(0x51), SCOTT(0x52), NORD(0x53), FLAER(0x55), ORO(0x56), ROBARTS(0x57), AINE(0x58),
 		NARSHEN(0x59), RANDY(0x5A), ROSE(0x5B), MAGGIE(0x5C), RAETH(0x5D), ARCARD(0x5E), MARTEL(0x5F), SIGUNE(0x60), ROARTZ(0x61), MURDOCK(0x62), BRUNYA(0x63), ZINC(0x68), MONKE(0x69), GEL(0x6A),
-		SCOLLAN(0xB6), GRERO(0xB8), OHTZ(0xB9), TECK(0xBA), THORIL(0xBE), BRAKUL(0xBF), KUDOKA(0xC0), MARRAL(0xC1), KABUL(0xC2), CHAN(0xC3), PERETH(0xC4), WINDAM(0xC6), MORGAN(0xC8),
+		HENNING(0xB5), SCOLLAN(0xB6), GRERO(0xB8), OHTZ(0xB9), TECK(0xBA), THORIL(0xBE), BRAKUL(0xBF), KUDOKA(0xC0), MARRAL(0xC1), KABUL(0xC2), CHAN(0xC3), PERETH(0xC4), WINDAM(0xC6), MORGAN(0xC8),
 		
 		ZEPHIEL(0x64), IDOUN(0x66), YAHN(0x67);
 		
@@ -176,7 +176,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				ELFIN, CASS, SOPHIA, MILEDY, GONZALES, NOAH, TRECK, ZEALOT, ECHIDNA, CECILIA, GEESE));
 		
 		public static Set<Character> allBossCharacters = new HashSet<Character>(Arrays.asList(DAMAS, RUDE, SLATER, ERIK, DORY, WAGNER, DEVIAS, LEGYLANCE, SCOTT, NORD, FLAER, ORO, ROBARTS, AINE,
-				NARSHEN, RANDY, ROSE, MAGGIE, RAETH, ARCARD, MARTEL, SIGUNE, ROARTZ, MURDOCK, BRUNYA, ZINC, MONKE, GEL, SCOLLAN, GRERO, OHTZ, TECK, THORIL, BRAKUL, KUDOKA, MARRAL, KABUL, CHAN, PERETH,
+				NARSHEN, RANDY, ROSE, MAGGIE, RAETH, ARCARD, MARTEL, SIGUNE, ROARTZ, MURDOCK, BRUNYA, ZINC, MONKE, GEL, HENNING, SCOLLAN, GRERO, OHTZ, TECK, THORIL, BRAKUL, KUDOKA, MARRAL, KABUL, CHAN, PERETH,
 				WINDAM, MORGAN));
 		
 		public static Set<Character> restrictedClassCharacters = new HashSet<Character>(Arrays.asList(THITO, MILEDY, GALE, NARSHEN, ROY));
@@ -1281,6 +1281,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		HERO_DIECK(0x0E, Character.DIECK.ID, CharacterClass.HERO.ID, 0x7FCD18),
 		HERO_OUJAY(0x10, Character.OUJAY.ID, CharacterClass.HERO.ID, 0x7FCDCC),
 		// Randy has no palettes :(
+		// Henning also has no palettes :(
 		
 		BARD_ELFIN(0x11, Character.ELFIN.ID, CharacterClass.BARD.ID, 0x7FCE28),
 		DANCER_LALAM(0x12, Character.LALAM.ID, CharacterClass.DANCER.ID, 0x7FCE88),
@@ -1711,6 +1712,55 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public Set<GBAFECharacter> linkedCharacters(int characterID) {
 		return new HashSet<GBAFECharacter>(Character.allLinkedCharactersFor(Character.valueOf(characterID)));
+	}
+	
+	public int appearanceChapter(int characterID) {
+		Character character = Character.valueOf(characterID);
+		if (character == null) { return 0; }
+		switch (character) {
+		case ROY: case ALAN: case LANCE: case BORS: case WOLT: case MARCUS: case DAMAS: return 1;
+		case MERLINUS: case ELEN: case LOT: case WARD: case DIECK: case THANY: case RUDE: return 2;
+		case CHAD: case LUGH: case SLATER: return 3;
+		case CLARINE: case RUTGER: case ERIK: return 4;
+		case DORY: return 5;
+		case SAUL: case DOROTHY: case SUE: case WAGNER: return 6;
+		case ZEALOT: case TRECK: case NOAH: case DEVIAS: return 7;
+		case LILINA: case ASTOL: case OUJAY: case BARTH: case LEGYLANCE: return 8;
+		case HENNING : return 8;
+		case FIR: case SHIN: case SCOTT: return 9;
+		case GEESE: case GONZALES: case NORD: return 10; // Chapter 10A
+		case KLEIN: case THITO: case ZINC: case SCOLLAN: return 10; // Chapter 10B
+		case LALAM: case ECHIDNA: case ORO: case ROBARTS: return 11; // Chapter 11A
+		case ELFIN: case BARTRE: case MORGAN: return 11; // Chapter 11B
+		case REI: case CASS: case AINE: return 12;
+		case GRERO: return 12;
+		case MILEDY: case PERCIVAL: case FLAER: return 13;
+		case CECILIA: case SOPHIA: case RANDY: case MAGGIE: case ROSE: return 14;
+		case OHTZ: return 14;
+		case IGRENE: case GARET: case FA: case RAETH: return 15;
+		case ZEISS: case HUGH: case NARSHEN: return 16;
+		case DOUGLAS: case WINDAM: return 16;
+		case ARCARD: return 17; // Chapter 17A and 17B
+		case MARTEL: return 18; // Chapter 18A
+		case MONKE: return 18; // Chapter 18B
+		case NIIME: case SIGUNE: return 19; // Chapter 19A
+		case GEL: return 19; // Chapter 19B
+		case YUNNO: case ROARTZ: return 20; // Chapter 20A
+		case DAYAN: return 20; // Chapter 20B
+		case TECK: return 20; // Chapter 20Ax
+		case THORIL: case BRAKUL: case KUDOKA: case MARRAL: case KABUL: case CHAN: return 20; // Chapter 20Bx
+		case YODEL: case MURDOCK: case GALE: return 21;
+		case PERETH: return 21;
+		case ZEPHIEL: return 22;
+		case KAREL: case BRUNYA: return 23;
+		case YAHN: return 24;
+		case IDOUN: return 25;
+		default: return 0;
+		}
+	}
+	
+	public int chapterCount() {
+		return 25; // Including endgame. Gaiden chapters count as the same chapter.
 	}
 	
 	public Set<GBAFECharacter> extraCharacters() {

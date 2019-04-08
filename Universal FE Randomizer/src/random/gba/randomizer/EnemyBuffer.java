@@ -15,12 +15,13 @@ import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
+import ui.model.EnemyOptions.BossStatMode;
 
 public class EnemyBuffer {
 	
 	static final int rngSalt = 252521;
 
-	public static void buffEnemyGrowthRates(int buffAmount, CharacterDataLoader charData, ClassDataLoader classData) {
+	public static void buffMinionGrowthRates(int buffAmount, ClassDataLoader classData) {
 		GBAFEClassData[] allClasses = classData.allClasses();
 		for (GBAFEClassData currentClass : allClasses) {
 			currentClass.setHPGrowth(currentClass.getHPGrowth() + buffAmount);
@@ -31,22 +32,24 @@ public class EnemyBuffer {
 			currentClass.setRESGrowth(currentClass.getRESGrowth() + buffAmount);
 			currentClass.setLCKGrowth(currentClass.getLCKGrowth() + buffAmount);
 		}
-		
-		int statBoostAmount = buffAmount / 5;
-		
+	}
+	
+	public static void buffBossStatsLinearly(int maxBuff, CharacterDataLoader charData, ClassDataLoader classData) {
 		for (GBAFECharacterData boss : charData.bossCharacters()) {
-			if (charData.canBuff(boss.getID()) == false) { continue; }
-			boss.setBaseHP(boss.getBaseHP() + statBoostAmount);
-			boss.setBaseSTR(boss.getBaseSTR() + statBoostAmount);
-			boss.setBaseSKL(boss.getBaseSKL() + statBoostAmount);
-			boss.setBaseSPD(boss.getBaseSPD() + statBoostAmount);
-			boss.setBaseLCK(boss.getBaseLCK() + statBoostAmount);
-			boss.setBaseDEF(boss.getBaseDEF() + statBoostAmount);
-			boss.setBaseRES(boss.getBaseRES() + statBoostAmount);
+			double appearanceFactor = (double)charData.appearanceChapter(boss) / (double)charData.chapterCount();
+			int buffAmount = Math.min(maxBuff, (int)Math.ceil(maxBuff * appearanceFactor));
+			GBAFEClassData bossClass = classData.classForID(boss.getClassID());
+			boss.setBaseHP(Math.min(boss.getBaseHP() + buffAmount, (bossClass.getMaxHP() - bossClass.getBaseHP())));
+			boss.setBaseSTR(Math.min(boss.getBaseSTR() + buffAmount, (bossClass.getMaxSTR() - bossClass.getBaseSTR())));
+			boss.setBaseSKL(Math.min(boss.getBaseSKL() + buffAmount, (bossClass.getMaxSKL() - bossClass.getBaseSKL())));
+			boss.setBaseSPD(Math.min(boss.getBaseSPD() + buffAmount, (bossClass.getMaxSPD() - bossClass.getBaseSPD())));
+			boss.setBaseDEF(Math.min(boss.getBaseDEF() + buffAmount, (bossClass.getMaxDEF() - bossClass.getBaseDEF())));
+			boss.setBaseRES(Math.min(boss.getBaseRES() + buffAmount, (bossClass.getMaxRES() - bossClass.getBaseRES())));
+			boss.setBaseLCK(Math.min(boss.getBaseLCK() + buffAmount, (bossClass.getMaxLCK() - bossClass.getBaseLCK())));
 		}
 	}
 	
-	public static void scaleEnemyGrowthRates(int scaleAmount, CharacterDataLoader charData, ClassDataLoader classData) {
+	public static void scaleEnemyGrowthRates(int scaleAmount, ClassDataLoader classData) {
 		GBAFEClassData[] allClasses = classData.allClasses();
 		double multiplier = 1 + (double)scaleAmount / 100.0;
 		for (GBAFEClassData currentClass : allClasses) {
@@ -58,22 +61,25 @@ public class EnemyBuffer {
 			currentClass.setRESGrowth((int)(currentClass.getRESGrowth() * multiplier));
 			currentClass.setLCKGrowth((int)(currentClass.getLCKGrowth() * multiplier));
 		}
-		
-		double bossMultiplier = 1 + ((double)scaleAmount / 200.0);
-		
+	}
+	
+	public static void buffBossStatsWithEaseInOutCurve(int maxBuff, CharacterDataLoader charData, ClassDataLoader classData) {
 		for (GBAFECharacterData boss : charData.bossCharacters()) {
-			if (charData.canBuff(boss.getID()) == false) { continue; }
-			boss.setBaseHP((int)(boss.getBaseHP() * bossMultiplier));
-			boss.setBaseSTR((int)(boss.getBaseSTR() * bossMultiplier));
-			boss.setBaseSKL((int)(boss.getBaseSKL() * bossMultiplier));
-			boss.setBaseSPD((int)(boss.getBaseSPD() * bossMultiplier));
-			boss.setBaseDEF((int)(boss.getBaseDEF() * bossMultiplier));
-			boss.setBaseRES((int)(boss.getBaseRES() * bossMultiplier));
-			boss.setBaseLCK((int)(boss.getBaseLCK() * bossMultiplier));
+			double appearanceFactor = (double)charData.appearanceChapter(boss) / (double)charData.chapterCount();
+			appearanceFactor = Math.pow(appearanceFactor, 2) / (Math.pow(appearanceFactor, 2) + Math.pow(1 - appearanceFactor, 2));
+			int buffAmount = Math.min(maxBuff, (int)Math.ceil(maxBuff * appearanceFactor));
+			GBAFEClassData bossClass = classData.classForID(boss.getClassID());
+			boss.setBaseHP(Math.min(boss.getBaseHP() + buffAmount, (bossClass.getMaxHP() - bossClass.getBaseHP())));
+			boss.setBaseSTR(Math.min(boss.getBaseSTR() + buffAmount, (bossClass.getMaxSTR() - bossClass.getBaseSTR())));
+			boss.setBaseSKL(Math.min(boss.getBaseSKL() + buffAmount, (bossClass.getMaxSKL() - bossClass.getBaseSKL())));
+			boss.setBaseSPD(Math.min(boss.getBaseSPD() + buffAmount, (bossClass.getMaxSPD() - bossClass.getBaseSPD())));
+			boss.setBaseDEF(Math.min(boss.getBaseDEF() + buffAmount, (bossClass.getMaxDEF() - bossClass.getBaseDEF())));
+			boss.setBaseRES(Math.min(boss.getBaseRES() + buffAmount, (bossClass.getMaxRES() - bossClass.getBaseRES())));
+			boss.setBaseLCK(Math.min(boss.getBaseLCK() + buffAmount, (bossClass.getMaxLCK() - bossClass.getBaseLCK())));
 		}
 	}
 	
-	public static void improveWeapons(int probability, CharacterDataLoader charactersData, 
+	public static void improveMinionWeapons(int probability, CharacterDataLoader charactersData, 
 			ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
@@ -105,6 +111,27 @@ public class EnemyBuffer {
 			if (currentClass.getDarkRank() > 0) { currentClass.setDarkRank(WeaponRank.S); }
 			if (currentClass.getLightRank() > 0) { currentClass.setLightRank(WeaponRank.S); }
 			if (currentClass.getStaffRank() > 0) { currentClass.setStaffRank(WeaponRank.S); }
+		}
+	}
+	
+	public static void improveBossWeapons(int probability, CharacterDataLoader charactersData, 
+			ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
+		for (GBAFEChapterData chapter : chapterData.allChapters()) {
+			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
+				if (!charactersData.isBossCharacterID(chapterUnit.getCharacterNumber())) { continue; }
+				if (rng.nextInt(100) < probability) {
+					upgradeWeapons(chapterUnit, classData, itemData, rng);
+				}
+				GBAFECharacterData character = charactersData.characterWithID(chapterUnit.getCharacterNumber());
+				if (character.getSwordRank() > 0) { character.setSwordRank(itemData.getHighestWeaponRank()); }
+				if (character.getLanceRank() > 0) { character.setLanceRank(itemData.getHighestWeaponRank()); }
+				if (character.getAxeRank() > 0) { character.setAxeRank(itemData.getHighestWeaponRank()); }
+				if (character.getBowRank() > 0) { character.setBowRank(itemData.getHighestWeaponRank()); }
+				if (character.getAnimaRank() > 0) { character.setAnimaRank(itemData.getHighestWeaponRank()); }
+				if (character.getLightRank() > 0) { character.setLightRank(itemData.getHighestWeaponRank()); }
+				if (character.getDarkRank() > 0) { character.setDarkRank(itemData.getHighestWeaponRank()); }
+				if (character.getStaffRank() > 0) { character.setStaffRank(itemData.getHighestWeaponRank()); }
+			}
 		}
 	}
 	

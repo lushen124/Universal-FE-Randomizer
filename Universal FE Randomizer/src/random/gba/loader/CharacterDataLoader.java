@@ -75,6 +75,14 @@ public class CharacterDataLoader {
 		return feCharactersFromSet(provider.allBossCharacters());
 	}
 	
+	public int appearanceChapter(GBAFECharacterData character) {
+		return provider.appearanceChapter(character.getID());
+	}
+	
+	public int chapterCount() {
+		return provider.chapterCount();
+	}
+	
 	public Boolean isPlayableCharacterID(int characterID) {
 		return provider.characterWithID(characterID).isPlayable();
 	}
