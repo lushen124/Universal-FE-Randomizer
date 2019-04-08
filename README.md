@@ -1,6 +1,6 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-# Latest Version: 0.8.2
+# Latest Version: 0.8.3
 
 ## Introduction
 
@@ -151,7 +151,13 @@ Randomizes character classes for all playable characters. By default, Lords (Sig
 * **Match Parents (Loose)** - Similar to above, except instead of matching the class exactly, it ensures that the child shares at least one weapon with his/her First Generation analogue. Using the same example above, if Edain were a Myrmidon and Midir were a Cavalier, then Lana would be any class that can use a sword and Lester would be any class that can use either a Sword or a Lance.
 * **Randomize** - Child characters have entirely random classes.
 
-**Randomize Holy Blood** - Allows characters to change their holy blood. If this option is not enabled, then characters with major holy blood normally are restricted to classes that can use their normal holy blood. For example, Sigurd would be locked to sword classes and Quan would be locked to lance classes. If this option is enabled, then the character's class is not restricted and their holy blood will be adjusted to match their new class.
+**Holy Blood Options** - There are three options to dictate how holy blood is handled.
+
+* **No Change** - Do not change anybody's holy blood. A character's class pool is restricted to classes that support that character's natural holy blood.
+
+* **Shuffle** - This option is only available if bosses are allowed to be randomize, and setting this option will force the equivalent boss option to Shuffle as well. This option will shuffle holy blood assignment so that all instances of one blood will now be a different blood. For example, Sigurd has Major Baldr blood and Ethlyn has Minor Baldr blood. With this option, blood can be changed, but in all cases, Sigurd will always have the Major version of that blood and Ethlyn will always have the minor version of the same blood.
+
+* **Randomize** - Allows characters to change their holy blood. The character's class is not restricted and their holy blood will be adjusted to match their new class.
 
 **Shop Options** - Determines how weapon shop items are set. Three options are available. Note that this primarily affects the first generation. The second generation shops largely are determined by your inventory from generation 1.
 
@@ -176,7 +182,9 @@ Randomizes the minor generic enemies throughout the game. Due to the way the gam
 Randomizes the enemies that show up in the arena for each chapter. Whether each character is a melee character or a ranged character remains unchanged. Additional logic is applied to avoid having more advanced classes in earlier chapters and in earlier levels of the arena, though this is by no means guaranteed. Arena enemies are assigned random weapons, though there is also logic to avoid stronger weapons in the earlier levels.
 
 #### Bosses
-Randomizes the bosses that show up throughout the game, where a boss is defined as any non-recruitable unit with a portrait. Additionally regular bosses are defined as those that have no special holy blood or skills. Those bosses that do have holy blood or skills beyond their class skills are defined as Holy Bosses. The sub-option here is an option to **Randomize Boss Holy Blood** which only applies to the aforementioned Holy Bosses and allows those bosses to change their holy blood with their class, though it will not assign new holy blood to those that didn't originally have them. Disabling this option will lock those bosses to classes that can use their original holy blood. For example, Ishtar normally has Major Thrud. If the option is disabled, then Ishtar is locked to classes that can use Thunder Magic. If this option is enabled, Ishtar can be of any class, and her holy blood will change to match her new class.
+Randomizes the bosses that show up throughout the game, where a boss is defined as any non-recruitable unit with a portrait. Additionally regular bosses are defined as those that have no special holy blood or skills. Those bosses that do have holy blood or skills beyond their class skills are defined as Holy Bosses. 
+
+**Holy Blood Options** - The sub-option here is similar to the same option in playable characters randomization. **No Change** will restrict classes to those that support the boss's natural holy blood. **Randomize** unlocks the restriction and picks a holy blood that matches the class. **Shuffle** is only available if playable characters are randomized and selecting this option will force the playable character holy blood option to use the Shuffle option as well. It does the same as mentioned above, shuffling all instances of each holy blood to a different, consistent blood.
 
 ### Promotions
 There are three options for determining promotions.
@@ -267,11 +275,15 @@ As you may know, a character's base stats are the sum of their personal bases an
 
 There's a new option under this to have safe basic weapons. This ensures that basic weapons (Iron weapons, Fire, Lightning, and Flux) are not given random effects. This gives you a safe zone to play without early game immediately becoming insane (unless you also turn on the ability to improve enemy weapons or randomize minion classes).
 
+Additionally, an option is available to limit how many items can randomly receive effects. At 100%, all weapons (except possibly Iron weapons if the previous setting is checked) will receive an effect.
+
 *Note: A few limitations are in place currently for this feature. Due to how ranged axes work, non-ranged axes are ineligible for gaining range or becoming magical weapons. Ranges are also limited to normally valid ranges in the game.*
 
 ### Classes
 
 **Randomize Playable Characters** - The obvious randomization feature, changes the class of every playable character to a random class. Starting equipment is modified accordingly. Options to **Include Lords** and **Include Thieves** do as they sound. They add the classes to the randomization pool and they add the characters originally posessing those classes to the character pool to randomize. Disabling them will ensure Lord characters and Thief characters remain untouched (usually safer).
+
+An option is also available: **Assign Classes Evenly** which will attempt to even out the class distribution so that no one class is overly represented in the result.
 
 *Note: One new limitation that's in effect for now is limiting the pool for some characters. To keep things working with minimal issues, characters that have flying mounts can only randomize to another class with a flying mount. Characters that are a class that can cross water are limited to classes that can cross water normally (including flying classes). Same with characters that can cross mountains. These characters will be whitelisted over time to be randomizable.*
 
@@ -302,6 +314,19 @@ Thought the game was too easy?
 
 **Improve Enemy Weapons** - This option selects some enemies and upgrades their weapons to the next level. For example, if an enemy was using an Iron Sword (an E rank weapon), he/she might now be using a Steel Sword (a D rank weapon) or a Longsword (a D rank weapon effective against cavalry), or if he's a myrmidon, a Wo Dao is a possibility (D rank weapon locked to myrmidons and has a high critical rate). You can set how often this happens, anywhere between 1% and 100% of minions. Note that this does not affect boss weaponry.
 
+**Buff Boss Stats** - This option applies a bonus to all boss characters' base stats. There are two modes to determine how large of a bonus is applied, using a multiplier determined by how late in the game the boss appears. The Max Boost allows you to set the maximum stat gain for bosses. This value is applied to the final modified boss of the game. All prior bosses will receive a fraction of that boost.
+
+* **Scale Linearly** - This gradually adds a constant amount from the beginning of the game to each boss. Starting bosses receive 1 stat point boost at a minimum, and the rate of increase is evenly distributed throughout the game.
+
+* **Ease In/Ease Out** - This curve starts more slowly and ends more slowly, with the biggest deltas in increases reserved for the mid-game. The result is a slower ramp up time and a gradual ease into the max stat boost specified. This is also sometimes referred to as an S-curve.
+
+<p align="center">
+  <img src="https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Readme/EaseInEaseOutVSLinear.png">
+</p>
+<p align="center">
+  <i>Quick math refresher if you need one. The far left is the prologue, the far right is the endgame.</i>
+</p>
+
 ### Miscellaneous Options
 Random stuff that may be funny.
 
@@ -330,6 +355,10 @@ This option swaps around characters so that they join at different parts of the 
   * **Use New Growths** - Uses the character's new growths to do the autoleveling. It's only different from original growths if the latter two growth options above are used.
 * **Match Base Stats** - This option sets the character's base stats to be equal to the base stats of the slot they fill.
 * **Relative Base Stats** This option sets the character's base stats such that their highest stat matches the highest stat of the slot they fill and the remainder of the stats are based on the character's normal stat spread. See the growth example above, except with bases.
+
+**Allow Cross-Gender Assignments** - This option removes the restriction on gender so that males can fill female slots and vice versa.
+
+**[FE8] Include Creature Campaign NPCs** - This option adds Fado, Hayden, Glen, and Ismaire to the pool for randomzied recruitment.
 
 ### Weapon Assignment
 These determine how items are assigned when they need to be assigned (affects randomized classes and randomized recruitment).
