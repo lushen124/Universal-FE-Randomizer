@@ -300,8 +300,11 @@ public class ClassRandomizer {
 		int resDelta = sourceClass.getBaseRES() - targetClass.getBaseRES();
 		character.setBaseRES(character.getBaseRES() + resDelta);
 		
-		int conDelta = sourceClass.getCON() - targetClass.getCON();
-		character.setConstitution(character.getConstitution() + conDelta);
+		// Only correct CON if it ends up being an invalid (i.e. negative) CON.
+		// This is only really possible if the character had a negative CON adjustment to begin with.
+		if (character.getConstitution() < 0 && Math.abs(character.getConstitution()) > targetClass.getCON()) {
+			character.setConstitution(-1 * targetClass.getCON());
+		}
 	}
 	
 	// TODO: Offer an option for sidegrade strictness?
