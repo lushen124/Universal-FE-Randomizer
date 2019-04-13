@@ -2249,12 +2249,12 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (itemsUsableByClass.isEmpty() && !usableByRank.isEmpty()) {
 				itemsUsableByClass = usableByRank;
 			}
-		} else {
-			// Try to match the rank.
-			Set<GBAFEItem> matchRank = new HashSet<GBAFEItem>(itemsUsableByClass);
-			matchRank.removeIf(weapon -> (weapon.getRank() != item.getRank()));
-			if (!matchRank.isEmpty()) { return matchRank; }
 		}
+			
+		// Try to match the rank.
+		Set<GBAFEItem> matchRank = new HashSet<GBAFEItem>(itemsUsableByClass);
+		matchRank.removeIf(weapon -> (weapon.getRank() != item.getRank()));
+		if (!matchRank.isEmpty()) { return matchRank; }
 		
 		return itemsUsableByClass;
 	}
