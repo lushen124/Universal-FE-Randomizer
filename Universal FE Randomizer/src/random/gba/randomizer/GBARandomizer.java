@@ -560,6 +560,12 @@ public class GBARandomizer extends Randomizer {
 			PaletteHelper.synchronizePalettes(gameType, recruitOptions != null ? recruitOptions.includeExtras : false, charData, classData, paletteData, characterMap, freeSpace);
 		}
 		
+		// For some reason, FE7's Emblem Bow has no effectiveness added to it.
+		if (gameType == GameType.FE7) {
+			GBAFEItemData emblemBow = itemData.itemWithID(FE7Data.Item.EMBLEM_BOW.ID);
+			emblemBow.setEffectivenessPointer(itemData.flierEffectPointer());
+		}
+		
 		// Hack in mode select without needing clear data for FE7.
 		if (gameType == GameType.FE7) {
 			try {
