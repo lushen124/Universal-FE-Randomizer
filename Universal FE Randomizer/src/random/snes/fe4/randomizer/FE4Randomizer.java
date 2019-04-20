@@ -529,6 +529,17 @@ public class FE4Randomizer extends Randomizer {
 		// Gotta fix Oifey's promotion so that he doesn't somehow promote even though he's already promoted.
 		promotionMapper.setPromotionForCharacter(FE4Data.Character.OIFEY, FE4Data.CharacterClass.NONE);
 		
+		// If Julia was not allowed to be randomized, make sure she still has Nihil.
+		if (!classOptions.includeJulia) {
+			FE4StaticCharacter julia = charData.getStaticCharacter(FE4Data.Character.JULIA);
+			int slot1Value = julia.getSkillSlot1Value();
+			List<FE4Data.SkillSlot1> slot1Skills = FE4Data.SkillSlot1.slot1Skills(slot1Value);
+			if (!slot1Skills.contains(FE4Data.SkillSlot1.NIHIL)) {
+				slot1Skills.add(FE4Data.SkillSlot1.NIHIL);
+				julia.setSkillSlot1Value(FE4Data.SkillSlot1.valueForSlot1Skills(slot1Skills));
+			}
+		}
+		
 		// Make sure Sigurd does NOT pass his holy weapon to Seliph.
 		// Tyrfing normally sits at inventory ID 0x27. Since we didn't change inventory IDs, this should still be safe.
 		diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyWeaponInheritenceBanOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)(itemMapper.getItemAtIndex(0x27).ID & 0xFF)}, new byte[] {FE4Data.SeliphHolyWeaponInheritenceBanOldID}));
