@@ -787,7 +787,17 @@ public class FE4Randomizer extends Randomizer {
 			if (bloodOptions.randomizeGrowthBonuses) {
 				rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", "YES (Growth Total: " + bloodOptions.growthTotal + ", Chunk Size: " + bloodOptions.chunkSize + ", HP Baseline: " + bloodOptions.hpBaseline + ")");
 				rk.addHeaderItem("Generate Unique Holy Blood Bonuses", bloodOptions.generateUniqueBonuses ? "YES" : "NO");
-				rk.addHeaderItem("STR/MAG Option", bloodOptions.strMagOptions == STRMAGOptions.NO_LIMIT ? "No Limitations" : (bloodOptions.strMagOptions == STRMAGOptions.ADJUST_STR_MAG ? "Adjust to Blood" : "Limit to Blood"));
+				switch (bloodOptions.strMagOptions) {
+				case NO_LIMIT:
+					rk.addHeaderItem("STR/MAG Option", "No Limitations");
+					break;
+				case ADJUST_STR_MAG:
+					rk.addHeaderItem("STR/MAG Option", "Adjust to Blood");
+					break;
+				case LIMIT_STR_MAG:
+					rk.addHeaderItem("STR/MAG Option", "Limit to Blood");
+					break;
+				}
 			} else {
 				rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", "NO");
 			}
