@@ -37,6 +37,8 @@ public class CharacterRandomizer {
 				newCON -= rng.nextInt(variance);
 			}
 			
+			newCON = Math.max(minCON, newCON);
+			
 			int newPersonalCON = newCON - classCON;
 			
 			character.setConstitution(newPersonalCON);
