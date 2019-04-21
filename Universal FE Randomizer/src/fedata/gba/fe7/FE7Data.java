@@ -433,6 +433,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, UBER_SAGE));
 		public static Set<CharacterClass> allLordClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, LORD_KNIGHT, BLADE_LORD, GREAT_LORD));
 		public static Set<CharacterClass> allThiefClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, ASSASSIN));
+		public static Set<CharacterClass> allSpecialClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, BARD));
 		public static Set<CharacterClass> allUnpromotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN,
 				CAVALIER, NOMAD, WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER));
 		public static Set<CharacterClass> allPromotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, BLADE_LORD, GREAT_LORD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID,
@@ -556,7 +557,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
 			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass);
 			if (limited != null && applyRestrictions) {
 				return limited;
@@ -585,6 +586,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			
 			if (excludeThieves) {
 				classList.removeAll(allThiefClasses);
+			}
+			
+			if (excludeSpecial) {
+				classList.removeAll(allSpecialClasses);
 			}
 			
 			if (requireAttack) {
@@ -2443,9 +2448,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		if (requiresRange == null) { requiresRange = false; }
 		Boolean applyRestrictions = options.get(GBAFEClassProvider.optionKeyApplyRestrictions);
 		if (applyRestrictions == null) { applyRestrictions = false; }
+		Boolean excludeSpecial = options.get(GBAFEClassProvider.optionKeyExcludeSpecial);
+		if (excludeSpecial == null) { excludeSpecial = false; }
 		
 		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), 
-				excludeSource, excludeLords, excludeThieves, requireAttack, requiresRange, applyRestrictions));
+				excludeSource, excludeLords, excludeThieves, excludeSpecial, requireAttack, requiresRange, applyRestrictions));
 	}
 
 	public void prepareForClassRandomization(Map<Integer, GBAFEClassData> classMap) {

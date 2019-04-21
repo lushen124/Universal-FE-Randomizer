@@ -398,6 +398,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<CharacterClass> allLordClasses = new HashSet<CharacterClass>(Arrays.asList(EIRIKA_LORD, EPHRAIM_LORD, EIRIKA_MASTER_LORD, EPHRAIM_MASTER_LORD));
 		public static Set<CharacterClass> allThiefClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, ASSASSIN, ROGUE));
+		public static Set<CharacterClass> allSpecialClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, MANAKETE_F));
 		
 		public static Set<CharacterClass> allTraineeClasses = new HashSet<CharacterClass>(Arrays.asList(TRAINEE, PUPIL, RECRUIT));
 		public static Set<CharacterClass> allUnpromotedClasses = new HashSet<CharacterClass>(Arrays.asList(EPHRAIM_LORD, CAVALIER, KNIGHT, THIEF, MERCENARY, MYRMIDON, ARCHER, WYVERN_RIDER, MAGE, SHAMAN, RECRUIT_2, 
@@ -545,7 +546,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean separateMonsterClasses, Boolean requireAttack, Boolean requiresRange, Boolean requiresMelee, Boolean applyRestrictions) {
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsterClasses, Boolean requireAttack, Boolean requiresRange, Boolean requiresMelee, Boolean applyRestrictions) {
 			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass, separateMonsterClasses, requiresRange, requiresMelee);
 			if (limited != null && applyRestrictions) {
 				return limited;
@@ -574,6 +575,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			
 			if (excludeThieves) {
 				classList.removeAll(allThiefClasses);
+			}
+			
+			if (excludeSpecial) {
+				classList.removeAll(allSpecialClasses);
 			}
 			
 			if (separateMonsterClasses) {
@@ -2605,9 +2610,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		if (applyRestrictions == null) { applyRestrictions = false; }
 		Boolean separateMonsters = options.get(GBAFEClassProvider.optionKeySeparateMonsters);
 		if (separateMonsters == null) { separateMonsters = false; }
+		Boolean excludeSpecial = options.get(GBAFEClassProvider.optionKeyExcludeSpecial);
+		if (excludeSpecial == null) { excludeSpecial = false; }
 		
 		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), 
-				excludeSource, excludeLords, excludeThieves, separateMonsters, requireAttack, requiresRange, requiresMelee, applyRestrictions));
+				excludeSource, excludeLords, excludeThieves, excludeSpecial, separateMonsters, requireAttack, requiresRange, requiresMelee, applyRestrictions));
 	}
 
 	public void prepareForClassRandomization(Map<Integer, GBAFEClassData> classMap) {
