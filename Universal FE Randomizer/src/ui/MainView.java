@@ -685,6 +685,14 @@ public class MainView implements FileFlowDelegate {
 						String writePath = openDialog.open();
 						
 						if (writePath != null && writePath.length() > 0) {
+							if (writePath.equals(pathToFile)) {
+								String extension = writePath.substring(writePath.length() - 4);
+								StringBuilder sb = new StringBuilder(writePath);
+								sb.delete(sb.length() - 4, sb.length());
+								sb.append(" (Randomized)");
+								sb.append(extension);
+								writePath = sb.toString();
+							}
 							DiffCompiler compiler = new DiffCompiler();
 							
 							if (gameType == GameType.FE7) {
