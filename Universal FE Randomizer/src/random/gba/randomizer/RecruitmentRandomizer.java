@@ -30,6 +30,7 @@ import random.general.RelativeValueMapper;
 import ui.model.ItemAssignmentOptions;
 import ui.model.RecruitmentOptions;
 import ui.model.RecruitmentOptions.BaseStatAutolevelType;
+import ui.model.RecruitmentOptions.ClassMode;
 import ui.model.RecruitmentOptions.GrowthAdjustmentMode;
 import ui.model.RecruitmentOptions.StatAdjustmentMode;
 import util.DebugPrinter;
@@ -46,6 +47,16 @@ public class RecruitmentRandomizer {
 		// Figure out mapping first.
 		List<GBAFECharacterData> characterPool = new ArrayList<GBAFECharacterData>(characterData.canonicalPlayableCharacters(options.includeExtras));
 		characterPool.removeIf(character -> (characterData.charactersExcludedFromRandomRecruitment().contains(character)));
+		
+		if (!options.includeLords) {
+			characterPool.removeIf(character -> (characterData.isLordCharacterID(character.getID())));
+		}
+		if (!options.includeThieves) {
+			characterPool.removeIf(character -> (characterData.isThiefCharacterID(character.getID())));
+		}
+		if (!options.includeSpecial) {
+			characterPool.removeIf(character -> (characterData.isSpecialCharacterID(character.getID())));
+		}
 		
 		Map<Integer, GBAFECharacterData> referenceData = characterPool.stream().map(character -> {
 			GBAFECharacterData copy = character.createCopy(false);
@@ -478,6 +489,11 @@ public class RecruitmentRandomizer {
 					} else {
 						targetClass = fillSourceClass;
 					}
+					
+					if (options.classMode == ClassMode.USE_SLOT) {
+						targetClass = slotSourceClass;
+					}
+					
 					DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Selected Class: " + (targetClass != null ? textData.getStringAtIndex(targetClass.getNameIndex(), true) : "None"));
 					
 					// For some reason, some promoted class seem to have lower bases than their unpromoted variants (FE8 lords are an example). If they are lower, adjust upwards.
@@ -501,6 +517,11 @@ public class RecruitmentRandomizer {
 					} else {
 						targetClass = fillSourceClass;
 					}
+					
+					if (options.classMode == ClassMode.USE_SLOT) {
+						targetClass = slotSourceClass;
+					}
+					
 					DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Selected Class: " + (targetClass != null ? textData.getStringAtIndex(targetClass.getNameIndex(), true) : "None"));
 					
 					// For some reason, some promoted class seem to have lower bases than their unpromoted variants (FE8 lords are an example). If our demoted class has higher bases, adjust downwards
@@ -516,7 +537,12 @@ public class RecruitmentRandomizer {
 			} else {
 				// Transfer as is.
 				if (targetClass == null) {
-					targetClass = fillSourceClass;
+					if (options.classMode == ClassMode.USE_FILL) { targetClass = fillSourceClass; }
+					else if (options.classMode == ClassMode.USE_SLOT) { targetClass = slotSourceClass; }
+					else {
+						// This shouldn't happen, but default to fill.
+						targetClass = fillSourceClass;
+					}
 				}
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "No Promotion/Demotion Needed. Class: " + (targetClass != null ? textData.getStringAtIndex(targetClass.getNameIndex(), true) : "None"));
 				setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);

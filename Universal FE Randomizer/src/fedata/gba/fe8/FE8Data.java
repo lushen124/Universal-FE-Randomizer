@@ -230,6 +230,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList(VALTER_PROLOGUE)); // This is scripted, and Seth shouldn't die here.
 		public static Set<Character> safeCreatureCampaignCharacters = new HashSet<Character>(Arrays.asList(FADO, GLEN, HAYDEN, ISMAIRE));
 		
+		public static Set<Character> allSpecial = new HashSet<Character>(Arrays.asList(TETHYS, MYRRH));
+		
 		// Playable characters only.
 		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
 		private static Map<Character, Set<Integer>> createMultiPortraitMap() {
@@ -252,6 +254,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean isThief() {
 			return allThieves.contains(this);
+		}
+		
+		public Boolean isSpecial() {
+			return allSpecial.contains(this);
 		}
 		
 		public Boolean isBoss() {

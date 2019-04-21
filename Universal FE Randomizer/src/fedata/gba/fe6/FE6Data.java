@@ -198,12 +198,18 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList());
 		
+		public static Set<Character> allSpecial = new HashSet<Character>(Arrays.asList(ELFIN, LALAM, FA));
+		
 		public Boolean isLord() {
 			return allLords.contains(this);
 		}
 		
 		public Boolean isThief() {
 			return allThieves.contains(this);
+		}
+		
+		public Boolean isSpecial() {
+			return allSpecial.contains(this);
 		}
 		
 		public Boolean isBoss() {
