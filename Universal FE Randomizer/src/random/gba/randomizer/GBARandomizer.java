@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapSpriteData;
 import fedata.gba.fe6.FE6Data;
@@ -529,6 +530,34 @@ public class GBARandomizer extends Randomizer {
 		// Fix the palettes based on final classes.
 		if (needsPaletteFix) {
 			PaletteHelper.synchronizePalettes(gameType, recruitOptions != null ? recruitOptions.includeExtras : false, charData, classData, paletteData, characterMap, freeSpace);
+		}
+		
+		// Fix promotions so that forcing a promoted unit to promote again doesn't demote them.
+		if (gameType == GameType.FE6 || gameType == GameType.FE7) {
+			// FE6 and FE7 store this on the class directly. Just switch the target promotion for promoted classes to themselves.
+			// Only do this if the class's demoted class promotes into it (just to make sure we don't accidentally change anything we don't need to).
+			for (GBAFEClassData charClass : classData.allClasses()) {
+				if (classData.isPromotedClass(charClass.getID())) {
+					int demotedID = charClass.getTargetPromotionID();
+					GBAFEClassData demotedClass = classData.classForID(demotedID);
+					if (demotedClass.getTargetPromotionID() == charClass.getID()) {
+						charClass.setTargetPromotionID(charClass.getID());
+					}
+				}
+			}
+		} else if (gameType == GameType.FE8) {
+			// FE8 stores this in a separate table.
+			for (GBAFEClassData charClass : classData.allClasses()) {
+				if (classData.isPromotedClass(charClass.getID())) {
+					int demotedID1 = fe8_promotionManager.getFirstPromotionOptionClassID(charClass.getID());
+					int demotedID2 = fe8_promotionManager.getSecondPromotionOptionClassID(charClass.getID());
+					if (demotedID1 == 0 && demotedID2 == 0) {
+						// If we have no promotions and we are a promoted class, then apply our fix.
+						// Promote into yourself if this happens.
+						fe8_promotionManager.setFirstPromotionOptionForClass(charClass.getID(), charClass.getID());
+					}
+				}
+			}
 		}
 		
 		// Hack in mode select without needing clear data for FE7.
