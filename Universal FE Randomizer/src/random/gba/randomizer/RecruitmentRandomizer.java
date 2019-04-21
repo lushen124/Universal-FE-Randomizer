@@ -48,6 +48,16 @@ public class RecruitmentRandomizer {
 		List<GBAFECharacterData> characterPool = new ArrayList<GBAFECharacterData>(characterData.canonicalPlayableCharacters(options.includeExtras));
 		characterPool.removeIf(character -> (characterData.charactersExcludedFromRandomRecruitment().contains(character)));
 		
+		if (!options.includeLords) {
+			characterPool.removeIf(character -> (characterData.isLordCharacterID(character.getID())));
+		}
+		if (!options.includeThieves) {
+			characterPool.removeIf(character -> (characterData.isThiefCharacterID(character.getID())));
+		}
+		if (!options.includeSpecial) {
+			characterPool.removeIf(character -> (characterData.isSpecialCharacterID(character.getID())));
+		}
+		
 		Map<Integer, GBAFECharacterData> referenceData = characterPool.stream().map(character -> {
 			GBAFECharacterData copy = character.createCopy(false);
 			copy.lock();

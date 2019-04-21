@@ -247,6 +247,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<Character> doNotBuff = new HashSet<Character>(Arrays.asList());
 		
+		public static Set<Character> allSpecial = new HashSet<Character>(Arrays.asList(NILS, NINIAN, NILS_FINALCHAPTER));
+		
 		// Playable characters only.
 		public static Map<Character, Set<Integer>> charactersWithMultiplePortraits = createMultiPortraitMap();
 		private static Map<Character, Set<Integer>> createMultiPortraitMap() {
@@ -269,6 +271,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean isThief() {
 			return allThieves.contains(this);
+		}
+		
+		public Boolean isSpecial() {
+			return allSpecial.contains(this);
 		}
 		
 		public Boolean isBoss() {

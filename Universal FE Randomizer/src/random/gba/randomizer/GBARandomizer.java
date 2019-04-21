@@ -959,8 +959,18 @@ public class GBARandomizer extends Randomizer {
 		
 		if (recruitOptions != null) {
 			StringBuilder sb = new StringBuilder();
+			
 			if (recruitOptions.allowCrossGender) {
 				sb.append("Allow Cross-Gender<br>");
+			}
+			
+			switch (recruitOptions.classMode) {
+			case USE_FILL:
+				sb.append("Use Fill Class<br>");
+				break;
+			case USE_SLOT:
+				sb.append("Use Slot Class<br>");
+				break;
 			}
 			
 			switch (recruitOptions.growthMode) {
@@ -993,6 +1003,16 @@ public class GBARandomizer extends Randomizer {
 			case MATCH_SLOT:
 				sb.append("Match Base Stats");
 				break;
+			}
+			
+			if (recruitOptions.includeLords) {
+				sb.append("<br>Include Lords");
+			}
+			if (recruitOptions.includeThieves) {
+				sb.append("<br>Include Thieves");
+			}
+			if (recruitOptions.includeSpecial) {
+				sb.append("<br>Include Special Characters");
 			}
 			
 			rk.addHeaderItem("Randomize Recruitment", sb.toString());
