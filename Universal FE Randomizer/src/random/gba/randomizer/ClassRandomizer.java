@@ -52,6 +52,7 @@ public class ClassRandomizer {
 		
 		Boolean includeLords = options.includeLords;
 		Boolean includeThieves = options.includeThieves;
+		Boolean includeSpecial = options.includeSpecial;
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
 		if (type == GameType.FE8) {
@@ -68,10 +69,12 @@ public class ClassRandomizer {
 			
 			Boolean isLordCharacter = charactersData.isLordCharacterID(character.getID());
 			Boolean isThiefCharacter = charactersData.isThiefCharacterID(character.getID());
+			Boolean isSpecialCharacter = charactersData.isSpecialCharacterID(character.getID());
 			Boolean canChange = charactersData.canChangeCharacterID(character.getID());
 			
 			if (isLordCharacter && !includeLords) { continue; }
 			if (isThiefCharacter && !includeThieves) { continue; }
+			if (isSpecialCharacter && !includeSpecial) { continue; }
 			if (!canChange) { continue; }
 			
 			Boolean characterRequiresRange = charactersData.characterIDRequiresRange(character.getID());
@@ -85,8 +88,8 @@ public class ClassRandomizer {
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {
-				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
-					classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null);
+				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
+					classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -131,6 +134,7 @@ public class ClassRandomizer {
 		
 		Boolean includeLords = false;
 		Boolean includeThieves = false;
+		Boolean includeSpecial = false;
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
 		if (type == GameType.FE8) {
@@ -172,8 +176,8 @@ public class ClassRandomizer {
 				}
 				
 				GBAFEClassData[] possibleClasses = hasMonsters ? 
-						classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass) :
-					classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass);
+						classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass) :
+					classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -202,6 +206,7 @@ public class ClassRandomizer {
 	public static void randomizeMinionClasses(ClassOptions options, ItemAssignmentOptions inventoryOptions, GameType type, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		Boolean includeLords = false;
 		Boolean includeThieves = false;
+		Boolean includeSpecial = false;
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
 		if (type == GameType.FE8) {
@@ -235,8 +240,8 @@ public class ClassRandomizer {
 					Boolean shouldMakeEasy = chapter.shouldBeSimplified();
 					GBAFEClassData loseToClass = shouldMakeEasy ? lordClass : null;
 					GBAFEClassData[] possibleClasses = hasMonsters ? 
-							classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, false, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
-						classData.potentialClasses(originalClass, false, false, false, true, false, false, shouldRestrictToSafeClasses, loseToClass);
+							classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, false, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
+						classData.potentialClasses(originalClass, false, false, false, false, true, false, false, shouldRestrictToSafeClasses, loseToClass);
 					if (possibleClasses.length == 0) {
 						continue;
 					}

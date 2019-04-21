@@ -9,6 +9,7 @@ public interface GBAFEClassProvider {
 	public static final String optionKeyExcludeSource = "excludeSource";
 	public static final String optionKeyExcludeLords = "excludeLords";
 	public static final String optionKeyExcludeThieves = "excludeThieves";
+	public static final String optionKeyExcludeSpecial = "excludeSpecial";
 	public static final String optionKeySeparateMonsters = "separateMonsters"; // FE8 only.
 	public static final String optionKeyRequireAttack = "requireAttack";
 	public static final String optionKeyRequireRange = "requireRange";

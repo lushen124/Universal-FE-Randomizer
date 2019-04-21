@@ -106,17 +106,18 @@ public class ClassDataLoader {
 		return charClass != null ? charClass.isFemale() : false;
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
-		return potentialClasses(sourceClass, excludeLords, excludeThieves, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, mustLoseToClass);
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
+		return potentialClasses(sourceClass, excludeLords, excludeThieves, excludeSpecial, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, mustLoseToClass);
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
 		GBAFEClass sourceCharClass = provider.classWithID(sourceClass.getID());
 		Set<GBAFEClass> targetClasses = null;
 		
 		Map<String, Boolean> options = new HashMap<String, Boolean>();
 		options.put(GBAFEClassProvider.optionKeyExcludeLords, excludeLords);
 		options.put(GBAFEClassProvider.optionKeyExcludeThieves, excludeThieves);
+		options.put(GBAFEClassProvider.optionKeyExcludeSpecial, excludeSpecial);
 		options.put(GBAFEClassProvider.optionKeySeparateMonsters, separateMonsters);
 		options.put(GBAFEClassProvider.optionKeyExcludeSource, excludeSource);
 		options.put(GBAFEClassProvider.optionKeyRequireAttack, requireAttack);

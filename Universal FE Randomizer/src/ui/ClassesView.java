@@ -22,6 +22,7 @@ public class ClassesView extends Composite {
 	private Button randomizePCButton;
 	private Button randomizePCLordsButton;
 	private Button randomizePCThievesButton;
+	private Button randomizePCSpecialButton;
 	private Button evenClassesButton;
 
 	private Button randomizeEnemiesButton;
@@ -61,6 +62,7 @@ public class ClassesView extends Composite {
 			public void handleEvent(Event event) {
 				randomizePCLordsButton.setEnabled(randomizePCButton.getSelection());
 				randomizePCThievesButton.setEnabled(randomizePCButton.getSelection());
+				randomizePCSpecialButton.setEnabled(randomizePCButton.getSelection());
 				evenClassesButton.setEnabled(randomizePCButton.getSelection());
 				
 				baseTransferGroup.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
@@ -99,14 +101,24 @@ public class ClassesView extends Composite {
 		pcThievesFormData.top = new FormAttachment(randomizePCLordsButton, 5);
 		randomizePCThievesButton.setLayoutData(pcThievesFormData);
 		
+		randomizePCSpecialButton = new Button(container, SWT.CHECK);
+		randomizePCSpecialButton.setText("Include Special Classes");
+		randomizePCSpecialButton.setToolTipText("If enabled, allows characters in special classes to be randomized, as well as adding those special classes to the class pool.");
+		randomizePCSpecialButton.setEnabled(false);
+		
+		FormData pcSpecialData = new FormData();
+		pcSpecialData.left = new FormAttachment(randomizePCThievesButton, 0, SWT.LEFT);
+		pcSpecialData.top = new FormAttachment(randomizePCThievesButton, 5);
+		randomizePCSpecialButton.setLayoutData(pcSpecialData);
+		
 		evenClassesButton = new Button(container, SWT.CHECK);
 		evenClassesButton.setText("Assign Classes Evenly");
 		evenClassesButton.setToolTipText("Attempts to assign classes so that the number of duplicates is minimized.");
 		evenClassesButton.setEnabled(false);
 		
 		FormData optionData = new FormData();
-		optionData.left = new FormAttachment(randomizePCThievesButton, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(randomizePCThievesButton, 5);
+		optionData.left = new FormAttachment(randomizePCSpecialButton, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(randomizePCSpecialButton, 5);
 		evenClassesButton.setLayoutData(optionData);
 		
 		//////////////////////////////////////////////////////////////////
@@ -213,9 +225,11 @@ public class ClassesView extends Composite {
 		Boolean pcsEnabled = randomizePCButton.getSelection();
 		Boolean lordsEnabled = false;
 		Boolean thievesEnabled = false;
+		Boolean specialEnabled = false;
 		if (pcsEnabled) {
 			lordsEnabled = randomizePCLordsButton.getSelection();
 			thievesEnabled = randomizePCThievesButton.getSelection();
+			specialEnabled = randomizePCSpecialButton.getSelection();
 		}
 		
 		BaseTransferOption baseOption = BaseTransferOption.ADJUST_TO_MATCH;
@@ -223,9 +237,9 @@ public class ClassesView extends Composite {
 		else if (basesAdjustClassButton.getSelection()) { baseOption = BaseTransferOption.ADJUST_TO_CLASS; }
 		
 		if (hasMonsterOption) {
-			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, !mixMonsterClasses.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, specialEnabled, !mixMonsterClasses.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
 		} else {
-			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, specialEnabled, evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
 		}
 	}
 	
