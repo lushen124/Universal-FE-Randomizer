@@ -29,6 +29,7 @@ public class ClassesView extends Composite {
 	
 	private Button randomizeBossesButton;
 	
+	private Button forceChangeButton;
 	private Boolean hasMonsterOption;
 	private Button mixMonsterClasses;
 	
@@ -70,8 +71,10 @@ public class ClassesView extends Composite {
 				basesAdjustMatchButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				basesAdjustClassButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				
+				forceChangeButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
+				
 				if (hasMonsterOption) {
-					mixMonsterClasses.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
+					mixMonsterClasses.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
 				}
 			}
 		});
@@ -125,6 +128,15 @@ public class ClassesView extends Composite {
 		
 		randomizeEnemiesButton = new Button(container, SWT.CHECK);
 		randomizeEnemiesButton.setText("Randomize Regular Enemies");
+		randomizeEnemiesButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				forceChangeButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
+				if (hasMonsterOption) {
+					mixMonsterClasses.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
+				}
+			}
+		});
 		
 		FormData enemyFormData = new FormData();
 		enemyFormData.left = new FormAttachment(randomizePCButton, 0, SWT.LEFT);
@@ -143,8 +155,9 @@ public class ClassesView extends Composite {
 				basesAdjustMatchButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				basesAdjustClassButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				
+				forceChangeButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
 				if (hasMonsterOption) {
-					mixMonsterClasses.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
+					mixMonsterClasses.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
 				}
 			}
 		});
@@ -157,7 +170,7 @@ public class ClassesView extends Composite {
 		//////////////////////////////////////////////////////////////////
 		
 		baseTransferGroup = new Group(container, SWT.NONE);
-		baseTransferGroup.setText("Base Stats");
+		baseTransferGroup.setText("Bases");
 		
 		FormLayout groupLayout = new FormLayout();
 		groupLayout.marginLeft = 5;
@@ -205,14 +218,25 @@ public class ClassesView extends Composite {
 		optionData.top = new FormAttachment(basesAdjustMatchButton, 5);
 		basesAdjustClassButton.setLayoutData(optionData);
 		
+		forceChangeButton = new Button(container, SWT.CHECK);
+		forceChangeButton.setText("Force Class Change");
+		forceChangeButton.setToolTipText("Attempts to force every character to change to a different class.");
+		forceChangeButton.setEnabled(false);
+		forceChangeButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(baseTransferGroup, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(baseTransferGroup, 10);
+		forceChangeButton.setLayoutData(optionData);
+		
 		if (type == GameType.FE8) {
 			mixMonsterClasses = new Button(container, SWT.CHECK);
 			mixMonsterClasses.setText("Mix Monster Classes");
 			mixMonsterClasses.setToolTipText("If enabled, allows cross-assignment of classes between humans and monsters.\nIf disabled, ensures that units that were monsters remain monsters and units that were human remain humans when randomizing classes.\nHas no effect unless another class randomization option is enabled.");
 			
 			FormData monsterData = new FormData();
-			monsterData.left = new FormAttachment(baseTransferGroup, 0, SWT.LEFT);
-			monsterData.top = new FormAttachment(baseTransferGroup, 10);
+			monsterData.left = new FormAttachment(forceChangeButton, 0, SWT.LEFT);
+			monsterData.top = new FormAttachment(forceChangeButton, 5);
 			mixMonsterClasses.setLayoutData(monsterData);
 			
 			hasMonsterOption = true;
@@ -237,9 +261,9 @@ public class ClassesView extends Composite {
 		else if (basesAdjustClassButton.getSelection()) { baseOption = BaseTransferOption.ADJUST_TO_CLASS; }
 		
 		if (hasMonsterOption) {
-			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, specialEnabled, !mixMonsterClasses.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, specialEnabled, !mixMonsterClasses.getSelection(), forceChangeButton.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
 		} else {
-			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, specialEnabled, evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, specialEnabled, forceChangeButton.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
 		}
 	}
 	
@@ -251,9 +275,11 @@ public class ClassesView extends Composite {
 				randomizePCButton.setSelection(true);
 				randomizePCLordsButton.setEnabled(true);
 				randomizePCThievesButton.setEnabled(true);
+				randomizePCSpecialButton.setEnabled(true);
 				evenClassesButton.setEnabled(true);
-				randomizePCLordsButton.setSelection(options.includeLords);
-				randomizePCThievesButton.setSelection(options.includeThieves);
+				randomizePCLordsButton.setSelection(options.includeLords != null ? options.includeLords : false);
+				randomizePCThievesButton.setSelection(options.includeThieves != null ? options.includeThieves : false);
+				randomizePCSpecialButton.setSelection(options.includeSpecial != null ? options.includeSpecial : false);
 				evenClassesButton.setSelection(options.assignEvenly);
 			}
 			
@@ -269,17 +295,23 @@ public class ClassesView extends Composite {
 				basesNoChangeButton.setSelection(options.basesTransfer == BaseTransferOption.NO_CHANGE);
 				basesAdjustMatchButton.setSelection(options.basesTransfer == BaseTransferOption.ADJUST_TO_MATCH || options.basesTransfer == null);
 				basesAdjustClassButton.setSelection(options.basesTransfer == BaseTransferOption.ADJUST_TO_CLASS);
+			} else {
+				baseTransferGroup.setEnabled(false);
+				basesNoChangeButton.setEnabled(false);
+				basesAdjustMatchButton.setEnabled(false);
+				basesAdjustClassButton.setEnabled(false);
+			}
+			
+			if (options.randomizePCs || options.randomizeEnemies || options.randomizeEnemies) {
+				forceChangeButton.setEnabled(true);
+				forceChangeButton.setSelection(options.forceChange);
 				
 				if (hasMonsterOption) {
 					mixMonsterClasses.setEnabled(true);
 					mixMonsterClasses.setSelection(!options.separateMonsters);
 				}
 			} else {
-				baseTransferGroup.setEnabled(false);
-				basesNoChangeButton.setEnabled(false);
-				basesAdjustMatchButton.setEnabled(false);
-				basesAdjustClassButton.setEnabled(false);
-				
+				forceChangeButton.setEnabled(false);
 				if (hasMonsterOption) {
 					mixMonsterClasses.setEnabled(false);
 				}

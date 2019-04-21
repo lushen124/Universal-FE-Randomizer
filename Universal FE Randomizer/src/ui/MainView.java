@@ -514,8 +514,18 @@ public class MainView implements FileFlowDelegate {
 			FormData weaponData = new FormData();
 			weaponData.top = new FormAttachment(growthView, 0, SWT.TOP);
 			weaponData.left = new FormAttachment(growthView, 5);
-			weaponData.bottom = new FormAttachment(100, -10);
 			weaponView.setLayoutData(weaponData);
+			
+			itemAssignmentView = new ItemAssignmentView(container, SWT.NONE);
+			itemAssignmentView.setSize(200, 200);
+			itemAssignmentView.setVisible(false);
+			
+			FormData itemAssignData = new FormData();
+			itemAssignData.top = new FormAttachment(weaponView, 5);
+			itemAssignData.left = new FormAttachment(weaponView, 0, SWT.LEFT);
+			itemAssignData.right = new FormAttachment(weaponView, 0, SWT.RIGHT);
+			itemAssignData.bottom = new FormAttachment(100, -10);
+			itemAssignmentView.setLayoutData(itemAssignData);
 			
 			classView = new ClassesView(container, SWT.NONE, type);
 			classView.setSize(200, 200);
@@ -547,23 +557,13 @@ public class MainView implements FileFlowDelegate {
 			recruitData.right = new FormAttachment(100, -5);
 			recruitView.setLayoutData(recruitData);
 			
-			itemAssignmentView = new ItemAssignmentView(container, SWT.NONE);
-			itemAssignmentView.setSize(200, 200);
-			itemAssignmentView.setVisible(false);
-			
-			FormData itemAssignData = new FormData();
-			itemAssignData.top = new FormAttachment(recruitView, 5);
-			itemAssignData.left = new FormAttachment(recruitView, 0, SWT.LEFT);
-			itemAssignData.right = new FormAttachment(recruitView, 0, SWT.RIGHT);
-			itemAssignmentView.setLayoutData(itemAssignData);
-			
 			randomizeButton = new Button(container, SWT.PUSH);
 			randomizeButton.setText("Randomize!");
 			randomizeButton.setVisible(false);
 			  
 			FormData randomizeData = new FormData();
-			randomizeData.top = new FormAttachment(itemAssignmentView, 5);
-			randomizeData.left = new FormAttachment(itemAssignmentView, 0, SWT.LEFT);
+			randomizeData.top = new FormAttachment(recruitView, 5);
+			randomizeData.left = new FormAttachment(recruitView, 0, SWT.LEFT);
 			randomizeData.right = new FormAttachment(recruitView, 0, SWT.RIGHT);
 			randomizeData.bottom = new FormAttachment(100, -10);
 			randomizeButton.setLayoutData(randomizeData);

@@ -870,17 +870,25 @@ public class GBARandomizer extends Randomizer {
 		}
 		
 		if (classes.randomizePCs) {
-			rk.addHeaderItem("Randomize Playable Character Classes", "YES");
+			StringBuilder sb = new StringBuilder();
+			
 			if (classes.includeLords) {
-				rk.addHeaderItem("Include Lords", "YES");
-			} else {
-				rk.addHeaderItem("Include Lords", "NO");
+				sb.append("Include Lords<br>");
 			}
 			if (classes.includeThieves) {
-				rk.addHeaderItem("Include Thieves", "YES");
-			} else {
-				rk.addHeaderItem("Include Thieves", "NO");
+				sb.append("Include Thieves<br>");
 			}
+			if (classes.includeSpecial) {
+				sb.append("Include Special Classes<br>");
+			}
+			if (classes.assignEvenly) {
+				sb.append("Assign Evenly<br>");
+			}
+			if (sb.length() > 4) {
+				sb.delete(sb.length() - 4, sb.length());
+			}
+			if (sb.length() == 0) { sb.append("YES"); }
+			rk.addHeaderItem("Randomize Playable Character Classes", sb.toString());
 		} else {
 			rk.addHeaderItem("Randomize Playable Character Classes", "NO");
 		}
@@ -906,6 +914,11 @@ public class GBARandomizer extends Randomizer {
 				rk.addHeaderItem("Base Stats Transfer Mode", "Adjust to Class");
 				break;
 			}
+		}
+		if (classes.forceChange) {
+			rk.addHeaderItem("Force Class Change", "YES");
+		} else {
+			rk.addHeaderItem("Force Class Change", "NO");
 		}
 		if (gameType == GameType.FE8) {
 			if (classes.separateMonsters) {
