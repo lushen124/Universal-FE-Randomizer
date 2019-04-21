@@ -11,19 +11,25 @@ public class RecruitmentOptions {
 		USE_ORIGINAL, USE_NEW
 	}
 	
+	public enum ClassMode {
+		USE_FILL, USE_SLOT
+	}
+	
 	public final GrowthAdjustmentMode growthMode;
 	public final StatAdjustmentMode baseMode;
 	public final BaseStatAutolevelType autolevelMode;
+	public final ClassMode classMode;
 	
 	public final boolean allowCrossGender;
 	
 	public final boolean includeExtras;
 	
-	public RecruitmentOptions(GrowthAdjustmentMode growthMode, StatAdjustmentMode baseMode, BaseStatAutolevelType autolevel, boolean crossGender, boolean includeExtras) {
+	public RecruitmentOptions(GrowthAdjustmentMode growthMode, StatAdjustmentMode baseMode, BaseStatAutolevelType autolevel, ClassMode classMode, boolean crossGender, boolean includeExtras) {
 		super();
 		this.growthMode = growthMode;
 		this.baseMode = baseMode;
 		this.autolevelMode = autolevel;
+		this.classMode = classMode;
 		
 		this.allowCrossGender = crossGender;
 		this.includeExtras = includeExtras;
