@@ -277,9 +277,9 @@ public class ClassesView extends Composite {
 				randomizePCThievesButton.setEnabled(true);
 				randomizePCSpecialButton.setEnabled(true);
 				evenClassesButton.setEnabled(true);
-				randomizePCLordsButton.setSelection(options.includeLords);
-				randomizePCThievesButton.setSelection(options.includeThieves);
-				randomizePCSpecialButton.setSelection(options.includeSpecial);
+				randomizePCLordsButton.setSelection(options.includeLords != null ? options.includeLords : false);
+				randomizePCThievesButton.setSelection(options.includeThieves != null ? options.includeThieves : false);
+				randomizePCSpecialButton.setSelection(options.includeSpecial != null ? options.includeSpecial : false);
 				evenClassesButton.setSelection(options.assignEvenly);
 			}
 			
