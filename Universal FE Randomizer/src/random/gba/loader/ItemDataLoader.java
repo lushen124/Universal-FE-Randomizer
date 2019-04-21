@@ -232,6 +232,14 @@ public class ItemDataLoader {
 		return null;
 	}
 	
+	public long flierEffectPointer() {
+		if (offsetsForAdditionalData.containsKey(AdditionalData.FLIERS_EFFECT)) {
+			return offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT);
+		}
+		
+		return 0;
+	}
+	
 	public long[] possibleEffectivenessAddresses() {
 		List<Long> registeredEffectivenessPointers = new ArrayList<Long>();
 		if (offsetsForAdditionalData.containsKey(AdditionalData.KNIGHTCAV_EFFECT)) {

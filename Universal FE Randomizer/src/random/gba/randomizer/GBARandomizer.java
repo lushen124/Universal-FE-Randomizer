@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapSpriteData;
 import fedata.gba.fe6.FE6Data;
@@ -255,6 +256,34 @@ public class GBARandomizer extends Randomizer {
 		recordKeeper.sortKeysInCategory(CharacterDataLoader.RecordKeeperCategoryKey);
 		recordKeeper.sortKeysInCategory(ClassDataLoader.RecordKeeperCategoryKey);
 		recordKeeper.sortKeysInCategory(ItemDataLoader.RecordKeeperCategoryWeaponKey);
+		
+		switch (gameType) {
+		case FE6:
+			recordKeeper.addNote("Characters that randomize into the Soldier class can promote using a Knight's Crest.");
+			recordKeeper.addNote("Characters that randomize into the Roy Lord class can promote using a Knight's Crest.");
+			break;
+		case FE7:
+			recordKeeper.addNote("Characters that randomize into the Soldier class can promote using a Knight's Crest or Earth Seal.");
+			recordKeeper.addNote("Characters that randomize into the Lyn Lord class can promote using a Hero's Crest or Earth Seal.");
+			recordKeeper.addNote("Characters that randomize into the Eliwood Lord class can promote using a Knight's Crest or Earth Seal.");
+			recordKeeper.addNote("Characters that randomzie into the Hector Lord class can promote using a Knight's Crest or Earth Seal.");
+			recordKeeper.addNote("Characters that randomize into the Corsair class can promote using an Ocean's Seal or Earth Seal.");
+			recordKeeper.addNote("Characters that randomize into the Brigand class can promote using a Hero's Crest, Ocean's Seal, or Earth Seal.");
+			recordKeeper.addNote("Emblem Bow is now effective against fliers by default.");
+			break;
+		case FE8:
+			recordKeeper.addNote("Characters that randomize into the Soldier class can promote into a Paladin or General using a Knight's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into the Eirika Lord class can promote using a Knight's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into the Ephraim Lord class can promote using a Knight's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into Revenant, Sword/Lance Bonewalkers, and Mauthe Doogs promote using a Hero's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into Tarvos and Bael promote using a Knight's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into a Mogall promote using a Guiding Ring or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into a Bow Bonewalker promote using an Orion's Bolt or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into a Gargoyle promote using an Elysian Whip or Master Seal.");
+			break;
+		default:
+			break;
+		}
 		
 		updateStatusString("Done!");
 		updateProgress(1);
@@ -530,6 +559,12 @@ public class GBARandomizer extends Randomizer {
 		// Fix the palettes based on final classes.
 		if (needsPaletteFix) {
 			PaletteHelper.synchronizePalettes(gameType, recruitOptions != null ? recruitOptions.includeExtras : false, charData, classData, paletteData, characterMap, freeSpace);
+		}
+		
+		// For some reason, FE7's Emblem Bow has no effectiveness added to it.
+		if (gameType == GameType.FE7) {
+			GBAFEItemData emblemBow = itemData.itemWithID(FE7Data.Item.EMBLEM_BOW.ID);
+			emblemBow.setEffectivenessPointer(itemData.flierEffectPointer());
 		}
 		
 		// Hack in mode select without needing clear data for FE7.

@@ -229,6 +229,14 @@ public class FE4Randomizer extends Randomizer {
 		charData.recordAdditionalData(recordKeeper, bloodData, classData);
 		
 		recordKeeper.sortKeysInCategoryAndSubcategories(CharacterDataLoader.RecordKeeperCategoryKey);
+	
+		recordKeeper.addNote("Holy Weapons can be sold and bought between characters.");
+		recordKeeper.addNote("Jormungand and Hel can be sold and bought between characters.");
+		recordKeeper.addNote("Sages can now use A rank Light magic by default.");
+		recordKeeper.addNote("Charm is no longer a class skill on Princesses.");
+		recordKeeper.addNote("All holy weapons are inheritable by default (except for Seliph's holy weapon).");
+		recordKeeper.addNote("Sword Skills (Astra, Luna, and Sol) are usable by all weapon types and are inherited by all classes.");
+		recordKeeper.addNote("A Steel Lance from the Chapter 8 Shop has been repurposed to fix the duplicate Aura bug.");
 		
 		updateStatusString("Done!");
 		updateProgress(1);

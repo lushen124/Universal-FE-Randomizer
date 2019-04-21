@@ -38,7 +38,9 @@ public interface GBAFEItemData extends FEModifiableData {
 	public String getAbility4Description(String delimiter);
 	
 	public long getStatBonusPointer();
+	public void setStatBonusPointer(long address);
 	public long getEffectivenessPointer();
+	public void setEffectivenessPointer(long address);
 	
 	public int getDurability();
 	public int getMight();
