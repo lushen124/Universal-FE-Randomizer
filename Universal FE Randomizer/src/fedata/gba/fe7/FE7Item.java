@@ -114,6 +114,24 @@ public class FE7Item implements GBAFEItemData {
 	public long getEffectivenessPointer() {
 		return (data[16] & 0xFF) | ((data[17] << 8) & 0xFF00) | ((data[18] << 16) & 0xFF0000) | ((data[19] << 24) & 0xFF000000) ;
 	}
+	
+	public void setStatBonusPointer(long address) {
+		byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
+		data[12] = pointer[0];
+		data[13] = pointer[1];
+		data[14] = pointer[2];
+		data[15] = pointer[3];
+		wasModified = true;
+	}
+	
+	public void setEffectivenessPointer(long address) {
+		byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
+		data[16] = pointer[0];
+		data[17] = pointer[1];
+		data[18] = pointer[2];
+		data[19] = pointer[3];
+		wasModified = true;
+	}
 
 	public int getDurability() {
 		return data[20] & 0xFF;
@@ -316,23 +334,13 @@ public class FE7Item implements GBAFEItemData {
 			long[] boosts = itemData.possibleStatBoostAddresses();
 			int randomIndex = rng.nextInt(boosts.length);
 			long selectedBoostAddress = boosts[randomIndex];
-			byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(selectedBoostAddress);
-			data[12] = pointer[0];
-			data[13] = pointer[1];
-			data[14] = pointer[2];
-			data[15] = pointer[3];
-			wasModified = true;
+			setStatBonusPointer(selectedBoostAddress);
 			break;
 		case EFFECTIVENESS:
 			long[] effects = itemData.possibleEffectivenessAddresses();
 			randomIndex = rng.nextInt(effects.length);
 			long selectedEffectivenessAddress = effects[randomIndex];
-			pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(selectedEffectivenessAddress);
-			data[16] = pointer[0];
-			data[17] = pointer[1];
-			data[18] = pointer[2];
-			data[19] = pointer[3];
-			wasModified = true;
+			setEffectivenessPointer(selectedEffectivenessAddress);
 			break;
 		case HIGH_CRITICAL:
 			int currentCritical = getCritical();

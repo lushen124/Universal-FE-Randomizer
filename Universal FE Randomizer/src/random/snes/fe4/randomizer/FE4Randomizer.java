@@ -34,6 +34,7 @@ import ui.fe4.FE4ClassOptions.BloodOptions;
 import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
+import ui.fe4.HolyBloodOptions.STRMAGOptions;
 import ui.fe4.SkillsOptions;
 import ui.fe4.SkillsOptions.Mode;
 import ui.model.BaseOptions;
@@ -229,6 +230,14 @@ public class FE4Randomizer extends Randomizer {
 		charData.recordAdditionalData(recordKeeper, bloodData, classData);
 		
 		recordKeeper.sortKeysInCategoryAndSubcategories(CharacterDataLoader.RecordKeeperCategoryKey);
+	
+		recordKeeper.addNote("Holy Weapons can be sold and bought between characters.");
+		recordKeeper.addNote("Jormungand and Hel can be sold and bought between characters.");
+		recordKeeper.addNote("Sages can now use A rank Light magic by default.");
+		recordKeeper.addNote("Charm is no longer a class skill on Princesses.");
+		recordKeeper.addNote("All holy weapons are inheritable by default (except for Seliph's holy weapon).");
+		recordKeeper.addNote("Sword Skills (Astra, Luna, and Sol) are usable by all weapon types and are inherited by all classes.");
+		recordKeeper.addNote("A Steel Lance from the Chapter 8 Shop has been repurposed to fix the duplicate Aura bug.");
 		
 		updateStatusString("Done!");
 		updateProgress(1);
@@ -411,7 +420,7 @@ public class FE4Randomizer extends Randomizer {
 			if (bloodOptions.randomizeGrowthBonuses) {
 				updateStatusString("Randomizing Holy Blood Growth Bonuses...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 1));
-				FE4BloodRandomizer.randomizeHolyBloodGrowthBonuses(bloodOptions.growthTotal, bloodData, rng);
+				FE4BloodRandomizer.randomizeHolyBloodGrowthBonuses(bloodOptions, bloodData, rng);
 				bloodData.commit();
 			}
 			if (bloodOptions.randomizeWeaponBonuses) {
@@ -528,6 +537,17 @@ public class FE4Randomizer extends Randomizer {
 		
 		// Gotta fix Oifey's promotion so that he doesn't somehow promote even though he's already promoted.
 		promotionMapper.setPromotionForCharacter(FE4Data.Character.OIFEY, FE4Data.CharacterClass.NONE);
+		
+		// If Julia was not allowed to be randomized, make sure she still has Nihil.
+		if (!classOptions.includeJulia) {
+			FE4StaticCharacter julia = charData.getStaticCharacter(FE4Data.Character.JULIA);
+			int slot1Value = julia.getSkillSlot1Value();
+			List<FE4Data.SkillSlot1> slot1Skills = FE4Data.SkillSlot1.slot1Skills(slot1Value);
+			if (!slot1Skills.contains(FE4Data.SkillSlot1.NIHIL)) {
+				slot1Skills.add(FE4Data.SkillSlot1.NIHIL);
+				julia.setSkillSlot1Value(FE4Data.SkillSlot1.valueForSlot1Skills(slot1Skills));
+			}
+		}
 		
 		// Make sure Sigurd does NOT pass his holy weapon to Seliph.
 		// Tyrfing normally sits at inventory ID 0x27. Since we didn't change inventory IDs, this should still be safe.
@@ -783,7 +803,23 @@ public class FE4Randomizer extends Randomizer {
 		}
 		
 		if (bloodOptions != null) {
-			rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", bloodOptions.randomizeGrowthBonuses ? "YES (Growth Total: " + bloodOptions.growthTotal + ")" : "NO");
+			if (bloodOptions.randomizeGrowthBonuses) {
+				rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", "YES (Growth Total: " + bloodOptions.growthTotal + ", Chunk Size: " + bloodOptions.chunkSize + ", HP Baseline: " + bloodOptions.hpBaseline + ")");
+				rk.addHeaderItem("Generate Unique Holy Blood Bonuses", bloodOptions.generateUniqueBonuses ? "YES" : "NO");
+				switch (bloodOptions.strMagOptions) {
+				case NO_LIMIT:
+					rk.addHeaderItem("STR/MAG Option", "No Limitations");
+					break;
+				case ADJUST_STR_MAG:
+					rk.addHeaderItem("STR/MAG Option", "Adjust to Blood");
+					break;
+				case LIMIT_STR_MAG:
+					rk.addHeaderItem("STR/MAG Option", "Limit to Blood");
+					break;
+				}
+			} else {
+				rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", "NO");
+			}
 			rk.addHeaderItem("Randomize Holy Weapon Bonuses", bloodOptions.randomizeWeaponBonuses ? "YES" : "NO");
 			if (bloodOptions.giveHolyBlood) {
 				rk.addHeaderItem("Assign Holy Blood", "YES");

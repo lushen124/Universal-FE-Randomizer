@@ -2767,12 +2767,12 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (itemsUsableByClass.isEmpty() && !usableByRank.isEmpty()) {
 				itemsUsableByClass = usableByRank;
 			}
-		} else {
-			// Try to match the rank.
-			Set<GBAFEItem> matchRank = new HashSet<GBAFEItem>(itemsUsableByClass);
-			matchRank.removeIf(weapon -> (weapon.getRank() != item.getRank()));
-			if (!matchRank.isEmpty()) { return matchRank; }
 		}
+			
+		// Try to match the rank.
+		Set<GBAFEItem> matchRank = new HashSet<GBAFEItem>(itemsUsableByClass);
+		matchRank.removeIf(weapon -> (weapon.getRank() != item.getRank()));
+		if (!matchRank.isEmpty()) { return matchRank; }
 		
 		return itemsUsableByClass;
 	}
@@ -2921,7 +2921,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		if (promotionItem == PromotionItem.HERO_CREST) {
 			return new ArrayList<GBAFEClass>(Arrays.asList(
-					CharacterClass.LORD_LYN
+					CharacterClass.LORD_LYN,
+					CharacterClass.BRIGAND
 					));
 		}
 		if (promotionItem == PromotionItem.MASTER_SEAL) {
@@ -2934,7 +2935,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		if (promotionItem == PromotionItem.OCEAN_SEAL) {
 			return new ArrayList<GBAFEClass>(Arrays.asList(
-					CharacterClass.CORSAIR
+					CharacterClass.CORSAIR,
+					CharacterClass.BRIGAND
 					));
 		}
 		
