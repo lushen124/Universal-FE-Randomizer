@@ -12,6 +12,8 @@ public class ClassOptions {
 	public final Boolean includeSpecial;
 	public final boolean assignEvenly;
 	
+	public final boolean forceChange;
+	
 	public final Boolean separateMonsters; // FE8 only.
 	
 	public final Boolean randomizeEnemies;
@@ -19,7 +21,7 @@ public class ClassOptions {
 	
 	public final BaseTransferOption basesTransfer;
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, Boolean special, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, Boolean special, boolean forceChange, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
 		super();
 		randomizePCs = pcs;
 		includeLords = lords;
@@ -33,9 +35,11 @@ public class ClassOptions {
 		randomizeBosses = bosses;
 		
 		this.basesTransfer = basesTransfer;
+		
+		this.forceChange = forceChange;
 	}
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, Boolean special, Boolean separateMonsters, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, Boolean special, Boolean separateMonsters, boolean forceChange, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
 		super();
 		randomizePCs = pcs;
 		includeLords = lords;
@@ -49,6 +53,8 @@ public class ClassOptions {
 		randomizeBosses = bosses;
 		
 		this.basesTransfer = basesTransfer;
+		
+		this.forceChange = forceChange;
 	}
 
 }

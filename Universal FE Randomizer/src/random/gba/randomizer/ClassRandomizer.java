@@ -55,6 +55,9 @@ public class ClassRandomizer {
 		Boolean includeSpecial = options.includeSpecial;
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
+		
+		Boolean forceChange = options.forceChange;
+		
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -88,8 +91,8 @@ public class ClassRandomizer {
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {
-				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
-					classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null);
+				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
+					classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -137,6 +140,7 @@ public class ClassRandomizer {
 		Boolean includeSpecial = false;
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
+		Boolean forceChange = options.forceChange;
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -176,8 +180,8 @@ public class ClassRandomizer {
 				}
 				
 				GBAFEClassData[] possibleClasses = hasMonsters ? 
-						classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass) :
-					classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass);
+						classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass) :
+					classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -209,6 +213,7 @@ public class ClassRandomizer {
 		Boolean includeSpecial = false;
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
+		Boolean forceChange = options.forceChange;
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -240,8 +245,8 @@ public class ClassRandomizer {
 					Boolean shouldMakeEasy = chapter.shouldBeSimplified();
 					GBAFEClassData loseToClass = shouldMakeEasy ? lordClass : null;
 					GBAFEClassData[] possibleClasses = hasMonsters ? 
-							classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, false, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
-						classData.potentialClasses(originalClass, false, false, false, false, true, false, false, shouldRestrictToSafeClasses, loseToClass);
+							classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
+						classData.potentialClasses(originalClass, false, false, false, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass);
 					if (possibleClasses.length == 0) {
 						continue;
 					}
