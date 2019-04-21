@@ -34,6 +34,7 @@ import ui.fe4.FE4ClassOptions.BloodOptions;
 import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
+import ui.fe4.HolyBloodOptions.STRMAGOptions;
 import ui.fe4.SkillsOptions;
 import ui.fe4.SkillsOptions.Mode;
 import ui.model.BaseOptions;
@@ -419,7 +420,7 @@ public class FE4Randomizer extends Randomizer {
 			if (bloodOptions.randomizeGrowthBonuses) {
 				updateStatusString("Randomizing Holy Blood Growth Bonuses...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 1));
-				FE4BloodRandomizer.randomizeHolyBloodGrowthBonuses(bloodOptions.growthTotal, bloodData, rng);
+				FE4BloodRandomizer.randomizeHolyBloodGrowthBonuses(bloodOptions, bloodData, rng);
 				bloodData.commit();
 			}
 			if (bloodOptions.randomizeWeaponBonuses) {
@@ -802,7 +803,23 @@ public class FE4Randomizer extends Randomizer {
 		}
 		
 		if (bloodOptions != null) {
-			rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", bloodOptions.randomizeGrowthBonuses ? "YES (Growth Total: " + bloodOptions.growthTotal + ")" : "NO");
+			if (bloodOptions.randomizeGrowthBonuses) {
+				rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", "YES (Growth Total: " + bloodOptions.growthTotal + ", Chunk Size: " + bloodOptions.chunkSize + ", HP Baseline: " + bloodOptions.hpBaseline + ")");
+				rk.addHeaderItem("Generate Unique Holy Blood Bonuses", bloodOptions.generateUniqueBonuses ? "YES" : "NO");
+				switch (bloodOptions.strMagOptions) {
+				case NO_LIMIT:
+					rk.addHeaderItem("STR/MAG Option", "No Limitations");
+					break;
+				case ADJUST_STR_MAG:
+					rk.addHeaderItem("STR/MAG Option", "Adjust to Blood");
+					break;
+				case LIMIT_STR_MAG:
+					rk.addHeaderItem("STR/MAG Option", "Limit to Blood");
+					break;
+				}
+			} else {
+				rk.addHeaderItem("Randomize Holy Blood Growth Bonuses", "NO");
+			}
 			rk.addHeaderItem("Randomize Holy Weapon Bonuses", bloodOptions.randomizeWeaponBonuses ? "YES" : "NO");
 			if (bloodOptions.giveHolyBlood) {
 				rk.addHeaderItem("Assign Holy Blood", "YES");

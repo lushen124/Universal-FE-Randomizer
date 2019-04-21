@@ -420,6 +420,7 @@ public class MainView implements FileFlowDelegate {
 			holyBloodData.top = new FormAttachment(baseView, 5);
 			holyBloodData.left = new FormAttachment(baseView, 0, SWT.LEFT);
 			holyBloodData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
+			holyBloodData.bottom = new FormAttachment(100, -10);
 			holyBloodView.setLayoutData(holyBloodData);
 			
 			skillsView = new SkillsView(container, SWT.NONE);
@@ -467,10 +468,10 @@ public class MainView implements FileFlowDelegate {
 			miscView.setVisible(false);
 			  
 			FormData miscData = new FormData();
-			miscData.top = new FormAttachment(holyBloodView, 5);
-			miscData.left = new FormAttachment(holyBloodView, 0, SWT.LEFT);
-			miscData.right = new FormAttachment(holyBloodView, 0, SWT.RIGHT);
-			miscData.bottom = new FormAttachment(100, -10);
+			miscData.top = new FormAttachment(fe4EnemyBuffView, 5);
+			miscData.left = new FormAttachment(fe4EnemyBuffView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(fe4EnemyBuffView, 0, SWT.RIGHT);
+			//miscData.bottom = new FormAttachment(100, -10);
 			miscView.setLayoutData(miscData);
 			
 			randomizeButton = new Button(container, SWT.PUSH);
@@ -478,9 +479,9 @@ public class MainView implements FileFlowDelegate {
 			randomizeButton.setVisible(false);
 			  
 			FormData randomizeData = new FormData();
-			randomizeData.top = new FormAttachment(fe4EnemyBuffView, 5);
-			randomizeData.left = new FormAttachment(fe4EnemyBuffView, 0, SWT.LEFT);
-			randomizeData.right = new FormAttachment(fe4EnemyBuffView, 0, SWT.RIGHT);
+			randomizeData.top = new FormAttachment(miscView, 5);
+			randomizeData.left = new FormAttachment(miscView, 0, SWT.LEFT);
+			randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
 			randomizeData.bottom = new FormAttachment(100, -10);
 			randomizeButton.setLayoutData(randomizeData);
 			
