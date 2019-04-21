@@ -26,6 +26,7 @@ import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
 import random.general.PoolDistributor;
+import random.general.RelativeValueMapper;
 import ui.model.ClassOptions;
 import ui.model.ItemAssignmentOptions;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
@@ -119,7 +120,7 @@ public class ClassRandomizer {
 			
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, false, rng);
+				updateCharacterToClass(options, inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, false, rng);
 				linked.setIsLord(isLordCharacter);
 			}
 		}
@@ -187,7 +188,7 @@ public class ClassRandomizer {
 			
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
+				updateCharacterToClass(options, inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
 				if (shouldNerf) { // Halve skill, speed, defense, and resistance if we need to make sure he loses to us.
 					linked.setBaseSKL(linked.getBaseSKL() >> 1);
 					linked.setBaseSPD(linked.getBaseSPD() >> 1);
@@ -256,12 +257,22 @@ public class ClassRandomizer {
 		}
 	}
 
-	private static void updateCharacterToClass(ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Boolean ranged, Boolean melee, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasicWeapons, Random rng) {
+	private static void updateCharacterToClass(ClassOptions classOptions, ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Boolean ranged, Boolean melee, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasicWeapons, Random rng) {
 		
 		character.prepareForClassRandomization();
 		character.setClassID(targetClass.getID());
 		transferWeaponLevels(character, sourceClass, targetClass, rng);
-		applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
+		switch (classOptions.basesTransfer) {
+		case ADJUST_TO_MATCH:
+			applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
+			break;
+		case NO_CHANGE:
+			break;
+		case ADJUST_TO_CLASS:
+			adjustBasesToMatchClass(character, sourceClass, targetClass);
+			break;
+		}
+		
 		
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(character.getID());
@@ -299,12 +310,39 @@ public class ClassRandomizer {
 		character.setBaseDEF(character.getBaseDEF() + defDelta);
 		int resDelta = sourceClass.getBaseRES() - targetClass.getBaseRES();
 		character.setBaseRES(character.getBaseRES() + resDelta);
+		int lckDelta = sourceClass.getBaseLCK() - targetClass.getBaseLCK();
+		character.setBaseLCK(character.getBaseLCK() + lckDelta);
 		
 		// Only correct CON if it ends up being an invalid (i.e. negative) CON.
 		// This is only really possible if the character had a negative CON adjustment to begin with.
 		if (character.getConstitution() < 0 && Math.abs(character.getConstitution()) > targetClass.getCON()) {
 			character.setConstitution(-1 * targetClass.getCON());
 		}
+	}
+	
+	private static void adjustBasesToMatchClass(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass) {
+		// HP transfers directly, as does LCK.
+		int hpDelta = sourceClass.getBaseHP() - targetClass.getBaseHP();
+		character.setBaseHP(character.getBaseHP() + hpDelta);
+		int lckDelta = sourceClass.getBaseLCK() - targetClass.getBaseLCK();
+		character.setBaseLCK(character.getBaseLCK() + lckDelta);
+		
+		// STR, SKL, SPD, DEF, and RES are transfered based on which one is highest on the target class.
+		int effectiveSTR = character.getBaseSTR() + sourceClass.getBaseSTR();
+		int effectiveSKL = character.getBaseSKL() + sourceClass.getBaseSKL();
+		int effectiveSPD = character.getBaseSPD() + sourceClass.getBaseSPD();
+		int effectiveDEF = character.getBaseDEF() + sourceClass.getBaseDEF();
+		int effectiveRES = character.getBaseRES() + sourceClass.getBaseRES();
+		
+		List<Integer> mappedStats = RelativeValueMapper.mappedValues(Arrays.asList(effectiveSTR, effectiveSKL, effectiveSPD, effectiveDEF, effectiveRES),
+				Arrays.asList(targetClass.getBaseSTR(), targetClass.getBaseSKL(), targetClass.getBaseSPD(), targetClass.getBaseDEF(), targetClass.getBaseRES()));
+		
+		character.setBaseSTR(mappedStats.get(0) - targetClass.getBaseSTR());
+		character.setBaseSKL(mappedStats.get(1) - targetClass.getBaseSKL());
+		character.setBaseSPD(mappedStats.get(2) - targetClass.getBaseSPD());
+		character.setBaseDEF(mappedStats.get(3) - targetClass.getBaseDEF());
+		character.setBaseRES(mappedStats.get(4) - targetClass.getBaseRES());
+		
 	}
 	
 	// TODO: Offer an option for sidegrade strictness?

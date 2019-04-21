@@ -2,6 +2,10 @@ package ui.model;
 
 public class ClassOptions {
 	
+	public enum BaseTransferOption {
+		NO_CHANGE, ADJUST_TO_MATCH, ADJUST_TO_CLASS
+	}
+	
 	public final Boolean randomizePCs;
 	public final Boolean includeLords;
 	public final Boolean includeThieves;
@@ -12,7 +16,9 @@ public class ClassOptions {
 	public final Boolean randomizeEnemies;
 	public final Boolean randomizeBosses;
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, boolean assignEvenly, Boolean enemies, Boolean bosses) {
+	public final BaseTransferOption basesTransfer;
+	
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
 		super();
 		randomizePCs = pcs;
 		includeLords = lords;
@@ -23,9 +29,11 @@ public class ClassOptions {
 		randomizeEnemies = enemies;
 		
 		randomizeBosses = bosses;
+		
+		this.basesTransfer = basesTransfer;
 	}
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, Boolean separateMonsters, boolean assignEvenly, Boolean enemies, Boolean bosses ) {
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, Boolean separateMonsters, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
 		super();
 		randomizePCs = pcs;
 		includeLords = lords;
@@ -36,6 +44,8 @@ public class ClassOptions {
 		randomizeEnemies = enemies;
 		
 		randomizeBosses = bosses;
+		
+		this.basesTransfer = basesTransfer;
 	}
 
 }

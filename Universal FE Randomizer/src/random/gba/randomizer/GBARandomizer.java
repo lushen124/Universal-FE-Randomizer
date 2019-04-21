@@ -35,6 +35,7 @@ import random.gba.loader.TextLoader;
 import random.general.Randomizer;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
+import ui.model.ClassOptions.BaseTransferOption;
 import ui.model.EnemyOptions;
 import ui.model.GrowthOptions;
 import ui.model.ItemAssignmentOptions;
@@ -829,6 +830,19 @@ public class GBARandomizer extends Randomizer {
 			rk.addHeaderItem("Randomize Minions", "YES");
 		} else {
 			rk.addHeaderItem("Randomize Minions", "NO");
+		}
+		if (classes.randomizePCs || classes.randomizeBosses) {
+			switch (classes.basesTransfer) {
+			case NO_CHANGE:
+				rk.addHeaderItem("Base Stats Transfer Mode", "Retain Personal Bases");
+				break;
+			case ADJUST_TO_MATCH:
+				rk.addHeaderItem("Base Stats Transfer Mode", "Retain Final Bases");
+				break;
+			case ADJUST_TO_CLASS:
+				rk.addHeaderItem("Base Stats Transfer Mode", "Adjust to Class");
+				break;
+			}
 		}
 		if (gameType == GameType.FE8) {
 			if (classes.separateMonsters) {
