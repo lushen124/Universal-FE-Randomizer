@@ -351,7 +351,7 @@ public class FE4Data {
 		/*map.put(Character.SIGURD, 0x27); // Tyrfing*/
 		map.put(Character.FINN_GEN_1, new ArrayList<Integer>(Arrays.asList(0x3B))); // Brave Lance
 		/*map.put(Character.QUAN, 0x3E); // Gae Bolg*/
-		map.put(Character.LEX, new ArrayList<Integer>(Arrays.asList(0x45))); // Brave Axe
+		map.put(Character.LEX, new ArrayList<Integer>(Arrays.asList(0x45))); // Brave Axe (Needs to work with Schmidt (boss) too...)
 		map.put(Character.MIDIR, new ArrayList<Integer>(Arrays.asList(0x4D))); // Brave Bow (Technically needs to work for Jamke too...)
 		/*map.put(Character.BRIGID, 0x4F); // Yewfelle*/
 		/*map.put(Character.LEWYN, 0x5C); // Forseti*/
@@ -376,6 +376,9 @@ public class FE4Data {
 		
 		map.put(Character.MIDIR, Character.JAMKE);
 		map.put(Character.JAMKE, Character.MIDIR);
+		
+		map.put(Character.LEX, Character.SCHMIDT);
+		map.put(Character.SCHMIDT, Character.LEX);
 		
 		return map;
 	}
