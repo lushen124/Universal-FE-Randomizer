@@ -2849,6 +2849,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		case SHAMAN:
 		case SHAMAN_F:
 			usableItems.addAll(Item.allDark);
+			break;
 		case SUMMONER:
 		case SUMMONER_F:
 		case NECROMANCER:

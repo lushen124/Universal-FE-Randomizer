@@ -347,7 +347,7 @@ public class ItemDataLoader {
 	}
 	
 	public GBAFEItemData getSidegradeWeapon(GBAFEClassData targetClass, GBAFEItemData originalWeapon, boolean strict, Random rng) {
-		if (!isWeapon(originalWeapon)) {
+		if (!isWeapon(originalWeapon) && originalWeapon.getType() != WeaponType.STAFF) {
 			return null;
 		}
 		
@@ -365,7 +365,7 @@ public class ItemDataLoader {
 	}
 	
 	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEItemData originalWeapon, boolean strict, Random rng) {
-		if (!isWeapon(originalWeapon)) {
+		if (!isWeapon(originalWeapon) && originalWeapon.getType() != WeaponType.STAFF) {
 			return null;
 		}
 		
