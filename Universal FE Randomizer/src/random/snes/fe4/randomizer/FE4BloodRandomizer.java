@@ -14,20 +14,26 @@ import fedata.snes.fe4.FE4StaticCharacter;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot1;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot2;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot3;
+import random.general.WeightedDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
+import ui.fe4.HolyBloodOptions;
+import ui.fe4.HolyBloodOptions.STRMAGOptions;
 
 public class FE4BloodRandomizer {
 	
 	static final int rngSalt = 12321;
 	
-	public static void randomizeHolyBloodGrowthBonuses(int growthBonusTotal, HolyBloodLoader bloodData, Random rng) {
+	public static void randomizeHolyBloodGrowthBonuses(HolyBloodOptions options, HolyBloodLoader bloodData, Random rng) {
 		List<FE4HolyBlood> bloodList = bloodData.allHolyBlood();
+		Set<Integer> generatedHashes = new HashSet<Integer>();
+		
 		for (FE4HolyBlood blood : bloodList) {
-			int growthRemaining = growthBonusTotal;
+			int growthRemaining = options.growthTotal;
+			growthRemaining -= options.hpBaseline;
 			
-			int hpBonus = 0;
+			int hpBonus = options.hpBaseline;
 			int strBonus = 0;
 			int magBonus = 0;
 			int sklBonus = 0;
@@ -36,17 +42,35 @@ public class FE4BloodRandomizer {
 			int defBonus = 0;
 			int resBonus = 0;
 			
+			boolean reducedHPChance = options.hpBaseline > 0;
+			
+			WeightedDistributor<Integer> distributor = new WeightedDistributor<Integer>();
+			if (reducedHPChance) { distributor.addItem(0, 1); }
+			else { distributor.addItem(0, 3); }
+			distributor.addItem(1, 3);
+			distributor.addItem(2, 3);
+			distributor.addItem(3, 3);
+			distributor.addItem(4, 3);
+			distributor.addItem(5, 3);
+			distributor.addItem(6, 3);
+			
 			while (growthRemaining > 0) {
-				int amount = 5;
-				growthRemaining -= 5;
-				int field = rng.nextInt(7);
+				int amount = Math.min(growthRemaining, options.chunkSize);
+				growthRemaining -= amount;
+				int field = distributor.getRandomItem(rng);
+				
 				switch (field) {
 				case 0:
 					hpBonus += amount;
 					break;
 				case 1:
-					if (blood.getWeaponType().isPhysical()) { strBonus += amount; }
-					else { magBonus += amount; }
+					if (options.strMagOptions == STRMAGOptions.LIMIT_STR_MAG) {
+						if (blood.getWeaponType().isPhysical()) { strBonus += amount; }
+						else { magBonus += amount; }
+					} else {
+						if (rng.nextInt(2) == 0) { strBonus += amount; }
+						else { magBonus += amount; }
+					}
 					break;
 				case 2:
 					sklBonus += amount;
@@ -64,6 +88,39 @@ public class FE4BloodRandomizer {
 					resBonus += amount;
 					break;
 				}
+				
+				// Lean towards what we've already pulled (up to 50%)
+				if (distributor.chanceOfResult(field) < 0.5) {
+					distributor.addItem(field, 2);
+				}
+				
+				if (growthRemaining <= 0) {
+					if (options.strMagOptions == STRMAGOptions.ADJUST_STR_MAG) {
+						if ((blood.getWeaponType().isPhysical() && strBonus < magBonus) || (!blood.getWeaponType().isPhysical() && strBonus > magBonus)) {
+							int swap = strBonus;
+							strBonus = magBonus;
+							magBonus = swap;
+						}
+					}
+					if (options.generateUniqueBonuses) {
+						// Verify hash to see if we've already generated this combination.
+						int hash = hashValue(reducedHPChance ? 0 : hpBonus, strBonus, magBonus, sklBonus, spdBonus, lckBonus, defBonus, resBonus);
+						if (generatedHashes.contains(hash)) {
+							// Reset
+							growthRemaining = options.growthTotal - options.hpBaseline;
+							hpBonus = options.hpBaseline;
+							strBonus = 0;
+							magBonus = 0;
+							sklBonus = 0;
+							spdBonus = 0;
+							lckBonus = 0;
+							defBonus = 0;
+							resBonus = 0;
+						} else {
+							generatedHashes.add(hash);
+						}
+					}
+				}
 			}
 			
 			blood.setHPGrowthBonus(hpBonus);
@@ -75,6 +132,22 @@ public class FE4BloodRandomizer {
 			blood.setDEFGrowthBonus(defBonus);
 			blood.setRESGrowthBonus(resBonus);
 		}
+	}
+	
+	private static Integer hashValue(int hp, int str, int mag, int skl, int spd, int lck, int def, int res) {
+		List<Integer> stats = Arrays.asList(hp, str, mag, skl, spd, lck, def, res);
+		Collections.sort(stats);
+		
+		int hashValue = stats.indexOf(hp) * (int)Math.pow(10, 0) +
+				stats.indexOf(str) * (int)Math.pow(10, 1) +
+				stats.indexOf(mag) * (int)Math.pow(10, 2) +
+				stats.indexOf(skl) * (int)Math.pow(10, 3) +
+				stats.indexOf(spd) * (int)Math.pow(10, 4) +
+				stats.indexOf(def) * (int)Math.pow(10, 5) +
+				stats.indexOf(res) * (int)Math.pow(10, 6) +
+				stats.indexOf(lck) * (int)Math.pow(10, 7)
+				;
+		return hashValue;
 	}
 
 	public static void randomizeHolyWeaponBonuses(HolyBloodLoader bloodData, Random rng) {

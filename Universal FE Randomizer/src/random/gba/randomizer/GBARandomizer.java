@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapSpriteData;
 import fedata.gba.fe6.FE6Data;
@@ -254,6 +256,34 @@ public class GBARandomizer extends Randomizer {
 		recordKeeper.sortKeysInCategory(CharacterDataLoader.RecordKeeperCategoryKey);
 		recordKeeper.sortKeysInCategory(ClassDataLoader.RecordKeeperCategoryKey);
 		recordKeeper.sortKeysInCategory(ItemDataLoader.RecordKeeperCategoryWeaponKey);
+		
+		switch (gameType) {
+		case FE6:
+			recordKeeper.addNote("Characters that randomize into the Soldier class can promote using a Knight's Crest.");
+			recordKeeper.addNote("Characters that randomize into the Roy Lord class can promote using a Knight's Crest.");
+			break;
+		case FE7:
+			recordKeeper.addNote("Characters that randomize into the Soldier class can promote using a Knight's Crest or Earth Seal.");
+			recordKeeper.addNote("Characters that randomize into the Lyn Lord class can promote using a Hero's Crest or Earth Seal.");
+			recordKeeper.addNote("Characters that randomize into the Eliwood Lord class can promote using a Knight's Crest or Earth Seal.");
+			recordKeeper.addNote("Characters that randomzie into the Hector Lord class can promote using a Knight's Crest or Earth Seal.");
+			recordKeeper.addNote("Characters that randomize into the Corsair class can promote using an Ocean's Seal or Earth Seal.");
+			recordKeeper.addNote("Characters that randomize into the Brigand class can promote using a Hero's Crest, Ocean's Seal, or Earth Seal.");
+			recordKeeper.addNote("Emblem Bow is now effective against fliers by default.");
+			break;
+		case FE8:
+			recordKeeper.addNote("Characters that randomize into the Soldier class can promote into a Paladin or General using a Knight's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into the Eirika Lord class can promote using a Knight's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into the Ephraim Lord class can promote using a Knight's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into Revenant, Sword/Lance Bonewalkers, and Mauthe Doogs promote using a Hero's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into Tarvos and Bael promote using a Knight's Crest or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into a Mogall promote using a Guiding Ring or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into a Bow Bonewalker promote using an Orion's Bolt or Master Seal.");
+			recordKeeper.addNote("Characters that randomize into a Gargoyle promote using an Elysian Whip or Master Seal.");
+			break;
+		default:
+			break;
+		}
 		
 		updateStatusString("Done!");
 		updateProgress(1);
@@ -531,6 +561,40 @@ public class GBARandomizer extends Randomizer {
 			PaletteHelper.synchronizePalettes(gameType, recruitOptions != null ? recruitOptions.includeExtras : false, charData, classData, paletteData, characterMap, freeSpace);
 		}
 		
+		// Fix promotions so that forcing a promoted unit to promote again doesn't demote them.
+		if (gameType == GameType.FE6 || gameType == GameType.FE7) {
+			// FE6 and FE7 store this on the class directly. Just switch the target promotion for promoted classes to themselves.
+			// Only do this if the class's demoted class promotes into it (just to make sure we don't accidentally change anything we don't need to).
+			for (GBAFEClassData charClass : classData.allClasses()) {
+				if (classData.isPromotedClass(charClass.getID())) {
+					int demotedID = charClass.getTargetPromotionID();
+					GBAFEClassData demotedClass = classData.classForID(demotedID);
+					if (demotedClass.getTargetPromotionID() == charClass.getID()) {
+						charClass.setTargetPromotionID(charClass.getID());
+					}
+				}
+			}
+		} else if (gameType == GameType.FE8) {
+			// FE8 stores this in a separate table.
+			for (GBAFEClassData charClass : classData.allClasses()) {
+				if (classData.isPromotedClass(charClass.getID())) {
+					int demotedID1 = fe8_promotionManager.getFirstPromotionOptionClassID(charClass.getID());
+					int demotedID2 = fe8_promotionManager.getSecondPromotionOptionClassID(charClass.getID());
+					if (demotedID1 == 0 && demotedID2 == 0) {
+						// If we have no promotions and we are a promoted class, then apply our fix.
+						// Promote into yourself if this happens.
+						fe8_promotionManager.setFirstPromotionOptionForClass(charClass.getID(), charClass.getID());
+					}
+				}
+			}
+		}
+
+		// For some reason, FE7's Emblem Bow has no effectiveness added to it.
+		if (gameType == GameType.FE7) {
+			GBAFEItemData emblemBow = itemData.itemWithID(FE7Data.Item.EMBLEM_BOW.ID);
+			emblemBow.setEffectivenessPointer(itemData.flierEffectPointer());
+		}
+		
 		// Hack in mode select without needing clear data for FE7.
 		if (gameType == GameType.FE7) {
 			try {
@@ -806,17 +870,25 @@ public class GBARandomizer extends Randomizer {
 		}
 		
 		if (classes.randomizePCs) {
-			rk.addHeaderItem("Randomize Playable Character Classes", "YES");
+			StringBuilder sb = new StringBuilder();
+			
 			if (classes.includeLords) {
-				rk.addHeaderItem("Include Lords", "YES");
-			} else {
-				rk.addHeaderItem("Include Lords", "NO");
+				sb.append("Include Lords<br>");
 			}
 			if (classes.includeThieves) {
-				rk.addHeaderItem("Include Thieves", "YES");
-			} else {
-				rk.addHeaderItem("Include Thieves", "NO");
+				sb.append("Include Thieves<br>");
 			}
+			if (classes.includeSpecial) {
+				sb.append("Include Special Classes<br>");
+			}
+			if (classes.assignEvenly) {
+				sb.append("Assign Evenly<br>");
+			}
+			if (sb.length() > 4) {
+				sb.delete(sb.length() - 4, sb.length());
+			}
+			if (sb.length() == 0) { sb.append("YES"); }
+			rk.addHeaderItem("Randomize Playable Character Classes", sb.toString());
 		} else {
 			rk.addHeaderItem("Randomize Playable Character Classes", "NO");
 		}
@@ -829,6 +901,24 @@ public class GBARandomizer extends Randomizer {
 			rk.addHeaderItem("Randomize Minions", "YES");
 		} else {
 			rk.addHeaderItem("Randomize Minions", "NO");
+		}
+		if (classes.randomizePCs || classes.randomizeBosses) {
+			switch (classes.basesTransfer) {
+			case NO_CHANGE:
+				rk.addHeaderItem("Base Stats Transfer Mode", "Retain Personal Bases");
+				break;
+			case ADJUST_TO_MATCH:
+				rk.addHeaderItem("Base Stats Transfer Mode", "Retain Final Bases");
+				break;
+			case ADJUST_TO_CLASS:
+				rk.addHeaderItem("Base Stats Transfer Mode", "Adjust to Class");
+				break;
+			}
+		}
+		if (classes.forceChange) {
+			rk.addHeaderItem("Force Class Change", "YES");
+		} else {
+			rk.addHeaderItem("Force Class Change", "NO");
 		}
 		if (gameType == GameType.FE8) {
 			if (classes.separateMonsters) {
@@ -882,8 +972,18 @@ public class GBARandomizer extends Randomizer {
 		
 		if (recruitOptions != null) {
 			StringBuilder sb = new StringBuilder();
+			
 			if (recruitOptions.allowCrossGender) {
 				sb.append("Allow Cross-Gender<br>");
+			}
+			
+			switch (recruitOptions.classMode) {
+			case USE_FILL:
+				sb.append("Use Fill Class<br>");
+				break;
+			case USE_SLOT:
+				sb.append("Use Slot Class<br>");
+				break;
 			}
 			
 			switch (recruitOptions.growthMode) {
@@ -916,6 +1016,16 @@ public class GBARandomizer extends Randomizer {
 			case MATCH_SLOT:
 				sb.append("Match Base Stats");
 				break;
+			}
+			
+			if (recruitOptions.includeLords) {
+				sb.append("<br>Include Lords");
+			}
+			if (recruitOptions.includeThieves) {
+				sb.append("<br>Include Thieves");
+			}
+			if (recruitOptions.includeSpecial) {
+				sb.append("<br>Include Special Characters");
 			}
 			
 			rk.addHeaderItem("Randomize Recruitment", sb.toString());

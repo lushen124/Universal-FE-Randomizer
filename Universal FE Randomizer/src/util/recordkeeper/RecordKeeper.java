@@ -54,6 +54,8 @@ public class RecordKeeper {
 	private List<String> allCategories;
 	private Map<String, EntryMap> entriesByCategory;
 	
+	private List<String> notes;
+	
 	public RecordKeeper(String title) {
 		allCategories = new ArrayList<String>();
 		entriesByCategory = new HashMap<String, EntryMap>();
@@ -62,12 +64,18 @@ public class RecordKeeper {
 		
 		header.keyList = new ArrayList<String>();
 		header.values = new HashMap<String, String>();
+		
+		notes = new ArrayList<String>();
 	}
 	
 	public void addHeaderItem(String title, String value) {
 		if (header.keyList.contains(title)) { header.keyList.remove(title); }
 		header.keyList.add(title);
 		header.values.put(title, value);
+	}
+	
+	public void addNote(String note) {
+		notes.add(note);
 	}
 	
 	public void registerCategory(String category) {
@@ -163,6 +171,7 @@ public class RecordKeeper {
 			OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(outputPath), Charset.forName("UTF-8").newEncoder());
 			writer.write("<html><meta http-equiv=\"Content-Type\" content = \"text/html; charset=utf-8\" /><head><style>\n");
 			writer.write("table, th, td {\n\tborder: 1px solid black;\n}\n");
+			writer.write(".notes {\n\twidth: 66%;\n\tmargin: auto;\n}\n");
 			writer.write("</style></head><body>\n");
 			writer.write("<center><h1><p>Changelog for " + header.title + "</p></h1><br>\n");
 			writer.write("<hr>\n");
@@ -173,6 +182,15 @@ public class RecordKeeper {
 			}
 			writer.write("</table>\n");
 			writer.write("<br><hr><br>\n");
+			
+			if (!notes.isEmpty()) {
+				writer.write("<h2>Notes</h2><br>\n</center>\n");
+				writer.write("<div class=\"notes\"><ul>");
+				for (String note : notes) {
+					writer.write("<li>" + note + "</li>\n");
+				}
+				writer.write("</ul></div>\n<center>\n<br><hr><br>\n");
+			}
 			
 			for (String category : allCategories) {
 				writer.write("<h2 id=\"" + keyFromString(category) + "\">" + category + "</h2>");

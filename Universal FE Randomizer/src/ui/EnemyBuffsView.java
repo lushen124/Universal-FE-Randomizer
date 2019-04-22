@@ -401,6 +401,7 @@ public class EnemyBuffsView extends Composite {
 			}
 			if (options.improveBossWeapons) {
 				improveBossWeaponButton.setSelection(true);
+				bossWeaponSpinnerLabel.setEnabled(true);
 				bossWeaponSpinner.setEnabled(true);
 				bossStatSpinnerLabel.setEnabled(true);
 				bossWeaponSpinner.setSelection(options.bossImprovementChance);

@@ -26,6 +26,7 @@ import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
 import random.general.PoolDistributor;
+import random.general.RelativeValueMapper;
 import ui.model.ClassOptions;
 import ui.model.ItemAssignmentOptions;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
@@ -51,8 +52,12 @@ public class ClassRandomizer {
 		
 		Boolean includeLords = options.includeLords;
 		Boolean includeThieves = options.includeThieves;
+		Boolean includeSpecial = options.includeSpecial;
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
+		
+		Boolean forceChange = options.forceChange;
+		
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -67,10 +72,12 @@ public class ClassRandomizer {
 			
 			Boolean isLordCharacter = charactersData.isLordCharacterID(character.getID());
 			Boolean isThiefCharacter = charactersData.isThiefCharacterID(character.getID());
+			Boolean isSpecialCharacter = charactersData.isSpecialCharacterID(character.getID());
 			Boolean canChange = charactersData.canChangeCharacterID(character.getID());
 			
 			if (isLordCharacter && !includeLords) { continue; }
 			if (isThiefCharacter && !includeThieves) { continue; }
+			if (isSpecialCharacter && !includeSpecial) { continue; }
 			if (!canChange) { continue; }
 			
 			Boolean characterRequiresRange = charactersData.characterIDRequiresRange(character.getID());
@@ -84,8 +91,8 @@ public class ClassRandomizer {
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {
-				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
-					classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null);
+				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
+					classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -119,7 +126,7 @@ public class ClassRandomizer {
 			
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, false, rng);
+				updateCharacterToClass(options, inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, false, rng);
 				linked.setIsLord(isLordCharacter);
 			}
 		}
@@ -130,8 +137,10 @@ public class ClassRandomizer {
 		
 		Boolean includeLords = false;
 		Boolean includeThieves = false;
+		Boolean includeSpecial = false;
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
+		Boolean forceChange = options.forceChange;
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -171,8 +180,8 @@ public class ClassRandomizer {
 				}
 				
 				GBAFEClassData[] possibleClasses = hasMonsters ? 
-						classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass) :
-					classData.potentialClasses(originalClass, !includeLords, !includeThieves, true, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass);
+						classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass) :
+					classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -187,7 +196,7 @@ public class ClassRandomizer {
 			
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
+				updateCharacterToClass(options, inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
 				if (shouldNerf) { // Halve skill, speed, defense, and resistance if we need to make sure he loses to us.
 					linked.setBaseSKL(linked.getBaseSKL() >> 1);
 					linked.setBaseSPD(linked.getBaseSPD() >> 1);
@@ -201,8 +210,10 @@ public class ClassRandomizer {
 	public static void randomizeMinionClasses(ClassOptions options, ItemAssignmentOptions inventoryOptions, GameType type, CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		Boolean includeLords = false;
 		Boolean includeThieves = false;
+		Boolean includeSpecial = false;
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
+		Boolean forceChange = options.forceChange;
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -234,8 +245,8 @@ public class ClassRandomizer {
 					Boolean shouldMakeEasy = chapter.shouldBeSimplified();
 					GBAFEClassData loseToClass = shouldMakeEasy ? lordClass : null;
 					GBAFEClassData[] possibleClasses = hasMonsters ? 
-							classData.potentialClasses(originalClass, !includeLords, !includeThieves, separateMonsters, false, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
-						classData.potentialClasses(originalClass, false, false, false, true, false, false, shouldRestrictToSafeClasses, loseToClass);
+							classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
+						classData.potentialClasses(originalClass, false, false, false, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass);
 					if (possibleClasses.length == 0) {
 						continue;
 					}
@@ -256,12 +267,22 @@ public class ClassRandomizer {
 		}
 	}
 
-	private static void updateCharacterToClass(ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Boolean ranged, Boolean melee, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasicWeapons, Random rng) {
+	private static void updateCharacterToClass(ClassOptions classOptions, ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Boolean ranged, Boolean melee, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasicWeapons, Random rng) {
 		
 		character.prepareForClassRandomization();
 		character.setClassID(targetClass.getID());
 		transferWeaponLevels(character, sourceClass, targetClass, rng);
-		applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
+		switch (classOptions.basesTransfer) {
+		case ADJUST_TO_MATCH:
+			applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
+			break;
+		case NO_CHANGE:
+			break;
+		case ADJUST_TO_CLASS:
+			adjustBasesToMatchClass(character, sourceClass, targetClass);
+			break;
+		}
+		
 		
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(character.getID());
@@ -299,9 +320,39 @@ public class ClassRandomizer {
 		character.setBaseDEF(character.getBaseDEF() + defDelta);
 		int resDelta = sourceClass.getBaseRES() - targetClass.getBaseRES();
 		character.setBaseRES(character.getBaseRES() + resDelta);
+		int lckDelta = sourceClass.getBaseLCK() - targetClass.getBaseLCK();
+		character.setBaseLCK(character.getBaseLCK() + lckDelta);
 		
-		int conDelta = sourceClass.getCON() - targetClass.getCON();
-		character.setConstitution(character.getConstitution() + conDelta);
+		// Only correct CON if it ends up being an invalid (i.e. negative) CON.
+		// This is only really possible if the character had a negative CON adjustment to begin with.
+		if (character.getConstitution() < 0 && Math.abs(character.getConstitution()) > targetClass.getCON()) {
+			character.setConstitution(-1 * targetClass.getCON());
+		}
+	}
+	
+	private static void adjustBasesToMatchClass(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass) {
+		// HP transfers directly, as does LCK.
+		int hpDelta = sourceClass.getBaseHP() - targetClass.getBaseHP();
+		character.setBaseHP(character.getBaseHP() + hpDelta);
+		int lckDelta = sourceClass.getBaseLCK() - targetClass.getBaseLCK();
+		character.setBaseLCK(character.getBaseLCK() + lckDelta);
+		
+		// STR, SKL, SPD, DEF, and RES are transfered based on which one is highest on the target class.
+		int effectiveSTR = character.getBaseSTR() + sourceClass.getBaseSTR();
+		int effectiveSKL = character.getBaseSKL() + sourceClass.getBaseSKL();
+		int effectiveSPD = character.getBaseSPD() + sourceClass.getBaseSPD();
+		int effectiveDEF = character.getBaseDEF() + sourceClass.getBaseDEF();
+		int effectiveRES = character.getBaseRES() + sourceClass.getBaseRES();
+		
+		List<Integer> mappedStats = RelativeValueMapper.mappedValues(Arrays.asList(effectiveSTR, effectiveSKL, effectiveSPD, effectiveDEF, effectiveRES),
+				Arrays.asList(targetClass.getBaseSTR(), targetClass.getBaseSKL(), targetClass.getBaseSPD(), targetClass.getBaseDEF(), targetClass.getBaseRES()));
+		
+		character.setBaseSTR(mappedStats.get(0) - targetClass.getBaseSTR());
+		character.setBaseSKL(mappedStats.get(1) - targetClass.getBaseSKL());
+		character.setBaseSPD(mappedStats.get(2) - targetClass.getBaseSPD());
+		character.setBaseDEF(mappedStats.get(3) - targetClass.getBaseDEF());
+		character.setBaseRES(mappedStats.get(4) - targetClass.getBaseRES());
+		
 	}
 	
 	// TODO: Offer an option for sidegrade strictness?

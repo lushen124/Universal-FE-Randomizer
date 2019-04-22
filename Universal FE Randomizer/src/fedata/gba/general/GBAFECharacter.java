@@ -11,6 +11,7 @@ public interface GBAFECharacter {
 	public Boolean canChange();
 	public Boolean isLord();
 	public Boolean isThief();
+	public Boolean isSpecial();
 	public Boolean requiresRange();
 	public Boolean requiresMelee();
 	public Boolean isClassLimited();

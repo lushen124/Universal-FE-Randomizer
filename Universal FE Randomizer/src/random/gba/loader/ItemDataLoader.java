@@ -232,6 +232,14 @@ public class ItemDataLoader {
 		return null;
 	}
 	
+	public long flierEffectPointer() {
+		if (offsetsForAdditionalData.containsKey(AdditionalData.FLIERS_EFFECT)) {
+			return offsetsForAdditionalData.get(AdditionalData.FLIERS_EFFECT);
+		}
+		
+		return 0;
+	}
+	
 	public long[] possibleEffectivenessAddresses() {
 		List<Long> registeredEffectivenessPointers = new ArrayList<Long>();
 		if (offsetsForAdditionalData.containsKey(AdditionalData.KNIGHTCAV_EFFECT)) {
@@ -339,7 +347,7 @@ public class ItemDataLoader {
 	}
 	
 	public GBAFEItemData getSidegradeWeapon(GBAFEClassData targetClass, GBAFEItemData originalWeapon, boolean strict, Random rng) {
-		if (!isWeapon(originalWeapon)) {
+		if (!isWeapon(originalWeapon) && originalWeapon.getType() != WeaponType.STAFF) {
 			return null;
 		}
 		
@@ -357,7 +365,7 @@ public class ItemDataLoader {
 	}
 	
 	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEItemData originalWeapon, boolean strict, Random rng) {
-		if (!isWeapon(originalWeapon)) {
+		if (!isWeapon(originalWeapon) && originalWeapon.getType() != WeaponType.STAFF) {
 			return null;
 		}
 		

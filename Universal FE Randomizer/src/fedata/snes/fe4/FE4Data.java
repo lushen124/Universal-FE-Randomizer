@@ -351,7 +351,7 @@ public class FE4Data {
 		/*map.put(Character.SIGURD, 0x27); // Tyrfing*/
 		map.put(Character.FINN_GEN_1, new ArrayList<Integer>(Arrays.asList(0x3B))); // Brave Lance
 		/*map.put(Character.QUAN, 0x3E); // Gae Bolg*/
-		map.put(Character.LEX, new ArrayList<Integer>(Arrays.asList(0x45))); // Brave Axe
+		map.put(Character.LEX, new ArrayList<Integer>(Arrays.asList(0x45))); // Brave Axe (Needs to work with Schmidt (boss) too...)
 		map.put(Character.MIDIR, new ArrayList<Integer>(Arrays.asList(0x4D))); // Brave Bow (Technically needs to work for Jamke too...)
 		/*map.put(Character.BRIGID, 0x4F); // Yewfelle*/
 		/*map.put(Character.LEWYN, 0x5C); // Forseti*/
@@ -376,6 +376,9 @@ public class FE4Data {
 		
 		map.put(Character.MIDIR, Character.JAMKE);
 		map.put(Character.JAMKE, Character.MIDIR);
+		
+		map.put(Character.LEX, Character.SCHMIDT);
+		map.put(Character.SCHMIDT, Character.LEX);
 		
 		return map;
 	}
@@ -1040,14 +1043,8 @@ public class FE4Data {
 		
 		// These enemies are probably part of the Ch. 5 scene, which will not work properly if they're not mages because it tries to play a fire mage animation from the map.
 		public static final Set<Character> DoNotTouchEnemies = new HashSet<Character>(Arrays.asList(
-				CH5_COMMANDER_1,
-				CH5_ROT_RITTER_1, 
-				CH5_COMMANDER_2,
-				CH5_ROT_RITTER_2,
-				CH5_COMMANDER_3,
-				CH5_ROT_RITTER_3,
-				CH5_COMMANDER_4,
-				CH5_ROT_RITTER_4
+				CH1_VERDANE_COMMANDER_1, CH1_VERDANE_ARMY_5, // Dew and Edain need to outrun these guys in Chapter 1.
+				CH5_COMMANDER_1, CH5_ROT_RITTER_1, CH5_COMMANDER_2, CH5_ROT_RITTER_2, CH5_COMMANDER_3, CH5_ROT_RITTER_3, CH5_COMMANDER_4, CH5_ROT_RITTER_4 // Chapter 5 epilogue scene
 				));
 		
 		// Midir will make the game confused if he can't attack in his opening scene.

@@ -1,6 +1,6 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-# Latest Version: 0.8.3
+# Latest Version: 0.8.4
 
 ## Introduction
 
@@ -112,7 +112,9 @@ On top of that, one more option is available in both cases.
 
 ### Holy Blood
 
-* **Randomize Growth Bonuses** - Holy blood grants its carrier bonuses in their growth rates, independent from the character's personal growths. This option randomly redistributes the bonus growth areas for each holy blood, redistributing up to the growth amount specified between all growth areas.
+* **Randomize Growth Bonuses** - Holy blood grants its carrier bonuses in their growth rates, independent from the character's personal growths. This option randomly redistributes the bonus growth areas for each holy blood, redistributing up to the growth amount specified between all growth areas. The bonuses are doled out in chunks, and **Chunk Size** can be adjusted. Larger chunks result in more concentrated bonuses, while smaller chunks are more likely to give a spread (most of the time). Additionally, an optional **HP Baseline** can be given so that HP bonuses are more consistent (though some bloods may also get additional HP bonuses on top of that.
+  * **Generate Unique Bonuses** - This option attempts to re-roll bloods that are deemed too similar to each other so that all bloods have a more unique set of bonuses. It does this by ordering the bonus stat areas from highest to lowest and considers any bloods that have the same ordering as similar enough to be re-rolled.
+  * **STR/MAG Options** - By default, Yune does avoid giving STR to magical bloods and MAG to physical bloods, but this can now be toggled.
 * **Randomize Holy Weapon Bonuses** - Characters with Major holy blood gain access to holy weapons, depending on the blood that they have. These weapons generally give large stat bonuses when equipped. This option redistributes the bonuses conferred to the user of each type of holy weapon.
 * **Assign Holy Blood to Playable Characters** - This option randomly assigns holy blood to playable characters. The type of blood can be limited to a set that matches their class's weapon usage if the **Match Blood to Weapon Usage** option is checked. The chance of receiving Major, Minor, or no Holy Blood can also be customized. 
 
@@ -281,7 +283,7 @@ Additionally, an option is available to limit how many items can randomly receiv
 
 ### Classes
 
-**Randomize Playable Characters** - The obvious randomization feature, changes the class of every playable character to a random class. Starting equipment is modified accordingly. Options to **Include Lords** and **Include Thieves** do as they sound. They add the classes to the randomization pool and they add the characters originally posessing those classes to the character pool to randomize. Disabling them will ensure Lord characters and Thief characters remain untouched (usually safer).
+**Randomize Playable Characters** - The obvious randomization feature, changes the class of every playable character to a random class. Starting equipment is modified accordingly. Options to **Include Lords** and **Include Thieves** do as they sound. **Include Special Classes** generally prevents randomization of dancers/bards as well as Manaketes in the games that feature them. They add the classes to the randomization pool and they add the characters originally posessing those classes to the character pool to randomize. Disabling them will ensure Lord characters and Thief characters remain untouched (usually safer).
 
 An option is also available: **Assign Classes Evenly** which will attempt to even out the class distribution so that no one class is overly represented in the result.
 
@@ -297,6 +299,10 @@ An option is also available: **Assign Classes Evenly** which will attempt to eve
 <p align="center">
   <i>You can turn on all three!</i>
 </p>
+
+**Bases Options** - This determines how a unit's base stats are determined when changing classes. By default, Yune **Retains Final Bases** so that the unit's effective base stats in-game does not change. The other options will cause effective bases to change by either **Retaining Personal Bases** or by **Adjusting Bases to Class** where a character's final bases are shuffled around to emphasize their new class's stronger points. This only applies to playable characters and bosses.
+
+**Force Class Change** - This option will try to force characters to change their class when possible. If a character has no valid options to change to (due to limitations), then they will remain as they were as a fallback. But otherwise, if a class can change when this option is enabled, that character will change class.
 
 **[FE8] Mix Monster Classes** - By default, without this option, class randomization will stay divided between monsters and humans. Any human characters and minions will remain as a human class and any monster bosses and minions will remain as a monster class. If this box is checked, then it allows humans to randomize into monster classes and monsters to randomize into human classes.
 
@@ -356,6 +362,10 @@ This option swaps around characters so that they join at different parts of the 
 * **Match Base Stats** - This option sets the character's base stats to be equal to the base stats of the slot they fill.
 * **Relative Base Stats** This option sets the character's base stats such that their highest stat matches the highest stat of the slot they fill and the remainder of the stats are based on the character's normal stat spread. See the growth example above, except with bases.
 
+* **Use Fill Class** - This is the default option. Characters that randomize into another character's slot will retain their normal classes.
+* **Use Slot Class** - This is an alternative where characters that randomize into another character's slot will become the class of the character they replace.
+
+**Include Lords, Thieves, Special Characters** - Does exactly as it says: allows characters in these respective groups to change their recruitment time. If disabled, that group of characters will always join the same as they usually do in the vanilla game.
 **Allow Cross-Gender Assignments** - This option removes the restriction on gender so that males can fill female slots and vice versa.
 
 **[FE8] Include Creature Campaign NPCs** - This option adds Fado, Hayden, Glen, and Ismaire to the pool for randomzied recruitment.

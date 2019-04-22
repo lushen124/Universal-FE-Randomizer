@@ -405,7 +405,7 @@ public class FE4ClassRandomizer {
 			
 			if (targetClass == FE4Data.CharacterClass.DANCER) { hasDancer = true; }
 			setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, rng);
-			if (useFreeInventoryForStaves) { giveStaffIfNecessary(staticChar, charData, itemMap, rng); }
+			if (useFreeInventoryForStaves) { giveStaffIfNecessary(options, staticChar, charData, itemMap, rng); }
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
 				predeterminedClasses.put(linked, targetClass);
@@ -572,7 +572,7 @@ public class FE4ClassRandomizer {
 			}
 			
 			setStaticCharacterToClass(options, staticChar, targetClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, rng);
-			if (useFreeInventoryForStaves) { giveStaffIfNecessary(staticChar, charData, itemMap, rng); }
+			if (useFreeInventoryForStaves) { giveStaffIfNecessary(options, staticChar, charData, itemMap, rng); }
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
 				predeterminedClasses.put(linked, targetClass);
@@ -728,7 +728,7 @@ public class FE4ClassRandomizer {
 						}
 						
 						setStaticCharacterToClass(options, subChar, subClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, targetClass, rng);
-						if (useFreeInventoryForStaves) { giveStaffIfNecessary(subChar, charData, itemMap, rng); }
+						if (useFreeInventoryForStaves) { giveStaffIfNecessary(options, subChar, charData, itemMap, rng); }
 						
 						predeterminedClasses.put(sub, subClass);
 					}
@@ -1817,9 +1817,10 @@ public class FE4ClassRandomizer {
 		}
 	}
 	
-	private static void giveStaffIfNecessary(FE4StaticCharacter character, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
+	private static void giveStaffIfNecessary(FE4ClassOptions options, FE4StaticCharacter character, CharacterDataLoader charData, ItemMapper itemMap, Random rng) {
 		FE4Data.CharacterClass charClass = FE4Data.CharacterClass.valueOf(character.getClassID());
-		if (charClass.isHealer()) {
+		FE4Data.Character fe4Char = FE4Data.Character.valueOf(character.getCharacterID());
+		if (charClass.isHealer() || (fe4Char.isHealer() && options.retainHealers)) {
 			int equip1 = character.getEquipment1();
 			int equip2 = character.getEquipment2();
 			int equip3 = character.getEquipment3();
@@ -1841,6 +1842,7 @@ public class FE4ClassRandomizer {
 			Set<FE4Data.Item> usable = new HashSet<FE4Data.Item>(Arrays.asList(charClass.usableItems(slot1Blood, slot2Blood, slot3Blood, false)));
 			if (usable.isEmpty()) { return; }
 			List<FE4Data.Item> list = usable.stream().filter(item -> (FE4Data.Item.healingStaves.contains(item))).sorted(FE4Data.Item.defaultComparator).collect(Collectors.toList());
+			if (list.isEmpty()) { list = Arrays.asList(FE4Data.Item.HEAL); }
 			
 			FE4Data.Item randomStaff = list.get(rng.nextInt(list.size()));
 			Integer inventoryID = itemMap.obtainFreeInventoryID(randomStaff);
@@ -1849,6 +1851,10 @@ public class FE4ClassRandomizer {
 			if (item1 == null) { equip1 = inventoryID; }
 			else if (item2 == null) { equip2 = inventoryID; }
 			else if (item3 == null) { equip3 = inventoryID; }
+			
+			character.setEquipment1(equip1);
+			character.setEquipment2(equip2);
+			character.setEquipment3(equip3);
 		}
 	}
 	
@@ -2115,6 +2121,9 @@ public class FE4ClassRandomizer {
 		boolean canAttack = usableItems.stream().anyMatch(item -> (item.isWeapon()));
 		boolean hasWeapon = false;
 		boolean isHealer = targetClass.isHealer();
+		if (!isHealer) {
+			isHealer = fe4Char.isHealer() && options.retainHealers;
+		}
 		// If we're not prioritizing healing staves, we don't need any special logic that relies on this being a healing class.
 		if (!prioritizeHealingStavesForHealers) { isHealer = false; }
 		
@@ -2326,7 +2335,7 @@ public class FE4ClassRandomizer {
 		
 		boolean canAttack = usableItems.stream().anyMatch(item -> (item.isWeapon()));
 		boolean hasWeapon = false;
-		boolean isHealer = targetClass.isHealer();
+		boolean isHealer = targetClass.isHealer() || (fe4Char.isHealer() && options.retainHealers);
 		
 		Set<FE4Data.Item> healingStaves = new HashSet<Item>(FE4Data.Item.healingStaves);
 		healingStaves.retainAll(usableItems);

@@ -13,12 +13,24 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
+import ui.fe4.HolyBloodOptions.STRMAGOptions;
+
 public class HolyBloodView extends Composite {
 	
 	private Group container;
 	
 	private Button randomizeGrowthBonusesButton;
+	private Label growthTotalLabel;
 	private Spinner growthBonusTotalSpinner;
+	private Label chunkSizeLabel;
+	private Spinner chunkSizeSpinner;
+	private Label hpBaselineLabel;
+	private Spinner hpBaselineSpinner;
+	private Button uniqueBonusesButton;
+	private Group strMagGroup;
+	private Button noLimitButton;
+	private Button adjustButton;
+	private Button limitButton;
 	
 	private Button randomizeHolyWeaponBonusesButton;
 	
@@ -58,7 +70,23 @@ public class HolyBloodView extends Composite {
 		randomizeGrowthBonusesButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				growthBonusTotalSpinner.setEnabled(randomizeGrowthBonusesButton.getSelection());
+				boolean enabled = randomizeGrowthBonusesButton.getSelection();
+				
+				growthTotalLabel.setEnabled(enabled);
+				growthBonusTotalSpinner.setEnabled(enabled);
+				
+				chunkSizeLabel.setEnabled(enabled);
+				chunkSizeSpinner.setEnabled(enabled);
+				
+				hpBaselineLabel.setEnabled(enabled);
+				hpBaselineSpinner.setEnabled(enabled);
+				
+				uniqueBonusesButton.setEnabled(enabled);
+				
+				strMagGroup.setEnabled(enabled);
+				noLimitButton.setEnabled(enabled);
+				adjustButton.setEnabled(enabled);
+				limitButton.setEnabled(enabled);
 			}
 		});
 		
@@ -71,16 +99,34 @@ public class HolyBloodView extends Composite {
 		growthBonusParamContainerLayout.marginBottom = 5;
 		growthBonusParameterContainer.setLayout(growthBonusParamContainerLayout);
 		
-		Label growthTotalLabel = new Label(growthBonusParameterContainer, SWT.RIGHT);
+		growthTotalLabel = new Label(growthBonusParameterContainer, SWT.RIGHT);
 		growthTotalLabel.setText("Growth Bonus Total:");
+		growthTotalLabel.setEnabled(false);
 		
-		growthBonusTotalSpinner = new Spinner(growthBonusParameterContainer, SWT.NONE);
+		growthBonusTotalSpinner = new Spinner(growthBonusParameterContainer, SWT.READ_ONLY);
 		growthBonusTotalSpinner.setValues(50, 0, 100, 0, 5, 10);
 		growthBonusTotalSpinner.setEnabled(false);
 		growthBonusTotalSpinner.setToolTipText("The total bonus for each holy blood granted to those with Minor Blood. The bonus is doubled for Major Blood.");
+		growthBonusTotalSpinner.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				int newTotal = growthBonusTotalSpinner.getSelection();
+				int chunkSize = chunkSizeSpinner.getSelection();
+				if (newTotal < chunkSize) {
+					chunkSize = newTotal;
+				}
+				chunkSizeSpinner.setValues(chunkSize, 5, newTotal, 0, 5, 10);
+				
+				int hpBaseline = hpBaselineSpinner.getSelection();
+				if (newTotal < hpBaseline) {
+					hpBaseline = newTotal;
+				}
+				hpBaselineSpinner.setValues(hpBaseline, 0, newTotal, 0, 5, 10);
+			}
+		});
 		
 		FormData labelData = new FormData();
-		labelData.left = new FormAttachment(0, 5);
+		labelData.left = new FormAttachment(0, 0);
 		labelData.right = new FormAttachment(growthBonusTotalSpinner, -5);
 		labelData.top = new FormAttachment(growthBonusTotalSpinner, 0, SWT.CENTER);
 		growthTotalLabel.setLayoutData(labelData);
@@ -89,9 +135,109 @@ public class HolyBloodView extends Composite {
 		spinnerData.right = new FormAttachment(100, -5);
 		growthBonusTotalSpinner.setLayoutData(spinnerData);
 		
+		chunkSizeLabel = new Label(growthBonusParameterContainer, SWT.RIGHT);
+		chunkSizeLabel.setText("Chunk Size:");
+		chunkSizeLabel.setEnabled(false);
+		
+		chunkSizeSpinner = new Spinner(growthBonusParameterContainer, SWT.READ_ONLY);
+		chunkSizeSpinner.setValues(5, 5, 50, 0, 5, 10);
+		chunkSizeSpinner.setEnabled(false);
+		chunkSizeSpinner.setToolTipText("Determines how much growth is distributed in each pass. Each growth area will be a multiple of this value except when distributing the remainder.");
+		
+		labelData = new FormData();
+		labelData.left = new FormAttachment(0, 0);
+		labelData.right = new FormAttachment(chunkSizeSpinner, -5);
+		labelData.top = new FormAttachment(chunkSizeSpinner, 0, SWT.CENTER);
+		chunkSizeLabel.setLayoutData(labelData);
+		
+		spinnerData = new FormData();
+		spinnerData.right = new FormAttachment(100, -5);
+		spinnerData.top = new FormAttachment(growthBonusTotalSpinner, 5);
+		chunkSizeSpinner.setLayoutData(spinnerData);
+		
+		hpBaselineLabel = new Label(growthBonusParameterContainer, SWT.RIGHT);
+		hpBaselineLabel.setText("HP Baseline:");
+		hpBaselineLabel.setEnabled(false);
+		
+		hpBaselineSpinner = new Spinner(growthBonusParameterContainer, SWT.READ_ONLY);
+		hpBaselineSpinner.setValues(0, 0, 50, 0, 5, 10);
+		hpBaselineSpinner.setEnabled(false);
+		hpBaselineSpinner.setToolTipText("Determines what the HP bonus for all bloods start as.\nIf 0, HP is treated like a normal stat area for bonuses.\nIf not 0, HP has reduced weight when assigning bonuses.");
+		
+		labelData = new FormData();
+		labelData.left = new FormAttachment(0, 0);
+		labelData.right = new FormAttachment(hpBaselineSpinner, -5);
+		labelData.top = new FormAttachment(hpBaselineSpinner, 0, SWT.CENTER);
+		hpBaselineLabel.setLayoutData(labelData);
+		
+		spinnerData = new FormData();
+		spinnerData.right = new FormAttachment(100, -5);
+		spinnerData.top = new FormAttachment(chunkSizeSpinner, 5);
+		hpBaselineSpinner.setLayoutData(spinnerData);
+		
+		uniqueBonusesButton = new Button(growthBonusParameterContainer, SWT.CHECK);
+		uniqueBonusesButton.setText("Generate Unique Bonuses");
+		uniqueBonusesButton.setToolTipText("Attempts to make sure no two bloods grant similar bonuses.");
+		uniqueBonusesButton.setSelection(false);
+		uniqueBonusesButton.setEnabled(false);
+		
+		FormData optionData = new FormData();
+		optionData.left = new FormAttachment(0, 0);
+		optionData.top = new FormAttachment(hpBaselineSpinner, 5);
+		uniqueBonusesButton.setLayoutData(optionData);
+		
+		strMagGroup = new Group(growthBonusParameterContainer, SWT.NONE);
+		strMagGroup.setText("STR/MAG");
+		
+		FormLayout groupLayout = new FormLayout();
+		groupLayout.marginTop = 5;
+		groupLayout.marginBottom = 5;
+		groupLayout.marginLeft = 5;
+		groupLayout.marginRight = 5;
+		strMagGroup.setLayout(groupLayout);
+		
+		noLimitButton = new Button(strMagGroup, SWT.RADIO);
+		noLimitButton.setText("No Limitations");
+		noLimitButton.setToolTipText("Freely assigns STR/MAG, regardless of whether the blood is physical or magical.");
+		noLimitButton.setEnabled(false);
+		noLimitButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(0, 0);
+		optionData.top = new FormAttachment(0, 0);
+		noLimitButton.setLayoutData(optionData);
+		
+		adjustButton = new Button(strMagGroup, SWT.RADIO);
+		adjustButton.setText("Adjust to Blood");
+		adjustButton.setToolTipText("Freely assigns STR/MAG, but ensures STR is the higher stat for physical bloods and MAG is the higher stat for magical bloods.");
+		adjustButton.setEnabled(false);
+		adjustButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(noLimitButton, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(noLimitButton, 5);
+		adjustButton.setLayoutData(optionData);
+		
+		limitButton = new Button(strMagGroup, SWT.RADIO);
+		limitButton.setText("Limit to Blood");
+		limitButton.setToolTipText("Do not allow STR to be assigned to magical bloods or MAG to be assigned to physical bloods.");
+		limitButton.setEnabled(false);
+		limitButton.setSelection(true);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(adjustButton, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(adjustButton, 5);
+		limitButton.setLayoutData(optionData);
+		
 		FormData containerData = new FormData();
+		containerData.top = new FormAttachment(uniqueBonusesButton, 5);
+		containerData.left = new FormAttachment(uniqueBonusesButton, 0, SWT.LEFT);
+		containerData.right = new FormAttachment(100, -5);
+		strMagGroup.setLayoutData(containerData);
+		
+		containerData = new FormData();
 		containerData.top = new FormAttachment(randomizeGrowthBonusesButton, 0);
-		containerData.left = new FormAttachment(randomizeGrowthBonusesButton, 0, SWT.LEFT);
+		containerData.left = new FormAttachment(randomizeGrowthBonusesButton, 10, SWT.LEFT);
 		containerData.right = new FormAttachment(100, -5);
 		growthBonusParameterContainer.setLayoutData(containerData);
 		
@@ -240,16 +386,41 @@ public class HolyBloodView extends Composite {
 	}
 
 	public HolyBloodOptions getHolyBloodOptions() {
-		return new HolyBloodOptions(randomizeGrowthBonusesButton.getSelection(), growthBonusTotalSpinner.getSelection(), randomizeHolyWeaponBonusesButton.getSelection(), giveHolyBlood.getSelection(), matchClass.getSelection(), majorBloodChance.getSelection(), minorBloodChance.getSelection());
+		HolyBloodOptions.STRMAGOptions strMag = STRMAGOptions.NO_LIMIT;
+		if (adjustButton.getSelection()) { strMag = STRMAGOptions.ADJUST_STR_MAG; }
+		else if (limitButton.getSelection()) { strMag = STRMAGOptions.LIMIT_STR_MAG; }
+		
+		return new HolyBloodOptions(randomizeGrowthBonusesButton.getSelection(), growthBonusTotalSpinner.getSelection(), chunkSizeSpinner.getSelection(), hpBaselineSpinner.getSelection(), strMag, uniqueBonusesButton.getSelection(), 
+				randomizeHolyWeaponBonusesButton.getSelection(), 
+				giveHolyBlood.getSelection(), matchClass.getSelection(), majorBloodChance.getSelection(), minorBloodChance.getSelection());
 	}
 	
 	public void setHolyBloodOptions(HolyBloodOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
 		} else {
-			randomizeGrowthBonusesButton.setSelection(options.randomizeGrowthBonuses);
-			growthBonusTotalSpinner.setEnabled(options.randomizeGrowthBonuses);
+			boolean growthBonusesEnabled = options.randomizeGrowthBonuses;
+			randomizeGrowthBonusesButton.setSelection(growthBonusesEnabled);
+			growthTotalLabel.setEnabled(growthBonusesEnabled);
+			growthBonusTotalSpinner.setEnabled(growthBonusesEnabled);
 			growthBonusTotalSpinner.setSelection(options.growthTotal);
+			chunkSizeLabel.setEnabled(growthBonusesEnabled);
+			chunkSizeSpinner.setEnabled(growthBonusesEnabled);
+			chunkSizeSpinner.setSelection(Math.max(5, options.chunkSize));
+			hpBaselineLabel.setEnabled(growthBonusesEnabled);
+			hpBaselineSpinner.setEnabled(growthBonusesEnabled);
+			hpBaselineSpinner.setSelection(options.hpBaseline);
+			uniqueBonusesButton.setEnabled(growthBonusesEnabled);
+			uniqueBonusesButton.setSelection(options.generateUniqueBonuses);
+		
+			strMagGroup.setEnabled(growthBonusesEnabled);
+			noLimitButton.setEnabled(growthBonusesEnabled);
+			adjustButton.setEnabled(growthBonusesEnabled);
+			limitButton.setEnabled(growthBonusesEnabled);
+			
+			noLimitButton.setSelection(options.strMagOptions == STRMAGOptions.NO_LIMIT);
+			adjustButton.setSelection(options.strMagOptions == STRMAGOptions.ADJUST_STR_MAG);
+			limitButton.setSelection(options.strMagOptions == null || options.strMagOptions == STRMAGOptions.LIMIT_STR_MAG);
 			
 			randomizeHolyWeaponBonusesButton.setSelection(options.randomizeWeaponBonuses);
 

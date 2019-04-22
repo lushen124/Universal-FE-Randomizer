@@ -105,6 +105,10 @@ public class CharacterDataLoader {
 		return provider.characterWithID(characterID).isThief();
 	}
 	
+	public Boolean isSpecialCharacterID(int characterID) {
+		return provider.characterWithID(characterID).isSpecial();
+	}
+	
 	public Boolean canBuff(int characterID) {
 		return provider.characterWithID(characterID).canBuff();
 	}

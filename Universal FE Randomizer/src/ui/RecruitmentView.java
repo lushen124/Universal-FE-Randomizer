@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Listener;
 import fedata.general.FEBase.GameType;
 import ui.model.RecruitmentOptions;
 import ui.model.RecruitmentOptions.BaseStatAutolevelType;
+import ui.model.RecruitmentOptions.ClassMode;
 import ui.model.RecruitmentOptions.GrowthAdjustmentMode;
 import ui.model.RecruitmentOptions.StatAdjustmentMode;
 
@@ -35,6 +36,14 @@ public class RecruitmentView extends Composite {
 	private Button autolevelNewButton;
 	private Button absoluteButton;
 	private Button relativeButton;
+	
+	private Group classContainer;
+	private Button fillClassButton;
+	private Button slotClassButton;
+	
+	private Button lordsButton;
+	private Button thievesButton;
+	private Button specialButton;
 	
 	private Button crossGenderButton;
 	private Button includeExtras;
@@ -63,6 +72,7 @@ public class RecruitmentView extends Composite {
 			public void handleEvent(Event event) {
 				growthContainer.setEnabled(enableButton.getSelection());
 				basesContainer.setEnabled(enableButton.getSelection());
+				classContainer.setEnabled(enableButton.getSelection());
 				
 				fillGrowthButton.setEnabled(enableButton.getSelection());
 				slotGrowthButton.setEnabled(enableButton.getSelection());
@@ -73,10 +83,16 @@ public class RecruitmentView extends Composite {
 				relativeButton.setEnabled(enableButton.getSelection());
 				
 				crossGenderButton.setEnabled(enableButton.getSelection());
+				lordsButton.setEnabled(enableButton.getSelection());
+				thievesButton.setEnabled(enableButton.getSelection());
+				specialButton.setEnabled(enableButton.getSelection());
 				
 				autolevelTypeContainer.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
 				autolevelOriginalButton.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
 				autolevelNewButton.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
+				
+				fillClassButton.setEnabled(enableButton.getSelection());
+				slotClassButton.setEnabled(enableButton.getSelection());
 				
 				if (includeExtras != null) {
 					includeExtras.setEnabled(enableButton.getSelection());
@@ -226,6 +242,102 @@ public class RecruitmentView extends Composite {
 		optionData.top = new FormAttachment(absoluteButton, 5);
 		relativeButton.setLayoutData(optionData);
 		
+		classContainer = new Group(container, SWT.NONE);
+		classContainer.setText("Classes");
+		classContainer.setToolTipText("Determines how classes are assigned.");
+		
+		groupLayout = new FormLayout();
+		groupLayout.marginLeft = 5;
+		groupLayout.marginRight = 5;
+		groupLayout.marginTop = 5;
+		groupLayout.marginBottom = 5;
+		classContainer.setLayout(groupLayout);
+		
+		groupData = new FormData();
+		groupData.left = new FormAttachment(basesContainer, 0, SWT.LEFT);
+		groupData.top = new FormAttachment(basesContainer, 10);
+		groupData.right = new FormAttachment(100, -5);
+		classContainer.setLayoutData(groupData);
+		
+		fillClassButton = new Button(classContainer, SWT.RADIO);
+		fillClassButton.setText("Use Fill Class");
+		switch (type) {
+		case FE6:
+			fillClassButton.setToolTipText("Characters retain their original class (after necessary promotion/demotion).\n\nFor example, Percival taking the place of Wolt will be a cavalier.");
+			break;
+		case FE7:
+			fillClassButton.setToolTipText("Characters retain their original class (after necessary promotion/demotion).\n\nFor example, Louise taking the place of Serra will be an archer.");
+			break;
+		case FE8:
+			fillClassButton.setToolTipText("Characters retain their original class (after necessary promotion/demotion).\n\nFor example, Duessel taking the place of Garcia will be either a Cavalier or an Armor Knight (due to branched promotion).");
+			break;
+		default:
+			break;
+		}
+		fillClassButton.setEnabled(false);
+		fillClassButton.setSelection(true);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(0, 0);
+		optionData.top = new FormAttachment(0, 0);
+		fillClassButton.setLayoutData(optionData);
+		
+		slotClassButton = new Button(classContainer, SWT.RADIO);
+		slotClassButton.setText("Use Slot Class");
+		switch (type) {
+		case FE6:
+			slotClassButton.setToolTipText("Characters take the class of the slot they fill.\n\nFor example, Percival taking the place of Wolt will be an archer.");
+			break;
+		case FE7:
+			slotClassButton.setToolTipText("Characters take the class of the slot they fill.\n\nFor example, Louise taking the place of Serra will be a cleric.");
+			break;
+		case FE8:
+			slotClassButton.setToolTipText("Characters take the class of the slot they fill.\n\nFor example, Duessel taking the place of Garcia will be a fighter.");
+			break;
+		default:
+			break;
+		}
+		slotClassButton.setEnabled(false);
+		slotClassButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(fillClassButton, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(fillClassButton, 5);
+		slotClassButton.setLayoutData(optionData);
+		
+		lordsButton = new Button(container, SWT.CHECK);
+		lordsButton.setText("Include Lords");
+		lordsButton.setToolTipText("Allows Lord characters to randomize their recruitment time.");
+		lordsButton.setEnabled(false);
+		lordsButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(classContainer, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(classContainer, 10);
+		lordsButton.setLayoutData(optionData);
+		
+		thievesButton = new Button(container, SWT.CHECK);
+		thievesButton.setText("Include Thieves");
+		thievesButton.setToolTipText("Allows Thief characters to randomize their recruitment time.");
+		thievesButton.setEnabled(false);
+		thievesButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(lordsButton, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(lordsButton, 5);
+		thievesButton.setLayoutData(optionData);
+		
+		specialButton = new Button(container, SWT.CHECK);
+		specialButton.setText("Include Special Characters");
+		specialButton.setToolTipText("Allows Dancers, Bards, and Manaketes to randomize their recruitment time.");
+		specialButton.setEnabled(false);
+		specialButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(thievesButton, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(thievesButton, 5);
+		specialButton.setLayoutData(optionData);
+		
 		crossGenderButton = new Button(container, SWT.CHECK);
 		crossGenderButton.setText("Allow Cross-gender Assignments");
 		crossGenderButton.setToolTipText("Allows males to be assigned to female slots and vice versa.");
@@ -233,8 +345,8 @@ public class RecruitmentView extends Composite {
 		crossGenderButton.setSelection(false);
 		
 		optionData = new FormData();
-		optionData.left = new FormAttachment(basesContainer, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(basesContainer, 10);
+		optionData.left = new FormAttachment(specialButton, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(specialButton, 5);
 		crossGenderButton.setLayoutData(optionData);
 		
 		if (type == GameType.FE8) {
@@ -271,8 +383,11 @@ public class RecruitmentView extends Composite {
 		
 		boolean extras = includeExtras != null ? includeExtras.getSelection() : false;
 		
+		ClassMode classMode = ClassMode.USE_FILL;
+		if (slotClassButton.getSelection()) { classMode = ClassMode.USE_SLOT; }
+		
 		if (isEnabled && basesMode != null && growthMode != null) {
-			return new RecruitmentOptions(growthMode, basesMode, autolevel, crossGenderButton.getSelection(), extras);
+			return new RecruitmentOptions(growthMode, basesMode, autolevel, classMode, lordsButton.getSelection(), thievesButton.getSelection(), specialButton.getSelection(), crossGenderButton.getSelection(), extras);
 		} else {
 			return null;
 		}
@@ -284,6 +399,7 @@ public class RecruitmentView extends Composite {
 			
 			growthContainer.setEnabled(false);
 			basesContainer.setEnabled(false);
+			classContainer.setEnabled(false);
 			
 			fillGrowthButton.setEnabled(false);
 			slotGrowthButton.setEnabled(false);
@@ -297,6 +413,12 @@ public class RecruitmentView extends Composite {
 			absoluteButton.setEnabled(false);
 			relativeButton.setEnabled(false);
 			
+			fillClassButton.setEnabled(false);
+			slotClassButton.setEnabled(false);
+			
+			lordsButton.setEnabled(false);
+			thievesButton.setEnabled(false);
+			specialButton.setEnabled(false);
 			crossGenderButton.setEnabled(false);
 			if (includeExtras != null) {
 				includeExtras.setEnabled(false);
@@ -306,6 +428,7 @@ public class RecruitmentView extends Composite {
 			
 			growthContainer.setEnabled(true);
 			basesContainer.setEnabled(true);
+			classContainer.setEnabled(true);
 			
 			fillGrowthButton.setEnabled(true);
 			slotGrowthButton.setEnabled(true);
@@ -315,6 +438,12 @@ public class RecruitmentView extends Composite {
 			absoluteButton.setEnabled(true);
 			relativeButton.setEnabled(true);
 			
+			fillClassButton.setEnabled(true);
+			slotClassButton.setEnabled(true);
+			
+			lordsButton.setEnabled(true);
+			thievesButton.setEnabled(true);
+			specialButton.setEnabled(true);
 			crossGenderButton.setEnabled(true);
 			
 			fillGrowthButton.setSelection(options.growthMode == GrowthAdjustmentMode.USE_FILL || options.growthMode == null);
@@ -328,9 +457,15 @@ public class RecruitmentView extends Composite {
 			autolevelOriginalButton.setSelection(options.autolevelMode == BaseStatAutolevelType.USE_ORIGINAL || options.autolevelMode == null);
 			autolevelNewButton.setSelection(options.autolevelMode == BaseStatAutolevelType.USE_NEW);
 			
+			fillClassButton.setSelection(options.classMode == ClassMode.USE_FILL || options.classMode == null);
+			slotClassButton.setSelection(options.classMode == ClassMode.USE_SLOT);
+			
 			autolevelOriginalButton.setEnabled(autolevelButton.getSelection());
 			autolevelNewButton.setEnabled(autolevelButton.getSelection());
 			
+			lordsButton.setSelection(options.includeLords);
+			thievesButton.setSelection(options.includeThieves);
+			specialButton.setSelection(options.includeSpecial);
 			crossGenderButton.setSelection(options.allowCrossGender);
 			
 			if (includeExtras != null) {
