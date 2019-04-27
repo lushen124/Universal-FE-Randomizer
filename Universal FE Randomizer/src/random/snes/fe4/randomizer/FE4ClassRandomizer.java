@@ -1970,15 +1970,6 @@ public class FE4ClassRandomizer {
 					
 					majorBloodType = newMajorBlood;
 				}
-				
-				character.setHPGrowth(character.getHPGrowth() - bloodData.holyBloodByType(majorBloodType).getHPGrowthBonus() * 2);
-				character.setSTRGrowth(character.getSTRGrowth() - bloodData.holyBloodByType(majorBloodType).getSTRGrowthBonus() * 2);
-				character.setMAGGrowth(character.getMAGGrowth() - bloodData.holyBloodByType(majorBloodType).getMAGGrowthBonus() * 2);
-				character.setSKLGrowth(character.getSKLGrowth() - bloodData.holyBloodByType(majorBloodType).getSKLGrowthBonus() * 2);
-				character.setSPDGrowth(character.getSPDGrowth() - bloodData.holyBloodByType(majorBloodType).getSPDGrowthBonus() * 2);
-				character.setDEFGrowth(character.getDEFGrowth() - bloodData.holyBloodByType(majorBloodType).getDEFGrowthBonus() * 2);
-				character.setRESGrowth(character.getRESGrowth() - bloodData.holyBloodByType(majorBloodType).getRESGrowthBonus() * 2);
-				character.setLCKGrowth(character.getLCKGrowth() - bloodData.holyBloodByType(majorBloodType).getLCKGrowthBonus() * 2);
 			}
 			
 			// Look for Minor blood now.
@@ -2051,7 +2042,36 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			// Swap STR/MAG if necessary before we start subtracting growths.
+			boolean wasSTRBased = oldClass.primaryAttackIsStrength();
+			boolean wasMAGBased = oldClass.primaryAttackIsMagic();
+			
+			boolean isSTRBased = targetClass.primaryAttackIsStrength();
+			boolean isMAGBased = targetClass.primaryAttackIsMagic();
+			
+			if ((wasSTRBased && !wasMAGBased && isMAGBased && !isSTRBased) || (wasMAGBased && !wasSTRBased && isSTRBased && !isMAGBased)) {
+				// Swap in the case that we've randomized across the STR/MAG split.
+				int oldSTR = character.getSTRGrowth();
+				character.setSTRGrowth(character.getMAGGrowth());
+				character.setMAGGrowth(oldSTR);
+				
+				oldSTR = character.getBaseSTR();
+				character.setBaseSTR(character.getBaseMAG());
+				character.setBaseMAG(oldSTR);
+			}
+			
 			// Adjust growths back down based on blood selected.
+			if (majorBloodType != null) {
+				character.setHPGrowth(character.getHPGrowth() - bloodData.holyBloodByType(majorBloodType).getHPGrowthBonus() * 2);
+				character.setSTRGrowth(character.getSTRGrowth() - bloodData.holyBloodByType(majorBloodType).getSTRGrowthBonus() * 2);
+				character.setMAGGrowth(character.getMAGGrowth() - bloodData.holyBloodByType(majorBloodType).getMAGGrowthBonus() * 2);
+				character.setSKLGrowth(character.getSKLGrowth() - bloodData.holyBloodByType(majorBloodType).getSKLGrowthBonus() * 2);
+				character.setSPDGrowth(character.getSPDGrowth() - bloodData.holyBloodByType(majorBloodType).getSPDGrowthBonus() * 2);
+				character.setDEFGrowth(character.getDEFGrowth() - bloodData.holyBloodByType(majorBloodType).getDEFGrowthBonus() * 2);
+				character.setRESGrowth(character.getRESGrowth() - bloodData.holyBloodByType(majorBloodType).getRESGrowthBonus() * 2);
+				character.setLCKGrowth(character.getLCKGrowth() - bloodData.holyBloodByType(majorBloodType).getLCKGrowthBonus() * 2);
+			}
+			
 			for (HolyBlood newBlood : newMinorBlood) {
 				character.setHPGrowth(character.getHPGrowth() - bloodData.holyBloodByType(newBlood).getHPGrowthBonus());
 				character.setSTRGrowth(character.getSTRGrowth() - bloodData.holyBloodByType(newBlood).getSTRGrowthBonus());
@@ -2066,23 +2086,6 @@ public class FE4ClassRandomizer {
 			character.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
 			character.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
 			character.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
-		}
-		
-		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
-		boolean wasMAGBased = oldClass.primaryAttackIsMagic();
-		
-		boolean isSTRBased = targetClass.primaryAttackIsStrength();
-		boolean isMAGBased = targetClass.primaryAttackIsMagic();
-		
-		if ((wasSTRBased && !wasMAGBased && isMAGBased && !isSTRBased) || (wasMAGBased && !wasSTRBased && isSTRBased && !isMAGBased)) {
-			// Swap in the case that we've randomized across the STR/MAG split.
-			int oldSTR = character.getSTRGrowth();
-			character.setSTRGrowth(character.getMAGGrowth());
-			character.setMAGGrowth(oldSTR);
-			
-			oldSTR = character.getBaseSTR();
-			character.setBaseSTR(character.getBaseMAG());
-			character.setBaseMAG(oldSTR);
 		}
 		
 		// Verify equipment.
