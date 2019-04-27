@@ -25,9 +25,11 @@ public class FE4BloodRandomizer {
 	
 	static final int rngSalt = 12321;
 	
-	public static void randomizeHolyBloodGrowthBonuses(HolyBloodOptions options, HolyBloodLoader bloodData, Random rng) {
+	public static void randomizeHolyBloodGrowthBonuses(HolyBloodOptions options, HolyBloodLoader bloodData, CharacterDataLoader charData, Random rng) {
 		List<FE4HolyBlood> bloodList = bloodData.allHolyBlood();
 		Set<Integer> generatedHashes = new HashSet<Integer>();
+		
+		transferBloodToGrowths(charData, bloodData);
 		
 		for (FE4HolyBlood blood : bloodList) {
 			int growthRemaining = options.growthTotal;
@@ -132,6 +134,84 @@ public class FE4BloodRandomizer {
 			blood.setDEFGrowthBonus(defBonus);
 			blood.setRESGrowthBonus(resBonus);
 		}
+		
+		transferGrowthsToBlood(charData, bloodData);
+	}
+	
+	private static void transferBloodToGrowths(CharacterDataLoader charData, HolyBloodLoader bloodData) {
+		for (FE4StaticCharacter staticGen1 : charData.getGen1Characters()) {
+			bloodGrowthsTransfer(staticGen1, bloodData, false);
+		}
+		for (FE4StaticCharacter staticGen2 : charData.getGen2CommonCharacters()) {
+			bloodGrowthsTransfer(staticGen2, bloodData, false);
+		}
+		for (FE4StaticCharacter subChar : charData.getGen2SubstituteCharacters()) {
+			bloodGrowthsTransfer(subChar, bloodData, false);
+		}
+		// Holy bosses are also static characters, but their growths don't really matter...
+	}
+	
+	private static void transferGrowthsToBlood(CharacterDataLoader charData, HolyBloodLoader bloodData) {
+		for (FE4StaticCharacter staticGen1 : charData.getGen1Characters()) {
+			bloodGrowthsTransfer(staticGen1, bloodData, true);
+		}
+		for (FE4StaticCharacter staticGen2 : charData.getGen2CommonCharacters()) {
+			bloodGrowthsTransfer(staticGen2, bloodData, true);
+		}
+		for (FE4StaticCharacter subChar : charData.getGen2SubstituteCharacters()) {
+			bloodGrowthsTransfer(subChar, bloodData, true);
+		}
+	}
+	
+	private static void bloodGrowthsTransfer(FE4StaticCharacter staticChar, HolyBloodLoader bloodData, boolean subtract) {
+		List<FE4Data.HolyBloodSlot1> slot1Blood = FE4Data.HolyBloodSlot1.slot1HolyBlood(staticChar.getHolyBlood1Value());
+		List<FE4Data.HolyBloodSlot2> slot2Blood = FE4Data.HolyBloodSlot2.slot2HolyBlood(staticChar.getHolyBlood2Value());
+		List<FE4Data.HolyBloodSlot3> slot3Blood = FE4Data.HolyBloodSlot3.slot3HolyBlood(staticChar.getHolyBlood3Value());
+		
+		slot1Blood.stream().forEach(fe4Blood -> {
+			int multiplier = fe4Blood.isMajor() ? 2 : 1;
+			if (subtract) { multiplier *= -1; }
+			
+			FE4HolyBlood blood = bloodData.holyBloodByType(fe4Blood.bloodType());
+			staticChar.setHPGrowth(Math.max(0, staticChar.getHPGrowth() + blood.getHPGrowthBonus() * multiplier));
+			staticChar.setSTRGrowth(Math.max(0, staticChar.getSTRGrowth() + blood.getSTRGrowthBonus() * multiplier));
+			staticChar.setMAGGrowth(Math.max(0, staticChar.getMAGGrowth() + blood.getMAGGrowthBonus() * multiplier));
+			staticChar.setSKLGrowth(Math.max(0, staticChar.getSKLGrowth() + blood.getSKLGrowthBonus() * multiplier));
+			staticChar.setSPDGrowth(Math.max(0, staticChar.getSPDGrowth() + blood.getSPDGrowthBonus() * multiplier));
+			staticChar.setDEFGrowth(Math.max(0, staticChar.getDEFGrowth() + blood.getDEFGrowthBonus() * multiplier));
+			staticChar.setRESGrowth(Math.max(0, staticChar.getRESGrowth() + blood.getRESGrowthBonus() * multiplier));
+			staticChar.setLCKGrowth(Math.max(0, staticChar.getLCKGrowth() + blood.getLCKGrowthBonus() * multiplier));
+		});
+		
+		slot2Blood.stream().forEach(fe4Blood -> {
+			int multiplier = fe4Blood.isMajor() ? 2 : 1;
+			if (subtract) { multiplier *= -1; }
+			
+			FE4HolyBlood blood = bloodData.holyBloodByType(fe4Blood.bloodType());
+			staticChar.setHPGrowth(Math.max(0, staticChar.getHPGrowth() + blood.getHPGrowthBonus() * multiplier));
+			staticChar.setSTRGrowth(Math.max(0, staticChar.getSTRGrowth() + blood.getSTRGrowthBonus() * multiplier));
+			staticChar.setMAGGrowth(Math.max(0, staticChar.getMAGGrowth() + blood.getMAGGrowthBonus() * multiplier));
+			staticChar.setSKLGrowth(Math.max(0, staticChar.getSKLGrowth() + blood.getSKLGrowthBonus() * multiplier));
+			staticChar.setSPDGrowth(Math.max(0, staticChar.getSPDGrowth() + blood.getSPDGrowthBonus() * multiplier));
+			staticChar.setDEFGrowth(Math.max(0, staticChar.getDEFGrowth() + blood.getDEFGrowthBonus() * multiplier));
+			staticChar.setRESGrowth(Math.max(0, staticChar.getRESGrowth() + blood.getRESGrowthBonus() * multiplier));
+			staticChar.setLCKGrowth(Math.max(0, staticChar.getLCKGrowth() + blood.getLCKGrowthBonus() * multiplier));
+		});
+		
+		slot3Blood.stream().forEach(fe4Blood -> {
+			int multiplier = fe4Blood.isMajor() ? 2 : 1;
+			if (subtract) { multiplier *= -1; }
+			
+			FE4HolyBlood blood = bloodData.holyBloodByType(fe4Blood.bloodType());
+			staticChar.setHPGrowth(Math.max(0, staticChar.getHPGrowth() + blood.getHPGrowthBonus() * multiplier));
+			staticChar.setSTRGrowth(Math.max(0, staticChar.getSTRGrowth() + blood.getSTRGrowthBonus() * multiplier));
+			staticChar.setMAGGrowth(Math.max(0, staticChar.getMAGGrowth() + blood.getMAGGrowthBonus() * multiplier));
+			staticChar.setSKLGrowth(Math.max(0, staticChar.getSKLGrowth() + blood.getSKLGrowthBonus() * multiplier));
+			staticChar.setSPDGrowth(Math.max(0, staticChar.getSPDGrowth() + blood.getSPDGrowthBonus() * multiplier));
+			staticChar.setDEFGrowth(Math.max(0, staticChar.getDEFGrowth() + blood.getDEFGrowthBonus() * multiplier));
+			staticChar.setRESGrowth(Math.max(0, staticChar.getRESGrowth() + blood.getRESGrowthBonus() * multiplier));
+			staticChar.setLCKGrowth(Math.max(0, staticChar.getLCKGrowth() + blood.getLCKGrowthBonus() * multiplier));
+		});
 	}
 	
 	private static Integer hashValue(int hp, int str, int mag, int skl, int spd, int lck, int def, int res) {
