@@ -1159,6 +1159,7 @@ public class FE4Data {
 				Set<CharacterClass> blacklist = new HashSet<CharacterClass>(CharacterClass.armoredClasses);
 				blacklist.addAll(CharacterClass.fliers);
 				return blacklist.toArray(new CharacterClass[blacklist.size()]);
+			case AYRA: // Technically she's ok, but Larcei depends on her.
 			case LARCEI:
 			case CREIDNE: // Be careful about sequence breaking Ch. 6. They can recruit Iuchar and Iucharba earlier than they're supposed to if they can fly.
 			case SELIPH: // Seliph can also seize castles out of order if he turns out to be able to fly.
@@ -1943,7 +1944,7 @@ public class FE4Data {
 		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale, boolean requireWeakness, boolean requireAttack, boolean requireHorse, boolean requiresMelee, Item mustUseWeapon, Item mustBeWeakAgainstWeapon) {
 			// Don't touch these. These are generally for bandits raiding villages.
 			// Adding pirates here too because Ch. 3 pirates are over water, which makes them stuck.
-			if (this == MOUNTAIN_THIEF || this == PIRATE) {
+			if (isEnemy && (this == MOUNTAIN_THIEF || this == PIRATE)) {
 				return new CharacterClass[] {};
 			}
 			
