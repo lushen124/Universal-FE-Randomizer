@@ -2160,6 +2160,9 @@ public class FE4ClassRandomizer {
 			
 			itemMap.setItemAtIndex(equip1, replacement);
 			usableItems.remove(replacement);
+			if (usableItems.isEmpty()) { // In case there's only one choice for us, and we need more than one weapon, add it back it in if it's the last one.
+				usableItems.add(replacement);
+			}
 			
 			hasWeapon = replacement.isWeapon();
 		} else if (item1 != null) {
@@ -2196,6 +2199,9 @@ public class FE4ClassRandomizer {
 			
 			itemMap.setItemAtIndex(equip2, replacement);
 			usableItems.remove(replacement);
+			if (usableItems.isEmpty()) { // In case there's only one choice for us, and we need more than one weapon, add it back it in if it's the last one.
+				usableItems.add(replacement);
+			}
 			if (!hasWeapon) { hasWeapon = replacement.isWeapon(); }
 		} else if (!hasWeapon && item2 != null) {
 			hasWeapon = item2.isWeapon(); 
@@ -2225,6 +2231,9 @@ public class FE4ClassRandomizer {
 			
 			itemMap.setItemAtIndex(equip3, replacement);
 			usableItems.remove(replacement);
+			if (usableItems.isEmpty()) { // In case there's only one choice for us, and we need more than one weapon, add it back it in if it's the last one.
+				usableItems.add(replacement);
+			}
 			if (!hasWeapon) { hasWeapon = replacement.isWeapon(); }
 		} else if (!hasWeapon && item3 != null) {
 			hasWeapon = item3.isWeapon();
@@ -2654,10 +2663,13 @@ public class FE4ClassRandomizer {
 			List<FE4Data.Item> replacementList = new ArrayList<FE4Data.Item>(workingSet);
 			Collections.sort(replacementList, FE4Data.Item.defaultComparator);
 			return replacementList.get(rng.nextInt(replacementList.size()));
-		} else {
+		} else if (!allUsableItems.isEmpty()) {
 			List<FE4Data.Item> replacementList = new ArrayList<FE4Data.Item>(allUsableItems);
 			Collections.sort(replacementList, FE4Data.Item.defaultComparator);
 			return replacementList.get(rng.nextInt(replacementList.size()));
+		} else {
+			// This shouldn't ever happen, but we have no choice. Just return the reference item.
+			return referenceItem;
 		}
 	}
 }
