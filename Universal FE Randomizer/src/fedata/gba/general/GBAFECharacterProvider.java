@@ -32,6 +32,7 @@ public interface GBAFECharacterProvider {
 	public Set<GBAFECharacter> mustPromote();
 	
 	public GBAFECharacter characterWithID(int characterID);
+	public boolean isValidCharacter(GBAFECharacter character);
 	
 	public int[] affinityValues();
 	

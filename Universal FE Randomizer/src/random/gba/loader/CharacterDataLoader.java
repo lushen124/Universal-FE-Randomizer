@@ -26,16 +26,27 @@ public class CharacterDataLoader {
 	private Map<Integer, GBAFECharacterData> characterMap = new HashMap<Integer, GBAFECharacterData>();
 	private Map<Integer, GBAFECharacterData> counterMap = new HashMap<Integer, GBAFECharacterData>();
 	
+	// FE7 (probably FE6 and FE8 in some cases as well) likes to use character data
+	// for weapon ranks, instead of relying on class data. This means we have to adopt
+	// a more consistent change in determining minion classes.
+	private Map<Integer, GBAFECharacterData> minionData = new HashMap<Integer, GBAFECharacterData>();
+	
 	public static final String RecordKeeperCategoryKey = "Characters";
 	
 	public CharacterDataLoader(GBAFECharacterProvider provider, FileHandler handler) {
 		super();
 		this.provider = provider;
 		long baseAddress = FileReadHelper.readAddress(handler, provider.characterDataTablePointer());
-		for (GBAFECharacter character : provider.allCharacters()) {
-			long offset = baseAddress + (provider.bytesPerCharacter() * character.getID());
+		for (int i = 0; i < provider.numberOfCharacters(); i++) {
+			long offset = baseAddress + (provider.bytesPerCharacter() * i);
+			GBAFECharacter character = provider.characterWithID(i);
 			byte[] charData = handler.readBytesAtOffset(offset, provider.bytesPerCharacter());
-			characterMap.put(character.getID(), provider.characterDataWithData(charData, offset, provider.characterWithID(character.getID()).isClassLimited()));
+			GBAFECharacterData characterData = provider.characterDataWithData(charData, offset, character.isClassLimited());
+			if (provider.isValidCharacter(character)) {
+				characterMap.put(character.getID(), characterData);
+			} else {
+				minionData.put(i, characterData);
+			}
 		}
 		Map<Integer, GBAFECharacter> counters = provider.counters();
 		for (int characterID : counters.keySet()) {
@@ -73,6 +84,10 @@ public class CharacterDataLoader {
 	
 	public GBAFECharacterData[] bossCharacters() {
 		return feCharactersFromSet(provider.allBossCharacters());
+	}
+	
+	public GBAFECharacterData minionCharacterWithID(int minionID) {
+		return minionData.get(minionID);
 	}
 	
 	public int appearanceChapter(GBAFECharacterData character) {
@@ -173,6 +188,13 @@ public class CharacterDataLoader {
 			if (character.hasCommittedChanges()) {
 				Diff charDiff = new Diff(character.getAddressOffset(), character.getData().length, character.getData(), null);
 				compiler.addDiff(charDiff);
+			}
+		}
+		for (GBAFECharacterData minion : minionData.values()) {
+			minion.commitChanges();
+			if (minion.hasCommittedChanges()) {
+				Diff minionDiff = new Diff(minion.getAddressOffset(), minion.getData().length, minion.getData(), null);
+				compiler.addDiff(minionDiff);
 			}
 		}
 	}

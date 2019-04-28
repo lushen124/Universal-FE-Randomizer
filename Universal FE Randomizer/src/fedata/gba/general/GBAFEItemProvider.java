@@ -1,5 +1,6 @@
 package fedata.gba.general;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -21,15 +22,26 @@ public interface GBAFEItemProvider {
 		public final WeaponRank darkRank;
 		public final WeaponRank staffRank;
 		
-		public WeaponRanks(GBAFECharacterData character, GBAFEItemProvider provider) {
-			swordRank = provider.rankWithValue(character.getSwordRank());
-			lanceRank = provider.rankWithValue(character.getLanceRank());
-			axeRank = provider.rankWithValue(character.getAxeRank());
-			bowRank = provider.rankWithValue(character.getBowRank());
-			animaRank = provider.rankWithValue(character.getAnimaRank());
-			lightRank = provider.rankWithValue(character.getLightRank());
-			darkRank = provider.rankWithValue(character.getDarkRank());
-			staffRank = provider.rankWithValue(character.getStaffRank());
+		public WeaponRanks(GBAFECharacterData character, GBAFEClassData characterClass, GBAFEItemProvider provider) {
+			if (characterClass == null) {
+				swordRank = provider.rankWithValue(character.getSwordRank());
+				lanceRank = provider.rankWithValue(character.getLanceRank());
+				axeRank = provider.rankWithValue(character.getAxeRank());
+				bowRank = provider.rankWithValue(character.getBowRank());
+				animaRank = provider.rankWithValue(character.getAnimaRank());
+				lightRank = provider.rankWithValue(character.getLightRank());
+				darkRank = provider.rankWithValue(character.getDarkRank());
+				staffRank = provider.rankWithValue(character.getStaffRank());
+			} else {
+				swordRank = provider.rankWithValue(character.getSwordRank()) == WeaponRank.NONE ? provider.rankWithValue(characterClass.getSwordRank()) : provider.rankWithValue(character.getSwordRank());
+				lanceRank = provider.rankWithValue(character.getLanceRank()) == WeaponRank.NONE ? provider.rankWithValue(characterClass.getLanceRank()) : provider.rankWithValue(character.getLanceRank());
+				axeRank = provider.rankWithValue(character.getAxeRank()) == WeaponRank.NONE ? provider.rankWithValue(characterClass.getAxeRank()) : provider.rankWithValue(character.getAxeRank());
+				bowRank = provider.rankWithValue(character.getBowRank()) == WeaponRank.NONE ? provider.rankWithValue(characterClass.getBowRank()) : provider.rankWithValue(character.getBowRank());
+				animaRank = provider.rankWithValue(character.getAnimaRank()) == WeaponRank.NONE ? provider.rankWithValue(characterClass.getAnimaRank()) : provider.rankWithValue(character.getAnimaRank());
+				lightRank = provider.rankWithValue(character.getLightRank()) == WeaponRank.NONE ? provider.rankWithValue(characterClass.getLightRank()) : provider.rankWithValue(character.getLightRank());
+				darkRank = provider.rankWithValue(character.getDarkRank()) == WeaponRank.NONE ? provider.rankWithValue(characterClass.getDarkRank()) : provider.rankWithValue(character.getDarkRank());
+				staffRank = provider.rankWithValue(character.getStaffRank()) == WeaponRank.NONE ? provider.rankWithValue(characterClass.getStaffRank()) : provider.rankWithValue(character.getStaffRank());
+			}
 		}
 		
 		public WeaponRanks(GBAFEClassData characterClass, GBAFEItemProvider provider) {
@@ -41,6 +53,34 @@ public interface GBAFEItemProvider {
 			lightRank = provider.rankWithValue(characterClass.getLightRank());
 			darkRank = provider.rankWithValue(characterClass.getDarkRank());
 			staffRank = provider.rankWithValue(characterClass.getStaffRank());
+		}
+		
+		public List<WeaponType> getTypes() {
+			List<WeaponType> types = new ArrayList<WeaponType>();
+			if (swordRank != WeaponRank.NONE) { types.add(WeaponType.SWORD); }
+			if (lanceRank != WeaponRank.NONE) { types.add(WeaponType.LANCE); }
+			if (axeRank != WeaponRank.NONE) { types.add(WeaponType.AXE); }
+			if (bowRank != WeaponRank.NONE) { types.add(WeaponType.BOW); }
+			if (lightRank != WeaponRank.NONE) { types.add(WeaponType.LIGHT); }
+			if (darkRank != WeaponRank.NONE) { types.add(WeaponType.DARK); }
+			if (animaRank != WeaponRank.NONE) { types.add(WeaponType.ANIMA); }
+			if (staffRank != WeaponRank.NONE) { types.add(WeaponType.STAFF); }
+			return types;
+		}
+		
+		public WeaponRank rankForType(WeaponType type) {
+			switch (type) {
+			case SWORD: return swordRank;
+			case LANCE: return lanceRank;
+			case AXE: return axeRank;
+			case BOW: return bowRank;
+			case ANIMA: return animaRank;
+			case LIGHT: return lightRank;
+			case DARK: return darkRank;
+			case STAFF: return staffRank;
+			default:
+				return WeaponRank.NONE;
+			}
 		}
 	}
 	
