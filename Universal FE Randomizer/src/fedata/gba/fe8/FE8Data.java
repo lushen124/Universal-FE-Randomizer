@@ -2499,7 +2499,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 
 	public GBAFECharacterData characterDataWithData(byte[] data, long offset, Boolean hasLimitedClasses) {
-		return new FE8Character(data, offset, hasLimitedClasses);
+		FE8Character character = new FE8Character(data, offset, hasLimitedClasses);
+		Character fe8Char = Character.valueOf(character.getID());
+		if (fe8Char != null) {
+			character.initializeDisplayString(fe8Char.toString());
+		} else {
+			character.initializeDisplayString("Unregistered [0x" + Integer.toHexString(character.getID()) + "]");
+		}
+		return character;
 	}
 
 	// Class Provider Methods
@@ -2622,7 +2629,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 
 	public GBAFEClassData classDataWithData(byte[] data, long offset, GBAFEClassData demotedClass) {
-		return new FE8Class(data, offset);
+		FE8Class charClass = new FE8Class(data, offset);
+		CharacterClass fe8Class = CharacterClass.valueOf(charClass.getID());
+		if (fe8Class != null) {
+			charClass.initializeDisplayString(fe8Class.toString());
+		} else {
+			charClass.initializeDisplayString("Unregistered [0x" + Integer.toHexString(charClass.getID()) + "]");
+		}
+		return charClass;
 	}
 	
 	// Item Provider Methods
@@ -3055,7 +3069,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public GBAFEItemData itemDataWithData(byte[] data, long offset, int itemID) {
-		return new FE8Item(data, offset, itemID);
+		FE8Item item = new FE8Item(data, offset, itemID);
+		Item fe8Item = Item.valueOf(item.getID());
+		if (fe8Item != null) {
+			item.initializeDisplayString(fe8Item.toString());
+		} else {
+			item.initializeDisplayString("Unregistered [0x" + Integer.toHexString(item.getID()) + "]");
+		}
+		return item;
 	}
 
 	public List<GBAFEClass> knightCavEffectivenessClasses() {

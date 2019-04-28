@@ -7,10 +7,11 @@ import fedata.gba.general.WeaponEffects;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEModifiableData;
+import fedata.general.FEPrintableData;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
 
-public interface GBAFEItemData extends FEModifiableData {
+public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	
 	// Info
 	public int getNameIndex();

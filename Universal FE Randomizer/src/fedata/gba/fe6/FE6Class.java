@@ -23,6 +23,8 @@ public class FE6Class implements GBAFEClassData {
 	int promoDEF;
 	int promoRES;
 	
+	private String debugString = "Uninitialized";
+	
 	public FE6Class(byte[] data, long originalOffset, GBAFEClassData demotedClass) {
 		super();
 		this.originalData = data;
@@ -37,6 +39,14 @@ public class FE6Class implements GBAFEClassData {
 			promoDEF = getBaseDEF() - demotedClass.getBaseDEF();
 			promoRES = getBaseRES() - demotedClass.getBaseRES();
 		}
+	}
+	
+	public void initializeDisplayString(String debugString) {
+		this.debugString = debugString;
+	}
+	
+	public String displayString() {
+		return debugString;
 	}
 	
 	public int getNameIndex() {
