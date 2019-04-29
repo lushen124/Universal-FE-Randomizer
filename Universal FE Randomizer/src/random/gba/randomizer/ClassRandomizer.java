@@ -3,6 +3,7 @@ package random.gba.randomizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -960,30 +961,34 @@ public class ClassRandomizer {
 	}
 	
 	private static void transferWeaponLevels(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Random rng) {
-		ArrayList<Integer> ranks = new ArrayList<Integer>();
+		Map<WeaponType, Integer> rankMap = new HashMap<WeaponType, Integer>();
 		
-		if (character.getSwordRank() > 0) { ranks.add(character.getSwordRank()); }
-		if (character.getLanceRank() > 0) { ranks.add(character.getLanceRank()); }
-		if (character.getAxeRank() > 0) { ranks.add(character.getAxeRank()); }
-		if (character.getBowRank() > 0) { ranks.add(character.getBowRank()); }
-		if (character.getAnimaRank() > 0) { ranks.add(character.getAnimaRank()); }
-		if (character.getLightRank() > 0) { ranks.add(character.getLightRank()); }
-		if (character.getDarkRank() > 0) { ranks.add(character.getDarkRank()); }
-		if (character.getStaffRank() > 0) { ranks.add(character.getStaffRank()); }
+		// Start with the class defaults.
+		if (sourceClass.getSwordRank() > 0) { rankMap.put(WeaponType.SWORD, sourceClass.getSwordRank()); }
+		if (sourceClass.getLanceRank() > 0) { rankMap.put(WeaponType.LANCE, sourceClass.getLanceRank()); }
+		if (sourceClass.getAxeRank() > 0) { rankMap.put(WeaponType.AXE, sourceClass.getAxeRank()); }
+		if (sourceClass.getBowRank() > 0) { rankMap.put(WeaponType.BOW, sourceClass.getBowRank()); }
+		if (sourceClass.getAnimaRank() > 0) { rankMap.put(WeaponType.ANIMA, sourceClass.getAnimaRank()); }
+		if (sourceClass.getLightRank() > 0) { rankMap.put(WeaponType.LIGHT, sourceClass.getLightRank()); }
+		if (sourceClass.getDarkRank() > 0) { rankMap.put(WeaponType.DARK, sourceClass.getDarkRank()); }
+		if (sourceClass.getStaffRank() > 0) { rankMap.put(WeaponType.STAFF, sourceClass.getStaffRank()); }
 		
-		if (ranks.isEmpty()) {
-			// Fall back to the source class.
-			if (sourceClass.getSwordRank() > 0) { ranks.add(sourceClass.getSwordRank()); }
-			if (sourceClass.getLanceRank() > 0) { ranks.add(sourceClass.getLanceRank()); }
-			if (sourceClass.getAxeRank() > 0) { ranks.add(sourceClass.getAxeRank()); }
-			if (sourceClass.getBowRank() > 0) { ranks.add(sourceClass.getBowRank()); }
-			if (sourceClass.getAnimaRank() > 0) { ranks.add(sourceClass.getAnimaRank()); }
-			if (sourceClass.getLightRank() > 0) { ranks.add(sourceClass.getLightRank()); }
-			if (sourceClass.getDarkRank() > 0) { ranks.add(sourceClass.getDarkRank()); }
-			if (sourceClass.getStaffRank() > 0) { ranks.add(sourceClass.getStaffRank()); }
-		}
-		
-		Collections.sort(ranks);
+		// Overwrite with character values if they exist.
+		if (character.getSwordRank() > 0) { rankMap.put(WeaponType.SWORD, character.getSwordRank()); }
+		if (character.getLanceRank() > 0) { rankMap.put(WeaponType.LANCE, character.getLanceRank()); }
+		if (character.getAxeRank() > 0) { rankMap.put(WeaponType.AXE, character.getAxeRank()); }
+		if (character.getBowRank() > 0) { rankMap.put(WeaponType.BOW, character.getBowRank()); }
+		if (character.getAnimaRank() > 0) { rankMap.put(WeaponType.ANIMA, character.getAnimaRank()); }
+		if (character.getLightRank() > 0) { rankMap.put(WeaponType.LIGHT, character.getLightRank()); }
+		if (character.getDarkRank() > 0) { rankMap.put(WeaponType.DARK, character.getDarkRank()); }
+		if (character.getStaffRank() > 0) { rankMap.put(WeaponType.STAFF, character.getStaffRank()); }
+
+		ArrayList<Integer> ranks = new ArrayList<Integer>(rankMap.values().stream().sorted(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer arg0, Integer arg1) {
+				return Integer.compare(arg0, arg1);
+			}
+		}).collect(Collectors.toList()));
 		
 		Boolean applySwordRank = targetClass.getSwordRank() > 0;
 		Boolean applyLanceRank = targetClass.getLanceRank() > 0;

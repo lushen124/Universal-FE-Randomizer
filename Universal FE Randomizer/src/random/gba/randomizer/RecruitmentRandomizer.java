@@ -3,6 +3,7 @@ package random.gba.randomizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapPortraitData;
 import fedata.gba.general.WeaponRank;
+import fedata.gba.general.WeaponType;
 import fedata.general.FEBase.GameType;
 import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
@@ -713,17 +715,34 @@ public class RecruitmentRandomizer {
 		}
 	}
 	
-	private static void transferWeaponRanks(GBAFECharacterData target, GBAFEClassData targetClass, ItemDataLoader itemData, Random rng) {
-		List<Integer> rankValues = new ArrayList<Integer>();
-		rankValues.add(target.getSwordRank());
-		rankValues.add(target.getLanceRank());
-		rankValues.add(target.getAxeRank());
-		rankValues.add(target.getBowRank());
-		rankValues.add(target.getAnimaRank());
-		rankValues.add(target.getLightRank());
-		rankValues.add(target.getDarkRank());
-		rankValues.add(target.getStaffRank());
-		rankValues.removeIf(rank -> (rank == 0));
+	private static void transferWeaponRanks(GBAFECharacterData target, GBAFEClassData sourceClass, GBAFEClassData targetClass, ItemDataLoader itemData, Random rng) {
+		
+		Map<WeaponType, Integer> rankMap = new HashMap<WeaponType, Integer>();
+		
+		rankMap.put(WeaponType.SWORD, sourceClass.getSwordRank());
+		rankMap.put(WeaponType.LANCE, sourceClass.getLanceRank());
+		rankMap.put(WeaponType.AXE, sourceClass.getAxeRank());
+		rankMap.put(WeaponType.BOW, sourceClass.getBowRank());
+		rankMap.put(WeaponType.ANIMA, sourceClass.getAnimaRank());
+		rankMap.put(WeaponType.LIGHT, sourceClass.getLightRank());
+		rankMap.put(WeaponType.DARK, sourceClass.getDarkRank());
+		rankMap.put(WeaponType.STAFF, sourceClass.getStaffRank());
+		
+		rankMap.put(WeaponType.SWORD, target.getSwordRank());
+		rankMap.put(WeaponType.LANCE, target.getLanceRank());
+		rankMap.put(WeaponType.AXE, target.getAxeRank());
+		rankMap.put(WeaponType.BOW, target.getBowRank());
+		rankMap.put(WeaponType.ANIMA, target.getAnimaRank());
+		rankMap.put(WeaponType.LIGHT, target.getLightRank());
+		rankMap.put(WeaponType.DARK, target.getDarkRank());
+		rankMap.put(WeaponType.STAFF, target.getStaffRank());
+		
+		List<Integer> rankValues = new ArrayList<Integer>(rankMap.values().stream().filter(rankValue -> (rankValue != 0)).sorted(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				return Integer.compare(o1, o2);
+			}
+		}).collect(Collectors.toList()));
 		
 		if (rankValues.isEmpty()) {
 			target.setSwordRank(targetClass.getSwordRank());
@@ -734,7 +753,7 @@ public class RecruitmentRandomizer {
 			target.setLightRank(targetClass.getLightRank());
 			target.setDarkRank(targetClass.getDarkRank());
 			target.setStaffRank(targetClass.getStaffRank());
-			
+		
 			return;
 		}
 		
@@ -748,7 +767,6 @@ public class RecruitmentRandomizer {
 		if (targetClass.getAnimaRank() > 0) { targetWeaponUsage++; }
 		if (targetClass.getStaffRank() > 0) { targetWeaponUsage++; }
 		
-		Collections.sort(rankValues);
 		while (rankValues.size() > targetWeaponUsage) {
 			rankValues.remove(0); // Remove the lowest rank if we're filling less weapons than we have to work with.
 		}
@@ -816,9 +834,9 @@ public class RecruitmentRandomizer {
 	}
 	
 	private static void setSlotClass(ItemAssignmentOptions inventoryOptions, GBAFECharacterData slot, GBAFEClassData targetClass, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, ChapterLoader chapterData, Random rng) {
-		
+		GBAFEClassData originalClass = classData.classForID(slot.getClassID());
 		slot.setClassID(targetClass.getID());
-		transferWeaponRanks(slot, targetClass, itemData, rng);
+		transferWeaponRanks(slot, originalClass, targetClass, itemData, rng);
 		
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(slot.getID());
