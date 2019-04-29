@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4StaticCharacter;
+import fedata.snes.fe4.FE4ChildCharacter.Influence;
 import fedata.snes.fe4.FE4Data.HolyBlood;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot1;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot2;
@@ -599,13 +600,17 @@ public class FE4ClassRandomizer {
 				continue;
 			}
 			
-			List<FE4Data.HolyBloodSlot1> parentSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(parent.getHolyBlood1Value());
-			List<FE4Data.HolyBloodSlot2> parentSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(parent.getHolyBlood2Value());
-			List<FE4Data.HolyBloodSlot3> parentSlot3 = FE4Data.HolyBloodSlot3.slot3HolyBlood(parent.getHolyBlood3Value());
+			List<FE4Data.HolyBlood> majorBlood = new ArrayList<FE4Data.HolyBlood>();
 			
-			List<FE4Data.HolyBlood> majorBlood = parentSlot1.stream().filter(blood -> (blood.isMajor() == true)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
-			majorBlood.addAll(parentSlot2.stream().filter(blood -> (blood.isMajor() == true)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
-			majorBlood.addAll(parentSlot3.stream().filter(blood -> (blood.isMajor() == true)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			if ((parent.isFemale() && child.getMajorInfluence() == Influence.MOTHER) || (!parent.isFemale() && child.getMajorInfluence() == Influence.FATHER)) {
+				List<FE4Data.HolyBloodSlot1> parentSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(parent.getHolyBlood1Value());
+				List<FE4Data.HolyBloodSlot2> parentSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(parent.getHolyBlood2Value());
+				List<FE4Data.HolyBloodSlot3> parentSlot3 = FE4Data.HolyBloodSlot3.slot3HolyBlood(parent.getHolyBlood3Value());
+			
+				majorBlood.addAll(parentSlot1.stream().filter(blood -> (blood.isMajor() == true)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList()));
+				majorBlood.addAll(parentSlot2.stream().filter(blood -> (blood.isMajor() == true)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+				majorBlood.addAll(parentSlot3.stream().filter(blood -> (blood.isMajor() == true)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			}
 			
 			FE4Data.Character referenceCharacter = fe4Char.getGen1Analogue();
 			boolean requiresWeakness = fe4Char.mustLoseToCharacters().length > 0;
@@ -1970,15 +1975,6 @@ public class FE4ClassRandomizer {
 					
 					majorBloodType = newMajorBlood;
 				}
-				
-				character.setHPGrowth(character.getHPGrowth() - bloodData.holyBloodByType(majorBloodType).getHPGrowthBonus() * 2);
-				character.setSTRGrowth(character.getSTRGrowth() - bloodData.holyBloodByType(majorBloodType).getSTRGrowthBonus() * 2);
-				character.setMAGGrowth(character.getMAGGrowth() - bloodData.holyBloodByType(majorBloodType).getMAGGrowthBonus() * 2);
-				character.setSKLGrowth(character.getSKLGrowth() - bloodData.holyBloodByType(majorBloodType).getSKLGrowthBonus() * 2);
-				character.setSPDGrowth(character.getSPDGrowth() - bloodData.holyBloodByType(majorBloodType).getSPDGrowthBonus() * 2);
-				character.setDEFGrowth(character.getDEFGrowth() - bloodData.holyBloodByType(majorBloodType).getDEFGrowthBonus() * 2);
-				character.setRESGrowth(character.getRESGrowth() - bloodData.holyBloodByType(majorBloodType).getRESGrowthBonus() * 2);
-				character.setLCKGrowth(character.getLCKGrowth() - bloodData.holyBloodByType(majorBloodType).getLCKGrowthBonus() * 2);
 			}
 			
 			// Look for Minor blood now.
@@ -2051,7 +2047,36 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			// Swap STR/MAG if necessary before we start subtracting growths.
+			boolean wasSTRBased = oldClass.primaryAttackIsStrength();
+			boolean wasMAGBased = oldClass.primaryAttackIsMagic();
+			
+			boolean isSTRBased = targetClass.primaryAttackIsStrength();
+			boolean isMAGBased = targetClass.primaryAttackIsMagic();
+			
+			if ((wasSTRBased && !wasMAGBased && isMAGBased && !isSTRBased) || (wasMAGBased && !wasSTRBased && isSTRBased && !isMAGBased)) {
+				// Swap in the case that we've randomized across the STR/MAG split.
+				int oldSTR = character.getSTRGrowth();
+				character.setSTRGrowth(character.getMAGGrowth());
+				character.setMAGGrowth(oldSTR);
+				
+				oldSTR = character.getBaseSTR();
+				character.setBaseSTR(character.getBaseMAG());
+				character.setBaseMAG(oldSTR);
+			}
+			
 			// Adjust growths back down based on blood selected.
+			if (majorBloodType != null) {
+				character.setHPGrowth(character.getHPGrowth() - bloodData.holyBloodByType(majorBloodType).getHPGrowthBonus() * 2);
+				character.setSTRGrowth(character.getSTRGrowth() - bloodData.holyBloodByType(majorBloodType).getSTRGrowthBonus() * 2);
+				character.setMAGGrowth(character.getMAGGrowth() - bloodData.holyBloodByType(majorBloodType).getMAGGrowthBonus() * 2);
+				character.setSKLGrowth(character.getSKLGrowth() - bloodData.holyBloodByType(majorBloodType).getSKLGrowthBonus() * 2);
+				character.setSPDGrowth(character.getSPDGrowth() - bloodData.holyBloodByType(majorBloodType).getSPDGrowthBonus() * 2);
+				character.setDEFGrowth(character.getDEFGrowth() - bloodData.holyBloodByType(majorBloodType).getDEFGrowthBonus() * 2);
+				character.setRESGrowth(character.getRESGrowth() - bloodData.holyBloodByType(majorBloodType).getRESGrowthBonus() * 2);
+				character.setLCKGrowth(character.getLCKGrowth() - bloodData.holyBloodByType(majorBloodType).getLCKGrowthBonus() * 2);
+			}
+			
 			for (HolyBlood newBlood : newMinorBlood) {
 				character.setHPGrowth(character.getHPGrowth() - bloodData.holyBloodByType(newBlood).getHPGrowthBonus());
 				character.setSTRGrowth(character.getSTRGrowth() - bloodData.holyBloodByType(newBlood).getSTRGrowthBonus());
@@ -2066,23 +2091,6 @@ public class FE4ClassRandomizer {
 			character.setHolyBlood1Value(FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(slot1Blood));
 			character.setHolyBlood2Value(FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(slot2Blood));
 			character.setHolyBlood3Value(FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(slot3Blood));
-		}
-		
-		boolean wasSTRBased = oldClass.primaryAttackIsStrength();
-		boolean wasMAGBased = oldClass.primaryAttackIsMagic();
-		
-		boolean isSTRBased = targetClass.primaryAttackIsStrength();
-		boolean isMAGBased = targetClass.primaryAttackIsMagic();
-		
-		if ((wasSTRBased && !wasMAGBased && isMAGBased && !isSTRBased) || (wasMAGBased && !wasSTRBased && isSTRBased && !isMAGBased)) {
-			// Swap in the case that we've randomized across the STR/MAG split.
-			int oldSTR = character.getSTRGrowth();
-			character.setSTRGrowth(character.getMAGGrowth());
-			character.setMAGGrowth(oldSTR);
-			
-			oldSTR = character.getBaseSTR();
-			character.setBaseSTR(character.getBaseMAG());
-			character.setBaseMAG(oldSTR);
 		}
 		
 		// Verify equipment.
@@ -2160,6 +2168,9 @@ public class FE4ClassRandomizer {
 			
 			itemMap.setItemAtIndex(equip1, replacement);
 			usableItems.remove(replacement);
+			if (usableItems.isEmpty()) { // In case there's only one choice for us, and we need more than one weapon, add it back it in if it's the last one.
+				usableItems.add(replacement);
+			}
 			
 			hasWeapon = replacement.isWeapon();
 		} else if (item1 != null) {
@@ -2196,6 +2207,9 @@ public class FE4ClassRandomizer {
 			
 			itemMap.setItemAtIndex(equip2, replacement);
 			usableItems.remove(replacement);
+			if (usableItems.isEmpty()) { // In case there's only one choice for us, and we need more than one weapon, add it back it in if it's the last one.
+				usableItems.add(replacement);
+			}
 			if (!hasWeapon) { hasWeapon = replacement.isWeapon(); }
 		} else if (!hasWeapon && item2 != null) {
 			hasWeapon = item2.isWeapon(); 
@@ -2225,6 +2239,9 @@ public class FE4ClassRandomizer {
 			
 			itemMap.setItemAtIndex(equip3, replacement);
 			usableItems.remove(replacement);
+			if (usableItems.isEmpty()) { // In case there's only one choice for us, and we need more than one weapon, add it back it in if it's the last one.
+				usableItems.add(replacement);
+			}
 			if (!hasWeapon) { hasWeapon = replacement.isWeapon(); }
 		} else if (!hasWeapon && item3 != null) {
 			hasWeapon = item3.isWeapon();
@@ -2654,10 +2671,13 @@ public class FE4ClassRandomizer {
 			List<FE4Data.Item> replacementList = new ArrayList<FE4Data.Item>(workingSet);
 			Collections.sort(replacementList, FE4Data.Item.defaultComparator);
 			return replacementList.get(rng.nextInt(replacementList.size()));
-		} else {
+		} else if (!allUsableItems.isEmpty()) {
 			List<FE4Data.Item> replacementList = new ArrayList<FE4Data.Item>(allUsableItems);
 			Collections.sort(replacementList, FE4Data.Item.defaultComparator);
 			return replacementList.get(rng.nextInt(replacementList.size()));
+		} else {
+			// This shouldn't ever happen, but we have no choice. Just return the reference item.
+			return referenceItem;
 		}
 	}
 }
