@@ -342,10 +342,10 @@ public class ChapterLoader {
 			sb.append("<tr><td>Character ID</td><td>0x" + Integer.toHexString(chapterUnit.getCharacterNumber()).toUpperCase() + "</td></tr>\n");
 		} else {
 			// This is a somewhat important character.
-			sb.append("<tr><td>Character ID</td><td>" + textData.getStringAtIndex(character.getNameIndex(), true) + "</td></tr>\n");
+			sb.append("<tr><td>Character ID</td><td>" + textData.getStringAtIndex(character.getNameIndex(), true) + " [0x" + Integer.toHexString(chapterUnit.getCharacterNumber()).toUpperCase() + "]</td></tr>\n");
 		}
 		
-		sb.append("<tr><td>Class</td><td>" + (charClass != null ? textData.getStringAtIndex(charClass.getNameIndex(), true) + (classData.isFemale(charClass.getID()) ? " (F)" : "") : "Unknown (0x" + Integer.toHexString(chapterUnit.getStartingClass()) + ")") + "</td></tr>\n");
+		sb.append("<tr><td>Class</td><td>" + (charClass != null ? textData.getStringAtIndex(charClass.getNameIndex(), true) + (classData.isFemale(charClass.getID()) ? " (F)" : "") + " [0x" + Integer.toHexString(charClass.getID()).toUpperCase() + "]" : "Unknown (0x" + Integer.toHexString(chapterUnit.getStartingClass()) + ")") + "</td></tr>\n");
 		sb.append("<tr><td>Loading Coordinates</td><td>(" + chapterUnit.getLoadingX() + ", " + chapterUnit.getLoadingY() + ")</td></tr>\n");
 		sb.append("<tr><td>Starting Coordinates</td><td>(" + chapterUnit.getStartingX() + ", " + chapterUnit.getStartingY() + ")</td></tr>\n");
 		GBAFEItemData item1 = itemData.itemWithID(chapterUnit.getItem1());

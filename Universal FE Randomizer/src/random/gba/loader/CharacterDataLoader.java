@@ -26,6 +26,8 @@ public class CharacterDataLoader {
 	private Map<Integer, GBAFECharacterData> characterMap = new HashMap<Integer, GBAFECharacterData>();
 	private Map<Integer, GBAFECharacterData> counterMap = new HashMap<Integer, GBAFECharacterData>();
 	
+	private GBAFECharacterData nullCharacterData = null;
+	
 	// FE7 (probably FE6 and FE8 in some cases as well) likes to use character data
 	// for weapon ranks, instead of relying on class data. This means we have to adopt
 	// a more consistent change in determining minion classes.
@@ -47,6 +49,10 @@ public class CharacterDataLoader {
 			} else {
 				minionData.put(i, characterData);
 			}
+			
+			if (character == provider.nullCharacter()) {
+				nullCharacterData = characterData;
+			}
 		}
 		Map<Integer, GBAFECharacter> counters = provider.counters();
 		for (int characterID : counters.keySet()) {
@@ -59,7 +65,16 @@ public class CharacterDataLoader {
 	}
 	
 	public GBAFECharacterData characterWithID(int characterID) {
-		return characterMap.get(characterID);
+		GBAFECharacterData charData = characterMap.get(characterID);
+		if (charData == null) {
+			charData = minionData.get(characterID);
+		}
+		
+		if (charData == null) {
+			return nullCharacterData;
+		}
+		
+		return charData;
 	}
 	
 	public GBAFECharacterData[] playableCharacters() {

@@ -2330,6 +2330,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public boolean isValidCharacter(GBAFECharacter character) {
 		return character != Character.NONE;
 	}
+	
+	public GBAFECharacter nullCharacter() {
+		return Character.NONE;
+	}
 
 	public int[] affinityValues() {
 		int[] values = new int[FE7Character.Affinity.values().length];

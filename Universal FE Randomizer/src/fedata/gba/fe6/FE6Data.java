@@ -1814,6 +1814,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public boolean isValidCharacter(GBAFECharacter character) {
 		return character != Character.NONE;
 	}
+	
+	public GBAFECharacter nullCharacter() {
+		return Character.NONE;
+	}
 
 	public int[] affinityValues() {
 		int[] values = new int[FE6Character.Affinity.values().length];
