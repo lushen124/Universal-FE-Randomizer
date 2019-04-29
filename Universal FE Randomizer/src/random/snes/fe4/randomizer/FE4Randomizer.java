@@ -420,7 +420,7 @@ public class FE4Randomizer extends Randomizer {
 			if (bloodOptions.randomizeGrowthBonuses) {
 				updateStatusString("Randomizing Holy Blood Growth Bonuses...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 1));
-				FE4BloodRandomizer.randomizeHolyBloodGrowthBonuses(bloodOptions, bloodData, rng);
+				FE4BloodRandomizer.randomizeHolyBloodGrowthBonuses(bloodOptions, bloodData, charData, rng);
 				bloodData.commit();
 			}
 			if (bloodOptions.randomizeWeaponBonuses) {

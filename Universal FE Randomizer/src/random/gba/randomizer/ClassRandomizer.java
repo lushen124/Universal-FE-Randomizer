@@ -319,6 +319,14 @@ public class ClassRandomizer {
 			applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
 			break;
 		case NO_CHANGE:
+			// We need to make sure nobody underflows, so keep an eye out for negative personal bases.
+			if (character.getBaseHP() + targetClass.getBaseHP() < 0) { character.setBaseHP(-1 * targetClass.getBaseHP() + 1); } // Should always have at least 1 HP.
+			if (character.getBaseSTR() + targetClass.getBaseSTR() < 0) { character.setBaseSTR(-1 * targetClass.getBaseSTR()); }
+			if (character.getBaseSKL() + targetClass.getBaseSKL() < 0) { character.setBaseSKL(-1 * targetClass.getBaseSKL()); }
+			if (character.getBaseSPD() + targetClass.getBaseSPD() < 0) { character.setBaseSPD(-1 * targetClass.getBaseSPD()); }
+			if (character.getBaseDEF() + targetClass.getBaseDEF() < 0) { character.setBaseDEF(-1 * targetClass.getBaseDEF()); }
+			if (character.getBaseRES() + targetClass.getBaseRES() < 0) { character.setBaseRES(-1 * targetClass.getBaseRES()); }
+			if (character.getBaseLCK() + targetClass.getBaseLCK() < 0) { character.setBaseLCK(-1 * targetClass.getBaseLCK()); }
 			break;
 		case ADJUST_TO_CLASS:
 			adjustBasesToMatchClass(character, sourceClass, targetClass);
@@ -795,7 +803,7 @@ public class ClassRandomizer {
 			if (!canCharacterUseItem(character, item1, itemData) || (item1.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item1ID))) {
 				GBAFEItemData replacementItem = itemData.getBasicWeaponForCharacter(character, ranged, false, rng);
 				if (!forceBasic) {
-					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE) {
+					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
 						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 					} else {
 						replacementItem = itemData.getSidegradeWeapon(character, charClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
@@ -825,7 +833,7 @@ public class ClassRandomizer {
 			if (!canCharacterUseItem(character, item2, itemData) || (item2.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item2ID))) {
 				GBAFEItemData replacementItem = itemData.getBasicWeaponForCharacter(character, ranged, false, rng);
 				if (!forceBasic) {
-					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE) {
+					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
 						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 					} else {
 						replacementItem = itemData.getSidegradeWeapon(character, charClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
@@ -855,7 +863,7 @@ public class ClassRandomizer {
 			if (!canCharacterUseItem(character, item3, itemData) || (item3.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item3ID))) {
 				GBAFEItemData replacementItem = itemData.getBasicWeaponForCharacter(character, ranged, false, rng);
 				if (!forceBasic) {
-					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE) {
+					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
 						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 					} else {
 						replacementItem = itemData.getSidegradeWeapon(character, charClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
@@ -885,7 +893,7 @@ public class ClassRandomizer {
 			if (!canCharacterUseItem(character, item4, itemData) || (item4.getWeaponRank() == WeaponRank.PRF && !prfIDs.contains(item4ID))) {
 				GBAFEItemData replacementItem = itemData.getBasicWeaponForCharacter(character, ranged, false, rng);
 				if (!forceBasic) {
-					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE) {
+					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
 						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 					} else {
 						replacementItem = itemData.getSidegradeWeapon(character, charClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
