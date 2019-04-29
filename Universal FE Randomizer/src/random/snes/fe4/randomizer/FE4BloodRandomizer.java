@@ -54,6 +54,8 @@ public class FE4BloodRandomizer {
 			distributor.addItem(5, 3);
 			distributor.addItem(6, 3);
 			
+			int attempt = 0;
+			
 			while (growthRemaining > 0) {
 				int amount = Math.min(growthRemaining, options.chunkSize);
 				growthRemaining -= amount;
@@ -105,7 +107,9 @@ public class FE4BloodRandomizer {
 					if (options.generateUniqueBonuses) {
 						// Verify hash to see if we've already generated this combination.
 						int hash = hashValue(reducedHPChance ? 0 : hpBonus, strBonus, magBonus, sklBonus, spdBonus, lckBonus, defBonus, resBonus);
-						if (generatedHashes.contains(hash)) {
+						// We give it 20 tries to try to get a unique one, In case there aren't enough combinations to go around.
+						if (generatedHashes.contains(hash) && attempt < 20) {
+							attempt++;
 							// Reset
 							growthRemaining = options.growthTotal - options.hpBaseline;
 							hpBonus = options.hpBaseline;
