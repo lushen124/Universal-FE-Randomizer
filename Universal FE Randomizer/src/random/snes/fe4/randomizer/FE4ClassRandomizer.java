@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import fedata.snes.fe4.FE4ChildCharacter;
 import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4StaticCharacter;
+import fedata.snes.fe4.FE4ChildCharacter.Influence;
 import fedata.snes.fe4.FE4Data.HolyBlood;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot1;
 import fedata.snes.fe4.FE4Data.HolyBloodSlot2;
@@ -599,13 +600,17 @@ public class FE4ClassRandomizer {
 				continue;
 			}
 			
-			List<FE4Data.HolyBloodSlot1> parentSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(parent.getHolyBlood1Value());
-			List<FE4Data.HolyBloodSlot2> parentSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(parent.getHolyBlood2Value());
-			List<FE4Data.HolyBloodSlot3> parentSlot3 = FE4Data.HolyBloodSlot3.slot3HolyBlood(parent.getHolyBlood3Value());
+			List<FE4Data.HolyBlood> majorBlood = new ArrayList<FE4Data.HolyBlood>();
 			
-			List<FE4Data.HolyBlood> majorBlood = parentSlot1.stream().filter(blood -> (blood.isMajor() == true)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList());
-			majorBlood.addAll(parentSlot2.stream().filter(blood -> (blood.isMajor() == true)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
-			majorBlood.addAll(parentSlot3.stream().filter(blood -> (blood.isMajor() == true)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			if ((parent.isFemale() && child.getMajorInfluence() == Influence.MOTHER) || (!parent.isFemale() && child.getMajorInfluence() == Influence.FATHER)) {
+				List<FE4Data.HolyBloodSlot1> parentSlot1 = FE4Data.HolyBloodSlot1.slot1HolyBlood(parent.getHolyBlood1Value());
+				List<FE4Data.HolyBloodSlot2> parentSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(parent.getHolyBlood2Value());
+				List<FE4Data.HolyBloodSlot3> parentSlot3 = FE4Data.HolyBloodSlot3.slot3HolyBlood(parent.getHolyBlood3Value());
+			
+				majorBlood.addAll(parentSlot1.stream().filter(blood -> (blood.isMajor() == true)).map(slot1 -> (slot1.bloodType())).collect(Collectors.toList()));
+				majorBlood.addAll(parentSlot2.stream().filter(blood -> (blood.isMajor() == true)).map(slot2 -> (slot2.bloodType())).collect(Collectors.toList()));
+				majorBlood.addAll(parentSlot3.stream().filter(blood -> (blood.isMajor() == true)).map(slot3 -> (slot3.bloodType())).collect(Collectors.toList()));
+			}
 			
 			FE4Data.Character referenceCharacter = fe4Char.getGen1Analogue();
 			boolean requiresWeakness = fe4Char.mustLoseToCharacters().length > 0;
