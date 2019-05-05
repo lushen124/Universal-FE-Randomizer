@@ -271,14 +271,15 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		return "H: " + (getHue() * 360) + " S: " + (getSaturation() * 100) + " B: " + (getBrightness() * 100);
 	}
 	
+	// GBA only has color resolution up to 5 bits per component, so we should also note that when we return RGB values.
 	public int getRedValue() {
-		return (int)(red * 255.0);
+		return (int)(red * 255.0) / 8 * 8;
 	}
 	public int getGreenValue() {
-		return (int)(green * 255.0);
+		return (int)(green * 255.0) / 8 * 8;
 	}
 	public int getBlueValue() {
-		return (int)(blue * 255.0);
+		return (int)(blue * 255.0) / 8 * 8;
 	}
 	
 	public double getHue() {
