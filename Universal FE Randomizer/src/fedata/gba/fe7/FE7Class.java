@@ -15,12 +15,22 @@ public class FE7Class implements GBAFEClassData {
 	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
+	
+	private String debugString = "Uninitialized";
 
 	public FE7Class(byte[] data, long originalOffset) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
+	}
+	
+	public void initializeDisplayString(String debugString) {
+		this.debugString = debugString;
+	}
+	
+	public String displayString() {
+		return debugString;
 	}
 
 	public int getNameIndex() {

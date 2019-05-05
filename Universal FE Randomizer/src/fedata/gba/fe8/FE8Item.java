@@ -33,6 +33,8 @@ public class FE8Item implements GBAFEItemData {
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
+	private String debugString = "Uninitialized";
+	
 	// FE8 items don't embed their item ID, so we need it passed in on creation.
 	public FE8Item(byte[] data, long originalOffset, int itemID) {
 		super();
@@ -40,6 +42,14 @@ public class FE8Item implements GBAFEItemData {
 		this.data = data;
 		this.originalOffset = originalOffset;
 		this.itemID = itemID;
+	}
+	
+	public void initializeDisplayString(String debugString) {
+		this.debugString = debugString;
+	}
+	
+	public String displayString() {
+		return debugString;
 	}
 
 	public int getNameIndex() {

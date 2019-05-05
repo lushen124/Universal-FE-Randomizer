@@ -17,6 +17,7 @@ import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
+import fedata.gba.general.GBAFEItemProvider.WeaponRanks;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase.GameType;
@@ -219,6 +220,22 @@ public class ClassRandomizer {
 			separateMonsters = options.separateMonsters;
 		}
 		
+		// Before we start, make all classes naturally have A rank so that weapons can transfer more easily.
+		// Somehow, some enemies, despite all signs of them only being able to use up to C rank weapons,
+		// are able to use A rank somehow in some cases. Since I don't know why this is,
+		// we're going to modify all classes to have A rank in all areas. Characters with lower ranks will override it
+		// which includes all playable characters.
+		for (GBAFEClassData charClass : classData.allClasses()) {
+			if (charClass.getSwordRank() > 0) { charClass.setSwordRank(WeaponRank.A); }
+			if (charClass.getLanceRank() > 0) { charClass.setLanceRank(WeaponRank.A); }
+			if (charClass.getAxeRank() > 0) { charClass.setAxeRank(WeaponRank.A); }
+			if (charClass.getBowRank() > 0) { charClass.setBowRank(WeaponRank.A); }
+			if (charClass.getAnimaRank() > 0) { charClass.setAnimaRank(WeaponRank.A); }
+			if (charClass.getLightRank() > 0) { charClass.setLightRank(WeaponRank.A); }
+			if (charClass.getDarkRank() > 0) { charClass.setDarkRank(WeaponRank.A); }
+			if (charClass.getStaffRank() > 0) { charClass.setStaffRank(WeaponRank.A); }
+		}
+		
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFECharacterData lordCharacter = charactersData.characterWithID(chapter.lordLeaderID());
 			GBAFEClassData lordClass = classData.classForID(lordCharacter.getClassID());
@@ -232,6 +249,7 @@ public class ClassRandomizer {
 				// Finally, also make sure the starting class is valid. Classes we don't recognize, we shouldn't touch.
 				if (!charactersData.isBossCharacterID(characterID) && /*charactersData.isBossCharacterID(leaderID) &&*/ !charactersData.isPlayableCharacterID(characterID) && 
 						charactersData.canChangeCharacterID(characterID) && classData.isValidClass(classID)) {
+					
 					GBAFEClassData originalClass = classData.classForID(classID);
 					if (originalClass == null) {
 						continue;
@@ -241,27 +259,50 @@ public class ClassRandomizer {
 						continue;
 					}
 					
-					Boolean shouldRestrictToSafeClasses = !chapter.isClassSafe();
-					Boolean shouldMakeEasy = chapter.shouldBeSimplified();
-					GBAFEClassData loseToClass = shouldMakeEasy ? lordClass : null;
-					GBAFEClassData[] possibleClasses = hasMonsters ? 
-							classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
-						classData.potentialClasses(originalClass, false, false, false, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass);
-					if (possibleClasses.length == 0) {
+					GBAFECharacterData minionCharacterData = charactersData.minionCharacterWithID(characterID);
+					if (minionCharacterData == null) {
 						continue;
 					}
 					
-					int randomIndex = rng.nextInt(possibleClasses.length);
-					GBAFEClassData targetClass = possibleClasses[randomIndex];
+					GBAFEClassData targetClass = null;
+					boolean characterHasWeaponRanks = !itemData.ranksForCharacter(minionCharacterData, null).getTypes().isEmpty();
 					
-					if (classData.isFlying(originalClass.getID()) == false && classData.isFlying(targetClass.getID())) {
-						// If this is a new flier, roll one more time. 
-						// Reduce the number of non-flying minions that become fliers.
-						randomIndex = rng.nextInt(possibleClasses.length);
-						targetClass = possibleClasses[randomIndex];
+					// If he's been modified already, we use the same class.
+					// Otherwise, we randomize the class.
+					if (characterHasWeaponRanks) {
+						if (minionCharacterData.wasModified()) {
+							targetClass = classData.classForID(minionCharacterData.getClassID());
+						}
 					}
 					
-					updateMinionToClass(inventoryOptions, chapterUnit, targetClass, classData, itemData, rng);
+					if (targetClass != null) {
+						updateMinionToClass(inventoryOptions, chapterUnit, minionCharacterData, targetClass, classData, itemData, rng);
+					} else {
+						Boolean shouldRestrictToSafeClasses = !chapter.isClassSafe();
+						Boolean shouldMakeEasy = chapter.shouldBeSimplified();
+						GBAFEClassData loseToClass = shouldMakeEasy ? lordClass : null;
+						GBAFEClassData[] possibleClasses = hasMonsters ? 
+								classData.potentialClasses(originalClass, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
+							classData.potentialClasses(originalClass, false, false, false, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass);
+						if (possibleClasses.length == 0) {
+							continue;
+						}
+						
+						int randomIndex = rng.nextInt(possibleClasses.length);
+						targetClass = possibleClasses[randomIndex];
+						
+						if (classData.isFlying(originalClass.getID()) == false && classData.isFlying(targetClass.getID())) {
+							// If this is a new flier, roll one more time. 
+							// Reduce the number of non-flying minions that become fliers.
+							randomIndex = rng.nextInt(possibleClasses.length);
+							targetClass = possibleClasses[randomIndex];
+						}
+						if (characterHasWeaponRanks) {
+							updateMinionCharacterToClass(inventoryOptions, chapterUnit, minionCharacterData, originalClass, targetClass, classData, itemData, rng);
+						} else {
+							updateMinionToClass(inventoryOptions, chapterUnit, minionCharacterData, targetClass, classData, itemData, rng);
+						}
+					}
 				}
 			}
 		}
@@ -364,12 +405,20 @@ public class ClassRandomizer {
 	}
 	
 	// TODO: Offer an option for sidegrade strictness?
-	private static void updateMinionToClass(ItemAssignmentOptions inventoryOptions, GBAFEChapterUnitData chapterUnit, GBAFEClassData targetClass, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
+	private static void updateMinionToClass(ItemAssignmentOptions inventoryOptions, GBAFEChapterUnitData chapterUnit, GBAFECharacterData minionCharacter, GBAFEClassData targetClass, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Updating minion from class 0x" + Integer.toHexString(chapterUnit.getStartingClass()) + " to class 0x" + Integer.toHexString(targetClass.getID()));
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Starting Inventory: [0x" + Integer.toHexString(chapterUnit.getItem1()) + ", 0x" + Integer.toHexString(chapterUnit.getItem2()) + ", 0x" + Integer.toHexString(chapterUnit.getItem3()) + ", 0x" + Integer.toHexString(chapterUnit.getItem4()) + "]");
 		chapterUnit.setStartingClass(targetClass.getID());
-		validateMinionInventory(inventoryOptions, chapterUnit, classData, itemData, rng);
+		validateMinionInventory(inventoryOptions, chapterUnit, targetClass, classData, itemData, rng);
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Minion update complete. Inventory: [0x" + Integer.toHexString(chapterUnit.getItem1()) + ", 0x" + Integer.toHexString(chapterUnit.getItem2()) + ", 0x" + Integer.toHexString(chapterUnit.getItem3()) + ", 0x" + Integer.toHexString(chapterUnit.getItem4()) + "]");
+	}
+	
+	private static void updateMinionCharacterToClass(ItemAssignmentOptions inventoryOptions, GBAFEChapterUnitData chapterUnit, GBAFECharacterData minionCharacter, GBAFEClassData sourceClass, GBAFEClassData targetClass, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
+		// Write this into the character data.
+		minionCharacter.setClassID(targetClass.getID());
+		transferWeaponLevels(minionCharacter, sourceClass, targetClass, rng);
+		chapterUnit.setStartingClass(targetClass.getID());
+		validateMinionInventory(inventoryOptions, chapterUnit, minionCharacter, classData, itemData, rng);
 	}
 	
 	public static void validateFormerThiefInventory(GBAFEChapterUnitData chapterUnit, ItemDataLoader itemData) {
@@ -454,60 +503,270 @@ public class ClassRandomizer {
 		chapterUnit.giveItems(requiredItemIDs);
 	}
 	
-	private static void validateMinionInventory(ItemAssignmentOptions inventoryOptions, GBAFEChapterUnitData chapterUnit, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
+	private static void validateMinionInventory(ItemAssignmentOptions inventoryOptions, GBAFEChapterUnitData chapterUnit, GBAFEClassData targetClass, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
 		int classID = chapterUnit.getStartingClass();
 		GBAFEClassData unitClass = classData.classForID(classID);
+		
+		boolean canAttack = classData.canClassAttack(classID);
+		boolean isHealer = unitClass.getStaffRank() > 0;
+		
+		boolean limitStaves = isHealer && canAttack;
+		boolean hasStaff = false;
+		boolean hasWeapon = false;
+		boolean hasItems = false;
+		
+		GBAFEItemData replacementItem = null;
+		
 		if (unitClass != null) {
 			int item1ID = chapterUnit.getItem1();
 			GBAFEItemData item1 = itemData.itemWithID(item1ID);
+			if (!hasItems) { hasItems = item1 != null; }
 			if (item1 != null && (itemData.isWeapon(item1) || item1.getType() == WeaponType.STAFF)) {
 				if (!unitClass.canUseWeapon(item1)) {
-					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					replacementItem = itemData.getSidegradeWeapon(unitClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
+						replacementItem = null; // We'll handle this later.
+					}
 					if (replacementItem != null) {
 						chapterUnit.setItem1(replacementItem.getID());
 					} else {
 						chapterUnit.setItem1(0);
 					}
+					item1 = replacementItem;
 				}
+			}
+			
+			if (item1 != null) {
+				if (!hasStaff) { hasStaff = item1.getType() == WeaponType.STAFF; }
+				if (!hasWeapon) { hasWeapon = itemData.isWeapon(item1); }
 			}
 			
 			int item2ID = chapterUnit.getItem2();
 			GBAFEItemData item2 = itemData.itemWithID(item2ID);
+			if (!hasItems) { hasItems = item2 != null; }
 			if (item2 != null && (itemData.isWeapon(item2) || item2.getType() == WeaponType.STAFF)) {
 				if (!unitClass.canUseWeapon(item2)) {
-					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					replacementItem = itemData.getSidegradeWeapon(unitClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
+						replacementItem = null; // We'll handle this later.
+					}
 					if (replacementItem != null) {
 						chapterUnit.setItem2(replacementItem.getID());
 					} else {
 						chapterUnit.setItem2(0);
 					}
+					item2 = replacementItem;
 				}
+			}
+			
+			if (item2 != null) {
+				if (!hasStaff) { hasStaff = item2.getType() == WeaponType.STAFF; }
+				if (!hasWeapon) { hasWeapon = itemData.isWeapon(item2); }
 			}
 			
 			int item3ID = chapterUnit.getItem3();
 			GBAFEItemData item3 = itemData.itemWithID(item3ID);
+			if (!hasItems) { hasItems = item3 != null; }
 			if (item3 != null && (itemData.isWeapon(item3) || item3.getType() == WeaponType.STAFF)) {
 				if (!unitClass.canUseWeapon(item3)) {
-					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					replacementItem = itemData.getSidegradeWeapon(unitClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
+						replacementItem = null; // We'll handle this later.
+					}
 					if (replacementItem != null) {
 						chapterUnit.setItem3(replacementItem.getID());
 					} else {
 						chapterUnit.setItem3(0);
 					}
+					item3 = replacementItem;
 				}
+			}
+			
+			if (item3 != null) {
+				if (!hasStaff) { hasStaff = item3.getType() == WeaponType.STAFF; }
+				if (!hasWeapon) { hasWeapon = itemData.isWeapon(item3); }
 			}
 			
 			int item4ID = chapterUnit.getItem4();
 			GBAFEItemData item4 = itemData.itemWithID(item4ID);
+			if (!hasItems) { hasItems = item4 != null; }
 			if (item4 != null && (itemData.isWeapon(item4) || item4.getType() == WeaponType.STAFF)) {
 				if (!unitClass.canUseWeapon(item4)) {
-					GBAFEItemData replacementItem = itemData.getSidegradeWeapon(unitClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					replacementItem = itemData.getSidegradeWeapon(unitClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
+						replacementItem = null; // We'll handle this later.
+					}
 					if (replacementItem != null) {
 						chapterUnit.setItem4(replacementItem.getID());
 					} else {
 						chapterUnit.setItem4(0);
 					}
+					item4 = replacementItem;
 				}
+			}
+			
+			if (item4 != null) {
+				if (!hasStaff) { hasStaff = item4.getType() == WeaponType.STAFF; }
+				if (!hasWeapon) { hasWeapon = itemData.isWeapon(item4); }
+			}
+			
+			// Sanity check.
+			if (hasItems) {
+				if (canAttack) {
+					if (!hasWeapon) {
+						// Make sure enemies that can attack have weapons.
+						WeaponRanks ranks = itemData.ranksForClass(unitClass);
+						List<WeaponType> types = ranks.getTypes();
+						types.remove(WeaponType.STAFF);
+						if (!types.isEmpty()) {
+							for(;;) {
+								WeaponType randomType = types.get(rng.nextInt(types.size()));
+								GBAFEItemData[] candidates = itemData.itemsOfTypeAndBelowRank(randomType, ranks.rankForType(randomType), false, false);
+								if (candidates.length > 0) {
+									GBAFEItemData randomWeapon = candidates[rng.nextInt(candidates.length)];
+									chapterUnit.giveItems(new int[] {randomWeapon.getID()});
+									break;
+								}
+							}
+						}
+					}
+				}
+				if (isHealer && !canAttack) {
+					assert hasStaff : "No staff for healer.";
+				}
+			}
+		}
+	}
+	
+	private static void validateMinionInventory(ItemAssignmentOptions inventoryOptions, GBAFEChapterUnitData chapterUnit, GBAFECharacterData minionCharacter, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
+		int classID = chapterUnit.getStartingClass();
+		GBAFEClassData unitClass = classData.classForID(classID);
+		
+		boolean canAttack = classData.canClassAttack(classID);
+		boolean isHealer = unitClass.getStaffRank() > 0;
+		
+		boolean limitStaves = isHealer && canAttack;
+		boolean hasStaff = false;
+		boolean hasWeapon = false;
+		boolean hasItems = false;
+		
+		GBAFEItemData replacementItem = null;
+		
+		int item1ID = chapterUnit.getItem1();
+		GBAFEItemData item1 = itemData.itemWithID(item1ID);
+		if (!hasItems) { hasItems = item1 != null; }
+		if (item1 != null && (itemData.isWeapon(item1) || item1.getType() == WeaponType.STAFF)) {
+			if (!canCharacterUseItem(minionCharacter, item1, itemData)) {
+				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+				if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
+					replacementItem = null; // We'll handle this later.
+				}
+				if (replacementItem != null) {
+					chapterUnit.setItem1(replacementItem.getID());
+				} else {
+					chapterUnit.setItem1(0);
+				}
+				item1 = replacementItem;
+			}
+		}
+		
+		if (item1 != null) {
+			if (!hasStaff) { hasStaff = item1.getType() == WeaponType.STAFF; }
+			if (!hasWeapon) { hasWeapon = itemData.isWeapon(item1); }
+		}
+		
+		int item2ID = chapterUnit.getItem2();
+		GBAFEItemData item2 = itemData.itemWithID(item2ID);
+		if (!hasItems) { hasItems = item2 != null; }
+		if (item2 != null && (itemData.isWeapon(item2) || item2.getType() == WeaponType.STAFF)) {
+			if (!canCharacterUseItem(minionCharacter, item2, itemData)) {
+				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+				if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
+					replacementItem = null; // We'll handle this later.
+				}
+				if (replacementItem != null) {
+					chapterUnit.setItem2(replacementItem.getID());
+				} else {
+					chapterUnit.setItem2(0);
+				}
+				item2 = replacementItem;
+			}
+		}
+		
+		if (item2 != null) {
+			if (!hasStaff) { hasStaff = item2.getType() == WeaponType.STAFF; }
+			if (!hasWeapon) { hasWeapon = itemData.isWeapon(item2); }
+		}
+		
+		int item3ID = chapterUnit.getItem3();
+		GBAFEItemData item3 = itemData.itemWithID(item3ID);
+		if (!hasItems) { hasItems = item3 != null; }
+		if (item3 != null && (itemData.isWeapon(item3) || item3.getType() == WeaponType.STAFF)) {
+			if (!canCharacterUseItem(minionCharacter, item3, itemData)) {
+				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+				if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
+					replacementItem = null; // We'll handle this later.
+				}
+				if (replacementItem != null) {
+					chapterUnit.setItem3(replacementItem.getID());
+				} else {
+					chapterUnit.setItem3(0);
+				}
+				item3 = replacementItem;
+			}
+		}
+		
+		if (item3 != null) {
+			if (!hasStaff) { hasStaff = item3.getType() == WeaponType.STAFF; }
+			if (!hasWeapon) { hasWeapon = itemData.isWeapon(item3); }
+		}
+		
+		int item4ID = chapterUnit.getItem4();
+		GBAFEItemData item4 = itemData.itemWithID(item4ID);
+		if (!hasItems) { hasItems = item4 != null; }
+		if (item4 != null && (itemData.isWeapon(item4) || item4.getType() == WeaponType.STAFF)) {
+			if (!canCharacterUseItem(minionCharacter, item4, itemData)) {
+				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+				if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
+					replacementItem = null; // We'll handle this later.
+				}
+				if (replacementItem != null) {
+					chapterUnit.setItem4(replacementItem.getID());
+				} else {
+					chapterUnit.setItem4(0);
+				}
+				item4 = replacementItem;
+			}
+		}
+		
+		if (item4 != null) {
+			if (!hasStaff) { hasStaff = item4.getType() == WeaponType.STAFF; }
+			if (!hasWeapon) { hasWeapon = itemData.isWeapon(item4); }
+		}
+		
+		// Sanity check.
+		if (hasItems) {
+			if (canAttack) {
+				if (!hasWeapon) {
+					// Make sure enemies that can attack have weapons.
+					WeaponRanks ranks = itemData.ranksForCharacter(minionCharacter, unitClass);
+					List<WeaponType> types = ranks.getTypes();
+					types.remove(WeaponType.STAFF);
+					if (!types.isEmpty()) {
+						for(;;) {
+							WeaponType randomType = types.get(rng.nextInt(types.size()));
+							GBAFEItemData[] candidates = itemData.itemsOfTypeAndBelowRank(randomType, ranks.rankForType(randomType), false, false);
+							if (candidates.length > 0) {
+								GBAFEItemData randomWeapon = candidates[rng.nextInt(candidates.length)];
+								chapterUnit.giveItems(new int[] {randomWeapon.getID()});
+								break;
+							}
+						}
+					}
+				}
+			}
+			if (isHealer && !canAttack) {
+				assert hasStaff : "No staff for healer.";
 			}
 		}
 	}
@@ -546,7 +805,7 @@ public class ClassRandomizer {
 					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
 						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 					} else {
-						replacementItem = itemData.getSidegradeWeapon(character, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+						replacementItem = itemData.getSidegradeWeapon(character, charClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					}
 				}
 				
@@ -576,7 +835,7 @@ public class ClassRandomizer {
 					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
 						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 					} else {
-						replacementItem = itemData.getSidegradeWeapon(character, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+						replacementItem = itemData.getSidegradeWeapon(character, charClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					}
 				}
 				
@@ -606,7 +865,7 @@ public class ClassRandomizer {
 					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
 						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 					} else {
-						replacementItem = itemData.getSidegradeWeapon(character, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+						replacementItem = itemData.getSidegradeWeapon(character, charClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					}
 				}
 				
@@ -636,7 +895,7 @@ public class ClassRandomizer {
 					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
 						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
 					} else {
-						replacementItem = itemData.getSidegradeWeapon(character, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+						replacementItem = itemData.getSidegradeWeapon(character, charClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					}
 				}
 				
@@ -719,6 +978,18 @@ public class ClassRandomizer {
 		if (character.getLightRank() > 0) { ranks.add(character.getLightRank()); }
 		if (character.getDarkRank() > 0) { ranks.add(character.getDarkRank()); }
 		if (character.getStaffRank() > 0) { ranks.add(character.getStaffRank()); }
+		
+		if (ranks.isEmpty()) {
+			// Fall back to the source class.
+			if (sourceClass.getSwordRank() > 0) { ranks.add(sourceClass.getSwordRank()); }
+			if (sourceClass.getLanceRank() > 0) { ranks.add(sourceClass.getLanceRank()); }
+			if (sourceClass.getAxeRank() > 0) { ranks.add(sourceClass.getAxeRank()); }
+			if (sourceClass.getBowRank() > 0) { ranks.add(sourceClass.getBowRank()); }
+			if (sourceClass.getAnimaRank() > 0) { ranks.add(sourceClass.getAnimaRank()); }
+			if (sourceClass.getLightRank() > 0) { ranks.add(sourceClass.getLightRank()); }
+			if (sourceClass.getDarkRank() > 0) { ranks.add(sourceClass.getDarkRank()); }
+			if (sourceClass.getStaffRank() > 0) { ranks.add(sourceClass.getStaffRank()); }
+		}
 		
 		Collections.sort(ranks);
 		
