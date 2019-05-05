@@ -15,22 +15,24 @@ import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
-import ui.model.EnemyOptions.BossStatMode;
 
 public class EnemyBuffer {
 	
 	static final int rngSalt = 252521;
+	
+	// Enemy growths top out at 127. Going above that will underflow back to 0.
+	private static int MaximumGrowthRate = 127;
 
 	public static void buffMinionGrowthRates(int buffAmount, ClassDataLoader classData) {
 		GBAFEClassData[] allClasses = classData.allClasses();
 		for (GBAFEClassData currentClass : allClasses) {
-			currentClass.setHPGrowth(currentClass.getHPGrowth() + buffAmount);
-			currentClass.setSTRGrowth(currentClass.getSTRGrowth() + buffAmount);
-			currentClass.setSKLGrowth(currentClass.getSKLGrowth() + buffAmount);
-			currentClass.setSPDGrowth(currentClass.getSPDGrowth() + buffAmount);
-			currentClass.setDEFGrowth(currentClass.getDEFGrowth() + buffAmount);
-			currentClass.setRESGrowth(currentClass.getRESGrowth() + buffAmount);
-			currentClass.setLCKGrowth(currentClass.getLCKGrowth() + buffAmount);
+			currentClass.setHPGrowth(Math.min(MaximumGrowthRate, currentClass.getHPGrowth() + buffAmount));
+			currentClass.setSTRGrowth(Math.min(MaximumGrowthRate, currentClass.getSTRGrowth() + buffAmount));
+			currentClass.setSKLGrowth(Math.min(MaximumGrowthRate, currentClass.getSKLGrowth() + buffAmount));
+			currentClass.setSPDGrowth(Math.min(MaximumGrowthRate, currentClass.getSPDGrowth() + buffAmount));
+			currentClass.setDEFGrowth(Math.min(MaximumGrowthRate, currentClass.getDEFGrowth() + buffAmount));
+			currentClass.setRESGrowth(Math.min(MaximumGrowthRate, currentClass.getRESGrowth() + buffAmount));
+			currentClass.setLCKGrowth(Math.min(MaximumGrowthRate, currentClass.getLCKGrowth() + buffAmount));
 		}
 	}
 	
@@ -53,13 +55,13 @@ public class EnemyBuffer {
 		GBAFEClassData[] allClasses = classData.allClasses();
 		double multiplier = 1 + (double)scaleAmount / 100.0;
 		for (GBAFEClassData currentClass : allClasses) {
-			currentClass.setHPGrowth((int)(currentClass.getHPGrowth() * multiplier));
-			currentClass.setSTRGrowth((int)(currentClass.getSTRGrowth() * multiplier));
-			currentClass.setSKLGrowth((int)(currentClass.getSKLGrowth() * multiplier));
-			currentClass.setSPDGrowth((int)(currentClass.getSPDGrowth() * multiplier));
-			currentClass.setDEFGrowth((int)(currentClass.getDEFGrowth() * multiplier));
-			currentClass.setRESGrowth((int)(currentClass.getRESGrowth() * multiplier));
-			currentClass.setLCKGrowth((int)(currentClass.getLCKGrowth() * multiplier));
+			currentClass.setHPGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getHPGrowth() * multiplier)));
+			currentClass.setSTRGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getSTRGrowth() * multiplier)));
+			currentClass.setSKLGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getSKLGrowth() * multiplier)));
+			currentClass.setSPDGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getSPDGrowth() * multiplier)));
+			currentClass.setDEFGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getDEFGrowth() * multiplier)));
+			currentClass.setRESGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getRESGrowth() * multiplier)));
+			currentClass.setLCKGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getLCKGrowth() * multiplier)));
 		}
 	}
 	
