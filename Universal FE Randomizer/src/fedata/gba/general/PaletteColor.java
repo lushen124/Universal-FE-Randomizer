@@ -87,7 +87,13 @@ public class PaletteColor implements Comparable<PaletteColor> {
 			PaletteColor[] uniqueColorArray = colorsArray.toArray(new PaletteColor[colorsArray.size()]);
 			if (colorsArray.size() == numberOfColors) { return uniqueColorArray; }
 			else if (colorsArray.size() > numberOfColors) { return reduceColors(uniqueColorArray, numberOfColors); }
-			else { return interpolateColors(uniqueColorArray, numberOfColors); }
+			else { 
+				if (colorsArray.isEmpty()) { return new PaletteColor[] {}; }
+				else if (colorsArray.size() == 1) {
+					if (colors[0].brightness > 0.5) { return interpolateColors(new PaletteColor[] {colors[0], darkerColor(colors[0])}, numberOfColors); }
+					else { return interpolateColors(new PaletteColor[] {lighterColor(colors[0]), colors[0]}, numberOfColors); }
+				} else { return interpolateColors(uniqueColorArray, numberOfColors); }
+			}
 		}
 		else { // (colors.length < numberOfColors) 
 			if (colors.length == 1) { 
