@@ -3,7 +3,9 @@ package fedata.gba.general;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import util.WhyDoesJavaNotHaveThese;
 
@@ -58,10 +60,35 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		calculateValuesWithHSB();
 	}
 	
+	public boolean isSameAsColor(PaletteColor otherColor) {
+		return toHexString().equals(otherColor.toHexString());
+	}
+	
+	public String toHexString() {
+		return String.format("#%s%s%s", 
+				getRedValue() < 16 ? "0" + Integer.toHexString(getRedValue()) : Integer.toHexString(getRedValue()),
+				getGreenValue() < 16 ? "0" + Integer.toHexString(getGreenValue()) : Integer.toHexString(getGreenValue()),
+						getBlueValue() < 16 ? "0" + Integer.toHexString(getBlueValue()) : Integer.toHexString(getBlueValue()));
+	}
+	
 	public static PaletteColor[] coerceColors(PaletteColor[] colors, int numberOfColors) {
 		if (numberOfColors == 0) { return new PaletteColor[] {}; }
 		if (colors.length == numberOfColors) { return colors; }
-		else if (colors.length > numberOfColors) { return reduceColors(colors, numberOfColors); }
+		else if (colors.length > numberOfColors) {
+			// Remove dupes first, if any.
+			List<PaletteColor> colorsArray = new ArrayList<PaletteColor>();
+			Set<String> uniqueColors = new HashSet<String>();
+			for (PaletteColor color : colors) {
+				if (uniqueColors.contains(color.toHexString())) { continue; }
+				uniqueColors.add(color.toHexString());
+				colorsArray.add(color);
+			}
+			
+			PaletteColor[] uniqueColorArray = colorsArray.toArray(new PaletteColor[colorsArray.size()]);
+			if (colorsArray.size() == numberOfColors) { return uniqueColorArray; }
+			else if (colorsArray.size() > numberOfColors) { return reduceColors(uniqueColorArray, numberOfColors); }
+			else { return interpolateColors(uniqueColorArray, numberOfColors); }
+		}
 		else { // (colors.length < numberOfColors) 
 			if (colors.length == 1) { 
 				if (colors[0].brightness > 0.5) { return interpolateColors(new PaletteColor[] {colors[0], darkerColor(colors[0])}, numberOfColors); }
