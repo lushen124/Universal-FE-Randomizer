@@ -78,7 +78,7 @@ public class EnemyBuffsView extends Composite {
 		
 		buffEnemyGrowthsButton = new Button(minionGroup, SWT.CHECK);
 		buffEnemyGrowthsButton.setText("Buff Enemy Growths");
-		buffEnemyGrowthsButton.setToolTipText("Increases enemy growth rates.");
+		buffEnemyGrowthsButton.setToolTipText("Increases enemy growth rates.\n\nNote: Regardless of the method and amount used, the cap for\nenemy growths is 127% in any single area.");
 		buffEnemyGrowthsButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
