@@ -103,14 +103,14 @@ public class EnemyBuffer {
 		
 		GBAFEClassData[] allClasses = classData.allClasses();
 		for (GBAFEClassData currentClass : allClasses) {
-			if (currentClass.getSwordRank() > 0) { currentClass.setSwordRank(WeaponRank.S); }
-			if (currentClass.getLanceRank() > 0) { currentClass.setLanceRank(WeaponRank.S); }
-			if (currentClass.getAxeRank() > 0) { currentClass.setAxeRank(WeaponRank.S); }
-			if (currentClass.getBowRank() > 0) { currentClass.setBowRank(WeaponRank.S); }
-			if (currentClass.getAnimaRank() > 0) { currentClass.setAnimaRank(WeaponRank.S); }
-			if (currentClass.getDarkRank() > 0) { currentClass.setDarkRank(WeaponRank.S); }
-			if (currentClass.getLightRank() > 0) { currentClass.setLightRank(WeaponRank.S); }
-			if (currentClass.getStaffRank() > 0) { currentClass.setStaffRank(WeaponRank.S); }
+			if (currentClass.getSwordRank() > 0) { currentClass.setSwordRank(WeaponRank.A); }
+			if (currentClass.getLanceRank() > 0) { currentClass.setLanceRank(WeaponRank.A); }
+			if (currentClass.getAxeRank() > 0) { currentClass.setAxeRank(WeaponRank.A); }
+			if (currentClass.getBowRank() > 0) { currentClass.setBowRank(WeaponRank.A); }
+			if (currentClass.getAnimaRank() > 0) { currentClass.setAnimaRank(WeaponRank.A); }
+			if (currentClass.getDarkRank() > 0) { currentClass.setDarkRank(WeaponRank.A); }
+			if (currentClass.getLightRank() > 0) { currentClass.setLightRank(WeaponRank.A); }
+			if (currentClass.getStaffRank() > 0) { currentClass.setStaffRank(WeaponRank.A); }
 		}
 	}
 	
@@ -139,7 +139,7 @@ public class EnemyBuffer {
 		GBAFEClassData unitClass = classData.classForID(unit.getStartingClass());
 		int item1ID = unit.getItem1();
 		GBAFEItemData item1 = itemData.itemWithID(item1ID);
-		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
+		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON && item1.getWeaponRank() != WeaponRank.A) {
 			GBAFEItemData[] improvedItems = availableItems(unitClass, 
 					WeaponRank.nextRankHigherThanRank(item1.getWeaponRank()), item1.getType(), itemData);
 			if (improvedItems.length > 0) {
@@ -150,7 +150,7 @@ public class EnemyBuffer {
 		
 		int item2ID = unit.getItem2();
 		GBAFEItemData item2 = itemData.itemWithID(item2ID);
-		if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
+		if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON && item2.getWeaponRank() != WeaponRank.A) {
 			GBAFEItemData[] improvedItems = availableItems(unitClass, 
 					WeaponRank.nextRankHigherThanRank(item2.getWeaponRank()), item2.getType(), itemData);
 			if (improvedItems.length > 0) {
@@ -161,7 +161,7 @@ public class EnemyBuffer {
 		
 		int item3ID = unit.getItem3();
 		GBAFEItemData item3 = itemData.itemWithID(item3ID);
-		if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
+		if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON && item3.getWeaponRank() != WeaponRank.A) {
 			GBAFEItemData[] improvedItems = availableItems(unitClass, 
 					WeaponRank.nextRankHigherThanRank(item3.getWeaponRank()), item3.getType(), itemData);
 			if (improvedItems.length > 0) {
@@ -172,7 +172,7 @@ public class EnemyBuffer {
 		
 		int item4ID = unit.getItem4();
 		GBAFEItemData item4 = itemData.itemWithID(item4ID);
-		if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
+		if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON && item4.getWeaponRank() != WeaponRank.A) {
 			GBAFEItemData[] improvedItems = availableItems(unitClass, 
 					WeaponRank.nextRankHigherThanRank(item4.getWeaponRank()), item4.getType(), itemData);
 			if (improvedItems.length > 0) {
