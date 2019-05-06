@@ -45,6 +45,8 @@ public class FE7Character implements GBAFECharacterData {
 	
 	private Boolean isReadOnly = false;
 	
+	private String debugString = "Uninitialized";
+	
 	public FE7Character(byte[] data, long originalOffset, Boolean isClassRestricted) {
 		super();
 		this.originalData = data;
@@ -58,6 +60,14 @@ public class FE7Character implements GBAFECharacterData {
 			return new FE7Character(Arrays.copyOf(this.originalData, this.originalData.length), this.originalOffset, this.isClassRestricted);
 		}
 		return new FE7Character(Arrays.copyOf(this.data, this.data.length), this.originalOffset, this.isClassRestricted);
+	}
+	
+	public void initializeDisplayString(String debugString) {
+		this.debugString = debugString;
+	}
+	
+	public String displayString() {
+		return debugString;
 	}
 	
 	public void lock() {

@@ -420,7 +420,7 @@ public class FE4Randomizer extends Randomizer {
 			if (bloodOptions.randomizeGrowthBonuses) {
 				updateStatusString("Randomizing Holy Blood Growth Bonuses...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4BloodRandomizer.rngSalt + 1));
-				FE4BloodRandomizer.randomizeHolyBloodGrowthBonuses(bloodOptions, bloodData, rng);
+				FE4BloodRandomizer.randomizeHolyBloodGrowthBonuses(bloodOptions, bloodData, charData, rng);
 				bloodData.commit();
 			}
 			if (bloodOptions.randomizeWeaponBonuses) {
@@ -958,18 +958,22 @@ public class FE4Randomizer extends Randomizer {
 		}
 		
 		if (promoOptions != null) {
-			switch (promoOptions.promotionMode) {
-			case STRICT:
-				rk.addHeaderItem("Promotion Assignment", "Default");
-				break;
-			case LOOSE:
-				rk.addHeaderItem("Promotion Assignment", "Similar");
-				rk.addHeaderItem("Allow Mount Change", promoOptions.allowMountChanges ? "YES" : "NO");
-				rk.addHeaderItem("Allow Enemy-only Classes", promoOptions.allowEnemyOnlyPromotedClasses ? "YES" : "NO");
-				break;
-			case RANDOM:
-				rk.addHeaderItem("Promotion Assignment", "Random");
-				rk.addHeaderItem("Require Common Weapons", promoOptions.requireCommonWeapon ? "YES" : "NO");
+			if (promoOptions.promotionMode == null) {
+				rk.addHeaderItem("PromotionAssignment", "Default");
+			} else {
+				switch (promoOptions.promotionMode) {
+				case STRICT:
+					rk.addHeaderItem("Promotion Assignment", "Default");
+					break;
+				case LOOSE:
+					rk.addHeaderItem("Promotion Assignment", "Similar");
+					rk.addHeaderItem("Allow Mount Change", promoOptions.allowMountChanges ? "YES" : "NO");
+					rk.addHeaderItem("Allow Enemy-only Classes", promoOptions.allowEnemyOnlyPromotedClasses ? "YES" : "NO");
+					break;
+				case RANDOM:
+					rk.addHeaderItem("Promotion Assignment", "Random");
+					rk.addHeaderItem("Require Common Weapons", promoOptions.requireCommonWeapon ? "YES" : "NO");
+				}
 			}
 		}
 		

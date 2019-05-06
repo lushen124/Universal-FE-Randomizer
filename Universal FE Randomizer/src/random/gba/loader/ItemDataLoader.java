@@ -181,8 +181,8 @@ public class ItemDataLoader {
 		return provider.rankWithValue(value);
 	}
 	
-	public WeaponRanks ranksForCharacter(GBAFECharacterData character) {
-		return new WeaponRanks(character, provider);
+	public WeaponRanks ranksForCharacter(GBAFECharacterData character, GBAFEClassData charClass) {
+		return new WeaponRanks(character, charClass, provider);
 	}
 	
 	public WeaponRanks ranksForClass(GBAFEClassData charClass) {
@@ -364,12 +364,12 @@ public class ItemDataLoader {
 		return itemMap.get(itemList.get(rng.nextInt(itemList.size())).getID());
 	}
 	
-	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEItemData originalWeapon, boolean strict, Random rng) {
+	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEClassData charClass, GBAFEItemData originalWeapon, boolean strict, Random rng) {
 		if (!isWeapon(originalWeapon) && originalWeapon.getType() != WeaponType.STAFF) {
 			return null;
 		}
 		
-		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(character.getClassID(), new WeaponRanks(character, provider), originalWeapon, strict);
+		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(character.getClassID(), new WeaponRanks(character, charClass, provider), originalWeapon, strict);
 		if (potentialItems.isEmpty()) { 
 			potentialItems = provider.basicWeaponsForClass(character.getClassID());
 			

@@ -4,8 +4,9 @@ import java.util.Comparator;
 
 import fedata.gba.general.WeaponRank;
 import fedata.general.FEModifiableData;
+import fedata.general.FEPrintableData;
 
-public interface GBAFEClassData extends FEModifiableData {
+public interface GBAFEClassData extends FEModifiableData, FEPrintableData {
 	
 	static Comparator<GBAFEClassData> defaultComparator = new Comparator<GBAFEClassData>() {
 		@Override

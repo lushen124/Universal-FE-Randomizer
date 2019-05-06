@@ -30,12 +30,22 @@ public class FE7Item implements GBAFEItemData {
 	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
+	
+	private String debugString = "Uninitialized";
 
 	public FE7Item(byte[] data, long originalOffset) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
+	}
+	
+	public void initializeDisplayString(String debugString) {
+		this.debugString = debugString;
+	}
+	
+	public String displayString() {
+		return debugString;
 	}
 
 	public int getNameIndex() {

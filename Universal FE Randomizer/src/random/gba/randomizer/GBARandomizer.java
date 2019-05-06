@@ -614,7 +614,7 @@ public class GBARandomizer extends Randomizer {
 			// Fix up the portraits in mode select, since they're hardcoded.
 			// Only necessary if we randomized recruitment.
 			// All of the data should have been commited at this point, so asking for Lyn will get you the Lyn replacement.
-			if (recruitOptions != null) {
+			if (recruitOptions != null && recruitOptions.includeLords) {
 				GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
 				GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
 				GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
