@@ -1,6 +1,7 @@
 # Yune: A Universal Fire Emblem Randomizer
 
 # Latest Version: 0.8.5
+Current Status: Taking a bit of a break right now, since work is getting a little busy. I'll be back working on FE9 once things calm down a bit at work. Please continue to file issues and feature requests as necessary, but short of catastrophic failure, bugs will be fixed in the 0.9.0 release while enhancements will be considered in the following 0.9.1 release. (0.9.0 being the first release for FE9 support and is technically TBD, though tentatively set for December 2019).
 
 ## Introduction
 
