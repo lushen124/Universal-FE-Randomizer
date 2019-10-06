@@ -49,6 +49,15 @@ public class MessageModal {
 		dialogShell.setText(title);
 		dialogShell.setImage(yuneImage);
 		
+		dialogShell.addListener(SWT.CLOSE, new Listener() {
+
+			@Override
+			public void handleEvent(Event event) {
+				event.doit = false;
+			}
+			
+		});
+		
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.marginWidth = 5;
 		mainLayout.marginHeight = 5;

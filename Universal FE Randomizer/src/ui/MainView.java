@@ -1,5 +1,6 @@
 package ui;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -36,6 +37,7 @@ import fedata.gcnwii.fe9.FE9Data;
 import fedata.general.FEBase.GameType;
 import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
+import io.FileWriter;
 import io.GCNISOException;
 import io.GCNISOHandler;
 import io.GCNISOHandler.GCNFileHandler;
@@ -55,6 +57,7 @@ import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
 import util.DebugPrinter;
 import util.DiffCompiler;
+import util.LZ77;
 import util.OptionRecorder;
 import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
@@ -633,6 +636,12 @@ public class MainView implements FileFlowDelegate {
 					romCode.setText("ROM Code: " + gcnHandler.getGameCode());
 					GCNFileHandler systemCMP = gcnHandler.handlerForFileWithName("system.cmp");
 					DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "System.CMP: " + WhyDoesJavaNotHaveThese.displayStringForBytes(systemCMP.readBytesAtOffset(0, 0x10)));
+					byte[] systemData = systemCMP.readBytesAtOffset(0, (int)systemCMP.getFileLength());
+					byte[] decompressedSystemData = LZ77.decompress(systemData, false);
+					int indexOfPathSeparator = pathToFile.lastIndexOf(File.separator);
+					String path = pathToFile.substring(0, indexOfPathSeparator);
+					
+					FileWriter.writeBinaryDataToFile(decompressedSystemData, path + File.separator + "system.cmp");
 				} catch (GCNISOException e) {
 					DebugPrinter.log(DebugPrinter.Key.MAIN, e.getMessage());
 					romName.setText("ROM Name: Read Failed");
