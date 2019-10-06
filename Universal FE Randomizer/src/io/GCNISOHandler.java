@@ -1,5 +1,6 @@
 package io;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -187,7 +188,9 @@ public class GCNISOHandler {
 		for (int i = 1; i < fstEntryCount; i++) {
 			long currentOffset = handler.getNextReadOffset();
 			// If we've reached the end of the current directory, the next entry should fall into the parent directory.
-			if (currentOffset == currentDirectory.nextOffset * 0xC + fstOffset) {
+			// This needs to be a while loop if a directory ends with another directory.
+			// We may need to pop out multiple levels.
+			while (currentOffset == currentDirectory.nextOffset * 0xC + fstOffset) {
 				currentDirectory = currentDirectory.parentEntry;
 				if (currentDirectory == null) {
 					DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Early exit when parsing FST.");
@@ -247,7 +250,11 @@ public class GCNISOHandler {
 	}
 	
 	public GCNFileHandler handlerForFileWithName(String filename) throws GCNISOException {
-		FSTEntry entry = fstLookup.get(filename);
+		if (!filename.startsWith("/")) {
+			filename = "/" + filename;
+		}
+		
+		FSTEntry entry = fstLookup.get(filename.toLowerCase());
 		if (entry == null) {
 			throw new GCNISOException("File does not exist: " + filename);
 		}
@@ -269,6 +276,19 @@ public class GCNISOHandler {
 		return name;
 	}
 	
+	private String fstNameOfEntry(FSTEntry entry) {
+		if (entry.type == FSTEntryType.ROOT) {
+			return "";
+		} else {
+			if (entry.parentEntry != null) {
+				return fstNameOfEntry(entry.parentEntry) + "/" + fstNameFromNameOffset(entry.nameOffset);
+			} else {
+				assert false : "There shouldn't be any orphan entries...";
+				return fstNameFromNameOffset(entry.nameOffset);
+			}
+		}
+	}
+	
 	private void populateFSTMap() {
 		fstLookup = new HashMap<String, FSTEntry>();
 		populateFSTMap(rootEntry);
@@ -276,7 +296,10 @@ public class GCNISOHandler {
 	
 	private void populateFSTMap(FSTEntry entry) {
 		if (entry.nameOffset != -1) {
-			fstLookup.put(fstNameFromNameOffset(entry.nameOffset), entry);
+			String name = fstNameOfEntry(entry).toLowerCase();
+			
+			assert fstLookup.get(name) == null : "Duplicate name detected." + name;
+			fstLookup.put(name, entry);
 		}
 		
 		if (entry.type == FSTEntryType.DIRECTORY || entry.type == FSTEntryType.ROOT) {
