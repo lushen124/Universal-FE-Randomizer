@@ -131,4 +131,34 @@ public class WhyDoesJavaNotHaveThese {
 			destination[offset + i] = source[i];
 		}
 	}
+	
+	public static String stringFromAsciiBytes(byte[] input) {
+		StringBuilder sb = new StringBuilder();
+		for (byte currentByte : input) {
+			if (currentByte == 0) { break; }
+			sb.append((char)currentByte);
+		}
+		return sb.toString();
+	}
+	
+	public static long longValueFromByteArray(byte[] input, boolean isLittleEndian) {
+		long offsetValue = 0;
+		long mask = 0;
+		
+		for (int i = 0; i < input.length; i++) {
+			int nextValue = input[i];
+			mask <<= 8;
+			mask |= 255;
+			if (isLittleEndian) {
+				// 0x12345678 <-> 78 56 34 12
+				offsetValue |= (nextValue << (i * 8));
+			} else {
+				// 0x12345678 <-> 12 34 56 78
+				offsetValue <<= 8;
+				offsetValue |= (nextValue & 0xFF);
+			}
+		}
+		
+		return (offsetValue & mask);
+	}
 }

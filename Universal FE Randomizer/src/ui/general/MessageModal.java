@@ -166,6 +166,11 @@ public class MessageModal {
 		}
 	}
 	
+	public void showRaw() {
+		dialogShell.open();
+		hasBeenDisplayed = true;
+	}
+	
 	public void hide() {
 		dialogShell.close();
 	}

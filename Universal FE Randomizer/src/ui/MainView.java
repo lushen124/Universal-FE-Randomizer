@@ -32,9 +32,13 @@ import application.Main;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
+import fedata.gcnwii.fe9.FE9Data;
 import fedata.general.FEBase.GameType;
 import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
+import io.GCNISOException;
+import io.GCNISOHandler;
+import io.GCNISOHandler.GCNFileHandler;
 import random.gba.randomizer.GBARandomizer;
 import random.general.Randomizer;
 import random.general.RandomizerListener;
@@ -49,9 +53,11 @@ import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
 import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
+import util.DebugPrinter;
 import util.DiffCompiler;
 import util.OptionRecorder;
 import util.SeedGenerator;
+import util.WhyDoesJavaNotHaveThese;
 import util.OptionRecorder.FE4OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
 import util.recordkeeper.RecordKeeper;
@@ -407,6 +413,10 @@ public class MainView implements FileFlowDelegate {
 		baseData.left = new FormAttachment(growthView, 0, SWT.LEFT);
 		baseData.right = new FormAttachment(growthView, 0, SWT.RIGHT);
 		baseView.setLayoutData(baseData);
+		
+		randomizeButton = new Button(container, SWT.PUSH);
+		randomizeButton.setText("Randomize!");
+		randomizeButton.setVisible(false);
 		  
 		if (type == GameType.FE4) {
 			// To prevent gen 2 overflow, the max growth allowed for any single stat is 85%.
@@ -473,10 +483,6 @@ public class MainView implements FileFlowDelegate {
 			miscData.right = new FormAttachment(fe4EnemyBuffView, 0, SWT.RIGHT);
 			//miscData.bottom = new FormAttachment(100, -10);
 			miscView.setLayoutData(miscData);
-			
-			randomizeButton = new Button(container, SWT.PUSH);
-			randomizeButton.setText("Randomize!");
-			randomizeButton.setVisible(false);
 			  
 			FormData randomizeData = new FormData();
 			randomizeData.top = new FormAttachment(miscView, 5);
@@ -484,6 +490,8 @@ public class MainView implements FileFlowDelegate {
 			randomizeData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
 			randomizeData.bottom = new FormAttachment(100, -10);
 			randomizeButton.setLayoutData(randomizeData);
+			
+		} else if (type == GameType.FE9) {
 			
 		} else {
 			otherCharOptionView = new MOVCONAffinityView(container, SWT.NONE);
@@ -556,10 +564,6 @@ public class MainView implements FileFlowDelegate {
 			recruitData.left = new FormAttachment(classView, 5);
 			recruitData.right = new FormAttachment(100, -5);
 			recruitView.setLayoutData(recruitData);
-			
-			randomizeButton = new Button(container, SWT.PUSH);
-			randomizeButton.setText("Randomize!");
-			randomizeButton.setVisible(false);
 			  
 			FormData randomizeData = new FormData();
 			randomizeData.top = new FormAttachment(recruitView, 5);
@@ -584,6 +588,9 @@ public class MainView implements FileFlowDelegate {
 			setupInfoLayout();
 			hasLoadedInfo = true;
 		}
+		
+		MessageModal loadingModal = new MessageModal(mainShell, "Loading", "Verifying File...");
+		loadingModal.showRaw();
 		
 		try {
 			FileHandler handler = new FileHandler(pathToFile);
@@ -617,6 +624,22 @@ public class MainView implements FileFlowDelegate {
 				romName.setText("ROM Name: " + FE4Data.InternalName);
 				romCode.setText("ROM Code: --");
 			}
+			else if (handler.getCRC32() == FE9Data.CleanCRC32) {
+				type = GameType.FE9;
+				friendlyName.setText("Display Name: " + FE9Data.FriendlyName);
+				try {
+					GCNISOHandler gcnHandler = new GCNISOHandler(handler);
+					romName.setText("ROM Name: " + gcnHandler.getGameName());
+					romCode.setText("ROM Code: " + gcnHandler.getGameCode());
+					GCNFileHandler systemCMP = gcnHandler.handlerForFileWithName("system.cmp");
+					DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "System.CMP: " + WhyDoesJavaNotHaveThese.displayStringForBytes(systemCMP.readBytesAtOffset(0, 0x10)));
+				} catch (GCNISOException e) {
+					DebugPrinter.log(DebugPrinter.Key.MAIN, e.getMessage());
+					romName.setText("ROM Name: Read Failed");
+					romCode.setText("ROM Code: Read Failed");
+					type = GameType.UNKNOWN;
+				}
+			}
 			else { 
 				type = GameType.UNKNOWN;
 				friendlyName.setText("Display Name: Unknown");
@@ -642,6 +665,8 @@ public class MainView implements FileFlowDelegate {
 					fe4PromotionView.setVisible(true);
 					fe4EnemyBuffView.setVisible(true);
 					
+				} else if (type == GameType.FE9) {
+					
 				} else {
 					classView.setVisible(true);
 					otherCharOptionView.setVisible(true);
@@ -651,7 +676,10 @@ public class MainView implements FileFlowDelegate {
 					itemAssignmentView.setVisible(true);
 				}
 		
-				miscView.setVisible(true);
+				if (type != GameType.FE9) {
+					miscView.setVisible(true);
+				}
+				
 				randomizeButton.setVisible(true);
 				
 				seedField.setVisible(true);
@@ -680,7 +708,9 @@ public class MainView implements FileFlowDelegate {
 						if (gameType.isGBA()) {
 							openDialog.setFilterExtensions(new String[] {"*.gba"});
 						} else if (gameType.isSFC()) {
-							openDialog.setFilterExtensions(new String[] {".smc"});
+							openDialog.setFilterExtensions(new String[] {"*.smc"});
+						} else if (gameType.isGCN()) {
+							openDialog.setFilterExtensions(new String[] {"*.iso"});
 						}
 						String writePath = openDialog.open();
 						
@@ -836,5 +866,7 @@ public class MainView implements FileFlowDelegate {
 			System.err.println("Failed to calculate checksum on input file.");
 			e.printStackTrace();
 		}
+		
+		loadingModal.hide();
 	}
 }
