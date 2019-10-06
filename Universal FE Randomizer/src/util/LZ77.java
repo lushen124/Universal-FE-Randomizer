@@ -36,7 +36,7 @@ public class LZ77 {
 					// Means to go back 32 (31 + 1) bytes and read 18 bytes from what's been written so far.
 					byte compressedByte = handler.continueReadingNextByte();
 					byte compressedByte2 = handler.continueReadingNextByte();
-					int jumpDistance = (((compressedByte & 0xF) << 16) | (compressedByte2 & 0xFF)) + 1;
+					int jumpDistance = (((compressedByte & 0xF) << 8) | (compressedByte2 & 0xFF)) + 1;
 					int bytesToCopy = ((compressedByte & 0xF0) >> 4) + 3;
 					for (int j = 0; j < bytesToCopy; j++) {
 						int sourceIndex = outputIndex - jumpDistance;
@@ -85,7 +85,7 @@ public class LZ77 {
 					bytesRead++;
 					byte compressedByte2 = handler.continueReadingNextByte();
 					bytesRead++;
-					int jumpDistance = (((compressedByte & 0xF) << 16) | (compressedByte2 & 0xFF)) + 1;
+					int jumpDistance = (((compressedByte & 0xF) << 8) | (compressedByte2 & 0xFF)) + 1;
 					int bytesToCopy = ((compressedByte & 0xF0) >> 4) + 3;
 					for (int j = 0; j < bytesToCopy; j++) {
 						int sourceIndex = outputIndex - jumpDistance;
@@ -98,7 +98,7 @@ public class LZ77 {
 		return bytesRead + (bytesRead % 4 == 0 ? 0 : 4 - (bytesRead % 4));
 	}
 	
-	public static byte[] decompress(byte[] inputBytes, boolean isLittleEndian) {
+	public static byte[] decompress(byte[] inputBytes) {
 		byte[] header = new byte[4];
 		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(inputBytes, header, 0, 4);
 		if (header[0] != 0x10) { return null; }
@@ -119,12 +119,7 @@ public class LZ77 {
 				} else {
 					byte compressedByte = inputBytes[inputIndex++];
 					byte compressedByte2 = inputBytes[inputIndex++];
-					// TODO: I don't think shifting by 16 is correct. Shifting by 8 should be right...
-					// It'll take some more experimentation with GBA games to make sure this fix won't break anything.
-					int jumpDistance = (((compressedByte & 0xF) << 16) | (compressedByte2 & 0xFF)) + 1;
-					if (!isLittleEndian) {
-						jumpDistance = (((compressedByte & 0xF) << 8) | (compressedByte2 & 0xFF)) + 1;
-					}
+					int jumpDistance = (((compressedByte & 0xF) << 8) | (compressedByte2 & 0xFF)) + 1;
 					int bytesToCopy = ((compressedByte & 0xF0) >> 4) + 3;
 					for (int j = 0; j < bytesToCopy; j++) {
 						int sourceIndex = outputIndex - jumpDistance;

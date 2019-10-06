@@ -637,7 +637,7 @@ public class MainView implements FileFlowDelegate {
 					GCNFileHandler systemCMP = gcnHandler.handlerForFileWithName("system.cmp");
 					DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "System.CMP: " + WhyDoesJavaNotHaveThese.displayStringForBytes(systemCMP.readBytesAtOffset(0, 0x10)));
 					byte[] systemData = systemCMP.readBytesAtOffset(0, (int)systemCMP.getFileLength());
-					byte[] decompressedSystemData = LZ77.decompress(systemData, false);
+					byte[] decompressedSystemData = LZ77.decompress(systemData);
 					int indexOfPathSeparator = pathToFile.lastIndexOf(File.separator);
 					String path = pathToFile.substring(0, indexOfPathSeparator);
 					
