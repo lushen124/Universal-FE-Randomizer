@@ -642,6 +642,19 @@ public class MainView implements FileFlowDelegate {
 					String path = pathToFile.substring(0, indexOfPathSeparator);
 					
 					FileWriter.writeBinaryDataToFile(decompressedSystemData, path + File.separator + "system.cmp");
+					
+					String[] files = new String[] {"FE8Data.bin", "FE8Anim.bin", "FE8Effect.bin", "cp_data.bin",
+							"s/rect.bin", "window/rectdesc.bin", "scripts/startup.cmb", "face/facedata.bin", "window/route.tpl", 
+							"window/xinfo.tpl", "window/icon.tpl",
+							"mess/common.m", "Fonts/talk.gcf", "Fonts/fe_font.gcf", "Fonts/alpha.gcf", "Fonts/bigkana.gcf"};
+					
+					for (String file : files) {
+						GCNFileHandler gcnFileHandler = gcnHandler.handlerForFileWithName(file);
+						byte[] gcnFileData = gcnFileHandler.readBytesAtOffset(0, (int)gcnFileHandler.getFileLength());
+						FileWriter.writeBinaryDataToFile(gcnFileData, path + File.separator + "extracted" + File.separator + file.replace("/", File.separator));
+					}
+					
+					gcnHandler.debugPrintFST();
 				} catch (GCNISOException e) {
 					DebugPrinter.log(DebugPrinter.Key.MAIN, e.getMessage());
 					romName.setText("ROM Name: Read Failed");
