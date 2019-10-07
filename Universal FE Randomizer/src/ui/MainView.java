@@ -642,6 +642,7 @@ public class MainView implements FileFlowDelegate {
 					String path = pathToFile.substring(0, indexOfPathSeparator);
 					
 					FileWriter.writeBinaryDataToFile(decompressedSystemData, path + File.separator + "system.cmp");
+					FileWriter.writeBinaryDataToFile(LZ77.compress(decompressedSystemData, 0xFFF), path + File.separator + "recomp_system.cmp");
 					
 					String[] files = new String[] {"FE8Data.bin", "FE8Anim.bin", "FE8Effect.bin", "cp_data.bin",
 							"s/rect.bin", "window/rectdesc.bin", "scripts/startup.cmb", "face/facedata.bin", "window/route.tpl", 

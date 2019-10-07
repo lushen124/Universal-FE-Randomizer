@@ -1,5 +1,7 @@
 package util;
 
+import java.util.Arrays;
+
 import io.FileHandler;
 
 public class LZ77 {
@@ -133,6 +135,10 @@ public class LZ77 {
 	}
 	
 	public static byte[] compress(byte[] decompressed) {
+		return compress(decompressed, 32);
+	}
+	
+	public static byte[] compress(byte[] decompressed, int windowSize) {
 		if (decompressed == null) { return null; }
 		
 		byte[] header = new byte[4];
@@ -158,25 +164,46 @@ public class LZ77 {
 			for (int i = 0; i < 8; i++) {
 				if (inputOffset >= decompressed.length) { break; }
 				byte currentInputByte = decompressed[inputOffset];
-				boolean patternMatched = false;
 				int index = 0; // This will keep track of the location of the first byte that matched.
-				// I think the window can only look back 32 bytes at most, so we should lock it there.
-				for (index = Math.max(0, inputOffset - 32); index < inputOffset; index++) {
+				// Window size seems to be variable, depending on the platform.
+				// GBA seems to be ok with 32, but I've seen GCN go higher. The maximum is 0xFFF, since we have
+				// 12 total bits that could represent the offset.
+				int longestMatchingIndex = -1;
+				int longestMatchLength = 0;
+				int longestSequence = 0;
+				
+				for (index = Math.max(0, inputOffset - windowSize); index < inputOffset; index++) {
 					if (decompressed[index] == currentInputByte) {
-						patternMatched = true;
-						break; 
+						int matchingLength = 0;
+						byte[] potentialSequence = Arrays.copyOfRange(decompressed, index, inputOffset);
+						while (inputOffset + matchingLength < decompressed.length &&
+								potentialSequence[matchingLength % potentialSequence.length] == decompressed[inputOffset + matchingLength]) {
+							matchingLength++;
+						}
+						byte[] actualSequence = Arrays.copyOfRange(potentialSequence, 0, Math.min(matchingLength, potentialSequence.length));
+						if (matchingLength > longestMatchLength || (matchingLength == longestMatchLength && actualSequence.length >= longestSequence)) {
+							longestMatchingIndex = index;
+							longestMatchLength = matchingLength;
+							longestSequence = actualSequence.length;
+						}
 					}
 				}
 				
-				if (patternMatched) {
+				// We want to avoid having offsets of 0.
+				int offset = inputOffset - longestMatchingIndex - 1;
+				
+				// We can only compress if we have a match, and that match is longer than 3 bytes.
+				if (longestMatchingIndex != -1 && longestMatchLength >= 3 && offset > 0) {
+					index = longestMatchingIndex;
+					byte[] sequence = Arrays.copyOfRange(decompressed, index, inputOffset);
 					// We need three matching bytes at a minimum to use compression.
 					byte[] matchedBytes = new byte[18]; // GBA can only pull 18 matching bytes at most.
 					int matchedArrayIndex = 0;
 					matchedBytes[matchedArrayIndex++] = currentInputByte;
 					for (int j = 1; j < 18; j++) {
 						if (inputOffset + j >= decompressed.length) { break; }
-						if (decompressed[inputOffset + j] == decompressed[index + j]) {
-							matchedBytes[matchedArrayIndex++] = decompressed[inputOffset + j];
+						if (decompressed[inputOffset + j] == sequence[j % sequence.length]) {
+							matchedBytes[matchedArrayIndex++] = sequence[j % sequence.length];
 						} else {
 							break;
 						}
@@ -194,7 +221,6 @@ public class LZ77 {
 						i += (writtenLength - 1);
 					} else {
 						// We can compress this.
-						int offset = inputOffset - index - 1;
 						int numBytes = writtenLength;
 						byte compressed = (byte)((offset >> 16) & 0xFF);
 						compressed |= (((numBytes - 3) & 0xF) << 4);
@@ -213,7 +239,16 @@ public class LZ77 {
 				}
 			}
 			
+			if (compressedData.length <= outputOffset) {
+				byte[] expandedData = Arrays.copyOf(compressedData, compressedData.length * 2);
+				compressedData = expandedData;
+			}
 			compressedData[outputOffset++] = flag;
+			
+			while (compressedData.length < outputOffset + blockIndex) {
+				byte[] expandedData = Arrays.copyOf(compressedData, compressedData.length * 2);
+				compressedData = expandedData;
+			}
 			WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(currentBlock, compressedData, outputOffset, blockIndex);
 			outputOffset += blockIndex;
 		}
