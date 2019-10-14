@@ -123,12 +123,23 @@ public class WhyDoesJavaNotHaveThese {
 		return result;
 	}
 	
-	public static void copyBytesIntoByteArrayAtIndex(byte[] source, byte[] destination, int offset, int copyLength) {
-		assert destination.length >= copyLength + offset : "Attempted to copy source into destination with insufficient space";
+	// Copies x bytes from source array into an offset destination array.
+	public static void copyBytesIntoByteArrayAtIndex(byte[] source, byte[] destination, int destinationOffset, int copyLength) {
+		assert destination.length >= copyLength + destinationOffset : "Attempted to copy source into destination with insufficient space";
 		assert copyLength <= source.length : "Copy length is too large for source array";
 		
 		for (int i = 0; i < copyLength; i++) {
-			destination[offset + i] = source[i];
+			destination[destinationOffset + i] = source[i];
+		}
+	}
+	
+	// Copies x bytes from an offset source array into the destination array.
+	public static void copyBytesFromByteArray(byte[] source, byte[] destination, int sourceOffset, int copyLength) {
+		assert source.length >= copyLength + sourceOffset : "Attempted to copy beyond the source array's bounds.";
+		assert copyLength <= destination.length : "Copy length is too large for destination array";
+		
+		for (int i = 0; i < copyLength; i++) {
+			destination[i] = source[sourceOffset + i];
 		}
 	}
 	

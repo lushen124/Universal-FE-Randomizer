@@ -141,6 +141,8 @@ public class LZ77 {
 	public static byte[] compress(byte[] decompressed, int windowSize) {
 		if (decompressed == null) { return null; }
 		
+		DebugPrinter.log(DebugPrinter.Key.LZ77, "Compressing " + decompressed.length + " bytes...");
+		
 		byte[] header = new byte[4];
 		header[0] = (byte)0x10; // Header to mark an LZ77 compressed block of data.
 		int size = decompressed.length;
@@ -156,8 +158,14 @@ public class LZ77 {
 		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(header, compressedData, outputOffset, header.length);
 		outputOffset += header.length;
 		
+		byte[] currentBlock = new byte[16]; // At most we can have 16 bytes (uncompressed blocks are 1 byte, compressed blocks are 2 bytes)
+		byte[] potentialSequence = new byte[18]; // The longest a matching sequence can be is 18 (since we only have 4 bits to represent it (+3))
+		byte[] actualSequence = new byte[18]; // See above.
+		
+		byte[] sequence = new byte[18];
+		byte[] matchedBytes = new byte[18];
+		
 		while (inputOffset < size) {
-			byte[] currentBlock = new byte[16]; // At most we can have 16 bytes (uncompressed blocks are 1 byte, compressed blocks are 2 bytes)
 			int blockIndex = 0;
 			byte flag = 0;
 			
@@ -175,16 +183,19 @@ public class LZ77 {
 				for (index = Math.max(0, inputOffset - windowSize); index < inputOffset; index++) {
 					if (decompressed[index] == currentInputByte) {
 						int matchingLength = 0;
-						byte[] potentialSequence = Arrays.copyOfRange(decompressed, index, inputOffset);
-						while (inputOffset + matchingLength < decompressed.length &&
-								potentialSequence[matchingLength % potentialSequence.length] == decompressed[inputOffset + matchingLength]) {
+						int potentialLength = Math.min(18, inputOffset - index);
+						WhyDoesJavaNotHaveThese.copyBytesFromByteArray(decompressed, potentialSequence, index, potentialLength);
+						while (matchingLength < 18 &&
+								inputOffset + matchingLength < decompressed.length &&
+								potentialSequence[matchingLength % potentialLength] == decompressed[inputOffset + matchingLength]) {
 							matchingLength++;
 						}
-						byte[] actualSequence = Arrays.copyOfRange(potentialSequence, 0, Math.min(matchingLength, potentialSequence.length));
-						if (matchingLength > longestMatchLength || (matchingLength == longestMatchLength && actualSequence.length >= longestSequence)) {
+						int actualLength = Math.min(matchingLength, potentialLength);
+						WhyDoesJavaNotHaveThese.copyBytesFromByteArray(potentialSequence, actualSequence, 0, actualLength);
+						if (actualLength > 1 && (matchingLength > longestMatchLength || (matchingLength == longestMatchLength && actualLength >= longestSequence))) {
 							longestMatchingIndex = index;
 							longestMatchLength = matchingLength;
-							longestSequence = actualSequence.length;
+							longestSequence = actualLength;
 						}
 					}
 				}
@@ -195,15 +206,15 @@ public class LZ77 {
 				// We can only compress if we have a match, and that match is longer than 3 bytes.
 				if (longestMatchingIndex != -1 && longestMatchLength >= 3 && offset > 0) {
 					index = longestMatchingIndex;
-					byte[] sequence = Arrays.copyOfRange(decompressed, index, inputOffset);
+					int sequenceLength = Math.min(inputOffset - index, 18);
+					WhyDoesJavaNotHaveThese.copyBytesFromByteArray(decompressed, sequence, index, sequenceLength);
 					// We need three matching bytes at a minimum to use compression.
-					byte[] matchedBytes = new byte[18]; // GBA can only pull 18 matching bytes at most.
 					int matchedArrayIndex = 0;
 					matchedBytes[matchedArrayIndex++] = currentInputByte;
 					for (int j = 1; j < 18; j++) {
 						if (inputOffset + j >= decompressed.length) { break; }
-						if (decompressed[inputOffset + j] == sequence[j % sequence.length]) {
-							matchedBytes[matchedArrayIndex++] = sequence[j % sequence.length];
+						if (decompressed[inputOffset + j] == sequence[j % sequenceLength]) {
+							matchedBytes[matchedArrayIndex++] = sequence[j % sequenceLength];
 						} else {
 							break;
 						}
@@ -222,7 +233,7 @@ public class LZ77 {
 					} else {
 						// We can compress this.
 						int numBytes = writtenLength;
-						byte compressed = (byte)((offset >> 16) & 0xFF);
+						byte compressed = (byte)((offset >> 8) & 0xF);
 						compressed |= (((numBytes - 3) & 0xF) << 4);
 						byte lsb = (byte)(offset & 0xFF);
 						currentBlock[blockIndex++] = compressed;

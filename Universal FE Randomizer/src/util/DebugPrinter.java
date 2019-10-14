@@ -28,6 +28,7 @@ public class DebugPrinter {
 		switch (label) {
 		case MAIN:
 		case GCN_HANDLER:
+		case LZ77:
 			return true;
 		default:
 			return false;
