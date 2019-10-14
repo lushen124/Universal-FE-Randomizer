@@ -42,6 +42,7 @@ import io.GCNISOException;
 import io.GCNISOHandler;
 import io.GCNISOHandler.GCNFileHandler;
 import random.gba.randomizer.GBARandomizer;
+import random.gcnwii.fe9.randomizer.FE9Randomizer;
 import random.general.Randomizer;
 import random.general.RandomizerListener;
 import random.snes.fe4.randomizer.FE4Randomizer;
@@ -634,28 +635,6 @@ public class MainView implements FileFlowDelegate {
 					GCNISOHandler gcnHandler = new GCNISOHandler(handler);
 					romName.setText("ROM Name: " + gcnHandler.getGameName());
 					romCode.setText("ROM Code: " + gcnHandler.getGameCode());
-					GCNFileHandler systemCMP = gcnHandler.handlerForFileWithName("system.cmp");
-					DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "System.CMP: " + WhyDoesJavaNotHaveThese.displayStringForBytes(systemCMP.readBytesAtOffset(0, 0x10)));
-					byte[] systemData = systemCMP.readBytesAtOffset(0, (int)systemCMP.getFileLength());
-					byte[] decompressedSystemData = LZ77.decompress(systemData);
-					int indexOfPathSeparator = pathToFile.lastIndexOf(File.separator);
-					String path = pathToFile.substring(0, indexOfPathSeparator);
-					
-					FileWriter.writeBinaryDataToFile(decompressedSystemData, path + File.separator + "system.cmp");
-					FileWriter.writeBinaryDataToFile(LZ77.compress(decompressedSystemData, 0xFFF), path + File.separator + "recomp_system.cmp");
-					
-					String[] files = new String[] {"FE8Data.bin", "FE8Anim.bin", "FE8Effect.bin", "cp_data.bin",
-							"s/rect.bin", "window/rectdesc.bin", "scripts/startup.cmb", "face/facedata.bin", "window/route.tpl", 
-							"window/xinfo.tpl", "window/icon.tpl",
-							"mess/common.m", "Fonts/talk.gcf", "Fonts/fe_font.gcf", "Fonts/alpha.gcf", "Fonts/bigkana.gcf"};
-					
-					for (String file : files) {
-						GCNFileHandler gcnFileHandler = gcnHandler.handlerForFileWithName(file);
-						byte[] gcnFileData = gcnFileHandler.readBytesAtOffset(0, (int)gcnFileHandler.getFileLength());
-						FileWriter.writeBinaryDataToFile(gcnFileData, path + File.separator + "extracted" + File.separator + file.replace("/", File.separator));
-					}
-					
-					gcnHandler.debugPrintFST();
 				} catch (GCNISOException e) {
 					DebugPrinter.log(DebugPrinter.Key.MAIN, e.getMessage());
 					romName.setText("ROM Name: Read Failed");
@@ -812,6 +791,8 @@ public class MainView implements FileFlowDelegate {
 											miscView.getMiscellaneousOptions(), 
 											seedField.getText());
 								}
+							} else if (gameType.isGCN()) {
+								randomizer = new FE9Randomizer(pathToFile, writePath, seedField.getText());
 							}
 							
 							randomizer.setListener(new RandomizerListener() {

@@ -9,7 +9,8 @@ public class DebugPrinter {
 		PALETTE_RECYCLER("Palette Recycling"), FE8_SUMMONER_MODULE("Summoner"), FE4_CHARACTER_LOADER("FE4 Character Loader"), FE4_ITEM_MAPPER("FE4 Item Mapper"), FE4_SKILL_RANDOM("FE4 Skill Randomizer"), 
 		GBA_TEXT_CODE_CHANGE("GBAFE Text Change"), GBA_RANDOM_RECRUITMENT("GBA Random Recruitment"), LZ77("LZ77"), 
 		
-		GCN_HANDLER("GCN Handler");
+		GCN_HANDLER("GCN Handler"), FE9_CHARACTER_LOADER("FE9 Character Loader"), FE9_TEXT_LOADER("FE9 Text Loader"),
+		FE9_CLASS_LOADER("FE9 Class Loader");
 		
 		String label;
 		
@@ -29,6 +30,7 @@ public class DebugPrinter {
 		case MAIN:
 		case GCN_HANDLER:
 		case LZ77:
+		case FE9_CLASS_LOADER:
 			return true;
 		default:
 			return false;

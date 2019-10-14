@@ -87,7 +87,7 @@ public class GCNISOHandler {
 		public byte[] continueReadingBytesUpToNextTerminator(long maxOffset) {
 			long oldOffset = handler.getNextReadOffset();
 			handler.setNextReadOffset(nextReadOffset);
-			byte[] outputBytes = handler.continueReadingBytesUpToNextTerminator(maxOffset + fileEntry.fileOffset);
+			byte[] outputBytes = handler.continueReadingBytesUpToNextTerminator(maxOffset + nextReadOffset);
 			nextReadOffset = handler.getNextReadOffset();
 			handler.setNextReadOffset(oldOffset);
 			
