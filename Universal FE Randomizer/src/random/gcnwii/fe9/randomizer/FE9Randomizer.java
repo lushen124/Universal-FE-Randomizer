@@ -11,6 +11,7 @@ import io.GCNISOHandler.GCNFileHandler;
 import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9CommonTextLoader;
+import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.general.Randomizer;
 import util.DebugPrinter;
 import util.LZ77;
@@ -73,6 +74,7 @@ public class FE9Randomizer extends Randomizer {
 			FE9CommonTextLoader textData = new FE9CommonTextLoader(handler);
 			FE9CharacterDataLoader charData = new FE9CharacterDataLoader(handler, textData);
 			FE9ClassDataLoader classData = new FE9ClassDataLoader(handler, textData);
+			FE9ItemDataLoader itemData = new FE9ItemDataLoader(handler, textData);
 		} catch (GCNISOException e1) {
 			notifyError("Failed to load character data.");
 			return;
