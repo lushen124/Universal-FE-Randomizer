@@ -2,7 +2,9 @@ package io;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.zip.CRC32;
 
@@ -78,6 +80,12 @@ public class FileHandler {
 		inputFile = null;
 	}
 	
+	public InputStream getInputStream(long offset) throws IOException {
+		InputStream stream = new FileInputStream(pathToFile);
+		stream.skip(offset);
+		return stream;
+	}
+	
 	public void setAppliedDiffs(DiffCompiler diffs) {
 		appliedDiffs = diffs;
 	}
@@ -115,6 +123,25 @@ public class FileHandler {
 		}
 		
 		return outputBytes[0];
+	}
+	
+	public int continueReadingBytes(byte[] buffer) {
+		if (inputFile == null) { return 0; }
+		int bytesRead = 0;
+		long bytesRemaining;
+		try {
+			bytesRemaining = fileLength - inputFile.getFilePointer();
+		} catch (IOException e1) {
+			return 0;
+		}
+		try {
+			inputFile.readFully(buffer);
+			bytesRead = (int)Math.min(buffer.length, bytesRemaining);
+			nextReadOffset += bytesRead;
+		} catch (IOException e) {
+		}
+		
+		return bytesRead;
 	}
 	
 	public byte[] continueReadingBytes(int numBytes) {
