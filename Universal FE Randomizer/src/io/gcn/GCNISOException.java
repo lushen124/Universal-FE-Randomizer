@@ -1,4 +1,4 @@
-package io;
+package io.gcn;
 
 public class GCNISOException extends Exception {
 	/**
