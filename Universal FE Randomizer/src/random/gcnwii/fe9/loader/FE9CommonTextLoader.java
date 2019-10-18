@@ -7,9 +7,9 @@ import java.util.Map;
 
 import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9TextEntry;
-import io.GCNISOException;
-import io.GCNISOHandler;
-import io.GCNISOHandler.GCNFileHandler;
+import io.gcn.GCNFileHandler;
+import io.gcn.GCNISOException;
+import io.gcn.GCNISOHandler;
 import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -34,7 +34,7 @@ public class FE9CommonTextLoader {
 			
 			long idOffset = textEntry.getIDOffset() + FE9Data.CommonTextIDStartOffset;
 			handler.setNextReadOffset(idOffset);
-			byte[] idBytes = handler.continueReadingBytesUpToNextTerminator(0xFF);
+			byte[] idBytes = handler.continueReadingBytesUpToNextTerminator(idOffset + 0xFF);
 			String identifier = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(idBytes);
 			idToTextEntry.put(identifier, textEntry);
 			
@@ -48,7 +48,7 @@ public class FE9CommonTextLoader {
 		
 		long valueOffset = textEntry.getStringOffset();
 		handler.setNextReadOffset(valueOffset);
-		byte[] stringData = handler.continueReadingBytesUpToNextTerminator(0xFF);
+		byte[] stringData = handler.continueReadingBytesUpToNextTerminator(valueOffset + 0xFF);
 		String result = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(stringData);
 		return result;
 	}

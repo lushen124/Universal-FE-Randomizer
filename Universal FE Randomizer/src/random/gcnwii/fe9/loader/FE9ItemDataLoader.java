@@ -5,9 +5,9 @@ import java.util.List;
 
 import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9Item;
-import io.GCNISOException;
-import io.GCNISOHandler;
-import io.GCNISOHandler.GCNFileHandler;
+import io.gcn.GCNFileHandler;
+import io.gcn.GCNISOException;
+import io.gcn.GCNISOHandler;
 import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -96,7 +96,7 @@ public class FE9ItemDataLoader {
 	private String stringForPointer(long pointer, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {
 		if (pointer == 0) { return "(null)"; }
 		handler.setNextReadOffset(pointer);
-		byte[] bytes = handler.continueReadingBytesUpToNextTerminator(0xFF);
+		byte[] bytes = handler.continueReadingBytesUpToNextTerminator(pointer + 0xFF);
 		String identifier = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(bytes);
 		String resolvedValue = commonTextLoader.textStringForIdentifier(identifier);
 		if (resolvedValue != null) {
