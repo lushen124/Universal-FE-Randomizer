@@ -38,9 +38,9 @@ import fedata.general.FEBase.GameType;
 import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
 import io.FileWriter;
-import io.GCNISOException;
-import io.GCNISOHandler;
-import io.GCNISOHandler.GCNFileHandler;
+import io.gcn.GCNFileHandler;
+import io.gcn.GCNISOException;
+import io.gcn.GCNISOHandler;
 import random.gba.randomizer.GBARandomizer;
 import random.gcnwii.fe9.randomizer.FE9Randomizer;
 import random.general.Randomizer;
@@ -805,31 +805,37 @@ public class MainView implements FileFlowDelegate {
 								@Override
 								public void onComplete(RecordKeeper rk) {
 									hideModalProgressDialog();
-									MessageModal randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
-									randomSuccess.addButton("Yes", new ModalButtonListener() {
-										@Override
-										public void onSelected() {
-											randomSuccess.hide();
-											FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
-											openDialog.setFilterExtensions(new String[] {"*.html"});
-											String writePath = openDialog.open();
-											if (writePath != null) {
-												Boolean success = rk.exportRecordsToHTML(writePath);
-												if (success) {
-													MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
-													saveSuccess.show();
-												} else {
-													MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
-													saveFail.show();
+									MessageModal randomSuccess;
+									if (rk != null) {
+										randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
+										randomSuccess.addButton("Yes", new ModalButtonListener() {
+											@Override
+											public void onSelected() {
+												randomSuccess.hide();
+												FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
+												openDialog.setFilterExtensions(new String[] {"*.html"});
+												String writePath = openDialog.open();
+												if (writePath != null) {
+													Boolean success = rk.exportRecordsToHTML(writePath);
+													if (success) {
+														MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
+														saveSuccess.show();
+													} else {
+														MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
+														saveFail.show();
+													}
 												}
 											}
-										}
-									});
-									randomSuccess.addButton("No", new ModalButtonListener() {
-										public void onSelected() {
-											randomSuccess.hide();
-										}
-									});
+										});
+										randomSuccess.addButton("No", new ModalButtonListener() {
+											public void onSelected() {
+												randomSuccess.hide();
+											}
+										});
+									} else {
+										randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!");
+									}
+									
 									randomSuccess.show();
 								}
 

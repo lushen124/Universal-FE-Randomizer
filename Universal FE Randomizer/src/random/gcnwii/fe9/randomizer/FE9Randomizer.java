@@ -5,9 +5,10 @@ import java.io.IOException;
 
 import io.FileHandler;
 import io.FileWriter;
-import io.GCNISOException;
-import io.GCNISOHandler;
-import io.GCNISOHandler.GCNFileHandler;
+import io.gcn.GCNFileHandler;
+import io.gcn.GCNISOException;
+import io.gcn.GCNISOHandler;
+import io.gcn.GCNISOHandlerRecompilationDelegate;
 import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9CommonTextLoader;
@@ -79,5 +80,20 @@ public class FE9Randomizer extends Randomizer {
 			notifyError("Failed to load character data.");
 			return;
 		}
+		
+		handler.recompile(targetPath, new GCNISOHandlerRecompilationDelegate() {
+			
+			@Override
+			public void onStatusUpdate(String status) {
+				updateStatusString(status);
+			}
+			
+			@Override
+			public void onProgressUpdate(double progress) {
+				updateProgress(progress);
+			}
+		});
+		
+		notifyCompletion(null);
 	}
 }
