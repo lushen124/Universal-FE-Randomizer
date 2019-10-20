@@ -179,8 +179,9 @@ public class LZ77 {
 				int longestMatchingIndex = -1;
 				int longestMatchLength = 0;
 				int longestSequence = 0;
+				int offset = 0;
 				
-				for (index = Math.max(0, inputOffset - windowSize); index < inputOffset; index++) {
+				for (index = Math.max(0, inputOffset - windowSize - 1); index < inputOffset; index++) {
 					if (decompressed[index] == currentInputByte) {
 						int matchingLength = 0;
 						int potentialLength = Math.min(18, inputOffset - index);
@@ -192,19 +193,19 @@ public class LZ77 {
 						}
 						int actualLength = Math.min(matchingLength, potentialLength);
 						WhyDoesJavaNotHaveThese.copyBytesFromByteArray(potentialSequence, actualSequence, 0, actualLength);
-						if (actualLength > 1 && (matchingLength > longestMatchLength || (matchingLength == longestMatchLength && actualLength >= longestSequence))) {
-							longestMatchingIndex = index;
-							longestMatchLength = matchingLength;
-							longestSequence = actualLength;
+						if (actualLength > 1 && matchingLength >= 3) {
+							if ((matchingLength >= longestMatchLength)) {// || (matchingLength == longestMatchLength && (inputOffset - index - 1 == 1 || actualLength >= longestSequence)))) {
+								longestMatchingIndex = index;
+								longestMatchLength = matchingLength;
+								longestSequence = actualLength;
+								offset = inputOffset - index - 1;
+							}
 						}
 					}
 				}
 				
-				// We want to avoid having offsets of 0.
-				int offset = inputOffset - longestMatchingIndex - 1;
-				
 				// We can only compress if we have a match, and that match is longer than 3 bytes.
-				if (longestMatchingIndex != -1 && longestMatchLength >= 3 && offset > 0) {
+				if (longestMatchingIndex != -1 && offset > 0) {
 					index = longestMatchingIndex;
 					int sequenceLength = Math.min(inputOffset - index, 18);
 					WhyDoesJavaNotHaveThese.copyBytesFromByteArray(decompressed, sequence, index, sequenceLength);
