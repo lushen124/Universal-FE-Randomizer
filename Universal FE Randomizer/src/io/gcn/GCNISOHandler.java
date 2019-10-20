@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.FileHandler;
 import io.FileWriter;
@@ -174,10 +175,22 @@ public class GCNISOHandler {
 		
 		GCNFSTEntry entry = fstLookup.get(filename.toLowerCase());
 		if (entry == null) {
+			// CMP files assume a current directory of where the CMP file lies.
+			// They may request a file without the absolute path.
+			// If there's only one of those files, then return that one.
+			final String name = filename;
+			if (fstLookup.keySet().stream().filter(key -> { return key.endsWith(name); }).count() == 1) {
+				return handlerForFileWithName(fstLookup.keySet().stream().filter(key -> { return key.endsWith(name); }).findAny().get());
+			}
+			
 			throw new GCNISOException("File does not exist: " + filename);
 		}
 		if (entry.type == GCNFSTEntryType.FILE) {
-			fileHandler =  new GCNFileHandler((GCNFSTFileEntry)entry, handler);
+			if (filename.endsWith("cmp")) {
+				fileHandler = new GCNCMPFileHandler((GCNFSTFileEntry)entry, handler, this);
+			} else {
+				fileHandler = new GCNFileHandler((GCNFSTFileEntry)entry, handler);
+			}
 		} else {
 			throw new GCNISOException("GCNFileHandler does not support handlers for directories.");
 		}
@@ -190,6 +203,26 @@ public class GCNISOHandler {
 		// Rebuild the FST first.
 		if (delegate != null) { delegate.onProgressUpdate(0.1); delegate.onStatusUpdate("Recompiling ISO..."); }
 		
+//		int indexOfPathSeparator = destination.lastIndexOf(File.separator);
+//		String path = destination.substring(0, indexOfPathSeparator);
+//		try {
+//			long startTime = System.currentTimeMillis();
+//			FileWriter testWriter = new FileWriter(path + File.separator + "test.bin");
+//			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("system.cmp")).buildRaw());
+//			testWriter.finish();
+//			DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Time 1: " + ((System.currentTimeMillis() - startTime) / 1000L));
+//			
+//			startTime = System.currentTimeMillis();
+//			testWriter = new FileWriter(path + File.separator + "testSlowCompressed.bin");
+//			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("system.cmp")).build());
+//			testWriter.finish();
+//			DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Time 3: " + ((System.currentTimeMillis() - startTime) / 1000L));
+//			
+//		} catch (IOException | GCNISOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+		
 		// Without necessarily allocating all of the space for the data in memory, we just need to figure out the
 		// offsets in the ISO where they should end up. Since we're not adding any files, the FST is mostly ok. The
 		// only change we need to make is to file entries because they specify file_length, which we may change
@@ -199,7 +232,11 @@ public class GCNISOHandler {
 		// We'll use -1 as the data offset because the position of the first file we come across should
 		// not have changed, so we'll anchor it to that. Following files can have their offsets changed.
 		if (delegate != null) { delegate.onProgressUpdate(0.2); delegate.onStatusUpdate("Recalculating File Offsets..."); }
-		recalculateFileOffsets(rootEntry, -1, fileDataOrder);
+		try {
+			recalculateFileOffsets(rootEntry, -1, fileDataOrder, delegate);
+		} catch (GCNISOException e1) {
+			assert false : "Failed to recalculate File Offsets.";
+		}
 		
 		// Start writing. Our header shouldn't have changed because our FST hasn't moved.
 		// So we can copy everything prior to the FST directly.
@@ -236,15 +273,20 @@ public class GCNISOHandler {
 				}
 				while (writer.getBytesWritten() < fileEntry.fileOffset) { writer.write((byte)0); }
 				GCNFileHandler fileHandler = handlerForFileWithName(fstNameOfEntry(fileEntry));
-				fileHandler.setNextReadOffset(0);
-				fileHandler.beginBatchRead();
-				int bytesRead = fileHandler.continueReadingBytes(dataChunk);
-				do {
-					writer.write(dataChunk, bytesRead);
-					bytesRead = fileHandler.continueReadingBytes(dataChunk);
-				} while (bytesRead > 0);
-				
-				fileHandler.endBatchRead();
+				if (fileHandler instanceof GCNCMPFileHandler) {
+					GCNCMPFileHandler cmpFileHandler = (GCNCMPFileHandler)fileHandler;
+					writer.write(cmpFileHandler.build());
+				} else {
+					fileHandler.setNextReadOffset(0);
+					fileHandler.beginBatchRead();
+					int bytesRead = fileHandler.continueReadingBytes(dataChunk);
+					do {
+						writer.write(dataChunk, bytesRead);
+						bytesRead = fileHandler.continueReadingBytes(dataChunk);
+					} while (bytesRead > 0);
+					
+					fileHandler.endBatchRead();
+				}
 			}
 			
 			writer.finish();
@@ -304,21 +346,26 @@ public class GCNISOHandler {
 		writer.write(entryData);
 	}
 	
-	private long recalculateFileOffsets(GCNFSTEntry entry, long currentDataOffset, List<GCNFSTFileEntry> fileDataOrder) {
+	private long recalculateFileOffsets(GCNFSTEntry entry, long currentDataOffset, List<GCNFSTFileEntry> fileDataOrder, GCNISOHandlerRecompilationDelegate delegate) throws GCNISOException {
 		if (entry.type == GCNFSTEntryType.ROOT || entry.type == GCNFSTEntryType.DIRECTORY) {
 			GCNFSTDirectoryEntry directory = (GCNFSTDirectoryEntry)entry;
 			for (int i = 0; i < directory.childEntries.size(); i++) {
 				// pass along the current data offset for any files coming later.
-				currentDataOffset = recalculateFileOffsets(directory.childEntries.get(i), currentDataOffset, fileDataOrder);
+				currentDataOffset = recalculateFileOffsets(directory.childEntries.get(i), currentDataOffset, fileDataOrder, delegate);
 			}
 		} else {
 			GCNFSTFileEntry file = (GCNFSTFileEntry)entry;
+			String name = fstNameOfEntry(file);
+			if (delegate != null) { delegate.onStatusUpdate("Recalculating File Offsets... (" + name + ")"); }
+			GCNFileHandler handler = handlerForFileWithName(name);
+			if (handler instanceof GCNCMPFileHandler) {
+				((GCNCMPFileHandler)handler).build();
+			}
 			fileDataOrder.add(file);
 			if (currentDataOffset == -1) { currentDataOffset = file.fileOffset; } // Initialize the offset to the first file's offset.
 			else { file.fileOffset = currentDataOffset; }
 			
-			// Regardless of which file it is, increment the data offset for the next file.
-			currentDataOffset += file.fileSize;
+			currentDataOffset += handler.getFileLength();
 			
 			// Files are byte aligned (i.e. they must begin on a 0, 4, 8, or C offset.)
 			int additionalPaddingNeeded = 4 - (int)(currentDataOffset % 4);

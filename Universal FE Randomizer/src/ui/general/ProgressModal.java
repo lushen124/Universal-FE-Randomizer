@@ -50,7 +50,7 @@ public class ProgressModal {
 		imageData.bottom = new FormAttachment(100, -10);
 		imageLabel.setLayoutData(imageData);
 		
-		FormData progressData = new FormData(200, 20);
+		FormData progressData = new FormData(300, 20);
 		progressData.left = new FormAttachment(imageLabel, 10);
 		progressData.bottom = new FormAttachment(imageLabel, -50, SWT.CENTER);
 		progressData.right = new FormAttachment(100, -10);

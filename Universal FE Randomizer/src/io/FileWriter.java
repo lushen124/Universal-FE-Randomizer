@@ -57,6 +57,7 @@ public class FileWriter {
 	
 	public void finish() {
 		try {
+			outputStream.flush();
 			outputStream.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

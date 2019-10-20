@@ -30,7 +30,6 @@ public class DebugPrinter {
 		case MAIN:
 		case GCN_HANDLER:
 		case LZ77:
-		case FE9_ITEM_LOADER:
 			return true;
 		default:
 			return false;

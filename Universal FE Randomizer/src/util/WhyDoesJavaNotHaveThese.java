@@ -152,6 +152,15 @@ public class WhyDoesJavaNotHaveThese {
 		return sb.toString();
 	}
 	
+	public static byte[] asciiBytesFromString(String string) {
+		byte[] byteArray = new byte[string.length()];
+		for (int i = 0; i < string.length(); i++) {
+			byteArray[i] = (byte)string.charAt(i);
+		}
+		
+		return byteArray;
+	}
+	
 	public static long longValueFromByteArray(byte[] input, boolean isLittleEndian) {
 		long offsetValue = 0;
 		long mask = 0;
