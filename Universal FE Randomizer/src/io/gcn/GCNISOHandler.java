@@ -132,11 +132,12 @@ public class GCNISOHandler {
 				byte[] nextOffsetIndex = handler.continueReadingBytes(0x4);
 				dirEntry.nextOffset = WhyDoesJavaNotHaveThese.longValueFromByteArray(nextOffsetIndex, false);
 				
+				currentDirectory.childEntries.add(dirEntry);
+				dirEntry.parentEntry = currentDirectory;
+				
 				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Loaded Directory " + fstNameOfEntry(dirEntry) + " at FST offset 0x" + Long.toHexString(currentOffset).toUpperCase()+ ".");
 				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Parent: " + fstNameOfEntry(currentDirectory) + " at offset: 0x" + Long.toHexString(currentDirectory.entryOffset).toUpperCase() + ". Next entry offset: 0x" + Long.toHexString(dirEntry.nextOffset).toUpperCase() + ".");
 				
-				currentDirectory.childEntries.add(dirEntry);
-				dirEntry.parentEntry = currentDirectory;
 				// Entries directly after a directory entry are files that belong in that directory.
 				currentDirectory = dirEntry;
 				
