@@ -365,6 +365,7 @@ public class GCNISOHandler {
 			fileDataOrder.add(file);
 			if (currentDataOffset == -1) { currentDataOffset = file.fileOffset; } // Initialize the offset to the first file's offset.
 			else { file.fileOffset = currentDataOffset; }
+			file.fileSize = handler.getFileLength();
 			
 			currentDataOffset += handler.getFileLength();
 			
