@@ -179,10 +179,11 @@ public class GCNISOHandler {
 			// CMP files assume a current directory of where the CMP file lies.
 			// They may request a file without the absolute path.
 			// If there's only one of those files, then return that one.
-			final String name = filename;
-			if (fstLookup.keySet().stream().filter(key -> { return key.endsWith(name); }).count() == 1) {
-				return handlerForFileWithName(fstLookup.keySet().stream().filter(key -> { return key.endsWith(name); }).findAny().get());
-			}
+			// Note: These files aren't necessary equivalent, so we can't trust this for now.
+//			final String name = filename.toLowerCase();
+//			if (fstLookup.keySet().stream().filter(key -> { return key.endsWith(name); }).count() == 1) {
+//				return handlerForFileWithName(fstLookup.keySet().stream().filter(key -> { return key.endsWith(name); }).findAny().get());
+//			}
 			
 			throw new GCNISOException("File does not exist: " + filename);
 		}
@@ -204,25 +205,21 @@ public class GCNISOHandler {
 		// Rebuild the FST first.
 		if (delegate != null) { delegate.onProgressUpdate(0.1); delegate.onStatusUpdate("Recompiling ISO..."); }
 		
-//		int indexOfPathSeparator = destination.lastIndexOf(File.separator);
-//		String path = destination.substring(0, indexOfPathSeparator);
-//		try {
-//			long startTime = System.currentTimeMillis();
-//			FileWriter testWriter = new FileWriter(path + File.separator + "test.bin");
-//			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("system.cmp")).buildRaw());
-//			testWriter.finish();
-//			DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Time 1: " + ((System.currentTimeMillis() - startTime) / 1000L));
-//			
-//			startTime = System.currentTimeMillis();
-//			testWriter = new FileWriter(path + File.separator + "testSlowCompressed.bin");
-//			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("system.cmp")).build());
-//			testWriter.finish();
-//			DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Time 3: " + ((System.currentTimeMillis() - startTime) / 1000L));
-//			
-//		} catch (IOException | GCNISOException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
+		int indexOfPathSeparator = destination.lastIndexOf(File.separator);
+		String path = destination.substring(0, indexOfPathSeparator);
+		try {
+			FileWriter testWriter = new FileWriter(path + File.separator + "test.bin");
+			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/window/butai.cmp")).buildRaw());
+			testWriter.finish();
+			
+			testWriter = new FileWriter(path + File.separator + "testSlowCompressed.bin");
+			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/window/butai.cmp")).build());
+			testWriter.finish();
+			
+		} catch (IOException | GCNISOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		// Without necessarily allocating all of the space for the data in memory, we just need to figure out the
 		// offsets in the ISO where they should end up. Since we're not adding any files, the FST is mostly ok. The
@@ -388,7 +385,7 @@ public class GCNISOHandler {
 		return name;
 	}
 	
-	private String fstNameOfEntry(GCNFSTEntry entry) {
+	public String fstNameOfEntry(GCNFSTEntry entry) {
 		if (entry.type == GCNFSTEntryType.ROOT) {
 			return "";
 		} else {

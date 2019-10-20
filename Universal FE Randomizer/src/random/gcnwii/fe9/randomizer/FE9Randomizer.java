@@ -63,13 +63,13 @@ public class FE9Randomizer extends Randomizer {
 		int indexOfPathSeparator = targetPath.lastIndexOf(File.separator);
 		String path = targetPath.substring(0, indexOfPathSeparator);
 		
-		try {
-			FileWriter.writeBinaryDataToFile(decompressedSystemData, path + File.separator + "decomp_system.cmp");
-			FileWriter.writeBinaryDataToFile(LZ77.compress(decompressedSystemData, 0xFFF), path + File.separator + "recomp_system.cmp");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			FileWriter.writeBinaryDataToFile(decompressedSystemData, path + File.separator + "decomp_system.cmp");
+//			FileWriter.writeBinaryDataToFile(LZ77.compress(decompressedSystemData, 0xFFF), path + File.separator + "recomp_system.cmp");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		try {
 			FE9CommonTextLoader textData = new FE9CommonTextLoader(handler);

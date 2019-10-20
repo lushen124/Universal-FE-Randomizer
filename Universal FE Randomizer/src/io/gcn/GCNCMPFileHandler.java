@@ -47,7 +47,8 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 		super(entry, handler);
 		
 		byte[] decompressed = LZ77.decompress(handler.readBytesAtOffset(entry.fileOffset, (int)entry.fileSize));
-		assert WhyDoesJavaNotHaveThese.stringFromAsciiBytes(Arrays.copyOfRange(decompressed, 0, 4)) == "pack" : "Invalid file format for GCNCMPFileHandler.";
+		String packString = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(Arrays.copyOfRange(decompressed, 0, 4));
+		assert packString.equals("pack") : "Invalid file format for GCNCMPFileHandler.";
 		
 		filesPackaged = new ArrayList<CMPFileEntry>();
 		filenames = new ArrayList<String>();
@@ -68,11 +69,30 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 				currentValue = decompressed[++nameEnd];
 			} while (currentValue != 0);
 			
+			// I don't think we can necessarily trust the
+			// existing files. Some cmp packages include
+			// files not found elsewhere in the filesystem, and some
+			// include files that are found, but contain
+			// different values?
+//			StringBuilder pathBuilder = new StringBuilder();
+//			GCNFSTEntry parentEntry = entry.parentEntry;
+//			while (parentEntry != null) {
+//				if (parentEntry.type == GCNFSTEntryType.ROOT) { break; }
+//				pathBuilder.insert(0, isoHandler.fstNameOfEntry(parentEntry));
+//				parentEntry = parentEntry.parentEntry;
+//			}
+//			
+//			pathBuilder.append("/");
+			
 			String name = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(Arrays.copyOfRange(decompressed, nameStart, nameEnd));
+			// Fully qualify names so that they're searchable later.
+//			String fullyQualified = pathBuilder.toString() + name;
+			
 			fileMap.put(name, cmpFileEntry);
 			filenames.add(name);
 			GCNFileHandler gcnFileHandler;
 			try {
+//				gcnFileHandler = isoHandler.handlerForFileWithName(fullyQualified);
 				gcnFileHandler = isoHandler.handlerForFileWithName(name);
 			} catch (GCNISOException e) {
 				gcnFileHandler = new GCNByteArrayHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
