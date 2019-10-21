@@ -209,11 +209,11 @@ public class GCNISOHandler {
 		String path = destination.substring(0, indexOfPathSeparator);
 		try {
 			FileWriter testWriter = new FileWriter(path + File.separator + "test.bin");
-			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/window/butai.cmp")).buildRaw());
+			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/zdbx.cmp")).buildRaw());
 			testWriter.finish();
 			
 			testWriter = new FileWriter(path + File.separator + "testSlowCompressed.bin");
-			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/window/butai.cmp")).build());
+			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/zdbx.cmp")).build());
 			testWriter.finish();
 			
 		} catch (IOException | GCNISOException e1) {

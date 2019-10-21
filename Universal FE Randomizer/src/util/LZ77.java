@@ -178,7 +178,6 @@ public class LZ77 {
 				// 12 total bits that could represent the offset.
 				int longestMatchingIndex = -1;
 				int longestMatchLength = 0;
-				int longestSequence = 0;
 				int offset = 0;
 				
 				for (index = Math.max(0, inputOffset - windowSize - 1); index < inputOffset; index++) {
@@ -197,7 +196,6 @@ public class LZ77 {
 							if ((matchingLength >= longestMatchLength)) {// || (matchingLength == longestMatchLength && (inputOffset - index - 1 == 1 || actualLength >= longestSequence)))) {
 								longestMatchingIndex = index;
 								longestMatchLength = matchingLength;
-								longestSequence = actualLength;
 								offset = inputOffset - index - 1;
 							}
 						}

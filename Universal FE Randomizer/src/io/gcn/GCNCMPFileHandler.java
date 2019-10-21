@@ -16,11 +16,13 @@ import util.WhyDoesJavaNotHaveThese;
 public class GCNCMPFileHandler extends GCNFileHandler {
 	
 	private class CMPFileEntry {
+		public long headerValue; // This is usually 00 00 00 00, but there have been some files (ex. EID_BREATHWHITE.cmp) that use 00 00 00 01. :/
 		public long namePointer;
 		public long filePointer;
 		public long fileLength;
 		
 		public CMPFileEntry(byte[] data) {
+			headerValue = WhyDoesJavaNotHaveThese.longValueFromByteArray(Arrays.copyOfRange(data, 0, 4), false);
 			namePointer = WhyDoesJavaNotHaveThese.longValueFromByteArray(Arrays.copyOfRange(data, 4, 8), false);
 			filePointer = WhyDoesJavaNotHaveThese.longValueFromByteArray(Arrays.copyOfRange(data, 8, 12), false);
 			fileLength = WhyDoesJavaNotHaveThese.longValueFromByteArray(Arrays.copyOfRange(data, 12, 16), false);
@@ -28,7 +30,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 		
 		public byte[] toByteArray() {
 			return new byte[] {
-					0, 0, 0, 0,
+					(byte)((headerValue >> 24) & 0xFF), (byte)((headerValue >> 16) & 0xFF), (byte)((headerValue >> 8) & 0xFF), (byte)(headerValue & 0xFF),
 					(byte)((namePointer >> 24) & 0xFF), (byte)((namePointer >> 16) & 0xFF), (byte)((namePointer >> 8) & 0xFF), (byte)(namePointer & 0xFF),
 					(byte)((filePointer >> 24) & 0xFF), (byte)((filePointer >> 16) & 0xFF), (byte)((filePointer >> 8) & 0xFF), (byte)(filePointer & 0xFF),
 					(byte)((fileLength >> 24) & 0xFF), (byte)((fileLength >> 16) & 0xFF), (byte)((fileLength >> 8) & 0xFF), (byte)(fileLength & 0xFF)
@@ -91,12 +93,15 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			fileMap.put(name, cmpFileEntry);
 			filenames.add(name);
 			GCNFileHandler gcnFileHandler;
-			try {
+//			try {
+				// We can't trust the ones from the main file system, because
+				// some of them (e.g. xcam/class_chg.dbx) have incorrect
+				// sizes on the file system.
 //				gcnFileHandler = isoHandler.handlerForFileWithName(fullyQualified);
-				gcnFileHandler = isoHandler.handlerForFileWithName(name);
-			} catch (GCNISOException e) {
+//				gcnFileHandler = isoHandler.handlerForFileWithName(name);
+//			} catch (GCNISOException e) {
 				gcnFileHandler = new GCNByteArrayHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
-			}
+//			}
 			cachedHandlers.put(name, gcnFileHandler);
 			offset += entryData.length;
 		}
@@ -167,6 +172,8 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			
 			fileHandler.endBatchRead();
 		}
+		
+		while (builder.getBytesWritten() % 0x20 != 0) { builder.appendByte((byte)0); }
 		
 		return builder.toByteArray();
 	}
