@@ -10,6 +10,7 @@ import java.util.Map;
 import io.FileHandler;
 import io.FileWriter;
 import util.ByteArrayBuilder;
+import util.Diff;
 import util.LZ77;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -43,12 +44,14 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 	private Map<String, CMPFileEntry> fileMap;
 	private Map<String, GCNFileHandler> cachedHandlers;
 	
+	private byte[] originalCompressed;
 	private byte[] cachedBuild;
 
 	public GCNCMPFileHandler(GCNFSTFileEntry entry, FileHandler handler, GCNISOHandler isoHandler) throws GCNISOException {
 		super(entry, handler);
 		
-		byte[] decompressed = LZ77.decompress(handler.readBytesAtOffset(entry.fileOffset, (int)entry.fileSize));
+		originalCompressed = handler.readBytesAtOffset(entry.fileOffset, (int)entry.fileSize);
+		byte[] decompressed = LZ77.decompress(originalCompressed);
 		String packString = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(Arrays.copyOfRange(decompressed, 0, 4));
 		assert packString.equals("pack") : "Invalid file format for GCNCMPFileHandler.";
 		
@@ -116,6 +119,16 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 	}
 	
 	public byte[] buildRaw() {
+		// Check to see if we actually need this. No sense rebuilding it if we didn't change anything.
+		boolean hasChanges = false;
+		for (GCNFileHandler handler : cachedHandlers.values()) {
+			if (handler.hasChanges()) { hasChanges = true; break; }
+		}
+		if (!hasChanges) {
+			cachedBuild = originalCompressed;
+			return null; 
+		}
+		
 		ByteArrayBuilder builder = new ByteArrayBuilder();
 		// Build the header. The first four bytes are "pack" in ascii,
 		// followed by a short for the number of files.
@@ -179,7 +192,18 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 	}
 	
 	public byte[] build() {
-		if (cachedBuild == null) { cachedBuild = LZ77.compress(buildRaw(), 0xFFF); }
+		if (cachedBuild == null) { 
+			boolean hasChanges = false;
+			for (GCNFileHandler handler : cachedHandlers.values()) {
+				if (handler.hasChanges()) { hasChanges = true; break; }
+			}
+			
+			if (!hasChanges) {
+				cachedBuild = originalCompressed; 
+			} else {
+				cachedBuild = LZ77.compress(buildRaw(), 0xFFF);
+			}
+		}
 		return cachedBuild;
 	}
 
@@ -188,6 +212,9 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 		if (cachedBuild != null) { return cachedBuild.length; }
 		else { return super.getFileLength(); }
 	}
-	
-	
+
+	@Override
+	public void addChange(Diff change) {
+		assert false : "Changes should be made to the included files, not to the CMP file directly.";
+	}
 }

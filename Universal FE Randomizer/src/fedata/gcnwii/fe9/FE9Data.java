@@ -12,17 +12,17 @@ public class FE9Data {
 	// offsets are going to be read from files.
 	
 	public static final long CharacterDataStartOffset = 0x30;
-	public static final String CharacterDataFilename = "FE8Data.bin";
+	public static final String CharacterDataFilename = "system.cmp/FE8Data.bin";
 	public static final int CharacterCount = 0x154; // Maybe?
 	public static final int CharacterDataSize = 0x54;
 	
 	public static final long ClassDataStartOffset = 0x6FC4;
-	public static final String ClassDataFilename = "FE8Data.bin";
+	public static final String ClassDataFilename = "system.cmp/FE8Data.bin";
 	public static final int ClassCount = 0x73;
 	public static final int ClassDataSize = 0x64;
 	
 	public static final long ItemDataStartOffset = 0x9CB4;
-	public static final String ItemDataFilename = "FE8Data.bin";
+	public static final String ItemDataFilename = "system.cmp/FE8Data.bin";
 	public static final int ItemCount = 0xBD;
 	public static final int ItemDataSize = 0x60;
 	

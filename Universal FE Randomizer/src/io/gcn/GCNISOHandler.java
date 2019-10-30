@@ -189,7 +189,14 @@ public class GCNISOHandler {
 		}
 		if (entry.type == GCNFSTEntryType.FILE) {
 			if (filename.endsWith("cmp")) {
-				fileHandler = new GCNCMPFileHandler((GCNFSTFileEntry)entry, handler, this);
+				GCNCMPFileHandler cmpHandler = new GCNCMPFileHandler((GCNFSTFileEntry)entry, handler, this);
+				// Register all contained files as well.
+				for (String name : cmpHandler.getNames()) {
+					GCNFileHandler handler = cmpHandler.getChildHandler(name);
+					cachedFileHandlers.put(filename + "/" + name, handler);
+				}
+				
+				fileHandler = cmpHandler;
 			} else {
 				fileHandler = new GCNFileHandler((GCNFSTFileEntry)entry, handler);
 			}
@@ -205,21 +212,21 @@ public class GCNISOHandler {
 		// Rebuild the FST first.
 		if (delegate != null) { delegate.onProgressUpdate(0.1); delegate.onStatusUpdate("Recompiling ISO..."); }
 		
-		int indexOfPathSeparator = destination.lastIndexOf(File.separator);
-		String path = destination.substring(0, indexOfPathSeparator);
-		try {
-			FileWriter testWriter = new FileWriter(path + File.separator + "test.bin");
-			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/zdbx.cmp")).buildRaw());
-			testWriter.finish();
-			
-			testWriter = new FileWriter(path + File.separator + "testSlowCompressed.bin");
-			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/zdbx.cmp")).build());
-			testWriter.finish();
-			
-		} catch (IOException | GCNISOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+//		int indexOfPathSeparator = destination.lastIndexOf(File.separator);
+//		String path = destination.substring(0, indexOfPathSeparator);
+//		try {
+//			FileWriter testWriter = new FileWriter(path + File.separator + "test.bin");
+//			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/zdbx.cmp")).buildRaw());
+//			testWriter.finish();
+//			
+//			testWriter = new FileWriter(path + File.separator + "testSlowCompressed.bin");
+//			testWriter.write(((GCNCMPFileHandler)handlerForFileWithName("/zdbx.cmp")).build());
+//			testWriter.finish();
+//			
+//		} catch (IOException | GCNISOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 		
 		// Without necessarily allocating all of the space for the data in memory, we just need to figure out the
 		// offsets in the ISO where they should end up. Since we're not adding any files, the FST is mostly ok. The

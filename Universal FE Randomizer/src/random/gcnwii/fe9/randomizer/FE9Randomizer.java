@@ -57,12 +57,12 @@ public class FE9Randomizer extends Randomizer {
 			return;
 		}
 		
-		DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "System.CMP: " + WhyDoesJavaNotHaveThese.displayStringForBytes(systemCMP.readBytesAtOffset(0, 0x10)));
-		byte[] systemData = systemCMP.readBytesAtOffset(0, (int)systemCMP.getFileLength());
-		byte[] decompressedSystemData = LZ77.decompress(systemData);
-		int indexOfPathSeparator = targetPath.lastIndexOf(File.separator);
-		String path = targetPath.substring(0, indexOfPathSeparator);
-		
+//		DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "System.CMP: " + WhyDoesJavaNotHaveThese.displayStringForBytes(systemCMP.readBytesAtOffset(0, 0x10)));
+//		byte[] systemData = systemCMP.readBytesAtOffset(0, (int)systemCMP.getFileLength());
+//		byte[] decompressedSystemData = LZ77.decompress(systemData);
+//		int indexOfPathSeparator = targetPath.lastIndexOf(File.separator);
+//		String path = targetPath.substring(0, indexOfPathSeparator);
+//		
 //		try {
 //			FileWriter.writeBinaryDataToFile(decompressedSystemData, path + File.separator + "decomp_system.cmp");
 //			FileWriter.writeBinaryDataToFile(LZ77.compress(decompressedSystemData, 0xFFF), path + File.separator + "recomp_system.cmp");

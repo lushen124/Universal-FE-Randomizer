@@ -28,8 +28,7 @@ public class DebugPrinter {
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
 		case MAIN:
-		case GCN_HANDLER:
-		case LZ77:
+		case FE9_CHARACTER_LOADER:
 			return true;
 		default:
 			return false;

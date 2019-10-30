@@ -1,6 +1,7 @@
 package io.gcn;
 
 import io.FileHandler;
+import util.Diff;
 import util.DiffCompiler;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -13,10 +14,14 @@ public class GCNFileHandler {
 	private boolean isBatchReading = false;
 	private long savedReadOffset = 0;
 	
+	protected DiffCompiler diffCompiler;
+	
 	public GCNFileHandler(GCNFSTFileEntry file, FileHandler handler) {
 		this.fileEntry = file;
 		this.handler = handler;
 		nextReadOffset += fileEntry.fileOffset;
+		
+		diffCompiler = new DiffCompiler();
 	}
 	
 	private long getMaxOffset() {
@@ -60,16 +65,22 @@ public class GCNFileHandler {
 	}
 	
 	public byte[] continueReadingBytes(int numBytes) {
+		long readIndex = nextReadOffset;
+		
 		long oldOffset = handler.getNextReadOffset();
 		if (!isBatchReading) { handler.setNextReadOffset(nextReadOffset); }
 		byte[] outputBytes = handler.continueReadingBytes((int)Math.min(numBytes, getMaxOffset() - nextReadOffset));
 		nextReadOffset = handler.getNextReadOffset();
 		if (!isBatchReading) { handler.setNextReadOffset(oldOffset); }
 		
+		diffCompiler.applyDiffs(outputBytes, readIndex);
+		
 		return outputBytes;
 	}
 	
 	public int continueReadingBytes(byte[] buffer) {
+		long readIndex = nextReadOffset;
+		
 		long oldOffset = handler.getNextReadOffset();
 		if (!isBatchReading) { handler.setNextReadOffset(nextReadOffset); }
 		int bytesRead = 0;
@@ -84,15 +95,21 @@ public class GCNFileHandler {
 		nextReadOffset = handler.getNextReadOffset();
 		if (!isBatchReading) { handler.setNextReadOffset(oldOffset); }
 		
+		diffCompiler.applyDiffs(buffer, readIndex);
+		
 		return bytesRead;
 	}
 	
 	public byte[] continueReadingBytesUpToNextTerminator(long maxOffset) {
+		long readIndex = nextReadOffset;
+		
 		long oldOffset = handler.getNextReadOffset();
 		if (!isBatchReading) { handler.setNextReadOffset(nextReadOffset); }
 		byte[] outputBytes = handler.continueReadingBytesUpToNextTerminator(maxOffset + nextReadOffset);
 		nextReadOffset = handler.getNextReadOffset();
 		if (!isBatchReading) { handler.setNextReadOffset(oldOffset); }
+		
+		diffCompiler.applyDiffs(outputBytes, readIndex);
 		
 		return outputBytes;
 	}
@@ -104,6 +121,8 @@ public class GCNFileHandler {
 		nextReadOffset = handler.getNextReadOffset();
 		handler.setNextReadOffset(oldOffset);
 		
+		diffCompiler.applyDiffs(outputBytes, offset);
+		
 		return outputBytes;
 	}
 
@@ -112,4 +131,13 @@ public class GCNFileHandler {
 		return fileEntry.fileSize;
 	}
 	
+	public boolean hasChanges() {
+		return !diffCompiler.diffArray.isEmpty();
+	}
+	
+	public void addChange(Diff change) {
+		assert change.address < getFileLength() : "Invalid address for change.";
+		
+		diffCompiler.addDiff(change);
+	}
 }
