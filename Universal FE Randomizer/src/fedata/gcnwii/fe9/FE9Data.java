@@ -26,6 +26,11 @@ public class FE9Data {
 	public static final int ItemCount = 0xBD;
 	public static final int ItemDataSize = 0x60;
 	
+	public static final long SkillDataStartOffset = 0xE398;
+	public static final String SkillDataFilename = "system.cmp/FE8Data.bin";
+	public static final int SkillCount = 0x62;
+	public static final int SkillDataSize = 0x28;
+	
 	public static final long CommonTextDataStartOffset = 0x155CC;
 	public static final long CommonTextIDStartOffset = 0x1A4DC;
 	public static final String CommonTextFilename = "mess/common.m";

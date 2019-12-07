@@ -76,7 +76,9 @@ public class GCNByteArrayHandler extends GCNFileHandler {
 		
 		ByteArrayBuilder builder = new ByteArrayBuilder();
 		while (nextReadIndex < maxOffset && nextReadIndex < byteArray.length) {
-			builder.appendByte(byteArray[nextReadIndex++]);
+			byte byteRead = byteArray[nextReadIndex++];
+			if (byteRead == 0) { break; }
+			builder.appendByte(byteRead);
 		}
 		
 		return diffCompiler.byteArrayWithDiffs(builder.toByteArray(), readIndex);
