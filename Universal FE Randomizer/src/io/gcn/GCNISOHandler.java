@@ -165,6 +165,24 @@ public class GCNISOHandler {
 		return gameName;
 	}
 	
+	public List<GCNFSTEntry> entriesWithFilename(String filename) throws GCNISOException {
+		List<GCNFSTEntry> result = new ArrayList<GCNFSTEntry>();
+		
+		for (String key : fstLookup.keySet()) {
+			if (key.contains(filename.toLowerCase())) {
+				result.add(fstLookup.get(key));
+			}
+		}
+		
+		return result;
+	}
+	
+	public GCNFileHandler handlerForFSTEntry(GCNFSTEntry entry) throws GCNISOException {
+		if (entry == null) { return null; }
+		String filename = fstNameOfEntry(entry);
+		return handlerForFileWithName(filename);
+	}
+	
 	public GCNFileHandler handlerForFileWithName(String filename) throws GCNISOException {
 		if (!filename.startsWith("/")) {
 			filename = "/" + filename;

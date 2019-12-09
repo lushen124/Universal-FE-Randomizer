@@ -2,9 +2,13 @@ package random.gcnwii.fe9.randomizer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import io.FileHandler;
 import io.FileWriter;
+import io.gcn.GCNCMPFileHandler;
+import io.gcn.GCNFSTEntry;
+import io.gcn.GCNFSTFileEntry;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
@@ -71,6 +75,42 @@ public class FE9Randomizer extends Randomizer {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		
+		int indexOfPathSeparator = targetPath.lastIndexOf(File.separator);
+		String path = targetPath.substring(0, indexOfPathSeparator);
+		
+		try {
+			List<GCNFSTEntry> disposEntries = handler.entriesWithFilename("dispos.cmp");
+			for (GCNFSTEntry entry : disposEntries) {
+				String fullName = handler.fstNameOfEntry(entry);
+				fullName = fullName.replace("/", "_");
+				String disposPath = path + File.separator + "dispos" + File.separator + fullName;
+				GCNFileHandler fileHandler = handler.handlerForFSTEntry(entry);
+				
+				byte[] data = fileHandler.readBytesAtOffset(0, (int)fileHandler.getFileLength());
+				try {
+					FileWriter.writeBinaryDataToFile(LZ77.decompress(data), disposPath);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				GCNCMPFileHandler cmpHandler = (GCNCMPFileHandler)fileHandler;
+				for (String packedName : cmpHandler.getNames()) {
+					GCNFileHandler childHandler = cmpHandler.getChildHandler(packedName);
+					String childPath = disposPath + File.separator + packedName;
+					byte[] childData = childHandler.readBytesAtOffset(0, (int)childHandler.getFileLength());
+					try {
+						FileWriter.writeBinaryDataToFile(childData, childPath);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} catch (GCNISOException e) {
+			e.printStackTrace();
+			notifyError("Failed to extract dispos.cmp files.");
+			return;
+		}
 		
 		try {
 			FE9CommonTextLoader textData = new FE9CommonTextLoader(handler);
