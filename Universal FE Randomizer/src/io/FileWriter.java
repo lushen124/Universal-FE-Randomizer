@@ -9,8 +9,11 @@ import java.io.InputStream;
 public class FileWriter {
 
 	public static void writeBinaryDataToFile(byte[] data, String destinationFile) throws IOException {
-		new File(destinationFile.substring(0, destinationFile.lastIndexOf(File.separator))).mkdirs();
-		FileOutputStream outputStream = new FileOutputStream(destinationFile);
+		String dirPath = destinationFile.substring(0, destinationFile.lastIndexOf(File.separator));
+		String filename = destinationFile.substring(destinationFile.lastIndexOf(File.separator) + 1);
+		dirPath = dirPath.replace('.', '_');
+		new File(dirPath).mkdirs();
+		FileOutputStream outputStream = new FileOutputStream(dirPath + File.separator + filename);
 		outputStream.write(data);
 		outputStream.close();
 	}

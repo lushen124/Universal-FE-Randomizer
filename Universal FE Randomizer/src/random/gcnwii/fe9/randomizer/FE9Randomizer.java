@@ -3,6 +3,7 @@ package random.gcnwii.fe9.randomizer;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
 import io.FileHandler;
 import io.FileWriter;
@@ -20,7 +21,9 @@ import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
 import util.DebugPrinter;
+import util.DiffCompiler;
 import util.LZ77;
+import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE9Randomizer extends Randomizer {
@@ -113,11 +116,19 @@ public class FE9Randomizer extends Randomizer {
 		}
 		
 		try {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9GrowthRandomizer.rngSalt));
+			
 			FE9CommonTextLoader textData = new FE9CommonTextLoader(handler);
 			FE9CharacterDataLoader charData = new FE9CharacterDataLoader(handler, textData);
 			FE9ClassDataLoader classData = new FE9ClassDataLoader(handler, textData);
 			FE9ItemDataLoader itemData = new FE9ItemDataLoader(handler, textData);
 			FE9SkillDataLoader skillData = new FE9SkillDataLoader(handler, textData);
+			
+			FE9GrowthRandomizer.randomizeGrowthsByRedistribution(0, true, charData, classData, rng);
+			
+			charData.compileDiffs(handler);
+			
+			
 		} catch (GCNISOException e1) {
 			notifyError("Failed to load character data.");
 			return;
