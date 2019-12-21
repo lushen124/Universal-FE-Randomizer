@@ -10,6 +10,7 @@ import java.util.Map;
 import io.FileHandler;
 import io.FileWriter;
 import util.ByteArrayBuilder;
+import util.DebugPrinter;
 import util.Diff;
 import util.LZ77;
 import util.WhyDoesJavaNotHaveThese;
@@ -46,9 +47,13 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 	
 	private byte[] originalCompressed;
 	private byte[] cachedBuild;
+	
+	private String identifier;
 
 	public GCNCMPFileHandler(GCNFSTFileEntry entry, FileHandler handler, GCNISOHandler isoHandler) throws GCNISOException {
 		super(entry, handler);
+		
+		identifier = isoHandler.fstNameOfEntry(entry);
 		
 		originalCompressed = handler.readBytesAtOffset(entry.fileOffset, (int)entry.fileSize);
 		byte[] decompressed = LZ77.decompress(originalCompressed);
@@ -118,7 +123,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 		return cachedHandlers.get(name);
 	}
 	
-	public byte[] buildRaw() {
+	private byte[] buildRaw() {
 		// Check to see if we actually need this. No sense rebuilding it if we didn't change anything.
 		boolean hasChanges = false;
 		for (GCNFileHandler handler : cachedHandlers.values()) {
@@ -191,6 +196,10 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 		return builder.toByteArray();
 	}
 	
+	public void resetBuild() {
+		cachedBuild = null;
+	}
+	
 	public byte[] build() {
 		if (cachedBuild == null) { 
 			boolean hasChanges = false;
@@ -202,6 +211,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 				cachedBuild = originalCompressed; 
 			} else {
 				cachedBuild = LZ77.compress(buildRaw(), 0xFFF);
+				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Compressed " + identifier + " to " + cachedBuild.length + " bytes");
 			}
 		}
 		return cachedBuild;

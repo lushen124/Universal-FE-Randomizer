@@ -115,6 +115,12 @@ public class GCNISOHandler {
 				byte[] sizeData = handler.continueReadingBytes(0x4);
 				fileEntry.fileSize = WhyDoesJavaNotHaveThese.longValueFromByteArray(sizeData, false);
 				
+				// Just to be safe, set the updated offsets to be the same.
+				// This is to make sure we make a distinction between where we read from and where we write to,
+				// as those two can be different, due to changes in file sizes.
+				fileEntry.updatedOffset = fileEntry.fileOffset;
+				fileEntry.updatedSize = fileEntry.fileSize;
+				
 				currentDirectory.childEntries.add(fileEntry);
 				fileEntry.parentEntry = currentDirectory;
 				
@@ -294,7 +300,12 @@ public class GCNISOHandler {
 					delegate.onProgressUpdate(0.6 + 0.4 * (double)i / (double)fileDataOrder.size()); 
 					delegate.onStatusUpdate("Writing File Data (" + fstNameOfEntry(fileEntry) + ")...");
 				}
-				while (writer.getBytesWritten() < fileEntry.fileOffset) { writer.write((byte)0); }
+				while (writer.getBytesWritten() < fileEntry.updatedOffset) { writer.write((byte)0); }
+				
+				long beginningOffset = writer.getBytesWritten();
+				String name = fstNameOfEntry(fileEntry);
+				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Writing " + name + " data at offset 0x" + Long.toHexString(beginningOffset));
+				
 				GCNFileHandler fileHandler = handlerForFileWithName(fstNameOfEntry(fileEntry));
 				if (fileHandler instanceof GCNCMPFileHandler) {
 					GCNCMPFileHandler cmpFileHandler = (GCNCMPFileHandler)fileHandler;
@@ -310,6 +321,8 @@ public class GCNISOHandler {
 					
 					fileHandler.endBatchRead();
 				}
+				long bytesWritten = writer.getBytesWritten() - beginningOffset;
+				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Wrote " + bytesWritten + " btyes");
 			}
 			
 			writer.finish();
@@ -326,6 +339,7 @@ public class GCNISOHandler {
 		}
 	}
 	
+	// This writes using the updated offsets, so they should be calculated before writing.
 	private void writeEntry(GCNFSTEntry entry, FileWriter writer) throws IOException {
 		byte[] entryData = new byte[0xC];
 		long filenameOffset = entry.nameOffset;
@@ -338,14 +352,14 @@ public class GCNISOHandler {
 		if (entry.type == GCNFSTEntryType.FILE) {
 			GCNFSTFileEntry file = (GCNFSTFileEntry)entry;
 			entryData[0] = 0;
-			entryData[4] = (byte)((file.fileOffset >> 24) & 0xFF);
-			entryData[5] = (byte)((file.fileOffset >> 16) & 0xFF);
-			entryData[6] = (byte)((file.fileOffset >> 8) & 0xFF);
-			entryData[7] = (byte)((file.fileOffset) & 0xFF);
-			entryData[8] = (byte)((file.fileSize >> 24) & 0xFF);
-			entryData[9] = (byte)((file.fileSize >> 16) & 0xFF);
-			entryData[10] = (byte)((file.fileSize >> 8) & 0xFF);
-			entryData[11] = (byte)((file.fileSize) & 0xFF);
+			entryData[4] = (byte)((file.updatedOffset >> 24) & 0xFF);
+			entryData[5] = (byte)((file.updatedOffset >> 16) & 0xFF);
+			entryData[6] = (byte)((file.updatedOffset >> 8) & 0xFF);
+			entryData[7] = (byte)((file.updatedOffset) & 0xFF);
+			entryData[8] = (byte)((file.updatedSize >> 24) & 0xFF);
+			entryData[9] = (byte)((file.updatedSize >> 16) & 0xFF);
+			entryData[10] = (byte)((file.updatedSize >> 8) & 0xFF);
+			entryData[11] = (byte)((file.updatedSize) & 0xFF);
 		} else {
 			GCNFSTDirectoryEntry directory = (GCNFSTDirectoryEntry)entry;
 			entryData[0] = 1;
@@ -386,8 +400,10 @@ public class GCNISOHandler {
 			}
 			fileDataOrder.add(file);
 			if (currentDataOffset == -1) { currentDataOffset = file.fileOffset; } // Initialize the offset to the first file's offset.
-			else { file.fileOffset = currentDataOffset; }
-			file.fileSize = handler.getFileLength();
+			else { file.updatedOffset = currentDataOffset; }
+			file.updatedSize = handler.getFileLength();
+			
+			DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Entry " + fstNameOfEntry(entry) + " at offset 0x" + Long.toHexString(currentDataOffset) + " length: " + handler.getFileLength());
 			
 			currentDataOffset += handler.getFileLength();
 			

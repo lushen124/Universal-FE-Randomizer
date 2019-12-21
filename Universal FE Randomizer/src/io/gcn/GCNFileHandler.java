@@ -86,8 +86,9 @@ public class GCNFileHandler {
 		int bytesRead = 0;
 		if (buffer.length + nextReadOffset > getMaxOffset()) {
 			int remainingBytes = (int)(getMaxOffset() - nextReadOffset);
-			WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(continueReadingBytes(remainingBytes), buffer, 0, remainingBytes);
-			bytesRead = remainingBytes;
+			byte[] actualBytes = continueReadingBytes(remainingBytes);
+			WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(actualBytes, buffer, 0, actualBytes.length);
+			bytesRead = actualBytes.length;
 		} else {
 			bytesRead = handler.continueReadingBytes(buffer);
 		}
