@@ -8,16 +8,13 @@ import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader.StatBias;
 import random.general.WeightedDistributor;
+import util.WhyDoesJavaNotHaveThese;
 
 public class FE9GrowthRandomizer {
 	
 	static final int rngSalt = 4892;
 	
 	private enum StatArea { HP, STR, MAG, SKL, SPD, LCK, DEF, RES; }
-	
-	public static void randomizeGrowthsByVariance(int variance, FE9CharacterDataLoader charData, Random rng) {
-		
-	}
 	
 	public static void randomizeGrowthsByRedistribution(int variance, boolean adjustHP, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
 		FE9Character[] characters = charData.allPlayableCharacters();
@@ -129,5 +126,98 @@ public class FE9GrowthRandomizer {
 		
 		charData.commit();
 	}
+	
+	public static void randomizeGrowthsByDelta(int variance, FE9CharacterDataLoader charData, Random rng) {
+		FE9Character[] characters = charData.allPlayableCharacters();
+		for (FE9Character character : characters) {
+			if (character.wasModified()) { continue; }
+			
+			int delta = rng.nextInt(variance + 1);
+			int sign = rng.nextInt(2) == 0 ? 1 : -1;
+			character.setHPGrowth(WhyDoesJavaNotHaveThese.clamp(character.getHPGrowth() + sign * delta, 0, 255));
+			
+			delta = rng.nextInt(variance + 1);
+			sign = rng.nextInt(2) == 0 ? 1 : -1;
+			character.setSTRGrowth(WhyDoesJavaNotHaveThese.clamp(character.getSTRGrowth() + sign * delta, 0, 255));
+			
+			delta = rng.nextInt(variance + 1);
+			sign = rng.nextInt(2) == 0 ? 1 : -1;
+			character.setMAGGrowth(WhyDoesJavaNotHaveThese.clamp(character.getMAGGrowth() + sign * delta, 0, 255));
+			
+			delta = rng.nextInt(variance + 1);
+			sign = rng.nextInt(2) == 0 ? 1 : -1;
+			character.setSKLGrowth(WhyDoesJavaNotHaveThese.clamp(character.getSKLGrowth() + sign * delta, 0, 255));
+			
+			delta = rng.nextInt(variance + 1);
+			sign = rng.nextInt(2) == 0 ? 1 : -1;
+			character.setSPDGrowth(WhyDoesJavaNotHaveThese.clamp(character.getSPDGrowth() + sign * delta, 0, 255));
+			
+			delta = rng.nextInt(variance + 1);
+			sign = rng.nextInt(2) == 0 ? 1 : -1;
+			character.setLCKGrowth(WhyDoesJavaNotHaveThese.clamp(character.getLCKGrowth() + sign * delta, 0, 255));
+			
+			delta = rng.nextInt(variance + 1);
+			sign = rng.nextInt(2) == 0 ? 1 : -1;
+			character.setDEFGrowth(WhyDoesJavaNotHaveThese.clamp(character.getDEFGrowth() + sign * delta, 0, 255));
+			
+			delta = rng.nextInt(variance + 1);
+			sign = rng.nextInt(2) == 0 ? 1 : -1;
+			character.setRESGrowth(WhyDoesJavaNotHaveThese.clamp(character.getRESGrowth() + sign * delta, 0, 255));
+		}
+		
+		charData.commit();
+	}
 
+	public static void randomizeGrowthsFully(int minimum, int maximum, boolean adjustHP, boolean adjustSTRMAGSplit, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
+		FE9Character[] characters = charData.allPlayableCharacters();
+		
+		int range = maximum - minimum + 1;
+		
+		for (FE9Character character : characters) {
+			if (character.wasModified()) { continue; }
+			
+			if (adjustHP) { // Keep the HP growth in the upper half of the range.
+				int offset = rng.nextInt(range / 2);
+				character.setHPGrowth(minimum + (range / 2) + offset);
+			} else {
+				character.setHPGrowth(minimum + rng.nextInt(range));
+			}
+			
+			int powGrowth1 = minimum + rng.nextInt(range);
+			int powGrowth2 = minimum + rng.nextInt(range);
+			
+			if (adjustSTRMAGSplit) {
+				String classID = charData.pointerLookup(character.getClassPointer());
+				FE9Class charClass = classData.classWithID(classID);
+				StatBias bias = classData.statBiasForClass(charClass);
+				switch (bias) {
+				case NONE: 
+					character.setSTRGrowth(powGrowth1); 
+					character.setMAGGrowth(powGrowth2); 
+					break;
+				case PHYSICAL_ONLY:
+				case LEAN_PHYSICAL:
+					character.setSTRGrowth(Math.max(powGrowth1, powGrowth2));
+					character.setMAGGrowth(Math.min(powGrowth1, powGrowth2));
+					break;
+				case MAGICAL_ONLY:
+				case LEAN_MAGICAL:
+					character.setSTRGrowth(Math.min(powGrowth1, powGrowth2));
+					character.setMAGGrowth(Math.max(powGrowth1, powGrowth2));
+					break;
+				}
+			} else {
+				character.setSTRGrowth(powGrowth1);
+				character.setMAGGrowth(powGrowth2);
+			}
+			
+			character.setSKLGrowth(minimum + rng.nextInt(range));
+			character.setSPDGrowth(minimum + rng.nextInt(range));
+			character.setLCKGrowth(minimum + rng.nextInt(range));
+			character.setDEFGrowth(minimum + rng.nextInt(range));
+			character.setRESGrowth(minimum + rng.nextInt(range));
+		}
+		
+		charData.commit();
+	}
 }

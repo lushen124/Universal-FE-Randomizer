@@ -32,6 +32,7 @@ public class FEBase {
 		public boolean hasSTRMAGSplit() {
 			switch(this) {
 			case FE4:
+			case FE9:
 				return true;
 			default:
 				return false;

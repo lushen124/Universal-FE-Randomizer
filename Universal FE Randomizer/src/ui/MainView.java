@@ -496,7 +496,12 @@ public class MainView implements FileFlowDelegate {
 			randomizeButton.setLayoutData(randomizeData);
 			
 		} else if (type == GameType.FE9) {
-			
+			FormData randomizeData = new FormData();
+			randomizeData.top = new FormAttachment(growthView, 0, SWT.TOP);
+			randomizeData.left = new FormAttachment(growthView, 5);
+			randomizeData.right = new FormAttachment(100, -10);
+			randomizeData.bottom = new FormAttachment(baseView, 0, SWT.BOTTOM);
+			randomizeButton.setLayoutData(randomizeData);
 		} else {
 			otherCharOptionView = new MOVCONAffinityView(container, SWT.NONE);
 			otherCharOptionView.setSize(200, 200);
@@ -792,7 +797,9 @@ public class MainView implements FileFlowDelegate {
 											seedField.getText());
 								}
 							} else if (gameType.isGCN()) {
-								randomizer = new FE9Randomizer(pathToFile, writePath, seedField.getText());
+								randomizer = new FE9Randomizer(pathToFile, writePath,
+										growthView.getGrowthOptions(),
+										seedField.getText());
 							}
 							
 							randomizer.setListener(new RandomizerListener() {

@@ -20,6 +20,7 @@ import random.gcnwii.fe9.loader.FE9CommonTextLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
+import ui.model.GrowthOptions;
 import util.DebugPrinter;
 import util.DiffCompiler;
 import util.LZ77;
@@ -34,11 +35,21 @@ public class FE9Randomizer extends Randomizer {
 	
 	private GCNISOHandler handler;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, String seed) {
+	private GrowthOptions growthOptions;
+	
+	FE9CommonTextLoader textData;
+	FE9CharacterDataLoader charData;
+	FE9ClassDataLoader classData;
+	FE9ItemDataLoader itemData;
+	FE9SkillDataLoader skillData;
+	
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
+		
+		this.growthOptions = growthOptions;
 		
 		this.seedString = seed;
 	}
@@ -56,28 +67,6 @@ public class FE9Randomizer extends Randomizer {
 		} catch (GCNISOException e) {
 			notifyError("Failed to read Gamecube ISO format.");
 		}
-		
-		GCNFileHandler systemCMP;
-		try {
-			systemCMP = handler.handlerForFileWithName("system.cmp");
-		} catch (GCNISOException e) {
-			notifyError("Failed to read filesystem file: system.cmp");
-			return;
-		}
-		
-//		DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "System.CMP: " + WhyDoesJavaNotHaveThese.displayStringForBytes(systemCMP.readBytesAtOffset(0, 0x10)));
-//		byte[] systemData = systemCMP.readBytesAtOffset(0, (int)systemCMP.getFileLength());
-//		byte[] decompressedSystemData = LZ77.decompress(systemData);
-//		int indexOfPathSeparator = targetPath.lastIndexOf(File.separator);
-//		String path = targetPath.substring(0, indexOfPathSeparator);
-//		
-//		try {
-//			FileWriter.writeBinaryDataToFile(decompressedSystemData, path + File.separator + "decomp_system.cmp");
-//			FileWriter.writeBinaryDataToFile(LZ77.compress(decompressedSystemData, 0xFFF), path + File.separator + "recomp_system.cmp");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		
 		int indexOfPathSeparator = targetPath.lastIndexOf(File.separator);
 		String path = targetPath.substring(0, indexOfPathSeparator);
@@ -116,15 +105,13 @@ public class FE9Randomizer extends Randomizer {
 		}
 		
 		try {
-			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9GrowthRandomizer.rngSalt));
+			textData = new FE9CommonTextLoader(handler);
+			charData = new FE9CharacterDataLoader(handler, textData);
+			classData = new FE9ClassDataLoader(handler, textData);
+			itemData = new FE9ItemDataLoader(handler, textData);
+			skillData = new FE9SkillDataLoader(handler, textData);
 			
-			FE9CommonTextLoader textData = new FE9CommonTextLoader(handler);
-			FE9CharacterDataLoader charData = new FE9CharacterDataLoader(handler, textData);
-			FE9ClassDataLoader classData = new FE9ClassDataLoader(handler, textData);
-			FE9ItemDataLoader itemData = new FE9ItemDataLoader(handler, textData);
-			FE9SkillDataLoader skillData = new FE9SkillDataLoader(handler, textData);
-			
-			FE9GrowthRandomizer.randomizeGrowthsByRedistribution(0, true, charData, classData, rng);
+			randomizeGrowthsIfNecessary(seed);
 			
 			charData.compileDiffs(handler);
 			
@@ -148,5 +135,23 @@ public class FE9Randomizer extends Randomizer {
 		});
 		
 		notifyCompletion(null);
+	}
+	
+	private void randomizeGrowthsIfNecessary(String seed) {
+		if (growthOptions != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9GrowthRandomizer.rngSalt));
+			switch (growthOptions.mode) {
+			case REDISTRIBUTE:
+				FE9GrowthRandomizer.randomizeGrowthsByRedistribution(growthOptions.redistributionOption.variance, growthOptions.adjustHP, charData, classData, rng);
+				break;
+			case DELTA:
+				FE9GrowthRandomizer.randomizeGrowthsByDelta(growthOptions.deltaOption.variance, charData, rng);
+				break;
+			case FULL:
+				FE9GrowthRandomizer.randomizeGrowthsFully(growthOptions.fullOption.minValue, growthOptions.fullOption.minValue, growthOptions.adjustHP, growthOptions.adjustSTRMAGSplit, charData, classData, rng);
+				break;
+			}
+			charData.commit();
+		}
 	}
 }
