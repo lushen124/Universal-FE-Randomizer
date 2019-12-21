@@ -133,64 +133,144 @@ public class FE9Character implements FEModifiableData {
 		return data[0x39];
 	}
 	
+	public void setBaseHP(int newBaseHP) {
+		data[0x39] = (byte)(newBaseHP & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getBaseSTR() {
 		return data[0x3A];
+	}
+	
+	public void setBaseSTR(int newBaseSTR) {
+		data[0x3A] = (byte)(newBaseSTR & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getBaseMAG() {
 		return data[0x3B];
 	}
 	
+	public void setBaseMAG(int newBaseMAG) {
+		data[0x3B] = (byte)(newBaseMAG & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getBaseSKL() {
 		return data[0x3C];
+	}
+	
+	public void setBaseSKL(int newBaseSKL) {
+		data[0x3C] = (byte)(newBaseSKL & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getBaseSPD() {
 		return data[0x3D];
 	}
 	
+	public void setBaseSPD(int newBaseSPD) {
+		data[0x3D] = (byte)(newBaseSPD & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getBaseLCK() {
 		return data[0x3E];
+	}
+	
+	public void setBaseLCK(int newBaseLCK) {
+		data[0x3E] = (byte)(newBaseLCK & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getBaseDEF() {
 		return data[0x3F];
 	}
 	
+	public void setBaseDEF(int newBaseDEF) {
+		data[0x3F] = (byte)(newBaseDEF & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getBaseRES() {
 		return data[0x40];
+	}
+	
+	public void setBaseRES(int newBaseRES) {
+		data[0x40] = (byte)(newBaseRES & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getHPGrowth() {
 		return data[0x41];
 	}
 	
+	public void setHPGrowth(int newHPGrowth) {
+		data[0x41] = (byte)(newHPGrowth & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getSTRGrowth() {
 		return data[0x42];
+	}
+	
+	public void setSTRGrowth(int newSTRGrowth) {
+		data[0x42] = (byte)(newSTRGrowth & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getMAGGrowth() {
 		return data[0x43];
 	}
 	
+	public void setMAGGrowth(int newMAGGrowth) {
+		data[0x43] = (byte)(newMAGGrowth & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getSKLGrowth() {
 		return data[0x44];
+	}
+	
+	public void setSKLGrowth(int newSKLGrowth) {
+		data[0x44] = (byte)(newSKLGrowth & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getSPDGrowth() {
 		return data[0x45];
 	}
 	
+	public void setSPDGrowth(int newSPDGrowth) {
+		data[0x45] = (byte)(newSPDGrowth & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getLCKGrowth() {
 		return data[0x46];
+	}
+	
+	public void setLCKGrowth(int newLCKGrowth) {
+		data[0x46] = (byte)(newLCKGrowth & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getDEFGrowth() {
 		return data[0x47];
 	}
 	
+	public void setDEFGrowth(int newDEFGrowth) {
+		data[0x47] = (byte)(newDEFGrowth & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getRESGrowth() {
 		return data[0x48];
+	}
+	
+	public void setRESGrowth(int newRESGrowth) {
+		data[0x48] = (byte)(newRESGrowth & 0xFF);
+		wasModified = true;
 	}
 	
 	public byte[] getUnknown6Bytes() {

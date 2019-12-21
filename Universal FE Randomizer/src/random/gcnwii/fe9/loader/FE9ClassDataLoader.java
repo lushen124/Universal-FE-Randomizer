@@ -1,7 +1,9 @@
 package random.gcnwii.fe9.loader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
@@ -15,8 +17,22 @@ public class FE9ClassDataLoader {
 	
 	List<FE9Class> allClasses;
 	
+	Map<String, Long> knownAddresses;
+	Map<Long, String> knownPointers;
+	
+	Map<String, FE9Class> idLookup;
+	
+	public enum StatBias {
+		NONE, PHYSICAL_ONLY, MAGICAL_ONLY, LEAN_PHYSICAL, LEAN_MAGICAL
+	}
+	
 	public FE9ClassDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
 		allClasses = new ArrayList<FE9Class>();
+		
+		knownAddresses = new HashMap<String, Long>();
+		knownPointers = new HashMap<Long, String>();
+		
+		idLookup = new HashMap<String, FE9Class>();
 		
 		GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.ClassDataFilename);
 		long offset = FE9Data.ClassDataStartOffset;
@@ -27,7 +43,66 @@ public class FE9ClassDataLoader {
 			allClasses.add(charClass);
 			
 			debugPrintClass(charClass, handler, commonTextLoader);
+			
+			String jid = stringForPointer(charClass.getClassIDPointer(), handler, null);
+			String mjid = stringForPointer(charClass.getClassNamePointer(), handler, null);
+			String mhj = stringForPointer(charClass.getClassDescriptionPointer(), handler, null);
+			String promotedJID = stringForPointer(charClass.getPromotionIDPointer(), handler, null);
+			String defaultIID = stringForPointer(charClass.getDefaultWeaponPointer(), handler, null);
+			String weaponLevels = stringForPointer(charClass.getWeaponLevelPointer(), handler, null);
+			String sid1 = stringForPointer(charClass.getSkill1Pointer(), handler, null);
+			String sid2 = stringForPointer(charClass.getSkill2Pointer(), handler, null);
+			String sid3 = stringForPointer(charClass.getSkill3Pointer(), handler, null);
+			String race = stringForPointer(charClass.getRacePointer(), handler, null);
+			
+			knownAddresses.put(jid, charClass.getClassIDPointer());
+			knownAddresses.put(mjid, charClass.getClassNamePointer());
+			knownAddresses.put(mhj, charClass.getClassDescriptionPointer());
+			knownAddresses.put(promotedJID, charClass.getPromotionIDPointer());
+			knownAddresses.put(defaultIID, charClass.getDefaultWeaponPointer());
+			knownAddresses.put(weaponLevels, charClass.getWeaponLevelPointer());
+			knownAddresses.put(sid1, charClass.getSkill1Pointer());
+			knownAddresses.put(sid2, charClass.getSkill2Pointer());
+			knownAddresses.put(sid3, charClass.getSkill3Pointer());
+			knownAddresses.put(race, charClass.getRacePointer());
+			
+			knownPointers.put(charClass.getClassIDPointer(), jid);
+			knownPointers.put(charClass.getClassNamePointer(), mjid);
+			knownPointers.put(charClass.getClassDescriptionPointer(), mhj);
+			knownPointers.put(charClass.getPromotionIDPointer(), promotedJID);
+			knownPointers.put(charClass.getDefaultWeaponPointer(), defaultIID);
+			knownPointers.put(charClass.getWeaponLevelPointer(), weaponLevels);
+			knownPointers.put(charClass.getSkill1Pointer(), sid1);
+			knownPointers.put(charClass.getSkill2Pointer(), sid2);
+			knownPointers.put(charClass.getSkill3Pointer(), sid3);
+			knownPointers.put(charClass.getRacePointer(), race);
+			
+			idLookup.put(jid, charClass);
 		}
+	}
+	
+	public FE9Class classWithID(String jid) {
+		return idLookup.get(jid);
+	}
+	
+	public StatBias statBiasForClass(FE9Class charClass) {
+		FE9Data.CharacterClass fe9Class = fe9ClassForClass(charClass);
+		if (fe9Class == null) { 
+			String classID = knownPointers.get(charClass.getClassIDPointer());
+			DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Unknown class found. Class ID: " + classID);
+			return StatBias.NONE;
+		}
+		if (fe9Class.isPhysicalClass()) { return fe9Class.isHybridPhyiscalClass() ? StatBias.LEAN_PHYSICAL : StatBias.PHYSICAL_ONLY; }
+		else if (fe9Class.isMagicalClass()) { return fe9Class.isHybridMagicalClass() ? StatBias.LEAN_MAGICAL : StatBias.MAGICAL_ONLY; }
+		return StatBias.NONE;
+	}
+	
+	public String pointerLookup(long pointer) {
+		return knownPointers.get(pointer);
+	}
+	
+	public long addressLookup(String value) {
+		return knownAddresses.get(value);
 	}
 
 	private void debugPrintClass(FE9Class charClass, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {
@@ -95,11 +170,19 @@ public class FE9ClassDataLoader {
 		handler.setNextReadOffset(pointer);
 		byte[] bytes = handler.continueReadingBytesUpToNextTerminator(pointer + 0xFF);
 		String identifier = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(bytes);
+		if (commonTextLoader == null) { return identifier; }
+		
 		String resolvedValue = commonTextLoader.textStringForIdentifier(identifier);
 		if (resolvedValue != null) {
 			return identifier + " (" + resolvedValue + ")";
 		} else {
 			return identifier;
 		}
+	}
+	
+	private FE9Data.CharacterClass fe9ClassForClass(FE9Class charClass) {
+		String classID = pointerLookup(charClass.getClassIDPointer());
+		if (classID == null) { return null; }
+		return FE9Data.CharacterClass.withJID(classID);
 	}
 }
