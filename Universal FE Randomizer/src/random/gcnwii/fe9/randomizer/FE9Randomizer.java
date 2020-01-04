@@ -20,6 +20,7 @@ import random.gcnwii.fe9.loader.FE9CommonTextLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
+import ui.model.BaseOptions;
 import ui.model.GrowthOptions;
 import util.DebugPrinter;
 import util.DiffCompiler;
@@ -36,6 +37,7 @@ public class FE9Randomizer extends Randomizer {
 	private GCNISOHandler handler;
 	
 	private GrowthOptions growthOptions;
+	private BaseOptions baseOptions;
 	
 	FE9CommonTextLoader textData;
 	FE9CharacterDataLoader charData;
@@ -43,13 +45,14 @@ public class FE9Randomizer extends Randomizer {
 	FE9ItemDataLoader itemData;
 	FE9SkillDataLoader skillData;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, String seed) {
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
 		
 		this.growthOptions = growthOptions;
+		this.baseOptions = baseOptions;
 		
 		this.seedString = seed;
 	}
@@ -71,38 +74,38 @@ public class FE9Randomizer extends Randomizer {
 		int indexOfPathSeparator = targetPath.lastIndexOf(File.separator);
 		String path = targetPath.substring(0, indexOfPathSeparator);
 		
-		try {
-			List<GCNFSTEntry> disposEntries = handler.entriesWithFilename("dispos.cmp");
-			for (GCNFSTEntry entry : disposEntries) {
-				String fullName = handler.fstNameOfEntry(entry);
-				fullName = fullName.replace("/", "_");
-				String disposPath = path + File.separator + "dispos" + File.separator + fullName;
-				GCNFileHandler fileHandler = handler.handlerForFSTEntry(entry);
-				
-				byte[] data = fileHandler.readBytesAtOffset(0, (int)fileHandler.getFileLength());
-				try {
-					FileWriter.writeBinaryDataToFile(LZ77.decompress(data), disposPath);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-				GCNCMPFileHandler cmpHandler = (GCNCMPFileHandler)fileHandler;
-				for (String packedName : cmpHandler.getNames()) {
-					GCNFileHandler childHandler = cmpHandler.getChildHandler(packedName);
-					String childPath = disposPath + File.separator + packedName;
-					byte[] childData = childHandler.readBytesAtOffset(0, (int)childHandler.getFileLength());
-					try {
-						FileWriter.writeBinaryDataToFile(childData, childPath);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		} catch (GCNISOException e) {
-			e.printStackTrace();
-			notifyError("Failed to extract dispos.cmp files.");
-			return;
-		}
+//		try {
+//			List<GCNFSTEntry> disposEntries = handler.entriesWithFilename("dispos.cmp");
+//			for (GCNFSTEntry entry : disposEntries) {
+//				String fullName = handler.fstNameOfEntry(entry);
+//				fullName = fullName.replace("/", "_");
+//				String disposPath = path + File.separator + "dispos" + File.separator + fullName;
+//				GCNFileHandler fileHandler = handler.handlerForFSTEntry(entry);
+//				
+//				byte[] data = fileHandler.readBytesAtOffset(0, (int)fileHandler.getFileLength());
+//				try {
+//					FileWriter.writeBinaryDataToFile(LZ77.decompress(data), disposPath);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//				
+//				GCNCMPFileHandler cmpHandler = (GCNCMPFileHandler)fileHandler;
+//				for (String packedName : cmpHandler.getNames()) {
+//					GCNFileHandler childHandler = cmpHandler.getChildHandler(packedName);
+//					String childPath = disposPath + File.separator + packedName;
+//					byte[] childData = childHandler.readBytesAtOffset(0, (int)childHandler.getFileLength());
+//					try {
+//						FileWriter.writeBinaryDataToFile(childData, childPath);
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		} catch (GCNISOException e) {
+//			e.printStackTrace();
+//			notifyError("Failed to extract dispos.cmp files.");
+//			return;
+//		}
 		
 		try {
 			textData = new FE9CommonTextLoader(handler);
@@ -112,6 +115,7 @@ public class FE9Randomizer extends Randomizer {
 			skillData = new FE9SkillDataLoader(handler, textData);
 			
 			randomizeGrowthsIfNecessary(seed);
+			randomizeBasesIfNecessary(seed);
 			
 			charData.compileDiffs(handler);
 			
@@ -149,6 +153,21 @@ public class FE9Randomizer extends Randomizer {
 				break;
 			case FULL:
 				FE9GrowthRandomizer.randomizeGrowthsFully(growthOptions.fullOption.minValue, growthOptions.fullOption.minValue, growthOptions.adjustHP, growthOptions.adjustSTRMAGSplit, charData, classData, rng);
+				break;
+			}
+			charData.commit();
+		}
+	}
+	
+	private void randomizeBasesIfNecessary(String seed) {
+		if (baseOptions != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9BasesRandomizer.rngSalt));
+			switch (baseOptions.mode) {
+			case REDISTRIBUTE:
+				FE9BasesRandomizer.randomizeBasesByRedistribution(baseOptions.redistributionOption.variance, baseOptions.adjustSTRMAGByClass, charData, classData, rng);
+				break;
+			case DELTA:
+				FE9BasesRandomizer.randomizeBasesByDelta(baseOptions.deltaOption.variance, baseOptions.adjustSTRMAGByClass, charData, classData, rng);
 				break;
 			}
 			charData.commit();

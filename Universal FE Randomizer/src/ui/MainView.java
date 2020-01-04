@@ -799,6 +799,7 @@ public class MainView implements FileFlowDelegate {
 							} else if (gameType.isGCN()) {
 								randomizer = new FE9Randomizer(pathToFile, writePath,
 										growthView.getGrowthOptions(),
+										baseView.getBaseOptions(),
 										seedField.getText());
 							}
 							
