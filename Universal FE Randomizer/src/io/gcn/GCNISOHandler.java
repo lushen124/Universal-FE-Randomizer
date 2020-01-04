@@ -209,7 +209,32 @@ public class GCNISOHandler {
 //				return handlerForFileWithName(fstLookup.keySet().stream().filter(key -> { return key.endsWith(name); }).findAny().get());
 //			}
 			
-			throw new GCNISOException("File does not exist: " + filename);
+			// We may not have loaded CMP files yet, so see if it's in a CMP file, and if it is, try loading it first and then trying again.
+			if (filename.contains(".cmp") && !filename.endsWith(".cmp")) {
+				// Remove everything past the last "/"
+				String cmpFilename = filename.substring(0, filename.lastIndexOf("/"));
+				if (cmpFilename.endsWith("/")) {
+					cmpFilename = cmpFilename.substring(0, cmpFilename.length() - 1);
+				}
+				entry = fstLookup.get(cmpFilename.toLowerCase());
+			
+				if (entry != null) {
+					GCNCMPFileHandler cmpHandler = new GCNCMPFileHandler((GCNFSTFileEntry)entry, handler, this);
+					// Register all contained files as well.
+					for (String name : cmpHandler.getNames()) {
+						GCNFileHandler handler = cmpHandler.getChildHandler(name);
+						cachedFileHandlers.put(cmpFilename + "/" + name, handler);
+					}
+					
+					cachedFileHandlers.put(cmpFilename, cmpHandler);
+					
+					return handlerForFileWithName(filename);
+				} else {
+					throw new GCNISOException("No CMP file found for: " + filename);
+				}
+			} else {
+				throw new GCNISOException("File does not exist: " + filename);
+			}
 		}
 		if (entry.type == GCNFSTEntryType.FILE) {
 			if (filename.endsWith("cmp")) {
