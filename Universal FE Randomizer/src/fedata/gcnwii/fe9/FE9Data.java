@@ -304,4 +304,76 @@ public class FE9Data {
 		public boolean isHybridMagicalClass() { return hybridMagicalClasses.contains(this); }
 		public boolean isHybridPhyiscalClass() { return hybridPhysicalClasses.contains(this); }
 	}
+	
+	public enum Skill {
+		NONE(null),
+		
+		// These skills are hidden. Some of these, I have no idea what they do.
+		LORD("SID_HERO"), FEMALE("SID_FEMALE"), PROMOTED("SID_HIGHER"), MOVE_AGAIN("SID_TWICE"), FLIER("SID_FLY"), RAIDER("SID_VILLAGEDESTROY"),
+		BOSS("SID_BOSS"), FINAL_BOSS("SID_FINAL"), LAGUZ("SID_ANIMALIZE"), LYCANTHROPE("SID_LYCANTHROPE"), FERAL("SID_FIXEDBEAST"),
+		FORCE_S_RANK("SID_WLUPTOS"), IMPREGNABLE("SID_IMGREGNABLE"), FLY_THROUGH("SID_FLYTHRU"), WALK_THROUGH("SID_WALKTHRU"), 
+		SHOVE("SID_TACKLE"),
+		
+		// Not sure if these work...
+		BARGAIN("SID_BARGAIN"), CHANT_HP("SID_CHANTHP"), CHANT_STR("SID_CHANTSTR"), CHANT_MAG("SID_CHANTMPOW"), CHANT_SKL("SID_CHANTTECH"),
+		CHANT_SPD("SID_CHANTQUICK"), CHANT_LCK("SID_CHANTLUCK"), CHANT_DEF("SID_CHANTDEF"), CHANT_RES("SID_CHANTMDEF"), CHARM("SID_CHARISMA"),
+		
+		// Not sure what these are...
+		CHAOS("SID_CHAOS"), CONFRONT("SID_CONFRONT"), ABSMOVE("SID_ABSMOVE"), EVIL_EYE("SID_EVILEYE"), EVENT_CC("SID_EVENTCC"),
+		SUMMONED("SID_SUMMONED"), SHOOT("SID_SHOOT"), TEMP_ON_DIE("SID_TEMP_ON_DIE"), EQREV_A("SID_EQREV_A"), WEAK_A("SID_WEAK_A"),
+		AHIMSA("SID_AHIMSA"),
+		
+		// Special
+		DISCIPLINE("SID_HANDI"), EQUIP_FANG("SID_EQUIPFANG"), LUMINA("SID_EQUIPLIGHT"), CANTO("SID_CHANT"), STEAL("SID_STEAL"), VORTEX("SID_FLUTTER"),
+		REINFORCE("SID_REINFORCEMENTS"), KEY_50("SID_KEY50"), INSIGHT("SID_TELEGNOSIS"), VIGILANCE("SID_BIGEAR"), MANTLE("SID_GODDESSBLESS"), 
+		TRIANGLE_ATTACK_A("SID_TRI_A"), TRIANGLE_ATTACK_B("SID_TRI_B"), KEY_0("SID_KEY0"), IMMORTAL("SID_IMMORTAL"), CRITICAL_UP("SID_CRITRISE"),
+		
+		// Weapon locks?
+		EQUIP_A("SID_EQ_A"), EQUIP_B("SID_EQ_B"), EQUIP_C("SID_EQ_C"), EQUIP_D("SID_EQ_D"),
+		
+		// Paladin added weapon disciplines
+		EQUIP_SWORD("SID_EQSW"), EQUIP_LANCE("SID_EQLA"), EQUIP_AXE("SID_EQAX"), EQUIP_BOW("SID_EQBW"),
+		
+		// Sage added weapon disciplines
+		EQUIP_KNIFE("SID_EQUIPKNIFE"), EQUIP_STAFF("SID_EQRD"),
+		
+		// Normal Skills
+		PARAGON("SID_ELITE"), RENEWAL("SID_TURNREGENE"), CELERITY("SID_SWIFT"), RESOLVE("SID_BLAVE"), TEMPEST("SID_TEMPER"), SERENITY("SID_CALM"),
+		SAVIOR("SID_RESCUEP"), VANTAGE("SID_AMBUSH"), NIHIL("SID_GRASP"), WRATH("SID_ANGER"), GUARD("SID_DEFENCE"), MIRACLE("SID_PRAY"), 
+		ADEPT("SID_CONTINUATION"), CORROSION("SID_WEAPONDESTROY"), COUNTER("SID_COUNTER"), DAUNT("SID_HORROR"),
+		PROVOKE("SID_PROVOKE"), SHADE("SID_SHADE"), GAMBLE("SID_GAMBLE"), PARITY("SID_FAIRNESS"), SMITE("SID_TACKLE2"), BLOSSOM("SID_FRAC90"),
+		
+		// Occult skills
+		SOL("SID_SUNTRICK"), LUNA("SID_MOONTRICK"), ASTRA("SID_STARTRICK"), LETHALITY("SID_ASSASSINATE"), DEADEYE("SID_SNIPE"), COLOSSUS("SID_RUMBLE"),
+		STUN("SID_IMPACT"), ROAR("SID_SNARL"), BOON("SID_EARTHBLESSING"), BLESSING("SID_SKYBLESSING"), AETHER("SID_SUNMOON"), FLARE("SID_BRIGHTNESS"),
+		CANCEL("SID_WINGSHIELD")
+		;
+		
+		private String sid;
+		
+		private static Map<String, Skill> map = new HashMap<String, Skill>();
+		
+		static {
+			for (Skill skill : Skill.values()) {
+				map.put(skill.sid, skill);
+			}
+		}
+		
+		private Skill(String sid) {
+			this.sid = sid;
+		}
+		
+		public static Skill withSID(String sid) {
+			return map.get(sid);
+		}
+		
+		public String getSID() {
+			return sid;
+		}
+		
+		public static Set<Skill> allValidSkills = new HashSet<Skill>(Arrays.asList(PARAGON, RENEWAL, CELERITY, RESOLVE, TEMPEST, SERENITY, SAVIOR, VANTAGE,
+				NIHIL, WRATH, GUARD, MIRACLE, ADEPT, CORROSION, COUNTER, DAUNT, PROVOKE, SHADE, GAMBLE, PARITY, SMITE, BLOSSOM));
+		public static Set<Skill> playerOnlySkills = new HashSet<Skill>(Arrays.asList(PARAGON, SAVIOR, PROVOKE, SHADE, GAMBLE, SMITE, BLOSSOM));
+		public static Set<Skill> replaceableInvalidSkills = new HashSet<Skill>(Arrays.asList(REINFORCE, INSIGHT, VIGILANCE));
+	}
 }
