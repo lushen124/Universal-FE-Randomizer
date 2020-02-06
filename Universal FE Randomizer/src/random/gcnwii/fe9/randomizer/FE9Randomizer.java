@@ -2,12 +2,16 @@ package random.gcnwii.fe9.randomizer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import fedata.gcnwii.fe9.FE9Character;
+import fedata.gcnwii.fe9.FE9Data;
 import io.FileHandler;
 import io.FileWriter;
 import io.gcn.GCNCMPFileHandler;
+import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFSTEntry;
 import io.gcn.GCNFSTFileEntry;
 import io.gcn.GCNFileHandler;
@@ -23,6 +27,7 @@ import random.general.Randomizer;
 import ui.model.BaseOptions;
 import ui.model.GrowthOptions;
 import util.DebugPrinter;
+import util.Diff;
 import util.DiffCompiler;
 import util.LZ77;
 import util.SeedGenerator;
@@ -116,6 +121,40 @@ public class FE9Randomizer extends Randomizer {
 			
 			randomizeGrowthsIfNecessary(seed);
 			randomizeBasesIfNecessary(seed);
+			
+			//FE9Character kieran = charData.characterWithID(FE9Data.Character.KIERAN.getPID());
+			FE9Character oscar = charData.characterWithID(FE9Data.Character.OSCAR.getPID());
+			
+			//byte[] kieranData = Arrays.copyOf(kieran.getData(), kieran.getData().length);
+			//byte[] oscarData = Arrays.copyOf(oscar.getData(), oscar.getData().length);
+			
+			//long kieranPIDPtr = kieran.getCharacterIDPointer();
+			//long oscarPIDPtr = oscar.getCharacterIDPointer();
+			
+			//kieran.setData(oscarData);
+			//oscar.setData(kieranData);
+			
+			//oscar.setCharacterIDPointer(kieranPIDPtr);
+			//kieran.setCharacterIDPointer(oscarPIDPtr);
+			
+			//kieran.setUnknown6Bytes(oscar.getUnknown6Bytes());
+			//kieran.setUnknown8Bytes(oscar.getUnknown8Bytes());
+			oscar.setSkill1Pointer(charData.addressLookup("SID_CONTINUATION"));
+			GCNFileHandler fe8databin = handler.handlerForFileWithName("system.cmp/FE8Data.bin");
+			//fe8databin.addChange(new Diff(0x1CE2C, 4, new byte[] {0, 0, (byte)0x02, (byte)0x24}, new byte[] {0, 0, (byte)0x05, (byte)0x6C}));
+			assert(fe8databin instanceof GCNDataFileHandler);
+			GCNDataFileHandler dataFileHandler = (GCNDataFileHandler)fe8databin;
+			dataFileHandler.addPointerOffset(0x224);
+			dataFileHandler.commitAdditions();
+			
+			try {
+				FileWriter.writeBinaryDataToFile(dataFileHandler.getRawData(), path + File.separator + "FE8Data" + File.separator + "FE8Data.bin");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			oscar.commitChanges();
+			//kieran.commitChanges();
 			
 			charData.compileDiffs(handler);
 			

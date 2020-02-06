@@ -7,9 +7,9 @@ import util.ByteArrayBuilder;
 
 public class GCNByteArrayHandler extends GCNFileHandler {
 	
-	private byte[] byteArray;
+	protected byte[] byteArray;
 	
-	private int nextReadIndex;
+	protected int nextReadIndex;
 
 	public GCNByteArrayHandler(GCNFSTFileEntry file, FileHandler handler, byte[] byteArray) {
 		super(file, handler);
@@ -93,6 +93,10 @@ public class GCNByteArrayHandler extends GCNFileHandler {
 	@Override
 	public long getFileLength() {
 		return byteArray.length;
+	}
+	
+	public byte[] getRawData() {
+		return Arrays.copyOf(byteArray, byteArray.length);
 	}
 
 }

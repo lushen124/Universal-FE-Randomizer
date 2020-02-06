@@ -88,6 +88,10 @@ public class WhyDoesJavaNotHaveThese {
 		return true;
 	}
 	
+	public static byte[] bytesFromPointer(long pointer) {
+		return new byte[] {(byte)((pointer >> 24) & 0xFF), (byte)((pointer >> 16) & 0xFF), (byte)((pointer >> 8 & 0xFF)), (byte)(pointer & 0xFF)};
+	}
+	
 	public static byte[] bytesFromAddress(long address) {
 		if (address <= 0x8000000) {
 			address += 0x8000000;
@@ -180,5 +184,18 @@ public class WhyDoesJavaNotHaveThese {
 		}
 		
 		return (offsetValue & mask);
+	}
+	
+	public static byte[] byteArrayFromLongValue(long input, boolean isLittleEndian, int numBytes) {
+		ByteArrayBuilder builder = new ByteArrayBuilder();
+		for (int i = 0; i < numBytes; i++) {
+			builder.appendByte((byte)(input & 0xFF));
+			input >>= 8;
+		}
+		if (!isLittleEndian) {
+			return builder.reversedBytes();
+		}
+		
+		return builder.toByteArray();
 	}
 }

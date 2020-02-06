@@ -6,13 +6,13 @@ import util.DiffCompiler;
 import util.WhyDoesJavaNotHaveThese;
 
 public class GCNFileHandler {
-	private GCNFSTFileEntry fileEntry;
-	private FileHandler handler;
+	protected GCNFSTFileEntry fileEntry;
+	protected FileHandler handler;
 	
-	private long nextReadOffset = 0;
+	protected long nextReadOffset = 0;
 	
-	private boolean isBatchReading = false;
-	private long savedReadOffset = 0;
+	protected boolean isBatchReading = false;
+	protected long savedReadOffset = 0;
 	
 	protected DiffCompiler diffCompiler;
 	

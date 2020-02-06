@@ -108,7 +108,11 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 //				gcnFileHandler = isoHandler.handlerForFileWithName(fullyQualified);
 //				gcnFileHandler = isoHandler.handlerForFileWithName(name);
 //			} catch (GCNISOException e) {
+			if (name.endsWith(".bin")) {
+				gcnFileHandler = new GCNDataFileHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
+			} else {
 				gcnFileHandler = new GCNByteArrayHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
+			}
 //			}
 			cachedHandlers.put(name, gcnFileHandler);
 			offset += entryData.length;

@@ -33,6 +33,14 @@ public class ByteArrayBuilder {
 		return Arrays.copyOfRange(byteArray, 0, bytesWritten);
 	}
 	
+	public byte[] reversedBytes() {
+		byte[] reversed = new byte[bytesWritten];
+		for (int i = 0; i < bytesWritten; i++) {
+			reversed[i] = byteArray[bytesWritten - 1 - i];
+		}
+		return reversed;
+	}
+	
 	public int getBytesWritten() {
 		return bytesWritten;
 	}

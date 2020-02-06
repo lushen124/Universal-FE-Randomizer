@@ -45,6 +45,12 @@ public class FE9Character implements FEModifiableData {
 		return cachedCharIDPointer;
 	}
 	
+	public void setCharacterIDPointer(long newCharacterID) {
+		cachedCharIDPointer = newCharacterID;
+		writePointerToOffset(newCharacterID, 0x0);
+		wasModified = true;
+	}
+	
 	public long getCharacterNamePointer() {
 		if (cachedCharNamePointer == null) {
 			cachedCharNamePointer = readPointerAtOffset(0x4);
@@ -87,6 +93,12 @@ public class FE9Character implements FEModifiableData {
 			cachedSkill1Pointer = readPointerAtOffset(0x1C);
 		}
 		return cachedSkill1Pointer;
+	}
+	
+	public void setSkill1Pointer(long pointer) {
+		cachedSkill1Pointer = pointer;
+		writePointerToOffset(pointer, 0x1C);
+		wasModified = true;
 	}
 	
 	public long getSkill2Pointer() {
@@ -277,13 +289,28 @@ public class FE9Character implements FEModifiableData {
 		return Arrays.copyOfRange(data, 0x30, 0x36); // For some reason, 0x35 as the end drops a byte. :/
 	}
 	
+	public void setUnknown6Bytes(byte[] sixBytes) {
+		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(sixBytes, data, 0x30, 6);
+		wasModified = true;
+	}
+	
 	public byte[] getUnknown8Bytes() {
 		return Arrays.copyOfRange(data, 0x49, 0x51);
+	}
+	
+	public void setUnknown8Bytes(byte[] eightBytes) {
+		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(eightBytes, data, 0x49, 8);
+		wasModified = true;
 	}
 	
 	private long readPointerAtOffset(int offset) {
 		byte[] ptr = Arrays.copyOfRange(data, offset, offset + 4);
 		return WhyDoesJavaNotHaveThese.longValueFromByteArray(ptr, false) + 0x20;
+	}
+	
+	private void writePointerToOffset(long pointer, int offset) {
+		byte[] ptr = WhyDoesJavaNotHaveThese.bytesFromPointer(pointer - 0x20);
+		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(ptr, data, offset, 4);
 	}
 	
 	public void resetData() {
@@ -304,6 +331,11 @@ public class FE9Character implements FEModifiableData {
 	
 	public byte[] getData() {
 		return data;
+	}
+	
+	public void setData(byte[] newData) {
+		data = Arrays.copyOf(newData, newData.length);
+		wasModified = true;
 	}
 	
 	public Boolean wasModified() {
