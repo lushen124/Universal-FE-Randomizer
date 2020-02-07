@@ -469,5 +469,161 @@ public class FE9Data {
 		public String getIID() {
 			return iid;
 		}
+		
+		public static Set<Item> allSwords = new HashSet<Item>(Arrays.asList(IRON_SWORD, PRACTICE_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, 
+				SILVER_BLADE, VENIN_EDGE, REGAL_SWORD, BRAVE_SWORD, VAGUE_KATTI, KILLING_EDGE, ARMORSLAYER, LAGUZSLAYER, LONGSWORD, RUNESWORD, ALONDITE, 
+				RAGNELL, GURGURANT, AMITI, STEEL_BLADE, SONIC_SWORD));
+		public static Set<Item> allLances = new HashSet<Item>(Arrays.asList(IRON_LANCE, SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, VENIN_LANCE, BRAVE_LANCE, 
+				KILLER_LANCE, KNIGHT_KILLER, JAVELIN, SPEAR, FLAME_LANCE, LAGUZ_LANCE, SHORT_SPEAR, WISHBLADE, HEAVY_SPEAR));
+		public static Set<Item> allAxes = new HashSet<Item>(Arrays.asList(IRON_AXE, PRACTICE_AXE, STEEL_AXE, SILVER_AXE, VENIN_AXE, BRAVE_AXE, KILLER_AXE, 
+				POLEAX, HAMMER, DEVIL_AXE, HAND_AXE, TOMAHAWK, BOLT_AXE, SHORT_AXE, LAGUZ_AXE, URVAN));
+		public static Set<Item> allBows = new HashSet<Item>(Arrays.asList(DOUBLE_BOW, IRON_BOW, STEEL_BOW, SILVER_BOW, VENIN_BOW, KILLER_BOW, BRAVE_BOW, 
+				LAGUZ_BOW, LONGBOW, ROLF_BOW, BRIGHT_BOW));
+		
+		public static Set<Item> allFireMagic = new HashSet<Item>(Arrays.asList(FIRE, ELFIRE, BOLGANONE, REXFLAME, METEOR));
+		public static Set<Item> allWindMagic = new HashSet<Item>(Arrays.asList(WIND, ELWIND, TORNADO, REXCALIBUR, BLIZZARD));
+		public static Set<Item> allThunderMagic = new HashSet<Item>(Arrays.asList(THUNDER, ELTHUNDER, THORON, REXBOLT, BOLTING));
+		public static Set<Item> allLightMagic = new HashSet<Item>(Arrays.asList(LIGHT, SHINE, NOSFERATU, REXAURA, PURGE));
+		
+		public static Set<Item> allKnives = new HashSet<Item>(Arrays.asList(KNIFE, DAGGER, STILETTO));
+		public static Set<Item> allStaves = new HashSet<Item>(Arrays.asList(ASHERA_STAFF, HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RESTORE, SILENCE, SLEEP, 
+				WARP, RESCUE, TORCH_STAFF, HAMMERNE, WARD));
+		
+		public static Set<Item> allLaguzWeapons = new HashSet<Item>(Arrays.asList(LION_CLAW, TIGER_CLAW, CAT_CLAW, HAWK_BEAK, CROW_BEAK, 
+				HAWK_KING_BEAK, CROW_KING_BEAK, WHITE_BREATH, RED_BREATH));
+		
+		public static Set<Item> allNonWeaponEquips = new HashSet<Item>(Arrays.asList(KNIGHT_RING, LAGUZGUARD, BEORCGUARD, FULL_GUARD, KNIGHT_WARD,
+				DEMI_BAND, LAGUZ_BAND, SWORD_BAND, SOLDIER_BAND, FIGHTERS_BAND, ARCHER_BAND, KNIGHT_BAND, PALADIN_BAND, PEGASUS_BAND, WYVERN_BAND, MAGE_BAND, 
+				PRIEST_BAND, THIEF_BAND));
+		
+		public static Set<Item> allStatBoosters = new HashSet<Item>(Arrays.asList(SERAPH_ROBE, ENERGY_DROP, SPIRIT_DUST, SECRET_BOOK, SPEEDWING,
+				ASHERA_ICON, DRACOSHIELD, TALISMAN, BOOTS, STATUE_FRAG, ARMS_SCROLL));
+		public static Set<Item> allSkillScrolls = new HashSet<Item>(Arrays.asList(PARAGON_SCROLL, OCCULT_SCROLL, RESOLVE_SCROLL, SAVIOR_SCROLL, VANTAGE_SCROLL,
+				NIHIL_SCROLL, WRATH_SCROLL, CORROSION_SCROLL, MIRACLE_SCROLL, COUNTER_SCROLL, DAUNT_SCROLL, PROVOKE_SCROLL, SHADE_SCROLL, GAMBLE_SCROLL, 
+				PARITY_SCROLL, SMITE_SCROLL, GUARD_SCROLL, ADEPT_SCROLL, RENEWAL_SCROLL));
+		public static Set<Item> allConsumables = new HashSet<Item>(Arrays.asList(LAGUZ_STONE, LAGUZ_STONE_1, MASTER_SEAL, CHEST_KEY, DOOR_KEY, 
+				VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH, COIN));
+		public static Set<Item> allGems = new HashSet<Item>(Arrays.asList(WHITE_GEM, BLUE_GEM, RED_GEM));
+		
+		// These shouldn't be changed or given out.
+		public static Set<Item> allRestrictedItems = new HashSet<Item>(Arrays.asList(PRACTICE_SWORD, REGAL_SWORD, ALONDITE, RAGNELL, GURGURANT, AMITI, ROLF_BOW,
+				LION_CLAW, HAWK_KING_BEAK, CROW_KING_BEAK, SWORD_BAND, SOLDIER_BAND, FIGHTERS_BAND, ARCHER_BAND, KNIGHT_BAND, PALADIN_BAND, PEGASUS_BAND,
+				WYVERN_BAND, MAGE_BAND, PRIEST_BAND, THIEF_BAND));
+		
+		public static Set<Item> allERankWeapons = new HashSet<Item>(Arrays.asList(SLIM_SWORD, IRON_SWORD, PRACTICE_SWORD, IRON_LANCE, SLIM_LANCE,
+				JAVELIN, VENIN_LANCE, IRON_AXE, PRACTICE_AXE, HAND_AXE, STEEL_AXE, DEVIL_AXE, IRON_BOW, FIRE, THUNDER, WIND, HEAL));
+		public static Set<Item> allDRankWeapons = new HashSet<Item>(Arrays.asList(VENIN_EDGE, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, STEEL_LANCE,
+				KNIGHT_KILLER, HEAVY_SPEAR, VENIN_AXE, HAMMER, POLEAX, VENIN_BOW, LONGBOW, STEEL_BOW, ELFIRE, ELWIND, ELTHUNDER, LIGHT, MEND, TORCH_STAFF));
+		public static Set<Item> allCRankWeapons = new HashSet<Item>(Arrays.asList(KILLING_EDGE, LAGUZSLAYER, STEEL_BLADE, SHORT_SPEAR, KILLER_LANCE,
+				LAGUZ_LANCE, SHORT_AXE, KILLER_AXE, LAGUZ_AXE, LAGUZ_BOW, KILLER_BOW, METEOR, BOLTING, BLIZZARD, SHINE, WARD, RESTORE, PHYSIC, HAMMERNE));
+		public static Set<Item> allBRankWeapons = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, SONIC_SWORD, FLAME_LANCE, BRAVE_LANCE, SPEAR, BOLT_AXE,
+				BRAVE_AXE, TOMAHAWK, BRAVE_BOW, BRIGHT_BOW, PURGE, SILENCE, SLEEP, RESCUE, RECOVER));
+		public static Set<Item> allARankWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, RUNESWORD, SILVER_LANCE, SILVER_AXE,
+				SILVER_BOW, BOLGANONE, THORON, TORNADO, NOSFERATU, WARP, FORTIFY));
+		public static Set<Item> allSRankWeapons = new HashSet<Item>(Arrays.asList(VAGUE_KATTI, WISHBLADE, URVAN, DOUBLE_BOW, REXFLAME, REXBOLT, REXCALIBUR,
+				REXAURA, ASHERA_STAFF));
+	}
+	
+	public enum Chapter {
+		
+		ALL_CHAPTERS("zmap/always/dispos.cmp"), // Supposedly between-chapter units are loaded here? Only has a cross-difficulty definition.
+		
+		PROLOGUE("zmap/bmap01/dispos.cmp"),
+		CHAPTER_1("zmap/bmap02/dispos.cmp"),
+		CHAPTER_2("zmap/bmap03/dispos.cmp"),
+		CHAPTER_3("zmap/bmap04/dispos.cmp"),
+		CHAPTER_4("zmap/bmap05/dispos.cmp"),
+		CHAPTER_5("zmap/bmap06/dispos.cmp"),
+		CHAPTER_5_CUTSCENE("zmap/bmap06_2/dispos.cmp"),
+		CHAPTER_6("zmap/bmap07/dispos.cmp"),
+		CHAPTER_7("zmap/bmap08/dispos.cmp"),
+		CHAPTER_7_CUTSCENE("zmap/bmap08_2/dispos.cmp"),
+		CHAPTER_8("zmap/bmap09/dispos.cmp"),
+		CHAPTER_8_CUTSCENE("zmap/bmap09_2/dispos.cmp"),
+		CHAPTER_8_CUTSCENE_2("zmap/bmap09_3/dispos.cmp"),
+		CHAPTER_8_CUTSCENE_3("zmap/bmap09_4/dispos.cmp"),
+		CHAPTER_8_CUTSCENE_4("zmap/bmap09_5/dispos.cmp"),
+		CHAPTER_9("zmap/bmap10/dispos.cmp"),
+		CHAPTER_10("zmap/bmap11/dispos.cmp"),
+		CHAPTER_11("zmap/bmap12/dispos.cmp"),
+		CHAPTER_11_CUTSCENE("zmap/bmap12_2/dispos.cmp"),
+		CHAPTER_12("zmap/bmap13/dispos.cmp"),
+		CHAPTER_13("zmap/bmap14/dispos.cmp"),
+		CHAPTER_13_CUTSCENE("zmap/bmap14_2/dispos.cmp"),
+		CHAPTER_14("zmap/bmap15/dispos.cmp"),
+		CHAPTER_15("zmap/bmap16/dispos.cmp"),
+		CHAPTER_16("zmap/bmap17/dispos.cmp"),
+		CHAPTER_17("zmap/bmap18/dispos.cmp"), // All of it.
+		CHAPTER_17_CUTSCENE("zmap/bmap18_3/dispos.cmp"), // There's a bmap18_2, but that one only has a map.cmp.
+		CHAPTER_18("zmap/bmap19/dispos.cmp"),
+		CHAPTER_19("zmap/bmap20/dispos.cmp"),
+		CHAPTER_20("zmap/bmap21/dispos.cmp"),
+		CHAPTER_21("zmap/bmap22/dispos.cmp"),
+		CHAPTER_22("zmap/bmap23/dispos.cmp"),
+		CHAPTER_23("zmap/bmap24/dispos.cmp"),
+		CHAPTER_24("zmap/bmap25/dispos.cmp"),
+		CHAPTER_24_CUTSCENE("zmap/bmap25_2/dispos.cmp"),
+		CHAPTER_25("zmap/bmap26/dispos.cmp"),
+		CHAPTER_25_CUTSCENE("zmap/bmap26_2/dispos.cmp"),
+		CHAPTER_26("zmap/bmap27/dispos.cmp"),
+		CHAPTER_27("zmap/bmap28/dispos.cmp"),
+		CHAPTER_27_BK_FIGHT("zmap/bmap29/dispos.cmp"), // This is its own, for some reason.
+		CHAPTER_28("zmap/bmap30/dispos.cmp"),
+		ENDGAME("zmap/bmap31/dispos.cmp"),
+		ENDGAME_CUTSCENE("zmap/bmap31_2/dispos.cmp"),
+		ENDGAME_CUTSCENE_2("zmap/bmap31_3/dispos.cmp"),
+		
+		MAP_6("zmap/Map6/dispos.cmp"), // Not sure what this is... debug map? 
+		T1("zmap/T1/dispos.cmp"), // Only has cross-difficulty. Cutscene?
+		T2("zmap/T2/dispos.cmp"), // See above.
+		T3("zmap/T3/dispos.cmp"), // Actually, I think these are tutorial chapters.
+		
+		// Trial maps. These also only have one difficulty (cross-difficulty)
+		TRIAL_MAP_1("zmap/trial_01/dispos.cmp"),
+		TRIAL_MAP_2("zmap/trial_02/dispos.cmp"),
+		TRIAL_MAP_3("zmap/trial_03/dispos.cmp"),
+		TRIAL_MAP_4("zmap/trial_04/dispos.cmp"),
+		TRIAL_MAP_5("zmap/trial_05/dispos.cmp"),
+		TRIAL_MAP_6("zmap/trial_06/dispos.cmp")
+		;
+		
+		private String path;
+		
+		private static Map<String, Chapter> map = new HashMap<String, Chapter>();
+		
+		static {
+			for (Chapter chapter : Chapter.values()) {
+				map.put(chapter.path, chapter);
+			}
+		}
+		
+		private Chapter(String path) {
+			this.path = path;
+		}
+		
+		public static Chapter withPath(String path) {
+			return map.get(path);
+		}
+		
+		public String getPath() {
+			return path;
+		}
+		
+		public static Set<Chapter> chaptersWithAllDifficulties = new HashSet<Chapter>(Arrays.asList(PROLOGUE, CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4,
+				CHAPTER_5, CHAPTER_6, CHAPTER_7, CHAPTER_8, CHAPTER_9, CHAPTER_10, CHAPTER_11, CHAPTER_11, CHAPTER_12, CHAPTER_13, CHAPTER_14, CHAPTER_15,
+				CHAPTER_16, CHAPTER_17, CHAPTER_18, CHAPTER_19, CHAPTER_20, CHAPTER_21, CHAPTER_22, CHAPTER_23, CHAPTER_24, CHAPTER_25, CHAPTER_26,
+				CHAPTER_27, CHAPTER_27_BK_FIGHT, CHAPTER_28, ENDGAME));
+		public static Set<Chapter> chaptersWithOnlyOneDifficulty = new HashSet<Chapter>(Arrays.asList(ALL_CHAPTERS, CHAPTER_5_CUTSCENE, CHAPTER_7_CUTSCENE,
+				CHAPTER_8_CUTSCENE, CHAPTER_8_CUTSCENE_2, CHAPTER_8_CUTSCENE_3, CHAPTER_8_CUTSCENE_4, CHAPTER_11_CUTSCENE, CHAPTER_13_CUTSCENE,
+				CHAPTER_17_CUTSCENE, CHAPTER_24_CUTSCENE, CHAPTER_25_CUTSCENE, ENDGAME_CUTSCENE, ENDGAME_CUTSCENE_2, TRIAL_MAP_1, TRIAL_MAP_2,
+				TRIAL_MAP_3, TRIAL_MAP_4, TRIAL_MAP_5, TRIAL_MAP_6));
+		
+		public String[] getAllDifficulties() {
+			if (chaptersWithOnlyOneDifficulty.contains(this)) {
+				return new String[] {path + "/dispos_c.bin"};
+			} else {
+				return new String[] {path + "/dispos_c.bin", path + "/dispos_h.bin", path + "/dispos_m.bin", path + "/dispos_n.bin"};
+			}
+		}
 	}
 }
