@@ -10,6 +10,7 @@ import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
+import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
@@ -24,12 +25,14 @@ public class OptionRecorder {
 	
 	private static final Integer FE4OptionBundleVersion = 2;
 	private static final Integer GBAOptionBundleVersion = 2;
+	private static final Integer FE9OptionBundleVersion = 1;
 	
 	public static class AllOptions {
 		public FE4OptionBundle fe4;
 		public GBAOptionBundle fe6;
 		public GBAOptionBundle fe7;
 		public GBAOptionBundle fe8;
+		public FE9OptionBundle fe9;
 	}
 	
 	public static class GBAOptionBundle {
@@ -59,6 +62,13 @@ public class OptionRecorder {
 		public Integer version;
 	}
 	
+	public static class FE9OptionBundle {
+		public GrowthOptions growths;
+		public BaseOptions bases;
+		public FE9SkillsOptions skills;
+		public Integer version;
+	}
+	
 	public static AllOptions options = loadOptions();
 	
 	private static final String SettingsKey = "saved_settings";
@@ -74,6 +84,7 @@ public class OptionRecorder {
 			if (loadedOptions.fe6 != null && GBAOptionBundleVersion != loadedOptions.fe6.version) { loadedOptions.fe6 = null; }
 			if (loadedOptions.fe7 != null && GBAOptionBundleVersion != loadedOptions.fe7.version) { loadedOptions.fe7 = null; }
 			if (loadedOptions.fe8 != null && GBAOptionBundleVersion != loadedOptions.fe8.version) { loadedOptions.fe8 = null; }
+			if (loadedOptions.fe9 != null && FE9OptionBundleVersion != loadedOptions.fe9.version) { loadedOptions.fe9 = null; }
 			return loadedOptions;
 		} else {
 			return new AllOptions();

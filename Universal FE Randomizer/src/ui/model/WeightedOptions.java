@@ -1,4 +1,4 @@
-package ui.fe4;
+package ui.model;
 
 public class WeightedOptions {
 	

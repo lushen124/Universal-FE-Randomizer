@@ -27,6 +27,7 @@ import random.gcnwii.fe9.loader.FE9CommonTextLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
+import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
 import ui.model.GrowthOptions;
 import util.DebugPrinter;
@@ -46,6 +47,7 @@ public class FE9Randomizer extends Randomizer {
 	
 	private GrowthOptions growthOptions;
 	private BaseOptions baseOptions;
+	private FE9SkillsOptions skillOptions;
 	
 	FE9CommonTextLoader textData;
 	FE9CharacterDataLoader charData;
@@ -54,7 +56,7 @@ public class FE9Randomizer extends Randomizer {
 	FE9SkillDataLoader skillData;
 	FE9ChapterDataLoader chapterData;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, String seed) {
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -62,6 +64,7 @@ public class FE9Randomizer extends Randomizer {
 		
 		this.growthOptions = growthOptions;
 		this.baseOptions = baseOptions;
+		this.skillOptions = skillOptions;
 		
 		this.seedString = seed;
 	}
@@ -124,20 +127,21 @@ public class FE9Randomizer extends Randomizer {
 			skillData = new FE9SkillDataLoader(handler, textData);
 			chapterData = new FE9ChapterDataLoader(handler, textData);
 			
-			chapterData.debugPrintAllChapterArmies();
-			
-			List<FE9ChapterArmy> ch1 = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_1);
-			for (FE9ChapterArmy army : ch1) {
-				FE9ChapterUnit oscarUnit = army.getUnitForPID(FE9Data.Character.OSCAR.getPID());
-				army.setJIDForUnit(oscarUnit, FE9Data.CharacterClass.CAT.getJID());
-				army.setWeapon1ForUnit(oscarUnit, FE9Data.Item.CAT_CLAW.getIID());
-			}
+//			chapterData.debugPrintAllChapterArmies();
+//			
+//			List<FE9ChapterArmy> ch1 = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_1);
+//			for (FE9ChapterArmy army : ch1) {
+//				FE9ChapterUnit oscarUnit = army.getUnitForPID(FE9Data.Character.OSCAR.getPID());
+//				army.setJIDForUnit(oscarUnit, FE9Data.CharacterClass.CAT.getJID());
+//				army.setWeapon1ForUnit(oscarUnit, FE9Data.Item.CAT_CLAW.getIID());
+//			}
 			
 			randomizeGrowthsIfNecessary(seed);
 			randomizeBasesIfNecessary(seed);
+			randomizeSkillsIfNecessary(seed);
 			
 			//FE9Character kieran = charData.characterWithID(FE9Data.Character.KIERAN.getPID());
-			FE9Character oscar = charData.characterWithID(FE9Data.Character.OSCAR.getPID());
+			//FE9Character oscar = charData.characterWithID(FE9Data.Character.OSCAR.getPID());
 			
 			//byte[] kieranData = Arrays.copyOf(kieran.getData(), kieran.getData().length);
 			//byte[] oscarData = Arrays.copyOf(oscar.getData(), oscar.getData().length);
@@ -154,35 +158,35 @@ public class FE9Randomizer extends Randomizer {
 			//kieran.setUnknown6Bytes(oscar.getUnknown6Bytes());
 			//kieran.setUnknown8Bytes(oscar.getUnknown8Bytes());
 			GCNFileHandler fe8databin = handler.handlerForFileWithName("system.cmp/FE8Data.bin");
-			//fe8databin.addChange(new Diff(0x1CE2C, 4, new byte[] {0, 0, (byte)0x02, (byte)0x24}, new byte[] {0, 0, (byte)0x05, (byte)0x6C}));
+			fe8databin.addChange(new Diff(0x1CE2C, 4, new byte[] {0, 0, (byte)0x02, (byte)0x24}, new byte[] {0, 0, (byte)0x05, (byte)0x6C}));
 			assert(fe8databin instanceof GCNDataFileHandler);
 			GCNDataFileHandler dataFileHandler = (GCNDataFileHandler)fe8databin;
 			
-			oscar.setClassPointer(dataFileHandler.pointerForString(FE9Data.CharacterClass.CAT.getJID()) - 0x20);
-			oscar.setUnpromotedAnimationPointer(0);
-			oscar.setPromotedAnimationPointer(dataFileHandler.pointerForString("AID_BEAST_RE"));
-			oscar.setSkill1Pointer(charData.addressLookup("SID_EQUIPFANG"));
-			oscar.setSkill2Pointer(charData.addressLookup("SID_CONTINUATION"));
-			oscar.setUnknown6Bytes(new byte[] {0x0, 0x0E, 0x00, 0x00, 0x10, 0x1E});
-			oscar.setUnknown8Bytes(new byte[] {0x50, 0x50, 0x00, 0x00, 0x50, 0x32, 0x50, 0x00});
-			
-			dataFileHandler.addPointerOffset(0x224);
-			dataFileHandler.addPointerOffset(0x228);
-			dataFileHandler.addString("---------");
-			dataFileHandler.commitAdditions();
-			
-			oscar.setWeaponLevelsPointer(dataFileHandler.pointerForString("---------"));
-			
-			oscar.commitChanges();
+//			oscar.setClassPointer(dataFileHandler.pointerForString(FE9Data.CharacterClass.CAT.getJID()) - 0x20);
+//			oscar.setUnpromotedAnimationPointer(0);
+//			oscar.setPromotedAnimationPointer(dataFileHandler.pointerForString("AID_BEAST_RE"));
+//			oscar.setSkill1Pointer(charData.addressLookup("SID_EQUIPFANG"));
+//			oscar.setSkill2Pointer(charData.addressLookup("SID_CONTINUATION"));
+//			oscar.setUnknown6Bytes(new byte[] {0x0, 0x0E, 0x00, 0x00, 0x10, 0x1E});
+//			oscar.setUnknown8Bytes(new byte[] {0x50, 0x50, 0x00, 0x00, 0x50, 0x32, 0x50, 0x00});
+//			
+//			dataFileHandler.addPointerOffset(0x224);
+//			dataFileHandler.addPointerOffset(0x228);
+//			dataFileHandler.addString("---------");
+//			dataFileHandler.commitAdditions();
+//			
+//			oscar.setWeaponLevelsPointer(dataFileHandler.pointerForString("---------"));
+//			
+//			oscar.commitChanges();
 			//kieran.commitChanges();
 			
 			charData.compileDiffs(handler);
-			chapterData.commitChanges();
+			//chapterData.commitChanges();
 			
-			for (FE9ChapterArmy army : ch1) {
-				army.debugWriteDisposHandler(path + File.separator + "ch1_dispos" + File.separator + army.getID().replace("/", File.separator));
-			}
-			
+//			for (FE9ChapterArmy army : ch1) {
+//				army.debugWriteDisposHandler(path + File.separator + "ch1_dispos" + File.separator + army.getID().replace("/", File.separator));
+//			}
+//			
 			try {
 				FileWriter.writeBinaryDataToFile(dataFileHandler.getRawData(), path + File.separator + "FE8Data.bin");
 			} catch (IOException e) {
@@ -239,6 +243,21 @@ public class FE9Randomizer extends Randomizer {
 				break;
 			case DELTA:
 				FE9BasesRandomizer.randomizeBasesByDelta(baseOptions.deltaOption.variance, baseOptions.adjustSTRMAGByClass, charData, classData, rng);
+				break;
+			}
+			charData.commit();
+		}
+	}
+	
+	private void randomizeSkillsIfNecessary(String seed) {
+		if (skillOptions != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9SkillRandomizer.rngSalt));
+			switch (skillOptions.mode) {
+			case RANDOMIZE_EXISTING:
+				FE9SkillRandomizer.randomizeExistingSkills(skillOptions.skillWeights, charData, skillData, rng);
+				break;
+			case FULL_RANDOM:
+				FE9SkillRandomizer.fullyRandomizeSkills(skillOptions.skillChance, skillOptions.skillWeights, charData, skillData, rng);
 				break;
 			}
 			charData.commit();

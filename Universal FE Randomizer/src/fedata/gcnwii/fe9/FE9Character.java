@@ -7,6 +7,10 @@ import util.WhyDoesJavaNotHaveThese;
 
 public class FE9Character implements FEModifiableData {
 	
+	public static int CharacterSkill1Offset = 0x1C;
+	public static int CharacterSkill2Offset = 0x20;
+	public static int CharacterSkill3Offset = 0x24;
+	
 	private byte[] originalData;
 	private byte[] data;
 	
@@ -58,7 +62,7 @@ public class FE9Character implements FEModifiableData {
 		return cachedCharNamePointer;
 	}
 	
-	// 8 bytes of 0 follow...
+	// 4 bytes of 0 follow...
 	
 	public long getPortraitPointer() {
 		if (cachedPortraitPointer == null) {
@@ -102,35 +106,41 @@ public class FE9Character implements FEModifiableData {
 	
 	public long getSkill1Pointer() {
 		if (cachedSkill1Pointer == null) {
-			cachedSkill1Pointer = readPointerAtOffset(0x1C);
+			cachedSkill1Pointer = readPointerAtOffset(CharacterSkill1Offset);
 		}
 		return cachedSkill1Pointer;
 	}
 	
 	public void setSkill1Pointer(long pointer) {
 		cachedSkill1Pointer = pointer;
-		writePointerToOffset(pointer, 0x1C);
+		writePointerToOffset(pointer, CharacterSkill1Offset);
 		wasModified = true;
 	}
 	
 	public long getSkill2Pointer() {
 		if (cachedSkill2Pointer == null) {
-			cachedSkill2Pointer = readPointerAtOffset(0x20);
+			cachedSkill2Pointer = readPointerAtOffset(CharacterSkill2Offset);
 		}
 		return cachedSkill2Pointer;
 	}
 	
 	public void setSkill2Pointer(long pointer) {
 		cachedSkill2Pointer = pointer;
-		writePointerToOffset(pointer, 0x20);
+		writePointerToOffset(pointer, CharacterSkill2Offset);
 		wasModified = true;
 	}
 	
 	public long getSkill3Pointer() {
 		if (cachedSkill3Pointer == null) {
-			cachedSkill3Pointer = readPointerAtOffset(0x24);
+			cachedSkill3Pointer = readPointerAtOffset(CharacterSkill3Offset);
 		}
 		return cachedSkill3Pointer;
+	}
+	
+	public void setSkill3Pointer(long pointer) {
+		cachedSkill3Pointer = pointer;
+		writePointerToOffset(pointer, CharacterSkill3Offset);
+		wasModified = true;
 	}
 	
 	public long getUnpromotedAnimationPointer() {
@@ -335,11 +345,13 @@ public class FE9Character implements FEModifiableData {
 	
 	private long readPointerAtOffset(int offset) {
 		byte[] ptr = Arrays.copyOfRange(data, offset, offset + 4);
+		if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(ptr, new byte[] {0, 0, 0, 0})) { return 0; }
+		
 		return WhyDoesJavaNotHaveThese.longValueFromByteArray(ptr, false) + 0x20;
 	}
 	
 	private void writePointerToOffset(long pointer, int offset) {
-		byte[] ptr = WhyDoesJavaNotHaveThese.bytesFromPointer(pointer - 0x20);
+		byte[] ptr = pointer == 0 ? new byte[] {0, 0, 0, 0} : WhyDoesJavaNotHaveThese.bytesFromPointer(pointer - 0x20);
 		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(ptr, data, offset, 4);
 	}
 	

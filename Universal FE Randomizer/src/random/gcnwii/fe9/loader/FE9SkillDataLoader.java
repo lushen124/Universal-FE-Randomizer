@@ -1,10 +1,13 @@
 package random.gcnwii.fe9.loader;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9Skill;
+import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
@@ -15,10 +18,20 @@ public class FE9SkillDataLoader {
 	
 	List<FE9Skill> allSkills;
 	
+	Map<String, FE9Skill> skillBySID;
+	
+	GCNDataFileHandler fe8databin;
+	
 	public FE9SkillDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
 		allSkills = new ArrayList<FE9Skill>();
+		skillBySID = new HashMap<String, FE9Skill>();
 		
 		GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.SkillDataFilename);
+		assert (handler instanceof GCNDataFileHandler);
+		if (handler instanceof GCNDataFileHandler) {
+			fe8databin = (GCNDataFileHandler)handler;
+		}
+		
 		long offset = FE9Data.SkillDataStartOffset;
 		for (int i = 0; i < FE9Data.SkillCount; i++) {
 			long dataOffset = offset + i * FE9Data.SkillDataSize;
@@ -27,13 +40,16 @@ public class FE9SkillDataLoader {
 			allSkills.add(skill);
 			
 			debugPrintSkill(skill, handler, commonTextLoader);
+			
+			String sid = stringForPointer(skill.getSkillIDPointer(), handler, commonTextLoader);
+			skillBySID.put(sid, skill);
 		}
 	}
 
 	private void debugPrintSkill(FE9Skill skill, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "===== Printing Skill =====");
 		
-		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "SID: " + stringForPointer(skill.getSkillIDPointer(), handler, commonTextLoader));
+		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "SID: " + getSID(skill));
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, 
 				"Unknown Pointer: 0x" + Long.toHexString(skill.getUnknownPointer()) + 
 				" (" + rawBytesStringForPointer(skill.getUnknownPointer(), handler) + ")");
@@ -54,6 +70,37 @@ public class FE9SkillDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "===== End Printing Skill =====");
 	}
 	
+	public FE9Skill getSkillWithSID(String sid) {
+		return skillBySID.get(sid);
+	}
+	
+	public String getSID(FE9Skill skill) {
+		assert(fe8databin != null);
+		return fe8databin.stringForPointer(skill.getSkillIDPointer());
+	}
+	
+	public FE9Skill skillWithDisplayName(String displayName) {
+		for (FE9Data.Skill skill : FE9Data.Skill.values()) {
+			if (skill.getDisplayString().equals(displayName)) {
+				return getSkillWithSID(skill.getSID());
+			}
+		}
+		
+		return null;
+	}
+	
+	public boolean isModifiableSkill(FE9Skill skill) {
+		return FE9Data.Skill.withSID(getSID(skill)).isModifiable();
+	}
+	
+	public boolean isOccultSkill(FE9Skill skill) {
+		return FE9Data.Skill.withSID(getSID(skill)).isOccult();
+	}
+	
+	public FE9Skill occultSkillForJID(String jid) {
+		return getSkillWithSID(FE9Data.Skill.occultSkillForClass(FE9Data.CharacterClass.withJID(jid)).getSID());
+	}
+
 	private String stringForPointer(long pointer, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {
 		if (pointer == 0) { return "(null)"; }
 		handler.setNextReadOffset(pointer);

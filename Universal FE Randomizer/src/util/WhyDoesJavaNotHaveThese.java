@@ -198,4 +198,20 @@ public class WhyDoesJavaNotHaveThese {
 		
 		return builder.toByteArray();
 	}
+	
+	public static String inCamelCase(String baseString) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < baseString.length(); i++) {
+			char c = baseString.charAt(i);
+			if (i == 0 ||
+					baseString.charAt(i - 1) == '_' ||
+					Character.isWhitespace(baseString.charAt(i - 1))) {
+				sb.append(Character.toUpperCase(c));
+			} else  {
+				sb.append(Character.toLowerCase(c));
+			}
+		}
+		
+		return sb.toString();
+	}
 }

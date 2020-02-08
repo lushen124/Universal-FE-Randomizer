@@ -140,11 +140,13 @@ public class FE9ChapterUnit implements FEModifiableData {
 	
 	private long readPointerAtOffset(int offset) {
 		byte[] ptr = Arrays.copyOfRange(data, offset, offset + 4);
+		if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(ptr, new byte[] {0, 0, 0, 0})) { return 0; }
+		
 		return WhyDoesJavaNotHaveThese.longValueFromByteArray(ptr, false) + 0x20;
 	}
 	
 	private void writePointerToOffset(long pointer, int offset) {
-		byte[] ptr = WhyDoesJavaNotHaveThese.bytesFromPointer(pointer - 0x20);
+		byte[] ptr = pointer == 0 ? new byte[] {0, 0, 0, 0} : WhyDoesJavaNotHaveThese.bytesFromPointer(pointer - 0x20);
 		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(ptr, data, offset, 4);
 	}
 	

@@ -1,5 +1,7 @@
 package ui.fe4;
 
+import ui.model.WeightedOptions;
+
 public class SkillWeightOptions {
 	public final WeightedOptions wrathWeight;
 	public final WeightedOptions adeptWeight;

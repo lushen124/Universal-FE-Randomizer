@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import util.WhyDoesJavaNotHaveThese;
+
 public class FE9Data {
 	
 	public static final String FriendlyName = "Fire Emblem: Path of Radiance";
@@ -373,10 +375,120 @@ public class FE9Data {
 			return sid;
 		}
 		
+		public String getDisplayString() {
+			return WhyDoesJavaNotHaveThese.inCamelCase(toString()).replace("_", " ");
+		}
+		
 		public static Set<Skill> allValidSkills = new HashSet<Skill>(Arrays.asList(PARAGON, RENEWAL, CELERITY, RESOLVE, TEMPEST, SERENITY, SAVIOR, VANTAGE,
 				NIHIL, WRATH, GUARD, MIRACLE, ADEPT, CORROSION, COUNTER, DAUNT, PROVOKE, SHADE, GAMBLE, PARITY, SMITE, BLOSSOM));
 		public static Set<Skill> playerOnlySkills = new HashSet<Skill>(Arrays.asList(PARAGON, SAVIOR, PROVOKE, SHADE, GAMBLE, SMITE, BLOSSOM));
 		public static Set<Skill> replaceableInvalidSkills = new HashSet<Skill>(Arrays.asList(REINFORCE, INSIGHT, VIGILANCE));
+		
+		public static Set<Skill> occultSkills = new HashSet<Skill>(Arrays.asList(SOL, LUNA, ASTRA, LETHALITY, DEADEYE, COLOSSUS, STUN, ROAR, BOON, BLESSING, AETHER, FLARE, CANCEL));
+		public static Map<CharacterClass, Skill> occultSkillsByClass = new HashMap<CharacterClass, Skill>() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+		{
+			put(CharacterClass.LORD, AETHER);
+			
+			put(CharacterClass.TITANIA_PALADIN, SOL);
+			put(CharacterClass.AXE_PALADIN, SOL);
+			put(CharacterClass.AXE_PALADIN_F, SOL);
+			put(CharacterClass.LANCE_PALADIN, SOL);
+			put(CharacterClass.LANCE_PALADIN_F, SOL);
+			put(CharacterClass.SWORD_PALADIN, SOL);
+			put(CharacterClass.SWORD_PALADIN_F, SOL);
+			put(CharacterClass.BOW_PALADIN, SOL);
+			put(CharacterClass.BOW_PALADIN_F, SOL);
+			put(CharacterClass.VALKYRIE, SOL);
+			
+			put(CharacterClass.WARRIOR, COLOSSUS);
+			put(CharacterClass.BERSERKER, COLOSSUS);
+			
+			put(CharacterClass.SWORDMASTER, ASTRA);
+			put(CharacterClass.SWORDMASTER_F, ASTRA);
+			
+			put(CharacterClass.WYVERN_LORD, STUN);
+			put(CharacterClass.WYVERN_LORD_F, STUN);
+			put(CharacterClass.FALCON_KNIGHT, STUN);
+			put(CharacterClass.ELINCIA_FALCON_KNIGHT, STUN);
+			
+			put(CharacterClass.HALBERDIER, LUNA);
+			put(CharacterClass.HALBERDIER_F, LUNA);
+			put(CharacterClass.GENERAL, LUNA);
+			
+			put(CharacterClass.SNIPER, DEADEYE);
+			
+			put(CharacterClass.ASSASSIN, LETHALITY);
+			put(CharacterClass.ASSASSIN_F, LETHALITY);
+			
+			put(CharacterClass.CAT, ROAR);
+			put(CharacterClass.FERAL_CAT, ROAR);
+			put(CharacterClass.TIGER, ROAR);
+			put(CharacterClass.FERAL_TIGER, ROAR);
+			put(CharacterClass.LION, ROAR);
+			put(CharacterClass.FERAL_LION, ROAR);
+			
+			put(CharacterClass.HAWK, CANCEL);
+			put(CharacterClass.FERAL_HAWK, CANCEL);
+			put(CharacterClass.TIBARN_HAWK, CANCEL);
+			
+			put(CharacterClass.CROW, VORTEX);
+			put(CharacterClass.FERAL_CROW, VORTEX);
+			put(CharacterClass.NAESALA_CROW, VORTEX);
+			
+			put(CharacterClass.BLACK_DRAGON, BOON);
+			put(CharacterClass.FERAL_BLACK_DRAGON, BOON);
+			put(CharacterClass.FERAL_RED_DRAGON, BOON);
+			put(CharacterClass.FERAL_RED_DRAGON_F, BOON);
+			put(CharacterClass.FERAL_WHITE_DRAGON, BOON);
+			put(CharacterClass.RED_DRAGON, BOON);
+			put(CharacterClass.RED_DRAGON_F, BOON);
+			put(CharacterClass.WHITE_DRAGON, BOON);
+			
+			put(CharacterClass.HERON, BLESSING);
+			put(CharacterClass.FERAL_HERON, BLESSING);
+			put(CharacterClass.FERAL_W_HERON, BLESSING);
+			put(CharacterClass.FERAL_W_HERON_F, BLESSING);
+			put(CharacterClass.W_HERON, BLESSING);
+			put(CharacterClass.W_HERON_F, BLESSING);
+			
+			put(CharacterClass.SAGE, FLARE);
+			put(CharacterClass.SAGE_F, FLARE);
+			put(CharacterClass.SAGE_KNIFE, FLARE);
+			put(CharacterClass.SAGE_KNIFE_F, FLARE);
+			put(CharacterClass.SAGE_STAFF, FLARE);
+			put(CharacterClass.SAGE_STAFF_F, FLARE);
+			put(CharacterClass.FIRE_SAGE, FLARE);
+			put(CharacterClass.FIRE_SAGE_F, FLARE);
+			put(CharacterClass.FIRE_SAGE_KNIFE, FLARE);
+			put(CharacterClass.FIRE_SAGE_STAFF, FLARE);
+			put(CharacterClass.THUNDER_SAGE, FLARE);
+			put(CharacterClass.THUNDER_SAGE_F, FLARE);
+			put(CharacterClass.THUNDER_SAGE_KNIFE, FLARE);
+			put(CharacterClass.THUNDER_SAGE_STAFF, FLARE);
+			put(CharacterClass.WIND_SAGE, FLARE);
+			put(CharacterClass.WIND_SAGE_F, FLARE);
+			put(CharacterClass.WIND_SAGE_KNIFE, FLARE);
+			put(CharacterClass.WIND_SAGE_STAFF, FLARE);
+			put(CharacterClass.BISHOP, FLARE);
+			put(CharacterClass.BISHOP_F, FLARE);
+		}};
+		
+		public boolean isModifiable() {
+			return allValidSkills.contains(this);
+		}
+		
+		public boolean isOccult() {
+			return occultSkills.contains(this);
+		}
+		
+		public static Skill occultSkillForClass(CharacterClass charClass) {
+			return occultSkillsByClass.get(charClass);
+		}
 	}
 	
 	public enum Item {

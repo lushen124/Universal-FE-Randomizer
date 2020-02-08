@@ -7,6 +7,7 @@ import java.util.Map;
 
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Data;
+import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
@@ -26,6 +27,8 @@ public class FE9CharacterDataLoader {
 	
 	Map<String, FE9Character> idLookup;
 	
+	GCNDataFileHandler fe8databin;
+	
 	public FE9CharacterDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
 		allCharacters = new ArrayList<FE9Character>();
 		
@@ -37,6 +40,11 @@ public class FE9CharacterDataLoader {
 		idLookup = new HashMap<String, FE9Character>();
 		
 		GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.CharacterDataFilename);
+		assert (handler instanceof GCNDataFileHandler);
+		if (handler instanceof GCNDataFileHandler) {
+			fe8databin = (GCNDataFileHandler)handler;
+		}
+		
 		long offset = FE9Data.CharacterDataStartOffset;
 		for (int i = 0; i < FE9Data.CharacterCount; i++) {
 			long dataOffset = offset + i * FE9Data.CharacterDataSize;
@@ -101,8 +109,151 @@ public class FE9CharacterDataLoader {
 		return knownPointers.get(pointer);
 	}
 	
-	public long addressLookup(String value) {
+	public Long addressLookup(String value) {
 		return knownAddresses.get(value);
+	}
+	
+	public String getPIDForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		if (character.getCharacterIDPointer() == 0) { return null; }
+		
+		if (fe8databin != null) {
+			return fe8databin.stringForPointer(character.getCharacterIDPointer());
+		}
+		return pointerLookup(character.getCharacterIDPointer());
+	}
+	
+	public String getJIDForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		if (character.getClassPointer() == 0) { return null; }
+		
+		if (fe8databin != null) {
+			return fe8databin.stringForPointer(character.getClassPointer());
+		}
+		return pointerLookup(character.getClassPointer());
+	}
+	
+	public void setJIDForCharacter(FE9Character character, String jid) {
+		if (fe8databin != null) {
+			Long jidAddress = fe8databin.pointerForString(jid);
+			if (jidAddress == null) {
+				fe8databin.addString(jid);
+				fe8databin.commitAdditions();
+				jidAddress = fe8databin.pointerForString(jid);
+			}
+			character.setClassPointer(jidAddress);
+		} else {
+			Long jidAddress = addressLookup(jid);
+			assert(jidAddress != null);
+			if (jidAddress != null) {
+				character.setClassPointer(jidAddress);
+			}
+		}
+	}
+	
+	public String getSID1ForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		if (character.getSkill1Pointer() == 0) { return null; }
+		
+		if (fe8databin != null) {
+			return fe8databin.stringForPointer(character.getSkill1Pointer());
+		}
+		return pointerLookup(character.getSkill1Pointer());
+	}
+	
+	public void setSID1ForCharacter(FE9Character character, String sid) {
+		if (character == null) { return; }
+		if (sid == null) {
+			character.setSkill1Pointer(0);
+			return;
+		}
+		
+		if (fe8databin != null) {
+			Long sidAddress = fe8databin.pointerForString(sid);
+			fe8databin.addPointerOffset(character.getAddressOffset() + FE9Character.CharacterSkill1Offset - 0x20);
+			if (sidAddress == null) {
+				fe8databin.addString(sid);
+				fe8databin.commitAdditions();
+				sidAddress = fe8databin.pointerForString(sid);
+			}
+			character.setSkill1Pointer(sidAddress);
+		} else {
+			Long sidAddress = addressLookup(sid);
+			assert(sidAddress != null);
+			if (sidAddress != null) {
+				character.setSkill1Pointer(sidAddress);
+			}
+		}
+	}
+	
+	public String getSID2ForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		if (character.getSkill2Pointer() == 0) { return null; }
+		
+		if (fe8databin != null) {
+			return fe8databin.stringForPointer(character.getSkill2Pointer());
+		}
+		return pointerLookup(character.getSkill2Pointer());
+	}
+	
+	public void setSID2ForCharacter(FE9Character character, String sid) {
+		if (character == null) { return; }
+		if (sid == null) {
+			character.setSkill2Pointer(0);
+			return;
+		}
+		
+		if (fe8databin != null) {
+			Long sidAddress = fe8databin.pointerForString(sid);
+			fe8databin.addPointerOffset(character.getAddressOffset() + FE9Character.CharacterSkill2Offset - 0x20);
+			if (sidAddress == null) {
+				fe8databin.addString(sid);
+				fe8databin.commitAdditions();
+				sidAddress = fe8databin.pointerForString(sid);
+			}
+			character.setSkill2Pointer(sidAddress);
+		} else {
+			Long sidAddress = addressLookup(sid);
+			assert(sidAddress != null);
+			if (sidAddress != null) {
+				character.setSkill2Pointer(sidAddress);
+			}
+		}
+	}
+	
+	public String getSID3ForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		if (character.getSkill3Pointer() == 0) { return null; }
+		
+		if (fe8databin != null) {
+			return fe8databin.stringForPointer(character.getSkill3Pointer());
+		}
+		return pointerLookup(character.getSkill3Pointer());
+	}
+	
+	public void setSID3ForCharacter(FE9Character character, String sid) {
+		if (character == null) { return; }
+		if (sid == null) {
+			character.setSkill3Pointer(0);
+			return;
+		}
+		
+		if (fe8databin != null) {
+			Long sidAddress = fe8databin.pointerForString(sid);
+			fe8databin.addPointerOffset(character.getAddressOffset() + FE9Character.CharacterSkill3Offset - 0x20);
+			if (sidAddress == null) {
+				fe8databin.addString(sid);
+				fe8databin.commitAdditions();
+				sidAddress = fe8databin.pointerForString(sid);
+			}
+			character.setSkill3Pointer(sidAddress);
+		} else {
+			Long sidAddress = addressLookup(sid);
+			assert(sidAddress != null);
+			if (sidAddress != null) {
+				character.setSkill3Pointer(sidAddress);
+			}
+		}
 	}
 	
 	public void commit() {

@@ -102,9 +102,14 @@ public class FE9Skill implements FEModifiableData {
 	
 	private long readPointerAtOffset(int offset) {
 		byte[] ptr = Arrays.copyOfRange(data, offset, offset + 4);
-		long address = WhyDoesJavaNotHaveThese.longValueFromByteArray(ptr, false);
-		if (address != 0) { address += 0x20; }
-		return address;
+		if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(ptr, new byte[] {0, 0, 0, 0})) { return 0; }
+		
+		return WhyDoesJavaNotHaveThese.longValueFromByteArray(ptr, false) + 0x20;
+	}
+	
+	private void writePointerToOffset(long pointer, int offset) {
+		byte[] ptr = pointer == 0 ? new byte[] {0, 0, 0, 0} : WhyDoesJavaNotHaveThese.bytesFromPointer(pointer - 0x20);
+		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(ptr, data, offset, 4);
 	}
 	
 	public void resetData() {

@@ -127,6 +127,12 @@ public class FE9Class implements FEModifiableData {
 		return Arrays.copyOfRange(data, 0x3C, 0x3C + 8);
 	}
 	
+	// The 4th byte in the unknown 8 bytes seems to be the skill capacity for the class.
+	// That's at offset 0x3C + 4
+	public int getSkillCapacity() {
+		return data[0x3C + 4];
+	}
+	
 	public int getBaseHP() { return data[0x44]; }
 	public int getBaseSTR() { return data[0x45]; }
 	public int getBaseMAG() { return data[0x46]; }
@@ -160,7 +166,14 @@ public class FE9Class implements FEModifiableData {
 	
 	private long readPointerAtOffset(int offset) {
 		byte[] ptr = Arrays.copyOfRange(data, offset, offset + 4);
+		if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(ptr, new byte[] {0, 0, 0, 0})) { return 0; }
+		
 		return WhyDoesJavaNotHaveThese.longValueFromByteArray(ptr, false) + 0x20;
+	}
+	
+	private void writePointerToOffset(long pointer, int offset) {
+		byte[] ptr = pointer == 0 ? new byte[] {0, 0, 0, 0} : WhyDoesJavaNotHaveThese.bytesFromPointer(pointer - 0x20);
+		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(ptr, data, offset, 4);
 	}
 	
 	public void resetData() {

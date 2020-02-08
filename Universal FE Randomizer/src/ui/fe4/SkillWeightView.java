@@ -14,8 +14,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
-import ui.fe4.WeightView.WeightViewListener;
-import ui.fe4.WeightedOptions.Weight;
+import ui.WeightView;
+import ui.WeightView.WeightViewListener;
+import ui.model.WeightedOptions.Weight;
 
 public class SkillWeightView extends Composite {
 	

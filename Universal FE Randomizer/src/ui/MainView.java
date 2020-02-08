@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -51,6 +53,7 @@ import ui.fe4.FE4EnemyBuffView;
 import ui.fe4.FE4PromotionView;
 import ui.fe4.HolyBloodView;
 import ui.fe4.SkillsView;
+import ui.fe9.FE9SkillView;
 import ui.general.FileFlowDelegate;
 import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
@@ -63,6 +66,7 @@ import util.OptionRecorder;
 import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
 import util.OptionRecorder.FE4OptionBundle;
+import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
 import util.recordkeeper.RecordKeeper;
 
@@ -111,6 +115,9 @@ public class MainView implements FileFlowDelegate {
 	private FE4PromotionView fe4PromotionView;
 	private FE4EnemyBuffView fe4EnemyBuffView;
 	
+	// FE9
+	private FE9SkillView fe9SkillView;
+	
 	private Button randomizeButton;
 	
 	private Boolean isShowingModalProgressDialog = false;
@@ -120,7 +127,7 @@ public class MainView implements FileFlowDelegate {
 		super();
 		
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.8.5)");
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.9.0)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
 		 screenHeight = mainDisplay.getBounds().height;
@@ -316,6 +323,8 @@ public class MainView implements FileFlowDelegate {
 		if (fe4PromotionView != null) { fe4PromotionView.dispose(); }
 		if (fe4EnemyBuffView != null) { fe4EnemyBuffView.dispose(); }
 		
+		if (fe9SkillView != null) { fe9SkillView.dispose(); }
+		
 		resize();
 	}
 	
@@ -346,6 +355,11 @@ public class MainView implements FileFlowDelegate {
 				recruitView.setRecruitmentOptions(bundle.recruitmentOptions);
 				itemAssignmentView.setItemAssignmentOptions(bundle.itemAssignmentOptions);
 			}
+		} else if (type == GameType.FE9 && OptionRecorder.options.fe9 != null) {
+			FE9OptionBundle bundle = OptionRecorder.options.fe9;
+			growthView.setGrowthOptions(bundle.growths);
+			baseView.setBasesOptions(bundle.bases);
+			fe9SkillView.setSkillOptions(bundle.skills);
 		}
 	}
 	
@@ -496,11 +510,24 @@ public class MainView implements FileFlowDelegate {
 			randomizeButton.setLayoutData(randomizeData);
 			
 		} else if (type == GameType.FE9) {
+			List<String> skills = FE9Data.Skill.allValidSkills.stream().map( skill -> {
+				return skill.getDisplayString();
+			}).collect(Collectors.toList());
+			fe9SkillView = new FE9SkillView(container, SWT.NONE, skills);
+			fe9SkillView.setSize(200, 200);
+			fe9SkillView.setVisible(false);
+			
+			FormData skillData = new FormData();
+			skillData.top = new FormAttachment(growthView, 0, SWT.TOP);
+			skillData.left = new FormAttachment(growthView, 5);
+			skillData.bottom = new FormAttachment(100, -10);
+			fe9SkillView.setLayoutData(skillData);
+			
 			FormData randomizeData = new FormData();
 			randomizeData.top = new FormAttachment(growthView, 0, SWT.TOP);
-			randomizeData.left = new FormAttachment(growthView, 5);
-			randomizeData.right = new FormAttachment(100, -10);
-			randomizeData.bottom = new FormAttachment(baseView, 0, SWT.BOTTOM);
+			randomizeData.left = new FormAttachment(fe9SkillView, 5);
+			randomizeData.right = new FormAttachment(100, -5);
+			randomizeData.bottom = new FormAttachment(100, -10);
 			randomizeButton.setLayoutData(randomizeData);
 		} else {
 			otherCharOptionView = new MOVCONAffinityView(container, SWT.NONE);
@@ -673,7 +700,7 @@ public class MainView implements FileFlowDelegate {
 					fe4EnemyBuffView.setVisible(true);
 					
 				} else if (type == GameType.FE9) {
-					
+					fe9SkillView.setVisible(true);
 				} else {
 					classView.setVisible(true);
 					otherCharOptionView.setVisible(true);
@@ -800,6 +827,7 @@ public class MainView implements FileFlowDelegate {
 								randomizer = new FE9Randomizer(pathToFile, writePath,
 										growthView.getGrowthOptions(),
 										baseView.getBaseOptions(),
+										fe9SkillView.getSkillOptions(),
 										seedField.getText());
 							}
 							

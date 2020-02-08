@@ -11,8 +11,9 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import ui.fe4.WeightView.WeightViewListener;
-import ui.fe4.WeightedOptions.Weight;
+import ui.WeightView;
+import ui.WeightView.WeightViewListener;
+import ui.model.WeightedOptions.Weight;
 
 public class SkillCountView extends Composite {
 	

@@ -1,4 +1,4 @@
-package ui.fe4;
+package ui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -10,7 +10,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-import ui.fe4.WeightedOptions.Weight;
+import ui.model.WeightedOptions;
+import ui.model.WeightedOptions.Weight;
 
 public class WeightView extends Composite {
 
