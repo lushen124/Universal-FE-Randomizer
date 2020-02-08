@@ -1,0 +1,178 @@
+package fedata.gcnwii.fe9;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import io.FileWriter;
+import io.gcn.GCNDataFileHandler;
+import util.Diff;
+import util.WhyDoesJavaNotHaveThese;
+
+public class FE9ChapterArmy {
+	
+	private GCNDataFileHandler disposHandler;
+	
+	private List<FE9ChapterUnit> allUnits;
+	
+	private Map<String, FE9ChapterUnit> unitsByPID;
+	private List<String> pidList;
+	
+	String chapterID;
+	
+	public FE9ChapterArmy(GCNDataFileHandler handler, FE9Data.Chapter chapter, String identifier) {
+		disposHandler = handler;
+		
+		chapterID = identifier;
+		
+		allUnits = new ArrayList<FE9ChapterUnit>();
+		unitsByPID = new HashMap<String, FE9ChapterUnit>();
+		pidList = new ArrayList<String>();
+		
+		long offset = chapter.getStartingOffset();
+		handler.setNextReadOffset(offset);
+		long endingOffset = WhyDoesJavaNotHaveThese.longValueFromByteArray(handler.continueReadingBytes(4), false);
+		while (handler.getNextReadOffset() < endingOffset) {
+			byte[] sectionHeader = handler.continueReadingBytes(4);
+			int unitCount = sectionHeader[0]; // The first byte of this header determines the count. The other 3 somehow determine the type?
+			for (int i = 0; i < unitCount; i++) {
+				long originalOffset = handler.getNextReadOffset();
+				FE9ChapterUnit unit = new FE9ChapterUnit(handler.continueReadingBytes(FE9Data.ChapterUnitEntrySize), originalOffset);
+				allUnits.add(unit);
+				
+				String pid = disposHandler.stringForPointer(unit.getCharacterIDPointer());
+				unitsByPID.put(pid, unit);
+				pidList.add(pid);
+			}
+		}
+	}
+	
+	public String getID() {
+		return chapterID;
+	}
+	
+	public List<String> getAllPIDs() {
+		return pidList;
+	}
+	
+	public FE9ChapterUnit getUnitForPID(String pid) {
+		return unitsByPID.get(pid);
+	}
+	
+	public String getPIDForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getCharacterIDPointer());
+	}
+	
+	public String getJIDForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getClassIDPointer());
+	}
+	
+	public void setJIDForUnit(FE9ChapterUnit unit, String jid) {
+		if (unit == null || jid == null) { return; }
+		disposHandler.addString(jid);
+		disposHandler.commitAdditions();
+		unit.setClassIDPointer(disposHandler.pointerForString(jid));
+	}
+	
+	public String getWeapon1ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getWeapon1Pointer());
+	}
+	
+	public void setWeapon1ForUnit(FE9ChapterUnit unit, String iid) {
+		if (unit == null || iid == null) { return; }
+		disposHandler.addString(iid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon1Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setWeapon1Pointer(disposHandler.pointerForString(iid));
+	}
+	
+	public String getWeapon2ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getWeapon2Pointer());
+	}
+	
+	public void setWeapon2ForUnit(FE9ChapterUnit unit, String iid) {
+		if (unit == null || iid == null) { return; }
+		disposHandler.addString(iid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon2Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setWeapon2Pointer(disposHandler.pointerForString(iid));
+	}
+	
+	public String getWeapon3ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getWeapon3Pointer());
+	}
+	
+	public void setWeapon3ForUnit(FE9ChapterUnit unit, String iid) {
+		if (unit == null || iid == null) { return; }
+		disposHandler.addString(iid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon3Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setWeapon3Pointer(disposHandler.pointerForString(iid));
+	}
+	
+	public String getWeapon4ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getWeapon4Pointer());
+	}
+	
+	public void setWeapon4ForUnit(FE9ChapterUnit unit, String iid) {
+		if (unit == null || iid == null) { return; }
+		disposHandler.addString(iid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon4Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setWeapon4Pointer(disposHandler.pointerForString(iid));
+	}
+	
+	public String getItem1ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getItem1Pointer());
+	}
+	
+	public String getItem2ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getItem2Pointer());
+	}
+	
+	public String getItem3ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getItem3Pointer());
+	}
+	
+	public String getItem4ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getItem4Pointer());
+	}
+	
+	public int getStartingXForUnit(FE9ChapterUnit unit) {
+		return unit.getStartingX();
+	}
+	
+	public int getStartingYForUnit(FE9ChapterUnit unit) {
+		return unit.getStartingY();
+	}
+	
+	public int getEndingXForUnit(FE9ChapterUnit unit) {
+		return unit.getEndingX();
+	}
+	
+	public int getEndingYForUnit(FE9ChapterUnit unit) {
+		return unit.getEndingY();
+	}
+	
+	public void commitChanges() {
+		for (FE9ChapterUnit unit : allUnits) {
+			unit.commitChanges();
+			
+			if (unit.hasCommittedChanges()) {
+				byte[] unitData = unit.getData();
+				disposHandler.addChange(new Diff(unit.getAddressOffset(), unitData.length, unitData, null));
+			}
+		}
+	}
+	
+	public void debugWriteDisposHandler(String path) {
+		try {
+			FileWriter.writeBinaryDataToFile(disposHandler.getRawData(), path);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}

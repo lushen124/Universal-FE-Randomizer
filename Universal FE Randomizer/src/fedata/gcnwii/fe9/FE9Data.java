@@ -43,6 +43,8 @@ public class FE9Data {
 	public static final int CommonTextCount = 0x9E2;
 	public static final int CommonTextEntrySize = 0x8;
 	
+	public static final int ChapterUnitEntrySize = 0x6C;
+	
 	public enum Character {
 		
 		NONE(null),
@@ -615,7 +617,7 @@ public class FE9Data {
 				CHAPTER_27, CHAPTER_27_BK_FIGHT, CHAPTER_28, ENDGAME));
 		public static Set<Chapter> chaptersWithOnlyOneDifficulty = new HashSet<Chapter>(Arrays.asList(ALL_CHAPTERS, CHAPTER_5_CUTSCENE, CHAPTER_7_CUTSCENE,
 				CHAPTER_8_CUTSCENE, CHAPTER_8_CUTSCENE_2, CHAPTER_8_CUTSCENE_3, CHAPTER_8_CUTSCENE_4, CHAPTER_11_CUTSCENE, CHAPTER_13_CUTSCENE,
-				CHAPTER_17_CUTSCENE, CHAPTER_24_CUTSCENE, CHAPTER_25_CUTSCENE, ENDGAME_CUTSCENE, ENDGAME_CUTSCENE_2, TRIAL_MAP_1, TRIAL_MAP_2,
+				CHAPTER_17_CUTSCENE, CHAPTER_24_CUTSCENE, CHAPTER_25_CUTSCENE, ENDGAME_CUTSCENE, ENDGAME_CUTSCENE_2, T1, T2, T3, TRIAL_MAP_1, TRIAL_MAP_2,
 				TRIAL_MAP_3, TRIAL_MAP_4, TRIAL_MAP_5, TRIAL_MAP_6));
 		
 		public String[] getAllDifficulties() {
@@ -624,6 +626,12 @@ public class FE9Data {
 			} else {
 				return new String[] {path + "/dispos_c.bin", path + "/dispos_h.bin", path + "/dispos_m.bin", path + "/dispos_n.bin"};
 			}
+		}
+		
+		public long getStartingOffset() {
+			// As far as I can tell, 0x20 is always a date, and conveniently points to the end of the data too. 
+			// The section header starts right after at 0x24.
+			return 0x20;
 		}
 	}
 }

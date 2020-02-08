@@ -96,7 +96,8 @@ public class GCNByteArrayHandler extends GCNFileHandler {
 	}
 	
 	public byte[] getRawData() {
-		return Arrays.copyOf(byteArray, byteArray.length);
+		byte[] rawData = Arrays.copyOf(byteArray, byteArray.length);
+		return diffCompiler.byteArrayWithDiffs(rawData, 0);
 	}
 
 }

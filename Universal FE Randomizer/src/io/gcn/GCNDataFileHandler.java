@@ -63,9 +63,9 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 			// Remember to add 0x20 when dereferencing.
 			long pointer = WhyDoesJavaNotHaveThese.longValueFromByteArray(readBytesAtOffset(pointerOffset + 0x20, 4), false);
 			setNextReadOffset(pointer + 0x20);
-			String dereferenced = WhyDoesJavaNotHaveThese.displayStringForBytes(continueReadingBytesUpToNextTerminator(0xFF));
-			pointerToString.put(pointer, dereferenced);
-			pointerLookup.put(dereferenced, pointer);
+			String dereferenced = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(continueReadingBytesUpToNextTerminator(pointer + 0x20 + 0xFF));
+			pointerToString.put(pointer + 0x20, dereferenced);
+			pointerLookup.put(dereferenced, pointer + 0x20);
 			
 			stringList.add(dereferenced);
 			currentOffset += 4;
@@ -84,6 +84,7 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 		needsExpansion = true;
 	}
 	
+	// These pointers are already offset by the 0x20, meaning they point directly to the string. If you need to use it, subtract 0x20 before assigning it.
 	public Long pointerForString(String string) {
 		return pointerLookup.get(string);
 	}
@@ -94,10 +95,16 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 	
 	public void commitAdditions() {
 		if (needsExpansion) {
+			// Determine bytes needed for new pointers.
+			ByteArrayBuilder pointerDataBuilder = new ByteArrayBuilder();
+			for (long newPointer : addedPointersOffsets) {
+				pointerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newPointer, false, 4));
+			}
+						
 			// Determine bytes needed for strings. These will be added to the very end of the file.
 			// We'll also have to remember their addresses so that we can reference them later.
 			ByteArrayBuilder stringDataBuilder = new ByteArrayBuilder();
-			long insertAddress = byteArray.length; 
+			long insertAddress = pointerOffset + 0x20; 
 			Map<String, Long> addedStringsToAddresses = new HashMap<String, Long>();
 			for (String newString : addedStrings) {
 				addedStringsToAddresses.put(newString, insertAddress);
@@ -107,10 +114,8 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 				insertAddress += stringBytes.length + 1;
 			}
 			
-			// Determine bytes needed for new pointers.
-			ByteArrayBuilder pointerDataBuilder = new ByteArrayBuilder();
-			for (long newPointer : addedPointersOffsets) {
-				pointerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newPointer, false, 4));
+			while (stringDataBuilder.getBytesWritten() % 4 != 0) {
+				stringDataBuilder.appendByte((byte)0);
 			}
 			
 			// Update header.
@@ -119,7 +124,7 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 			
 			ByteArrayBuilder headerDataBuilder = new ByteArrayBuilder();
 			headerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newFileLength, false, 4));
-			headerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(pointerOffset, false, 4)); // We didn't change this because we're appending new strings to the end.
+			headerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(pointerOffset, false, 4)); // We'll change this later once we know where the pointers end up.
 			headerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newNumberOfPointers, false, 4));
 			// There's one last value in the header that refers to the count of something else. They're 8 byte long entries, but I"m not sure what they are.
 			// Nevertheless we have to restore it.
@@ -130,30 +135,32 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 					0, 0, 0, 0, 
 					0, 0, 0, 0}); // Then there's sixteen 00 bytes separating the header and the data.
 			
-			// Compile header -> file data -> existing strings -> existing pointers -> new pointers -> everything else -> added strings.
+			// Compile header -> file data -> existing strings -> added strings -> existing pointers -> new pointers -> everything else.
+			byte[] existingDataAndStrings = readBytesAtOffset((long)0x20, (int)pointerOffset);
+			byte[] existingPointerOffsets = readBytesAtOffset(pointerOffset + 0x20, pointerOffsetList.size() * 4);
+			long remainingOffset = pointerOffset + 0x20 + pointerOffsetList.size() * 4;
+			byte[] remainingData = readBytesAtOffset(remainingOffset, (int)(byteArray.length - remainingOffset));
+			
 			ByteArrayBuilder expandedFileBuilder = new ByteArrayBuilder();
 			expandedFileBuilder.appendBytes(headerDataBuilder.toByteArray()); // Header
-			expandedFileBuilder.appendBytes(readBytesAtOffset((long)0x20, (int)pointerOffset)); // Existing Data + Strings
-			expandedFileBuilder.appendBytes(readBytesAtOffset(pointerOffset + 0x20, pointerOffsetList.size() * 4)); // Existing Pointer Offsets
-			expandedFileBuilder.appendBytes(pointerDataBuilder.toByteArray()); // New pointer offsets
-			long remainingOffset = pointerOffset + 0x20 + pointerOffsetList.size() * 4;
-			expandedFileBuilder.appendBytes(readBytesAtOffset(remainingOffset, (int)(byteArray.length - remainingOffset))); // Everything else.
+			expandedFileBuilder.appendBytes(existingDataAndStrings);
 			expandedFileBuilder.appendBytes(stringDataBuilder.toByteArray()); // Additional Strings
+			long newPointerOffset = expandedFileBuilder.getBytesWritten() - 0x20;
+			expandedFileBuilder.appendBytes(existingPointerOffsets);
+			expandedFileBuilder.appendBytes(pointerDataBuilder.toByteArray()); // New pointer offsets
+			expandedFileBuilder.appendBytes(remainingData);
 			
 			byteArray = expandedFileBuilder.toByteArray();
+
+			// Write the new pointer offset (since we had to write everything before we could figure it out).
+			byte[] pointerOffsetBytes = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newPointerOffset, false, 4);
+			WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(pointerOffsetBytes, byteArray, 0x4, 4);
+			pointerOffset = newPointerOffset;
 			
 			needsExpansion = false;
 			wasExpanded = true;
 			
-			for (long newPointer : addedPointersOffsets) {
-				long pointer = WhyDoesJavaNotHaveThese.longValueFromByteArray(readBytesAtOffset(newPointer + 0x20, 4), false);
-				setNextReadOffset(pointer + 0x20);
-				String dereferenced = WhyDoesJavaNotHaveThese.displayStringForBytes(continueReadingBytesUpToNextTerminator(0xFF));
-				pointerToString.put(pointer, dereferenced);
-				pointerLookup.put(dereferenced, pointer);
-				
-				stringList.add(dereferenced);
-			}
+			pointerOffsetList.addAll(addedPointersOffsets);
 			
 			addedPointersOffsets.clear();
 			

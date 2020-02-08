@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import fedata.gcnwii.fe9.FE9ChapterArmy;
+import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Data;
 import io.FileHandler;
@@ -18,6 +20,7 @@ import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import io.gcn.GCNISOHandlerRecompilationDelegate;
+import random.gcnwii.fe9.loader.FE9ChapterDataLoader;
 import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9CommonTextLoader;
@@ -49,6 +52,7 @@ public class FE9Randomizer extends Randomizer {
 	FE9ClassDataLoader classData;
 	FE9ItemDataLoader itemData;
 	FE9SkillDataLoader skillData;
+	FE9ChapterDataLoader chapterData;
 	
 	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, String seed) {
 		super();
@@ -118,6 +122,16 @@ public class FE9Randomizer extends Randomizer {
 			classData = new FE9ClassDataLoader(handler, textData);
 			itemData = new FE9ItemDataLoader(handler, textData);
 			skillData = new FE9SkillDataLoader(handler, textData);
+			chapterData = new FE9ChapterDataLoader(handler, textData);
+			
+			chapterData.debugPrintAllChapterArmies();
+			
+			List<FE9ChapterArmy> ch1 = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_1);
+			for (FE9ChapterArmy army : ch1) {
+				FE9ChapterUnit oscarUnit = army.getUnitForPID(FE9Data.Character.OSCAR.getPID());
+				army.setJIDForUnit(oscarUnit, FE9Data.CharacterClass.CAT.getJID());
+				army.setWeapon1ForUnit(oscarUnit, FE9Data.Item.CAT_CLAW.getIID());
+			}
 			
 			randomizeGrowthsIfNecessary(seed);
 			randomizeBasesIfNecessary(seed);
@@ -139,24 +153,42 @@ public class FE9Randomizer extends Randomizer {
 			
 			//kieran.setUnknown6Bytes(oscar.getUnknown6Bytes());
 			//kieran.setUnknown8Bytes(oscar.getUnknown8Bytes());
-			oscar.setSkill1Pointer(charData.addressLookup("SID_CONTINUATION"));
 			GCNFileHandler fe8databin = handler.handlerForFileWithName("system.cmp/FE8Data.bin");
 			//fe8databin.addChange(new Diff(0x1CE2C, 4, new byte[] {0, 0, (byte)0x02, (byte)0x24}, new byte[] {0, 0, (byte)0x05, (byte)0x6C}));
 			assert(fe8databin instanceof GCNDataFileHandler);
 			GCNDataFileHandler dataFileHandler = (GCNDataFileHandler)fe8databin;
+			
+			oscar.setClassPointer(dataFileHandler.pointerForString(FE9Data.CharacterClass.CAT.getJID()) - 0x20);
+			oscar.setUnpromotedAnimationPointer(0);
+			oscar.setPromotedAnimationPointer(dataFileHandler.pointerForString("AID_BEAST_RE"));
+			oscar.setSkill1Pointer(charData.addressLookup("SID_EQUIPFANG"));
+			oscar.setSkill2Pointer(charData.addressLookup("SID_CONTINUATION"));
+			oscar.setUnknown6Bytes(new byte[] {0x0, 0x0E, 0x00, 0x00, 0x10, 0x1E});
+			oscar.setUnknown8Bytes(new byte[] {0x50, 0x50, 0x00, 0x00, 0x50, 0x32, 0x50, 0x00});
+			
 			dataFileHandler.addPointerOffset(0x224);
+			dataFileHandler.addPointerOffset(0x228);
+			dataFileHandler.addString("---------");
 			dataFileHandler.commitAdditions();
 			
-			try {
-				FileWriter.writeBinaryDataToFile(dataFileHandler.getRawData(), path + File.separator + "FE8Data" + File.separator + "FE8Data.bin");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			oscar.setWeaponLevelsPointer(dataFileHandler.pointerForString("---------"));
 			
 			oscar.commitChanges();
 			//kieran.commitChanges();
 			
 			charData.compileDiffs(handler);
+			chapterData.commitChanges();
+			
+			for (FE9ChapterArmy army : ch1) {
+				army.debugWriteDisposHandler(path + File.separator + "ch1_dispos" + File.separator + army.getID().replace("/", File.separator));
+			}
+			
+			try {
+				FileWriter.writeBinaryDataToFile(dataFileHandler.getRawData(), path + File.separator + "FE8Data.bin");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 			
 		} catch (GCNISOException e1) {

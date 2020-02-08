@@ -74,6 +74,12 @@ public class FE9Character implements FEModifiableData {
 		return cachedClassPointer;
 	}
 	
+	public void setClassPointer(long newClassID) {
+		cachedClassPointer = newClassID;
+		writePointerToOffset(newClassID, 0x10);
+		wasModified = true;
+	}
+	
 	public long getAffiliationPointer() {
 		if (cachedAffiliationPointer == null) {
 			cachedAffiliationPointer = readPointerAtOffset(0x14);
@@ -86,6 +92,12 @@ public class FE9Character implements FEModifiableData {
 			cachedWeaponLevelsPointer = readPointerAtOffset(0x18);
 		}
 		return cachedWeaponLevelsPointer;
+	}
+	
+	public void setWeaponLevelsPointer(long pointer) {
+		cachedWeaponLevelsPointer = pointer;
+		writePointerToOffset(pointer, 0x18);
+		wasModified = true;
 	}
 	
 	public long getSkill1Pointer() {
@@ -108,6 +120,12 @@ public class FE9Character implements FEModifiableData {
 		return cachedSkill2Pointer;
 	}
 	
+	public void setSkill2Pointer(long pointer) {
+		cachedSkill2Pointer = pointer;
+		writePointerToOffset(pointer, 0x20);
+		wasModified = true;
+	}
+	
 	public long getSkill3Pointer() {
 		if (cachedSkill3Pointer == null) {
 			cachedSkill3Pointer = readPointerAtOffset(0x24);
@@ -122,11 +140,23 @@ public class FE9Character implements FEModifiableData {
 		return cachedUnpromotedAnimationPointer;
 	}
 	
+	public void setUnpromotedAnimationPointer(long animationPointer) {
+		cachedUnpromotedAnimationPointer = animationPointer;
+		writePointerToOffset(animationPointer, 0x28);
+		wasModified = true;
+	}
+	
 	public long getPromotedAnimationPointer() {
 		if (cachedPromotedAnimationPointer == null) {
 			cachedPromotedAnimationPointer = readPointerAtOffset(0x2C);
 		}
 		return cachedPromotedAnimationPointer;
+	}
+	
+	public void setPromotedAnimationPointer(long animationPointer) {
+		cachedPromotedAnimationPointer = animationPointer;
+		writePointerToOffset(animationPointer, 0x2C);
+		wasModified = true;
 	}
 	
 	public int getLevel() {
