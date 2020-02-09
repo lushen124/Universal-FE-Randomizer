@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Random;
 
 import fedata.gcnwii.fe9.FE9ChapterArmy;
+import fedata.gcnwii.fe9.FE9ChapterRewards;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Data;
 import io.FileHandler;
 import io.FileWriter;
+import io.gcn.GCNCMBFileHandler;
 import io.gcn.GCNCMPFileHandler;
 import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFSTEntry;
@@ -86,38 +88,38 @@ public class FE9Randomizer extends Randomizer {
 		int indexOfPathSeparator = targetPath.lastIndexOf(File.separator);
 		String path = targetPath.substring(0, indexOfPathSeparator);
 		
-//		try {
-//			List<GCNFSTEntry> disposEntries = handler.entriesWithFilename("dispos.cmp");
-//			for (GCNFSTEntry entry : disposEntries) {
-//				String fullName = handler.fstNameOfEntry(entry);
-//				fullName = fullName.replace("/", "_");
-//				String disposPath = path + File.separator + "dispos" + File.separator + fullName;
-//				GCNFileHandler fileHandler = handler.handlerForFSTEntry(entry);
-//				
-//				byte[] data = fileHandler.readBytesAtOffset(0, (int)fileHandler.getFileLength());
-//				try {
-//					FileWriter.writeBinaryDataToFile(LZ77.decompress(data), disposPath);
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//				
-//				GCNCMPFileHandler cmpHandler = (GCNCMPFileHandler)fileHandler;
-//				for (String packedName : cmpHandler.getNames()) {
-//					GCNFileHandler childHandler = cmpHandler.getChildHandler(packedName);
-//					String childPath = disposPath + File.separator + packedName;
-//					byte[] childData = childHandler.readBytesAtOffset(0, (int)childHandler.getFileLength());
-//					try {
-//						FileWriter.writeBinaryDataToFile(childData, childPath);
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//		} catch (GCNISOException e) {
-//			e.printStackTrace();
-//			notifyError("Failed to extract dispos.cmp files.");
-//			return;
-//		}
+		try {
+			List<GCNFSTEntry> mapEntries = handler.entriesWithFilename("map.cmp");
+			for (GCNFSTEntry entry : mapEntries) {
+				String fullName = handler.fstNameOfEntry(entry);
+				fullName = fullName.replace("/", "_");
+				String disposPath = path + File.separator + "map" + File.separator + fullName;
+				GCNFileHandler fileHandler = handler.handlerForFSTEntry(entry);
+				
+				byte[] data = fileHandler.readBytesAtOffset(0, (int)fileHandler.getFileLength());
+				try {
+					FileWriter.writeBinaryDataToFile(LZ77.decompress(data), disposPath);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+				GCNCMPFileHandler cmpHandler = (GCNCMPFileHandler)fileHandler;
+				for (String packedName : cmpHandler.getNames()) {
+					GCNFileHandler childHandler = cmpHandler.getChildHandler(packedName);
+					String childPath = disposPath + File.separator + packedName;
+					byte[] childData = childHandler.readBytesAtOffset(0, (int)childHandler.getFileLength());
+					try {
+						FileWriter.writeBinaryDataToFile(childData, childPath);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} catch (GCNISOException e) {
+			e.printStackTrace();
+			notifyError("Failed to extract map.cmp files.");
+			return;
+		}
 		
 		try {
 			textData = new FE9CommonTextLoader(handler);
@@ -126,6 +128,24 @@ public class FE9Randomizer extends Randomizer {
 			itemData = new FE9ItemDataLoader(handler, textData);
 			skillData = new FE9SkillDataLoader(handler, textData);
 			chapterData = new FE9ChapterDataLoader(handler, textData);
+			
+			FE9ChapterRewards ch1Rewards = chapterData.rewardsForChapter(FE9Data.Chapter.CHAPTER_1);
+			assert(ch1Rewards.getOriginalVillageContents().contains("IID_HPDROP"));
+			assert(ch1Rewards.getOriginalVillageContents().contains("IID_STEELSWORD"));
+			ch1Rewards.replaceVillage("IID_HPDROP", "IID_BOOTS");
+			ch1Rewards.replaceVillage("IID_STEELSWORD", "IID_LONGSWORD");
+			ch1Rewards.commitChanges();
+			
+			GCNFileHandler c02cmb = handler.handlerForFileWithName("Scripts/C02.cmb");
+			assert(c02cmb instanceof GCNCMBFileHandler);
+			GCNCMBFileHandler cmbHandler = (GCNCMBFileHandler)c02cmb;
+			
+			try {
+				FileWriter.writeBinaryDataToFile(cmbHandler.build(), path + File.separator + "C02.cmb");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 //			chapterData.debugPrintAllChapterArmies();
 //			
@@ -158,7 +178,7 @@ public class FE9Randomizer extends Randomizer {
 			//kieran.setUnknown6Bytes(oscar.getUnknown6Bytes());
 			//kieran.setUnknown8Bytes(oscar.getUnknown8Bytes());
 			GCNFileHandler fe8databin = handler.handlerForFileWithName("system.cmp/FE8Data.bin");
-			fe8databin.addChange(new Diff(0x1CE2C, 4, new byte[] {0, 0, (byte)0x02, (byte)0x24}, new byte[] {0, 0, (byte)0x05, (byte)0x6C}));
+			//fe8databin.addChange(new Diff(0x1CE2C, 4, new byte[] {0, 0, (byte)0x02, (byte)0x24}, new byte[] {0, 0, (byte)0x05, (byte)0x6C}));
 			assert(fe8databin instanceof GCNDataFileHandler);
 			GCNDataFileHandler dataFileHandler = (GCNDataFileHandler)fe8databin;
 			
@@ -187,12 +207,12 @@ public class FE9Randomizer extends Randomizer {
 //				army.debugWriteDisposHandler(path + File.separator + "ch1_dispos" + File.separator + army.getID().replace("/", File.separator));
 //			}
 //			
-			try {
-				FileWriter.writeBinaryDataToFile(dataFileHandler.getRawData(), path + File.separator + "FE8Data.bin");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				FileWriter.writeBinaryDataToFile(dataFileHandler.getRawData(), path + File.separator + "FE8Data.bin");
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			
 			
 		} catch (GCNISOException e1) {

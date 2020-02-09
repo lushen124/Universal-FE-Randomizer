@@ -44,4 +44,9 @@ public class ByteArrayBuilder {
 	public int getBytesWritten() {
 		return bytesWritten;
 	}
+	
+	public void clear() {
+		byteArray = new byte[255];
+		bytesWritten = 0;
+	}
 }

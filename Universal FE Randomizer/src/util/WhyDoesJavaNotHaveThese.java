@@ -1,5 +1,7 @@
 package util;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -169,14 +171,20 @@ public class WhyDoesJavaNotHaveThese {
 		long offsetValue = 0;
 		long mask = 0;
 		
-		for (int i = 0; i < input.length; i++) {
-			int nextValue = input[i];
-			mask <<= 8;
-			mask |= 255;
-			if (isLittleEndian) {
+		if (isLittleEndian) {
+			for (int i = input.length - 1; i >= 0; i--) {
+				int nextValue = input[i];
+				mask <<= 8;
+				mask |= 255;
 				// 0x12345678 <-> 78 56 34 12
-				offsetValue |= (nextValue << (i * 8));
-			} else {
+				offsetValue <<= 8;
+				offsetValue |= (nextValue & 0xFF);
+			}
+		} else {
+			for (int i = 0; i < input.length; i++) {
+				int nextValue = input[i];
+				mask <<= 8;
+				mask |= 255;
 				// 0x12345678 <-> 12 34 56 78
 				offsetValue <<= 8;
 				offsetValue |= (nextValue & 0xFF);
@@ -213,5 +221,14 @@ public class WhyDoesJavaNotHaveThese {
 		}
 		
 		return sb.toString();
+	}
+	
+	public static byte[] subArray(byte[] original, int start, int length) {
+		byte[] result = new byte[length];
+		for (int i = 0; i < length; i++) {
+			result[i] = original[start + i];
+		}
+		
+		return result;
 	}
 }

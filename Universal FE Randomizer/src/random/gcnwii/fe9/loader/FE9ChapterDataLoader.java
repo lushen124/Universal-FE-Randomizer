@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import fedata.gcnwii.fe9.FE9ChapterArmy;
+import fedata.gcnwii.fe9.FE9ChapterRewards;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Data;
+import io.gcn.GCNCMBFileHandler;
 import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
@@ -19,9 +21,15 @@ public class FE9ChapterDataLoader {
 	List<FE9ChapterArmy> allChapterArmies;
 	Map<FE9Data.Chapter, List<FE9ChapterArmy>> armiesByChapter;
 	
+	List<FE9ChapterRewards> allChapterRewards;
+	Map<FE9Data.Chapter, FE9ChapterRewards> rewardsByChapter;
+	
 	public FE9ChapterDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
 		allChapterArmies = new ArrayList<FE9ChapterArmy>();
 		armiesByChapter = new HashMap<FE9Data.Chapter, List<FE9ChapterArmy>>();
+		
+		allChapterRewards = new ArrayList<FE9ChapterRewards>();
+		rewardsByChapter = new HashMap<FE9Data.Chapter, FE9ChapterRewards>();
 		
 		for (FE9Data.Chapter chapter : FE9Data.Chapter.values()) {
 			List<FE9ChapterArmy> armyList = new ArrayList<FE9ChapterArmy>();
@@ -35,7 +43,21 @@ public class FE9ChapterDataLoader {
 				armyList.add(army);
 			}
 			armiesByChapter.put(chapter, armyList);
+			
+			if (chapter.getScriptPath() != null) {
+				GCNFileHandler handler = isoHandler.handlerForFileWithName(chapter.getScriptPath());
+				assert(handler instanceof GCNCMBFileHandler);
+				if (!(handler instanceof GCNCMBFileHandler)) { continue; }
+				GCNCMBFileHandler cmbFileHandler = (GCNCMBFileHandler)handler;
+				FE9ChapterRewards rewards = new FE9ChapterRewards(cmbFileHandler);
+				allChapterRewards.add(rewards);
+				rewardsByChapter.put(chapter, rewards);
+			}
 		}
+	}
+	
+	public FE9ChapterRewards rewardsForChapter(FE9Data.Chapter chapter) {
+		return rewardsByChapter.get(chapter);
 	}
 
 	public void debugPrintAllChapterArmies() {

@@ -246,6 +246,9 @@ public class GCNISOHandler {
 				}
 				
 				fileHandler = cmpHandler;
+			} else if (filename.endsWith("cmb")) {
+				GCNCMBFileHandler cmbHandler = new GCNCMBFileHandler((GCNFSTFileEntry)entry, handler, this);
+				fileHandler = cmbHandler;
 			} else {
 				fileHandler = new GCNFileHandler((GCNFSTFileEntry)entry, handler);
 			}
@@ -335,6 +338,9 @@ public class GCNISOHandler {
 				if (fileHandler instanceof GCNCMPFileHandler) {
 					GCNCMPFileHandler cmpFileHandler = (GCNCMPFileHandler)fileHandler;
 					writer.write(cmpFileHandler.build());
+				} else if (fileHandler instanceof GCNCMBFileHandler) {
+					GCNCMBFileHandler cmbFileHandler = (GCNCMBFileHandler)fileHandler;
+					writer.write(cmbFileHandler.build());
 				} else {
 					fileHandler.setNextReadOffset(0);
 					fileHandler.beginBatchRead();
@@ -422,6 +428,9 @@ public class GCNISOHandler {
 			GCNFileHandler handler = handlerForFileWithName(name);
 			if (handler instanceof GCNCMPFileHandler) {
 				((GCNCMPFileHandler)handler).build();
+			}
+			if (handler instanceof GCNCMBFileHandler) {
+				((GCNCMBFileHandler) handler).build();
 			}
 			fileDataOrder.add(file);
 			if (currentDataOffset == -1) { currentDataOffset = file.fileOffset; } // Initialize the offset to the first file's offset.
