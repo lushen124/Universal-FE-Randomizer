@@ -14,6 +14,8 @@ import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
+import ui.model.FE9EnemyBuffOptions;
+import ui.model.FE9OtherCharacterOptions;
 import ui.model.GrowthOptions;
 import ui.model.ItemAssignmentOptions;
 import ui.model.MiscellaneousOptions;
@@ -66,6 +68,8 @@ public class OptionRecorder {
 		public GrowthOptions growths;
 		public BaseOptions bases;
 		public FE9SkillsOptions skills;
+		public FE9OtherCharacterOptions otherOptions;
+		public FE9EnemyBuffOptions enemyBuff;
 		public MiscellaneousOptions misc;
 		public Integer version;
 	}

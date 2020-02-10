@@ -10,6 +10,7 @@ import fedata.gcnwii.fe9.FE9ChapterArmy;
 import fedata.gcnwii.fe9.FE9ChapterRewards;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
+import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
 import io.FileHandler;
 import io.FileWriter;
@@ -31,6 +32,7 @@ import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
 import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
+import ui.model.FE9EnemyBuffOptions;
 import ui.model.FE9OtherCharacterOptions;
 import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
@@ -54,6 +56,7 @@ public class FE9Randomizer extends Randomizer {
 	private FE9SkillsOptions skillOptions;
 	private MiscellaneousOptions miscOptions;
 	private FE9OtherCharacterOptions otherCharOptions;
+	private FE9EnemyBuffOptions enemyBuffOptions;
 	
 	FE9CommonTextLoader textData;
 	FE9CharacterDataLoader charData;
@@ -62,7 +65,7 @@ public class FE9Randomizer extends Randomizer {
 	FE9SkillDataLoader skillData;
 	FE9ChapterDataLoader chapterData;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, FE9EnemyBuffOptions enemyBuffOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -72,6 +75,7 @@ public class FE9Randomizer extends Randomizer {
 		this.baseOptions = baseOptions;
 		this.skillOptions = skillOptions;
 		this.otherCharOptions = otherCharOptions;
+		this.enemyBuffOptions = enemyBuffOptions;
 		this.miscOptions = miscOptions;
 		
 		this.seedString = seed;
@@ -135,27 +139,32 @@ public class FE9Randomizer extends Randomizer {
 			skillData = new FE9SkillDataLoader(handler, textData);
 			chapterData = new FE9ChapterDataLoader(handler, textData);
 			
-			List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
-			for (FE9ChapterArmy army : armies) {
-				FE9ChapterUnit ike = army.getUnitForPID("PID_IKE");
-				army.setSkill2ForUnit(ike, FE9Data.Skill.RESOLVE.getSID());
-				army.setSkill3ForUnit(ike, FE9Data.Skill.WRATH.getSID());
-				army.commitChanges();
-			}
+//			List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
+//			for (FE9ChapterArmy army : armies) {
+//				FE9ChapterUnit ike = army.getUnitForPID("PID_IKE");
+//				army.setSkill2ForUnit(ike, FE9Data.Skill.RESOLVE.getSID());
+//				army.setSkill3ForUnit(ike, FE9Data.Skill.WRATH.getSID());
+//				army.commitChanges();
+//			}
+//			
+//			armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_1);
+//			for (FE9ChapterArmy army : armies) {
+//				for (String unitID : army.getAllUnitIDs()) {
+//					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+//					if (army.getSkill1ForUnit(unit) == null) {
+//						army.setSkill1ForUnit(unit, FE9Data.Skill.SERENITY.getSID());
+//					} else if (army.getSkill2ForUnit(unit) == null) {
+//						army.setSkill2ForUnit(unit, FE9Data.Skill.TEMPEST.getSID());
+//					} else if (army.getSkill3ForUnit(unit) == null) {
+//						army.setSkill3ForUnit(unit, FE9Data.Skill.MIRACLE.getSID());
+//					}
+//				}
+//				army.commitChanges();
+//			}
 			
-			armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_1);
-			for (FE9ChapterArmy army : armies) {
-				for (String unitID : army.getAllUnitIDs()) {
-					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
-					if (army.getSkill1ForUnit(unit) == null) {
-						army.setSkill1ForUnit(unit, FE9Data.Skill.SERENITY.getSID());
-					} else if (army.getSkill2ForUnit(unit) == null) {
-						army.setSkill2ForUnit(unit, FE9Data.Skill.TEMPEST.getSID());
-					} else if (army.getSkill3ForUnit(unit) == null) {
-						army.setSkill3ForUnit(unit, FE9Data.Skill.MIRACLE.getSID());
-					}
-				}
-				army.commitChanges();
+			for (FE9Data.CharacterClass charClass : FE9Data.CharacterClass.allValidClasses) {
+				FE9Class fe9Class = classData.classWithID(charClass.getJID());
+				fe9Class.setHPGrowth(Math.min(fe9Class.getHPGrowth() + 100, 255));
 			}
 			
 			randomizeGrowthsIfNecessary(seed);
@@ -205,6 +214,7 @@ public class FE9Randomizer extends Randomizer {
 			//kieran.commitChanges();
 			
 			charData.compileDiffs(handler);
+			classData.compileDiffs(handler);
 			//chapterData.commitChanges();
 			
 //			for (FE9ChapterArmy army : ch1) {
@@ -316,5 +326,9 @@ public class FE9Randomizer extends Randomizer {
 				FE9MiscellaneousRandomizer.randomizeAffinity(charData, rng);
 			}
 		}
+	}
+	
+	private void buffEnemiesIfNecessary(String seed) {
+		
 	}
 }

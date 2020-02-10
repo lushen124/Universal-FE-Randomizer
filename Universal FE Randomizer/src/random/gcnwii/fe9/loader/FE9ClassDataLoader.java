@@ -11,6 +11,7 @@ import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import util.DebugPrinter;
+import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE9ClassDataLoader {
@@ -184,5 +185,20 @@ public class FE9ClassDataLoader {
 		String classID = pointerLookup(charClass.getClassIDPointer());
 		if (classID == null) { return null; }
 		return FE9Data.CharacterClass.withJID(classID);
+	}
+	
+	public void compileDiffs(GCNISOHandler isoHandler) {
+		try {
+			GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.ClassDataFilename);
+			for (FE9Class charClass : allClasses) {
+				charClass.commitChanges();
+				if (charClass.hasCommittedChanges()) {
+					Diff classDiff = new Diff(charClass.getAddressOffset(), charClass.getData().length, charClass.getData(), null);
+					handler.addChange(classDiff);
+				}
+			}
+		} catch (GCNISOException e) {
+			e.printStackTrace();
+		}
 	}
 }
