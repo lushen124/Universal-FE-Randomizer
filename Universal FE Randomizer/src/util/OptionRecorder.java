@@ -66,6 +66,7 @@ public class OptionRecorder {
 		public GrowthOptions growths;
 		public BaseOptions bases;
 		public FE9SkillsOptions skills;
+		public MiscellaneousOptions misc;
 		public Integer version;
 	}
 	

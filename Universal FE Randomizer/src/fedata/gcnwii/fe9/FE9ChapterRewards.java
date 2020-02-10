@@ -18,14 +18,18 @@ public class FE9ChapterRewards {
 	private Map<String, String> chestReplacements;
 	private Map<String, String> villageReplacements;
 	
+	private Map<String, String> desertReplacements;
+	
 	public FE9ChapterRewards(GCNCMBFileHandler handler) {
 		cmbHandler = handler;
 		
 		chestReplacements = new HashMap<String, String>();
 		villageReplacements = new HashMap<String, String>();
+		desertReplacements = new HashMap<String, String>();
 		
 		loadChests();
 		loadVillages();
+		loadDesert();
 	}
 	
 	public Set<String> getChestContents() {
@@ -54,6 +58,19 @@ public class FE9ChapterRewards {
 		return villages;
 	}
 	
+	public Set<String> getDesertContents() {
+		Set<String> desert = new HashSet<String>();
+		for (String key : desertReplacements.keySet()) {
+			if (desertReplacements.get(key) != null) {
+				desert.add(desertReplacements.get(key));
+			} else {
+				desert.add(key);
+			}
+		}
+		
+		return desert;
+	}
+	
 	public Set<String> getOriginalChestContents() {
 		return chestReplacements.keySet();
 	}
@@ -62,21 +79,35 @@ public class FE9ChapterRewards {
 		return villageReplacements.keySet();
 	}
 	
+	public Set<String> getOriginalDesertContents() {
+		return desertReplacements.keySet();
+	}
+	
 	public void replaceChest(String originalIID, String replacementIID) {
+		if (replacementIID == null) { return; }
 		if (chestReplacements.containsKey(originalIID)) {
 			chestReplacements.put(originalIID, replacementIID);
 		}
 	}
 	
 	public void replaceVillage(String originalIID, String replacementIID) {
+		if (replacementIID == null) { return; }
 		if (villageReplacements.containsKey(originalIID)) {
 			villageReplacements.put(originalIID, replacementIID);
+		}
+	}
+	
+	public void replaceDesert(String originalIID, String replacementIID) {
+		if (replacementIID == null) { return; }
+		if (desertReplacements.containsKey(originalIID)) {
+			desertReplacements.put(originalIID, replacementIID);
 		}
 	}
 	
 	public void commitChanges() {
 		commitChests();
 		commitVillages();
+		commitDesert();
 	}
 
 	private void loadChests() {
@@ -135,7 +166,28 @@ public class FE9ChapterRewards {
 		}
 	}
 	
+	private void loadDesert() {
+		// Note, this prefix only works for Chapter 15 (but that's the only desert so, it's fine for now?)
+		byte[] desertItemPrefix = new byte[] {
+				0x38, 0x00, (byte)0xDE, 0x00, 0x21, 0x07, 0x01, 0x01, 0x00, 0x19, 0x10, 0x38, 0x00, (byte)0xE8, 0x02, 0x21, 0x07, 0x02, 0x19, 0x65, 0x38, 
+				0x00, (byte)0xF0, 0x01, 0x21, 0x01, 0x00, 0x1D, 0x00, (byte)0xF7, 0x38, 0x01, 0x01, 0x02, 0x3C, 0x00, 0x0B, 0x01, 0x00, 0x1D, 0x01, 0x0E, 
+				0x38, 0x01, 0x01, 0x02, 0x3D, 0x00, 0x08, 0x07, 0x01, 0x19, 0x64, 0x21, 0x20, 0x1D, 0x01, 0x1B, 0x01, 0x01, 0x01, 0x02, 0x01, 
+				0x00, 0x38, 0x01, 0x37, 0x01, 0x01, 0x00, 0x38, 0x01, 0x40, 0x01, 0x41, 0x05, 0x01, 0x01, 0x01, 0x02, 0x34, 0x3D, 0x00, 0x12, 0x1D
+		};
+		List<Long> offsets = cmbHandler.offsetsForBytes(desertItemPrefix);
+		for (Long offset : offsets) {
+			byte[] potentialDesertEntry = cmbHandler.cmb_readBytesAtOffset(offset + desertItemPrefix.length, 2);
+			String iid = cmbHandler.stringForOffset(potentialDesertEntry);
+			if (iid != null && iid.startsWith("IID_")) {
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Desert Item found in " + cmbHandler.getName() + ": " + iid);
+				desertReplacements.put(iid, null);
+			}
+		}
+	}
+	
 	private void commitChests() {
+		if (chestReplacements.isEmpty()) { return; }
+		
 		ByteArrayBuilder chestScript = new ByteArrayBuilder();
 		byte[] tboxOpen = cmbHandler.bytePrefixForString("TBoxOpen");
 		if (tboxOpen == null) { DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "No Chests found in " + cmbHandler.getName()); return; }
@@ -170,6 +222,8 @@ public class FE9ChapterRewards {
 	}
 	
 	private void commitVillages() {
+		if (villageReplacements.isEmpty()) { return; }
+		
 		ByteArrayBuilder villageScript = new ByteArrayBuilder();
 		byte[] visitOut = cmbHandler.bytePrefixForString("VisitOut");
 		if (visitOut == null) { DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "No Villages found in " + cmbHandler.getName()); return; }
@@ -194,7 +248,33 @@ public class FE9ChapterRewards {
 			String iid = cmbHandler.stringForOffset(potentialItemOffset);
 			if (iid != null && villageReplacements.containsKey(iid)) {
 				String replacementIID = villageReplacements.get(iid);
-				if (replacementIID != null) {
+				if (replacementIID != null && targetOffset != null) {
+					cmbHandler.addString(replacementIID);
+					byte[] newIIDBytes = cmbHandler.bytePrefixForString(replacementIID);
+					cmbHandler.cmb_writeBytesToOffset(targetOffset, newIIDBytes);
+				}
+			}
+		}
+	}
+	
+	private void commitDesert() {
+		if (desertReplacements.isEmpty()) { return; }
+		
+		// Note, this prefix only works for Chapter 15 (but that's the only desert so, it's fine for now?)
+		byte[] desertItemPrefix = new byte[] {
+				0x38, 0x00, (byte)0xDE, 0x00, 0x21, 0x07, 0x01, 0x01, 0x00, 0x19, 0x10, 0x38, 0x00, (byte)0xE8, 0x02, 0x21, 0x07, 0x02, 0x19, 0x65, 0x38, 
+				0x00, (byte)0xF0, 0x01, 0x21, 0x01, 0x00, 0x1D, 0x00, (byte)0xF7, 0x38, 0x01, 0x01, 0x02, 0x3C, 0x00, 0x0B, 0x01, 0x00, 0x1D, 0x01, 0x0E, 
+				0x38, 0x01, 0x01, 0x02, 0x3D, 0x00, 0x08, 0x07, 0x01, 0x19, 0x64, 0x21, 0x20, 0x1D, 0x01, 0x1B, 0x01, 0x01, 0x01, 0x02, 0x01, 
+				0x00, 0x38, 0x01, 0x37, 0x01, 0x01, 0x00, 0x38, 0x01, 0x40, 0x01, 0x41, 0x05, 0x01, 0x01, 0x01, 0x02, 0x34, 0x3D, 0x00, 0x12, 0x1D
+		};
+		List<Long> offsets = cmbHandler.offsetsForBytes(desertItemPrefix);
+		for (Long offset : offsets) {
+			Long targetOffset = offset + desertItemPrefix.length;
+			byte[] potentialDesertEntry = cmbHandler.cmb_readBytesAtOffset(targetOffset, 2);
+			String iid = cmbHandler.stringForOffset(potentialDesertEntry);
+			if (iid != null && iid.startsWith("IID_")) {
+				String replacementIID = desertReplacements.get(iid);
+				if (replacementIID != null && targetOffset != null) {
 					cmbHandler.addString(replacementIID);
 					byte[] newIIDBytes = cmbHandler.bytePrefixForString(replacementIID);
 					cmbHandler.cmb_writeBytesToOffset(targetOffset, newIIDBytes);

@@ -4,6 +4,7 @@ import java.util.Random;
 
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Class;
+import fedata.gcnwii.fe9.FE9Data;
 import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader.StatBias;
@@ -164,5 +165,13 @@ public class FE9BasesRandomizer {
 		}
 		
 		charData.commit();
+	}
+	
+	public static void nerfPrologueBoyd(FE9CharacterDataLoader charData) {
+		FE9Character prologueBoyd = charData.characterWithID(FE9Data.Character.BOYD_PROLOGUE.getPID());
+		prologueBoyd.setBaseSTR(prologueBoyd.getBaseSTR() - 2);
+		prologueBoyd.setBaseSPD(prologueBoyd.getBaseSPD() - 2);
+		prologueBoyd.setBaseDEF(prologueBoyd.getBaseDEF() - 2);
+		prologueBoyd.commitChanges();
 	}
 }

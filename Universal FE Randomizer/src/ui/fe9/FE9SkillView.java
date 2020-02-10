@@ -124,8 +124,8 @@ public class FE9SkillView extends Composite {
 		});
 		
 		FormData weightData = new FormData();
-		weightData.left = new FormAttachment(randomizeExistingModeButton, 0, SWT.LEFT);
-		weightData.top = new FormAttachment(skillCountSpinner, 10);
+		weightData.left = new FormAttachment(enableButton, 0, SWT.LEFT);
+		weightData.top = new FormAttachment(skillCountSpinner, 5);
 		weightData.right = new FormAttachment(100, -5);
 		weightData.width = 280;
 		weightsView.setLayoutData(weightData);

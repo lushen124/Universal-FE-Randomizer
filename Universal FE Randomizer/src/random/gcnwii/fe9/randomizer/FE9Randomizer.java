@@ -32,6 +32,7 @@ import random.general.Randomizer;
 import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
 import ui.model.GrowthOptions;
+import ui.model.MiscellaneousOptions;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
@@ -50,6 +51,7 @@ public class FE9Randomizer extends Randomizer {
 	private GrowthOptions growthOptions;
 	private BaseOptions baseOptions;
 	private FE9SkillsOptions skillOptions;
+	private MiscellaneousOptions miscOptions;
 	
 	FE9CommonTextLoader textData;
 	FE9CharacterDataLoader charData;
@@ -58,7 +60,7 @@ public class FE9Randomizer extends Randomizer {
 	FE9SkillDataLoader skillData;
 	FE9ChapterDataLoader chapterData;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, String seed) {
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -67,6 +69,7 @@ public class FE9Randomizer extends Randomizer {
 		this.growthOptions = growthOptions;
 		this.baseOptions = baseOptions;
 		this.skillOptions = skillOptions;
+		this.miscOptions = miscOptions;
 		
 		this.seedString = seed;
 	}
@@ -129,36 +132,10 @@ public class FE9Randomizer extends Randomizer {
 			skillData = new FE9SkillDataLoader(handler, textData);
 			chapterData = new FE9ChapterDataLoader(handler, textData);
 			
-			FE9ChapterRewards ch1Rewards = chapterData.rewardsForChapter(FE9Data.Chapter.CHAPTER_1);
-			assert(ch1Rewards.getOriginalVillageContents().contains("IID_HPDROP"));
-			assert(ch1Rewards.getOriginalVillageContents().contains("IID_STEELSWORD"));
-			ch1Rewards.replaceVillage("IID_HPDROP", "IID_BOOTS");
-			ch1Rewards.replaceVillage("IID_STEELSWORD", "IID_LONGSWORD");
-			ch1Rewards.commitChanges();
-			
-			GCNFileHandler c02cmb = handler.handlerForFileWithName("Scripts/C02.cmb");
-			assert(c02cmb instanceof GCNCMBFileHandler);
-			GCNCMBFileHandler cmbHandler = (GCNCMBFileHandler)c02cmb;
-			
-			try {
-				FileWriter.writeBinaryDataToFile(cmbHandler.build(), path + File.separator + "C02.cmb");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-//			chapterData.debugPrintAllChapterArmies();
-//			
-//			List<FE9ChapterArmy> ch1 = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_1);
-//			for (FE9ChapterArmy army : ch1) {
-//				FE9ChapterUnit oscarUnit = army.getUnitForPID(FE9Data.Character.OSCAR.getPID());
-//				army.setJIDForUnit(oscarUnit, FE9Data.CharacterClass.CAT.getJID());
-//				army.setWeapon1ForUnit(oscarUnit, FE9Data.Item.CAT_CLAW.getIID());
-//			}
-			
 			randomizeGrowthsIfNecessary(seed);
 			randomizeBasesIfNecessary(seed);
 			randomizeSkillsIfNecessary(seed);
+			randomizeMiscellaneousIfNecessary(seed);
 			
 			//FE9Character kieran = charData.characterWithID(FE9Data.Character.KIERAN.getPID());
 			//FE9Character oscar = charData.characterWithID(FE9Data.Character.OSCAR.getPID());
@@ -265,6 +242,10 @@ public class FE9Randomizer extends Randomizer {
 				FE9BasesRandomizer.randomizeBasesByDelta(baseOptions.deltaOption.variance, baseOptions.adjustSTRMAGByClass, charData, classData, rng);
 				break;
 			}
+			
+			// If we do this, nerf Prologue Boyd to make sure the prologue is completeable, in case we randomize a crappy Ike.
+			FE9BasesRandomizer.nerfPrologueBoyd(charData);
+			
 			charData.commit();
 		}
 	}
@@ -281,6 +262,20 @@ public class FE9Randomizer extends Randomizer {
 				break;
 			}
 			charData.commit();
+		}
+	}
+	
+	private void randomizeMiscellaneousIfNecessary(String seed) {
+		if (miscOptions != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9RewardsRandomizer.rngSalt));
+			switch (miscOptions.rewardMode) {
+			case SIMILAR:
+				FE9RewardsRandomizer.randomizeSimilarRewards(itemData, chapterData, rng);
+				break;
+			case RANDOM:
+				FE9RewardsRandomizer.randomizeRewards(itemData, chapterData, rng);
+				break;
+			}
 		}
 	}
 }

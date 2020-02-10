@@ -7,10 +7,13 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Listener;
 
 import fedata.general.FEBase.GameType;
 import ui.model.MiscellaneousOptions;
+import ui.model.MiscellaneousOptions.RewardMode;
 
 public class MiscellaneousView extends Composite {
 	
@@ -21,6 +24,12 @@ public class MiscellaneousView extends Composite {
 	private Button applyEnglishPatch; // pre-FE6 only
 	
 	private Button randomizeChestVillageRewards;
+	
+	private MiscellaneousOptions.RewardMode rewardMode;
+	
+	private Composite rewardModeContainer;
+	private Button similarRewardsButton;
+	private Button randomRewardsButton;
 	
 	public MiscellaneousView(Composite parent, int style, GameType gameType) {
 		super(parent, style);
@@ -74,6 +83,57 @@ public class MiscellaneousView extends Composite {
 			chestVillageData.top = new FormAttachment(0, 5);
 		}
 		randomizeChestVillageRewards.setLayoutData(chestVillageData);
+		
+		if (gameType == GameType.FE9) {
+			rewardModeContainer = new Composite(container, SWT.NONE);
+			rewardModeContainer.setLayout(new FormLayout());
+			
+			FormData containerData = new FormData();
+			containerData.left = new FormAttachment(randomizeChestVillageRewards, 5, SWT.LEFT);
+			containerData.top = new FormAttachment(randomizeChestVillageRewards, 5);
+			rewardModeContainer.setLayoutData(containerData);
+			
+			similarRewardsButton = new Button(rewardModeContainer, SWT.RADIO);
+			similarRewardsButton.setText("Similar Replacements");
+			similarRewardsButton.setToolTipText("Replaces rewards with those of a similar type.\ne.g. Weapons are replaced with weapons, stat boosters are replaced with other stat boosters, etc.");
+			similarRewardsButton.setSelection(true);
+			rewardMode = RewardMode.SIMILAR;
+			
+			FormData buttonData = new FormData();
+			buttonData.left = new FormAttachment(0, 0);
+			buttonData.top = new FormAttachment(0, 0);
+			similarRewardsButton.setLayoutData(buttonData);
+			
+			randomRewardsButton = new Button(rewardModeContainer, SWT.RADIO);
+			randomRewardsButton.setText("Random Replacements");
+			randomRewardsButton.setToolTipText("Replaces rewards with anything.");
+			
+			buttonData = new FormData();
+			buttonData.left = new FormAttachment(0, 0);
+			buttonData.top = new FormAttachment(similarRewardsButton, 5);
+			randomRewardsButton.setLayoutData(buttonData);
+			
+			similarRewardsButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) { rewardMode = RewardMode.SIMILAR; }
+			});
+			
+			randomRewardsButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) { rewardMode = RewardMode.RANDOM; }				
+			});
+			
+			similarRewardsButton.setEnabled(false);
+			randomRewardsButton.setEnabled(false);
+			
+			randomizeChestVillageRewards.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					similarRewardsButton.setEnabled(randomizeChestVillageRewards.getSelection());
+					randomRewardsButton.setEnabled(randomizeChestVillageRewards.getSelection());
+				}
+			});
+		}
 	}
 
 	public MiscellaneousOptions getMiscellaneousOptions() {
@@ -92,6 +152,8 @@ public class MiscellaneousView extends Composite {
 			default:
 				return new MiscellaneousOptions(false, false);
 			}
+		} else if (type.isGCN()) {
+			return new MiscellaneousOptions(false, randomizeChestVillageRewards.getSelection(), rewardMode);
 		}
 		
 		return new MiscellaneousOptions(false, false);
@@ -106,6 +168,15 @@ public class MiscellaneousView extends Composite {
 			}
 			if (randomizeChestVillageRewards != null) {
 				randomizeChestVillageRewards.setSelection(options.randomizeRewards);
+			}
+			
+			if (similarRewardsButton != null) { 
+				similarRewardsButton.setSelection(options.rewardMode == RewardMode.SIMILAR);
+				similarRewardsButton.setEnabled(options.randomizeRewards);
+			}
+			if (randomRewardsButton != null) {
+				randomRewardsButton.setSelection(options.rewardMode == RewardMode.RANDOM);
+				randomRewardsButton.setEnabled(options.randomizeRewards);
 			}
 		}
 	}

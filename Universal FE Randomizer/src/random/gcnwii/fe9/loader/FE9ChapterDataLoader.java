@@ -59,6 +59,10 @@ public class FE9ChapterDataLoader {
 	public FE9ChapterRewards rewardsForChapter(FE9Data.Chapter chapter) {
 		return rewardsByChapter.get(chapter);
 	}
+	
+	public List<FE9ChapterRewards> getAllChapterRewards() {
+		return allChapterRewards;
+	}
 
 	public void debugPrintAllChapterArmies() {
 		for (FE9ChapterArmy army : allChapterArmies) {

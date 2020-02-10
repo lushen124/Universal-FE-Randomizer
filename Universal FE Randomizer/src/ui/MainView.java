@@ -360,6 +360,7 @@ public class MainView implements FileFlowDelegate {
 			growthView.setGrowthOptions(bundle.growths);
 			baseView.setBasesOptions(bundle.bases);
 			fe9SkillView.setSkillOptions(bundle.skills);
+			miscView.setMiscellaneousOptions(bundle.misc);
 		}
 	}
 	
@@ -510,6 +511,17 @@ public class MainView implements FileFlowDelegate {
 			randomizeButton.setLayoutData(randomizeData);
 			
 		} else if (type == GameType.FE9) {
+			miscView = new MiscellaneousView(container, SWT.NONE, type);
+			miscView.setSize(200, 200);
+			miscView.setVisible(false);
+			  
+			FormData miscData = new FormData();
+			miscData.top = new FormAttachment(baseView, 5);
+			miscData.left = new FormAttachment(baseView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
+			//miscData.bottom = new FormAttachment(100, -10);
+			miscView.setLayoutData(miscData);
+			
 			List<String> skills = FE9Data.Skill.allValidSkills.stream().map( skill -> {
 				return skill.getDisplayString();
 			}).collect(Collectors.toList());
@@ -710,9 +722,8 @@ public class MainView implements FileFlowDelegate {
 					itemAssignmentView.setVisible(true);
 				}
 		
-				if (type != GameType.FE9) {
-					miscView.setVisible(true);
-				}
+				
+				miscView.setVisible(true);
 				
 				randomizeButton.setVisible(true);
 				
@@ -828,6 +839,7 @@ public class MainView implements FileFlowDelegate {
 										growthView.getGrowthOptions(),
 										baseView.getBaseOptions(),
 										fe9SkillView.getSkillOptions(),
+										miscView.getMiscellaneousOptions(),
 										seedField.getText());
 							}
 							

@@ -51,6 +51,8 @@ public class FE9Data {
 		
 		NONE(null),
 		
+		BOYD_PROLOGUE("PID_BOLE_MAP1"), // Make sure prologue Boyd is worse in case we randomize a crappy Ike.
+		
 		IKE("PID_IKE"), TITANIA("PID_TIAMAT"), SOREN("PID_SENERIO"), MIST("PID_MIST"), OSCAR("PID_OSCAR"), BOYD("PID_BOLE"), ROLF("PID_LOFA"), 
 		SHINON("PID_CHINON"), GATRIE("PID_GATRIE"), RHYS("PID_KILROY"), MIA("PID_WAYU"), ELINCIA("PID_ERINCIA_QUEEN"), GEOFFREY("PID_GEOFFRAY"), 
 		BASTIAN("PID_ULYSSES"), KIERAN("PID_KEVIN"), LUCIA("PID_LUCHINO"), DEVDAN("PID_DALAHOWE"), CALILL("PID_CALILL"), LARGO("PID_LARGO"), 
@@ -636,6 +638,42 @@ public class FE9Data {
 				SILVER_BOW, BOLGANONE, THORON, TORNADO, NOSFERATU, WARP, FORTIFY));
 		public static Set<Item> allSRankWeapons = new HashSet<Item>(Arrays.asList(VAGUE_KATTI, WISHBLADE, URVAN, DOUBLE_BOW, REXFLAME, REXBOLT, REXCALIBUR,
 				REXAURA, ASHERA_STAFF));
+		
+		public static Set<Item> allDroppableWeapons() {
+			Set<Item> result = new HashSet<Item>();
+			result.addAll(allSwords);
+			result.addAll(allLances);
+			result.addAll(allAxes);
+			result.addAll(allBows);
+			result.addAll(allFireMagic);
+			result.addAll(allThunderMagic);
+			result.addAll(allWindMagic);
+			result.addAll(allLightMagic);
+			result.addAll(allStaves);
+			result.removeAll(allRestrictedItems);
+			return result;
+		}
+		
+		public boolean isSword() { return allSwords.contains(this); }
+		public boolean isLance() { return allLances.contains(this); }
+		public boolean isAxe() { return allAxes.contains(this); }
+		public boolean isBow() { return allBows.contains(this); }
+		public boolean isMagic() { return allFireMagic.contains(this) || allThunderMagic.contains(this) || allWindMagic.contains(this) || allLightMagic.contains(this); }
+		public boolean isStaff() { return allStaves.contains(this); }
+		
+		public boolean isERank() { return allERankWeapons.contains(this); }
+		public boolean isDRank() { return allDRankWeapons.contains(this); }
+		public boolean isCRank() { return allCRankWeapons.contains(this); }
+		public boolean isBRank() { return allBRankWeapons.contains(this); }
+		public boolean isARank() { return allARankWeapons.contains(this); }
+		public boolean isSRank() { return allSRankWeapons.contains(this); }
+		
+		public boolean isWeapon() { return isSword() || isLance() || isAxe() || isBow() || isMagic() || isStaff(); }
+		
+		public boolean isConsumable() { return allConsumables.contains(this); }
+		public boolean isStatBooster() { return allStatBoosters.contains(this); }
+		public boolean isTreasure() { return allGems.contains(this); }
+		public boolean isSkillScroll() { return allSkillScrolls.contains(this); }
 	}
 	
 	public enum Chapter {
