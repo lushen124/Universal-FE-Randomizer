@@ -31,6 +31,7 @@ import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
 import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
+import ui.model.FE9OtherCharacterOptions;
 import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
 import util.DebugPrinter;
@@ -52,6 +53,7 @@ public class FE9Randomizer extends Randomizer {
 	private BaseOptions baseOptions;
 	private FE9SkillsOptions skillOptions;
 	private MiscellaneousOptions miscOptions;
+	private FE9OtherCharacterOptions otherCharOptions;
 	
 	FE9CommonTextLoader textData;
 	FE9CharacterDataLoader charData;
@@ -60,7 +62,7 @@ public class FE9Randomizer extends Randomizer {
 	FE9SkillDataLoader skillData;
 	FE9ChapterDataLoader chapterData;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -69,6 +71,7 @@ public class FE9Randomizer extends Randomizer {
 		this.growthOptions = growthOptions;
 		this.baseOptions = baseOptions;
 		this.skillOptions = skillOptions;
+		this.otherCharOptions = otherCharOptions;
 		this.miscOptions = miscOptions;
 		
 		this.seedString = seed;
@@ -91,38 +94,38 @@ public class FE9Randomizer extends Randomizer {
 		int indexOfPathSeparator = targetPath.lastIndexOf(File.separator);
 		String path = targetPath.substring(0, indexOfPathSeparator);
 		
-		try {
-			List<GCNFSTEntry> mapEntries = handler.entriesWithFilename("map.cmp");
-			for (GCNFSTEntry entry : mapEntries) {
-				String fullName = handler.fstNameOfEntry(entry);
-				fullName = fullName.replace("/", "_");
-				String disposPath = path + File.separator + "map" + File.separator + fullName;
-				GCNFileHandler fileHandler = handler.handlerForFSTEntry(entry);
-				
-				byte[] data = fileHandler.readBytesAtOffset(0, (int)fileHandler.getFileLength());
-				try {
-					FileWriter.writeBinaryDataToFile(LZ77.decompress(data), disposPath);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
-				GCNCMPFileHandler cmpHandler = (GCNCMPFileHandler)fileHandler;
-				for (String packedName : cmpHandler.getNames()) {
-					GCNFileHandler childHandler = cmpHandler.getChildHandler(packedName);
-					String childPath = disposPath + File.separator + packedName;
-					byte[] childData = childHandler.readBytesAtOffset(0, (int)childHandler.getFileLength());
-					try {
-						FileWriter.writeBinaryDataToFile(childData, childPath);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		} catch (GCNISOException e) {
-			e.printStackTrace();
-			notifyError("Failed to extract map.cmp files.");
-			return;
-		}
+//		try {
+//			List<GCNFSTEntry> mapEntries = handler.entriesWithFilename("map.cmp");
+//			for (GCNFSTEntry entry : mapEntries) {
+//				String fullName = handler.fstNameOfEntry(entry);
+//				fullName = fullName.replace("/", "_");
+//				String disposPath = path + File.separator + "map" + File.separator + fullName;
+//				GCNFileHandler fileHandler = handler.handlerForFSTEntry(entry);
+//				
+//				byte[] data = fileHandler.readBytesAtOffset(0, (int)fileHandler.getFileLength());
+//				try {
+//					FileWriter.writeBinaryDataToFile(LZ77.decompress(data), disposPath);
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//				
+//				GCNCMPFileHandler cmpHandler = (GCNCMPFileHandler)fileHandler;
+//				for (String packedName : cmpHandler.getNames()) {
+//					GCNFileHandler childHandler = cmpHandler.getChildHandler(packedName);
+//					String childPath = disposPath + File.separator + packedName;
+//					byte[] childData = childHandler.readBytesAtOffset(0, (int)childHandler.getFileLength());
+//					try {
+//						FileWriter.writeBinaryDataToFile(childData, childPath);
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//		} catch (GCNISOException e) {
+//			e.printStackTrace();
+//			notifyError("Failed to extract map.cmp files.");
+//			return;
+//		}
 		
 		try {
 			textData = new FE9CommonTextLoader(handler);
@@ -132,9 +135,33 @@ public class FE9Randomizer extends Randomizer {
 			skillData = new FE9SkillDataLoader(handler, textData);
 			chapterData = new FE9ChapterDataLoader(handler, textData);
 			
+			List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
+			for (FE9ChapterArmy army : armies) {
+				FE9ChapterUnit ike = army.getUnitForPID("PID_IKE");
+				army.setSkill2ForUnit(ike, FE9Data.Skill.RESOLVE.getSID());
+				army.setSkill3ForUnit(ike, FE9Data.Skill.WRATH.getSID());
+				army.commitChanges();
+			}
+			
+			armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_1);
+			for (FE9ChapterArmy army : armies) {
+				for (String unitID : army.getAllUnitIDs()) {
+					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+					if (army.getSkill1ForUnit(unit) == null) {
+						army.setSkill1ForUnit(unit, FE9Data.Skill.SERENITY.getSID());
+					} else if (army.getSkill2ForUnit(unit) == null) {
+						army.setSkill2ForUnit(unit, FE9Data.Skill.TEMPEST.getSID());
+					} else if (army.getSkill3ForUnit(unit) == null) {
+						army.setSkill3ForUnit(unit, FE9Data.Skill.MIRACLE.getSID());
+					}
+				}
+				army.commitChanges();
+			}
+			
 			randomizeGrowthsIfNecessary(seed);
 			randomizeBasesIfNecessary(seed);
 			randomizeSkillsIfNecessary(seed);
+			randomizeOtherCharacterOptionsIfNecessary(seed);
 			randomizeMiscellaneousIfNecessary(seed);
 			
 			//FE9Character kieran = charData.characterWithID(FE9Data.Character.KIERAN.getPID());
@@ -275,6 +302,18 @@ public class FE9Randomizer extends Randomizer {
 			case RANDOM:
 				FE9RewardsRandomizer.randomizeRewards(itemData, chapterData, rng);
 				break;
+			}
+		}
+	}
+	
+	private void randomizeOtherCharacterOptionsIfNecessary(String seed) {
+		if (otherCharOptions != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9MiscellaneousRandomizer.rngSalt));
+			if (otherCharOptions.randomizeCON) {
+				FE9MiscellaneousRandomizer.randomizeCON(otherCharOptions.conVariance, charData, classData, rng);
+			}
+			if (otherCharOptions.randomizeAffinity) {
+				FE9MiscellaneousRandomizer.randomizeAffinity(charData, rng);
 			}
 		}
 	}

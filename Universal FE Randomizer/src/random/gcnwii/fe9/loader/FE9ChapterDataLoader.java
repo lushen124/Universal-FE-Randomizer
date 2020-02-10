@@ -67,10 +67,10 @@ public class FE9ChapterDataLoader {
 	public void debugPrintAllChapterArmies() {
 		for (FE9ChapterArmy army : allChapterArmies) {
 			DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "===== Printing Chapter Army: " + army.getID() + " ======");
-			for (String pid : army.getAllPIDs()) {
-				FE9ChapterUnit unit = army.getUnitForPID(pid);
-				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "--- Starting Character " + pid + " ---");
-				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "PID: " + pid);
+			for (String unitID : army.getAllUnitIDs()) {
+				FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "--- Starting Character " + unitID + " ---");
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "PID: " + army.getPIDForUnit(unit));
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "JID: " + army.getJIDForUnit(unit));
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Weapon 1: " + army.getWeapon1ForUnit(unit));
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Weapon 2: " + army.getWeapon2ForUnit(unit));
@@ -82,7 +82,7 @@ public class FE9ChapterDataLoader {
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Item 4: " + army.getItem4ForUnit(unit));
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Starting Coordinates: (" + army.getStartingXForUnit(unit) + ", " + army.getStartingYForUnit(unit) + ")");
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Ending Coordinates: (" + army.getEndingXForUnit(unit) + ", " + army.getEndingYForUnit(unit) + ")");
-				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "--- Ending Character " + pid + " ---");
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "--- Ending Character " + unitID + " ---");
 			}
 			DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "===== End Chapter Army: " + army.getID() + " =====");
 		}

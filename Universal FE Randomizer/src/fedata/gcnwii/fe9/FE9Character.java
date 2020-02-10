@@ -25,7 +25,7 @@ public class FE9Character implements FEModifiableData {
 	private Long cachedPortraitPointer;
 	private Long cachedClassPointer;
 	
-	private Long cachedAffiliationPointer;
+	private Long cachedAffinityPointer;
 	private Long cachedWeaponLevelsPointer;
 	
 	private Long cachedSkill1Pointer;
@@ -84,11 +84,17 @@ public class FE9Character implements FEModifiableData {
 		wasModified = true;
 	}
 	
-	public long getAffiliationPointer() {
-		if (cachedAffiliationPointer == null) {
-			cachedAffiliationPointer = readPointerAtOffset(0x14);
+	public long getAffinityPointer() {
+		if (cachedAffinityPointer == null) {
+			cachedAffinityPointer = readPointerAtOffset(0x14);
 		}
-		return cachedAffiliationPointer;
+		return cachedAffinityPointer;
+	}
+	
+	public void setAffinityPointer(long newPointer) {
+		cachedAffinityPointer = newPointer;
+		writePointerToOffset(newPointer, 0x14);
+		wasModified = true;
 	}
 	
 	public long getWeaponLevelsPointer() {
@@ -177,8 +183,18 @@ public class FE9Character implements FEModifiableData {
 		return data[0x37];
 	}
 	
+	public void setBuild(int newBuild) {
+		data[0x37] = (byte)(newBuild & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getWeight() {
 		return data[0x38];
+	}
+	
+	public void setWeight(int newWeight) {
+		data[0x38] = (byte)(newWeight & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getBaseHP() {

@@ -59,6 +59,7 @@ import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
 import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
+import ui.model.FE9OtherCharacterOptions;
 import util.DebugPrinter;
 import util.DiffCompiler;
 import util.LZ77;
@@ -117,6 +118,7 @@ public class MainView implements FileFlowDelegate {
 	
 	// FE9
 	private FE9SkillView fe9SkillView;
+	private CONAffinityView conAffinityView;
 	
 	private Button randomizeButton;
 	
@@ -324,6 +326,7 @@ public class MainView implements FileFlowDelegate {
 		if (fe4EnemyBuffView != null) { fe4EnemyBuffView.dispose(); }
 		
 		if (fe9SkillView != null) { fe9SkillView.dispose(); }
+		if (conAffinityView != null) { conAffinityView.dispose(); }
 		
 		resize();
 	}
@@ -360,6 +363,7 @@ public class MainView implements FileFlowDelegate {
 			growthView.setGrowthOptions(bundle.growths);
 			baseView.setBasesOptions(bundle.bases);
 			fe9SkillView.setSkillOptions(bundle.skills);
+			conAffinityView.setOtherCharacterOptions(bundle.otherOptions);
 			miscView.setMiscellaneousOptions(bundle.misc);
 		}
 	}
@@ -511,14 +515,24 @@ public class MainView implements FileFlowDelegate {
 			randomizeButton.setLayoutData(randomizeData);
 			
 		} else if (type == GameType.FE9) {
+			conAffinityView = new CONAffinityView(container, SWT.NONE);
+			conAffinityView.setSize(200, 200);
+			conAffinityView.setVisible(false);
+			
+			FormData conAffinityData = new FormData();
+			conAffinityData.top = new FormAttachment(baseView, 5);
+			conAffinityData.left = new FormAttachment(baseView, 0, SWT.LEFT);
+			conAffinityData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
+			conAffinityView.setLayoutData(conAffinityData);
+			
 			miscView = new MiscellaneousView(container, SWT.NONE, type);
 			miscView.setSize(200, 200);
 			miscView.setVisible(false);
 			  
 			FormData miscData = new FormData();
-			miscData.top = new FormAttachment(baseView, 5);
-			miscData.left = new FormAttachment(baseView, 0, SWT.LEFT);
-			miscData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
+			miscData.top = new FormAttachment(conAffinityView, 5);
+			miscData.left = new FormAttachment(conAffinityView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(conAffinityView, 0, SWT.RIGHT);
 			//miscData.bottom = new FormAttachment(100, -10);
 			miscView.setLayoutData(miscData);
 			
@@ -713,6 +727,7 @@ public class MainView implements FileFlowDelegate {
 					
 				} else if (type == GameType.FE9) {
 					fe9SkillView.setVisible(true);
+					conAffinityView.setVisible(true);
 				} else {
 					classView.setVisible(true);
 					otherCharOptionView.setVisible(true);
@@ -839,6 +854,7 @@ public class MainView implements FileFlowDelegate {
 										growthView.getGrowthOptions(),
 										baseView.getBaseOptions(),
 										fe9SkillView.getSkillOptions(),
+										conAffinityView.getOtherCharacterOptions(),
 										miscView.getMiscellaneousOptions(),
 										seedField.getText());
 							}

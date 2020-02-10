@@ -58,7 +58,7 @@ public class FE9CharacterDataLoader {
 			String mpid = stringForPointer(character.getCharacterNamePointer(), handler, null);
 			String fid = stringForPointer(character.getPortraitPointer(), handler, null);
 			String jid = stringForPointer(character.getClassPointer(), handler, null);
-			String affiliation = stringForPointer(character.getAffiliationPointer(), handler, null);
+			String affiliation = stringForPointer(character.getAffinityPointer(), handler, null);
 			String weaponLevels = stringForPointer(character.getWeaponLevelsPointer(), handler, null);
 			String sid1 = stringForPointer(character.getSkill1Pointer(), handler, null);
 			String sid2 = stringForPointer(character.getSkill2Pointer(), handler, null);
@@ -70,7 +70,7 @@ public class FE9CharacterDataLoader {
 			knownAddresses.put(mpid, character.getCharacterNamePointer());
 			knownAddresses.put(fid, character.getPortraitPointer());
 			knownAddresses.put(jid, character.getClassPointer());
-			knownAddresses.put(affiliation, character.getAffiliationPointer());
+			knownAddresses.put(affiliation, character.getAffinityPointer());
 			knownAddresses.put(weaponLevels, character.getWeaponLevelsPointer());
 			knownAddresses.put(sid1, character.getSkill1Pointer());
 			knownAddresses.put(sid2, character.getSkill2Pointer());
@@ -82,7 +82,7 @@ public class FE9CharacterDataLoader {
 			knownPointers.put(character.getCharacterNamePointer(), mpid);
 			knownPointers.put(character.getPortraitPointer(), fid);
 			knownPointers.put(character.getClassPointer(), jid);
-			knownPointers.put(character.getAffiliationPointer(), affiliation);
+			knownPointers.put(character.getAffinityPointer(), affiliation);
 			knownPointers.put(character.getWeaponLevelsPointer(), weaponLevels);
 			knownPointers.put(character.getSkill1Pointer(), sid1);
 			knownPointers.put(character.getSkill2Pointer(), sid2);
@@ -171,6 +171,7 @@ public class FE9CharacterDataLoader {
 		if (fe8databin != null) {
 			Long sidAddress = fe8databin.pointerForString(sid);
 			fe8databin.addPointerOffset(character.getAddressOffset() + FE9Character.CharacterSkill1Offset - 0x20);
+			fe8databin.commitAdditions();
 			if (sidAddress == null) {
 				fe8databin.addString(sid);
 				fe8databin.commitAdditions();
@@ -206,6 +207,7 @@ public class FE9CharacterDataLoader {
 		if (fe8databin != null) {
 			Long sidAddress = fe8databin.pointerForString(sid);
 			fe8databin.addPointerOffset(character.getAddressOffset() + FE9Character.CharacterSkill2Offset - 0x20);
+			fe8databin.commitAdditions();
 			if (sidAddress == null) {
 				fe8databin.addString(sid);
 				fe8databin.commitAdditions();
@@ -241,6 +243,7 @@ public class FE9CharacterDataLoader {
 		if (fe8databin != null) {
 			Long sidAddress = fe8databin.pointerForString(sid);
 			fe8databin.addPointerOffset(character.getAddressOffset() + FE9Character.CharacterSkill3Offset - 0x20);
+			fe8databin.commitAdditions();
 			if (sidAddress == null) {
 				fe8databin.addString(sid);
 				fe8databin.commitAdditions();
@@ -254,6 +257,17 @@ public class FE9CharacterDataLoader {
 				character.setSkill3Pointer(sidAddress);
 			}
 		}
+	}
+	
+	public FE9Data.Affinity getAffinityForCharacter(FE9Character character) {
+		String affinityID = fe8databin.stringForPointer(character.getAffinityPointer());
+		return FE9Data.Affinity.withID(affinityID);
+	}
+	
+	public void setAffinityForCharacter(FE9Character character, FE9Data.Affinity affinity) {
+		if (character == null) { return; }
+		long affinityPtr = fe8databin.pointerForString(affinity.getInternalID());
+		character.setAffinityPointer(affinityPtr);
 	}
 	
 	public void commit() {
@@ -289,7 +303,7 @@ public class FE9CharacterDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, 
 				"JID: " + stringForPointer(character.getClassPointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, 
-				"Affiliation: " + stringForPointer(character.getAffiliationPointer(), handler, commonTextLoader));
+				"Affinity: " + stringForPointer(character.getAffinityPointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, 
 				"Weapon Levels: " + stringForPointer(character.getWeaponLevelsPointer(), handler, commonTextLoader));
 		DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, 

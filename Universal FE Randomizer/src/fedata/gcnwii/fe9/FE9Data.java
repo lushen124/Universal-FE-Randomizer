@@ -778,4 +778,30 @@ public class FE9Data {
 			return 0x20;
 		}
 	}
+	
+	public enum Affinity {
+		HEAVEN("heaven"), WATER("water"), WIND("wind"), THUNDER("thunder"), DARK("dark"), LIGHT("light"), FIRE("fire"), EARTH("telius");
+		
+		private String internalID;
+		
+		private static Map<String, Affinity> map = new HashMap<String, Affinity>();
+		
+		static {
+			for (Affinity affinity : Affinity.values()) {
+				map.put(affinity.internalID, affinity);
+			}
+		}
+		
+		private Affinity(String id) {
+			internalID = id;
+		}
+		
+		public static Affinity withID(String affinityID) {
+			return map.get(affinityID);
+		}
+		
+		public String getInternalID() {
+			return internalID;
+		}
+	}
 }

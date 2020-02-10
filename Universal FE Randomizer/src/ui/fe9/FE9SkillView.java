@@ -80,7 +80,7 @@ public class FE9SkillView extends Composite {
 		randomizeFullModeButton.setLayoutData(modeData);
 		
 		skillCountSpinner = new Spinner(container, SWT.NONE);
-		skillCountSpinner.setValues(50, 0, 100, 0, 1, 5);
+		skillCountSpinner.setValues(80, 0, 100, 0, 1, 5);
 		skillCountSpinner.setToolTipText("Sets the chance a character has to have a skill.");
 		
 		FormData spinnerData = new FormData();

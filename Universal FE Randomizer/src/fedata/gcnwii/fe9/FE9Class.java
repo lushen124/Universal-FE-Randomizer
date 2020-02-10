@@ -127,10 +127,20 @@ public class FE9Class implements FEModifiableData {
 		return Arrays.copyOfRange(data, 0x3C, 0x3C + 8);
 	}
 	
+	// The first byte in the unknown 8 bytes seems to be the class's base CON.
+	public int getBaseCON() {
+		return data[0x3C];
+	}
+	
+	// The second byte in the unknown 8 bytes seems to be the class's base weight.
+	public int getBaseWeight() {
+		return data[0x3C + 1];
+	}
+	
 	// The 4th byte in the unknown 8 bytes seems to be the skill capacity for the class.
 	// That's at offset 0x3C + 4
 	public int getSkillCapacity() {
-		return data[0x3C + 4];
+		return data[0x3C + 3];
 	}
 	
 	public int getBaseHP() { return data[0x44]; }

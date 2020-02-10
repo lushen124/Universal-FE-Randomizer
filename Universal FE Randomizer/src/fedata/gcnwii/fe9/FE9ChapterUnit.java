@@ -14,6 +14,16 @@ public class FE9ChapterUnit implements FEModifiableData {
 	public static final int Weapon3Offset = 0x14;
 	public static final int Weapon4Offset = 0x18;
 	
+	public static final int Item1Offset = 0x1C;
+	public static final int Item2Offset = 0x20;
+	public static final int Item3Offset = 0x24;
+	public static final int Item4Offset = 0x28;
+	
+	public static final int Skill1Offset = 0x2C;
+	public static final int Skill2Offset = 0x30;
+	public static final int Skill3Offset = 0x34;
+	public static final int Skill4Offset = 0x38;
+	
 	private byte[] originalData;
 	private byte[] data;
 	
@@ -35,6 +45,11 @@ public class FE9ChapterUnit implements FEModifiableData {
 	private Long cachedItem3Pointer;
 	private Long cachedItem4Pointer;
 	
+	private Long cachedSkill1Pointer;
+	private Long cachedSkill2Pointer;
+	private Long cachedSkill3Pointer;
+	private Long cachedSkill4Pointer;
+	
 	public FE9ChapterUnit(byte[] data, long originalOffset) {
 		super();
 		this.originalData = data;
@@ -55,7 +70,7 @@ public class FE9ChapterUnit implements FEModifiableData {
 	public void setClassIDPointer(long jidPtr) {
 		cachedClassIDPointer = jidPtr;
 		writePointerToOffset(jidPtr, 0x4);
-		hasChanges = true;
+		wasModified = true;
 	}
 	
 	public long getWeapon1Pointer() {
@@ -66,7 +81,7 @@ public class FE9ChapterUnit implements FEModifiableData {
 	public void setWeapon1Pointer(long iidPtr) {
 		cachedWeapon1Pointer = iidPtr;
 		writePointerToOffset(iidPtr, Weapon1Offset);
-		hasChanges = true;
+		wasModified = true;
 	}
 	
 	public long getWeapon2Pointer() {
@@ -77,7 +92,7 @@ public class FE9ChapterUnit implements FEModifiableData {
 	public void setWeapon2Pointer(long iidPtr) {
 		cachedWeapon2Pointer = iidPtr;
 		writePointerToOffset(iidPtr, Weapon2Offset);
-		hasChanges = true;
+		wasModified = true;
 	}
 	
 	public long getWeapon3Pointer() {
@@ -88,7 +103,7 @@ public class FE9ChapterUnit implements FEModifiableData {
 	public void setWeapon3Pointer(long iidPtr) {
 		cachedWeapon3Pointer = iidPtr;
 		writePointerToOffset(iidPtr, Weapon3Offset);
-		hasChanges = true;
+		wasModified = true;
 	}
 	
 	public long getWeapon4Pointer() {
@@ -99,27 +114,60 @@ public class FE9ChapterUnit implements FEModifiableData {
 	public void setWeapon4Pointer(long iidPtr) {
 		cachedWeapon4Pointer = iidPtr;
 		writePointerToOffset(iidPtr, Weapon4Offset);
-		hasChanges = true;
+		wasModified = true;
 	}
 	
 	public long getItem1Pointer() {
-		if (cachedItem1Pointer == null) { cachedItem1Pointer = readPointerAtOffset(0x1C); }
+		if (cachedItem1Pointer == null) { cachedItem1Pointer = readPointerAtOffset(Item1Offset); }
 		return cachedItem1Pointer;
 	}
 	
 	public long getItem2Pointer() {
-		if (cachedItem2Pointer == null) { cachedItem2Pointer = readPointerAtOffset(0x20); }
+		if (cachedItem2Pointer == null) { cachedItem2Pointer = readPointerAtOffset(Item2Offset); }
 		return cachedItem2Pointer;
 	}
 	
 	public long getItem3Pointer() {
-		if (cachedItem3Pointer == null) { cachedItem3Pointer = readPointerAtOffset(0x24); }
+		if (cachedItem3Pointer == null) { cachedItem3Pointer = readPointerAtOffset(Item3Offset); }
 		return cachedItem3Pointer;
 	}
 	
 	public long getItem4Pointer() {
-		if (cachedItem4Pointer == null) { cachedItem4Pointer = readPointerAtOffset(0x28); }
+		if (cachedItem4Pointer == null) { cachedItem4Pointer = readPointerAtOffset(Item4Offset); }
 		return cachedItem4Pointer;
+	}
+	
+	public long getSkill1Pointer() {
+		if (cachedSkill1Pointer == null) { cachedSkill1Pointer = readPointerAtOffset(Skill1Offset); }
+		return cachedSkill1Pointer;
+	}
+	
+	public void setSkill1Pointer(long sidPtr) {
+		cachedSkill1Pointer = sidPtr;
+		writePointerToOffset(sidPtr, Skill1Offset);
+		wasModified = true;
+	}
+	
+	public long getSkill2Pointer() {
+		if (cachedSkill2Pointer == null) { cachedSkill2Pointer = readPointerAtOffset(Skill2Offset); }
+		return cachedSkill2Pointer;
+	}
+	
+	public void setSkill2Pointer(long sidPtr) {
+		cachedSkill2Pointer = sidPtr;
+		writePointerToOffset(sidPtr, Skill2Offset);
+		wasModified = true;
+	}
+	
+	public long getSkill3Pointer() {
+		if (cachedSkill3Pointer == null) { cachedSkill3Pointer = readPointerAtOffset(Skill3Offset); }
+		return cachedSkill3Pointer;
+	}
+	
+	public void setSkill3Pointer(long sidPtr) {
+		cachedSkill3Pointer = sidPtr;
+		writePointerToOffset(sidPtr, Skill3Offset);
+		wasModified = true;
 	}
 	
 	public int getStartingX() {

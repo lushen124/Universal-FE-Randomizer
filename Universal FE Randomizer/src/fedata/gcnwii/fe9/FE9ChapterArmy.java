@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.FileWriter;
 import io.gcn.GCNDataFileHandler;
+import util.DebugPrinter;
 import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -18,8 +20,8 @@ public class FE9ChapterArmy {
 	
 	private List<FE9ChapterUnit> allUnits;
 	
-	private Map<String, FE9ChapterUnit> unitsByPID;
-	private List<String> pidList;
+	private Map<String, FE9ChapterUnit> unitsByUniqueID;
+	private List<String> uniqueIDList;
 	
 	String chapterID;
 	
@@ -29,37 +31,55 @@ public class FE9ChapterArmy {
 		chapterID = identifier;
 		
 		allUnits = new ArrayList<FE9ChapterUnit>();
-		unitsByPID = new HashMap<String, FE9ChapterUnit>();
-		pidList = new ArrayList<String>();
+		unitsByUniqueID = new HashMap<String, FE9ChapterUnit>();
+		uniqueIDList = new ArrayList<String>();
 		
 		long offset = chapter.getStartingOffset();
 		handler.setNextReadOffset(offset);
 		long endingOffset = WhyDoesJavaNotHaveThese.longValueFromByteArray(handler.continueReadingBytes(4), false);
+		DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "===Starting Army Data for " + chapterID + "===");
+		int counter = 0;
 		while (handler.getNextReadOffset() < endingOffset) {
 			byte[] sectionHeader = handler.continueReadingBytes(4);
+			DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "New Section: " + WhyDoesJavaNotHaveThese.displayStringForBytes(sectionHeader));
 			int unitCount = sectionHeader[0]; // The first byte of this header determines the count. The other 3 somehow determine the type?
 			for (int i = 0; i < unitCount; i++) {
 				long originalOffset = handler.getNextReadOffset();
 				FE9ChapterUnit unit = new FE9ChapterUnit(handler.continueReadingBytes(FE9Data.ChapterUnitEntrySize), originalOffset);
 				allUnits.add(unit);
 				
+				// PID is not unique here. Many minions can share the same PID.
+				// We need to generate a unique string to append to PIDs when storing them.
 				String pid = disposHandler.stringForPointer(unit.getCharacterIDPointer());
-				unitsByPID.put(pid, unit);
-				pidList.add(pid);
+				String uniqueID = " (" + Integer.toString((counter++)) + ")";
+				unitsByUniqueID.put(pid + uniqueID, unit);
+				uniqueIDList.add(pid + uniqueID);
+				
+				DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "Loaded PID " + pid + " in chapter " + chapterID);
 			}
 		}
+		DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "===End Army Data===");
 	}
 	
 	public String getID() {
 		return chapterID;
 	}
 	
-	public List<String> getAllPIDs() {
-		return pidList;
+	public List<String> getAllUnitIDs() {
+		return uniqueIDList;
+	}
+	
+	public FE9ChapterUnit getUnitForUnitID(String unitID) {
+		return unitsByUniqueID.get(unitID);
 	}
 	
 	public FE9ChapterUnit getUnitForPID(String pid) {
-		return unitsByPID.get(pid);
+		Set<String> uniqueIDs = unitsByUniqueID.keySet();
+		String matchingID = uniqueIDs.stream().filter(uniqueID -> {
+			return uniqueID.startsWith(pid);
+		}).findFirst().orElse(null);
+		
+		return unitsByUniqueID.get(matchingID);
 	}
 	
 	public String getPIDForUnit(FE9ChapterUnit unit) {
@@ -139,6 +159,42 @@ public class FE9ChapterArmy {
 	
 	public String getItem4ForUnit(FE9ChapterUnit unit) {
 		return disposHandler.stringForPointer(unit.getItem4Pointer());
+	}
+	
+	public String getSkill1ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getSkill1Pointer());
+	}
+	
+	public void setSkill1ForUnit(FE9ChapterUnit unit, String sid) {
+		if (unit == null || sid == null) { return; }
+		disposHandler.addString(sid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Skill1Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setSkill1Pointer(disposHandler.pointerForString(sid));
+	}
+	
+	public String getSkill2ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getSkill2Pointer());
+	}
+	
+	public void setSkill2ForUnit(FE9ChapterUnit unit, String sid) {
+		if (unit == null || sid == null) { return; }
+		disposHandler.addString(sid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Skill2Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setSkill2Pointer(disposHandler.pointerForString(sid));
+	}
+	
+	public String getSkill3ForUnit(FE9ChapterUnit unit) {
+		return disposHandler.stringForPointer(unit.getSkill3Pointer());
+	}
+	
+	public void setSkill3ForUnit(FE9ChapterUnit unit, String sid) {
+		if (unit == null || sid == null) { return; }
+		disposHandler.addString(sid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Skill3Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setSkill3Pointer(disposHandler.pointerForString(sid));
 	}
 	
 	public int getStartingXForUnit(FE9ChapterUnit unit) {
