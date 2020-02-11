@@ -1,6 +1,7 @@
 package random.gcnwii.fe9.loader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -79,6 +80,37 @@ public class FE9ItemDataLoader {
 	
 	public boolean isSkillScroll(FE9Item item) {
 		return FE9Data.Item.withIID(iidOfItem(item)).isSkillScroll();
+	}
+	
+	public List<FE9Item> possibleUpgradesToWeapon(FE9Item item) {
+		if (item == null) { return null; }
+		FE9Data.Item original = FE9Data.Item.withIID(iidOfItem(item));
+		if (original == null || !original.isWeapon() || original.isStaff()) { return null; }
+		Set<FE9Data.Item> upgrades = new HashSet<FE9Data.Item>();
+		if (original.isERank()) { upgrades.addAll(FE9Data.Item.allDRankWeapons); }
+		else if (original.isDRank()) { upgrades.addAll(FE9Data.Item.allCRankWeapons); }
+		else if (original.isCRank()) { upgrades.addAll(FE9Data.Item.allCRankWeapons); upgrades.addAll(FE9Data.Item.allBRankWeapons); }
+		else if (original.isBRank()) { upgrades.addAll(FE9Data.Item.allBRankWeapons); upgrades.addAll(FE9Data.Item.allARankWeapons); }
+		else if (original.isARank()) { upgrades.addAll(FE9Data.Item.allSRankWeapons); }
+		
+		if (original.isSword()) { upgrades.retainAll(FE9Data.Item.allSwords); }
+		else if (original.isLance()) { upgrades.retainAll(FE9Data.Item.allLances); }
+		else if (original.isAxe()) { upgrades.retainAll(FE9Data.Item.allAxes); }
+		else if (original.isBow()) { upgrades.retainAll(FE9Data.Item.allBows); }
+		else if (original.isFireMagic()) { upgrades.retainAll(FE9Data.Item.allFireMagic); }
+		else if (original.isThunderMagic()) { upgrades.retainAll(FE9Data.Item.allThunderMagic); }
+		else if (original.isWindMagic()) { upgrades.retainAll(FE9Data.Item.allWindMagic); }
+		else if (original.isLightMagic()) { upgrades.retainAll(FE9Data.Item.allLightMagic); }
+		else { return null; }
+		
+		return upgrades.stream().sorted(new Comparator<FE9Data.Item>() {
+			@Override
+			public int compare(Item arg0, Item arg1) {
+				return arg0.getIID().compareTo(arg1.getIID());
+			}
+		}).map(fe9DataItem -> {
+			return itemWithIID(fe9DataItem.getIID());
+		}).collect(Collectors.toList());
 	}
 	
 	public List<FE9Item> getSimilarItemsTo(FE9Item originalItem) {

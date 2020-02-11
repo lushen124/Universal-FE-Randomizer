@@ -81,6 +81,12 @@ public class FE9Class implements FEModifiableData {
 		return cachedWeaponLevelPointer;
 	}
 	
+	public void setWeaponLevelPointer(long newPtr) {
+		cachedWeaponLevelPointer = newPtr;
+		writePointerToOffset(newPtr, 0x14);
+		wasModified = true;
+	}
+	
 	public long getSkill1Pointer() {
 		if (cachedSkill1Pointer == null) {
 			cachedSkill1Pointer = readPointerAtOffset(0x18);

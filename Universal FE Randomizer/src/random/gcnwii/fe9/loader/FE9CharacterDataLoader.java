@@ -21,6 +21,8 @@ public class FE9CharacterDataLoader {
 	List<FE9Character> allCharacters;
 	
 	List<FE9Character> playableCharacters;
+	List<FE9Character> bossCharacters;
+	List<FE9Character> minionCharacters;
 	
 	Map<String, Long> knownAddresses;
 	Map<Long, String> knownPointers;
@@ -33,6 +35,8 @@ public class FE9CharacterDataLoader {
 		allCharacters = new ArrayList<FE9Character>();
 		
 		playableCharacters = new ArrayList<FE9Character>();
+		bossCharacters = new ArrayList<FE9Character>();
+		minionCharacters = new ArrayList<FE9Character>();
 		
 		knownAddresses = new HashMap<String, Long>();
 		knownPointers = new HashMap<Long, String>();
@@ -94,11 +98,47 @@ public class FE9CharacterDataLoader {
 			if (fe9Char != null && fe9Char.isPlayable()) { playableCharacters.add(character); }
 			
 			idLookup.put(pid, character);
+			
+			if (sid1.equals(FE9Data.Skill.BOSS.getSID()) || sid2.equals(FE9Data.Skill.BOSS.getSID()) || sid3.equals(FE9Data.Skill.BOSS.getSID())) {
+				bossCharacters.add(character);
+			}
+			
+			if ((pid.contains("_DAYNE") || pid.contains("_ZAKO") || pid.contains("_BANDIT")) && !pid.contains("_EV")) {
+				minionCharacters.add(character);
+			}
 		}
+	}
+	
+	public boolean isPlayableCharacter(FE9Character character) {
+		if (character == null) { return false; }
+		FE9Data.Character fe9Char = FE9Data.Character.withPID(fe8databin.stringForPointer(character.getCharacterIDPointer()));
+		if (fe9Char == null) { return false; }
+		return fe9Char.isPlayable();
+	}
+	
+	public boolean isBossCharacter(FE9Character character) {
+		if (character == null) { return false; }
+		FE9Data.Character fe9Char = FE9Data.Character.withPID(fe8databin.stringForPointer(character.getCharacterIDPointer()));
+		if (fe9Char == null) { return false; }
+		return fe9Char.isBoss();
+	}
+	
+	public boolean isMinionCharacter(FE9Character character) {
+		if (character == null) { return false; }
+		String pid = fe8databin.stringForPointer(character.getCharacterIDPointer());
+		return ((pid.contains("_DAYNE") || pid.contains("_ZAKO") || pid.contains("_BANDIT")) && !pid.contains("_EV"));
 	}
 	
 	public FE9Character[] allPlayableCharacters() {
 		return playableCharacters.toArray(new FE9Character[playableCharacters.size()]);
+	}
+	
+	public FE9Character[] allBossCharacters() {
+		return bossCharacters.toArray(new FE9Character[bossCharacters.size()]);
+	}
+	
+	public FE9Character[] allMinionCharacters() {
+		return minionCharacters.toArray(new FE9Character[minionCharacters.size()]);
 	}
 	
 	public FE9Character characterWithID(String pid) {
@@ -149,6 +189,26 @@ public class FE9CharacterDataLoader {
 				character.setClassPointer(jidAddress);
 			}
 		}
+	}
+	
+	public String getWeaponLevelStringForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		return fe8databin.stringForPointer(character.getWeaponLevelsPointer());
+	}
+	
+	public void setWeaponLevelStringForCharacter(FE9Character character, String weaponLevelString) {
+		if (character == null || weaponLevelString == null || weaponLevelString.length() != 9) { return; }
+		// Validate string. We only allow -, *, S, A, B, C, D, E characters.
+		for (int i = 0; i < weaponLevelString.length(); i++) {
+			char c = weaponLevelString.charAt(i);
+			if (c != '-' && c != '*' && c != 'S' && c != 'A' && c != 'B' && c != 'C' && c != 'D' && c != 'E') {
+				return;
+			}
+		}
+		
+		fe8databin.addString(weaponLevelString);
+		fe8databin.commitAdditions();
+		character.setWeaponLevelsPointer(fe8databin.pointerForString(weaponLevelString));
 	}
 	
 	public String getSID1ForCharacter(FE9Character character) {

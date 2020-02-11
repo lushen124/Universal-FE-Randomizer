@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import fedata.gba.fe8.FE8Data;
 import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
+import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
@@ -23,6 +26,8 @@ public class FE9ClassDataLoader {
 	
 	Map<String, FE9Class> idLookup;
 	
+	GCNDataFileHandler fe8databin;
+	
 	public enum StatBias {
 		NONE, PHYSICAL_ONLY, MAGICAL_ONLY, LEAN_PHYSICAL, LEAN_MAGICAL
 	}
@@ -36,6 +41,11 @@ public class FE9ClassDataLoader {
 		idLookup = new HashMap<String, FE9Class>();
 		
 		GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.ClassDataFilename);
+		assert(handler instanceof GCNDataFileHandler);
+		if (handler instanceof GCNDataFileHandler) {
+			fe8databin = (GCNDataFileHandler)handler;
+		}
+		
 		long offset = FE9Data.ClassDataStartOffset;
 		for (int i = 0; i < FE9Data.ClassCount; i++) {
 			long dataOffset = offset + i * FE9Data.ClassDataSize;
@@ -82,8 +92,45 @@ public class FE9ClassDataLoader {
 		}
 	}
 	
+	public List<FE9Class> allClasses() {
+		return allClasses;
+	}
+	
+	public List<FE9Class> allValidClasses() {
+		return allClasses.stream().filter(fe9Class -> {
+			String jid = fe8databin.stringForPointer(fe9Class.getClassIDPointer());
+			FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
+			return (charClass != null && charClass.isValidClass());
+		}).collect(Collectors.toList());
+	}
+	
 	public FE9Class classWithID(String jid) {
 		return idLookup.get(jid);
+	}
+	
+	public String getJIDForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getClassIDPointer());
+	}
+	
+	public String getWeaponLevelsForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getWeaponLevelPointer());
+	}
+	
+	public void setWeaponLevelsForClass(FE9Class charClass, String weaponLevelString) {
+		if (charClass == null || weaponLevelString == null || weaponLevelString.length() != 9) { return; }
+		// Validate string. We only allow -, *, S, A, B, C, D, E characters.
+		for (int i = 0; i < weaponLevelString.length(); i++) {
+			char c = weaponLevelString.charAt(i);
+			if (c != '-' && c != '*' && c != 'S' && c != 'A' && c != 'B' && c != 'C' && c != 'D' && c != 'E') {
+				return;
+			}
+		}
+		
+		fe8databin.addString(weaponLevelString);
+		fe8databin.commitAdditions();
+		charClass.setWeaponLevelPointer(fe8databin.pointerForString(weaponLevelString));
 	}
 	
 	public StatBias statBiasForClass(FE9Class charClass) {
@@ -96,6 +143,11 @@ public class FE9ClassDataLoader {
 		if (fe9Class.isPhysicalClass()) { return fe9Class.isHybridPhyiscalClass() ? StatBias.LEAN_PHYSICAL : StatBias.PHYSICAL_ONLY; }
 		else if (fe9Class.isMagicalClass()) { return fe9Class.isHybridMagicalClass() ? StatBias.LEAN_MAGICAL : StatBias.MAGICAL_ONLY; }
 		return StatBias.NONE;
+	}
+	
+	public boolean isPromotedClass(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isPromotedClass();
 	}
 	
 	public String pointerLookup(long pointer) {
@@ -185,6 +237,12 @@ public class FE9ClassDataLoader {
 		String classID = pointerLookup(charClass.getClassIDPointer());
 		if (classID == null) { return null; }
 		return FE9Data.CharacterClass.withJID(classID);
+	}
+	
+	public void commit() {
+		for (FE9Class fe9Class : allClasses) {
+			fe9Class.commitChanges();
+		}
 	}
 	
 	public void compileDiffs(GCNISOHandler isoHandler) {

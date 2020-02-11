@@ -172,6 +172,7 @@ public class FE9Randomizer extends Randomizer {
 			randomizeSkillsIfNecessary(seed);
 			randomizeOtherCharacterOptionsIfNecessary(seed);
 			randomizeMiscellaneousIfNecessary(seed);
+			buffEnemiesIfNecessary(seed);
 			
 			//FE9Character kieran = charData.characterWithID(FE9Data.Character.KIERAN.getPID());
 			//FE9Character oscar = charData.characterWithID(FE9Data.Character.OSCAR.getPID());
@@ -304,14 +305,16 @@ public class FE9Randomizer extends Randomizer {
 	
 	private void randomizeMiscellaneousIfNecessary(String seed) {
 		if (miscOptions != null) {
-			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9RewardsRandomizer.rngSalt));
-			switch (miscOptions.rewardMode) {
-			case SIMILAR:
-				FE9RewardsRandomizer.randomizeSimilarRewards(itemData, chapterData, rng);
-				break;
-			case RANDOM:
-				FE9RewardsRandomizer.randomizeRewards(itemData, chapterData, rng);
-				break;
+			if (miscOptions.randomizeRewards) {
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9RewardsRandomizer.rngSalt));
+				switch (miscOptions.rewardMode) {
+				case SIMILAR:
+					FE9RewardsRandomizer.randomizeSimilarRewards(itemData, chapterData, rng);
+					break;
+				case RANDOM:
+					FE9RewardsRandomizer.randomizeRewards(itemData, chapterData, rng);
+					break;
+				}
 			}
 		}
 	}
@@ -329,6 +332,42 @@ public class FE9Randomizer extends Randomizer {
 	}
 	
 	private void buffEnemiesIfNecessary(String seed) {
-		
+		if (enemyBuffOptions != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9EnemyBuffer.rngSalt));
+			
+			switch (enemyBuffOptions.minionMode) {
+			case FLAT:
+				FE9EnemyBuffer.flatBuffMinionGrowths(enemyBuffOptions.minionBuff, classData);
+				break;
+			case SCALING:
+				FE9EnemyBuffer.scaleBuffMinionGrowths(enemyBuffOptions.minionBuff, classData);
+				break;
+			default:
+				break;
+			}
+			if (enemyBuffOptions.improveMinionWeapons) {
+				FE9EnemyBuffer.improveMinionWeapons(enemyBuffOptions.minionImprovementChance, charData, classData, itemData, chapterData, rng);
+			}
+			if (enemyBuffOptions.giveMinionsSkills) {
+				FE9EnemyBuffer.giveMinionSkills(enemyBuffOptions.minionSkillChance, charData, classData, skillData, chapterData, rng);
+			}
+			
+			switch (enemyBuffOptions.bossMode) {
+			case LINEAR:
+				FE9EnemyBuffer.buffBossStatsLinearly(enemyBuffOptions.bossBuff, charData, classData);
+				break;
+			case EASE_IN_OUT:
+				FE9EnemyBuffer.buffBossStatsByEasing(enemyBuffOptions.bossBuff, charData, classData);
+				break;
+			default:
+				break;
+			}
+			if (enemyBuffOptions.improveBossWeapons) {
+				FE9EnemyBuffer.improveBossWeapons(enemyBuffOptions.bossImprovementChance, charData, classData, itemData, chapterData, rng);
+			}
+			if (enemyBuffOptions.giveBossSkills) {
+				FE9EnemyBuffer.giveBossesSkills(enemyBuffOptions.bossSkillChance, charData, classData, skillData, rng);
+			}
+		}
 	}
 }

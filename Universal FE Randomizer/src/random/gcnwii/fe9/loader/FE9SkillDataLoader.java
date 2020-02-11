@@ -1,11 +1,16 @@
 package random.gcnwii.fe9.loader;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import fedata.gcnwii.fe9.FE9Data;
+import fedata.gcnwii.fe9.FE9Data.Skill;
 import fedata.gcnwii.fe9.FE9Skill;
 import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
@@ -87,6 +92,23 @@ public class FE9SkillDataLoader {
 		}
 		
 		return null;
+	}
+	
+	public List<FE9Skill> skillList(boolean isForPlayableCharacter) {
+		Set<FE9Data.Skill> skills = new HashSet<FE9Data.Skill>();
+		skills.addAll(FE9Data.Skill.allValidSkills);
+		if (!isForPlayableCharacter) {
+			skills.removeAll(FE9Data.Skill.playerOnlySkills);
+		}
+		
+		return skills.stream().sorted(new Comparator<FE9Data.Skill>() {
+			@Override
+			public int compare(Skill arg0, Skill arg1) {
+				return arg0.getSID().compareTo(arg1.getSID());
+			}
+		}).map(fe9dataskill -> {
+			return getSkillWithSID(fe9dataskill.getSID());
+		}).collect(Collectors.toList());
 	}
 	
 	public boolean isModifiableSkill(FE9Skill skill) {

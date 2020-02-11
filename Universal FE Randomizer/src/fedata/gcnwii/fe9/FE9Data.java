@@ -1,8 +1,10 @@
 package fedata.gcnwii.fe9;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -135,6 +137,42 @@ public class FE9Data {
 		
 		public String getPID() {
 			return this.pid;
+		}
+		
+		public Chapter joinChapter() {
+			switch (this) {
+			case IKE: return Chapter.PROLOGUE;
+			case BOYD: case OSCAR: case TITANIA: case ZAWANA: return Chapter.CHAPTER_1;
+			case RHYS: case IKANAU: return Chapter.CHAPTER_2;
+			case HAVETTI: return Chapter.CHAPTER_3;
+			case SOREN: case MAIJIN: return Chapter.CHAPTER_4;
+			case DAKOVA: return Chapter.CHAPTER_5;
+			case EMIL: return Chapter.CHAPTER_6;
+			case MIA: case BALMER: return Chapter.CHAPTER_7;
+			case ILYANA: case KAMURA: return Chapter.CHAPTER_8;
+			case MIST: case ROLF: case MARCIA: case LETHE: case MORDECAI: case NEDATA: case KOTAFF: return Chapter.CHAPTER_9;
+			case VOLKE: case KIERAN: case BROM: case NEPHENEE: case DANOMILL: return Chapter.CHAPTER_10;
+			case ZIHARK: case MACKOYA: return Chapter.CHAPTER_11;
+			case JILL: case SEEKER: return Chapter.CHAPTER_12;
+			case SOTHE: case ASTRID: case GATRIE: case NORRIS: return Chapter.CHAPTER_13;
+			case MAKALOV: case GASHILAMA: return Chapter.CHAPTER_14;
+			case MUARIM: case STEFAN: return Chapter.CHAPTER_15;
+			case TORMOD: case DEVDAN: case KIMAARSI: return Chapter.CHAPTER_16;
+			case JANAFF: case ULKI: case OLIVER: return Chapter.CHAPTER_17;
+			case REYSON: case TANITH: case SHINON: case KAYACHEY: return Chapter.CHAPTER_18;
+			case HOMASA: return Chapter.CHAPTER_19;
+			case CALILL: case SHIHARAM: return Chapter.CHAPTER_20;
+			case TAURONEO: case KASATAI: case ENA: return Chapter.CHAPTER_21;
+			case SCHAEFFER: return Chapter.CHAPTER_22;
+			case RANULF: case HAAR: case PETRINE: return Chapter.CHAPTER_23;
+			case BASTIAN: case LUCIA: case GEOFFREY: case LARGO: return Chapter.CHAPTER_24;
+			case GROMELL: return Chapter.CHAPTER_25;
+			case ELINCIA: case BERTRAM: return Chapter.CHAPTER_26;
+			case HAFEDD: return Chapter.CHAPTER_27;
+			case NASIR: case HEDDWYN: return Chapter.CHAPTER_28;
+			case GIFFCA: case NAESALA: case TIBARN: case BRYCE: return Chapter.ENDGAME;
+			default: return null;
+			}
 		}
 	}
 	
@@ -309,6 +347,10 @@ public class FE9Data {
 		public boolean isMagicalClass() { return !physicalClasses.contains(this); }
 		public boolean isHybridMagicalClass() { return hybridMagicalClasses.contains(this); }
 		public boolean isHybridPhyiscalClass() { return hybridPhysicalClasses.contains(this); }
+		
+		public boolean isValidClass() { return allValidClasses.contains(this); }
+		
+		public boolean isPromotedClass() { return allPromotedClasses.contains(this); }
 	}
 	
 	public enum Skill {
@@ -658,6 +700,10 @@ public class FE9Data {
 		public boolean isLance() { return allLances.contains(this); }
 		public boolean isAxe() { return allAxes.contains(this); }
 		public boolean isBow() { return allBows.contains(this); }
+		public boolean isFireMagic() { return allFireMagic.contains(this); }
+		public boolean isThunderMagic() { return allThunderMagic.contains(this); }
+		public boolean isWindMagic() { return allWindMagic.contains(this); }
+		public boolean isLightMagic() { return allLightMagic.contains(this); }
 		public boolean isMagic() { return allFireMagic.contains(this) || allThunderMagic.contains(this) || allWindMagic.contains(this) || allLightMagic.contains(this); }
 		public boolean isStaff() { return allStaves.contains(this); }
 		
@@ -776,6 +822,48 @@ public class FE9Data {
 			// As far as I can tell, 0x20 is always a date, and conveniently points to the end of the data too. 
 			// The section header starts right after at 0x24.
 			return 0x20;
+		}
+		
+		public static List<Chapter> allChapters() {
+			return new ArrayList<Chapter>(Arrays.asList(PROLOGUE, CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4, CHAPTER_5, CHAPTER_6, CHAPTER_7,
+					CHAPTER_8, CHAPTER_9, CHAPTER_10, CHAPTER_11, CHAPTER_12, CHAPTER_13, CHAPTER_14, CHAPTER_15, CHAPTER_16, CHAPTER_17, CHAPTER_18,
+					CHAPTER_19, CHAPTER_20, CHAPTER_21, CHAPTER_22, CHAPTER_23, CHAPTER_24, CHAPTER_25, CHAPTER_26, CHAPTER_27, CHAPTER_27_BK_FIGHT,
+					CHAPTER_28, ENDGAME));
+		}
+		
+		public Character[] bossCharactersForChapter() {
+			switch(this) {
+			case CHAPTER_1: return new Character[] { Character.ZAWANA };
+			case CHAPTER_2: return new Character[] { Character.IKANAU };
+			case CHAPTER_3: return new Character[] { Character.HAVETTI };
+			case CHAPTER_4: return new Character[] { Character.MAIJIN };
+			case CHAPTER_5: return new Character[] { Character.DAKOVA };
+			case CHAPTER_6: return new Character[] { Character.EMIL };
+			case CHAPTER_7: return new Character[] { Character.BALMER };
+			case CHAPTER_8: return new Character[] { Character.ILYANA, Character.KAMURA };
+			case CHAPTER_9: return new Character[] { Character.KOTAFF, Character.NEDATA };
+			case CHAPTER_10: return new Character[] { Character.DANOMILL };
+			case CHAPTER_11: return new Character[] { Character.MACKOYA };
+			case CHAPTER_12: return new Character[] { Character.SEEKER };
+			case CHAPTER_13: return new Character[] { Character.NORRIS };
+			case CHAPTER_14: return new Character[] { Character.GASHILAMA };
+			case CHAPTER_15: return new Character[] { Character.MUARIM }; // Muarim?
+			case CHAPTER_16: return new Character[] { Character.KIMAARSI };
+			case CHAPTER_17: return new Character[] { Character.OLIVER };
+			case CHAPTER_18: return new Character[] { Character.SHINON, Character.KAYACHEY };
+			case CHAPTER_19: return new Character[] { Character.NAESALA, Character.HOMASA };
+			case CHAPTER_20: return new Character[] { Character.SHIHARAM };
+			case CHAPTER_21: return new Character[] { Character.KASATAI, Character.ENA }; // Ena?
+			case CHAPTER_22: return new Character[] { Character.SCHAEFFER };
+			case CHAPTER_23: return new Character[] { Character.PETRINE };
+			case CHAPTER_24: return new Character[] { Character.RIKARD };
+			case CHAPTER_25: return new Character[] { Character.GROMELL };
+			case CHAPTER_26: return new Character[] { Character.BERTRAM };
+			case CHAPTER_27: return new Character[] { Character.HAFEDD };
+			case CHAPTER_28: return new Character[] { Character.HEDDWYN };
+			case ENDGAME: return new Character[] { Character.BRYCE };
+			default: return new Character[] {};
+			}
 		}
 	}
 	
