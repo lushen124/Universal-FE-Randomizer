@@ -3,7 +3,8 @@
 # Latest Version: 0.8.5
 Current Status: Taking a bit of a break right now, since work is getting a little busy. I'll be back working on FE9 once things calm down a bit at work. Please continue to file issues and feature requests as necessary, but short of catastrophic failure, bugs will be fixed in the 0.9.0 release while enhancements will be considered in the following 0.9.1 release. (0.9.0 being the first release for FE9 support ~~and is technically TBD, though tentatively set for December 2019~~).
 
-**Update 2/12/2020:** FE9 should be coming soon, let's say some time in March, just to give myself a target to aim for. The last remaining hurdle is figuring out what classes are safe to randomize and which classes are not. It won't look as great as I'd like for it to look eventually, and large-scale text changes aren't quite ready yet (so no recruitment changes), but class randomization will be at least functional. Beyond that, Growths, Bases, Skills, Affinity, Rewards, and Enemy Buff (including giving minions skills) are all working. I haven't decided if random weapon effects are worth having, since FE9's pool of possible weapon effects is much smaller and generally less interesting than GBAFE.
+### Update 2/12/2020
+FE9 should be coming soon, let's say some time in March, just to give myself a target to aim for. The last remaining hurdle is figuring out what classes are safe to randomize and which classes are not. It won't look as great as I'd like for it to look eventually, and large-scale text changes aren't quite ready yet (so no recruitment changes), but class randomization will be at least functional. Beyond that, Growths, Bases, Skills, Affinity, Rewards, and Enemy Buff (including giving minions skills) are all working. I haven't decided if random weapon effects are worth having, since FE9's pool of possible weapon effects is much smaller and generally less interesting than GBAFE.
 
 ## Introduction
 
