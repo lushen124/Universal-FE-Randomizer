@@ -296,7 +296,7 @@ public class FE9Randomizer extends Randomizer {
 				FE9SkillRandomizer.randomizeExistingSkills(skillOptions.skillWeights, charData, skillData, rng);
 				break;
 			case FULL_RANDOM:
-				FE9SkillRandomizer.fullyRandomizeSkills(skillOptions.skillChance, skillOptions.skillWeights, charData, skillData, rng);
+				FE9SkillRandomizer.fullyRandomizeSkills(skillOptions.skillChance, skillOptions.skillWeights, charData, skillData, chapterData, rng);
 				break;
 			}
 			charData.commit();

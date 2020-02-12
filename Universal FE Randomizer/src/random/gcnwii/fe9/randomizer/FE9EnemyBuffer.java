@@ -136,17 +136,18 @@ public class FE9EnemyBuffer {
 				for (String unitID : army.getAllUnitIDs()) {
 					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
 					FE9Character character = charData.characterWithID(army.getPIDForUnit(unit));
+					FE9Class charClass = classData.classWithID(army.getJIDForUnit(unit));
 					if (charData.isMinionCharacter(character) && army.getWeapon1ForUnit(unit) != null) {
 						if (rng.nextInt(100) < chance) {
 							String iid = army.getWeapon1ForUnit(unit);
-							List<FE9Item> possibleReplacements = itemData.possibleUpgradesToWeapon(itemData.itemWithIID(iid));
+							List<FE9Item> possibleReplacements = itemData.possibleUpgradesToWeapon(itemData.itemWithIID(iid), classData.isPromotedClass(charClass));
 							if (possibleReplacements != null && !possibleReplacements.isEmpty()) {
 								army.setWeapon1ForUnit(unit, itemData.iidOfItem(possibleReplacements.get(rng.nextInt(possibleReplacements.size()))));
 							}
 						}
 						if (army.getWeapon2ForUnit(unit) != null && rng.nextInt(100) < chance) {
 							String iid = army.getWeapon2ForUnit(unit);
-							List<FE9Item> possibleReplacements = itemData.possibleUpgradesToWeapon(itemData.itemWithIID(iid));
+							List<FE9Item> possibleReplacements = itemData.possibleUpgradesToWeapon(itemData.itemWithIID(iid), classData.isPromotedClass(charClass));
 							if (possibleReplacements != null && !possibleReplacements.isEmpty()) {
 								army.setWeapon2ForUnit(unit, itemData.iidOfItem(possibleReplacements.get(rng.nextInt(possibleReplacements.size()))));
 							}
@@ -172,19 +173,23 @@ public class FE9EnemyBuffer {
 				for (String unitID : army.getAllUnitIDs()) {
 					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
 					FE9Character character = charData.characterWithID(army.getPIDForUnit(unit));
+					FE9Class charClass = classData.classWithID(army.getJIDForUnit(unit));
 					if (charData.isBossCharacter(character)) {
 						String weaponLevelString = charData.getWeaponLevelStringForCharacter(character);
+						if (weaponLevelString.equals("---------")) {
+							weaponLevelString = classData.getWeaponLevelsForClass(charClass);
+						}
 						charData.setWeaponLevelStringForCharacter(character, sRankWeaponLevel(weaponLevelString));
 						if (army.getWeapon1ForUnit(unit) != null && rng.nextInt(100) < chance) {
 							String iid = army.getWeapon1ForUnit(unit);
-							List<FE9Item> possibleReplacements = itemData.possibleUpgradesToWeapon(itemData.itemWithIID(iid));
+							List<FE9Item> possibleReplacements = itemData.possibleUpgradesToWeapon(itemData.itemWithIID(iid), classData.isPromotedClass(charClass));
 							if (possibleReplacements != null && !possibleReplacements.isEmpty()) {
 								army.setWeapon1ForUnit(unit, itemData.iidOfItem(possibleReplacements.get(rng.nextInt(possibleReplacements.size()))));
 							}
 						}
 						if (army.getWeapon2ForUnit(unit) != null && rng.nextInt(100) < chance) {
 							String iid = army.getWeapon2ForUnit(unit);
-							List<FE9Item> possibleReplacements = itemData.possibleUpgradesToWeapon(itemData.itemWithIID(iid));
+							List<FE9Item> possibleReplacements = itemData.possibleUpgradesToWeapon(itemData.itemWithIID(iid), classData.isPromotedClass(charClass));
 							if (possibleReplacements != null && !possibleReplacements.isEmpty()) {
 								army.setWeapon2ForUnit(unit, itemData.iidOfItem(possibleReplacements.get(rng.nextInt(possibleReplacements.size()))));
 							}

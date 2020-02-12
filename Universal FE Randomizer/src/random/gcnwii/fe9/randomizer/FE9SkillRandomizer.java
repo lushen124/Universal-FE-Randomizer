@@ -1,10 +1,15 @@
 package random.gcnwii.fe9.randomizer;
 
+import java.util.List;
 import java.util.Random;
 
+import fedata.gcnwii.fe9.FE9ChapterArmy;
+import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Class;
+import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9Skill;
+import random.gcnwii.fe9.loader.FE9ChapterDataLoader;
 import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
@@ -48,7 +53,7 @@ public class FE9SkillRandomizer {
 		charData.commit();
 	}
 	
-	public static void fullyRandomizeSkills(int skillChance, FE9SkillWeightOptions weights, FE9CharacterDataLoader charData, FE9SkillDataLoader skillData, Random rng) {
+	public static void fullyRandomizeSkills(int skillChance, FE9SkillWeightOptions weights, FE9CharacterDataLoader charData, FE9SkillDataLoader skillData, FE9ChapterDataLoader chapterData, Random rng) {
 		WeightedDistributor<FE9Skill> distributor = weightedDistributorForOptions(weights, skillData);
 		
 		for (FE9Character character : charData.allPlayableCharacters()) {
@@ -68,6 +73,11 @@ public class FE9SkillRandomizer {
 					if (rng.nextInt(100) < skillChance) {
 						FE9Skill randomSkill = distributor.getRandomItem(rng);
 						charData.setSID2ForCharacter(character, skillData.getSID(randomSkill));
+						// Ike is special for Normal mode. For whatever reason, his skill won't show up without
+						// coding it into the chapter army data. It shows up fine in Hard mode though.
+						if (charData.getPIDForCharacter(character).equals(FE9Data.Character.IKE.getPID())) {
+							giveIkeSkill(chapterData, skillData.pointerForSkill(randomSkill));
+						}
 					} else {
 						charData.setSID2ForCharacter(character, null);
 					}
@@ -87,6 +97,17 @@ public class FE9SkillRandomizer {
 		}
 		
 		charData.commit();
+	}
+	
+	private static void giveIkeSkill(FE9ChapterDataLoader chapterData, long sidPtr) {
+		List<FE9ChapterArmy> prologueArmies =  chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
+		for (FE9ChapterArmy army : prologueArmies) {
+			FE9ChapterUnit ike = army.getUnitForPID(FE9Data.Character.IKE.getPID());
+			if (ike != null) {
+				ike.setSkill2Pointer(sidPtr);
+				army.commitChanges();
+			}
+		}
 	}
 
 	private static WeightedDistributor<FE9Skill> weightedDistributorForOptions(FE9SkillWeightOptions weights, FE9SkillDataLoader skillData) {

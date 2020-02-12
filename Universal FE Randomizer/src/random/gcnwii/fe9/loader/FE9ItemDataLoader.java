@@ -82,7 +82,7 @@ public class FE9ItemDataLoader {
 		return FE9Data.Item.withIID(iidOfItem(item)).isSkillScroll();
 	}
 	
-	public List<FE9Item> possibleUpgradesToWeapon(FE9Item item) {
+	public List<FE9Item> possibleUpgradesToWeapon(FE9Item item, boolean isWielderPromoted) {
 		if (item == null) { return null; }
 		FE9Data.Item original = FE9Data.Item.withIID(iidOfItem(item));
 		if (original == null || !original.isWeapon() || original.isStaff()) { return null; }
@@ -90,7 +90,12 @@ public class FE9ItemDataLoader {
 		if (original.isERank()) { upgrades.addAll(FE9Data.Item.allDRankWeapons); }
 		else if (original.isDRank()) { upgrades.addAll(FE9Data.Item.allCRankWeapons); }
 		else if (original.isCRank()) { upgrades.addAll(FE9Data.Item.allCRankWeapons); upgrades.addAll(FE9Data.Item.allBRankWeapons); }
-		else if (original.isBRank()) { upgrades.addAll(FE9Data.Item.allBRankWeapons); upgrades.addAll(FE9Data.Item.allARankWeapons); }
+		else if (original.isBRank()) { // Unpromoted classes apparently can't go above B rank.
+			upgrades.addAll(FE9Data.Item.allBRankWeapons); 
+			if (isWielderPromoted) { 
+				upgrades.addAll(FE9Data.Item.allARankWeapons); 
+			}
+		}
 		else if (original.isARank()) { upgrades.addAll(FE9Data.Item.allSRankWeapons); }
 		
 		if (original.isSword()) { upgrades.retainAll(FE9Data.Item.allSwords); }

@@ -111,6 +111,11 @@ public class FE9SkillDataLoader {
 		}).collect(Collectors.toList());
 	}
 	
+	public Long pointerForSkill(FE9Skill skill) {
+		if (skill == null) { return null; }
+		return fe8databin.pointerForString(getSID(skill));
+	}
+	
 	public boolean isModifiableSkill(FE9Skill skill) {
 		return FE9Data.Skill.withSID(getSID(skill)).isModifiable();
 	}
