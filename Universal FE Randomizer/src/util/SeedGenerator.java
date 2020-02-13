@@ -8,7 +8,7 @@ import fedata.general.FEBase.GameType;
 public class SeedGenerator {
 	
 	static String[] fe4Quotes = new String[] {
-			"Those Pegasus Knights won't pose a problem in the face of the Beige Ritter. Now watch ‘em fall!",
+			"Those Pegasus Knights won't pose a problem in the face of the Beige Ritter. Now watch 'em fall!",
 			"Hrmph. I can live with the strong and reliable part, but leave the slow bit out of it, ok?",
 			"My kindness toward you has run out. I hate to say it, but you're going to die. ",
 			"I've waited for this day! You're going to pay for taking my mother and little sister!",
@@ -35,8 +35,8 @@ public class SeedGenerator {
 			"Wherever you go, I shall follow... even to the ends of the continent.",
 			"We were born into the knighthood and are prepared to die fighting!",
 			"It's not something I'm proud of. But the mission awaiting us was a fate worse than death.",
-			"I have the Gáe Bolg with me. I'm not going to fall with this at my side.",
-			"Die! You hyenas! As long as I have the Gáe Bolg, I will not lose to your kind.",
+			"I have the Gae Bolg with me. I'm not going to fall with this at my side.",
+			"Die! You hyenas! As long as I have the Gae Bolg, I will not lose to your kind.",
 			"I'll be strong enough to protect everybody here someday!"
 	};
 	
@@ -112,7 +112,30 @@ public class SeedGenerator {
 			"If I were not a holy woman, I would beat you senseless.",
 			"Trying to trap me is a mistake. Failing, an expensive one. I think it's time for you to learn how expensive.",
 			"Gambling's what I live for. Even when I lose, I never want to stop."
-			
+	};
+	
+	static String[] fe9Quotes = new String[] {
+			"For all those born with nothing, there are those born with everything. Perhaps the ones who don't know the difference are the ones we should envy.",
+			"Great, then how are we going to hurt him? Angry looks?",
+			"Okay, so what do I do? Put on a funny hat or something?",
+			"What say I run you through with my lance and call it a day?!",
+			"You kill for sport, and hide your fear behind a wall of bravado. Now let me show you the meaning of true fear!",
+			"You disgust me beyond words!",
+			"The seeds of war have indeed been sewn across the continent.",
+			"In the middle of that giant mess, you didn't give up, Boss. And I knew. That is how a true man lives!",
+			"You think you can defeat me? The man who taught you how to fight? What a fool.",
+			"In truth, there is nothing in this world more humorous than a knight.",
+			"Iâ€™m not a child. Those days ended the instant I took my first life.",
+			"Your very existence is an insult to all that is beautiful!",
+			"Sure, Iâ€™ll take you on. But itâ€™s going to hurt!",
+			"Folks always judge, and theyâ€™re usually wrong.",
+			"There's nothing more awkward than having to kill a friend because of his poor taste in employers, I tell you.",
+			"Lament your fortune, dear children, for all hope is lost.",
+			"Now we've got you! Eat rock!",
+			"That was my name... once. But I... threw it away.",
+			"Why are you always scowling? Small children will start to cry!",
+			"You can learn the dance of blades from me without knowing my history, can you not?",
+			"Humans are shameless creatures that carelessly ignore any misfortune which does not befall them directly."
 	};
 	
 	public static String generateRandomSeed(GameType type) {
@@ -133,12 +156,16 @@ public class SeedGenerator {
 			int quoteCount = fe8Quotes.length;
 			return fe8Quotes[ThreadLocalRandom.current().nextInt(quoteCount)];
 		}
+		case FE9: {
+			int quoteCount = fe9Quotes.length;
+			return fe9Quotes[ThreadLocalRandom.current().nextInt(quoteCount)];
+		}
 		default:
 			return generateRandomSeed();
 		}
 	}
 	public static String generateRandomSeed() {
-		int gameSelect = ThreadLocalRandom.current().nextInt(4);
+		int gameSelect = ThreadLocalRandom.current().nextInt(5);
 		if (gameSelect == 0) {
 			return generateRandomSeed(GameType.FE6);
 		} else if (gameSelect == 1) {
@@ -147,6 +174,8 @@ public class SeedGenerator {
 			return generateRandomSeed(GameType.FE8);
 		} else if (gameSelect == 3) {
 			return generateRandomSeed(GameType.FE4);
+		} else if (gameSelect == 4) {
+			return generateRandomSeed(GameType.FE9);
 		}
 		
 		return "Type something in!";

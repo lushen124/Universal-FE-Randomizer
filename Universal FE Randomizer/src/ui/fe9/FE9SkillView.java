@@ -16,12 +16,13 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
 import ui.fe9.FE9SkillWeightView.FE9SkillWeightsListener;
+import ui.fe9.FE9SkillsOptions.Mode;
 
 public class FE9SkillView extends Composite {
 
 	private boolean skillsEnabled;
 	
-	private FE9SkillsOptions.Mode currentMode;
+	private FE9SkillsOptions.Mode currentMode = Mode.RANDOMIZE_EXISTING;
 	
 	private Group container;
 	private Button enableButton;
