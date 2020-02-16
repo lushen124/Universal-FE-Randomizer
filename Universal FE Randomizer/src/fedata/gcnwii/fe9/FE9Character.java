@@ -350,6 +350,16 @@ public class FE9Character implements FEModifiableData {
 		wasModified = true;
 	}
 	
+	public int getLaguzTransformationStartingValue() {
+		return data[0x34];
+	}
+	
+	public void setLaguzTransformationStartingValue(int startingValue) {
+		startingValue = WhyDoesJavaNotHaveThese.clamp(startingValue, 0, 20);
+		data[0x34] = (byte)(startingValue & 0xFF);
+		wasModified = true;
+	}
+	
 	public byte[] getUnknown8Bytes() {
 		return Arrays.copyOfRange(data, 0x49, 0x51);
 	}

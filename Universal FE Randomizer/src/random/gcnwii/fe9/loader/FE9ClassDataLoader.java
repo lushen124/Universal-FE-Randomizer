@@ -21,6 +21,19 @@ public class FE9ClassDataLoader {
 	
 	List<FE9Class> allClasses;
 	
+	List<FE9Class> allUnpromotedClasses;
+	List<FE9Class> allPromotedClasses;
+	List<FE9Class> allLaguzClasses;
+	
+	List<FE9Class> allFliers;
+	List<FE9Class> allMaleClasses;
+	List<FE9Class> allFemaleClasses;
+	
+	List<FE9Class> playerEligibleClasses;
+	List<FE9Class> enemyEligibleClasses;
+	
+	List<FE9Class> allPacifistClasses;
+	
 	Map<String, Long> knownAddresses;
 	Map<Long, String> knownPointers;
 	
@@ -37,6 +50,19 @@ public class FE9ClassDataLoader {
 		
 		knownAddresses = new HashMap<String, Long>();
 		knownPointers = new HashMap<Long, String>();
+		
+		allLaguzClasses = new ArrayList<FE9Class>();
+		allUnpromotedClasses = new ArrayList<FE9Class>();
+		allPromotedClasses = new ArrayList<FE9Class>();
+		
+		allFliers = new ArrayList<FE9Class>();
+		allMaleClasses = new ArrayList<FE9Class>();
+		allFemaleClasses = new ArrayList<FE9Class>();
+		
+		allPacifistClasses = new ArrayList<FE9Class>();
+		
+		playerEligibleClasses = new ArrayList<FE9Class>();
+		enemyEligibleClasses = new ArrayList<FE9Class>();
 		
 		idLookup = new HashMap<String, FE9Class>();
 		
@@ -89,6 +115,38 @@ public class FE9ClassDataLoader {
 			knownPointers.put(charClass.getRacePointer(), race);
 			
 			idLookup.put(jid, charClass);
+			
+			FE9Data.CharacterClass fe9CharClass = FE9Data.CharacterClass.withJID(jid);
+			if (fe9CharClass == null) { continue; }
+			
+			if (fe9CharClass.isLaguz()) {
+				allLaguzClasses.add(charClass);
+			} else if (fe9CharClass.isPromotedClass()) {
+				allPromotedClasses.add(charClass);
+			} else {
+				allUnpromotedClasses.add(charClass);
+			}
+			
+			if (fe9CharClass.isFemale()) {
+				allFemaleClasses.add(charClass);
+			} else {
+				allMaleClasses.add(charClass);
+			}
+			
+			if (fe9CharClass.isFlier()) {
+				allFliers.add(charClass);
+			}
+			
+			if (fe9CharClass.isValidPlayerClass() && !fe9CharClass.isEnemyOnly()) {
+				playerEligibleClasses.add(charClass);
+			}
+			if (!fe9CharClass.isPlayerOnly()) {
+				enemyEligibleClasses.add(charClass);
+			}
+			
+			if (fe9CharClass.isPacifist()) {
+				allPacifistClasses.add(charClass);
+			}
 		}
 	}
 	
@@ -104,6 +162,48 @@ public class FE9ClassDataLoader {
 		}).collect(Collectors.toList());
 	}
 	
+	public List<FE9Class> allLaguzClasses() {
+		return allLaguzClasses;
+	}
+	
+	public List<FE9Class> allUnpromotedClasses() {
+		return allUnpromotedClasses;
+	}
+	
+	public List<FE9Class> allPromotedClasses() {
+		return allPromotedClasses;
+	}
+	
+	public List<FE9Class> allFemale() {
+		return allFemaleClasses;
+	}
+	
+	public List<FE9Class> allMale() {
+		return allMaleClasses;
+	}
+	
+	public List<FE9Class> allPacifistClasses() {
+		return allPacifistClasses;
+	}
+	
+	public List<FE9Class> allPlayerEligible(boolean includeLords, boolean includeThieves, boolean includeSpecial) {
+		return playerEligibleClasses.stream().filter(fe9Class -> {
+			String jid = getJIDForClass(fe9Class);
+			if (!includeLords && FE9Data.CharacterClass.withJID(jid).isLordClass()) { return false; }
+			if (!includeThieves && FE9Data.CharacterClass.withJID(jid).isThiefClass()) { return false; }
+			if (!includeSpecial && FE9Data.CharacterClass.withJID(jid).isSpecialClass()) { return false; }
+			return true;
+		}).collect(Collectors.toList());
+	}
+	
+	public List<FE9Class> allEnemyEligible() {
+		return enemyEligibleClasses;
+	}
+	
+	public List<FE9Class> allFliers() {
+		return allFliers;
+	}
+	
 	public FE9Class classWithID(String jid) {
 		return idLookup.get(jid);
 	}
@@ -111,6 +211,73 @@ public class FE9ClassDataLoader {
 	public String getJIDForClass(FE9Class charClass) {
 		if (charClass == null) { return null; }
 		return fe8databin.stringForPointer(charClass.getClassIDPointer());
+	}
+	
+	public int getLaguzSTROffset(FE9Class laguzClass) {
+		if (laguzClass == null) { return 0; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(laguzClass)).getTransformSTRBonus();
+	}
+	
+	public int getLaguzMAGOffset(FE9Class laguzClass) {
+		if (laguzClass == null) { return 0; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(laguzClass)).getTransformMAGBonus();
+	}
+	
+	public int getLaguzSKLOffset(FE9Class laguzClass) {
+		if (laguzClass == null) { return 0; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(laguzClass)).getTransformSKLBonus();
+	}
+	
+	public int getLaguzSPDOffset(FE9Class laguzClass) {
+		if (laguzClass == null) { return 0; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(laguzClass)).getTransformSPDBonus();
+	}
+	
+	public int getLaguzDEFOffset(FE9Class laguzClass) {
+		if (laguzClass == null) { return 0; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(laguzClass)).getTransformDEFBonus();
+	}
+	
+	public int getLaguzRESOffset(FE9Class laguzClass) {
+		if (laguzClass == null) { return 0; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(laguzClass)).getTransformRESBonus();
+	}
+	
+	public String getUnpromotedAIDForClass(FE9Class charClass) {
+		if (isPromotedClass(charClass) && !isLaguzClass(charClass)) { return null; }
+		FE9Data.CharacterClass fe9CharClass = FE9Data.CharacterClass.withJID(getJIDForClass(charClass));
+		return fe9CharClass.getAidString();
+	}
+	
+	public String getPromotedAIDForClass(FE9Class charClass) {
+		FE9Data.CharacterClass fe9CharClass = FE9Data.CharacterClass.withJID(getJIDForClass(charClass));
+		if (isLaguzClass(charClass)) {
+			return fe9CharClass.getLaguzTransformedAidString();
+		} else if (isPromotedClass(charClass)) {
+			return fe9CharClass.getAidString();
+		} else {
+			FE9Data.CharacterClass promotedCharClass = fe9CharClass.getPromoted();
+			if (promotedCharClass != null) {
+				return promotedCharClass.getAidString();
+			}
+		}
+		
+		return null;
+	}
+	
+	public String getSID1ForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getSkill1Pointer());
+	}
+	
+	public String getSID2ForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getSkill2Pointer());
+	}
+	
+	public String getSID3ForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getSkill3Pointer());
 	}
 	
 	public String getWeaponLevelsForClass(FE9Class charClass) {
@@ -145,9 +312,39 @@ public class FE9ClassDataLoader {
 		return StatBias.NONE;
 	}
 	
+	public boolean isLordClass(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isLordClass();
+	}
+	
+	public boolean isThiefClass(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isThiefClass();
+	}
+	
+	public boolean isSpecialClass(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isSpecialClass();
+	}
+	
 	public boolean isPromotedClass(FE9Class charClass) {
 		if (charClass == null) { return false; }
 		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isPromotedClass();
+	}
+	
+	public boolean isFemale(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isFemale();
+	}
+	
+	public boolean isLaguzClass(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isLaguz();
+	}
+	
+	public boolean isFlierClass(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isFlier();
 	}
 	
 	public String pointerLookup(long pointer) {

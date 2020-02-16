@@ -80,6 +80,9 @@ public class FE9ChapterDataLoader {
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Item 2: " + army.getItem2ForUnit(unit));
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Item 3: " + army.getItem3ForUnit(unit));
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Item 4: " + army.getItem4ForUnit(unit));
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Skill 1: " + army.getSkill1ForUnit(unit));
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Skill 2: " + army.getSkill2ForUnit(unit));
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Skill 3: " + army.getSkill3ForUnit(unit));
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Starting Coordinates: (" + army.getStartingXForUnit(unit) + ", " + army.getStartingYForUnit(unit) + ")");
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "Ending Coordinates: (" + army.getEndingXForUnit(unit) + ", " + army.getEndingYForUnit(unit) + ")");
 				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "--- Ending Character " + unitID + " ---");

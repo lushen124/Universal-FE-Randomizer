@@ -122,9 +122,21 @@ public class FE9ChapterUnit implements FEModifiableData {
 		return cachedItem1Pointer;
 	}
 	
+	public void setItem1Pointer(long iidPtr) {
+		cachedItem1Pointer = iidPtr;
+		writePointerToOffset(iidPtr, Item1Offset);
+		wasModified = true;
+	}
+	
 	public long getItem2Pointer() {
 		if (cachedItem2Pointer == null) { cachedItem2Pointer = readPointerAtOffset(Item2Offset); }
 		return cachedItem2Pointer;
+	}
+	
+	public void setItem2Pointer(long iidPtr) {
+		cachedItem2Pointer = iidPtr;
+		writePointerToOffset(iidPtr, Item2Offset);
+		wasModified = true;
 	}
 	
 	public long getItem3Pointer() {
@@ -132,9 +144,21 @@ public class FE9ChapterUnit implements FEModifiableData {
 		return cachedItem3Pointer;
 	}
 	
+	public void setItem3Pointer(long iidPtr) {
+		cachedItem3Pointer = iidPtr;
+		writePointerToOffset(iidPtr, Item3Offset);
+		wasModified = true;
+	}
+	
 	public long getItem4Pointer() {
 		if (cachedItem4Pointer == null) { cachedItem4Pointer = readPointerAtOffset(Item4Offset); }
 		return cachedItem4Pointer;
+	}
+	
+	public void setItem4Pointer(long iidPtr) {
+		cachedItem4Pointer = iidPtr;
+		writePointerToOffset(iidPtr, Item4Offset);
+		wasModified = true;
 	}
 	
 	public long getSkill1Pointer() {

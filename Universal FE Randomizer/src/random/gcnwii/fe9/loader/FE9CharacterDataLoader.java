@@ -191,6 +191,56 @@ public class FE9CharacterDataLoader {
 		}
 	}
 	
+	public String getUnpromotedAIDForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		if (character.getUnpromotedAnimationPointer() == 0) { return null; }
+		return fe8databin.stringForPointer(character.getUnpromotedAnimationPointer());
+	}
+	
+	public void setUnpromotedAIDForCharacter(FE9Character character, String aid) {
+		if (character == null) { return; }
+		if (aid == null) {
+			character.setUnpromotedAnimationPointer(0);
+			return;
+		}
+		Long aidAddress = fe8databin.pointerForString(aid);
+		if (aidAddress == null) {
+			fe8databin.addString(aid);
+			fe8databin.commitAdditions();
+			aidAddress = fe8databin.pointerForString(aid);
+		}
+		character.setUnpromotedAnimationPointer(aidAddress);
+	}
+	
+	public String getPromotedAIDForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		if (character.getPromotedAnimationPointer() == 0) { return null; }
+		return fe8databin.stringForPointer(character.getPromotedAnimationPointer());
+	}
+	
+	public void setPromotedAIDForCharacter(FE9Character character, String aid) {
+		if (character == null) { return; }
+		if (aid == null) {
+			character.setPromotedAnimationPointer(0);
+			return;
+		}
+		Long aidAddress = fe8databin.pointerForString(aid);
+		if (aidAddress == null) {
+			fe8databin.addString(aid);
+			fe8databin.commitAdditions();
+			aidAddress = fe8databin.pointerForString(aid);
+		}
+		character.setPromotedAnimationPointer(aidAddress);
+	}
+	
+	public int getLaguzStartingGaugeForCharacter(FE9Character character) {
+		return character.getLaguzTransformationStartingValue();
+	}
+	
+	public void setLaguzStartingGaugeForCharacter(FE9Character character, int value) {
+		character.setLaguzTransformationStartingValue(WhyDoesJavaNotHaveThese.clamp(value, 0, 20));
+	}
+	
 	public String getWeaponLevelStringForCharacter(FE9Character character) {
 		if (character == null) { return null; }
 		return fe8databin.stringForPointer(character.getWeaponLevelsPointer());

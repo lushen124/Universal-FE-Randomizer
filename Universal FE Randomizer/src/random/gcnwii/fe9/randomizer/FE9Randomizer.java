@@ -104,11 +104,13 @@ public class FE9Randomizer extends Randomizer {
 //				String fullName = handler.fstNameOfEntry(entry);
 //				fullName = fullName.replace("/", "_");
 //				String disposPath = path + File.separator + "map" + File.separator + fullName;
+//				GCNFileHandler fileHandler = handler.handlerForFileWithName("zdbx.cmp");
 //				GCNFileHandler fileHandler = handler.handlerForFSTEntry(entry);
-//				
+				
 //				byte[] data = fileHandler.readBytesAtOffset(0, (int)fileHandler.getFileLength());
 //				try {
 //					FileWriter.writeBinaryDataToFile(LZ77.decompress(data), disposPath);
+//					FileWriter.writeBinaryDataToFile(LZ77.decompress(data), path + File.separator + "zdbx" + File.separator + "decompressed.bin");
 //				} catch (IOException e) {
 //					e.printStackTrace();
 //				}
@@ -117,6 +119,15 @@ public class FE9Randomizer extends Randomizer {
 //				for (String packedName : cmpHandler.getNames()) {
 //					GCNFileHandler childHandler = cmpHandler.getChildHandler(packedName);
 //					String childPath = disposPath + File.separator + packedName;
+//					String childPath = path + File.separator + "zdbx" + File.separator + packedName.replace("/", File.separator);
+					
+//					int lastFileSeparatorIndex = targetPath.lastIndexOf(File.separator);
+//					String packedPath = childPath.substring(0, indexOfPathSeparator);
+//					File dir = new File(packedPath);
+//					if (!dir.exists()) {
+//						dir.mkdirs();
+//					}
+					
 //					byte[] childData = childHandler.readBytesAtOffset(0, (int)childHandler.getFileLength());
 //					try {
 //						FileWriter.writeBinaryDataToFile(childData, childPath);
@@ -124,10 +135,10 @@ public class FE9Randomizer extends Randomizer {
 //						e.printStackTrace();
 //					}
 //				}
-//			}
+////			}
 //		} catch (GCNISOException e) {
 //			e.printStackTrace();
-//			notifyError("Failed to extract map.cmp files.");
+//			notifyError("Failed to extract zdbx.cmp files.");
 //			return;
 //		}
 		
@@ -138,6 +149,8 @@ public class FE9Randomizer extends Randomizer {
 			itemData = new FE9ItemDataLoader(handler, textData);
 			skillData = new FE9SkillDataLoader(handler, textData);
 			chapterData = new FE9ChapterDataLoader(handler, textData);
+			
+//			chapterData.debugPrintAllChapterArmies();
 			
 //			List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
 //			for (FE9ChapterArmy army : armies) {
@@ -162,10 +175,6 @@ public class FE9Randomizer extends Randomizer {
 //				army.commitChanges();
 //			}
 			
-			for (FE9Data.CharacterClass charClass : FE9Data.CharacterClass.allValidClasses) {
-				FE9Class fe9Class = classData.classWithID(charClass.getJID());
-				fe9Class.setHPGrowth(Math.min(fe9Class.getHPGrowth() + 100, 255));
-			}
 			
 			randomizeGrowthsIfNecessary(seed);
 			randomizeBasesIfNecessary(seed);
@@ -191,10 +200,13 @@ public class FE9Randomizer extends Randomizer {
 			
 			//kieran.setUnknown6Bytes(oscar.getUnknown6Bytes());
 			//kieran.setUnknown8Bytes(oscar.getUnknown8Bytes());
-			GCNFileHandler fe8databin = handler.handlerForFileWithName("system.cmp/FE8Data.bin");
-			//fe8databin.addChange(new Diff(0x1CE2C, 4, new byte[] {0, 0, (byte)0x02, (byte)0x24}, new byte[] {0, 0, (byte)0x05, (byte)0x6C}));
-			assert(fe8databin instanceof GCNDataFileHandler);
-			GCNDataFileHandler dataFileHandler = (GCNDataFileHandler)fe8databin;
+//			GCNFileHandler fe8databin = handler.handlerForFileWithName("system.cmp/FE8Data.bin");
+//			//fe8databin.addChange(new Diff(0x1CE2C, 4, new byte[] {0, 0, (byte)0x02, (byte)0x24}, new byte[] {0, 0, (byte)0x05, (byte)0x6C}));
+//			assert(fe8databin instanceof GCNDataFileHandler);
+//			GCNDataFileHandler dataFileHandler = (GCNDataFileHandler)fe8databin;
+//			for (String string : dataFileHandler.allStrings()) {
+//				DebugPrinter.log(DebugPrinter.Key.MISC, "FE8Data.bin string: " + string);
+//			}
 			
 //			oscar.setClassPointer(dataFileHandler.pointerForString(FE9Data.CharacterClass.CAT.getJID()) - 0x20);
 //			oscar.setUnpromotedAnimationPointer(0);
@@ -213,6 +225,10 @@ public class FE9Randomizer extends Randomizer {
 //			
 //			oscar.commitChanges();
 			//kieran.commitChanges();
+			
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9ClassRandomizer.rngSalt));
+			FE9ClassRandomizer.randomizePlayableCharacters(true, false, false, true, true, true, charData, classData, chapterData, skillData, itemData, rng);
+			FE9ClassRandomizer.updateIkeInventoryChapter1Script(charData, itemData, handler);
 			
 			charData.compileDiffs(handler);
 			classData.compileDiffs(handler);

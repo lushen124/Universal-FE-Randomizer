@@ -55,7 +55,9 @@ public class FE9ChapterArmy {
 				unitsByUniqueID.put(pid + uniqueID, unit);
 				uniqueIDList.add(pid + uniqueID);
 				
-				DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "Loaded PID " + pid + " in chapter " + chapterID);
+				String jid = disposHandler.stringForPointer(unit.getClassIDPointer());
+				
+				DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "Loaded " + pid + " (" + jid + ") in chapter " + chapterID);
 			}
 		}
 		DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "===End Army Data===");
@@ -102,7 +104,11 @@ public class FE9ChapterArmy {
 	}
 	
 	public void setWeapon1ForUnit(FE9ChapterUnit unit, String iid) {
-		if (unit == null || iid == null) { return; }
+		if (unit == null) { return; }
+		if (iid == null) {
+			unit.setWeapon1Pointer(0);
+			return;
+		}
 		disposHandler.addString(iid);
 		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon1Offset - 0x20);
 		disposHandler.commitAdditions();
@@ -114,7 +120,11 @@ public class FE9ChapterArmy {
 	}
 	
 	public void setWeapon2ForUnit(FE9ChapterUnit unit, String iid) {
-		if (unit == null || iid == null) { return; }
+		if (unit == null) { return; }
+		if (iid == null) {
+			unit.setWeapon2Pointer(0);
+			return;
+		}
 		disposHandler.addString(iid);
 		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon2Offset - 0x20);
 		disposHandler.commitAdditions();
@@ -126,7 +136,11 @@ public class FE9ChapterArmy {
 	}
 	
 	public void setWeapon3ForUnit(FE9ChapterUnit unit, String iid) {
-		if (unit == null || iid == null) { return; }
+		if (unit == null) { return; }
+		if (iid == null) {
+			unit.setWeapon3Pointer(0);
+			return;
+		}
 		disposHandler.addString(iid);
 		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon3Offset - 0x20);
 		disposHandler.commitAdditions();
@@ -138,7 +152,11 @@ public class FE9ChapterArmy {
 	}
 	
 	public void setWeapon4ForUnit(FE9ChapterUnit unit, String iid) {
-		if (unit == null || iid == null) { return; }
+		if (unit == null) { return; }
+		if (iid == null) {
+			unit.setWeapon4Pointer(0);
+			return;
+		}
 		disposHandler.addString(iid);
 		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon4Offset - 0x20);
 		disposHandler.commitAdditions();
@@ -149,16 +167,64 @@ public class FE9ChapterArmy {
 		return disposHandler.stringForPointer(unit.getItem1Pointer());
 	}
 	
+	public void setItem1ForUnit(FE9ChapterUnit unit, String iid) {
+		if (unit == null) { return; }
+		if (iid == null) {
+			unit.setItem1Pointer(0);
+			return;
+		}
+		disposHandler.addString(iid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Item1Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setItem1Pointer(disposHandler.pointerForString(iid));
+	}
+	
 	public String getItem2ForUnit(FE9ChapterUnit unit) {
 		return disposHandler.stringForPointer(unit.getItem2Pointer());
+	}
+	
+	public void setItem2ForUnit(FE9ChapterUnit unit, String iid) {
+		if (unit == null) { return; }
+		if (iid == null) {
+			unit.setItem2Pointer(0);
+			return;
+		}
+		disposHandler.addString(iid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Item2Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setItem2Pointer(disposHandler.pointerForString(iid));
 	}
 	
 	public String getItem3ForUnit(FE9ChapterUnit unit) {
 		return disposHandler.stringForPointer(unit.getItem3Pointer());
 	}
 	
+	public void setItem3ForUnit(FE9ChapterUnit unit, String iid) {
+		if (unit == null) { return; }
+		if (iid == null) {
+			unit.setItem3Pointer(0);
+			return;
+		}
+		disposHandler.addString(iid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Item3Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setItem3Pointer(disposHandler.pointerForString(iid));
+	}
+	
 	public String getItem4ForUnit(FE9ChapterUnit unit) {
 		return disposHandler.stringForPointer(unit.getItem4Pointer());
+	}
+	
+	public void setItem4ForUnit(FE9ChapterUnit unit, String iid) {
+		if (unit == null) { return; }
+		if (iid == null) {
+			unit.setItem4Pointer(0);
+			return;
+		}
+		disposHandler.addString(iid);
+		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Item4Offset - 0x20);
+		disposHandler.commitAdditions();
+		unit.setItem4Pointer(disposHandler.pointerForString(iid));
 	}
 	
 	public String getSkill1ForUnit(FE9ChapterUnit unit) {

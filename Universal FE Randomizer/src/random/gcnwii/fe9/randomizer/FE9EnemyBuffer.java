@@ -159,6 +159,15 @@ public class FE9EnemyBuffer {
 		}
 		
 		chapterData.commitChanges();
+		// Before we upgrade all class's base weapon levels to S, we need to explicitly write weapon ranks for all 
+		// playable characters so that they don't inherit the inflated weapon levels.
+		for (FE9Character character : charData.allPlayableCharacters()) {
+			String charWeaponLevel = charData.getWeaponLevelStringForCharacter(character);
+			String classWeaponLevel = classData.getWeaponLevelsForClass(classData.classWithID(charData.getJIDForCharacter(character)));
+			String definedWeaponLevel = explicitlyDefinedWeaponLevelString(charWeaponLevel, classWeaponLevel);
+			charData.setWeaponLevelStringForCharacter(character, definedWeaponLevel);
+		}
+		
 		for (FE9Class charClass : classData.allValidClasses()) {
 			String weaponLevelString = classData.getWeaponLevelsForClass(charClass);
 			classData.setWeaponLevelsForClass(charClass, sRankWeaponLevel(weaponLevelString));
@@ -275,5 +284,18 @@ public class FE9EnemyBuffer {
 		weaponLevelString = weaponLevelString.replace('B', 'S');
 		weaponLevelString = weaponLevelString.replace('A', 'S');
 		return weaponLevelString;
+	}
+	
+	private static String explicitlyDefinedWeaponLevelString(String characterString, String classString) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < characterString.length(); i++) {
+			char characterChar = characterString.charAt(i);
+			char classChar = classString.charAt(i);
+			
+			if (characterChar == '-') { sb.append(classChar); }
+			else { sb.append(characterChar); }
+		}
+		
+		return sb.toString();
 	}
 }

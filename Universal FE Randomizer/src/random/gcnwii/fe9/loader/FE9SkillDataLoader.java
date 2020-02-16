@@ -1,6 +1,7 @@
 package random.gcnwii.fe9.loader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.gcnwii.fe9.FE9Data;
+import fedata.gcnwii.fe9.FE9Data.CharacterClass;
 import fedata.gcnwii.fe9.FE9Data.Skill;
 import fedata.gcnwii.fe9.FE9Skill;
 import io.gcn.GCNDataFileHandler;
@@ -126,6 +128,18 @@ public class FE9SkillDataLoader {
 	
 	public FE9Skill occultSkillForJID(String jid) {
 		return getSkillWithSID(FE9Data.Skill.occultSkillForClass(FE9Data.CharacterClass.withJID(jid)).getSID());
+	}
+	
+	public List<FE9Skill> requiredSkillsForJID(String jid) {
+		if (jid == null) { return null; }
+		List<FE9Skill> skills = new ArrayList<FE9Skill>();
+		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
+		
+		if (charClass == CharacterClass.W_HERON) { skills.add(getSkillWithSID(FE9Data.Skill.CANTO.getSID())); }
+		else if (charClass == CharacterClass.ELINCIA_FALCON_KNIGHT) { skills.add(getSkillWithSID(FE9Data.Skill.EQUIP_B.getSID())); }
+		else if (charClass == CharacterClass.ARCHER || charClass == CharacterClass.SNIPER) { skills.add(getSkillWithSID(FE9Data.Skill.EQUIP_A.getSID())); }
+		
+		return skills;
 	}
 
 	private String stringForPointer(long pointer, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {

@@ -297,7 +297,7 @@ public class FE9Data {
 				WIND_SAGE_STAFF, THUNDER_SAGE_STAFF, FIRE_SAGE_KNIFE, THUNDER_SAGE_KNIFE, WIND_SAGE_KNIFE, BISHOP, ASSASSIN, BERSERKER, TIGER, CAT, WHITE_DRAGON,
 				RED_DRAGON, HAWK, CROW, HERON, W_HERON, SAGE_STAFF, SAGE_KNIFE, SWORDMASTER_F, HALBERDIER_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F,
 				TITANIA_PALADIN, FALCON_KNIGHT, ELINCIA_FALCON_KNIGHT, WYVERN_LORD_F, FIRE_SAGE_F, WIND_SAGE_F, THUNDER_SAGE_F, SAGE_F, BISHOP_F, VALKYRIE, ASSASSIN_F,
-				CAT_F, RED_DRAGON_F, W_HERON_F));
+				CAT_F, RED_DRAGON_F, W_HERON_F, SAGE_STAFF_F, SAGE_KNIFE_F));
 		
 		public static Set<CharacterClass> allBeorcClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, RANGER, GREIL_HERO, MYRMIDON, SWORDMASTER, 
 				SOLDIER, HALBERDIER, FIGHTER, WARRIOR, ARCHER, SNIPER, KNIGHT, GENERAL, SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT,
@@ -326,10 +326,29 @@ public class FE9Data {
 				FIRE_SAGE, WIND_SAGE, THUNDER_SAGE, SAGE, FIRE_SAGE_STAFF, WIND_SAGE_STAFF, THUNDER_SAGE_STAFF, FIRE_SAGE_KNIFE, WIND_SAGE_KNIFE,
 				THUNDER_SAGE_KNIFE, PRIEST, BISHOP, THIEF, ASSASSIN, BANDIT, BERSERKER, TIGER, CAT, WHITE_DRAGON, RED_DRAGON,
 				HAWK, CROW, HERON, W_HERON, FERAL_TIGER, FERAL_CAT, FERAL_WHITE_DRAGON,
-				FERAL_RED_DRAGON, FERAL_HAWK, FERAL_CROW, SAGE_STAFF, SAGE_KNIFE));
+				FERAL_RED_DRAGON, FERAL_HAWK, FERAL_CROW, SAGE_STAFF, SAGE_KNIFE,
+				MYRMIDON_F, SWORDMASTER_F, SOLDIER_F, HALBERDIER_F, 
+				/*SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F, */BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN,
+				PEGASUS_KNIGHT, FALCON_KNIGHT, ELINCIA_FALCON_KNIGHT, WYVERN_RIDER_F, WYVERN_LORD_F, FIRE_MAGE_F, WIND_MAGE_F, THUNDER_MAGE_F, MAGE_F,
+				FIRE_SAGE_F, WIND_SAGE_F, THUNDER_SAGE_F, SAGE_F, BISHOP_F, CLERIC, VALKYRIE, ASSASSIN_F, CAT_F, RED_DRAGON_F, FERAL_CAT_F,
+				FERAL_RED_DRAGON_F, SAGE_STAFF_F, SAGE_KNIFE_F));
 		
-		public static Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(FERAL_LION, FERAL_TIGER, FERAL_CAT, FERAL_BLACK_DRAGON, 
-				FERAL_WHITE_DRAGON, FERAL_RED_DRAGON, FERAL_HAWK, FERAL_CROW, FERAL_CAT_F, FERAL_RED_DRAGON_F, FERAL_W_HERON_F));
+		public static Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(FIRE_MAGE, WIND_MAGE, THUNDER_MAGE, 
+				FIRE_SAGE, WIND_SAGE, THUNDER_SAGE, FIRE_SAGE_STAFF, WIND_SAGE_STAFF, THUNDER_SAGE_STAFF, FIRE_SAGE_KNIFE, WIND_SAGE_KNIFE,
+				THUNDER_SAGE_KNIFE, FIRE_MAGE_F, WIND_MAGE_F, THUNDER_MAGE_F, FIRE_SAGE_F, WIND_SAGE_F, THUNDER_SAGE_F, 
+				FERAL_LION, FERAL_TIGER, FERAL_CAT, FERAL_WHITE_DRAGON, FERAL_RED_DRAGON, FERAL_HAWK, FERAL_CROW, FERAL_CAT_F, FERAL_RED_DRAGON_F));
+		public static Set<CharacterClass> playerEligibleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, RANGER, MYRMIDON, SWORDMASTER, 
+				SOLDIER, HALBERDIER, FIGHTER, WARRIOR, ARCHER, SNIPER, KNIGHT, GENERAL, SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT,
+				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, WYVERN_RIDER, WYVERN_LORD, FIRE_MAGE, WIND_MAGE, THUNDER_MAGE, MAGE,
+				PRIEST, BISHOP, THIEF, ASSASSIN, BANDIT, BERSERKER, TIGER, CAT, WHITE_DRAGON, RED_DRAGON,
+				HAWK, CROW, HERON, W_HERON, 
+				MYRMIDON_F, SWORDMASTER_F, SOLDIER_F, HALBERDIER_F, 
+				/*SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F,*/ BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN,
+				PEGASUS_KNIGHT, FALCON_KNIGHT, ELINCIA_FALCON_KNIGHT, WYVERN_RIDER_F, WYVERN_LORD_F, MAGE_F,
+				BISHOP_F, CLERIC, VALKYRIE, CAT_F, RED_DRAGON_F,
+				SAGE_STAFF, SAGE_KNIFE,
+				SAGE_STAFF_F, SAGE_KNIFE_F));
+		public static Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(HERON, W_HERON));
 		
 		public static Set<CharacterClass> physicalClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, RANGER, GREIL_HERO, MYRMIDON, SWORDMASTER, 
 				SOLDIER, HALBERDIER, FIGHTER, WARRIOR, ARCHER, SNIPER, KNIGHT, GENERAL, SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT,
@@ -343,14 +362,193 @@ public class FE9Data {
 				THUNDER_SAGE_KNIFE, SAGE_KNIFE, SAGE_KNIFE_F));
 		public static Set<CharacterClass> hybridPhysicalClasses = new HashSet<CharacterClass>(Arrays.asList(ELINCIA_FALCON_KNIGHT, CLERIC, VALKYRIE));
 		
+		public boolean isLordClass() { return allLordClasses.contains(this); }
+		public boolean isThiefClass() { return allThiefClasses.contains(this); }
+		public boolean isSpecialClass() { return allSpecialClasses.contains(this); }
+		
 		public boolean isPhysicalClass() { return !magicalClasses.contains(this); }
 		public boolean isMagicalClass() { return !physicalClasses.contains(this); }
 		public boolean isHybridMagicalClass() { return hybridMagicalClasses.contains(this); }
 		public boolean isHybridPhyiscalClass() { return hybridPhysicalClasses.contains(this); }
 		
 		public boolean isValidClass() { return allValidClasses.contains(this); }
+		public boolean isValidPlayerClass() { return playerEligibleClasses.contains(this); }
+		public boolean isEnemyOnly() { return enemyOnlyClasses.contains(this); }
+		public boolean isPlayerOnly() { return playerOnlyClasses.contains(this); }
+		
+		public boolean isLaguz() { return allLaguzClasses.contains(this); }
+		public boolean isBeorc() { return allBeorcClasses.contains(this); }
 		
 		public boolean isPromotedClass() { return allPromotedClasses.contains(this); }
+		
+		public boolean isFemale() { return allFemaleClasses.contains(this); }
+		public boolean isFlier() { return allFlyingClasses.contains(this); }
+		
+		public boolean isPacifist() { return allPacifistClasses.contains(this); }
+		
+		public CharacterClass getPromoted() {
+			switch(this) {
+			case RANGER: return LORD;
+			case MYRMIDON: return SWORDMASTER; 
+			case SOLDIER: return HALBERDIER;
+			case FIGHTER: return WARRIOR; 
+			case ARCHER: return SNIPER;
+			case KNIGHT: return GENERAL; 
+			case SWORD_KNIGHT: return SWORD_PALADIN; 
+			case LANCE_KNIGHT: return LANCE_PALADIN; 
+			case AXE_KNIGHT: return AXE_PALADIN;
+			case BOW_KNIGHT: return BOW_PALADIN;
+			case WYVERN_RIDER: return WYVERN_LORD;
+			case MAGE: return SAGE_STAFF;
+			case PRIEST: return BISHOP;
+			case THIEF: return ASSASSIN;
+			case BANDIT: return BERSERKER;
+			
+			case MYRMIDON_F: return SWORDMASTER_F;
+			case SOLDIER_F: return HALBERDIER_F; 
+			case SWORD_KNIGHT_F: return SWORD_PALADIN_F;
+			case LANCE_KNIGHT_F: return LANCE_PALADIN_F;
+			case AXE_KNIGHT_F: return AXE_PALADIN_F;
+			case BOW_KNIGHT_F: return BOW_PALADIN_F;
+			case PEGASUS_KNIGHT: return FALCON_KNIGHT;
+			case WYVERN_RIDER_F: return WYVERN_LORD_F;
+			case MAGE_F: return SAGE_STAFF_F;
+			case CLERIC: return VALKYRIE;
+			default: return null;
+			}
+		}
+		
+		public String getAidString() {
+			switch(this) {
+				case ARCHER: return "AID_ARCHER";
+				case KNIGHT: return "AID_ARMOR";
+				case BANDIT: return "AID_BARBARIAN";
+				case FIGHTER: return "AID_FIGHTER";
+				case SWORD_KNIGHT_F: case AXE_KNIGHT_F: case LANCE_KNIGHT_F: case SWORD_KNIGHT: case AXE_KNIGHT: case LANCE_KNIGHT: 
+					case BOW_KNIGHT: return "AID_KNIGHT";
+				case BOW_KNIGHT_F: return "AID_KNIGHT_ST"; // Only female bow knight works with Astrid's animation, apparently.
+				case RANGER: return "AID_LORD";
+				case MAGE: return "AID_MAGE";
+				case MAGE_F: return "AID_MAGEF";
+				case PEGASUS_KNIGHT: return "AID_PEGASU";
+				case SOLDIER: return "AID_SOLDIER";
+				case SOLDIER_F: return "AID_SOLDIERF";
+				case MYRMIDON: return "AID_SWORDER";
+				case MYRMIDON_F: return "AID_SWORDERF";
+				case THIEF: return "AID_THIEF";
+				case WYVERN_RIDER: case WYVERN_RIDER_F: return "AID_DRAGON";
+				case PRIEST: return "AID_BISHOP";
+				case CLERIC: return "AID_CLERIC";
+				
+				case BISHOP: return "AID_BISHOP2";
+				case BISHOP_F: return "AID_BISHOP2F";
+				case GENERAL: return "AID_GENERAL";
+				case SWORD_PALADIN: case AXE_PALADIN: case LANCE_PALADIN: case BOW_PALADIN: return "AID_KNIGHT2";
+				case SWORD_PALADIN_F: case AXE_PALADIN_F: case LANCE_PALADIN_F: case BOW_PALADIN_F: return "AID_KNIGHT2_ST";
+				case TITANIA_PALADIN: return "AID_KNIGHT2_TIA";
+				case LORD: return "AID_LORD2";
+				case SAGE_STAFF: case SAGE_KNIFE: return "AID_MAGE2";
+				case SAGE_STAFF_F: case SAGE_KNIFE_F: return "AID_MAGEF3";
+				case FALCON_KNIGHT: case ELINCIA_FALCON_KNIGHT: return "AID_PEGASU2";
+				case HALBERDIER: return "AID_SOLDIER2";
+				case HALBERDIER_F: return "AID_SOLDIER2F";
+				case SWORDMASTER: return "AID_SWORDER2";
+				case SWORDMASTER_F: return "AID_SWORDERF2";
+				case ASSASSIN: return "AID_THIEF2";
+				case WYVERN_LORD: case WYVERN_LORD_F: return "AID_DRAGON2";
+				case VALKYRIE: return "AID_CLERIC2";
+				case SNIPER: return "AID_ARCHER2";
+				case BERSERKER: return "AID_BARBARIAN2";
+				case WARRIOR: return "AID_FIGHTER2";
+				
+				// I don't think we actually need any of these.
+				//case CAT: return "AID_BEASTCA";
+				// Lethe doesn't have one here...?
+				//case CAT_F: return null;
+				//case TIGER: return "AID_BEASTTI";
+				//case HAWK: return "AID_BIRDFA";
+				//case CROW: return "AID_BIRDCR";
+				//case W_HERON: return "AID_BIRDEG";
+				//case W_HERON_F: return "AID_BIRDEGF";
+				//case WHITE_DRAGON: return null; //return "AID_NASIR"; // This is the only white dragon human form we get...
+				//case RED_DRAGON: case RED_DRAGON_F: return "AID_DRAGONRE";
+				
+				default: return null;
+			}
+		}
+		
+		public String getLaguzTransformedAidString() {
+			switch (this) {
+				case CAT: return "AID_BEAST";
+				case CAT_F: return "AID_BEAST_RE"; // This is Lethe's transformed.
+				case TIGER: return "AID_TIGER";
+				case HAWK: return "AID_FALCON";
+				case CROW: return "AID_CROW";
+				case W_HERON: return "AID_EGRET";
+				case W_HERON_F: return "AID_EGRET";
+				case WHITE_DRAGON: return "AID_WDRAGON"; // This is the only white dragon human form we get...
+				case RED_DRAGON: case RED_DRAGON_F: return "AID_RDRAGON";
+				default: return null;
+			}
+		}
+		
+		public int getTransformSTRBonus() {
+			switch (this) {
+			case CAT: case CAT_F: case HAWK: return 6;
+			case TIGER: return 7;
+			case LION: return 8;
+			case CROW: return 5;
+			case RED_DRAGON: case WHITE_DRAGON: return 10;
+			case RED_DRAGON_F: return 5;
+			default: return 0;
+			}
+		}
+		
+		public int getTransformMAGBonus() {
+			switch (this) {
+			case CROW: return 1;
+			case HERON: return 5;
+			default: return 0;
+			}
+		}
+		
+		public int getTransformSKLBonus() {
+			switch (this) {
+			case HERON: return 3;
+			case CAT: case CAT_F: case TIGER: case LION: case CROW: case RED_DRAGON_F: return 4;
+			case HAWK: case WHITE_DRAGON: return 5;
+			case RED_DRAGON: return 6;
+			default: return 0;
+			}
+		}
+		
+		public int getTransformSPDBonus() {
+			switch (this) {
+			case CAT: case CAT_F: case TIGER: case LION: case HAWK: case RED_DRAGON: case WHITE_DRAGON: return 3;
+			case CROW: case HERON: case RED_DRAGON_F: return 4;
+			default: return 0;
+			}
+		}
+		
+		public int getTransformDEFBonus() {
+			switch (this) {
+			case CAT: case CAT_F: case LION: case WHITE_DRAGON: return 5;
+			case HAWK: case RED_DRAGON: case RED_DRAGON_F: return 4;
+			case TIGER: case CROW: return 3;
+			case HERON: return 1;
+			default: return 0;
+			}
+		}
+		
+		public int getTransformRESBonus() {
+			switch (this) {
+			case CAT: case CAT_F: case TIGER: case LION: return 3;
+			case HAWK: return 2;
+			case CROW: return 4;
+			case HERON: case RED_DRAGON: case RED_DRAGON_F: case WHITE_DRAGON: return 5;
+			default: return 0;
+			}
+		}
 	}
 	
 	public enum Skill {
@@ -377,7 +575,10 @@ public class FE9Data {
 		TRIANGLE_ATTACK_A("SID_TRI_A"), TRIANGLE_ATTACK_B("SID_TRI_B"), KEY_0("SID_KEY0"), IMMORTAL("SID_IMMORTAL"), CRITICAL_UP("SID_CRITRISE"),
 		
 		// Weapon locks?
-		EQUIP_A("SID_EQ_A"), EQUIP_B("SID_EQ_B"), EQUIP_C("SID_EQ_C"), EQUIP_D("SID_EQ_D"),
+		EQUIP_A("SID_EQ_A"), // Rolf's Bow lock 
+		EQUIP_B("SID_EQ_B"), // Amiti lock
+		EQUIP_C("SID_EQ_C"), // Laguz Royals lock (Laguz Band?)
+		EQUIP_D("SID_EQ_D"), // Knight's Ward lock
 		
 		// Paladin added weapon disciplines
 		EQUIP_SWORD("SID_EQSW"), EQUIP_LANCE("SID_EQLA"), EQUIP_AXE("SID_EQAX"), EQUIP_BOW("SID_EQBW"),
@@ -669,17 +870,20 @@ public class FE9Data {
 				WYVERN_BAND, MAGE_BAND, PRIEST_BAND, THIEF_BAND));
 		
 		public static Set<Item> allERankWeapons = new HashSet<Item>(Arrays.asList(SLIM_SWORD, IRON_SWORD, PRACTICE_SWORD, IRON_LANCE, SLIM_LANCE,
-				JAVELIN, VENIN_LANCE, IRON_AXE, PRACTICE_AXE, HAND_AXE, STEEL_AXE, DEVIL_AXE, IRON_BOW, FIRE, THUNDER, WIND, HEAL));
+				JAVELIN, VENIN_LANCE, IRON_AXE, PRACTICE_AXE, HAND_AXE, STEEL_AXE, DEVIL_AXE, IRON_BOW, FIRE, THUNDER, WIND, HEAL, KNIFE));
 		public static Set<Item> allDRankWeapons = new HashSet<Item>(Arrays.asList(VENIN_EDGE, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, STEEL_LANCE,
 				KNIGHT_KILLER, HEAVY_SPEAR, VENIN_AXE, HAMMER, POLEAX, VENIN_BOW, LONGBOW, STEEL_BOW, ELFIRE, ELWIND, ELTHUNDER, LIGHT, MEND, TORCH_STAFF));
 		public static Set<Item> allCRankWeapons = new HashSet<Item>(Arrays.asList(KILLING_EDGE, LAGUZSLAYER, STEEL_BLADE, SHORT_SPEAR, KILLER_LANCE,
-				LAGUZ_LANCE, SHORT_AXE, KILLER_AXE, LAGUZ_AXE, LAGUZ_BOW, KILLER_BOW, METEOR, BOLTING, BLIZZARD, SHINE, WARD, RESTORE, PHYSIC, HAMMERNE));
+				LAGUZ_LANCE, SHORT_AXE, KILLER_AXE, LAGUZ_AXE, LAGUZ_BOW, KILLER_BOW, METEOR, BOLTING, BLIZZARD, SHINE, WARD, RESTORE, PHYSIC, HAMMERNE,
+				DAGGER));
 		public static Set<Item> allBRankWeapons = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, SONIC_SWORD, FLAME_LANCE, BRAVE_LANCE, SPEAR, BOLT_AXE,
 				BRAVE_AXE, TOMAHAWK, BRAVE_BOW, BRIGHT_BOW, PURGE, SILENCE, SLEEP, RESCUE, RECOVER));
 		public static Set<Item> allARankWeapons = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, RUNESWORD, SILVER_LANCE, SILVER_AXE,
-				SILVER_BOW, BOLGANONE, THORON, TORNADO, NOSFERATU, WARP, FORTIFY));
+				SILVER_BOW, BOLGANONE, THORON, TORNADO, NOSFERATU, WARP, FORTIFY, STILETTO));
 		public static Set<Item> allSRankWeapons = new HashSet<Item>(Arrays.asList(VAGUE_KATTI, WISHBLADE, URVAN, DOUBLE_BOW, REXFLAME, REXBOLT, REXCALIBUR,
 				REXAURA, ASHERA_STAFF));
+		
+		public static Set<Item> blacklistedWeapons = new HashSet<Item>(Arrays.asList(PRACTICE_AXE, PRACTICE_SWORD, DEVIL_AXE));
 		
 		public static Set<Item> allDroppableWeapons() {
 			Set<Item> result = new HashSet<Item>();
@@ -693,6 +897,7 @@ public class FE9Data {
 			result.addAll(allLightMagic);
 			result.addAll(allStaves);
 			result.removeAll(allRestrictedItems);
+			result.removeAll(blacklistedWeapons);
 			return result;
 		}
 		
@@ -706,6 +911,7 @@ public class FE9Data {
 		public boolean isLightMagic() { return allLightMagic.contains(this); }
 		public boolean isMagic() { return allFireMagic.contains(this) || allThunderMagic.contains(this) || allWindMagic.contains(this) || allLightMagic.contains(this); }
 		public boolean isStaff() { return allStaves.contains(this); }
+		public boolean isKnife() { return allKnives.contains(this); }
 		
 		public boolean isERank() { return allERankWeapons.contains(this); }
 		public boolean isDRank() { return allDRankWeapons.contains(this); }
@@ -720,6 +926,8 @@ public class FE9Data {
 		public boolean isStatBooster() { return allStatBoosters.contains(this); }
 		public boolean isTreasure() { return allGems.contains(this); }
 		public boolean isSkillScroll() { return allSkillScrolls.contains(this); }
+		
+		public boolean isBlacklisted() { return blacklistedWeapons.contains(this); }
 	}
 	
 	public enum Chapter {

@@ -2,10 +2,13 @@ package io.gcn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.FileHandler;
 import util.ByteArrayBuilder;
@@ -82,6 +85,15 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 		if (stringList.contains(string) || addedStrings.contains(string)) { return; }
 		addedStrings.add(string);
 		needsExpansion = true;
+	}
+	
+	public List<String> allStrings() {
+		return stringList.stream().sorted(new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return o1.compareTo(o2);
+			}
+		}).collect(Collectors.toList());
 	}
 	
 	// These pointers are already offset by the 0x20, meaning they point directly to the string. If you need to use it, subtract 0x20 before assigning it.

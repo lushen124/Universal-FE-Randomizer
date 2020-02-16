@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.gcnwii.fe9.FE9Data;
+import fedata.gcnwii.fe9.FE9Data.CharacterClass;
 import fedata.gcnwii.fe9.FE9Data.Item;
 import fedata.gcnwii.fe9.FE9Item;
 import io.gcn.GCNDataFileHandler;
@@ -21,6 +22,75 @@ import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE9ItemDataLoader {
+	
+	public enum WeaponRank {
+		NONE, E, D, C, B, A, S, UNKNOWN;
+		
+		public static WeaponRank rankForCharacter(char c) {
+			switch (c) {
+			case 'E': return E;
+			case 'D': return D;
+			case 'C': return C;
+			case 'B': return B;
+			case 'A': return A;
+			case 'S': return S;
+			case '*': return UNKNOWN;
+			case '-': return NONE;
+			default: return null;
+			}
+		}
+		
+		public boolean isHigherThan(WeaponRank rank) {
+			switch (this) {
+			case E: return rank != E;
+			case D: return rank != E && rank != D;
+			case C: return rank != E && rank != D && rank != C;
+			case B: return rank == A || rank == S;
+			case A: return rank == S;
+			case S: return false;
+			default: return false;
+			}
+		}
+		
+		public boolean isLowerThan(WeaponRank rank) {
+			return this != rank && !isHigherThan(rank);
+		}
+		
+		public WeaponRank higherRank() {
+			switch (this) {
+			case E: return D;
+			case D: return C;
+			case C: return B;
+			case B: return A;
+			case A: return S;
+			default: return NONE;
+			}
+		}
+		
+		public WeaponRank lowerRank() {
+			switch (this) {
+			case S: return A;
+			case A: return B;
+			case B: return C;
+			case C: return D;
+			case D: return E;
+			default: return NONE;
+			}
+		}
+	}
+	
+	public enum WeaponType {
+		NONE, SWORD, LANCE, AXE, BOW, FIRE, THUNDER, WIND, LIGHT, STAFF, KNIFE;
+		
+		public static Comparator<WeaponType> getComparator() {
+			return new Comparator<WeaponType>() {
+				@Override
+				public int compare(WeaponType arg0, WeaponType arg1) {
+					return arg0.toString().compareTo(arg1.toString());
+				}
+			};
+		}
+	}
 	
 	List<FE9Item> allItems;
 	
@@ -80,6 +150,217 @@ public class FE9ItemDataLoader {
 	
 	public boolean isSkillScroll(FE9Item item) {
 		return FE9Data.Item.withIID(iidOfItem(item)).isSkillScroll();
+	}
+	
+	public WeaponRank swordRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(0)); }
+	public WeaponRank lanceRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(1)); }
+	public WeaponRank axeRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(2)); }
+	public WeaponRank bowRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(3)); }
+	public WeaponRank fireRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(4)); }
+	public WeaponRank thunderRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(5)); }
+	public WeaponRank windRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(6)); }
+	public WeaponRank staffRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(7)); }
+	public WeaponRank knifeRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(8)); }
+	
+	public Map<WeaponType, WeaponRank> weaponLevelsForWeaponString(String weaponLevels) {
+		Map<WeaponType, WeaponRank> levelMap = new HashMap<WeaponType, WeaponRank>();
+		if (swordRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { levelMap.put(WeaponType.SWORD, swordRankForWeaponLevelString(weaponLevels)); }
+		if (lanceRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { levelMap.put(WeaponType.LANCE, lanceRankForWeaponLevelString(weaponLevels)); }
+		if (axeRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { levelMap.put(WeaponType.AXE, axeRankForWeaponLevelString(weaponLevels)); }
+		if (bowRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { levelMap.put(WeaponType.BOW, bowRankForWeaponLevelString(weaponLevels)); }
+		if (fireRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { levelMap.put(WeaponType.FIRE, fireRankForWeaponLevelString(weaponLevels)); }
+		if (thunderRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { levelMap.put(WeaponType.THUNDER, thunderRankForWeaponLevelString(weaponLevels)); }
+		if (windRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { levelMap.put(WeaponType.WIND, windRankForWeaponLevelString(weaponLevels)); }
+		if (staffRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { 
+			levelMap.put(WeaponType.STAFF, staffRankForWeaponLevelString(weaponLevels));
+			levelMap.put(WeaponType.LIGHT, staffRankForWeaponLevelString(weaponLevels));
+		}
+		return levelMap;
+	}
+	
+	public WeaponRank highestRankInString(String weaponLevels) {
+		if (weaponLevels.contains("S")) { return WeaponRank.S; }
+		if (weaponLevels.contains("A")) { return WeaponRank.A; }
+		if (weaponLevels.contains("B")) { return WeaponRank.B; }
+		if (weaponLevels.contains("C")) { return WeaponRank.C; }
+		if (weaponLevels.contains("D")) { return WeaponRank.D; }
+		if (weaponLevels.contains("E")) { return WeaponRank.E; }
+		return WeaponRank.NONE;
+	}
+	
+	public WeaponType weaponTypeForItem(FE9Item item) {
+		if (FE9Data.Item.withIID(iidOfItem(item)).isSword()) { return WeaponType.SWORD; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isLance()) { return WeaponType.LANCE; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isAxe()) { return WeaponType.AXE; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isBow()) { return WeaponType.BOW; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isFireMagic()) { return WeaponType.FIRE; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isThunderMagic()) { return WeaponType.THUNDER; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isWindMagic()) { return WeaponType.WIND; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isLightMagic()) { return WeaponType.LIGHT; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isStaff()) { return WeaponType.STAFF; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isKnife()) { return WeaponType.KNIFE; }
+		return WeaponType.NONE;
+	}
+	
+	public WeaponRank weaponRankForItem(FE9Item item) {
+		if (FE9Data.Item.withIID(iidOfItem(item)).isERank()) { return WeaponRank.E; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isDRank()) { return WeaponRank.D; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isCRank()) { return WeaponRank.C; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isBRank()) { return WeaponRank.B; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isARank()) { return WeaponRank.A; }
+		if (FE9Data.Item.withIID(iidOfItem(item)).isSRank()) { return WeaponRank.S; }
+		if (isWeapon(item)) { return WeaponRank.UNKNOWN; }
+		return WeaponRank.NONE;
+	}
+	
+	public List<FE9Item> weaponsOfRankAndType(WeaponRank rank, WeaponType type) {
+		Set<FE9Data.Item> items = new HashSet<FE9Data.Item>();
+		switch (rank) {
+		case E: items.addAll(FE9Data.Item.allERankWeapons); break;
+		case D: items.addAll(FE9Data.Item.allDRankWeapons); break;
+		case C: items.addAll(FE9Data.Item.allCRankWeapons); break;
+		case B: items.addAll(FE9Data.Item.allBRankWeapons); break;
+		case A: items.addAll(FE9Data.Item.allARankWeapons); break;
+		case S: items.addAll(FE9Data.Item.allSRankWeapons); break;
+		default: break;
+		}
+		switch (type) {
+		case SWORD: items.retainAll(FE9Data.Item.allSwords); break;
+		case LANCE: items.retainAll(FE9Data.Item.allLances); break;
+		case AXE: items.retainAll(FE9Data.Item.allAxes); break;
+		case BOW: items.retainAll(FE9Data.Item.allBows); break;
+		case FIRE: items.retainAll(FE9Data.Item.allFireMagic); break;
+		case WIND: items.retainAll(FE9Data.Item.allWindMagic); break;
+		case THUNDER: items.retainAll(FE9Data.Item.allThunderMagic); break;
+		case LIGHT: items.retainAll(FE9Data.Item.allLightMagic); break;
+		case STAFF: items.retainAll(FE9Data.Item.allStaves); break;
+		case KNIFE: items.retainAll(FE9Data.Item.allKnives); break;
+		default: break;
+		}
+		items.removeAll(FE9Data.Item.blacklistedWeapons);
+		return fe9ItemListFromSet(items);
+	}
+	
+	public List<FE9Item> weaponsSetForJID(String jid) {
+		if (jid == null) { return null; }
+		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
+		List<FE9Item> weapons = new ArrayList<FE9Item>();
+		if (charClass.isLaguz()) {
+			switch (charClass) {
+			case LION: case FERAL_LION: weapons.add(itemWithIID(FE9Data.Item.LION_CLAW.getIID())); break;
+			case TIGER: case FERAL_TIGER: weapons.add(itemWithIID(FE9Data.Item.TIGER_CLAW.getIID())); break;
+			case CAT: case FERAL_CAT: case CAT_F: case FERAL_CAT_F: weapons.add(itemWithIID(FE9Data.Item.CAT_CLAW.getIID())); break;
+			case WHITE_DRAGON: case FERAL_WHITE_DRAGON: weapons.add(itemWithIID(FE9Data.Item.WHITE_BREATH.getIID())); break;
+			case RED_DRAGON: case FERAL_RED_DRAGON: case RED_DRAGON_F: case FERAL_RED_DRAGON_F: weapons.add(itemWithIID(FE9Data.Item.RED_BREATH.getIID())); break;
+			case HAWK: case FERAL_HAWK: weapons.add(itemWithIID(FE9Data.Item.HAWK_BEAK.getIID())); break;
+			case CROW: case FERAL_CROW: weapons.add(itemWithIID(FE9Data.Item.CROW_BEAK.getIID())); break;
+			case TIBARN_HAWK: weapons.add(itemWithIID(FE9Data.Item.HAWK_KING_BEAK.getIID())); break;
+			case NAESALA_CROW: weapons.add(itemWithIID(FE9Data.Item.CROW_KING_BEAK.getIID())); break;
+			default: break;
+			}
+		}
+		return weapons;
+	}
+	
+	public List<FE9Item> equipmentListForJID(String jid) {
+		if (jid == null) { return null; }
+		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
+		List<FE9Item> equipment = new ArrayList<FE9Item>();
+		if (charClass.isLaguz()) {
+			equipment.add(itemWithIID(FE9Data.Item.LAGUZ_STONE.getIID()));
+		}
+		return equipment;
+	}
+	
+	public List<FE9Item> potentialEquipmentListForJID(String jid) {
+		if (jid == null) { return null; }
+		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
+		List<FE9Item> equipment = new ArrayList<FE9Item>();
+		equipment.add(itemWithIID(FE9Data.Item.VULNERARY.getIID()));
+		equipment.add(itemWithIID(FE9Data.Item.ELIXIR.getIID()));
+		
+		return equipment; 
+	}
+	
+	public List<FE9Item> veryRareEquipment() {
+		List<FE9Item> equipment = new ArrayList<FE9Item>();
+		for (int i = 0; i < 10; i++) { equipment.add(itemWithIID(FE9Data.Item.RED_GEM.getIID())); }
+		for (int i = 0; i < 5; i++) { equipment.add(itemWithIID(FE9Data.Item.BLUE_GEM.getIID())); }
+		equipment.add(itemWithIID(FE9Data.Item.WHITE_GEM.getIID()));
+		
+		equipment.addAll(FE9Data.Item.allStatBoosters.stream().map(fe9item -> {
+			return itemWithIID(fe9item.getIID());
+		}).collect(Collectors.toList()));
+		equipment.addAll(FE9Data.Item.allSkillScrolls.stream().map(fe9item -> {
+			return itemWithIID(fe9item.getIID());
+		}).collect(Collectors.toList()));
+		
+		equipment.sort(new Comparator<FE9Item>() {
+			@Override
+			public int compare(FE9Item o1, FE9Item o2) {
+				return iidOfItem(o1).compareTo(iidOfItem(o2));
+			}
+		});
+		
+		return equipment;
+	}
+	
+	public List<FE9Item> rareEquipmentForJID(String jid) {
+		if (jid == null) { return null; }
+		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
+		List<FE9Item> equipment = new ArrayList<FE9Item>();
+		
+		if (charClass.isLaguz()) { 
+			equipment.add(itemWithIID(FE9Data.Item.BEORCGUARD.getIID()));
+			equipment.add(itemWithIID(FE9Data.Item.DEMI_BAND.getIID()));
+		}
+		if (charClass.isBeorc()) { equipment.add(itemWithIID(FE9Data.Item.LAGUZGUARD.getIID())); }
+		if (charClass.isFlier()) { equipment.add(itemWithIID(FE9Data.Item.FULL_GUARD.getIID())); }
+		switch (charClass) {
+		case KNIGHT: case GENERAL:
+			equipment.add(itemWithIID(FE9Data.Item.KNIGHT_BAND.getIID()));
+			equipment.add(itemWithIID(FE9Data.Item.KNIGHT_WARD.getIID()));
+			break;
+		case MYRMIDON: case SWORDMASTER: case MYRMIDON_F: case SWORDMASTER_F:
+			equipment.add(itemWithIID(FE9Data.Item.SWORD_BAND.getIID()));
+			break;
+		case SOLDIER: case HALBERDIER: case SOLDIER_F: case HALBERDIER_F:
+			equipment.add(itemWithIID(FE9Data.Item.SOLDIER_BAND.getIID()));
+			equipment.add(itemWithIID(FE9Data.Item.KNIGHT_WARD.getIID()));
+			break;
+		case FIGHTER: case WARRIOR:
+			equipment.add(itemWithIID(FE9Data.Item.FIGHTERS_BAND.getIID()));
+			break;
+		case ARCHER: case SNIPER:
+			equipment.add(itemWithIID(FE9Data.Item.ARCHER_BAND.getIID()));
+			break;
+		case SWORD_KNIGHT: case SWORD_KNIGHT_F: case LANCE_KNIGHT: case LANCE_KNIGHT_F: case AXE_KNIGHT: case AXE_KNIGHT_F: case BOW_KNIGHT: case BOW_KNIGHT_F:
+		case AXE_PALADIN: case AXE_PALADIN_F: case BOW_PALADIN: case BOW_PALADIN_F: case LANCE_PALADIN: case LANCE_PALADIN_F: case SWORD_PALADIN: case SWORD_PALADIN_F:
+		case TITANIA_PALADIN:
+			equipment.add(itemWithIID(FE9Data.Item.KNIGHT_WARD.getIID()));
+			equipment.add(itemWithIID(FE9Data.Item.PALADIN_BAND.getIID()));
+			equipment.add(itemWithIID(FE9Data.Item.KNIGHT_RING.getIID()));
+			break;
+		case PEGASUS_KNIGHT: case FALCON_KNIGHT: case ELINCIA_FALCON_KNIGHT:
+			equipment.add(itemWithIID(FE9Data.Item.PEGASUS_BAND.getIID()));
+			equipment.add(itemWithIID(FE9Data.Item.FULL_GUARD.getIID()));
+			break;
+		case WYVERN_RIDER: case WYVERN_LORD: case WYVERN_LORD_F: case WYVERN_RIDER_F:
+			equipment.add(itemWithIID(FE9Data.Item.WYVERN_BAND.getIID()));
+			equipment.add(itemWithIID(FE9Data.Item.FULL_GUARD.getIID()));
+			break;
+		case MAGE: case MAGE_F: case SAGE_KNIFE: case SAGE_KNIFE_F: case SAGE_STAFF: case SAGE_STAFF_F:
+			equipment.add(itemWithIID(FE9Data.Item.MAGE_BAND.getIID()));
+			break;
+		case PRIEST: case BISHOP: case CLERIC:
+			equipment.add(itemWithIID(FE9Data.Item.PRIEST_BAND.getIID()));
+			break;
+		case THIEF:
+			equipment.add(itemWithIID(FE9Data.Item.THIEF_BAND.getIID()));
+			break;
+		}
+		
+		return equipment;
 	}
 	
 	public List<FE9Item> possibleUpgradesToWeapon(FE9Item item, boolean isWielderPromoted) {
@@ -152,6 +433,7 @@ public class FE9ItemDataLoader {
 		}
 		
 		fe9DataItems.removeAll(FE9Data.Item.allRestrictedItems);
+		fe9DataItems.removeAll(FE9Data.Item.blacklistedWeapons);
 		
 		return fe9ItemListFromSet(fe9DataItems);
 	}
