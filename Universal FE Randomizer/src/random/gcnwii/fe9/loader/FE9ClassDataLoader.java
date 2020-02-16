@@ -327,6 +327,11 @@ public class FE9ClassDataLoader {
 		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isSpecialClass();
 	}
 	
+	public boolean isPacifistClass(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isPacifist();
+	}
+	
 	public boolean isPromotedClass(FE9Class charClass) {
 		if (charClass == null) { return false; }
 		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isPromotedClass();
@@ -345,6 +350,11 @@ public class FE9ClassDataLoader {
 	public boolean isFlierClass(FE9Class charClass) {
 		if (charClass == null) { return false; }
 		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isFlier();
+	}
+	
+	public boolean isAdvancedClass(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isAdvanced();
 	}
 	
 	public String pointerLookup(long pointer) {

@@ -139,6 +139,13 @@ public class FE9Data {
 			return this.pid;
 		}
 		
+		public boolean isUnsafeForRandomization() {
+			switch (this) {
+			case NEDATA: return true;
+			default: return false;
+			}
+		}
+		
 		public Chapter joinChapter() {
 			switch (this) {
 			case IKE: return Chapter.PROLOGUE;
@@ -330,7 +337,7 @@ public class FE9Data {
 				MYRMIDON_F, SWORDMASTER_F, SOLDIER_F, HALBERDIER_F, 
 				/*SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F, */BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN,
 				PEGASUS_KNIGHT, FALCON_KNIGHT, ELINCIA_FALCON_KNIGHT, WYVERN_RIDER_F, WYVERN_LORD_F, FIRE_MAGE_F, WIND_MAGE_F, THUNDER_MAGE_F, MAGE_F,
-				FIRE_SAGE_F, WIND_SAGE_F, THUNDER_SAGE_F, SAGE_F, BISHOP_F, CLERIC, VALKYRIE, ASSASSIN_F, CAT_F, RED_DRAGON_F, FERAL_CAT_F,
+				FIRE_SAGE_F, WIND_SAGE_F, THUNDER_SAGE_F, SAGE_F, BISHOP_F, CLERIC, VALKYRIE, /*ASSASSIN_F,*/ CAT_F, RED_DRAGON_F, FERAL_CAT_F,
 				FERAL_RED_DRAGON_F, SAGE_STAFF_F, SAGE_KNIFE_F));
 		
 		public static Set<CharacterClass> enemyOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(FIRE_MAGE, WIND_MAGE, THUNDER_MAGE, 
@@ -362,6 +369,9 @@ public class FE9Data {
 				THUNDER_SAGE_KNIFE, SAGE_KNIFE, SAGE_KNIFE_F));
 		public static Set<CharacterClass> hybridPhysicalClasses = new HashSet<CharacterClass>(Arrays.asList(ELINCIA_FALCON_KNIGHT, CLERIC, VALKYRIE));
 		
+		public static Set<CharacterClass> advancedClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, WYVERN_RIDER_F,
+				PEGASUS_KNIGHT));
+		
 		public boolean isLordClass() { return allLordClasses.contains(this); }
 		public boolean isThiefClass() { return allThiefClasses.contains(this); }
 		public boolean isSpecialClass() { return allSpecialClasses.contains(this); }
@@ -385,6 +395,7 @@ public class FE9Data {
 		public boolean isFlier() { return allFlyingClasses.contains(this); }
 		
 		public boolean isPacifist() { return allPacifistClasses.contains(this); }
+		public boolean isAdvanced() { return advancedClasses.contains(this); }
 		
 		public CharacterClass getPromoted() {
 			switch(this) {
@@ -1039,6 +1050,30 @@ public class FE9Data {
 					CHAPTER_28, ENDGAME));
 		}
 		
+		public boolean hasWaterSpawningBandits() {
+			switch (this) {
+			case CHAPTER_9: // Bandits spawn over water here.
+			case CHAPTER_24: // Bandits and berserkers over water here.
+				return true; 
+			default: return false;
+			}
+		}
+		
+		public boolean useRestrictedClassSetForMinions() {
+			switch (this) {
+			case CHAPTER_1:
+			case CHAPTER_2:
+			case CHAPTER_3:
+			case CHAPTER_4:
+			case CHAPTER_5:
+			case CHAPTER_6:
+			case CHAPTER_7:
+				return true;
+			default:
+				return false;
+			}
+		}
+		
 		public Character[] bossCharactersForChapter() {
 			switch(this) {
 			case CHAPTER_1: return new Character[] { Character.ZAWANA };
@@ -1048,7 +1083,7 @@ public class FE9Data {
 			case CHAPTER_5: return new Character[] { Character.DAKOVA };
 			case CHAPTER_6: return new Character[] { Character.EMIL };
 			case CHAPTER_7: return new Character[] { Character.BALMER };
-			case CHAPTER_8: return new Character[] { Character.ILYANA, Character.KAMURA };
+			case CHAPTER_8: return new Character[] { Character.KAMURA };
 			case CHAPTER_9: return new Character[] { Character.KOTAFF, Character.NEDATA };
 			case CHAPTER_10: return new Character[] { Character.DANOMILL };
 			case CHAPTER_11: return new Character[] { Character.MACKOYA };
@@ -1058,7 +1093,7 @@ public class FE9Data {
 			case CHAPTER_15: return new Character[] { Character.MUARIM }; // Muarim?
 			case CHAPTER_16: return new Character[] { Character.KIMAARSI };
 			case CHAPTER_17: return new Character[] { Character.OLIVER };
-			case CHAPTER_18: return new Character[] { Character.SHINON, Character.KAYACHEY };
+			case CHAPTER_18: return new Character[] { Character.KAYACHEY };
 			case CHAPTER_19: return new Character[] { Character.NAESALA, Character.HOMASA };
 			case CHAPTER_20: return new Character[] { Character.SHIHARAM };
 			case CHAPTER_21: return new Character[] { Character.KASATAI, Character.ENA }; // Ena?

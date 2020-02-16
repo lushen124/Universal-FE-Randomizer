@@ -174,11 +174,16 @@ public class FE9ClassRandomizer {
 			FE9Skill addedWeaponDiscipline = null;
 			
 			boolean starFulfilled = false;
+			int numberOfStars = (int)classWeaponLevels.chars().filter(c -> (c == '*')).count();
 			for (int i = 0; i < originalWeaponLevels.length(); i++) {
 				char newClassChar = classWeaponLevels.charAt(i);
 				if (newClassChar == '-') { levels.append('-'); }
 				else if (newClassChar == '*') {
 					if (starFulfilled) { levels.append('-'); }
+					else if (numberOfStars > 1 && rng.nextInt(numberOfStars) != 0) {
+						levels.append('-');
+						numberOfStars--;
+					}
 					else {
 						int index = rng.nextInt(originalLevels.length());
 						char rank = originalLevels.charAt(index);
@@ -362,12 +367,6 @@ public class FE9ClassRandomizer {
 			}
 		}
 		
-		if (includeLords) {
-			// Fix the script that gives Ike 4 Iron Swords to give him 4 of the most basic item.
-			// Ideally it'd only give him one, but I don't know how the script actually works yet.
-			
-		}
-		
 		chapterData.commitChanges();
 		charData.commit();
 	}
@@ -393,6 +392,545 @@ public class FE9ClassRandomizer {
 			cmbHandler.cmb_writeBytesToOffset(0x1FFB, newIIDBytes);
 			cmbHandler.cmb_writeBytesToOffset(0x2005, newIIDBytes);
 		}
+	}
+	
+	public static void randomizeBossCharacters(boolean forceDifferent, boolean mixRaces, boolean crossGenders, FE9CharacterDataLoader charData, 
+			FE9ClassDataLoader classData, FE9ChapterDataLoader chapterData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData, Random rng) {
+		
+		Map<String, String> pidToJid = new HashMap<String, String>();
+		
+		for (FE9Character character : charData.allBossCharacters()) {
+			FE9Data.Character fe9Char = FE9Data.Character.withPID(charData.getPIDForCharacter(character));
+			if (fe9Char != null && fe9Char.isUnsafeForRandomization()) { continue; }
+			String originalJID = charData.getJIDForCharacter(character);
+			FE9Class originalClass = classData.classWithID(originalJID);
+			
+			String pid = charData.getPIDForCharacter(character);
+			
+			String targetJID = pidToJid.get(pid);
+			FE9Class newClass = null;
+			if (targetJID != null) {
+				charData.setJIDForCharacter(character, targetJID);
+				newClass = classData.classWithID(targetJID);
+			} else {
+				List<FE9Class> possibleReplacements = possibleReplacementsForClass(originalClass, false, false, false, 
+						forceDifferent, mixRaces, crossGenders, false, classData);
+				possibleReplacements.removeIf(fe9class -> {
+					return classData.isPacifistClass(fe9class);
+				});
+				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible Classes: ");
+				for (FE9Class charClass : possibleReplacements) {
+					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + classData.getJIDForClass(charClass));
+				}
+				if (possibleReplacements.isEmpty()) { continue; }
+				newClass = possibleReplacements.get(rng.nextInt(possibleReplacements.size()));
+				targetJID = classData.getJIDForClass(newClass);
+				pidToJid.put(pid, targetJID);
+				charData.setJIDForCharacter(character, targetJID);
+				
+				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Randomized " + pid + " from " + originalJID + " to " + targetJID);
+			}
+			
+			if (classData.isLaguzClass(newClass)) {
+				int startingGauge = rng.nextInt(20);
+				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set Laguz starting gauge to " + startingGauge);
+				charData.setLaguzStartingGaugeForCharacter(character, startingGauge);
+				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set unpromoted AID to " + classData.getUnpromotedAIDForClass(newClass));
+				charData.setUnpromotedAIDForCharacter(character, classData.getUnpromotedAIDForClass(newClass));
+				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set promoted AID to " + classData.getPromotedAIDForClass(newClass));
+				charData.setPromotedAIDForCharacter(character, classData.getPromotedAIDForClass(newClass));
+			} else {
+				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set unpromoted AID to " + classData.getUnpromotedAIDForClass(newClass));
+				charData.setUnpromotedAIDForCharacter(character, classData.getUnpromotedAIDForClass(newClass));
+				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set promoted AID to " + classData.getPromotedAIDForClass(newClass));
+				charData.setPromotedAIDForCharacter(character, classData.getPromotedAIDForClass(newClass));
+			}
+			
+			// Adjust bases
+			int hpBase = character.getBaseHP() + originalClass.getBaseHP() - newClass.getBaseHP();
+			
+			int strBase = 0;
+			int magBase = 0;
+			StatBias classStatBias = classData.statBiasForClass(newClass);
+			if (classStatBias == StatBias.LEAN_PHYSICAL || classStatBias == StatBias.PHYSICAL_ONLY) {
+				int effectiveSTR = character.getBaseSTR() + originalClass.getBaseSTR();
+				int effectiveMAG = character.getBaseMAG() + originalClass.getBaseMAG();
+				strBase = Math.max(effectiveSTR, effectiveMAG) - newClass.getBaseSTR();
+				magBase = Math.min(effectiveSTR, effectiveMAG) - newClass.getBaseMAG();
+			} else if (classStatBias == StatBias.LEAN_MAGICAL || classStatBias == StatBias.MAGICAL_ONLY) {
+				int effectiveSTR = character.getBaseSTR() + originalClass.getBaseSTR();
+				int effectiveMAG = character.getBaseMAG() + originalClass.getBaseMAG();
+				strBase = Math.min(effectiveSTR, effectiveMAG) - newClass.getBaseSTR();
+				magBase = Math.max(effectiveSTR, effectiveMAG) - newClass.getBaseMAG();
+			} else {
+				strBase = character.getBaseSTR() + originalClass.getBaseSTR() - newClass.getBaseSTR();
+				magBase = character.getBaseMAG() + originalClass.getBaseMAG() - newClass.getBaseMAG();	
+			}
+			int sklBase = character.getBaseSKL() + originalClass.getBaseSKL() - newClass.getBaseSKL();
+			int spdBase = character.getBaseSPD() + originalClass.getBaseSPD() - newClass.getBaseSPD();
+			int lckBase = character.getBaseLCK() + originalClass.getBaseLCK() - newClass.getBaseLCK();
+			int defBase = character.getBaseDEF() + originalClass.getBaseDEF() - newClass.getBaseDEF();
+			int resBase = character.getBaseRES() + originalClass.getBaseRES() - newClass.getBaseRES();
+			
+			if (classData.isLaguzClass(newClass)) {
+				strBase -= classData.getLaguzSTROffset(newClass);
+				magBase -= classData.getLaguzMAGOffset(newClass);
+				sklBase -= classData.getLaguzSKLOffset(newClass);
+				spdBase -= classData.getLaguzSPDOffset(newClass);
+				defBase -= classData.getLaguzDEFOffset(newClass);
+				resBase -= classData.getLaguzRESOffset(newClass);
+			}
+			
+			character.setBaseHP(hpBase);
+			character.setBaseSTR(strBase);
+			character.setBaseMAG(magBase);
+			character.setBaseSKL(sklBase);
+			character.setBaseSPD(spdBase);
+			character.setBaseLCK(lckBase);
+			character.setBaseDEF(defBase);
+			character.setBaseRES(resBase);
+			
+			// Update weapon levels.
+			String originalWeaponLevels = charData.getWeaponLevelStringForCharacter(character);
+			DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Old Weapon Levels: " + originalWeaponLevels);
+			String classWeaponLevels = classData.getWeaponLevelsForClass(newClass);
+			DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Target Class Weapon Levels: " + classWeaponLevels);
+			boolean canUseKnives = (classData.getSID1ForClass(newClass) != null && classData.getSID1ForClass(newClass).equals(FE9Data.Skill.EQUIP_KNIFE.getSID())) ||
+					(classData.getSID2ForClass(newClass) != null && classData.getSID2ForClass(newClass).equals(FE9Data.Skill.EQUIP_KNIFE.getSID())) ||
+					(classData.getSID3ForClass(newClass) != null && classData.getSID3ForClass(newClass).equals(FE9Data.Skill.EQUIP_KNIFE.getSID()));
+			
+			StringBuilder levels = new StringBuilder();
+			// No characters should have a * rank in their character data.
+			// * is used only for class data.
+			String originalLevels = originalWeaponLevels.replace("-", "");
+			int weaponTypesRemaining = classWeaponLevels.replace("-", "").replace("*", "").length() + (classWeaponLevels.contains("*") ? 1 : 0);
+			
+			StringBuilder originalBuilder = new StringBuilder();
+			if (originalLevels.contains("E")) { originalBuilder.append('E'); }
+			if (originalLevels.contains("D")) { originalBuilder.append('D'); }
+			if (originalLevels.contains("C")) { originalBuilder.append('C'); }
+			if (originalLevels.contains("B")) { originalBuilder.append('B'); }
+			if (originalLevels.contains("A")) { originalBuilder.append('A'); }
+			if (originalLevels.contains("S")) { originalBuilder.append('S'); }
+			originalLevels = originalBuilder.toString();
+			
+			if (originalLevels.isEmpty()) {
+				// Get a level based on their join time.
+				FE9Data.Character bossCharacter = FE9Data.Character.withPID(pid);
+				if (bossCharacter == null) { continue; }
+				FE9Data.Chapter joinChapter = bossCharacter.joinChapter();
+				if (joinChapter == null) { originalLevels = "E"; }
+				else {
+					switch (joinChapter) {
+					case PROLOGUE: case CHAPTER_1: case CHAPTER_2: case CHAPTER_3: originalLevels = "ED"; break;
+					case CHAPTER_4: case CHAPTER_5: case CHAPTER_6: case CHAPTER_7: originalLevels = "EDC"; break;
+					case CHAPTER_8: case CHAPTER_9: case CHAPTER_10: case CHAPTER_11: originalLevels = "DC"; break;
+					case CHAPTER_12: case CHAPTER_13: case CHAPTER_14: case CHAPTER_15: originalLevels = "DCB"; break;
+					case CHAPTER_16: case CHAPTER_17: case CHAPTER_18: case CHAPTER_19: originalLevels = "CBA"; break;
+					case CHAPTER_20: case CHAPTER_21: case CHAPTER_22: case CHAPTER_23: originalLevels = "BAS"; break;
+					case CHAPTER_24: case CHAPTER_25: case CHAPTER_26: case CHAPTER_27: originalLevels = "AS"; break;
+					case CHAPTER_27_BK_FIGHT: case CHAPTER_28: case ENDGAME: originalLevels = "AS"; break;
+					default: originalLevels = "E";
+					}
+				}
+			}
+			
+			DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Weapon Level Set: " + originalLevels);
+			
+			FE9Skill addedWeaponDiscipline = null;
+			
+			boolean starFulfilled = false;
+			int numberOfStars = (int)classWeaponLevels.chars().filter(c -> (c == '*')).count();
+			for (int i = 0; i < originalWeaponLevels.length(); i++) {
+				char newClassChar = classWeaponLevels.charAt(i);
+				if (newClassChar == '-') { levels.append('-'); }
+				else if (newClassChar == '*') {
+					if (starFulfilled) { levels.append('-'); }
+					else if (numberOfStars > 1 && rng.nextInt(numberOfStars) != 0) {
+						levels.append('-');
+						numberOfStars--;
+					}
+					else {
+						int index = rng.nextInt(originalLevels.length());
+						char rank = originalLevels.charAt(index);
+						levels.append(rank);
+						if (originalLevels.length() > 1) { originalLevels = originalLevels.replace("" + rank, ""); }
+						starFulfilled = true;
+						if (i == 0) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_SWORD.getSID()); }
+						if (i == 1) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_LANCE.getSID()); }
+						if (i == 2) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_AXE.getSID()); }
+						if (i == 3) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_BOW.getSID()); }
+						if (i == 7) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_STAFF.getSID()); }
+						if (i == 8) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_KNIFE.getSID()); }
+					}
+				} else {
+					if (weaponTypesRemaining > 1) {
+						int index = rng.nextInt(originalLevels.length());
+						char rank = originalLevels.charAt(index);
+						levels.append(rank);
+						if (originalLevels.length() > 1) { originalLevels = originalLevels.replace("" + rank, ""); }
+					} else {
+						char rank = originalLevels.charAt(originalLevels.length() - 1);
+						levels.append(rank);
+					}
+					weaponTypesRemaining--;
+				}
+			}
+			
+			String finalWeaponLevelString = levels.toString();
+			DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Final Weapon Levels: " + finalWeaponLevelString);
+			charData.setWeaponLevelStringForCharacter(character, finalWeaponLevelString);
+			
+			// Update skills if necessary.
+			List<FE9Skill> skillsToRemove = skillData.requiredSkillsForJID(originalJID);
+			if (skillsToRemove != null && !skillsToRemove.isEmpty()) {
+				for (FE9Skill skill : skillsToRemove) {
+					if (charData.getSID1ForCharacter(character) != null && charData.getSID1ForCharacter(character).equals(skillData.getSID(skill))) {
+						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Removed " + charData.getSID1ForCharacter(character) + " from " + pid);
+						charData.setSID1ForCharacter(character, null);
+					} else if (charData.getSID2ForCharacter(character) != null && charData.getSID2ForCharacter(character).equals(skillData.getSID(skill))) {
+						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Removed " + charData.getSID2ForCharacter(character) + " from " + pid);
+						charData.setSID2ForCharacter(character, null);
+					} else if (charData.getSID3ForCharacter(character) != null && charData.getSID3ForCharacter(character).equals(skillData.getSID(skill))) {
+						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Removed " + charData.getSID3ForCharacter(character) + " from " + pid);
+						charData.setSID3ForCharacter(character, null);
+					}
+				}
+			}
+			List<FE9Skill> necessarySkills = skillData.requiredSkillsForJID(targetJID);
+			if (addedWeaponDiscipline != null) { necessarySkills.add(0, addedWeaponDiscipline); }
+			if (necessarySkills != null && !necessarySkills.isEmpty()) {
+				for (FE9Skill skill : necessarySkills) {
+					if (charData.getSID1ForCharacter(character) == null) {
+						charData.setSID1ForCharacter(character, skillData.getSID(skill));
+						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Added " + charData.getSID1ForCharacter(character) + " to " + pid);
+					} else if (charData.getSID2ForCharacter(character) == null) {
+						charData.setSID2ForCharacter(character, skillData.getSID(skill));
+						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Added " + charData.getSID2ForCharacter(character) + " to " + pid);
+					} else if (charData.getSID3ForCharacter(character) == null) {
+						charData.setSID3ForCharacter(character, skillData.getSID(skill));
+						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Added " + charData.getSID3ForCharacter(character) + " to " + pid);
+					} else {
+						break;
+					}
+				}
+			}
+			
+			// Update chapter data (class, weapons, and equipment)
+			for (FE9Data.Chapter chapter : FE9Data.Chapter.allChapters())  {
+				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Processing Chapter: " + chapter.toString());
+				for (FE9ChapterArmy army : chapterData.armiesForChapter(chapter)) {
+					for (String unitID : army.getAllUnitIDs()) {
+						FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+						if (army.getPIDForUnit(unit).equals(pid)) {
+							army.setJIDForUnit(unit, targetJID);
+							
+							List<FE9Item> weapons = new ArrayList<FE9Item>();
+							if (!itemData.weaponsSetForJID(targetJID).isEmpty()) {
+								weapons.addAll(itemData.weaponsSetForJID(targetJID));
+							} else {
+								int weaponCount = 0;
+								String iid1 = army.getWeapon1ForUnit(unit);
+								String iid2 = army.getWeapon2ForUnit(unit);
+								String iid3 = army.getWeapon3ForUnit(unit);
+								String iid4 = army.getWeapon4ForUnit(unit);
+								if (iid1 != null) { weaponCount++; }
+								if (iid2 != null) { weaponCount++; }
+								if (iid3 != null) { weaponCount++; }
+								if (iid4 != null) { weaponCount++; }
+								
+								if (classData.isLaguzClass(originalClass) && !classData.isLaguzClass(newClass)) {
+									weaponCount++; // Former Laguz units will not have any weapons, so we should give them one.
+								}
+								
+								List<WeaponRank> equippedRanks = new ArrayList<WeaponRank>(); 
+								if (iid1 != null) { equippedRanks.add(itemData.weaponRankForItem(itemData.itemWithIID(iid1))); }
+								if (iid2 != null) { equippedRanks.add(itemData.weaponRankForItem(itemData.itemWithIID(iid2))); }
+								if (iid3 != null) { equippedRanks.add(itemData.weaponRankForItem(itemData.itemWithIID(iid3))); }
+								if (iid4 != null) { equippedRanks.add(itemData.weaponRankForItem(itemData.itemWithIID(iid4))); }
+								equippedRanks.removeIf(rank -> (rank == WeaponRank.UNKNOWN || rank == WeaponRank.NONE));
+								
+								Map<WeaponType, WeaponRank> weaponLevelsMap = itemData.weaponLevelsForWeaponString(finalWeaponLevelString);
+								if (!classData.isPromotedClass(newClass)) { // Only promoted units can actually use Light magic.
+									weaponLevelsMap.remove(WeaponType.LIGHT);
+								}
+								List<WeaponType> types = weaponLevelsMap.keySet().stream().sorted(WeaponType.getComparator()).collect(Collectors.toList());
+								// For whatever reason, Assassin doesn't have any weapon levels defined or the EQUIPKNIFE skill.
+								if (canUseKnives || targetJID.equals(FE9Data.CharacterClass.ASSASSIN.getJID())) {
+									types.add(WeaponType.KNIFE);
+									weaponLevelsMap.put(WeaponType.KNIFE, itemData.highestRankInString(finalWeaponLevelString));
+								}
+								
+								DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, weaponCount + " weapons to assign.");
+								for (WeaponType type : types) {
+									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Type: " + type.toString() + " (" + weaponLevelsMap.get(type) + ")");
+								}
+								for (int i = 0; i < weaponCount; i++) {
+									WeaponType randomUsableType = types.get(rng.nextInt(types.size()));
+									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected type: " + randomUsableType.toString());
+									WeaponRank usableRank = equippedRanks.size() > i ? equippedRanks.get(i) : weaponLevelsMap.get(randomUsableType);
+									List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, randomUsableType);
+									if (replacements.isEmpty()) {
+										WeaponRank adjacentRank = usableRank.lowerRank();
+										if (adjacentRank == WeaponRank.NONE && usableRank.higherRank().isLowerThan(weaponLevelsMap.get(randomUsableType))) {
+											adjacentRank = usableRank.higherRank();
+										}
+										replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
+									}
+									
+									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
+									for (FE9Item weapon : replacements) {
+										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + itemData.iidOfItem(weapon));
+									}
+									
+									if (!replacements.isEmpty()) {
+										FE9Item weapon = replacements.get(rng.nextInt(replacements.size()));
+										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected: " + itemData.iidOfItem(weapon));
+										weapons.add(weapon);
+									}
+								}
+							}
+							
+							DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Assigned Weapons: ");
+							weapons.forEach(weapon -> {
+								DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, itemData.iidOfItem(weapon));
+							});
+							
+							army.setWeapon1ForUnit(unit, weapons.size() > 0 ? itemData.iidOfItem(weapons.get(0)) : null);
+							army.setWeapon2ForUnit(unit, weapons.size() > 1 ? itemData.iidOfItem(weapons.get(1)) : null);
+							army.setWeapon3ForUnit(unit, weapons.size() > 2 ? itemData.iidOfItem(weapons.get(2)) : null);
+							army.setWeapon4ForUnit(unit, weapons.size() > 3 ? itemData.iidOfItem(weapons.get(3)) : null);
+							
+							List<FE9Item> equipment = new ArrayList<FE9Item>();
+							if (!itemData.equipmentListForJID(targetJID).isEmpty()) {
+								equipment.addAll(itemData.equipmentListForJID(targetJID));
+							}
+							if (rng.nextInt(5) != 0) {
+								List<FE9Item> items = itemData.potentialEquipmentListForJID(targetJID);
+								equipment.add(items.get(rng.nextInt(items.size())));
+							}
+							if (rng.nextInt(100) < 10) {
+								List<FE9Item> rareItems = itemData.rareEquipmentForJID(targetJID);
+								equipment.add(rareItems.get(rng.nextInt(rareItems.size())));
+							}
+							if (rng.nextInt(100) == 0) {
+								List<FE9Item> veryRare = itemData.veryRareEquipment();
+								equipment.add(veryRare.get(rng.nextInt(veryRare.size())));
+							}
+							
+							DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Assigned Equipment: ");
+							equipment.forEach(equip -> {
+								DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, itemData.iidOfItem(equip));
+							});
+							
+							army.setItem1ForUnit(unit, equipment.size() > 0 ? itemData.iidOfItem(equipment.get(0)) : null);
+							army.setItem2ForUnit(unit, equipment.size() > 1 ? itemData.iidOfItem(equipment.get(1)) : null);
+							army.setItem3ForUnit(unit, equipment.size() > 2 ? itemData.iidOfItem(equipment.get(2)) : null);
+							army.setItem4ForUnit(unit, equipment.size() > 3 ? itemData.iidOfItem(equipment.get(3)) : null);
+						}
+					}
+				}
+			}
+		}
+		
+		chapterData.commitChanges();
+		charData.commit();
+	}
+	
+	public static void randomizeMinionCharacters(boolean forceDifferent, boolean mixRaces, boolean crossGenders, FE9CharacterDataLoader charData,
+			FE9ClassDataLoader classData, FE9ChapterDataLoader chapterData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData, Random rng) {
+		for (FE9Data.Chapter chapter : FE9Data.Chapter.allChapters()) {
+			for (FE9ChapterArmy army : chapterData.armiesForChapter(chapter)) {
+				for (String unitID : army.getAllUnitIDs()) {
+					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+					String pid = army.getPIDForUnit(unit);
+					if (!charData.isMinionCharacter(charData.characterWithID(pid))) { continue; }
+					
+					String originalJID = army.getJIDForUnit(unit);
+					FE9Class originalClass = classData.classWithID(originalJID);
+					if (classData.isPacifistClass(originalClass)) { continue; } // Don't change healers.
+					
+					if (chapter.hasWaterSpawningBandits() && 
+							(originalJID.equals(FE9Data.CharacterClass.BANDIT.getJID()) || 
+									originalJID.equals(FE9Data.CharacterClass.BERSERKER.getJID()))) { 
+						continue;
+					}
+					
+					List<FE9Class> replacementClasses = possibleReplacementsForClass(originalClass, false, false, false, 
+							forceDifferent, mixRaces, crossGenders, false, classData);
+					replacementClasses.removeIf(fe9class -> {
+						return classData.isPacifistClass(fe9class);
+					});
+					if (chapter.useRestrictedClassSetForMinions()) {
+						replacementClasses.removeIf(fe9Class -> {
+							return classData.isAdvancedClass(fe9Class);
+						});
+					}
+					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible Classes: ");
+					for (FE9Class charClass : replacementClasses) {
+						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + classData.getJIDForClass(charClass));
+					}
+					if (replacementClasses.isEmpty()) { continue; }
+					FE9Class newClass = replacementClasses.get(rng.nextInt(replacementClasses.size()));
+					String targetJID = classData.getJIDForClass(newClass);
+					
+					String classWeaponLevels = classData.getWeaponLevelsForClass(newClass);
+					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Target Class Weapon Levels: " + classWeaponLevels);
+					int weaponTypesRemaining = classWeaponLevels.replace("-", "").replace("*", "").length() + (classWeaponLevels.contains("*") ? 1 : 0);
+					boolean canUseKnives = (classData.getSID1ForClass(newClass) != null && classData.getSID1ForClass(newClass).equals(FE9Data.Skill.EQUIP_KNIFE.getSID())) ||
+							(classData.getSID2ForClass(newClass) != null && classData.getSID2ForClass(newClass).equals(FE9Data.Skill.EQUIP_KNIFE.getSID())) ||
+							(classData.getSID3ForClass(newClass) != null && classData.getSID3ForClass(newClass).equals(FE9Data.Skill.EQUIP_KNIFE.getSID()));
+					
+					FE9Skill addedWeaponDiscipline = null;
+					
+					StringBuilder levels = new StringBuilder();
+					
+					String originalLevels = "E";
+					
+					switch (chapter) {
+					case PROLOGUE: case CHAPTER_1: case CHAPTER_2: case CHAPTER_3: originalLevels = "EDC"; break;
+					case CHAPTER_4: case CHAPTER_5: case CHAPTER_6: case CHAPTER_7: originalLevels = "EDC"; break;
+					case CHAPTER_8: case CHAPTER_9: case CHAPTER_10: case CHAPTER_11: originalLevels = "DCB"; break;
+					case CHAPTER_12: case CHAPTER_13: case CHAPTER_14: case CHAPTER_15: originalLevels = "DCB"; break;
+					case CHAPTER_16: case CHAPTER_17: case CHAPTER_18: case CHAPTER_19: originalLevels = "CBA"; break;
+					case CHAPTER_20: case CHAPTER_21: case CHAPTER_22: case CHAPTER_23: originalLevels = "CBA"; break;
+					case CHAPTER_24: case CHAPTER_25: case CHAPTER_26: case CHAPTER_27: originalLevels = "BAS"; break;
+					case CHAPTER_27_BK_FIGHT: case CHAPTER_28: case ENDGAME: originalLevels = "BAS"; break;
+					default: originalLevels = "E";
+					}
+					
+					boolean starFulfilled = false;
+					int numberOfStars = (int)classWeaponLevels.chars().filter(c -> (c == '*')).count();
+					for (int i = 0; i < classWeaponLevels.length(); i++) {
+						char newClassChar = classWeaponLevels.charAt(i);
+						if (newClassChar == '-') { levels.append('-'); }
+						else if (newClassChar == '*') {
+							if (starFulfilled) { levels.append('-'); }
+							else if (numberOfStars > 1 && rng.nextInt(numberOfStars) != 0) {
+								levels.append('-');
+								numberOfStars--;
+							}
+							else {
+								int index = rng.nextInt(originalLevels.length());
+								char rank = originalLevels.charAt(index);
+								levels.append(rank);
+								if (originalLevels.length() > 1) { originalLevels = originalLevels.replace("" + rank, ""); }
+								starFulfilled = true;
+								if (i == 0) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_SWORD.getSID()); }
+								if (i == 1) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_LANCE.getSID()); }
+								if (i == 2) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_AXE.getSID()); }
+								if (i == 3) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_BOW.getSID()); }
+								if (i == 7) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_STAFF.getSID()); }
+								if (i == 8) { addedWeaponDiscipline = skillData.getSkillWithSID(FE9Data.Skill.EQUIP_KNIFE.getSID()); }
+							}
+						} else {
+							if (weaponTypesRemaining > 1) {
+								int index = rng.nextInt(originalLevels.length());
+								char rank = originalLevels.charAt(index);
+								levels.append(rank);
+								if (originalLevels.length() > 1) { originalLevels = originalLevels.replace("" + rank, ""); }
+							} else {
+								char rank = originalLevels.charAt(originalLevels.length() - 1);
+								levels.append(rank);
+							}
+							weaponTypesRemaining--;
+						}
+					}
+					
+					String finalWeaponLevelString = levels.toString();
+					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Final Weapon Levels: " + finalWeaponLevelString);
+					
+					army.setJIDForUnit(unit, targetJID);
+					if (addedWeaponDiscipline != null) {
+						if (army.getSkill1ForUnit(unit) == null) {
+							army.setSkill1ForUnit(unit, skillData.getSID(addedWeaponDiscipline));
+						} else if (army.getSkill2ForUnit(unit) == null) {
+							army.setSkill2ForUnit(unit, skillData.getSID(addedWeaponDiscipline));
+						} else if (army.getSkill3ForUnit(unit) == null) {
+							army.setSkill3ForUnit(unit, skillData.getSID(addedWeaponDiscipline));
+						}
+					}
+					
+					List<FE9Item> weapons = new ArrayList<FE9Item>();
+					if (!itemData.weaponsSetForJID(targetJID).isEmpty()) {
+						weapons.addAll(itemData.weaponsSetForJID(targetJID));
+					} else {
+						int weaponCount = 0;
+						String iid1 = army.getWeapon1ForUnit(unit);
+						String iid2 = army.getWeapon2ForUnit(unit);
+						String iid3 = army.getWeapon3ForUnit(unit);
+						String iid4 = army.getWeapon4ForUnit(unit);
+						if (iid1 != null) { weaponCount++; }
+						if (iid2 != null) { weaponCount++; }
+						if (iid3 != null) { weaponCount++; }
+						if (iid4 != null) { weaponCount++; }
+						
+						if (classData.isLaguzClass(originalClass) && !classData.isLaguzClass(newClass)) {
+							weaponCount++; // Former Laguz units will not have any weapons, so we should give them one.
+						}
+						
+						List<WeaponRank> equippedRanks = new ArrayList<WeaponRank>(); 
+						if (iid1 != null) { equippedRanks.add(itemData.weaponRankForItem(itemData.itemWithIID(iid1))); }
+						if (iid2 != null) { equippedRanks.add(itemData.weaponRankForItem(itemData.itemWithIID(iid2))); }
+						if (iid3 != null) { equippedRanks.add(itemData.weaponRankForItem(itemData.itemWithIID(iid3))); }
+						if (iid4 != null) { equippedRanks.add(itemData.weaponRankForItem(itemData.itemWithIID(iid4))); }
+						equippedRanks.removeIf(rank -> (rank == WeaponRank.UNKNOWN || rank == WeaponRank.NONE));
+						
+						Map<WeaponType, WeaponRank> weaponLevelsMap = itemData.weaponLevelsForWeaponString(finalWeaponLevelString);
+						if (!classData.isPromotedClass(newClass)) { // Only promoted units can actually use Light magic.
+							weaponLevelsMap.remove(WeaponType.LIGHT);
+						}
+						List<WeaponType> types = weaponLevelsMap.keySet().stream().sorted(WeaponType.getComparator()).collect(Collectors.toList());
+						// For whatever reason, Assassin doesn't have any weapon levels defined or the EQUIPKNIFE skill.
+						if (canUseKnives || targetJID.equals(FE9Data.CharacterClass.ASSASSIN.getJID())) {
+							types.add(WeaponType.KNIFE);
+							weaponLevelsMap.put(WeaponType.KNIFE, itemData.highestRankInString(finalWeaponLevelString));
+						}
+						
+						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, weaponCount + " weapons to assign.");
+						for (WeaponType type : types) {
+							DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Type: " + type.toString() + " (" + weaponLevelsMap.get(type) + ")");
+						}
+						for (int i = 0; i < weaponCount; i++) {
+							WeaponType randomUsableType = types.get(rng.nextInt(types.size()));
+							DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected type: " + randomUsableType.toString());
+							WeaponRank usableRank = equippedRanks.size() > i ? equippedRanks.get(i) : weaponLevelsMap.get(randomUsableType);
+							List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, randomUsableType);
+							if (replacements.isEmpty()) {
+								WeaponRank adjacentRank = usableRank.lowerRank();
+								if (adjacentRank == WeaponRank.NONE && usableRank.higherRank().isLowerThan(weaponLevelsMap.get(randomUsableType))) {
+									adjacentRank = usableRank.higherRank();
+								}
+								replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
+							}
+							
+							DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
+							for (FE9Item weapon : replacements) {
+								DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + itemData.iidOfItem(weapon));
+							}
+							
+							if (!replacements.isEmpty()) {
+								FE9Item weapon = replacements.get(rng.nextInt(replacements.size()));
+								DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected: " + itemData.iidOfItem(weapon));
+								weapons.add(weapon);
+							}
+						}
+					}
+					
+					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Assigned Weapons: ");
+					weapons.forEach(weapon -> {
+						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, itemData.iidOfItem(weapon));
+					});
+					
+					army.setWeapon1ForUnit(unit, weapons.size() > 0 ? itemData.iidOfItem(weapons.get(0)) : null);
+					army.setWeapon2ForUnit(unit, weapons.size() > 1 ? itemData.iidOfItem(weapons.get(1)) : null);
+					army.setWeapon3ForUnit(unit, weapons.size() > 2 ? itemData.iidOfItem(weapons.get(2)) : null);
+					army.setWeapon4ForUnit(unit, weapons.size() > 3 ? itemData.iidOfItem(weapons.get(3)) : null);
+				}
+			}
+		}
+		
+		chapterData.commitChanges();
 	}
 	
 	private static List<FE9Class> possibleReplacementsForClass(FE9Class originalClass, boolean includeLords, boolean includeThieves, boolean includeSpecial,

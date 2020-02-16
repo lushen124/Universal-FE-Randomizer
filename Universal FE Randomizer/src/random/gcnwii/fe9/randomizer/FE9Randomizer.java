@@ -229,6 +229,8 @@ public class FE9Randomizer extends Randomizer {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9ClassRandomizer.rngSalt));
 			FE9ClassRandomizer.randomizePlayableCharacters(true, false, false, true, true, true, charData, classData, chapterData, skillData, itemData, rng);
 			FE9ClassRandomizer.updateIkeInventoryChapter1Script(charData, itemData, handler);
+			FE9ClassRandomizer.randomizeBossCharacters(true, true, false, charData, classData, chapterData, skillData, itemData, rng);
+			FE9ClassRandomizer.randomizeMinionCharacters(true, true, false, charData, classData, chapterData, skillData, itemData, rng);
 			
 			charData.compileDiffs(handler);
 			classData.compileDiffs(handler);
