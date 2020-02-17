@@ -88,6 +88,13 @@ public class FE9ChapterArmy {
 		return disposHandler.stringForPointer(unit.getCharacterIDPointer());
 	}
 	
+	public void setPIDForUnit(FE9ChapterUnit unit, String pid) {
+		if (unit == null || pid == null) { return; }
+		disposHandler.addString(pid);
+		disposHandler.commitAdditions();
+		unit.setCharacterIDPointer(disposHandler.pointerForString(pid));
+	}
+	
 	public String getJIDForUnit(FE9ChapterUnit unit) {
 		return disposHandler.stringForPointer(unit.getClassIDPointer());
 	}

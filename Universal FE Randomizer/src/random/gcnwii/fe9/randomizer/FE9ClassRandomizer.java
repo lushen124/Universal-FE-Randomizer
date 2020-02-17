@@ -453,10 +453,14 @@ public class FE9ClassRandomizer {
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set promoted AID to " + classData.getPromotedAIDForClass(newClass));
 				charData.setPromotedAIDForCharacter(character, classData.getPromotedAIDForClass(newClass));
 			} else {
-				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set unpromoted AID to " + classData.getUnpromotedAIDForClass(newClass));
-				charData.setUnpromotedAIDForCharacter(character, classData.getUnpromotedAIDForClass(newClass));
-				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set promoted AID to " + classData.getPromotedAIDForClass(newClass));
-				charData.setPromotedAIDForCharacter(character, classData.getPromotedAIDForClass(newClass));
+				if (classData.isPromotedClass(newClass)) {
+					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set promoted AID to " + classData.getPromotedAIDForClass(newClass));
+					charData.setPromotedAIDForCharacter(character, classData.getPromotedAIDForClass(newClass));
+				} else {
+					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set unpromoted AID to " + classData.getUnpromotedAIDForClass(newClass));
+					charData.setUnpromotedAIDForCharacter(character, classData.getUnpromotedAIDForClass(newClass));
+				}
+				
 			}
 			
 			// Adjust bases
@@ -770,6 +774,9 @@ public class FE9ClassRandomizer {
 						continue;
 					}
 					
+					FE9Character minionCharacter = charData.characterWithID(pid);
+					boolean isDaeinMinion = charData.isDaeinCharacter(minionCharacter);
+					
 					List<FE9Class> replacementClasses = possibleReplacementsForClass(originalClass, false, false, false, 
 							forceDifferent, mixRaces, crossGenders, false, classData);
 					replacementClasses.removeIf(fe9class -> {
@@ -787,6 +794,17 @@ public class FE9ClassRandomizer {
 					if (replacementClasses.isEmpty()) { continue; }
 					FE9Class newClass = replacementClasses.get(rng.nextInt(replacementClasses.size()));
 					String targetJID = classData.getJIDForClass(newClass);
+					if (isDaeinMinion) {
+						// Daein minions have classes built into them, so we have to replace PIDs if we change their class too.
+						List<FE9Character> replacementCharacters = charData.getDaeinCharactersForJID(targetJID);
+						if (replacementCharacters == null || replacementCharacters.isEmpty()) {
+							// Try ZAKO
+							army.setPIDForUnit(unit, "PID_ZAKO");
+						} else {
+							FE9Character replacement = replacementCharacters.get(rng.nextInt(replacementCharacters.size()));
+							army.setPIDForUnit(unit, charData.getPIDForCharacter(replacement));
+						}
+					}
 					
 					String classWeaponLevels = classData.getWeaponLevelsForClass(newClass);
 					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Target Class Weapon Levels: " + classWeaponLevels);

@@ -81,6 +81,12 @@ public class OptionRecorder {
 	
 	private static final String SettingsKey = "saved_settings";
 	
+	private static final String FE4Suffix = "_fe4";
+	private static final String FE6Suffix = "_fe6";
+	private static final String FE7Suffix = "_fe7";
+	private static final String FE8Suffix = "_fe8";
+	private static final String FE9Suffix = "_fe9";
+	
 	private static AllOptions loadOptions() {
 		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
 		String jsonString = prefs.get(SettingsKey, null);
@@ -93,17 +99,107 @@ public class OptionRecorder {
 			if (loadedOptions.fe7 != null && GBAOptionBundleVersion != loadedOptions.fe7.version) { loadedOptions.fe7 = null; }
 			if (loadedOptions.fe8 != null && GBAOptionBundleVersion != loadedOptions.fe8.version) { loadedOptions.fe8 = null; }
 			if (loadedOptions.fe9 != null && FE9OptionBundleVersion != loadedOptions.fe9.version) { loadedOptions.fe9 = null; }
+			
+			// Migrate to pieced JSON.
+			prefs.remove(SettingsKey);
+			saveOptions(loadedOptions);
+			
 			return loadedOptions;
 		} else {
-			return new AllOptions();
+			AllOptions options = new AllOptions();
+			options.fe4 = loadFE4Options();
+			options.fe6 = loadFE6Options();
+			options.fe7 = loadFE7Options();
+			options.fe8 = loadFE8Options();
+			options.fe9 = loadFE9Options();
+			return options;
 		}
 	}
 	
-	private static void saveOptions() {
-		Gson gson = new Gson();
-		String jsonString = gson.toJson(options);
+	private static FE4OptionBundle loadFE4Options() {
 		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
-		prefs.put(SettingsKey, jsonString);
+		String jsonString = prefs.get(SettingsKey + FE4Suffix, null);
+		if (jsonString != null) {
+			Gson gson = new Gson();
+			FE4OptionBundle loadedOptions = gson.fromJson(jsonString, FE4OptionBundle.class);
+			return FE4OptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+		}
+		
+		return null;
+	}
+	
+	private static GBAOptionBundle loadFE6Options() {
+		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
+		String jsonString = prefs.get(SettingsKey + FE6Suffix, null);
+		if (jsonString != null) {
+			Gson gson = new Gson();
+			GBAOptionBundle loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);
+			return GBAOptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+		}
+		
+		return null;
+	}
+	
+	private static GBAOptionBundle loadFE7Options() {
+		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
+		String jsonString = prefs.get(SettingsKey + FE7Suffix, null);
+		if (jsonString != null) {
+			Gson gson = new Gson();
+			GBAOptionBundle loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);
+			return GBAOptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+		}
+		
+		return null;
+	}
+	
+	private static GBAOptionBundle loadFE8Options() {
+		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
+		String jsonString = prefs.get(SettingsKey + FE8Suffix, null);
+		if (jsonString != null) {
+			Gson gson = new Gson();
+			GBAOptionBundle loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);
+			return GBAOptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+		}
+		
+		return null;
+	}
+	
+	private static FE9OptionBundle loadFE9Options() {
+		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
+		String jsonString = prefs.get(SettingsKey + FE9Suffix, null);
+		if (jsonString != null) {
+			Gson gson = new Gson();
+			FE9OptionBundle loadedOptions = gson.fromJson(jsonString, FE9OptionBundle.class);
+			return FE9OptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+		}
+		
+		return null;
+	}
+	
+	private static void saveOptions(AllOptions options) {
+		Gson gson = new Gson();
+		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
+		
+		if (options.fe4 != null) {
+			String fe4String = gson.toJson(options.fe4);
+			prefs.put(SettingsKey + FE4Suffix, fe4String);
+		}
+		if (options.fe6 != null) {
+			String fe6String = gson.toJson(options.fe6);
+			prefs.put(SettingsKey + FE6Suffix, fe6String);
+		}
+		if (options.fe7 != null) {
+			String fe7String = gson.toJson(options.fe7);
+			prefs.put(SettingsKey + FE7Suffix, fe7String);
+		}
+		if (options.fe8 != null) {
+			String fe8String = gson.toJson(options.fe8);
+			prefs.put(SettingsKey + FE8Suffix, fe8String);
+		}
+		if (options.fe9 != null) {
+			String fe9String = gson.toJson(options.fe9);
+			prefs.put(SettingsKey + FE9Suffix, fe9String);
+		}
 	}
 	
 	public static void recordFE9Options(GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions,
@@ -122,7 +218,7 @@ public class OptionRecorder {
 		
 		options.fe9 = bundle;
 		
-		saveOptions();
+		saveOptions(options);
 	}
 	
 	public static void recordFE4Options(GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions, 
@@ -141,7 +237,7 @@ public class OptionRecorder {
 		
 		options.fe4 = bundle;
 		
-		saveOptions();
+		saveOptions(options);
 	}
 	
 	public static void recordGBAFEOptions(FEBase.GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
@@ -173,7 +269,7 @@ public class OptionRecorder {
 			return;
 		}
 		
-		saveOptions();
+		saveOptions(options);
 	}
 
 }

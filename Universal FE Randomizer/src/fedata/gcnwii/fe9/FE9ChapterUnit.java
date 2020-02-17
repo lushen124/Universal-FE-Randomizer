@@ -62,6 +62,12 @@ public class FE9ChapterUnit implements FEModifiableData {
 		return cachedCharacterIDPointer;
 	}
 	
+	public void setCharacterIDPointer(long pidPtr) {
+		cachedCharacterIDPointer = pidPtr;
+		writePointerToOffset(pidPtr, CharacterIDOffset);
+		wasModified = true;
+	}
+	
 	public long getClassIDPointer() {
 		if (cachedClassIDPointer == null) { cachedClassIDPointer = readPointerAtOffset(ClassIDOffset); }
 		return cachedClassIDPointer;

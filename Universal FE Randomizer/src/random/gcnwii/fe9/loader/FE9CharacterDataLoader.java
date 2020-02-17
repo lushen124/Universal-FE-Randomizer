@@ -24,6 +24,8 @@ public class FE9CharacterDataLoader {
 	List<FE9Character> bossCharacters;
 	List<FE9Character> minionCharacters;
 	
+	Map<String, List<FE9Character>> daeinMinionsByJID;
+	
 	Map<String, Long> knownAddresses;
 	Map<Long, String> knownPointers;
 	
@@ -40,6 +42,8 @@ public class FE9CharacterDataLoader {
 		
 		knownAddresses = new HashMap<String, Long>();
 		knownPointers = new HashMap<Long, String>();
+		
+		daeinMinionsByJID = new HashMap<String, List<FE9Character>>();
 		
 		idLookup = new HashMap<String, FE9Character>();
 		
@@ -105,6 +109,15 @@ public class FE9CharacterDataLoader {
 			
 			if ((pid.contains("_DAYNE") || pid.contains("_ZAKO") || pid.contains("_BANDIT")) && !pid.contains("_EV")) {
 				minionCharacters.add(character);
+				if (pid.contains("_DAYNE")) {
+					// Daein soldiers have classes built into them, so we need to explicitly change PIDs when randomizing minions later.
+					List<FE9Character> daeinCharacters = daeinMinionsByJID.get(jid);
+					if (daeinCharacters == null) {
+						daeinCharacters = new ArrayList<FE9Character>();
+						daeinMinionsByJID.put(jid, daeinCharacters);
+					}
+					daeinCharacters.add(character);
+				}
 			}
 		}
 	}
@@ -157,6 +170,16 @@ public class FE9CharacterDataLoader {
 			return fe8databin.pointerForString(value);
 		}
 		return knownAddresses.get(value);
+	}
+	
+	public boolean isDaeinCharacter(FE9Character character) {
+		String pid = getPIDForCharacter(character);
+		if (pid == null) { return false; }
+		return pid.contains("_DAYNE");
+	}
+	
+	public List<FE9Character> getDaeinCharactersForJID(String jid) {
+		return daeinMinionsByJID.get(jid);
 	}
 	
 	public String getPIDForCharacter(FE9Character character) {
