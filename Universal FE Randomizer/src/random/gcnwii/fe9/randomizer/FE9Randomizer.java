@@ -3,8 +3,12 @@ package random.gcnwii.fe9.randomizer;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import fedata.gcnwii.fe9.FE9ChapterArmy;
 import fedata.gcnwii.fe9.FE9ChapterRewards;
@@ -30,6 +34,7 @@ import random.gcnwii.fe9.loader.FE9CommonTextLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
+import random.general.WeightedDistributor;
 import ui.fe9.FE9ClassOptions;
 import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
@@ -43,6 +48,13 @@ import util.DiffCompiler;
 import util.LZ77;
 import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
+import util.recordkeeper.ChangelogBuilder;
+import util.recordkeeper.ChangelogDivider;
+import util.recordkeeper.ChangelogHeader;
+import util.recordkeeper.ChangelogSection;
+import util.recordkeeper.ChangelogStyleRule;
+import util.recordkeeper.ChangelogTable;
+import util.recordkeeper.ChangelogHeader.HeaderLevel;
 
 public class FE9Randomizer extends Randomizer {
 	private String sourcePath;
@@ -104,6 +116,11 @@ public class FE9Randomizer extends Randomizer {
 			notifyError("Failed to read Gamecube ISO format.");
 		}
 		
+		ChangelogBuilder changelogBuilder = new ChangelogBuilder();
+		changelogBuilder.addElement(new ChangelogDivider());
+		
+		addRandomizationOptionsToChangelog(changelogBuilder, seed);
+		
 		try {
 			updateStatus(0.10, "Loading Text Data...");
 			textData = new FE9CommonTextLoader(handler);
@@ -148,7 +165,7 @@ public class FE9Randomizer extends Randomizer {
 			}
 		});
 		
-		notifyCompletion(null);
+		notifyCompletion(null, changelogBuilder);
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
@@ -305,5 +322,159 @@ public class FE9Randomizer extends Randomizer {
 						classOptions.mixMinionRaces, false, charData, classData, chapterData, skillData, itemData, rng);
 			}
 		}
+	}
+	
+	private void addRandomizationOptionsToChangelog(ChangelogBuilder changelogBuilder, String seed) {
+		// Randomization options.
+		ChangelogSection optionsSection = new ChangelogSection("options-section");
+		optionsSection.addElement(new ChangelogHeader(HeaderLevel.HEADING_2, "Randomization Options", "options-section-header"));
+		
+		ChangelogTable table = new ChangelogTable(2, null, "options-table");
+		table.addRow(new String[] {"Game Title", FE9Data.FriendlyName});
+		if (growthOptions != null) {
+			switch (growthOptions.mode) {
+			case REDISTRIBUTE:
+				table.addRow(new String[] {"Randomize Growths", "Redistribute (Variance: " + growthOptions.redistributionOption.variance + "%)"});
+				break;
+			case FULL:
+				table.addRow(new String[] {"Randomize Growths", "Full (" + growthOptions.fullOption.minValue + "% ~ " + growthOptions.fullOption.maxValue + "%)"});
+				break;
+			case DELTA:
+				table.addRow(new String[] {"Randomize Growths", "Delta (+/- " + growthOptions.deltaOption.variance + "%)"});
+				break;
+			}
+			table.addRow(new String[] {"Adjust HP Growths", growthOptions.adjustHP ? "YES" : "NO"});
+			table.addRow(new String[] {"Adjust STR/MAG Split", growthOptions.adjustSTRMAGSplit ? "YES" : "NO"});
+		} else {
+			table.addRow(new String[] {"Randomize Growths", "NO"});
+		}
+		if (baseOptions != null) {
+			switch (baseOptions.mode) {
+			case REDISTRIBUTE:
+				table.addRow(new String[] {"Randomize Bases", "Redistribute (Variance: " + baseOptions.redistributionOption.variance + ")"});
+				break;
+			case DELTA:
+				table.addRow(new String[] {"Randomize Bases", "Delta (Variance: " + baseOptions.deltaOption.variance + ")"});
+				break;
+			}
+			table.addRow(new String[] {"Adjust STR/MAG Split", baseOptions.adjustSTRMAGByClass ? "YES" : "NO"});
+		} else {
+			table.addRow(new String[] {"Randomize Bases", "NO"});
+		}
+		if (otherCharOptions != null) {
+			table.addRow(new String[] {"Randomize CON", otherCharOptions.randomizeCON ? "YES (Variance: " + otherCharOptions.conVariance + ")" : "NO"});
+			table.addRow(new String[] {"Randomize Affinity", otherCharOptions.randomizeAffinity ? "YES" : "NO"});
+		}
+		if (skillOptions != null) {
+			switch (skillOptions.mode) {
+			case RANDOMIZE_EXISTING:
+				table.addRow(new String[] {"Randomize Skills", "Randomize Existing Skills"});
+				break;
+			case FULL_RANDOM:
+				table.addRow(new String[] {"Randomize Skills", "Fully Randomize Skills (Skill Chance: " + skillOptions.skillChance + "%)"});
+				break;
+			}
+			WeightedDistributor<String> skillDistributor = FE9SkillRandomizer.weightedDistributorForOptions(skillOptions.skillWeights);
+			List<String> skillNames = skillOptions.skillWeights.getSkillNames().stream().sorted(new Comparator<String>() {
+				@Override
+				public int compare(String arg0, String arg1) {
+					return arg0.compareTo(arg1);
+				}
+			}).collect(Collectors.toList());
+			for (String skillName : skillNames) {
+				if (skillOptions.skillWeights.getWeightedOptionsByName(skillName).enabled) {
+					table.addRow(new String[] {skillName + " chance", skillOptions.skillWeights.getWeightedOptionsByName(skillName).weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(skillName) * 100)});
+				} else {
+					table.addRow(new String[] {skillName + " chance", "Disabled"});
+				}
+			}
+		} else {
+			table.addRow(new String[] {"Randomize Skills", "NO"});
+		}
+		if (classOptions != null) {
+			if (classOptions.randomizePCs) {
+				table.addRow(new String[] {"Randomize Playable Characters", "YES"});
+				table.addRow(new String[] {"Include Lords", classOptions.includeLords ? "YES" : "NO"});
+				table.addRow(new String[] {"Include Thieves", classOptions.includeThieves ? "YES" : "NO"});
+				table.addRow(new String[] {"Include Special", classOptions.includeSpecial ? "YES" : "NO"});
+				table.addRow(new String[] {"Mix Races for Playable Characters", classOptions.mixPCRaces ? "YES" : "NO"});
+				table.addRow(new String[] {"Allow Cross-gender Assignments", classOptions.allowCrossgender ? "YES" : "NO"});
+			} else {
+				table.addRow(new String[] {"Randomize Playable Characters", "NO"});
+			}
+			if (classOptions.randomizeBosses) {
+				table.addRow(new String[] {"Randomize Bosses", "YES"});
+				table.addRow(new String[] {"Mix Races for Bosses", classOptions.mixBossRaces ? "YES" : "NO"});
+			} else {
+				table.addRow(new String[] {"Randomize Bosses", "NO"});
+			}
+			if (classOptions.randomizeMinions) {
+				table.addRow(new String[] {"Randomize Minions", "YES (" + classOptions.minionRandomChance + "%)"});
+				table.addRow(new String[] {"Mix Races for Minions", classOptions.mixMinionRaces ? "YES" : "NO"});
+			} else {
+				table.addRow(new String[] {"Randomize Minions", "NO"});
+			}
+			if (classOptions.randomizePCs || classOptions.randomizeBosses || classOptions.randomizeMinions) {
+				table.addRow(new String[] {"Force Class Change", classOptions.forceDifferent ? "YES" : "NO"});
+			}
+		}
+		if (enemyBuffOptions != null) {
+			switch (enemyBuffOptions.minionMode) {
+			case NONE:
+				table.addRow(new String[] {"Buff Minions", "NO"});
+				break;
+			case FLAT:
+				table.addRow(new String[] {"Buff Minions", "Flat Buff (+" + enemyBuffOptions.minionBuff + "%)"});
+				break;
+			case SCALING:
+				table.addRow(new String[] {"Buff Minions", "Scaling Buff (+" + enemyBuffOptions.minionBuff + "%)"});
+				break;
+			}
+			table.addRow(new String[] {"Improve Minion Weapons", enemyBuffOptions.improveMinionWeapons ? "YES (" + enemyBuffOptions.minionImprovementChance + "%)" : "NO"});
+			table.addRow(new String[] {"Give Minions Skills", enemyBuffOptions.giveMinionsSkills ? "YES (" + enemyBuffOptions.minionSkillChance + "%)" : "NO"});
+			
+			switch (enemyBuffOptions.bossMode) {
+			case NONE:
+				table.addRow(new String[] {"Buff Bosses", "NO"});
+				break;
+			case LINEAR:
+				table.addRow(new String[] {"Buff Bosses", "YES (Max Boost: " + enemyBuffOptions.bossBuff + " - Linear)"});
+				break;
+			case EASE_IN_OUT:
+				table.addRow(new String[] {"Buff Bosses", "YES (Max Boost: " + enemyBuffOptions.bossBuff + " - Ease In/Ease Out);"});
+				break;
+			}
+			table.addRow(new String[] {"Improve Boss Weapons", enemyBuffOptions.improveBossWeapons ? "YES (" + enemyBuffOptions.bossImprovementChance + "%)" : "NO"});
+			table.addRow(new String[] {"Give Bosses Skills", enemyBuffOptions.giveBossSkills ? "YES (" + enemyBuffOptions.bossSkillChance + "%)" : "NO"});
+		}
+		if (miscOptions != null) {
+			if (miscOptions.randomizeRewards) {
+				switch(miscOptions.rewardMode) {
+				case SIMILAR:
+					table.addRow(new String[] {"Randomize Rewards", "Randomize with Similar Items"});
+					break;
+				case RANDOM:
+					table.addRow(new String[] {"Randomize Rewards", "Randomize with Random Items"});
+					break;
+				}
+			} else {
+				table.addRow(new String[] {"Randomize Rewards", "NO"});
+			}
+		}
+		
+		table.addRow(new String[] {"Randomizer Seed Phrase", seed});
+		
+		optionsSection.addElement(table);
+		changelogBuilder.addElement(optionsSection);
+		
+		ChangelogStyleRule rule = new ChangelogStyleRule();
+		rule.setElementIdentifier("options-section-header");
+		rule.addRule("text-align", "center");
+		changelogBuilder.addStyle(rule);
+		
+		rule = new ChangelogStyleRule();
+		rule.setOverrideSelectorString("#options-table tr:nth-child(even)");
+		rule.addRule("background-color", "#CCC");
+		changelogBuilder.addStyle(rule);
 	}
 }

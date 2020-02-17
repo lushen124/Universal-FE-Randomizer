@@ -241,7 +241,7 @@ public class FE4Randomizer extends Randomizer {
 		
 		updateStatusString("Done!");
 		updateProgress(1);
-		notifyCompletion(recordKeeper);
+		notifyCompletion(recordKeeper, null);
 	}
 	
 	private void addUniversalDiffs(boolean isHeadered) {

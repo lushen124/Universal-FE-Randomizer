@@ -71,6 +71,11 @@ import util.WhyDoesJavaNotHaveThese;
 import util.OptionRecorder.FE4OptionBundle;
 import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
+import util.recordkeeper.ChangelogBuilder;
+import util.recordkeeper.ChangelogHeader;
+import util.recordkeeper.ChangelogHeader.HeaderLevel;
+import util.recordkeeper.ChangelogSection;
+import util.recordkeeper.ChangelogTable;
 import util.recordkeeper.RecordKeeper;
 
 public class MainView implements FileFlowDelegate {
@@ -900,6 +905,7 @@ public class MainView implements FileFlowDelegate {
 										seedField.getText());
 							}
 							
+							final String romPath = writePath;
 							randomizer.setListener(new RandomizerListener() {
 
 								@Override
@@ -908,7 +914,7 @@ public class MainView implements FileFlowDelegate {
 								}
 
 								@Override
-								public void onComplete(RecordKeeper rk) {
+								public void onComplete(RecordKeeper rk, ChangelogBuilder cb) {
 									hideModalProgressDialog();
 									MessageModal randomSuccess;
 									if (rk != null) {
@@ -922,6 +928,35 @@ public class MainView implements FileFlowDelegate {
 												String writePath = openDialog.open();
 												if (writePath != null) {
 													Boolean success = rk.exportRecordsToHTML(writePath);
+													if (success) {
+														MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
+														saveSuccess.show();
+													} else {
+														MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
+														saveFail.show();
+													}
+												}
+											}
+										});
+										randomSuccess.addButton("No", new ModalButtonListener() {
+											public void onSelected() {
+												randomSuccess.hide();
+											}
+										});
+									} else if (cb != null) {
+										randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
+										randomSuccess.addButton("Yes", new ModalButtonListener() {
+											@Override
+											public void onSelected() {
+												randomSuccess.hide();
+												FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
+												openDialog.setFilterExtensions(new String[] {"*.html"});
+												String changelogPath = openDialog.open();
+												if (changelogPath != null) {
+													int index = Math.max(romPath.lastIndexOf('/'), romPath.lastIndexOf('\\'));
+													String title =  romPath.substring(index + 1);
+													cb.setDocumentTitle("Changelog for " + title);
+													Boolean success = cb.writeToPath(changelogPath);
 													if (success) {
 														MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
 														saveSuccess.show();

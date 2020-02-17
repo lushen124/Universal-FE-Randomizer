@@ -125,4 +125,18 @@ public class FE9SkillRandomizer {
 		
 		return distributor;
 	}
+	
+	public static WeightedDistributor<String> weightedDistributorForOptions(FE9SkillWeightOptions weights) {
+		WeightedDistributor<String> distributor = new WeightedDistributor<String>();
+		int linearSlope = 1;
+		int linearOffset = 0;
+		for (String skillName : weights.getSkillNames()) {
+			WeightedOptions option = weights.getWeightedOptionsByName(skillName);
+			if (option.enabled) {
+				distributor.addItem(skillName, option.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
+			}
+		}
+		
+		return distributor;
+	}
 }
