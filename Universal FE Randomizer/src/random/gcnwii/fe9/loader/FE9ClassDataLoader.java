@@ -307,8 +307,10 @@ public class FE9ClassDataLoader {
 			DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Unknown class found. Class ID: " + classID);
 			return StatBias.NONE;
 		}
-		if (fe9Class.isPhysicalClass()) { return fe9Class.isHybridPhyiscalClass() ? StatBias.LEAN_PHYSICAL : StatBias.PHYSICAL_ONLY; }
-		else if (fe9Class.isMagicalClass()) { return fe9Class.isHybridMagicalClass() ? StatBias.LEAN_MAGICAL : StatBias.MAGICAL_ONLY; }
+		if (fe9Class.isHybridMagicalClass()) { return StatBias.LEAN_MAGICAL; }
+		else if (fe9Class.isHybridPhyiscalClass()) { return StatBias.LEAN_PHYSICAL; }
+		else if (fe9Class.isPhysicalClass()) { return StatBias.PHYSICAL_ONLY; }
+		else if (fe9Class.isMagicalClass()) { return StatBias.MAGICAL_ONLY; }
 		return StatBias.NONE;
 	}
 	

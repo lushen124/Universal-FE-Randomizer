@@ -30,6 +30,7 @@ import random.gcnwii.fe9.loader.FE9CommonTextLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
+import ui.fe9.FE9ClassOptions;
 import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
 import ui.model.FE9EnemyBuffOptions;
@@ -57,6 +58,7 @@ public class FE9Randomizer extends Randomizer {
 	private MiscellaneousOptions miscOptions;
 	private FE9OtherCharacterOptions otherCharOptions;
 	private FE9EnemyBuffOptions enemyBuffOptions;
+	private FE9ClassOptions classOptions;
 	
 	FE9CommonTextLoader textData;
 	FE9CharacterDataLoader charData;
@@ -65,7 +67,7 @@ public class FE9Randomizer extends Randomizer {
 	FE9SkillDataLoader skillData;
 	FE9ChapterDataLoader chapterData;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, FE9EnemyBuffOptions enemyBuffOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, FE9EnemyBuffOptions enemyBuffOptions, FE9ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -76,6 +78,7 @@ public class FE9Randomizer extends Randomizer {
 		this.skillOptions = skillOptions;
 		this.otherCharOptions = otherCharOptions;
 		this.enemyBuffOptions = enemyBuffOptions;
+		this.classOptions = classOptions;
 		this.miscOptions = miscOptions;
 		
 		this.seedString = seed;
@@ -175,7 +178,7 @@ public class FE9Randomizer extends Randomizer {
 //				army.commitChanges();
 //			}
 			
-			
+			randomizeClassesIfNecessary(seed);
 			randomizeGrowthsIfNecessary(seed);
 			randomizeBasesIfNecessary(seed);
 			randomizeSkillsIfNecessary(seed);
@@ -226,12 +229,6 @@ public class FE9Randomizer extends Randomizer {
 //			oscar.commitChanges();
 			//kieran.commitChanges();
 			
-			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9ClassRandomizer.rngSalt));
-			FE9ClassRandomizer.randomizePlayableCharacters(true, false, false, true, true, true, charData, classData, chapterData, skillData, itemData, rng);
-			FE9ClassRandomizer.updateIkeInventoryChapter1Script(charData, itemData, handler);
-			FE9ClassRandomizer.randomizeBossCharacters(true, true, false, charData, classData, chapterData, skillData, itemData, rng);
-			FE9ClassRandomizer.randomizeMinionCharacters(true, true, false, charData, classData, chapterData, skillData, itemData, rng);
-			
 			charData.compileDiffs(handler);
 			classData.compileDiffs(handler);
 			//chapterData.commitChanges();
@@ -274,10 +271,10 @@ public class FE9Randomizer extends Randomizer {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9GrowthRandomizer.rngSalt));
 			switch (growthOptions.mode) {
 			case REDISTRIBUTE:
-				FE9GrowthRandomizer.randomizeGrowthsByRedistribution(growthOptions.redistributionOption.variance, growthOptions.adjustHP, charData, classData, rng);
+				FE9GrowthRandomizer.randomizeGrowthsByRedistribution(growthOptions.redistributionOption.variance, growthOptions.adjustHP, growthOptions.adjustSTRMAGSplit, charData, classData, rng);
 				break;
 			case DELTA:
-				FE9GrowthRandomizer.randomizeGrowthsByDelta(growthOptions.deltaOption.variance, charData, rng);
+				FE9GrowthRandomizer.randomizeGrowthsByDelta(growthOptions.deltaOption.variance, growthOptions.adjustSTRMAGSplit, charData, classData, rng);
 				break;
 			case FULL:
 				FE9GrowthRandomizer.randomizeGrowthsFully(growthOptions.fullOption.minValue, growthOptions.fullOption.minValue, growthOptions.adjustHP, growthOptions.adjustSTRMAGSplit, charData, classData, rng);
@@ -385,6 +382,35 @@ public class FE9Randomizer extends Randomizer {
 			}
 			if (enemyBuffOptions.giveBossSkills) {
 				FE9EnemyBuffer.giveBossesSkills(enemyBuffOptions.bossSkillChance, charData, classData, skillData, rng);
+			}
+		}
+	}
+	
+	private void randomizeClassesIfNecessary(String seed) {
+		if (classOptions != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9ClassRandomizer.rngSalt));
+			if (classOptions.randomizePCs) {
+				FE9ClassRandomizer.randomizePlayableCharacters(classOptions.includeLords, 
+						classOptions.includeThieves, 
+						classOptions.includeSpecial, 
+						classOptions.forceDifferent, 
+						classOptions.mixPCRaces, 
+						classOptions.allowCrossgender, charData, classData, chapterData, skillData, itemData, rng);
+				try {
+					FE9ClassRandomizer.updateIkeInventoryChapter1Script(charData, itemData, handler);
+				} catch (GCNISOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			if (classOptions.randomizeBosses) {
+				FE9ClassRandomizer.randomizeBossCharacters(classOptions.forceDifferent, 
+						classOptions.mixBossRaces, false, charData, classData, chapterData, skillData, itemData, rng);
+			}
+			if (classOptions.randomizeMinions) {
+				FE9ClassRandomizer.randomizeMinionCharacters(classOptions.minionRandomChance,
+						classOptions.forceDifferent, 
+						classOptions.mixMinionRaces, false, charData, classData, chapterData, skillData, itemData, rng);
 			}
 		}
 	}

@@ -332,7 +332,7 @@ public class FE9Data {
 				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, WYVERN_RIDER, WYVERN_LORD, FIRE_MAGE, WIND_MAGE, THUNDER_MAGE, MAGE,
 				FIRE_SAGE, WIND_SAGE, THUNDER_SAGE, SAGE, FIRE_SAGE_STAFF, WIND_SAGE_STAFF, THUNDER_SAGE_STAFF, FIRE_SAGE_KNIFE, WIND_SAGE_KNIFE,
 				THUNDER_SAGE_KNIFE, PRIEST, BISHOP, THIEF, ASSASSIN, BANDIT, BERSERKER, TIGER, CAT, WHITE_DRAGON, RED_DRAGON,
-				HAWK, CROW, HERON, W_HERON, FERAL_TIGER, FERAL_CAT, FERAL_WHITE_DRAGON,
+				HAWK, CROW, /*HERON,*/ W_HERON, FERAL_TIGER, FERAL_CAT, FERAL_WHITE_DRAGON,
 				FERAL_RED_DRAGON, FERAL_HAWK, FERAL_CROW, SAGE_STAFF, SAGE_KNIFE,
 				MYRMIDON_F, SWORDMASTER_F, SOLDIER_F, HALBERDIER_F, 
 				/*SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F, */BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN,
@@ -348,14 +348,14 @@ public class FE9Data {
 				SOLDIER, HALBERDIER, FIGHTER, WARRIOR, ARCHER, SNIPER, KNIGHT, GENERAL, SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT,
 				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, WYVERN_RIDER, WYVERN_LORD, FIRE_MAGE, WIND_MAGE, THUNDER_MAGE, MAGE,
 				PRIEST, BISHOP, THIEF, ASSASSIN, BANDIT, BERSERKER, TIGER, CAT, WHITE_DRAGON, RED_DRAGON,
-				HAWK, CROW, HERON, W_HERON, 
+				HAWK, CROW, /*HERON,*/ W_HERON, 
 				MYRMIDON_F, SWORDMASTER_F, SOLDIER_F, HALBERDIER_F, 
 				/*SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F,*/ BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN,
 				PEGASUS_KNIGHT, FALCON_KNIGHT, ELINCIA_FALCON_KNIGHT, WYVERN_RIDER_F, WYVERN_LORD_F, MAGE_F,
 				BISHOP_F, CLERIC, VALKYRIE, CAT_F, RED_DRAGON_F,
 				SAGE_STAFF, SAGE_KNIFE,
 				SAGE_STAFF_F, SAGE_KNIFE_F));
-		public static Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(HERON, W_HERON));
+		public static Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(/*HERON,*/ W_HERON));
 		
 		public static Set<CharacterClass> physicalClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, RANGER, GREIL_HERO, MYRMIDON, SWORDMASTER, 
 				SOLDIER, HALBERDIER, FIGHTER, WARRIOR, ARCHER, SNIPER, KNIGHT, GENERAL, SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT,
@@ -376,8 +376,8 @@ public class FE9Data {
 		public boolean isThiefClass() { return allThiefClasses.contains(this); }
 		public boolean isSpecialClass() { return allSpecialClasses.contains(this); }
 		
-		public boolean isPhysicalClass() { return !magicalClasses.contains(this); }
-		public boolean isMagicalClass() { return !physicalClasses.contains(this); }
+		public boolean isPhysicalClass() { return physicalClasses.contains(this); }
+		public boolean isMagicalClass() { return magicalClasses.contains(this); }
 		public boolean isHybridMagicalClass() { return hybridMagicalClasses.contains(this); }
 		public boolean isHybridPhyiscalClass() { return hybridPhysicalClasses.contains(this); }
 		

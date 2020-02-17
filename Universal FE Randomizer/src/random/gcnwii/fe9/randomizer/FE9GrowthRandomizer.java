@@ -16,7 +16,7 @@ public class FE9GrowthRandomizer {
 	
 	private enum StatArea { HP, STR, MAG, SKL, SPD, LCK, DEF, RES; }
 	
-	public static void randomizeGrowthsByRedistribution(int variance, boolean adjustHP, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
+	public static void randomizeGrowthsByRedistribution(int variance, boolean adjustSTRMAG, boolean adjustHP, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
 		FE9Character[] characters = charData.allPlayableCharacters();
 		for (FE9Character character : characters) {
 			if (character.wasModified()) { continue; }
@@ -43,7 +43,9 @@ public class FE9GrowthRandomizer {
 			String classID = charData.pointerLookup(character.getClassPointer());
 			FE9Class charClass = classData.classWithID(classID);
 			StatBias bias = classData.statBiasForClass(charClass);
-			
+			if (!adjustSTRMAG) {
+				bias = StatBias.NONE;
+			}
 			WeightedDistributor<StatArea> distributor = new WeightedDistributor<StatArea>();
 			switch (bias) {
 			case NONE:
@@ -127,7 +129,7 @@ public class FE9GrowthRandomizer {
 		charData.commit();
 	}
 	
-	public static void randomizeGrowthsByDelta(int variance, FE9CharacterDataLoader charData, Random rng) {
+	public static void randomizeGrowthsByDelta(int variance, boolean adjustSTRMAG, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
 		FE9Character[] characters = charData.allPlayableCharacters();
 		for (FE9Character character : characters) {
 			if (character.wasModified()) { continue; }
@@ -163,6 +165,28 @@ public class FE9GrowthRandomizer {
 			delta = rng.nextInt(variance + 1);
 			sign = rng.nextInt(2) == 0 ? 1 : -1;
 			character.setRESGrowth(WhyDoesJavaNotHaveThese.clamp(character.getRESGrowth() + sign * delta, 0, 255));
+			
+			if (adjustSTRMAG) {
+				FE9Class charClass = classData.classWithID(charData.getJIDForCharacter(character));
+				StatBias bias = classData.statBiasForClass(charClass);
+				
+				int strGrowth = character.getSTRGrowth();
+				int magGrowth = character.getMAGGrowth();
+				
+				switch (bias) {
+				case NONE: break;
+				case LEAN_PHYSICAL:
+				case PHYSICAL_ONLY:
+					character.setSTRGrowth(Math.max(strGrowth, magGrowth));
+					character.setMAGGrowth(Math.min(strGrowth, magGrowth));
+					break;
+				case LEAN_MAGICAL:
+				case MAGICAL_ONLY:
+					character.setSTRGrowth(Math.min(strGrowth, magGrowth));
+					character.setMAGGrowth(Math.max(strGrowth, magGrowth));
+					break;
+				}
+			}
 		}
 		
 		charData.commit();

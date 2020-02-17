@@ -146,10 +146,16 @@ public class FE9CharacterDataLoader {
 	}
 	
 	public String pointerLookup(long pointer) {
+		if (fe8databin != null) {
+			return fe8databin.stringForPointer(pointer);
+		}
 		return knownPointers.get(pointer);
 	}
 	
 	public Long addressLookup(String value) {
+		if (fe8databin != null) {
+			return fe8databin.pointerForString(value);
+		}
 		return knownAddresses.get(value);
 	}
 	

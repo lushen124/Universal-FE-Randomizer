@@ -10,6 +10,7 @@ import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.SkillsOptions;
+import ui.fe9.FE9ClassOptions;
 import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
@@ -70,7 +71,9 @@ public class OptionRecorder {
 		public FE9SkillsOptions skills;
 		public FE9OtherCharacterOptions otherOptions;
 		public FE9EnemyBuffOptions enemyBuff;
+		public FE9ClassOptions classes;
 		public MiscellaneousOptions misc;
+		public String seed;
 		public Integer version;
 	}
 	
@@ -101,6 +104,25 @@ public class OptionRecorder {
 		String jsonString = gson.toJson(options);
 		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
 		prefs.put(SettingsKey, jsonString);
+	}
+	
+	public static void recordFE9Options(GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions,
+			FE9OtherCharacterOptions otherOptions, FE9EnemyBuffOptions buffOptions, FE9ClassOptions classOptions,
+			MiscellaneousOptions miscOptions, String seed) {
+		FE9OptionBundle bundle = new FE9OptionBundle();
+		bundle.growths = growthOptions;
+		bundle.bases = baseOptions;
+		bundle.skills = skillOptions;
+		bundle.otherOptions = otherOptions;
+		bundle.enemyBuff = buffOptions;
+		bundle.classes = classOptions;
+		bundle.misc = miscOptions;
+		bundle.seed = seed;
+		bundle.version = FE9OptionBundleVersion;
+		
+		options.fe9 = bundle;
+		
+		saveOptions();
 	}
 	
 	public static void recordFE4Options(GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions, 

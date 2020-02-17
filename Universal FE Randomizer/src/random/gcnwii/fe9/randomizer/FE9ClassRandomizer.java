@@ -40,9 +40,12 @@ public class FE9ClassRandomizer {
 		
 		Map<String, String> pidToJid = new HashMap<String, String>();
 		
+		boolean heronAssigned = false;
+		
 		for (FE9Character character : charData.allPlayableCharacters()) {
 			String originalJID = charData.getJIDForCharacter(character);
 			FE9Class originalClass = classData.classWithID(originalJID);
+			boolean isFormerThief = classData.isThiefClass(originalClass);
 			if (!includeLords && classData.isLordClass(originalClass)) { continue; }
 			if (!includeThieves && classData.isThiefClass(originalClass)) { continue; }
 			if (!includeSpecial && classData.isSpecialClass(originalClass)) { continue; }
@@ -57,6 +60,11 @@ public class FE9ClassRandomizer {
 			} else {
 				List<FE9Class> possibleReplacements = possibleReplacementsForClass(originalClass, includeLords, includeThieves, includeSpecial, 
 						forceDifferent, mixRaces, crossGenders, true, classData);
+				if (heronAssigned) {
+					possibleReplacements.removeIf(fe9class -> {
+						return classData.getJIDForClass(fe9class).equals(FE9Data.CharacterClass.W_HERON.getJID());
+					});
+				}
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible Classes: ");
 				for (FE9Class charClass : possibleReplacements) {
 					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + classData.getJIDForClass(charClass));
@@ -118,16 +126,17 @@ public class FE9ClassRandomizer {
 				spdBase -= classData.getLaguzSPDOffset(newClass);
 				defBase -= classData.getLaguzDEFOffset(newClass);
 				resBase -= classData.getLaguzRESOffset(newClass);
+				
+				character.setBaseHP(hpBase);
+				character.setBaseSKL(sklBase);
+				character.setBaseSPD(spdBase);
+				character.setBaseLCK(lckBase);
+				character.setBaseDEF(defBase);
+				character.setBaseRES(resBase);
 			}
 			
-			character.setBaseHP(hpBase);
 			character.setBaseSTR(strBase);
 			character.setBaseMAG(magBase);
-			character.setBaseSKL(sklBase);
-			character.setBaseSPD(spdBase);
-			character.setBaseLCK(lckBase);
-			character.setBaseDEF(defBase);
-			character.setBaseRES(resBase);
 			
 			// Update weapon levels.
 			String originalWeaponLevels = charData.getWeaponLevelStringForCharacter(character);
@@ -339,6 +348,9 @@ public class FE9ClassRandomizer {
 							if (!itemData.equipmentListForJID(targetJID).isEmpty()) {
 								equipment.addAll(itemData.equipmentListForJID(targetJID));
 							}
+							if (isFormerThief) {
+								equipment.addAll(itemData.formerThiefKit());
+							}
 							if (rng.nextInt(5) != 0) {
 								List<FE9Item> items = itemData.potentialEquipmentListForJID(targetJID);
 								equipment.add(items.get(rng.nextInt(items.size())));
@@ -401,6 +413,7 @@ public class FE9ClassRandomizer {
 		
 		for (FE9Character character : charData.allBossCharacters()) {
 			FE9Data.Character fe9Char = FE9Data.Character.withPID(charData.getPIDForCharacter(character));
+			if (fe9Char == null) { continue; }
 			if (fe9Char != null && fe9Char.isUnsafeForRandomization()) { continue; }
 			String originalJID = charData.getJIDForCharacter(character);
 			FE9Class originalClass = classData.classWithID(originalJID);
@@ -737,11 +750,12 @@ public class FE9ClassRandomizer {
 		charData.commit();
 	}
 	
-	public static void randomizeMinionCharacters(boolean forceDifferent, boolean mixRaces, boolean crossGenders, FE9CharacterDataLoader charData,
+	public static void randomizeMinionCharacters(int chance, boolean forceDifferent, boolean mixRaces, boolean crossGenders, FE9CharacterDataLoader charData,
 			FE9ClassDataLoader classData, FE9ChapterDataLoader chapterData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData, Random rng) {
 		for (FE9Data.Chapter chapter : FE9Data.Chapter.allChapters()) {
 			for (FE9ChapterArmy army : chapterData.armiesForChapter(chapter)) {
 				for (String unitID : army.getAllUnitIDs()) {
+					if (rng.nextInt(100) >= chance) { continue; }
 					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
 					String pid = army.getPIDForUnit(unit);
 					if (!charData.isMinionCharacter(charData.characterWithID(pid))) { continue; }

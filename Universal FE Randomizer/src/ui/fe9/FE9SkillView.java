@@ -150,6 +150,7 @@ public class FE9SkillView extends Composite {
 	
 	public void setEnabled(boolean enabled) {
 		skillsEnabled = enabled;
+		enableButton.setSelection(skillsEnabled);
 		
 		randomizeExistingModeButton.setEnabled(skillsEnabled);
 		randomizeFullModeButton.setEnabled(skillsEnabled);

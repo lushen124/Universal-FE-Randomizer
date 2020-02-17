@@ -262,6 +262,13 @@ public class FE9ItemDataLoader {
 		return weapons;
 	}
 	
+	public List<FE9Item> formerThiefKit() {
+		return new ArrayList<FE9Item>(Arrays.asList(
+				itemWithIID(FE9Data.Item.DOOR_KEY.getIID()),
+				itemWithIID(FE9Data.Item.CHEST_KEY.getIID())
+				));
+	}
+	
 	public List<FE9Item> equipmentListForJID(String jid) {
 		if (jid == null) { return null; }
 		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
