@@ -140,10 +140,14 @@ public class FE9SkillView extends Composite {
 		case RANDOMIZE_EXISTING:
 			countLabel.setEnabled(false);
 			skillCountSpinner.setEnabled(false);
+			randomizeExistingModeButton.setSelection(true);
+			randomizeFullModeButton.setSelection(false);
 			break;
 		case FULL_RANDOM:
 			countLabel.setEnabled(skillsEnabled);
 			skillCountSpinner.setEnabled(skillsEnabled);
+			randomizeFullModeButton.setSelection(true);
+			randomizeExistingModeButton.setSelection(false);
 			break;
 		}
 	}
