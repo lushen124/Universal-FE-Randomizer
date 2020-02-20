@@ -93,7 +93,7 @@ public class FE9ClassRandomizer {
 				charData.setPromotedAIDForCharacter(character, classData.getPromotedAIDForClass(newClass));
 			}
 			
-			// Adjust bases
+			// Adjust bases and growths
 			int hpBase = character.getBaseHP() + originalClass.getBaseHP() - newClass.getBaseHP();
 			
 			int strBase = 0;
@@ -104,11 +104,15 @@ public class FE9ClassRandomizer {
 				int effectiveMAG = character.getBaseMAG() + originalClass.getBaseMAG();
 				strBase = Math.max(effectiveSTR, effectiveMAG) - newClass.getBaseSTR();
 				magBase = Math.min(effectiveSTR, effectiveMAG) - newClass.getBaseMAG();
+				character.setSTRGrowth(Math.max(character.getSTRGrowth(), character.getMAGGrowth()));
+				character.setMAGGrowth(Math.min(character.getSTRGrowth(), character.getMAGGrowth()));
 			} else if (classStatBias == StatBias.LEAN_MAGICAL || classStatBias == StatBias.MAGICAL_ONLY) {
 				int effectiveSTR = character.getBaseSTR() + originalClass.getBaseSTR();
 				int effectiveMAG = character.getBaseMAG() + originalClass.getBaseMAG();
 				strBase = Math.min(effectiveSTR, effectiveMAG) - newClass.getBaseSTR();
 				magBase = Math.max(effectiveSTR, effectiveMAG) - newClass.getBaseMAG();
+				character.setSTRGrowth(Math.min(character.getSTRGrowth(), character.getMAGGrowth()));
+				character.setMAGGrowth(Math.max(character.getSTRGrowth(), character.getMAGGrowth()));
 			} else {
 				strBase = character.getBaseSTR() + originalClass.getBaseSTR() - newClass.getBaseSTR();
 				magBase = character.getBaseMAG() + originalClass.getBaseMAG() - newClass.getBaseMAG();	
@@ -420,12 +424,31 @@ public class FE9ClassRandomizer {
 			
 			String pid = charData.getPIDForCharacter(character);
 			
+			DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Randomizing Boss " + pid);
+			
 			String targetJID = pidToJid.get(pid);
 			FE9Class newClass = null;
 			if (targetJID != null) {
 				charData.setJIDForCharacter(character, targetJID);
 				newClass = classData.classWithID(targetJID);
 			} else {
+				for (FE9Data.Chapter chapter : FE9Data.Chapter.allChapters())  {
+					for (FE9ChapterArmy army : chapterData.armiesForChapter(chapter)) {
+						for (String unitID : army.getAllUnitIDs()) {
+							FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+							if (army.getPIDForUnit(unit).equals(pid)) {
+								String armyJID = army.getJIDForUnit(unit);
+								if (!armyJID.equals(originalJID)) {
+									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "JID mismatch from character data (" + originalJID + ") and army data (" + armyJID + "). Defaulting to " + armyJID);
+									originalJID = armyJID;
+									originalClass = classData.classWithID(armyJID);
+									break;
+								}
+							}
+						}
+					}
+				}
+				
 				List<FE9Class> possibleReplacements = possibleReplacementsForClass(originalClass, false, false, false, 
 						forceDifferent, mixRaces, crossGenders, false, classData);
 				possibleReplacements.removeIf(fe9class -> {
