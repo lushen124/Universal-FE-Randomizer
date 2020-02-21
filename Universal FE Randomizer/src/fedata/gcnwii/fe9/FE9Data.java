@@ -355,7 +355,7 @@ public class FE9Data {
 				/*BISHOP_F,*/ CLERIC, VALKYRIE, CAT_F, RED_DRAGON_F,
 				SAGE_STAFF, SAGE_KNIFE,
 				SAGE_STAFF_F, SAGE_KNIFE_F));
-		public static Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(TIGER, CAT, WHITE_DRAGON, RED_DRAGON,
+		public static Set<CharacterClass> playerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(RANGER, LORD, TIGER, CAT, WHITE_DRAGON, RED_DRAGON,
 				HAWK, CROW, /*HERON,*/ W_HERON));
 		
 		public static Set<CharacterClass> physicalClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, RANGER, GREIL_HERO, MYRMIDON, SWORDMASTER, 
