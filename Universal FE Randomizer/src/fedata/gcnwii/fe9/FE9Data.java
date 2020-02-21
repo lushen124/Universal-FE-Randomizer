@@ -460,8 +460,10 @@ public class FE9Data {
 				case TITANIA_PALADIN: return "AID_KNIGHT2_TIA";
 				case LORD: return "AID_LORD2";
 				case SAGE_STAFF: case SAGE_KNIFE: return "AID_MAGE2";
-				case SAGE_STAFF_F: case SAGE_KNIFE_F: return "AID_MAGEF3";
-				case FALCON_KNIGHT: case ELINCIA_FALCON_KNIGHT: return "AID_PEGASU2";
+				case SAGE_STAFF_F: return "AID_MAGEF3_EL"; // Use Ilyana's animations 
+				case SAGE_KNIFE_F: return "AID_MAGEF3_CA"; // Use Calill's animations
+				case FALCON_KNIGHT: return "AID_PEGASU2"; 
+				case ELINCIA_FALCON_KNIGHT: return "AID_PEGASU2_ELI";
 				case HALBERDIER: return "AID_SOLDIER2";
 				case HALBERDIER_F: return "AID_SOLDIER2F";
 				case SWORDMASTER: return "AID_SWORDER2";
