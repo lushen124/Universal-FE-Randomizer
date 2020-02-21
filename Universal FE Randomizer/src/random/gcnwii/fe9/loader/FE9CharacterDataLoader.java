@@ -111,6 +111,9 @@ public class FE9CharacterDataLoader {
 				minionCharacters.add(character);
 				if (pid.contains("_DAYNE")) {
 					// Daein soldiers have classes built into them, so we need to explicitly change PIDs when randomizing minions later.
+					// That said, some of these have special scripts built in, so some characters cannot be changed.
+					// The ones this applies to seems to be those with a PID that ends in a number.
+					// e.g. PID_DAYNE_SOL_1
 					List<FE9Character> daeinCharacters = daeinMinionsByJID.get(jid);
 					if (daeinCharacters == null) {
 						daeinCharacters = new ArrayList<FE9Character>();
@@ -140,6 +143,20 @@ public class FE9CharacterDataLoader {
 		if (character == null) { return false; }
 		String pid = fe8databin.stringForPointer(character.getCharacterIDPointer());
 		return ((pid.contains("_DAYNE") || pid.contains("_ZAKO") || pid.contains("_BANDIT")) && !pid.contains("_EV"));
+	}
+	
+	public boolean isRestrictedMinionCharacterPID(String pid) {
+		// These characters are specially referenced by chapter scripts, so we need to be careful about changing them.
+		if (isMinionCharacter(characterWithID(pid))) {
+			if (pid.contains("_DAYNE")) {
+				if (pid.matches("PID_DAYNE_[A-Z]{3}_[0-9]+")) { return true; }
+				return false;
+			} else {
+				return false;
+			}
+		}
+		
+		return false;
 	}
 	
 	public FE9Character[] allPlayableCharacters() {

@@ -786,6 +786,7 @@ public class FE9ClassRandomizer {
 					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
 					String pid = army.getPIDForUnit(unit);
 					if (!charData.isMinionCharacter(charData.characterWithID(pid))) { continue; }
+					if (charData.isRestrictedMinionCharacterPID(pid)) { continue; }
 					
 					String originalJID = army.getJIDForUnit(unit);
 					FE9Class originalClass = classData.classWithID(originalJID);
