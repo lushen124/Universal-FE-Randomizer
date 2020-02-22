@@ -9,9 +9,13 @@ public class ChangelogSection implements ChangelogElement {
 	
 	private List<ChangelogElement> childElements;
 	
+	private List<String> classes;
+	
 	public ChangelogSection(String identifier) {
 		this.identifier = identifier;
 		childElements = new ArrayList<ChangelogElement>();
+		
+		classes = new ArrayList<String>();
 	}
 	
 	public void addElement(ChangelogElement element) {
@@ -22,13 +26,36 @@ public class ChangelogSection implements ChangelogElement {
 		return identifier;
 	}
 	
+	public ChangelogElement getChildWithIdentifier(String identifier) {
+		for (ChangelogElement element : childElements) {
+			if (element.getIdentifier().equals(identifier)) { return element; }
+		}
+		
+		return null;
+	}
+	
 	public String build() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<a name=\"" + identifier + "\"><div id=\"" + identifier + "\" class=\"changelog-section\"></a>");
+		sb.append("<a id=\"anchor-" + identifier + "\"></a>");
+		sb.append("<div id=\"" + identifier + "\" class=\"changelog-section");
+		for (String elementClass : classes) {
+			sb.append(" " + elementClass);
+		}
+		sb.append("\"></a>");
 		for (ChangelogElement element : childElements) {
 			sb.append(element.build());
 		}
 		sb.append("</div>");
 		return sb.toString();
+	}
+
+	@Override
+	public List<String> getClasses() {
+		return classes;
+	}
+
+	@Override
+	public void addClass(String elementClass) {
+		classes.add(elementClass);
 	}
 }

@@ -1,20 +1,35 @@
 package random.gcnwii.fe9.loader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fedata.gcnwii.fe9.FE9Base64;
 import fedata.gcnwii.fe9.FE9Character;
+import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
 import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
+import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponRank;
+import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponType;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.WhyDoesJavaNotHaveThese;
+import util.recordkeeper.ChangelogBuilder;
+import util.recordkeeper.ChangelogHeader;
+import util.recordkeeper.ChangelogHeader.HeaderLevel;
+import util.recordkeeper.ChangelogImage;
+import util.recordkeeper.ChangelogSection;
+import util.recordkeeper.ChangelogStyleRule;
+import util.recordkeeper.ChangelogTOC;
+import util.recordkeeper.ChangelogTable;
+import util.recordkeeper.ChangelogText;
+import util.recordkeeper.ChangelogText.Style;
 
 public class FE9CharacterDataLoader {
 	
@@ -207,6 +222,13 @@ public class FE9CharacterDataLoader {
 			return fe8databin.stringForPointer(character.getCharacterIDPointer());
 		}
 		return pointerLookup(character.getCharacterIDPointer());
+	}
+	
+	public String getMPIDForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		if (character.getCharacterNamePointer() == 0) { return null; }
+		
+		return fe8databin.stringForPointer(character.getCharacterNamePointer());
 	}
 	
 	public String getJIDForCharacter(FE9Character character) {
@@ -522,4 +544,201 @@ public class FE9CharacterDataLoader {
 		return FE9Data.Character.withPID(characterID);
 	}
 
+	public void recordOriginalCharacterData(ChangelogBuilder builder, ChangelogSection characterDataSection, 
+			FE9CommonTextLoader textData, FE9ClassDataLoader classData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData) {
+		ChangelogTOC playableTOC = new ChangelogTOC("playable-character-data");
+		playableTOC.addClass("character-section-toc");
+		characterDataSection.addElement(new ChangelogHeader(HeaderLevel.HEADING_2, "Character Data", "character-data-header"));
+		characterDataSection.addElement(playableTOC);
+		
+		for (FE9Character character : playableCharacters) {
+			String characterName = textData.textStringForIdentifier(getMPIDForCharacter(character));
+			String anchor = "pc-data-" + getPIDForCharacter(character);
+			playableTOC.addAnchorWithTitle(anchor, characterName);
+			
+			ChangelogHeader titleHeader = new ChangelogHeader(HeaderLevel.HEADING_3, characterName, anchor);
+			titleHeader.addClass("pc-data-title");
+			characterDataSection.addElement(titleHeader);
+			
+			ChangelogTable characterDataTable = new ChangelogTable(3, new String[] {"", "Old Value", "New Value"}, anchor + "-data-table");
+			characterDataTable.addClass("character-data-table");
+			characterDataTable.addRow(new String[] {"PID", getPIDForCharacter(character), ""});
+			characterDataTable.addRow(new String[] {"Name", characterName, ""});
+			
+			String jid = getJIDForCharacter(character);
+			FE9Class charClass = classData.classWithID(jid);
+			String className = textData.textStringForIdentifier(classData.getMJIDForClass(charClass));
+			characterDataTable.addRow(new String[] {"Class", className + " (" + jid + ")", ""});
+			
+			FE9Data.Affinity affinity = getAffinityForCharacter(character);
+			characterDataTable.addRow(new String[] {"Affinity", "", ""});
+			ChangelogSection affinityCell = new ChangelogSection("pc-data-original-affinity-" + getPIDForCharacter(character));
+			affinityCell.addElement(new ChangelogImage(anchor + "-affinity-image", 
+					FE9Base64.affinityBase64Prefix + FE9Base64.base64StringForAffinity(affinity), 
+					24, 24));
+			ChangelogText affinityText = new ChangelogText(anchor + "-affinity-text", Style.NONE, affinity.toString() + " (" + affinity.getInternalID() + ")");
+			affinityText.addClass("pc-data-affinity-text");
+			affinityCell.addElement(affinityText);
+			affinityCell.addClass("pc-data-affinity-cell");
+			characterDataTable.setElement(3, 1, affinityCell);
+			
+			String weaponLevelString = getWeaponLevelStringForCharacter(character);
+			Map<WeaponType, WeaponRank> ranks = itemData.weaponLevelsForWeaponString(weaponLevelString);
+			ChangelogSection weaponLevelCell = new ChangelogSection("pc-data-original-weapon-levels-" + getPIDForCharacter(character));
+			weaponLevelCell.addClass("pc-data-weapon-level-cell");
+			List<WeaponType> orderedTypes = new ArrayList<WeaponType>(Arrays.asList(WeaponType.SWORD, WeaponType.LANCE, WeaponType.AXE,
+					WeaponType.BOW, WeaponType.FIRE, WeaponType.THUNDER, WeaponType.WIND, WeaponType.STAFF));
+			for (WeaponType type : orderedTypes) {
+				if (ranks.get(type) != null && ranks.get(type) != WeaponRank.NONE && ranks.get(type) != WeaponRank.UNKNOWN) {
+					ChangelogSection weaponLevel = new ChangelogSection(anchor + "-original-" + type.toString());
+					weaponLevel.addClass("pc-data-weapon-level-entry");
+					weaponLevel.addElement(new ChangelogImage(anchor + "-original-" + type.toString() + "-image", 
+							FE9Base64.weaponTypeBase64Prefix + FE9Base64.base64StringForWeaponType(type), 
+							23, 23));
+					weaponLevel.addElement(new ChangelogText(anchor + "-original-" + type.toString() + "-text", Style.NONE, ranks.get(type).toString()));
+					weaponLevelCell.addElement(weaponLevel);
+				}
+			}
+			characterDataTable.addRow(new String[] {"Weapon Levels", "", ""});
+			characterDataTable.setElement(4, 1, weaponLevelCell);
+			
+			characterDataSection.addElement(characterDataTable);
+		}
+		
+		ChangelogStyleRule tocStyle = new ChangelogStyleRule();
+		tocStyle.setElementClass("character-section-toc");
+		tocStyle.addRule("display", "flex");
+		tocStyle.addRule("flex-direction", "row");
+		tocStyle.addRule("width", "75%");
+		tocStyle.addRule("align-items", "center");
+		tocStyle.addRule("justify-content", "center");
+		tocStyle.addRule("flex-wrap", "wrap");
+		tocStyle.addRule("margin-left", "auto");
+		tocStyle.addRule("margin-right", "auto");
+		builder.addStyle(tocStyle);
+		
+		ChangelogStyleRule tocItemAfter = new ChangelogStyleRule();
+		tocItemAfter.setOverrideSelectorString(".character-section-toc div:not(:last-child)::after");
+		tocItemAfter.addRule("content", "\"|\"");
+		tocItemAfter.addRule("margin", "0px 5px");
+		builder.addStyle(tocItemAfter);
+		
+		ChangelogStyleRule affinityStyle = new ChangelogStyleRule();
+		affinityStyle.setElementClass("pc-data-affinity-cell");
+		affinityStyle.addRule("display", "flex");
+		affinityStyle.addRule("flex-direction", "row");
+		affinityStyle.addRule("align-items", "center");
+		affinityStyle.addRule("margin-left", "5px");
+		builder.addStyle(affinityStyle);
+		
+		ChangelogStyleRule weaponLevelCellStyle = new ChangelogStyleRule();
+		weaponLevelCellStyle.setElementClass("pc-data-weapon-level-cell");
+		weaponLevelCellStyle.addRule("display", "flex");
+		weaponLevelCellStyle.addRule("flex-direction", "row");
+		weaponLevelCellStyle.addRule("align-items", "center");
+		weaponLevelCellStyle.addRule("margin-left", "5px");
+		builder.addStyle(weaponLevelCellStyle);
+		
+		ChangelogStyleRule weaponLevelEntryStyle = new ChangelogStyleRule();
+		weaponLevelEntryStyle.setElementClass("pc-data-weapon-level-entry");
+		weaponLevelEntryStyle.addRule("margin-right", "15px");
+		weaponLevelEntryStyle.addRule("display", "flex");
+		weaponLevelEntryStyle.addRule("flex-direction", "row");
+		weaponLevelEntryStyle.addRule("align-items", "center");
+		builder.addStyle(weaponLevelEntryStyle);
+		
+		ChangelogStyleRule weaponLevelEntryTextStyle = new ChangelogStyleRule();
+		weaponLevelEntryTextStyle.setElementClass("pc-data-weapon-level-entry");
+		weaponLevelEntryTextStyle.setChildTags(new ArrayList<String>(Arrays.asList("p")));
+		weaponLevelEntryTextStyle.addRule("margin-left", "5px");
+		weaponLevelEntryTextStyle.addRule("margin-top", "0px");
+		weaponLevelEntryTextStyle.addRule("margin-bottom", "0px");
+		builder.addStyle(weaponLevelEntryTextStyle);
+		
+		ChangelogStyleRule affinityTextStyle = new ChangelogStyleRule();
+		affinityTextStyle.setElementClass("pc-data-affinity-text");
+		affinityTextStyle.addRule("margin-left", "10px");
+		affinityTextStyle.addRule("margin-top", "0px");
+		affinityTextStyle.addRule("margin-bottom", "0px");
+		builder.addStyle(affinityTextStyle);
+		
+		ChangelogStyleRule tableStyle = new ChangelogStyleRule();
+		tableStyle.setElementClass("character-data-table");
+		tableStyle.addRule("width", "75%");
+		tableStyle.addRule("margin-left", "auto");
+		tableStyle.addRule("margin-right", "auto");
+		tableStyle.addRule("border", "1px solid black");
+		builder.addStyle(tableStyle);
+		
+		ChangelogStyleRule titleStyle = new ChangelogStyleRule();
+		titleStyle.setElementClass("pc-data-title");
+		titleStyle.addRule("text-align", "center");
+		builder.addStyle(titleStyle);
+		
+		ChangelogStyleRule columnStyle = new ChangelogStyleRule();
+		columnStyle.setElementClass("character-data-table");
+		columnStyle.setChildTags(new ArrayList<String>(Arrays.asList("td", "th")));
+		columnStyle.addRule("border", "1px solid black");
+		builder.addStyle(columnStyle);
+		
+		ChangelogStyleRule firstColumnStyle = new ChangelogStyleRule();
+		firstColumnStyle.setOverrideSelectorString(".character-data-table td:first-child");
+		firstColumnStyle.addRule("width", "20%");
+		firstColumnStyle.addRule("text-align", "right");
+		builder.addStyle(firstColumnStyle);
+		
+		ChangelogStyleRule otherColumnStyle = new ChangelogStyleRule();
+		otherColumnStyle.setOverrideSelectorString(".character-data-table th:not(:first-child)");
+		otherColumnStyle.addRule("width", "40%");
+		builder.addStyle(otherColumnStyle);
+	}
+	
+	public void recordUpdatedCharacterData(ChangelogSection characterDataSection,
+			FE9CommonTextLoader textData, FE9ClassDataLoader classData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData) {
+		for (FE9Character character : playableCharacters) {
+			String characterName = textData.textStringForIdentifier(getMPIDForCharacter(character));
+			String anchor = "pc-data-" + getPIDForCharacter(character);
+			
+			ChangelogTable characterDataTable = (ChangelogTable)characterDataSection.getChildWithIdentifier(anchor + "-data-table");
+			
+			characterDataTable.setContents(0, 2, getPIDForCharacter(character));
+			characterDataTable.setContents(1, 2, characterName);
+			
+			String jid = getJIDForCharacter(character);
+			FE9Class charClass = classData.classWithID(jid);
+			String className = textData.textStringForIdentifier(classData.getMJIDForClass(charClass));
+			
+			characterDataTable.setContents(2, 2, className + " (" + jid + ")");
+			
+			FE9Data.Affinity affinity = getAffinityForCharacter(character);
+			ChangelogSection affinityCell = new ChangelogSection("pc-data-new-affinity-" + getPIDForCharacter(character));
+			affinityCell.addElement(new ChangelogImage(anchor + "-affinity-image", 
+					FE9Base64.affinityBase64Prefix + FE9Base64.base64StringForAffinity(affinity), 
+					24, 24));
+			ChangelogText affinityText = new ChangelogText(anchor + "-affinity-text", Style.NONE, affinity.toString() + " (" + affinity.getInternalID() + ")");
+			affinityText.addClass("pc-data-affinity-text");
+			affinityCell.addElement(affinityText);
+			affinityCell.addClass("pc-data-affinity-cell");
+			characterDataTable.setElement(3, 2, affinityCell);
+			
+			String weaponLevelString = getWeaponLevelStringForCharacter(character);
+			Map<WeaponType, WeaponRank> ranks = itemData.weaponLevelsForWeaponString(weaponLevelString);
+			ChangelogSection weaponLevelCell = new ChangelogSection("pc-data-new-weapon-levels-" + getPIDForCharacter(character));
+			weaponLevelCell.addClass("pc-data-weapon-level-cell");
+			List<WeaponType> orderedTypes = new ArrayList<WeaponType>(Arrays.asList(WeaponType.SWORD, WeaponType.LANCE, WeaponType.AXE,
+					WeaponType.BOW, WeaponType.FIRE, WeaponType.THUNDER, WeaponType.WIND, WeaponType.STAFF));
+			for (WeaponType type : orderedTypes) {
+				if (ranks.get(type) != null && ranks.get(type) != WeaponRank.NONE && ranks.get(type) != WeaponRank.UNKNOWN) {
+					ChangelogSection weaponLevel = new ChangelogSection(anchor + "-new-" + type.toString());
+					weaponLevel.addClass("pc-data-weapon-level-entry");
+					weaponLevel.addElement(new ChangelogImage(anchor + "-new-" + type.toString() + "-image", 
+							FE9Base64.weaponTypeBase64Prefix + FE9Base64.base64StringForWeaponType(type), 
+							23, 23));
+					weaponLevel.addElement(new ChangelogText(anchor + "-new-" + type.toString() + "-text", Style.NONE, ranks.get(type).toString()));
+					weaponLevelCell.addElement(weaponLevel);
+				}
+			}
+			characterDataTable.setElement(4, 2, weaponLevelCell);
+		}
+	}
 }

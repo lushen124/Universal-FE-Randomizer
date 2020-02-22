@@ -1,5 +1,8 @@
 package util.recordkeeper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ChangelogHeader implements ChangelogElement {
 	
 	public enum HeaderLevel {
@@ -22,10 +25,14 @@ public class ChangelogHeader implements ChangelogElement {
 	String header;
 	String identifier;
 	
+	private List<String> classes;
+	
 	public ChangelogHeader(HeaderLevel level, String header, String identifier) {
 		this.level = level;
 		this.header = header;
 		this.identifier = identifier;
+		
+		classes = new ArrayList<String>();
 	}
 	
 	public String getIdentifier() {
@@ -33,6 +40,28 @@ public class ChangelogHeader implements ChangelogElement {
 	}
 
 	public String build() {
-		return "<h" + level.toInt() + " id=\"" + identifier + "\">" + header + "</h" + level.toInt() + ">";
+		StringBuilder sb = new StringBuilder();
+		sb.append("<a id=\"anchor-" + identifier + "\"></a>");
+		sb.append("<h" + level.toInt() + " id=\"" + identifier + "\"");
+		if (!classes.isEmpty()) {
+			sb.append(" class=\"");
+			for (String elementClass : classes) {
+				sb.append(elementClass + " ");
+			}
+			sb.append("\"");
+		}
+		sb.append(">" + header + "</h" + level.toInt() + ">");
+		
+		return sb.toString();
+	}
+
+	@Override
+	public List<String> getClasses() {
+		return classes;
+	}
+
+	@Override
+	public void addClass(String elementClass) {
+		classes.add(elementClass);
 	}
 }

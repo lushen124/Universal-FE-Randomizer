@@ -121,6 +121,10 @@ public class FE9Randomizer extends Randomizer {
 		
 		addRandomizationOptionsToChangelog(changelogBuilder, seed);
 		
+		ChangelogSection characterSection = new ChangelogSection("character-data");
+		changelogBuilder.addElement(new ChangelogDivider());
+		changelogBuilder.addElement(characterSection);
+		
 		try {
 			updateStatus(0.10, "Loading Text Data...");
 			textData = new FE9CommonTextLoader(handler);
@@ -135,6 +139,8 @@ public class FE9Randomizer extends Randomizer {
 			updateStatus(0.35, "Loading Chapter Data...");
 			chapterData = new FE9ChapterDataLoader(handler, textData);
 			
+			charData.recordOriginalCharacterData(changelogBuilder, characterSection, textData, classData, skillData, itemData);
+			
 			randomizeClassesIfNecessary(seed);
 			randomizeGrowthsIfNecessary(seed);
 			randomizeBasesIfNecessary(seed);
@@ -146,6 +152,8 @@ public class FE9Randomizer extends Randomizer {
 			updateStatus(0.50, "Committing changes...");
 			charData.compileDiffs(handler);
 			classData.compileDiffs(handler);
+			
+			charData.recordUpdatedCharacterData(characterSection, textData, classData, skillData, itemData);
 			
 		} catch (GCNISOException e1) {
 			notifyError("Failed to load character data.");
@@ -475,6 +483,11 @@ public class FE9Randomizer extends Randomizer {
 		rule = new ChangelogStyleRule();
 		rule.setOverrideSelectorString("#options-table tr:nth-child(even)");
 		rule.addRule("background-color", "#CCC");
+		changelogBuilder.addStyle(rule);
+		
+		rule = new ChangelogStyleRule();
+		rule.setElementTag("table");
+		rule.addRule("border", "1");
 		changelogBuilder.addStyle(rule);
 	}
 }

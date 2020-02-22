@@ -213,6 +213,11 @@ public class FE9ClassDataLoader {
 		return fe8databin.stringForPointer(charClass.getClassIDPointer());
 	}
 	
+	public String getMJIDForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getClassNamePointer());
+	}
+	
 	public int getLaguzSTROffset(FE9Class laguzClass) {
 		if (laguzClass == null) { return 0; }
 		return FE9Data.CharacterClass.withJID(getJIDForClass(laguzClass)).getTransformSTRBonus();
