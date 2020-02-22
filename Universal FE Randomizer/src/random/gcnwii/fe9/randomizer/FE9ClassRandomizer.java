@@ -43,6 +43,8 @@ public class FE9ClassRandomizer {
 		boolean heronAssigned = false;
 		
 		for (FE9Character character : charData.allPlayableCharacters()) {
+			if (!charData.isModifiableCharacter(character)) { continue; }
+			
 			String originalJID = charData.getJIDForCharacter(character);
 			FE9Class originalClass = classData.classWithID(originalJID);
 			boolean isFormerThief = classData.isThiefClass(originalClass);
@@ -198,7 +200,7 @@ public class FE9ClassRandomizer {
 						numberOfStars--;
 					}
 					else {
-						int index = rng.nextInt(originalLevels.length());
+						int index = originalLevels.length() > 1 ? rng.nextInt(originalLevels.length() - 1) : 0;
 						char rank = originalLevels.charAt(index);
 						levels.append(rank);
 						if (originalLevels.length() > 1) { originalLevels = originalLevels.replace("" + rank, ""); }
@@ -591,7 +593,7 @@ public class FE9ClassRandomizer {
 						numberOfStars--;
 					}
 					else {
-						int index = rng.nextInt(originalLevels.length());
+						int index = originalLevels.length() > 1 ? rng.nextInt(originalLevels.length() - 1) : 0;
 						char rank = originalLevels.charAt(index);
 						levels.append(rank);
 						if (originalLevels.length() > 1) { originalLevels = originalLevels.replace("" + rank, ""); }

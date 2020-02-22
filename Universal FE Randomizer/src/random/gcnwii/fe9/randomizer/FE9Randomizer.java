@@ -48,6 +48,7 @@ import util.DiffCompiler;
 import util.LZ77;
 import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
+import util.recordkeeper.ChangelogAsset;
 import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.ChangelogDivider;
 import util.recordkeeper.ChangelogHeader;
@@ -154,6 +155,8 @@ public class FE9Randomizer extends Randomizer {
 			classData.compileDiffs(handler);
 			
 			charData.recordUpdatedCharacterData(characterSection, textData, classData, skillData, itemData);
+			
+			ChangelogAsset.registerAssets(changelogBuilder);
 			
 		} catch (GCNISOException e1) {
 			notifyError("Failed to load character data.");
@@ -482,12 +485,14 @@ public class FE9Randomizer extends Randomizer {
 		
 		rule = new ChangelogStyleRule();
 		rule.setOverrideSelectorString("#options-table tr:nth-child(even)");
-		rule.addRule("background-color", "#CCC");
+		rule.addRule("background-color", "#DDD");
 		changelogBuilder.addStyle(rule);
 		
 		rule = new ChangelogStyleRule();
-		rule.setElementTag("table");
-		rule.addRule("border", "1");
+		rule.setElementIdentifier("options-table");
+		rule.addRule("width", "75%");
+		rule.addRule("margin-left", "auto");
+		rule.addRule("margin-right", "auto");
 		changelogBuilder.addStyle(rule);
 	}
 }

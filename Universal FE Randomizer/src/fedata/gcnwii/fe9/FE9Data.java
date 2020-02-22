@@ -100,7 +100,7 @@ public class FE9Data {
 		
 		public static Set<Character> allLords = new HashSet<Character>(Arrays.asList(IKE));
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(VOLKE, SOTHE));
-		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList());
+		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(TIBARN, NAESALA, GIFFCA));
 		
 		public static Set<Character> requiresRange = new HashSet<Character>(Arrays.asList());
 		public static Set<Character> requiresMelee = new HashSet<Character>(Arrays.asList());
@@ -117,6 +117,10 @@ public class FE9Data {
 		
 		public boolean isPlayable() {
 			return allPlayableCharacters.contains(this);
+		}
+		
+		public boolean isModifiable() {
+			return !doNotChange.contains(this);
 		}
 		
 		public boolean isBoss() {

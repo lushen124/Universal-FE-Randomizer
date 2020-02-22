@@ -86,6 +86,10 @@ public class FE9SkillDataLoader {
 		return fe8databin.stringForPointer(skill.getSkillIDPointer());
 	}
 	
+	public String getMSID(FE9Skill skill) {
+		return fe8databin.stringForPointer(skill.getSkillNamePointer());
+	}
+	
 	public FE9Skill skillWithDisplayName(String displayName) {
 		for (FE9Data.Skill skill : FE9Data.Skill.values()) {
 			if (skill.getDisplayString().equals(displayName)) {
@@ -137,7 +141,12 @@ public class FE9SkillDataLoader {
 		
 		if (charClass == CharacterClass.W_HERON) { skills.add(getSkillWithSID(FE9Data.Skill.CANTO.getSID())); }
 		else if (charClass == CharacterClass.ELINCIA_FALCON_KNIGHT) { skills.add(getSkillWithSID(FE9Data.Skill.EQUIP_B.getSID())); }
-		else if (charClass == CharacterClass.ARCHER || charClass == CharacterClass.SNIPER) { skills.add(getSkillWithSID(FE9Data.Skill.EQUIP_A.getSID())); }
+		else if (charClass == CharacterClass.ARCHER || 
+				charClass == CharacterClass.SNIPER) { skills.add(getSkillWithSID(FE9Data.Skill.EQUIP_A.getSID())); }
+		else if (charClass == CharacterClass.ASSASSIN || 
+				charClass == CharacterClass.THIEF ||
+				charClass == CharacterClass.SAGE_KNIFE || 
+				charClass == CharacterClass.SAGE_KNIFE_F) { skills.add(getSkillWithSID(FE9Data.Skill.EQUIP_KNIFE.getSID())); }
 		
 		return skills;
 	}
