@@ -132,6 +132,10 @@ public class FE9ItemDataLoader {
 		return fe8databin.stringForPointer(item.getItemIDPointer());
 	}
 	
+	public String getMIIDOfItem(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemNamePointer());
+	}
+	
 	public boolean isWeapon(FE9Item item) {
 		return FE9Data.Item.withIID(iidOfItem(item)).isWeapon();
 	}
@@ -463,6 +467,7 @@ public class FE9ItemDataLoader {
 	}
 	
 	private List<FE9Item> fe9ItemListFromSet(Set<FE9Data.Item> fe9dataItemSet) {
+		if (fe9dataItemSet == null) { return new ArrayList<FE9Item>(); }
 		return fe9dataItemSet.stream().sorted(new Comparator<FE9Data.Item>() {
 			@Override
 			public int compare(Item o1, Item o2) {

@@ -1036,6 +1036,10 @@ public class FE9Data {
 			return scriptPath;
 		}
 		
+		public String getDisplayString() {
+			return WhyDoesJavaNotHaveThese.inCamelCase(toString()).replace("_", " ");
+		}
+		
 		public static Set<Chapter> chaptersWithAllDifficulties = new HashSet<Chapter>(Arrays.asList(PROLOGUE, CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4,
 				CHAPTER_5, CHAPTER_6, CHAPTER_7, CHAPTER_8, CHAPTER_9, CHAPTER_10, CHAPTER_11, CHAPTER_11, CHAPTER_12, CHAPTER_13, CHAPTER_14, CHAPTER_15,
 				CHAPTER_16, CHAPTER_17, CHAPTER_18, CHAPTER_19, CHAPTER_20, CHAPTER_21, CHAPTER_22, CHAPTER_23, CHAPTER_24, CHAPTER_25, CHAPTER_26,

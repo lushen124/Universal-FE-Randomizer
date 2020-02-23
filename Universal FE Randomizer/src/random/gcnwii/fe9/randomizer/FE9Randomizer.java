@@ -134,6 +134,10 @@ public class FE9Randomizer extends Randomizer {
 		mainTOC.addAnchorWithTitle("character-data", "Character Data");
 		changelogBuilder.addElement(characterSection);
 		
+		ChangelogSection chapterSection = new ChangelogSection("chapter-data");
+		mainTOC.addAnchorWithTitle("chapter-data", "Chapter Data");
+		changelogBuilder.addElement(chapterSection);
+		
 		try {
 			updateStatus(0.10, "Loading Text Data...");
 			textData = new FE9CommonTextLoader(handler);
@@ -149,6 +153,7 @@ public class FE9Randomizer extends Randomizer {
 			chapterData = new FE9ChapterDataLoader(handler, textData);
 			
 			charData.recordOriginalCharacterData(changelogBuilder, characterSection, textData, classData, skillData, itemData);
+			chapterData.recordOriginalChapterData(changelogBuilder, chapterSection, textData, charData, classData, skillData, itemData);
 			
 			randomizeClassesIfNecessary(seed);
 			randomizeGrowthsIfNecessary(seed);
@@ -163,6 +168,7 @@ public class FE9Randomizer extends Randomizer {
 			classData.compileDiffs(handler);
 			
 			charData.recordUpdatedCharacterData(characterSection, textData, classData, skillData, itemData);
+			chapterData.recordUpdatedChapterData(chapterSection, textData, charData, classData, skillData, itemData);
 			
 			ChangelogAsset.registerAssets(changelogBuilder);
 			
