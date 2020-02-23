@@ -170,6 +170,24 @@ public class FE9ChapterDataLoader {
 		tablesRule.setChildTags(new ArrayList<String>(Arrays.asList("table", "th", "td")));
 		tablesRule.addRule("border", "1px solid black");
 		builder.addStyle(tablesRule);
+		
+		ChangelogStyleRule tocStyle = new ChangelogStyleRule();
+		tocStyle.setElementClass("chapter-toc");
+		tocStyle.addRule("display", "flex");
+		tocStyle.addRule("flex-direction", "row");
+		tocStyle.addRule("width", "75%");
+		tocStyle.addRule("align-items", "center");
+		tocStyle.addRule("justify-content", "center");
+		tocStyle.addRule("flex-wrap", "wrap");
+		tocStyle.addRule("margin-left", "auto");
+		tocStyle.addRule("margin-right", "auto");
+		builder.addStyle(tocStyle);
+		
+		ChangelogStyleRule tocItemAfter = new ChangelogStyleRule();
+		tocItemAfter.setOverrideSelectorString(".chapter-toc div:not(:last-child)::after");
+		tocItemAfter.addRule("content", "\"|\"");
+		tocItemAfter.addRule("margin", "0px 5px");
+		builder.addStyle(tocItemAfter);
 	}
 	
 	private void createChapterArmySection(FE9Data.Chapter chapter, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, FE9SkillDataLoader skillData,
