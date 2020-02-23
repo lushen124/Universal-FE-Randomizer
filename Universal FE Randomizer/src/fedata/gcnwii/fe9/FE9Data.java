@@ -885,7 +885,7 @@ public class FE9Data {
 		// These shouldn't be changed or given out.
 		public static Set<Item> allRestrictedItems = new HashSet<Item>(Arrays.asList(PRACTICE_SWORD, REGAL_SWORD, ALONDITE, RAGNELL, GURGURANT, AMITI, ROLF_BOW,
 				LION_CLAW, HAWK_KING_BEAK, CROW_KING_BEAK, SWORD_BAND, SOLDIER_BAND, FIGHTERS_BAND, ARCHER_BAND, KNIGHT_BAND, PALADIN_BAND, PEGASUS_BAND,
-				WYVERN_BAND, MAGE_BAND, PRIEST_BAND, THIEF_BAND));
+				WYVERN_BAND, MAGE_BAND, PRIEST_BAND, THIEF_BAND, LONGBOW));
 		
 		public static Set<Item> allERankWeapons = new HashSet<Item>(Arrays.asList(SLIM_SWORD, IRON_SWORD, PRACTICE_SWORD, IRON_LANCE, SLIM_LANCE,
 				JAVELIN, VENIN_LANCE, IRON_AXE, PRACTICE_AXE, HAND_AXE, STEEL_AXE, DEVIL_AXE, IRON_BOW, FIRE, THUNDER, WIND, HEAL, KNIFE));
@@ -946,6 +946,15 @@ public class FE9Data {
 		public boolean isSkillScroll() { return allSkillScrolls.contains(this); }
 		
 		public boolean isBlacklisted() { return blacklistedWeapons.contains(this); }
+		
+		public static Set<Item> specialWeaponsForClass(FE9Data.CharacterClass charClass) {
+			switch (charClass) {
+			case ELINCIA_FALCON_KNIGHT: return new HashSet<Item>(Arrays.asList(AMITI));
+			case RANGER: return new HashSet<Item>(Arrays.asList(REGAL_SWORD));
+			case ARCHER: case SNIPER: return new HashSet<Item>(Arrays.asList(ROLF_BOW, LONGBOW));
+			default: return null;
+			}
+		}
 	}
 	
 	public enum Chapter {
