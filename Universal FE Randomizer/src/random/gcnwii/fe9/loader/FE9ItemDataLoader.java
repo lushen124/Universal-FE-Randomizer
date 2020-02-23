@@ -241,6 +241,12 @@ public class FE9ItemDataLoader {
 		return fe9ItemListFromSet(items);
 	}
 	
+	public List<FE9Item> specialWeaponsForJID(String jid) {
+		if (jid == null) { return null; }
+		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
+		return fe9ItemListFromSet(FE9Data.Item.specialWeaponsForClass(charClass));
+	}
+	
 	public List<FE9Item> weaponsSetForJID(String jid) {
 		if (jid == null) { return null; }
 		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);

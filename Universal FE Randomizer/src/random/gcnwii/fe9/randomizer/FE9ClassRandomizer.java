@@ -719,6 +719,8 @@ public class FE9ClassRandomizer {
 										}
 										replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
 									}
+									List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
+									if (specialWeapons != null) { replacements.addAll(specialWeapons); }
 									
 									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
 									for (FE9Item weapon : replacements) {
@@ -781,6 +783,7 @@ public class FE9ClassRandomizer {
 	
 	public static void randomizeMinionCharacters(int chance, boolean forceDifferent, boolean mixRaces, boolean crossGenders, FE9CharacterDataLoader charData,
 			FE9ClassDataLoader classData, FE9ChapterDataLoader chapterData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData, Random rng) {
+		
 		for (FE9Data.Chapter chapter : FE9Data.Chapter.allChapters()) {
 			for (FE9ChapterArmy army : chapterData.armiesForChapter(chapter)) {
 				for (String unitID : army.getAllUnitIDs()) {
