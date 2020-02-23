@@ -560,68 +560,137 @@ public class FE9CharacterDataLoader {
 		characterDataSection.addElement(new ChangelogHeader(HeaderLevel.HEADING_2, "Character Data", "character-data-header"));
 		characterDataSection.addElement(playableTOC);
 		
+		ChangelogSection pcDataSection = new ChangelogSection("pc-data-section");
+		characterDataSection.addElement(pcDataSection);
+		
 		for (FE9Character character : playableCharacters) {
-			String characterName = textData.textStringForIdentifier(getMPIDForCharacter(character));
-			String anchor = "pc-data-" + getPIDForCharacter(character);
-			playableTOC.addAnchorWithTitle(anchor, characterName);
-			
+			createCharacterSection(character, classData, skillData, textData, itemData, playableTOC, pcDataSection, true);
+		}
+		
+		ChangelogTOC bossTOC = new ChangelogTOC("boss-character-data");
+		bossTOC.addClass("character-section-toc");
+		characterDataSection.addElement(new ChangelogHeader(HeaderLevel.HEADING_2, "Boss Data", "boss-data-header"));
+		characterDataSection.addElement(bossTOC);
+		
+		ChangelogSection bossDataSection = new ChangelogSection("boss-data-section");
+		characterDataSection.addElement(bossDataSection);
+		
+		for (FE9Character character : bossCharacters) {
+			createCharacterSection(character, classData, skillData, textData, itemData, bossTOC, bossDataSection, true);
+		}
+		
+		setupRules(builder);
+	}
+	
+	public void recordUpdatedCharacterData(ChangelogSection characterDataSection,
+			FE9CommonTextLoader textData, FE9ClassDataLoader classData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData) {
+		ChangelogTOC playableTOC = (ChangelogTOC)characterDataSection.getChildWithIdentifier("playable-character-data");
+		ChangelogSection pcDataSection = (ChangelogSection)characterDataSection.getChildWithIdentifier("pc-data-section");
+		for (FE9Character character : playableCharacters) {
+			createCharacterSection(character, classData, skillData, textData, itemData, playableTOC, pcDataSection, false);
+		}
+		ChangelogSection bossDataSection = (ChangelogSection)characterDataSection.getChildWithIdentifier("boss-data-section");
+		ChangelogTOC bossTOC = (ChangelogTOC)characterDataSection.getChildWithIdentifier("boss-character-data");
+		for (FE9Character character : bossCharacters) {
+			createCharacterSection(character, classData, skillData, textData, itemData, bossTOC, bossDataSection, false);
+		}
+	}
+	
+	private void createCharacterSection(FE9Character character, FE9ClassDataLoader classData, FE9SkillDataLoader skillData, 
+			FE9CommonTextLoader textData, FE9ItemDataLoader itemData, ChangelogTOC toc, ChangelogSection parentSection,
+			boolean isOriginal) {
+		String characterName = textData.textStringForIdentifier(getMPIDForCharacter(character));
+		String anchor = "char-data-" + getPIDForCharacter(character);
+		ChangelogTable characterDataTable;
+		ChangelogSection section;
+		if (isOriginal) {
+			section = new ChangelogSection(anchor + "-section");
+			section.addClass("character-data-section");
+			toc.addAnchorWithTitle(anchor, characterName);
+		
 			ChangelogHeader titleHeader = new ChangelogHeader(HeaderLevel.HEADING_3, characterName, anchor);
-			titleHeader.addClass("pc-data-title");
-			characterDataSection.addElement(titleHeader);
-			
-			ChangelogTable characterDataTable = new ChangelogTable(3, new String[] {"", "Old Value", "New Value"}, anchor + "-data-table");
+			titleHeader.addClass("char-data-title");
+			section.addElement(titleHeader);
+		
+			characterDataTable = new ChangelogTable(3, new String[] {"", "Old Value", "New Value"}, anchor + "-data-table");
 			characterDataTable.addClass("character-data-table");
 			characterDataTable.addRow(new String[] {"PID", getPIDForCharacter(character), ""});
 			characterDataTable.addRow(new String[] {"Name", characterName, ""});
-			
-			String jid = getJIDForCharacter(character);
-			FE9Class charClass = classData.classWithID(jid);
-			String className = textData.textStringForIdentifier(classData.getMJIDForClass(charClass));
+		} else {
+			section = (ChangelogSection)parentSection.getChildWithIdentifier(anchor + "-section");
+			characterDataTable = (ChangelogTable)section.getChildWithIdentifier(anchor + "-data-table");
+			characterDataTable.setContents(0, 2, getPIDForCharacter(character));
+			characterDataTable.setContents(1, 2, characterName);
+		}
+		
+		String jid = getJIDForCharacter(character);
+		FE9Class charClass = classData.classWithID(jid);
+		String className = textData.textStringForIdentifier(classData.getMJIDForClass(charClass));
+		if (isOriginal) {
 			characterDataTable.addRow(new String[] {"Class", className + " (" + jid + ")", ""});
-			
-			FE9Data.Affinity affinity = getAffinityForCharacter(character);
-			characterDataTable.addRow(new String[] {"Affinity", "", ""});
-			ChangelogSection affinityCell = new ChangelogSection("pc-data-original-affinity-" + getPIDForCharacter(character));
+		} else {
+			characterDataTable.setContents(2, 2, className + " (" + jid + ")");
+		}
+		
+		int row = 3;
+		
+		FE9Data.Affinity affinity = getAffinityForCharacter(character);
+		if (affinity != null) {
+			if (isOriginal) { characterDataTable.addRow(new String[] {"Affinity", "", ""}); }
+			ChangelogSection affinityCell = new ChangelogSection("char-data-" + (isOriginal ? "original" : "new") + "-affinity-" + getPIDForCharacter(character));
 			Base64Asset affinityAsset = new Base64Asset("affinity-" + affinity.toString(), 
 					FE9Base64.affinityBase64Prefix + FE9Base64.base64StringForAffinity(affinity), 
 					24, 24);
 			affinityCell.addElement(new ChangelogAsset(anchor + "-affinity-image", affinityAsset));
 			ChangelogText affinityText = new ChangelogText(anchor + "-affinity-text", Style.NONE, affinity.toString() + " (" + affinity.getInternalID() + ")");
-			affinityText.addClass("pc-data-affinity-text");
+			affinityText.addClass("char-data-affinity-text");
 			affinityCell.addElement(affinityText);
-			affinityCell.addClass("pc-data-affinity-cell");
-			characterDataTable.setElement(3, 1, affinityCell);
-			
-			String weaponLevelString = getWeaponLevelStringForCharacter(character);
-			Map<WeaponType, WeaponRank> ranks = itemData.weaponLevelsForWeaponString(weaponLevelString);
-			ChangelogSection weaponLevelCell = new ChangelogSection("pc-data-original-weapon-levels-" + getPIDForCharacter(character));
-			weaponLevelCell.addClass("pc-data-weapon-level-cell");
-			List<WeaponType> orderedTypes = new ArrayList<WeaponType>(Arrays.asList(WeaponType.SWORD, WeaponType.LANCE, WeaponType.AXE,
-					WeaponType.BOW, WeaponType.FIRE, WeaponType.THUNDER, WeaponType.WIND, WeaponType.STAFF));
-			for (WeaponType type : orderedTypes) {
-				if (ranks.get(type) != null && ranks.get(type) != WeaponRank.NONE && ranks.get(type) != WeaponRank.UNKNOWN) {
-					ChangelogSection weaponLevel = new ChangelogSection(anchor + "-original-" + type.toString());
-					weaponLevel.addClass("pc-data-weapon-level-entry");
-					Base64Asset weaponAsset = new Base64Asset("weapon-icon-" + type.toString(), FE9Base64.weaponTypeBase64Prefix + FE9Base64.base64StringForWeaponType(type), 
-							23, 23);
-					weaponLevel.addElement(new ChangelogAsset(anchor + "-original-" + type.toString() + "-image", weaponAsset));
-					weaponLevel.addElement(new ChangelogText(anchor + "-original-" + type.toString() + "-text", Style.NONE, ranks.get(type).toString()));
-					weaponLevelCell.addElement(weaponLevel);
-				}
+			affinityCell.addClass("char-data-affinity-cell");
+			characterDataTable.setElement(row, isOriginal ? 1 : 2, affinityCell);
+			row++;
+		}
+		
+		String weaponLevelString = getWeaponLevelStringForCharacter(character);
+		Map<WeaponType, WeaponRank> ranks = itemData.weaponLevelsForWeaponString(weaponLevelString);
+		ChangelogSection weaponLevelCell = new ChangelogSection("char-data-" + (isOriginal ? "original" : "new") + "-weapon-levels-" + getPIDForCharacter(character));
+		weaponLevelCell.addClass("char-data-weapon-level-cell");
+		List<WeaponType> orderedTypes = new ArrayList<WeaponType>(Arrays.asList(WeaponType.SWORD, WeaponType.LANCE, WeaponType.AXE,
+				WeaponType.BOW, WeaponType.FIRE, WeaponType.THUNDER, WeaponType.WIND, WeaponType.STAFF));
+		for (WeaponType type : orderedTypes) {
+			if (ranks.get(type) != null && ranks.get(type) != WeaponRank.NONE && ranks.get(type) != WeaponRank.UNKNOWN) {
+				ChangelogSection weaponLevel = new ChangelogSection(anchor + "-" + (isOriginal ? "original" : "new") + "-" + type.toString());
+				weaponLevel.addClass("char-data-weapon-level-entry");
+				Base64Asset weaponAsset = new Base64Asset("weapon-icon-" + type.toString(), FE9Base64.weaponTypeBase64Prefix + FE9Base64.base64StringForWeaponType(type), 
+						23, 23);
+				weaponLevel.addElement(new ChangelogAsset(anchor + "-" + (isOriginal ? "original" : "new") + "-" + type.toString() + "-image", weaponAsset));
+				weaponLevel.addElement(new ChangelogText(anchor + "-" + (isOriginal ? "original" : "new") + "-" + type.toString() + "-text", Style.NONE, ranks.get(type).toString()));
+				weaponLevelCell.addElement(weaponLevel);
 			}
-			characterDataTable.addRow(new String[] {"Weapon Levels", "", ""});
-			characterDataTable.setElement(4, 1, weaponLevelCell);
-			
-			String sid1 = getSID1ForCharacter(character);
-			String sid2 = getSID2ForCharacter(character);
-			String sid3 = getSID3ForCharacter(character);
+		}
+		if (isOriginal) { characterDataTable.addRow(new String[] {"Weapon Levels", "", ""}); }
+		characterDataTable.setElement(row, (isOriginal ? 1 : 2), weaponLevelCell);
+		row++;
+		
+		String sid1 = getSID1ForCharacter(character);
+		String sid2 = getSID2ForCharacter(character);
+		String sid3 = getSID3ForCharacter(character);
+		if (isOriginal) {
 			characterDataTable.addRow(new String[] {"Skill 1", "", ""});
 			characterDataTable.addRow(new String[] {"Skill 2", "", ""});
 			characterDataTable.addRow(new String[] {"Skill 3", "", ""});
-			if (sid1 != null) { characterDataTable.setElement(5, 1, createSkillSectionWithSID(sid1, skillData, textData, true, anchor, 1)); } else { characterDataTable.setContents(5, 1, "None"); }
-			if (sid2 != null) { characterDataTable.setElement(6, 1, createSkillSectionWithSID(sid2, skillData, textData, true, anchor, 2)); } else { characterDataTable.setContents(6, 1, "None"); }
-			if (sid3 != null) { characterDataTable.setElement(7, 1, createSkillSectionWithSID(sid3, skillData, textData, true, anchor, 3)); } else { characterDataTable.setContents(7, 1, "None"); }
-			
+		}
+		int column = isOriginal ? 1 : 2;
+		if (sid1 != null) { characterDataTable.setElement(row, column, createSkillSectionWithSID(sid1, skillData, textData, isOriginal, anchor, 1)); } 
+		else { characterDataTable.setContents(row, column, "None"); }
+		row++;
+		if (sid2 != null) { characterDataTable.setElement(row, column, createSkillSectionWithSID(sid2, skillData, textData, isOriginal, anchor, 2)); } 
+		else { characterDataTable.setContents(row, column, "None"); }
+		row++;
+		if (sid3 != null) { characterDataTable.setElement(row, column, createSkillSectionWithSID(sid3, skillData, textData, isOriginal, anchor, 3)); } 
+		else { characterDataTable.setContents(row, column, "None"); }
+		row++;
+		
+		if (isOriginal) {
 			characterDataTable.addRow(new String[] {"HP Growth", character.getHPGrowth() + "%", ""});
 			characterDataTable.addRow(new String[] {"STR Growth", character.getSTRGrowth() + "%", ""});
 			characterDataTable.addRow(new String[] {"MAG Growth", character.getMAGGrowth() + "%", ""});
@@ -640,9 +709,38 @@ public class FE9CharacterDataLoader {
 			characterDataTable.addRow(new String[] {"Base DEF", charClass.getBaseDEF() + " + " + character.getBaseDEF() + " = " + (charClass.getBaseDEF() + character.getBaseDEF()), ""});
 			characterDataTable.addRow(new String[] {"Base RES", charClass.getBaseRES() + " + " + character.getBaseRES() + " = " + (charClass.getBaseRES() + character.getBaseRES()), ""});
 			
-			characterDataSection.addElement(characterDataTable);
+			characterDataTable.addRow(new String[] {"Unpromoted AID", getUnpromotedAIDForCharacter(character), ""});
+			characterDataTable.addRow(new String[] {"Promoted AID", getPromotedAIDForCharacter(character), ""});
+		} else {
+			characterDataTable.setContents(row++, 2, character.getHPGrowth() + "%");
+			characterDataTable.setContents(row++, 2, character.getSTRGrowth() + "%");
+			characterDataTable.setContents(row++, 2, character.getMAGGrowth() + "%");
+			characterDataTable.setContents(row++, 2, character.getSKLGrowth() + "%");
+			characterDataTable.setContents(row++, 2, character.getSPDGrowth() + "%");
+			characterDataTable.setContents(row++, 2, character.getLCKGrowth() + "%");
+			characterDataTable.setContents(row++, 2, character.getDEFGrowth() + "%");
+			characterDataTable.setContents(row++, 2, character.getRESGrowth() + "%");
+			
+			characterDataTable.setContents(row++, 2, charClass.getBaseHP() + " + " + character.getBaseHP() + " = " + (charClass.getBaseHP() + character.getBaseHP()));
+			characterDataTable.setContents(row++, 2, charClass.getBaseSTR() + " + " + character.getBaseSTR() + " = " + (charClass.getBaseSTR() + character.getBaseSTR()));
+			characterDataTable.setContents(row++, 2, charClass.getBaseMAG() + " + " + character.getBaseMAG() + " = " + (charClass.getBaseMAG() + character.getBaseMAG()));
+			characterDataTable.setContents(row++, 2, charClass.getBaseSKL() + " + " + character.getBaseSKL() + " = " + (charClass.getBaseSKL() + character.getBaseSKL()));
+			characterDataTable.setContents(row++, 2, charClass.getBaseSPD() + " + " + character.getBaseSPD() + " = " + (charClass.getBaseSPD() + character.getBaseSPD()));
+			characterDataTable.setContents(row++, 2, charClass.getBaseLCK() + " + " + character.getBaseLCK() + " = " + (charClass.getBaseLCK() + character.getBaseLCK()));
+			characterDataTable.setContents(row++, 2, charClass.getBaseDEF() + " + " + character.getBaseDEF() + " = " + (charClass.getBaseDEF() + character.getBaseDEF()));
+			characterDataTable.setContents(row++, 2, charClass.getBaseRES() + " + " + character.getBaseRES() + " = " + (charClass.getBaseRES() + character.getBaseRES()));
+			
+			characterDataTable.setContents(row++, 2, getUnpromotedAIDForCharacter(character));
+			characterDataTable.setContents(row++, 2, getPromotedAIDForCharacter(character));
 		}
 		
+		if (isOriginal) {
+			section.addElement(characterDataTable);
+			parentSection.addElement(section);
+		}
+	}
+	
+	private void setupRules(ChangelogBuilder builder) {
 		ChangelogStyleRule tocStyle = new ChangelogStyleRule();
 		tocStyle.setElementClass("character-section-toc");
 		tocStyle.addRule("display", "flex");
@@ -661,53 +759,40 @@ public class FE9CharacterDataLoader {
 		tocItemAfter.addRule("margin", "0px 5px");
 		builder.addStyle(tocItemAfter);
 		
-		ChangelogStyleRule affinityStyle = new ChangelogStyleRule();
-		affinityStyle.setElementClass("pc-data-affinity-cell");
-		affinityStyle.addRule("display", "flex");
-		affinityStyle.addRule("flex-direction", "row");
-		affinityStyle.addRule("align-items", "center");
-		builder.addStyle(affinityStyle);
+		ChangelogStyleRule pcContainer = new ChangelogStyleRule();
+		pcContainer.setElementIdentifier("pc-data-section");
+		pcContainer.addRule("display", "flex");
+		pcContainer.addRule("flex-direction", "row");
+		pcContainer.addRule("flex-wrap", "wrap");
+		pcContainer.addRule("justify-content", "center");
+		pcContainer.addRule("margin-left", "10px");
+		pcContainer.addRule("margin-right", "10px");
+		builder.addStyle(pcContainer);
 		
-		ChangelogStyleRule weaponLevelCellStyle = new ChangelogStyleRule();
-		weaponLevelCellStyle.setElementClass("pc-data-weapon-level-cell");
-		weaponLevelCellStyle.addRule("display", "flex");
-		weaponLevelCellStyle.addRule("flex-direction", "row");
-		weaponLevelCellStyle.addRule("align-items", "center");
-		builder.addStyle(weaponLevelCellStyle);
+		ChangelogStyleRule bossContainer = new ChangelogStyleRule();
+		bossContainer.setElementIdentifier("boss-data-section");
+		bossContainer.addRule("display", "flex");
+		bossContainer.addRule("flex-direction", "row");
+		bossContainer.addRule("flex-wrap", "wrap");
+		bossContainer.addRule("justify-content", "center");
+		bossContainer.addRule("margin-left", "10px");
+		bossContainer.addRule("margin-right", "10px");
+		builder.addStyle(bossContainer);
 		
-		ChangelogStyleRule weaponLevelEntryStyle = new ChangelogStyleRule();
-		weaponLevelEntryStyle.setElementClass("pc-data-weapon-level-entry");
-		weaponLevelEntryStyle.addRule("margin-right", "15px");
-		weaponLevelEntryStyle.addRule("display", "flex");
-		weaponLevelEntryStyle.addRule("flex-direction", "row");
-		weaponLevelEntryStyle.addRule("align-items", "center");
-		builder.addStyle(weaponLevelEntryStyle);
-		
-		ChangelogStyleRule weaponLevelEntryTextStyle = new ChangelogStyleRule();
-		weaponLevelEntryTextStyle.setElementClass("pc-data-weapon-level-entry");
-		weaponLevelEntryTextStyle.setChildTags(new ArrayList<String>(Arrays.asList("p")));
-		weaponLevelEntryTextStyle.addRule("margin-left", "5px");
-		weaponLevelEntryTextStyle.addRule("margin-top", "0px");
-		weaponLevelEntryTextStyle.addRule("margin-bottom", "0px");
-		builder.addStyle(weaponLevelEntryTextStyle);
-		
-		ChangelogStyleRule affinityTextStyle = new ChangelogStyleRule();
-		affinityTextStyle.setElementClass("pc-data-affinity-text");
-		affinityTextStyle.addRule("margin-left", "10px");
-		affinityTextStyle.addRule("margin-top", "0px");
-		affinityTextStyle.addRule("margin-bottom", "0px");
-		builder.addStyle(affinityTextStyle);
+		ChangelogStyleRule characterSection = new ChangelogStyleRule();
+		characterSection.setElementClass("character-data-section");
+		characterSection.addRule("margin", "20px");
+		characterSection.addRule("flex", "0 0 400px");
+		builder.addStyle(characterSection);
 		
 		ChangelogStyleRule tableStyle = new ChangelogStyleRule();
 		tableStyle.setElementClass("character-data-table");
-		tableStyle.addRule("width", "75%");
-		tableStyle.addRule("margin-left", "auto");
-		tableStyle.addRule("margin-right", "auto");
+		tableStyle.addRule("width", "100%");
 		tableStyle.addRule("border", "1px solid black");
 		builder.addStyle(tableStyle);
 		
 		ChangelogStyleRule titleStyle = new ChangelogStyleRule();
-		titleStyle.setElementClass("pc-data-title");
+		titleStyle.setElementClass("char-data-title");
 		titleStyle.addRule("text-align", "center");
 		builder.addStyle(titleStyle);
 		
@@ -729,92 +814,54 @@ public class FE9CharacterDataLoader {
 		otherColumnStyle.addRule("width", "40%");
 		builder.addStyle(otherColumnStyle);
 		
+		ChangelogStyleRule affinityStyle = new ChangelogStyleRule();
+		affinityStyle.setElementClass("char-data-affinity-cell");
+		affinityStyle.addRule("display", "flex");
+		affinityStyle.addRule("flex-direction", "row");
+		affinityStyle.addRule("align-items", "center");
+		builder.addStyle(affinityStyle);
+		
+		ChangelogStyleRule weaponLevelCellStyle = new ChangelogStyleRule();
+		weaponLevelCellStyle.setElementClass("char-data-weapon-level-cell");
+		weaponLevelCellStyle.addRule("display", "flex");
+		weaponLevelCellStyle.addRule("flex-direction", "row");
+		weaponLevelCellStyle.addRule("align-items", "center");
+		builder.addStyle(weaponLevelCellStyle);
+		
+		ChangelogStyleRule weaponLevelEntryStyle = new ChangelogStyleRule();
+		weaponLevelEntryStyle.setElementClass("char-data-weapon-level-entry");
+		weaponLevelEntryStyle.addRule("margin-right", "15px");
+		weaponLevelEntryStyle.addRule("display", "flex");
+		weaponLevelEntryStyle.addRule("flex-direction", "row");
+		weaponLevelEntryStyle.addRule("align-items", "center");
+		builder.addStyle(weaponLevelEntryStyle);
+		
+		ChangelogStyleRule weaponLevelEntryTextStyle = new ChangelogStyleRule();
+		weaponLevelEntryTextStyle.setElementClass("char-data-weapon-level-entry");
+		weaponLevelEntryTextStyle.setChildTags(new ArrayList<String>(Arrays.asList("p")));
+		weaponLevelEntryTextStyle.addRule("margin-left", "5px");
+		weaponLevelEntryTextStyle.addRule("margin-top", "0px");
+		weaponLevelEntryTextStyle.addRule("margin-bottom", "0px");
+		builder.addStyle(weaponLevelEntryTextStyle);
+		
+		ChangelogStyleRule affinityTextStyle = new ChangelogStyleRule();
+		affinityTextStyle.setElementClass("char-data-affinity-text");
+		affinityTextStyle.addRule("margin-left", "10px");
+		affinityTextStyle.addRule("margin-top", "0px");
+		affinityTextStyle.addRule("margin-bottom", "0px");
+		builder.addStyle(affinityTextStyle);
+		
 		ChangelogStyleRule skillCellStyle = new ChangelogStyleRule();
-		skillCellStyle.setElementClass("pc-data-skill-cell");
+		skillCellStyle.setElementClass("char-data-skill-cell");
 		skillCellStyle.addRule("display", "flex");
 		skillCellStyle.addRule("flex-direction", "row");
 		skillCellStyle.addRule("align-items", "center");
 		builder.addStyle(skillCellStyle);
 		
 		ChangelogStyleRule skillTextStyle = new ChangelogStyleRule();
-		skillTextStyle.setElementClass("pc-data-skill-text");
+		skillTextStyle.setElementClass("char-data-skill-text");
 		skillTextStyle.addRule("margin-left", "5px");
 		builder.addStyle(skillTextStyle);
-	}
-	
-	public void recordUpdatedCharacterData(ChangelogSection characterDataSection,
-			FE9CommonTextLoader textData, FE9ClassDataLoader classData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData) {
-		for (FE9Character character : playableCharacters) {
-			String characterName = textData.textStringForIdentifier(getMPIDForCharacter(character));
-			String anchor = "pc-data-" + getPIDForCharacter(character);
-			
-			ChangelogTable characterDataTable = (ChangelogTable)characterDataSection.getChildWithIdentifier(anchor + "-data-table");
-			
-			characterDataTable.setContents(0, 2, getPIDForCharacter(character));
-			characterDataTable.setContents(1, 2, characterName);
-			
-			String jid = getJIDForCharacter(character);
-			FE9Class charClass = classData.classWithID(jid);
-			String className = textData.textStringForIdentifier(classData.getMJIDForClass(charClass));
-			
-			characterDataTable.setContents(2, 2, className + " (" + jid + ")");
-			
-			FE9Data.Affinity affinity = getAffinityForCharacter(character);
-			ChangelogSection affinityCell = new ChangelogSection("pc-data-new-affinity-" + getPIDForCharacter(character));
-			Base64Asset affinityAsset = new Base64Asset("affinity-" + affinity.toString(), 
-					FE9Base64.affinityBase64Prefix + FE9Base64.base64StringForAffinity(affinity), 
-					24, 24);
-			affinityCell.addElement(new ChangelogAsset(anchor + "-affinity-image", affinityAsset));
-			ChangelogText affinityText = new ChangelogText(anchor + "-affinity-text", Style.NONE, affinity.toString() + " (" + affinity.getInternalID() + ")");
-			affinityText.addClass("pc-data-affinity-text");
-			affinityCell.addElement(affinityText);
-			affinityCell.addClass("pc-data-affinity-cell");
-			characterDataTable.setElement(3, 2, affinityCell);
-			
-			String weaponLevelString = getWeaponLevelStringForCharacter(character);
-			Map<WeaponType, WeaponRank> ranks = itemData.weaponLevelsForWeaponString(weaponLevelString);
-			ChangelogSection weaponLevelCell = new ChangelogSection("pc-data-new-weapon-levels-" + getPIDForCharacter(character));
-			weaponLevelCell.addClass("pc-data-weapon-level-cell");
-			List<WeaponType> orderedTypes = new ArrayList<WeaponType>(Arrays.asList(WeaponType.SWORD, WeaponType.LANCE, WeaponType.AXE,
-					WeaponType.BOW, WeaponType.FIRE, WeaponType.THUNDER, WeaponType.WIND, WeaponType.STAFF));
-			for (WeaponType type : orderedTypes) {
-				if (ranks.get(type) != null && ranks.get(type) != WeaponRank.NONE && ranks.get(type) != WeaponRank.UNKNOWN) {
-					ChangelogSection weaponLevel = new ChangelogSection(anchor + "-new-" + type.toString());
-					weaponLevel.addClass("pc-data-weapon-level-entry");
-					Base64Asset weaponAsset = new Base64Asset("weapon-icon-" + type.toString(), FE9Base64.weaponTypeBase64Prefix + FE9Base64.base64StringForWeaponType(type), 
-							23, 23);
-					weaponLevel.addElement(new ChangelogAsset(anchor + "-new-" + type.toString() + "-image", weaponAsset));
-					weaponLevel.addElement(new ChangelogText(anchor + "-new-" + type.toString() + "-text", Style.NONE, ranks.get(type).toString()));
-					weaponLevelCell.addElement(weaponLevel);
-				}
-			}
-			characterDataTable.setElement(4, 2, weaponLevelCell);
-			
-			String sid1 = getSID1ForCharacter(character);
-			String sid2 = getSID2ForCharacter(character);
-			String sid3 = getSID3ForCharacter(character);
-			if (sid1 != null) { characterDataTable.setElement(5, 2, createSkillSectionWithSID(sid1, skillData, textData, false, anchor, 1)); } else { characterDataTable.setContents(5, 2, "None"); }
-			if (sid2 != null) { characterDataTable.setElement(6, 2, createSkillSectionWithSID(sid2, skillData, textData, false, anchor, 2)); } else { characterDataTable.setContents(6, 2, "None"); }
-			if (sid3 != null) { characterDataTable.setElement(7, 2, createSkillSectionWithSID(sid3, skillData, textData, false, anchor, 3)); } else { characterDataTable.setContents(7, 2, "None"); }
-			
-			characterDataTable.setContents(8, 2, character.getHPGrowth() + "%");
-			characterDataTable.setContents(9, 2, character.getSTRGrowth() + "%");
-			characterDataTable.setContents(10, 2, character.getMAGGrowth() + "%");
-			characterDataTable.setContents(11, 2, character.getSKLGrowth() + "%");
-			characterDataTable.setContents(12, 2, character.getSPDGrowth() + "%");
-			characterDataTable.setContents(13, 2, character.getLCKGrowth() + "%");
-			characterDataTable.setContents(14, 2, character.getDEFGrowth() + "%");
-			characterDataTable.setContents(15, 2, character.getRESGrowth() + "%");
-			
-			characterDataTable.setContents(16, 2, charClass.getBaseHP() + " + " + character.getBaseHP() + " = " + (charClass.getBaseHP() + character.getBaseHP()));
-			characterDataTable.setContents(17, 2, charClass.getBaseSTR() + " + " + character.getBaseSTR() + " = " + (charClass.getBaseSTR() + character.getBaseSTR()));
-			characterDataTable.setContents(18, 2, charClass.getBaseMAG() + " + " + character.getBaseMAG() + " = " + (charClass.getBaseMAG() + character.getBaseMAG()));
-			characterDataTable.setContents(19, 2, charClass.getBaseSKL() + " + " + character.getBaseSKL() + " = " + (charClass.getBaseSKL() + character.getBaseSKL()));
-			characterDataTable.setContents(20, 2, charClass.getBaseSPD() + " + " + character.getBaseSPD() + " = " + (charClass.getBaseSPD() + character.getBaseSPD()));
-			characterDataTable.setContents(21, 2, charClass.getBaseLCK() + " + " + character.getBaseLCK() + " = " + (charClass.getBaseLCK() + character.getBaseLCK()));
-			characterDataTable.setContents(22, 2, charClass.getBaseDEF() + " + " + character.getBaseDEF() + " = " + (charClass.getBaseDEF() + character.getBaseDEF()));
-			characterDataTable.setContents(23, 2, charClass.getBaseRES() + " + " + character.getBaseRES() + " = " + (charClass.getBaseRES() + character.getBaseRES()));
-		}
 	}
 	
 	private ChangelogSection createSkillSectionWithSID(String sid, FE9SkillDataLoader skillData, FE9CommonTextLoader textData,
@@ -824,7 +871,7 @@ public class FE9CharacterDataLoader {
 		FE9Data.Skill fe9Skill = FE9Data.Skill.withSID(sid);
 		
 		ChangelogSection skill1Section = new ChangelogSection(anchor + "-" + (original ? "original" : "new") + "-skill-" + index + "-cell");
-		skill1Section.addClass("pc-data-skill-cell");
+		skill1Section.addClass("char-data-skill-cell");
 		
 		String base64 = FE9Base64.base64StringForSkill(fe9Skill);
 		if (base64 != null) {
@@ -833,7 +880,7 @@ public class FE9CharacterDataLoader {
 		}
 		
 		ChangelogText detail = new ChangelogText(anchor + "-" + (original ? "original" : "new") + "-skill-" + index + "-text", Style.NONE, skillName + " (" + sid + ")");
-		detail.addClass("pc-data-skill-text");
+		detail.addClass("char-data-skill-text");
 		skill1Section.addElement(detail);
 		
 		return skill1Section;

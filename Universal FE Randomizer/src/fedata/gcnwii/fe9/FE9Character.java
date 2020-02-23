@@ -270,7 +270,7 @@ public class FE9Character implements FEModifiableData {
 	}
 	
 	public int getHPGrowth() {
-		return data[0x41];
+		return (data[0x41] & 0xFF);
 	}
 	
 	public void setHPGrowth(int newHPGrowth) {
@@ -279,7 +279,7 @@ public class FE9Character implements FEModifiableData {
 	}
 	
 	public int getSTRGrowth() {
-		return data[0x42];
+		return (data[0x42] & 0xFF);
 	}
 	
 	public void setSTRGrowth(int newSTRGrowth) {
@@ -288,7 +288,7 @@ public class FE9Character implements FEModifiableData {
 	}
 	
 	public int getMAGGrowth() {
-		return data[0x43];
+		return (data[0x43] & 0xFF);
 	}
 	
 	public void setMAGGrowth(int newMAGGrowth) {
@@ -297,7 +297,7 @@ public class FE9Character implements FEModifiableData {
 	}
 	
 	public int getSKLGrowth() {
-		return data[0x44];
+		return (data[0x44] & 0xFF);
 	}
 	
 	public void setSKLGrowth(int newSKLGrowth) {
@@ -306,7 +306,7 @@ public class FE9Character implements FEModifiableData {
 	}
 	
 	public int getSPDGrowth() {
-		return data[0x45];
+		return (data[0x45] & 0xFF);
 	}
 	
 	public void setSPDGrowth(int newSPDGrowth) {
@@ -315,7 +315,7 @@ public class FE9Character implements FEModifiableData {
 	}
 	
 	public int getLCKGrowth() {
-		return data[0x46];
+		return (data[0x46] & 0xFF);
 	}
 	
 	public void setLCKGrowth(int newLCKGrowth) {
@@ -324,7 +324,7 @@ public class FE9Character implements FEModifiableData {
 	}
 	
 	public int getDEFGrowth() {
-		return data[0x47];
+		return (data[0x47] & 0xFF);
 	}
 	
 	public void setDEFGrowth(int newDEFGrowth) {
@@ -333,7 +333,7 @@ public class FE9Character implements FEModifiableData {
 	}
 	
 	public int getRESGrowth() {
-		return data[0x48];
+		return (data[0x48] & 0xFF);
 	}
 	
 	public void setRESGrowth(int newRESGrowth) {

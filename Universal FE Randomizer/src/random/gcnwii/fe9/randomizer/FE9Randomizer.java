@@ -54,6 +54,7 @@ import util.recordkeeper.ChangelogDivider;
 import util.recordkeeper.ChangelogHeader;
 import util.recordkeeper.ChangelogSection;
 import util.recordkeeper.ChangelogStyleRule;
+import util.recordkeeper.ChangelogTOC;
 import util.recordkeeper.ChangelogTable;
 import util.recordkeeper.ChangelogHeader.HeaderLevel;
 
@@ -122,8 +123,15 @@ public class FE9Randomizer extends Randomizer {
 		
 		addRandomizationOptionsToChangelog(changelogBuilder, seed);
 		
-		ChangelogSection characterSection = new ChangelogSection("character-data");
 		changelogBuilder.addElement(new ChangelogDivider());
+		
+		ChangelogTOC mainTOC = new ChangelogTOC("main-toc");
+		changelogBuilder.addElement(mainTOC);
+		
+		changelogBuilder.addElement(new ChangelogDivider());
+		
+		ChangelogSection characterSection = new ChangelogSection("character-data");
+		mainTOC.addAnchorWithTitle("character-data", "Character Data");
 		changelogBuilder.addElement(characterSection);
 		
 		try {

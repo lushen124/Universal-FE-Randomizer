@@ -167,21 +167,21 @@ public class FE9Class implements FEModifiableData {
 	public int getMaxDEF() { return data[0x52]; }
 	public int getMaxRES() { return data[0x53]; }
 	
-	public int getHPGrowth() { return data[0x54]; }
+	public int getHPGrowth() { return (data[0x54] & 0xFF); }
 	public void setHPGrowth(int newGrowth) { data[0x54] = (byte)(newGrowth & 0xFF); wasModified = true; }
-	public int getSTRGrowth() { return data[0x55]; }
+	public int getSTRGrowth() { return (data[0x55] & 0xFF); }
 	public void setSTRGrowth(int newGrowth) { data[0x55] = (byte)(newGrowth & 0xFF); wasModified = true; }
-	public int getMAGGrowth() { return data[0x56]; }
+	public int getMAGGrowth() { return (data[0x56] & 0xFF); }
 	public void setMAGGrowth(int newGrowth) { data[0x56] = (byte)(newGrowth & 0xFF); wasModified = true; }
-	public int getSKLGrowth() { return data[0x57]; }
+	public int getSKLGrowth() { return (data[0x57] & 0xFF); }
 	public void setSKLGrowth(int newGrowth) { data[0x57] = (byte)(newGrowth & 0xFF); wasModified = true; }
-	public int getSPDGrowth() { return data[0x58]; }
+	public int getSPDGrowth() { return (data[0x58] & 0xFF); }
 	public void setSPDGrowth(int newGrowth) { data[0x58] = (byte)(newGrowth & 0xFF); wasModified = true; }
-	public int getLCKGrowth() { return data[0x59]; }
+	public int getLCKGrowth() { return (data[0x59] & 0xFF); }
 	public void setLCKGrowth(int newGrowth) { data[0x59] = (byte)(newGrowth & 0xFF); wasModified = true; }
-	public int getDEFGrowth() { return data[0x5A]; }
+	public int getDEFGrowth() { return (data[0x5A] & 0xFF); }
 	public void setDEFGrowth(int newGrowth) { data[0x5A] = (byte)(newGrowth & 0xFF); wasModified = true; }
-	public int getRESGrowth() { return data[0x5B]; }
+	public int getRESGrowth() { return (data[0x5B] & 0xFF); }
 	public void setRESGrowth(int newGrowth) { data[0x5B] = (byte)(newGrowth & 0xFF); wasModified = true; }
 	
 	public byte[] getLaguzData() {
