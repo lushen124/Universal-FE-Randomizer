@@ -1018,5 +1018,10 @@ public class MainView implements FileFlowDelegate {
 		}
 		
 		loadingModal.hide();
+		
+		if (loadedGameType == GameType.FE9 && System.getProperty("sun.arch.data.model").equals("32")) {
+			MessageModal memoryWarning = new MessageModal(mainShell, "Warning", "You seem to be running a 32-bit Java VM.\nThere are known out of memory issues with\nrandomizing FE9 when using a 32-bit VM.\n\nThis may be addressed in a future release,\nbut please consider upgrading to a 64-bit JRE.");
+			memoryWarning.show();
+		}
 	}
 }
