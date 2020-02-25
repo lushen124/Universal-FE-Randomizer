@@ -30,9 +30,9 @@ public class DebugPrinter {
 	
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
-		case MAIN:
-		case FE9_RANDOM_CLASSES:
-			return true;
+//		case MAIN:
+//		case FE9_ARMY_LOADER:
+//			return true;
 		default:
 			return false;
 		}

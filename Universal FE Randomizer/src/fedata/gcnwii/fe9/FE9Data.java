@@ -102,6 +102,13 @@ public class FE9Data {
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(VOLKE, SOTHE));
 		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(TIBARN, NAESALA, GIFFCA));
 		
+		// TODO: These characters are not quite working for randomization of classes.
+		// We'll need to figure out why exactly.
+		public static Set<Character> buggedCharacters = new HashSet<Character>(Arrays.asList(
+				LETHE, // Only affinity changes seem to be working. 
+				ROLF // Everything works except class. He's forced to being an Archer and always carries a Rolf's Bow.
+		));
+		
 		public static Set<Character> requiresRange = new HashSet<Character>(Arrays.asList());
 		public static Set<Character> requiresMelee = new HashSet<Character>(Arrays.asList());
 		
@@ -121,6 +128,10 @@ public class FE9Data {
 		
 		public boolean isModifiable() {
 			return !doNotChange.contains(this);
+		}
+		
+		public boolean isBugged() {
+			return buggedCharacters.contains(this);
 		}
 		
 		public boolean isBoss() {
@@ -480,16 +491,16 @@ public class FE9Data {
 				case WARRIOR: return "AID_FIGHTER2";
 				
 				// I don't think we actually need any of these.
-				//case CAT: return "AID_BEASTCA";
+				case CAT: return "AID_BEASTCA_LA"; // Use Ranulf's human form.
 				// Lethe doesn't have one here...?
 				//case CAT_F: return null;
-				//case TIGER: return "AID_BEASTTI";
-				//case HAWK: return "AID_BIRDFA";
-				//case CROW: return "AID_BIRDCR";
-				//case W_HERON: return "AID_BIRDEG";
+				case TIGER: return "AID_BEASTTI_MO"; // Use Mordecai
+				case HAWK: return "AID_BIRDFA_VU"; // Use Ulki
+				case CROW: return "AID_BIRDCR_CH"; // I think this is Seeker
+				case W_HERON: return "AID_BIRDEG";
 				//case W_HERON_F: return "AID_BIRDEGF";
-				//case WHITE_DRAGON: return null; //return "AID_NASIR"; // This is the only white dragon human form we get...
-				//case RED_DRAGON: case RED_DRAGON_F: return "AID_DRAGONRE";
+				case WHITE_DRAGON: return "AID_NASIR";
+				case RED_DRAGON: case RED_DRAGON_F: return "AID_DRAGONRE";
 				
 				default: return null;
 			}
@@ -1067,7 +1078,7 @@ public class FE9Data {
 			return new ArrayList<Chapter>(Arrays.asList(PROLOGUE, CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4, CHAPTER_5, CHAPTER_6, CHAPTER_7,
 					CHAPTER_8, CHAPTER_9, CHAPTER_10, CHAPTER_11, CHAPTER_12, CHAPTER_13, CHAPTER_14, CHAPTER_15, CHAPTER_16, CHAPTER_17, CHAPTER_18,
 					CHAPTER_19, CHAPTER_20, CHAPTER_21, CHAPTER_22, CHAPTER_23, CHAPTER_24, CHAPTER_25, CHAPTER_26, CHAPTER_27, CHAPTER_27_BK_FIGHT,
-					CHAPTER_28, ENDGAME));
+					CHAPTER_28, ENDGAME, ALL_CHAPTERS));
 		}
 		
 		public boolean hasWaterSpawningBandits() {

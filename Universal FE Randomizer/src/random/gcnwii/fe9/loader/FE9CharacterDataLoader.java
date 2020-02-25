@@ -180,7 +180,7 @@ public class FE9CharacterDataLoader {
 		if (character == null) { return false; }
 		FE9Data.Character fe9Char = FE9Data.Character.withPID(getPIDForCharacter(character));
 		if (fe9Char == null) { return false; }
-		return fe9Char.isModifiable();
+		return fe9Char.isModifiable() && !fe9Char.isBugged();
 	}
 	
 	public FE9Character[] allPlayableCharacters() {
@@ -280,6 +280,11 @@ public class FE9CharacterDataLoader {
 			character.setUnpromotedAnimationPointer(0);
 			return;
 		}
+		
+		// For some reason, giving Mist any AID for unpromoted causes her to render on the map
+		// as a shadow Ike. There may be other characters that share this trait.
+		if (getPIDForCharacter(character).equals(FE9Data.Character.MIST.getPID())) { return; }
+		
 		Long aidAddress = fe8databin.pointerForString(aid);
 		if (aidAddress == null) {
 			fe8databin.addString(aid);
@@ -301,6 +306,10 @@ public class FE9CharacterDataLoader {
 			character.setPromotedAnimationPointer(0);
 			return;
 		}
+		
+		// This was necessary for Mist's unpromoted model. It's probably true here too.
+		if (getPIDForCharacter(character).equals(FE9Data.Character.MIST.getPID())) { return; }
+		
 		Long aidAddress = fe8databin.pointerForString(aid);
 		if (aidAddress == null) {
 			fe8databin.addString(aid);

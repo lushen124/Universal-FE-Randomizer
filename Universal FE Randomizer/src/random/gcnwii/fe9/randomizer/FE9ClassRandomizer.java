@@ -84,8 +84,10 @@ public class FE9ClassRandomizer {
 				int startingGauge = rng.nextInt(20);
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set Laguz starting gauge to " + startingGauge);
 				charData.setLaguzStartingGaugeForCharacter(character, startingGauge);
-				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set unpromoted AID to " + classData.getUnpromotedAIDForClass(newClass));
-				charData.setUnpromotedAIDForCharacter(character, classData.getUnpromotedAIDForClass(newClass));
+				if (classData.isLaguzClass(originalClass) && charData.getUnpromotedAIDForCharacter(character) != null) {
+					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set unpromoted AID to " + classData.getUnpromotedAIDForClass(newClass));
+					charData.setUnpromotedAIDForCharacter(character, classData.getUnpromotedAIDForClass(newClass));
+				}
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set promoted AID to " + classData.getPromotedAIDForClass(newClass));
 				charData.setPromotedAIDForCharacter(character, classData.getPromotedAIDForClass(newClass));
 			} else {
@@ -125,14 +127,37 @@ public class FE9ClassRandomizer {
 			int defBase = character.getBaseDEF() + originalClass.getBaseDEF() - newClass.getBaseDEF();
 			int resBase = character.getBaseRES() + originalClass.getBaseRES() - newClass.getBaseRES();
 			
-			if (classData.isLaguzClass(newClass)) {
+			if (classData.isLaguzClass(originalClass) && !classData.isLaguzClass(newClass)) {
+				// Laguz -> Beorc
+				strBase += (int)Math.floor(classData.getLaguzSTROffset(originalClass) * 1.5);
+				magBase += (int)Math.floor(classData.getLaguzMAGOffset(originalClass) * 1.5);
+				sklBase += (int)Math.floor(classData.getLaguzSKLOffset(originalClass) * 1.5);
+				spdBase += (int)Math.floor(classData.getLaguzSPDOffset(originalClass) * 1.5);
+				defBase += (int)Math.floor(classData.getLaguzDEFOffset(originalClass) * 1.5);
+				resBase += (int)Math.floor(classData.getLaguzRESOffset(originalClass) * 1.5);
+				
+				character.setBaseSKL(sklBase);
+				character.setBaseSPD(spdBase);
+				character.setBaseLCK(lckBase);
+				character.setBaseDEF(defBase);
+				character.setBaseRES(resBase);
+				
+			} else if (!classData.isLaguzClass(originalClass) && classData.isLaguzClass(newClass)) {
+				// Beorc -> Laguz
 				strBase -= classData.getLaguzSTROffset(newClass);
 				magBase -= classData.getLaguzMAGOffset(newClass);
 				sklBase -= classData.getLaguzSKLOffset(newClass);
 				spdBase -= classData.getLaguzSPDOffset(newClass);
 				defBase -= classData.getLaguzDEFOffset(newClass);
 				resBase -= classData.getLaguzRESOffset(newClass);
-				
+
+				character.setBaseSKL(sklBase);
+				character.setBaseSPD(spdBase);
+				character.setBaseLCK(lckBase);
+				character.setBaseDEF(defBase);
+				character.setBaseRES(resBase);
+			} else if (classData.isLaguzClass(originalClass) && classData.isLaguzClass(newClass)) {
+				// Laguz -> Laguz
 				character.setBaseHP(hpBase);
 				character.setBaseSKL(sklBase);
 				character.setBaseSPD(spdBase);
@@ -266,7 +291,7 @@ public class FE9ClassRandomizer {
 			}
 			
 			// Update chapter data (class, weapons, and equipment)
-			for (FE9Data.Chapter chapter : FE9Data.Chapter.allChapters())  {
+			for (FE9Data.Chapter chapter : FE9Data.Chapter.values())  {
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Processing Chapter: " + chapter.toString());
 				for (FE9ChapterArmy army : chapterData.armiesForChapter(chapter)) {
 					for (String unitID : army.getAllUnitIDs()) {
@@ -473,8 +498,10 @@ public class FE9ClassRandomizer {
 				int startingGauge = rng.nextInt(20);
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set Laguz starting gauge to " + startingGauge);
 				charData.setLaguzStartingGaugeForCharacter(character, startingGauge);
-				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set unpromoted AID to " + classData.getUnpromotedAIDForClass(newClass));
-				charData.setUnpromotedAIDForCharacter(character, classData.getUnpromotedAIDForClass(newClass));
+				if (classData.isLaguzClass(originalClass) && charData.getUnpromotedAIDForCharacter(character) != null) {
+					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set unpromoted AID to " + classData.getUnpromotedAIDForClass(newClass));
+					charData.setUnpromotedAIDForCharacter(character, classData.getUnpromotedAIDForClass(newClass));
+				}
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set promoted AID to " + classData.getPromotedAIDForClass(newClass));
 				charData.setPromotedAIDForCharacter(character, classData.getPromotedAIDForClass(newClass));
 			} else {
@@ -514,23 +541,37 @@ public class FE9ClassRandomizer {
 			int defBase = character.getBaseDEF() + originalClass.getBaseDEF() - newClass.getBaseDEF();
 			int resBase = character.getBaseRES() + originalClass.getBaseRES() - newClass.getBaseRES();
 			
-			if (classData.isLaguzClass(newClass)) {
+			if (classData.isLaguzClass(originalClass) && !classData.isLaguzClass(newClass)) {
+				// Laguz -> Beorc
+				strBase += (int)Math.floor(classData.getLaguzSTROffset(originalClass) * 1.5);
+				magBase += (int)Math.floor(classData.getLaguzMAGOffset(originalClass) * 1.5);
+				sklBase += (int)Math.floor(classData.getLaguzSKLOffset(originalClass) * 1.5);
+				spdBase += (int)Math.floor(classData.getLaguzSPDOffset(originalClass) * 1.5);
+				defBase += (int)Math.floor(classData.getLaguzDEFOffset(originalClass) * 1.5);
+				resBase += (int)Math.floor(classData.getLaguzRESOffset(originalClass) * 1.5);
+				
+				character.setBaseSKL(sklBase);
+				character.setBaseSPD(spdBase);
+				character.setBaseDEF(defBase);
+				character.setBaseRES(resBase);
+				
+			} else if (!classData.isLaguzClass(originalClass) && classData.isLaguzClass(newClass)) {
+				// Beorc -> Laguz
 				strBase -= classData.getLaguzSTROffset(newClass);
 				magBase -= classData.getLaguzMAGOffset(newClass);
 				sklBase -= classData.getLaguzSKLOffset(newClass);
 				spdBase -= classData.getLaguzSPDOffset(newClass);
 				defBase -= classData.getLaguzDEFOffset(newClass);
 				resBase -= classData.getLaguzRESOffset(newClass);
+				
+				character.setBaseSKL(sklBase);
+				character.setBaseSPD(spdBase);
+				character.setBaseDEF(defBase);
+				character.setBaseRES(resBase);
 			}
 			
-			character.setBaseHP(hpBase);
 			character.setBaseSTR(strBase);
 			character.setBaseMAG(magBase);
-			character.setBaseSKL(sklBase);
-			character.setBaseSPD(spdBase);
-			character.setBaseLCK(lckBase);
-			character.setBaseDEF(defBase);
-			character.setBaseRES(resBase);
 			
 			// Update weapon levels.
 			String originalWeaponLevels = charData.getWeaponLevelStringForCharacter(character);
@@ -659,7 +700,7 @@ public class FE9ClassRandomizer {
 			}
 			
 			// Update chapter data (class, weapons, and equipment)
-			for (FE9Data.Chapter chapter : FE9Data.Chapter.allChapters())  {
+			for (FE9Data.Chapter chapter : FE9Data.Chapter.values())  {
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Processing Chapter: " + chapter.toString());
 				for (FE9ChapterArmy army : chapterData.armiesForChapter(chapter)) {
 					for (String unitID : army.getAllUnitIDs()) {
