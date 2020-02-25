@@ -57,7 +57,6 @@ public class CONAffinityView extends Composite {
 		
 		FormData spinnerData = new FormData();
 		spinnerData.right = new FormAttachment(100, -12);
-		spinnerData.width = 10;
 		spinnerData.top = new FormAttachment(randomizeCONButton, 5);
 		conVarianceSpinner.setLayoutData(spinnerData);
 		

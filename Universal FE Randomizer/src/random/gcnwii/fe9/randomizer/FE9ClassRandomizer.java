@@ -351,6 +351,8 @@ public class FE9ClassRandomizer {
 										}
 										replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
 									}
+									List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
+									if (specialWeapons != null) { replacements.addAll(specialWeapons); }
 									
 									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
 									for (FE9Item weapon : replacements) {
@@ -1005,6 +1007,8 @@ public class FE9ClassRandomizer {
 								}
 								replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
 							}
+							List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
+							if (specialWeapons != null) { replacements.addAll(specialWeapons); }
 							
 							DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
 							for (FE9Item weapon : replacements) {

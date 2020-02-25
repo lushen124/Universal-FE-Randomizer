@@ -242,6 +242,7 @@ public class FE9ItemDataLoader {
 		default: break;
 		}
 		items.removeAll(FE9Data.Item.blacklistedWeapons);
+		items.removeAll(FE9Data.Item.allRestrictedItems);
 		return fe9ItemListFromSet(items);
 	}
 	
