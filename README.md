@@ -419,6 +419,10 @@ Buffing minions work the same way as you are used to from GBAFE. Their class gro
 Buffing bosses, on the other hand, looks to be borked, currently, because for whatever reason, FE9 doesn't load boss character stats from the character data. I suspect this is in the chapter script, but I haven't verified it yet. That said, boss weapons and boss skills are functional, so they should work.
 
 ## Sample Screenshots
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE4Classes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE4Enemies.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE4HolyBlood.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE4Skills.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/RandomClasses.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/CustomPalettes.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/WeaponEffects.png)
@@ -428,6 +432,9 @@ Buffing bosses, on the other hand, looks to be borked, currently, because for wh
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/Classes.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/CustomPalettes.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/WeaponDescriptions.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE9Classes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE9Minions.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE9Skills.png)
 
 ## Nice-to-have Features
 * ~~Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.~~ This is actually done now. It mostly works, though it occasionally gives an odd color.
