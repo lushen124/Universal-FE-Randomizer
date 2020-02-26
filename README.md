@@ -387,7 +387,9 @@ These determine how items are assigned when they need to be assigned (affects ra
 This isn't anything too novel if you've read the above randomization options. I even reused the same data model when reading these options for FE9, so the options do exactly as they do above. The only difference is that, like FE4, there is an option to ensure that the growth rate for STR is higher than the growth rate for MAG for physical units and vice versa for magical units. Hybrid units (like Cleric/Valkyrie and Elincia Falcon Knight) have no preference for either.
 
 ### Bases
-Also similar to all of the other titles. And again, STR/MAG options are available to try to make sure a physical unit doesn't end up with MAG bases at the expense of their STR base (and vice versa for magical units).
+Also similar to all of the other titles. And again, STR/MAG options are available to try to make sure a physical unit doesn't end up with MAG bases at the expense of their STR base (and vice versa for magical units). One side effect is that, if this option is enabled, Prologue Boyd is nerfed to make sure that even a base-screwed Ike can beat him, since he doesn't start with a Vulnerary (I could just give him a vulnerary, alternatively.)
+
+*Note: This doesn't seem to work with Lethe, for some reason. Need to figure this out.*
 
 ### CON and Affinity
 CON randomization does the same thing, but CON has a very different role in FE9 than in GBAFE. CON (or Build if you prefer) only really affects shoving and rescuing (and I think maybe the Colossus skill?), so it has much less of an effect. Affinity also works the same way, though support building is much easier in FE9 than in GBAFE, so maybe it's a bit more interesting here.
@@ -407,7 +409,9 @@ This, in my opinion, is the most interesting. Two high level options here:
 You'll also realize that, if you're familiar with FE4, that there is no option for the number of skills. This is primarily due to the capacity system. The cheapest skill costs 5 and the most expensive, non-occult skill, costs 15. This lines up well with mounted units having a max capacity of 15 (unpromoted), so each character can only have one skill assigned to them. I haven't decided on how to manage occult scrolls yet, so those are not included in the randomization yet.
 
 ### Classes
-This is probably the buggiest option. I think I've managed to get most battle animations to work appropriately, but there's always the chance that a character later in the game causes issues, because I haven't been able to test that far. The options should look familiar, but I'll go over them briefly. **Include Lords** will randomizes Ike's class and add Ranger to the class pool. I'm not sure about how this breaks endgame, so I may need more modifications to make things possible with a non-Lord Ike. **Include Thieves** basically affect Volke and Sothe and allow them to change class and adds thieves to the randomization pool (I'm not sure if this works properly either). **Include Special Classes** basically just means Reyson, and there should be logic to make sure you only get at most one heron if this is included (as two herons is basically a free win). **Allow Crossgender Assignments** does as you expect, attempting to keep gender lines consistent. **Allow Cross-race Assignments** is new, but you can guess that this means crossing Beorc and Laguz classes. This applies for bosses and minions as well.
+This is probably the buggiest option. I think I've managed to get most battle animations to work appropriately, but there's always the chance that a character later in the game causes issues, because I haven't been able to test that far. The options should look familiar, but I'll go over them briefly. **Include Lords** will randomizes Ike's class and add Ranger to the class pool. I'm not sure about how this breaks endgame, so I may need more modifications to make things possible with a non-Lord Ike. **Include Thieves** basically affect Volke and Sothe and allow them to change class and adds thieves to the randomization pool (I'm not sure if this works properly either). **Include Special Classes** basically just means Reyson, and there should be logic to make sure you only get at most one heron if this is included (as two herons is basically a free win). **Allow Crossgender Assignments** does as you expect, attempting to keep gender lines consistent. **Allow Cross-race Assignments** is new, but you can guess that this means crossing Beorc and Laguz classes. This applies for bosses and minions as well. 
+
+*Note: There are some characters that are excluded from this because they seem to work differently: Rolf and Lethe don't seem to load the same way as other characters, so they are currently disabled. Additionally, Boyd remains a fighter in the Prologue (also partially to make sure a hypothetical Wyvern Rider Boyd doesn't immediately roadblock Ike in the prologue).*
 
 Bosses work as you expect, though there might be additional logic for bosses that I haven't added yet, and I haven't tested cross-race assignments yet. Minions are also in the same boat, but in addition to not knowing if cross-race assignments work, some minions are directly referenced by their ID in chapter scripts, and those IDs need to be a specific class, so even if you force 100% of minions to change class, some will be immune to change to make sure the game is still functional.
 
@@ -419,6 +423,10 @@ Buffing minions work the same way as you are used to from GBAFE. Their class gro
 Buffing bosses, on the other hand, looks to be borked, currently, because for whatever reason, FE9 doesn't load boss character stats from the character data. I suspect this is in the chapter script, but I haven't verified it yet. That said, boss weapons and boss skills are functional, so they should work.
 
 ## Sample Screenshots
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE4Classes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE4Enemies.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE4HolyBlood.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE4Skills.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/RandomClasses.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/CustomPalettes.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Linux/WeaponEffects.png)
@@ -428,6 +436,9 @@ Buffing bosses, on the other hand, looks to be borked, currently, because for wh
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/Classes.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/CustomPalettes.png)
 ![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/WeaponDescriptions.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE9Classes.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE9Minions.png)
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Windows/FE9Skills.png)
 
 ## Nice-to-have Features
 * ~~Fixing battle animation palettes. I think I can programmatically assign proper looking colors based on classes, but I'm not sure yet.~~ This is actually done now. It mostly works, though it occasionally gives an odd color.
@@ -442,7 +453,7 @@ Buffing bosses, on the other hand, looks to be borked, currently, because for wh
 * Add in regional support outside of North America. (Should also be straightforward)
 * ~~Add in FE8 support.~~ Done!
 * ~~Add in FE4 support. (For the lulz, and mostly because it's possible and I have some fun ideas)~~
-* Add in ~~FE9/~~10 support - There was a proof of concept for this randomizer made, so it might be time to start looking into seriously supporting this. (I mean, I can't call it Yune and then not support FE10.)
+* Add in ~~FE9~~/10 support - There was a proof of concept for this randomizer made, so it might be time to start looking into seriously supporting this. (I mean, I can't call it Yune and then not support FE10.)
 
 ## Wishful thinking (probably not happening any time soon)
 * Research FE3/5 support. (Need to actually finish these games to understand them)
