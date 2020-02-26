@@ -453,7 +453,7 @@ Buffing bosses, on the other hand, looks to be borked, currently, because for wh
 * Add in regional support outside of North America. (Should also be straightforward)
 * ~~Add in FE8 support.~~ Done!
 * ~~Add in FE4 support. (For the lulz, and mostly because it's possible and I have some fun ideas)~~
-* Add in ~~FE9/~~~10 support - There was a proof of concept for this randomizer made, so it might be time to start looking into seriously supporting this. (I mean, I can't call it Yune and then not support FE10.)
+* Add in ~~FE9~~/10 support - There was a proof of concept for this randomizer made, so it might be time to start looking into seriously supporting this. (I mean, I can't call it Yune and then not support FE10.)
 
 ## Wishful thinking (probably not happening any time soon)
 * Research FE3/5 support. (Need to actually finish these games to understand them)
