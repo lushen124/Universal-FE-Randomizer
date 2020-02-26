@@ -48,20 +48,34 @@ public class DiffCompiler {
 	
 	public byte[] byteArrayWithDiffs(byte[] byteArray, long startingOffset) {
 		byte[] resultByteArray = byteArray.clone();
+		applyDiffs(resultByteArray, startingOffset);
+		return resultByteArray;
+	}
+	
+	public void applyDiffs(byte[] byteArray, long startingOffset) {
 		AddressRange range = new AddressRange(startingOffset, startingOffset + byteArray.length);
 		
 		for (Diff diff : diffArray) {
 			if (range.contains(diff.address)) {
 				int offset = (int)(diff.address - startingOffset);
 				for (int i = 0; i < diff.length; i++) {
-					if (offset + i >= resultByteArray.length) {
+					if (offset + i >= byteArray.length) {
 						break;
 					}
-					resultByteArray[offset + i] = diff.changes[i];
+					byteArray[offset + i] = diff.changes[i];
 				}
 			}
 		}
+	}
+	
+	public Byte diffValueAtOffset(long offset) {
+		for (Diff diff : diffArray) {
+			AddressRange range = new AddressRange(diff.address, diff.address + diff.length);
+			if (range.contains(offset)) {
+				return diff.changes[(int)(offset - diff.address)];
+			}
+		}
 		
-		return resultByteArray;
+		return null;
 	}
 }

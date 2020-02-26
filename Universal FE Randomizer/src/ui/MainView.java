@@ -1,8 +1,11 @@
 package ui;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -32,10 +35,16 @@ import application.Main;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
+import fedata.gcnwii.fe9.FE9Data;
 import fedata.general.FEBase.GameType;
 import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
+import io.FileWriter;
+import io.gcn.GCNFileHandler;
+import io.gcn.GCNISOException;
+import io.gcn.GCNISOHandler;
 import random.gba.randomizer.GBARandomizer;
+import random.gcnwii.fe9.randomizer.FE9Randomizer;
 import random.general.Randomizer;
 import random.general.RandomizerListener;
 import random.snes.fe4.randomizer.FE4Randomizer;
@@ -44,16 +53,29 @@ import ui.fe4.FE4EnemyBuffView;
 import ui.fe4.FE4PromotionView;
 import ui.fe4.HolyBloodView;
 import ui.fe4.SkillsView;
+import ui.fe9.FE9ClassesView;
+import ui.fe9.FE9EnemyBuffView;
+import ui.fe9.FE9SkillView;
 import ui.general.FileFlowDelegate;
 import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
 import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
+import ui.model.FE9OtherCharacterOptions;
+import util.DebugPrinter;
 import util.DiffCompiler;
+import util.LZ77;
 import util.OptionRecorder;
 import util.SeedGenerator;
+import util.WhyDoesJavaNotHaveThese;
 import util.OptionRecorder.FE4OptionBundle;
+import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
+import util.recordkeeper.ChangelogBuilder;
+import util.recordkeeper.ChangelogHeader;
+import util.recordkeeper.ChangelogHeader.HeaderLevel;
+import util.recordkeeper.ChangelogSection;
+import util.recordkeeper.ChangelogTable;
 import util.recordkeeper.RecordKeeper;
 
 public class MainView implements FileFlowDelegate {
@@ -101,6 +123,12 @@ public class MainView implements FileFlowDelegate {
 	private FE4PromotionView fe4PromotionView;
 	private FE4EnemyBuffView fe4EnemyBuffView;
 	
+	// FE9
+	private FE9SkillView fe9SkillView;
+	private CONAffinityView conAffinityView;
+	private FE9EnemyBuffView fe9EnemyView;
+	private FE9ClassesView fe9ClassesView;
+	
 	private Button randomizeButton;
 	
 	private Boolean isShowingModalProgressDialog = false;
@@ -110,7 +138,7 @@ public class MainView implements FileFlowDelegate {
 		super();
 		
 		Shell shell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.MAX); 
-		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.8.5)");
+		 shell.setText("Yune: A Universal Fire Emblem Randomizer (v0.9.0)");
 		 shell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		 
 		 screenHeight = mainDisplay.getBounds().height;
@@ -306,6 +334,11 @@ public class MainView implements FileFlowDelegate {
 		if (fe4PromotionView != null) { fe4PromotionView.dispose(); }
 		if (fe4EnemyBuffView != null) { fe4EnemyBuffView.dispose(); }
 		
+		if (fe9SkillView != null) { fe9SkillView.dispose(); }
+		if (conAffinityView != null) { conAffinityView.dispose(); }
+		if (fe9EnemyView != null) { fe9EnemyView.dispose(); }
+		if (fe9ClassesView != null) { fe9ClassesView.dispose(); }
+		
 		resize();
 	}
 	
@@ -336,6 +369,15 @@ public class MainView implements FileFlowDelegate {
 				recruitView.setRecruitmentOptions(bundle.recruitmentOptions);
 				itemAssignmentView.setItemAssignmentOptions(bundle.itemAssignmentOptions);
 			}
+		} else if (type == GameType.FE9 && OptionRecorder.options.fe9 != null) {
+			FE9OptionBundle bundle = OptionRecorder.options.fe9;
+			growthView.setGrowthOptions(bundle.growths);
+			baseView.setBasesOptions(bundle.bases);
+			fe9SkillView.setSkillOptions(bundle.skills);
+			conAffinityView.setOtherCharacterOptions(bundle.otherOptions);
+			fe9EnemyView.setEnemyBuffOptions(bundle.enemyBuff);
+			fe9ClassesView.setClassOptions(bundle.classes);
+			miscView.setMiscellaneousOptions(bundle.misc);
 		}
 	}
 	
@@ -407,6 +449,10 @@ public class MainView implements FileFlowDelegate {
 		baseData.left = new FormAttachment(growthView, 0, SWT.LEFT);
 		baseData.right = new FormAttachment(growthView, 0, SWT.RIGHT);
 		baseView.setLayoutData(baseData);
+		
+		randomizeButton = new Button(container, SWT.PUSH);
+		randomizeButton.setText("Randomize!");
+		randomizeButton.setVisible(false);
 		  
 		if (type == GameType.FE4) {
 			// To prevent gen 2 overflow, the max growth allowed for any single stat is 85%.
@@ -473,10 +519,6 @@ public class MainView implements FileFlowDelegate {
 			miscData.right = new FormAttachment(fe4EnemyBuffView, 0, SWT.RIGHT);
 			//miscData.bottom = new FormAttachment(100, -10);
 			miscView.setLayoutData(miscData);
-			
-			randomizeButton = new Button(container, SWT.PUSH);
-			randomizeButton.setText("Randomize!");
-			randomizeButton.setVisible(false);
 			  
 			FormData randomizeData = new FormData();
 			randomizeData.top = new FormAttachment(miscView, 5);
@@ -485,6 +527,67 @@ public class MainView implements FileFlowDelegate {
 			randomizeData.bottom = new FormAttachment(100, -10);
 			randomizeButton.setLayoutData(randomizeData);
 			
+		} else if (type == GameType.FE9) {
+			conAffinityView = new CONAffinityView(container, SWT.NONE);
+			conAffinityView.setSize(200, 200);
+			conAffinityView.setVisible(false);
+			
+			FormData conAffinityData = new FormData();
+			conAffinityData.top = new FormAttachment(baseView, 5);
+			conAffinityData.left = new FormAttachment(baseView, 0, SWT.LEFT);
+			conAffinityData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
+			conAffinityView.setLayoutData(conAffinityData);
+			
+			miscView = new MiscellaneousView(container, SWT.NONE, type);
+			miscView.setSize(200, 200);
+			miscView.setVisible(false);
+			  
+			FormData miscData = new FormData();
+			miscData.top = new FormAttachment(conAffinityView, 5);
+			miscData.left = new FormAttachment(conAffinityView, 0, SWT.LEFT);
+			miscData.right = new FormAttachment(conAffinityView, 0, SWT.RIGHT);
+			//miscData.bottom = new FormAttachment(100, -10);
+			miscView.setLayoutData(miscData);
+			
+			List<String> skills = FE9Data.Skill.allValidSkills.stream().map( skill -> {
+				return skill.getDisplayString();
+			}).collect(Collectors.toList());
+			fe9SkillView = new FE9SkillView(container, SWT.NONE, skills);
+			fe9SkillView.setSize(200, 200);
+			fe9SkillView.setVisible(false);
+			
+			FormData skillData = new FormData();
+			skillData.top = new FormAttachment(growthView, 0, SWT.TOP);
+			skillData.left = new FormAttachment(growthView, 5);
+			skillData.bottom = new FormAttachment(100, -10);
+			fe9SkillView.setLayoutData(skillData);
+			
+			fe9ClassesView = new FE9ClassesView(container, SWT.NONE);
+			fe9ClassesView.setSize(200, 200);
+			fe9ClassesView.setVisible(false);
+			
+			FormData classData = new FormData();
+			classData.top = new FormAttachment(growthView, 0, SWT.TOP);
+			classData.left = new FormAttachment(fe9SkillView, 5);
+			classData.right = new FormAttachment(100, -5);
+			fe9ClassesView.setLayoutData(classData);
+			
+			fe9EnemyView = new FE9EnemyBuffView(container, SWT.NONE);
+			fe9EnemyView.setSize(200, 200);
+			fe9EnemyView.setVisible(false);
+			
+			FormData enemyData = new FormData();
+			enemyData.top = new FormAttachment(fe9ClassesView, 5); 
+			enemyData.left = new FormAttachment(fe9ClassesView, 0, SWT.LEFT);
+			enemyData.right = new FormAttachment(fe9ClassesView, 0, SWT.RIGHT);
+			fe9EnemyView.setLayoutData(enemyData);
+			
+			FormData randomizeData = new FormData();
+			randomizeData.top = new FormAttachment(fe9EnemyView, 5);
+			randomizeData.left = new FormAttachment(fe9EnemyView, 0, SWT.LEFT);
+			randomizeData.right = new FormAttachment(fe9EnemyView, 0, SWT.RIGHT);
+			randomizeData.bottom = new FormAttachment(100, -10);
+			randomizeButton.setLayoutData(randomizeData);
 		} else {
 			otherCharOptionView = new MOVCONAffinityView(container, SWT.NONE);
 			otherCharOptionView.setSize(200, 200);
@@ -556,10 +659,6 @@ public class MainView implements FileFlowDelegate {
 			recruitData.left = new FormAttachment(classView, 5);
 			recruitData.right = new FormAttachment(100, -5);
 			recruitView.setLayoutData(recruitData);
-			
-			randomizeButton = new Button(container, SWT.PUSH);
-			randomizeButton.setText("Randomize!");
-			randomizeButton.setVisible(false);
 			  
 			FormData randomizeData = new FormData();
 			randomizeData.top = new FormAttachment(recruitView, 5);
@@ -584,6 +683,9 @@ public class MainView implements FileFlowDelegate {
 			setupInfoLayout();
 			hasLoadedInfo = true;
 		}
+		
+		MessageModal loadingModal = new MessageModal(mainShell, "Loading", "Verifying File...");
+		loadingModal.showRaw();
 		
 		try {
 			FileHandler handler = new FileHandler(pathToFile);
@@ -617,6 +719,20 @@ public class MainView implements FileFlowDelegate {
 				romName.setText("ROM Name: " + FE4Data.InternalName);
 				romCode.setText("ROM Code: --");
 			}
+			else if (handler.getCRC32() == FE9Data.CleanCRC32) {
+				type = GameType.FE9;
+				friendlyName.setText("Display Name: " + FE9Data.FriendlyName);
+				try {
+					GCNISOHandler gcnHandler = new GCNISOHandler(handler);
+					romName.setText("ROM Name: " + gcnHandler.getGameName());
+					romCode.setText("ROM Code: " + gcnHandler.getGameCode());
+				} catch (GCNISOException e) {
+					DebugPrinter.log(DebugPrinter.Key.MAIN, e.getMessage());
+					romName.setText("ROM Name: Read Failed");
+					romCode.setText("ROM Code: Read Failed");
+					type = GameType.UNKNOWN;
+				}
+			}
 			else { 
 				type = GameType.UNKNOWN;
 				friendlyName.setText("Display Name: Unknown");
@@ -642,6 +758,11 @@ public class MainView implements FileFlowDelegate {
 					fe4PromotionView.setVisible(true);
 					fe4EnemyBuffView.setVisible(true);
 					
+				} else if (type == GameType.FE9) {
+					fe9SkillView.setVisible(true);
+					conAffinityView.setVisible(true);
+					fe9EnemyView.setVisible(true);
+					fe9ClassesView.setVisible(true);
 				} else {
 					classView.setVisible(true);
 					otherCharOptionView.setVisible(true);
@@ -651,7 +772,9 @@ public class MainView implements FileFlowDelegate {
 					itemAssignmentView.setVisible(true);
 				}
 		
+				
 				miscView.setVisible(true);
+				
 				randomizeButton.setVisible(true);
 				
 				seedField.setVisible(true);
@@ -680,7 +803,9 @@ public class MainView implements FileFlowDelegate {
 						if (gameType.isGBA()) {
 							openDialog.setFilterExtensions(new String[] {"*.gba"});
 						} else if (gameType.isSFC()) {
-							openDialog.setFilterExtensions(new String[] {".smc"});
+							openDialog.setFilterExtensions(new String[] {"*.smc"});
+						} else if (gameType.isGCN()) {
+							openDialog.setFilterExtensions(new String[] {"*.iso"});
 						}
 						String writePath = openDialog.open();
 						
@@ -759,8 +884,28 @@ public class MainView implements FileFlowDelegate {
 											miscView.getMiscellaneousOptions(), 
 											seedField.getText());
 								}
+							} else if (gameType.isGCN()) {
+								randomizer = new FE9Randomizer(pathToFile, writePath,
+										growthView.getGrowthOptions(),
+										baseView.getBaseOptions(),
+										fe9SkillView.getSkillOptions(),
+										conAffinityView.getOtherCharacterOptions(),
+										fe9EnemyView.getEnemyBuffOptions(),
+										fe9ClassesView.getClassOptions(),
+										miscView.getMiscellaneousOptions(),
+										seedField.getText());
+								
+								OptionRecorder.recordFE9Options(growthView.getGrowthOptions(), 
+										baseView.getBaseOptions(), 
+										fe9SkillView.getSkillOptions(), 
+										conAffinityView.getOtherCharacterOptions(), 
+										fe9EnemyView.getEnemyBuffOptions(), 
+										fe9ClassesView.getClassOptions(), 
+										miscView.getMiscellaneousOptions(),
+										seedField.getText());
 							}
 							
+							final String romPath = writePath;
 							randomizer.setListener(new RandomizerListener() {
 
 								@Override
@@ -769,33 +914,68 @@ public class MainView implements FileFlowDelegate {
 								}
 
 								@Override
-								public void onComplete(RecordKeeper rk) {
+								public void onComplete(RecordKeeper rk, ChangelogBuilder cb) {
 									hideModalProgressDialog();
-									MessageModal randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
-									randomSuccess.addButton("Yes", new ModalButtonListener() {
-										@Override
-										public void onSelected() {
-											randomSuccess.hide();
-											FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
-											openDialog.setFilterExtensions(new String[] {"*.html"});
-											String writePath = openDialog.open();
-											if (writePath != null) {
-												Boolean success = rk.exportRecordsToHTML(writePath);
-												if (success) {
-													MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
-													saveSuccess.show();
-												} else {
-													MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
-													saveFail.show();
+									MessageModal randomSuccess;
+									if (rk != null) {
+										randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
+										randomSuccess.addButton("Yes", new ModalButtonListener() {
+											@Override
+											public void onSelected() {
+												randomSuccess.hide();
+												FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
+												openDialog.setFilterExtensions(new String[] {"*.html"});
+												String writePath = openDialog.open();
+												if (writePath != null) {
+													Boolean success = rk.exportRecordsToHTML(writePath);
+													if (success) {
+														MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
+														saveSuccess.show();
+													} else {
+														MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
+														saveFail.show();
+													}
 												}
 											}
-										}
-									});
-									randomSuccess.addButton("No", new ModalButtonListener() {
-										public void onSelected() {
-											randomSuccess.hide();
-										}
-									});
+										});
+										randomSuccess.addButton("No", new ModalButtonListener() {
+											public void onSelected() {
+												randomSuccess.hide();
+											}
+										});
+									} else if (cb != null) {
+										randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
+										randomSuccess.addButton("Yes", new ModalButtonListener() {
+											@Override
+											public void onSelected() {
+												randomSuccess.hide();
+												FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
+												openDialog.setFilterExtensions(new String[] {"*.html"});
+												String changelogPath = openDialog.open();
+												if (changelogPath != null) {
+													int index = Math.max(romPath.lastIndexOf('/'), romPath.lastIndexOf('\\'));
+													String title =  romPath.substring(index + 1);
+													cb.setDocumentTitle("Changelog for " + title);
+													Boolean success = cb.writeToPath(changelogPath);
+													if (success) {
+														MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
+														saveSuccess.show();
+													} else {
+														MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
+														saveFail.show();
+													}
+												}
+											}
+										});
+										randomSuccess.addButton("No", new ModalButtonListener() {
+											public void onSelected() {
+												randomSuccess.hide();
+											}
+										});
+									} else {
+										randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!");
+									}
+									
 									randomSuccess.show();
 								}
 
@@ -835,6 +1015,13 @@ public class MainView implements FileFlowDelegate {
 			// TODO Auto-generated catch block
 			System.err.println("Failed to calculate checksum on input file.");
 			e.printStackTrace();
+		}
+		
+		loadingModal.hide();
+		
+		if (loadedGameType == GameType.FE9 && System.getProperty("sun.arch.data.model").equals("32")) {
+			MessageModal memoryWarning = new MessageModal(mainShell, "Warning", "You seem to be running a 32-bit Java VM.\nThere are known out of memory issues with\nrandomizing FE9 when using a 32-bit VM.\n\nThis may be addressed in a future release,\nbut please consider upgrading to a 64-bit JRE.");
+			memoryWarning.show();
 		}
 	}
 }

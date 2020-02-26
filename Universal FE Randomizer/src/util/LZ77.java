@@ -1,5 +1,7 @@
 package util;
 
+import java.util.Arrays;
+
 import io.FileHandler;
 
 public class LZ77 {
@@ -36,7 +38,7 @@ public class LZ77 {
 					// Means to go back 32 (31 + 1) bytes and read 18 bytes from what's been written so far.
 					byte compressedByte = handler.continueReadingNextByte();
 					byte compressedByte2 = handler.continueReadingNextByte();
-					int jumpDistance = (((compressedByte & 0xF) << 16) | (compressedByte2 & 0xFF)) + 1;
+					int jumpDistance = (((compressedByte & 0xF) << 8) | (compressedByte2 & 0xFF)) + 1;
 					int bytesToCopy = ((compressedByte & 0xF0) >> 4) + 3;
 					for (int j = 0; j < bytesToCopy; j++) {
 						int sourceIndex = outputIndex - jumpDistance;
@@ -85,7 +87,7 @@ public class LZ77 {
 					bytesRead++;
 					byte compressedByte2 = handler.continueReadingNextByte();
 					bytesRead++;
-					int jumpDistance = (((compressedByte & 0xF) << 16) | (compressedByte2 & 0xFF)) + 1;
+					int jumpDistance = (((compressedByte & 0xF) << 8) | (compressedByte2 & 0xFF)) + 1;
 					int bytesToCopy = ((compressedByte & 0xF0) >> 4) + 3;
 					for (int j = 0; j < bytesToCopy; j++) {
 						int sourceIndex = outputIndex - jumpDistance;
@@ -119,7 +121,7 @@ public class LZ77 {
 				} else {
 					byte compressedByte = inputBytes[inputIndex++];
 					byte compressedByte2 = inputBytes[inputIndex++];
-					int jumpDistance = (((compressedByte & 0xF) << 16) | (compressedByte2 & 0xFF)) + 1;
+					int jumpDistance = (((compressedByte & 0xF) << 8) | (compressedByte2 & 0xFF)) + 1;
 					int bytesToCopy = ((compressedByte & 0xF0) >> 4) + 3;
 					for (int j = 0; j < bytesToCopy; j++) {
 						int sourceIndex = outputIndex - jumpDistance;
@@ -133,7 +135,13 @@ public class LZ77 {
 	}
 	
 	public static byte[] compress(byte[] decompressed) {
+		return compress(decompressed, 32);
+	}
+	
+	public static byte[] compress(byte[] decompressed, int windowSize) {
 		if (decompressed == null) { return null; }
+		
+		DebugPrinter.log(DebugPrinter.Key.LZ77, "Compressing " + decompressed.length + " bytes...");
 		
 		byte[] header = new byte[4];
 		header[0] = (byte)0x10; // Header to mark an LZ77 compressed block of data.
@@ -150,33 +158,62 @@ public class LZ77 {
 		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(header, compressedData, outputOffset, header.length);
 		outputOffset += header.length;
 		
+		byte[] currentBlock = new byte[16]; // At most we can have 16 bytes (uncompressed blocks are 1 byte, compressed blocks are 2 bytes)
+		byte[] potentialSequence = new byte[18]; // The longest a matching sequence can be is 18 (since we only have 4 bits to represent it (+3))
+		byte[] actualSequence = new byte[18]; // See above.
+		
+		byte[] sequence = new byte[18];
+		byte[] matchedBytes = new byte[18];
+		
 		while (inputOffset < size) {
-			byte[] currentBlock = new byte[16]; // At most we can have 16 bytes (uncompressed blocks are 1 byte, compressed blocks are 2 bytes)
 			int blockIndex = 0;
 			byte flag = 0;
 			
 			for (int i = 0; i < 8; i++) {
 				if (inputOffset >= decompressed.length) { break; }
 				byte currentInputByte = decompressed[inputOffset];
-				boolean patternMatched = false;
 				int index = 0; // This will keep track of the location of the first byte that matched.
-				// I think the window can only look back 32 bytes at most, so we should lock it there.
-				for (index = Math.max(0, inputOffset - 32); index < inputOffset; index++) {
+				// Window size seems to be variable, depending on the platform.
+				// GBA seems to be ok with 32, but I've seen GCN go higher. The maximum is 0xFFF, since we have
+				// 12 total bits that could represent the offset.
+				int longestMatchingIndex = -1;
+				int longestMatchLength = 0;
+				int offset = 0;
+				
+				for (index = Math.max(0, inputOffset - windowSize - 1); index < inputOffset; index++) {
 					if (decompressed[index] == currentInputByte) {
-						patternMatched = true;
-						break; 
+						int matchingLength = 0;
+						int potentialLength = Math.min(18, inputOffset - index);
+						WhyDoesJavaNotHaveThese.copyBytesFromByteArray(decompressed, potentialSequence, index, potentialLength);
+						while (matchingLength < 18 &&
+								inputOffset + matchingLength < decompressed.length &&
+								potentialSequence[matchingLength % potentialLength] == decompressed[inputOffset + matchingLength]) {
+							matchingLength++;
+						}
+						int actualLength = Math.min(matchingLength, potentialLength);
+						WhyDoesJavaNotHaveThese.copyBytesFromByteArray(potentialSequence, actualSequence, 0, actualLength);
+						if (actualLength > 1 && matchingLength >= 3) {
+							if ((matchingLength >= longestMatchLength)) {// || (matchingLength == longestMatchLength && (inputOffset - index - 1 == 1 || actualLength >= longestSequence)))) {
+								longestMatchingIndex = index;
+								longestMatchLength = matchingLength;
+								offset = inputOffset - index - 1;
+							}
+						}
 					}
 				}
 				
-				if (patternMatched) {
+				// We can only compress if we have a match, and that match is longer than 3 bytes.
+				if (longestMatchingIndex != -1 && offset > 0) {
+					index = longestMatchingIndex;
+					int sequenceLength = Math.min(inputOffset - index, 18);
+					WhyDoesJavaNotHaveThese.copyBytesFromByteArray(decompressed, sequence, index, sequenceLength);
 					// We need three matching bytes at a minimum to use compression.
-					byte[] matchedBytes = new byte[18]; // GBA can only pull 18 matching bytes at most.
 					int matchedArrayIndex = 0;
 					matchedBytes[matchedArrayIndex++] = currentInputByte;
 					for (int j = 1; j < 18; j++) {
 						if (inputOffset + j >= decompressed.length) { break; }
-						if (decompressed[inputOffset + j] == decompressed[index + j]) {
-							matchedBytes[matchedArrayIndex++] = decompressed[inputOffset + j];
+						if (decompressed[inputOffset + j] == sequence[j % sequenceLength]) {
+							matchedBytes[matchedArrayIndex++] = sequence[j % sequenceLength];
 						} else {
 							break;
 						}
@@ -194,9 +231,8 @@ public class LZ77 {
 						i += (writtenLength - 1);
 					} else {
 						// We can compress this.
-						int offset = inputOffset - index - 1;
 						int numBytes = writtenLength;
-						byte compressed = (byte)((offset >> 16) & 0xFF);
+						byte compressed = (byte)((offset >> 8) & 0xF);
 						compressed |= (((numBytes - 3) & 0xF) << 4);
 						byte lsb = (byte)(offset & 0xFF);
 						currentBlock[blockIndex++] = compressed;
@@ -213,7 +249,16 @@ public class LZ77 {
 				}
 			}
 			
+			if (compressedData.length <= outputOffset) {
+				byte[] expandedData = Arrays.copyOf(compressedData, compressedData.length * 2);
+				compressedData = expandedData;
+			}
 			compressedData[outputOffset++] = flag;
+			
+			while (compressedData.length < outputOffset + blockIndex) {
+				byte[] expandedData = Arrays.copyOf(compressedData, compressedData.length * 2);
+				compressedData = expandedData;
+			}
 			WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(currentBlock, compressedData, outputOffset, blockIndex);
 			outputOffset += blockIndex;
 		}

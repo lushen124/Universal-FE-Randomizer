@@ -2,6 +2,7 @@ package random.general;
 
 import org.eclipse.swt.widgets.Display;
 
+import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.RecordKeeper;
 
 public abstract class Randomizer extends Thread {
@@ -45,12 +46,12 @@ public abstract class Randomizer extends Thread {
 		}
 	}
 	
-	protected void notifyCompletion(RecordKeeper rk) {
+	protected void notifyCompletion(RecordKeeper rk, ChangelogBuilder cb) {
 		if (listener != null) {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
 				public void run() {
-					listener.onComplete(rk);	
+					listener.onComplete(rk, cb);	
 				}
 			});
 		}

@@ -1,5 +1,7 @@
 package ui.fe4;
 
+import ui.model.WeightedOptions;
+
 public class SkillCountDistributionOptions {
 	public final WeightedOptions zeroSkillsChance;
 	public final WeightedOptions oneSkillChance;

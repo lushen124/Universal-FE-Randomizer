@@ -287,7 +287,7 @@ public class GBARandomizer extends Randomizer {
 		
 		updateStatusString("Done!");
 		updateProgress(1);
-		notifyCompletion(recordKeeper);
+		notifyCompletion(recordKeeper, null);
 	}
 	
 	private void generateFE7DataLoaders() {

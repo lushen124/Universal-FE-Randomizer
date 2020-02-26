@@ -3,7 +3,7 @@ package fedata.general;
 public class FEBase {
 
 	public enum GameType {
-		UNKNOWN, FE4, FE6, FE7, FE8;
+		UNKNOWN, FE4, FE6, FE7, FE8, FE9;
 		
 		public boolean isGBA() {
 			switch (this) {
@@ -25,9 +25,14 @@ public class FEBase {
 			}
 		}
 		
+		public boolean isGCN() {
+			return this == FE9;
+		}
+		
 		public boolean hasSTRMAGSplit() {
 			switch(this) {
 			case FE4:
+			case FE9:
 				return true;
 			default:
 				return false;
