@@ -173,7 +173,10 @@ public class FE9Randomizer extends Randomizer {
 			ChangelogAsset.registerAssets(changelogBuilder);
 			
 		} catch (GCNISOException e1) {
-			notifyError("Failed to load character data.");
+			notifyError("Failed to load data from the ISO.\n\n" + e1.getMessage());
+			return;
+		} catch (Exception e) {
+			notifyError(e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); 
 			return;
 		}
 		
