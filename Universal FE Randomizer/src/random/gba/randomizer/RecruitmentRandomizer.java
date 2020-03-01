@@ -845,7 +845,7 @@ public class RecruitmentRandomizer {
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(slot.getID());
 			if (reward != null) {
-				GBAFEItemData item = itemData.getRandomWeaponForCharacter(slot, false, false, rng);
+				GBAFEItemData item = itemData.getRandomWeaponForCharacter(slot, false, false, characterData.isEnemyAtAnyPoint(slot.getID()), rng);
 				reward.setItemID(item.getID());
 			}
 			
@@ -854,7 +854,7 @@ public class RecruitmentRandomizer {
 					unit.setStartingClass(targetClass.getID());
 					
 					// Set Inventory.
-					ClassRandomizer.validateCharacterInventory(inventoryOptions, slot, targetClass, unit, characterData.characterIDRequiresRange(slot.getID()), characterData.characterIDRequiresMelee(slot.getID()), classData, itemData, textData, false, rng);
+					ClassRandomizer.validateCharacterInventory(inventoryOptions, slot, targetClass, unit, characterData.characterIDRequiresRange(slot.getID()), characterData.characterIDRequiresMelee(slot.getID()), characterData, classData, itemData, textData, false, rng);
 					if (characterData.isThiefCharacterID(slot.getID())) {
 						ClassRandomizer.validateFormerThiefInventory(unit, itemData);
 					}

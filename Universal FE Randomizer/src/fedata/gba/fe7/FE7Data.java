@@ -2332,6 +2332,24 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public GBAFECharacter nullCharacter() {
 		return Character.NONE;
 	}
+	
+	public boolean isEnemyAtAnyPoint(int characterID) {
+		Character character = Character.valueOf(characterID);
+		switch (character) {
+		case DORCAS:
+		case GUY:
+		case RAVEN:
+		case DART:
+		case LEGAULT:
+		case HEATH:
+		case GEITZ:
+		case HARKEN:
+		case VAIDA:
+			return true;
+		default:
+			return !allPlayableCharacters().contains(character);
+		}
+	}
 
 	public int[] affinityValues() {
 		int[] values = new int[FE7Character.Affinity.values().length];
@@ -2826,6 +2844,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Set<Item> kit = Item.specialClassKit(classID, rng);
 		if (kit == null) { return new HashSet<GBAFEItem>(); }
 		return new HashSet<GBAFEItem>(kit);
+	}
+	
+	public Set<GBAFEItem> playerOnlyWeapons() {
+		return new HashSet<GBAFEItem>();
 	}
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon) {

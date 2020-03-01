@@ -900,6 +900,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				HALBERD, TOMAHAWK, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, AIRCALIBUR, BOLTING, PURGE, NOSFERATU, ECLIPSE, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER,
 				SILENCE, SLEEP, BERSERK, HOLY_MAIDEN));
 		
+		public static Set<Item> playerOnlySet = new HashSet<Item>(Arrays.asList(TORCH_STAFF, UNLOCK, RESTORE, HAMMERNE, BARRIER, RESCUE, WARP, TINA_STAFF));
+		
 		// These must be of lower rank than the siege tomes set, and each weapon type needs to have an equivalent analogue.
 		public static Set<Item> siegeReplacementSet = new HashSet<Item>(Arrays.asList(NOSFERATU, DIVINE, ELFIRE));
 		
@@ -1818,6 +1820,26 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public GBAFECharacter nullCharacter() {
 		return Character.NONE;
 	}
+	
+	public boolean isEnemyAtAnyPoint(int characterID) {
+		Character character = Character.valueOf(characterID);
+		switch (character) {
+		case RUTGER:
+		case FIR:
+		case SHIN:
+		case GONZALES:
+		case KLEIN:
+		case THITO:
+		case CASS:
+		case PERCIVAL:
+		case GARET:
+		case HUGH:
+		case ZEISS:
+			return true;
+		default:
+			return !allPlayableCharacters().contains(character);
+		}
+	}
 
 	public int[] affinityValues() {
 		int[] values = new int[FE6Character.Affinity.values().length];
@@ -2312,6 +2334,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEItem>(kit);
 	}
 	
+	public Set<GBAFEItem> playerOnlyWeapons() {
+		return new HashSet<GBAFEItem>(Item.playerOnlySet);
+	}
+
 	public String statBoostStringForWeapon(GBAFEItem weapon) {
 		if (weapon == Item.DURANDAL) { return "+5 Strength"; }
 		if (weapon == Item.BINDING_BLADE) { return "+5 Defense, Resistance"; }
