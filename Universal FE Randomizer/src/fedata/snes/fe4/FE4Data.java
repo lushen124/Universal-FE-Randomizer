@@ -371,14 +371,48 @@ public class FE4Data {
 	private static Map<Character, Character> createWeakLinkMap() {
 		Map<Character, Character> map = new HashMap<Character, Character>();
 		// Reflective relationships makes this easier.
+		
+		// Brave Sword
 		map.put(Character.AYRA, Character.CORUTA);
 		map.put(Character.CORUTA, Character.AYRA);
 		
+		// Brave Bow
 		map.put(Character.MIDIR, Character.JAMKE);
 		map.put(Character.JAMKE, Character.MIDIR);
+		// This is a triplet. Jamke and Midir need to use the same weapons, but if they don't pass down their weapon, it shows up on a minion.
+		map.put(Character.CH8_CONOTE_COMMANDER_2, Character.MIDIR);
+		// Killer Bow
+		map.put(Character.MAIKOV, Character.JAMKE);
 		
+		// Brave Axe
 		map.put(Character.LEX, Character.SCHMIDT);
 		map.put(Character.SCHMIDT, Character.LEX);
+		
+		// Miracle Sword
+		map.put(Character.LACHESIS, Character.CH8_THRACIA_COMMANDER_1);
+		map.put(Character.CH8_THRACIA_COMMANDER_1, Character.LACHESIS);
+		// Thief Sword
+		map.put(Character.DANANN, Character.LACHESIS);
+		
+		// Fortify staff
+		map.put(Character.CLAUD, Character.CH9_KAPATHOGIA_ARMY_1);
+		map.put(Character.CH9_KAPATHOGIA_ARMY_1, Character.CLAUD);
+		
+		// Silver Blade
+		map.put(Character.CHAGALL_CH3, Character.BLOOM_CH7);
+		map.put(Character.BLOOM_CH7, Character.CHAGALL_CH3);
+		
+		// Horseslayer
+		map.put(Character.ZYNE, Character.BRAMSEL);
+		map.put(Character.BRAMSEL, Character.ZYNE);
+		
+		// Brave Lance
+		map.put(Character.MUHAMMAD, Character.FINN_GEN_1);
+		map.put(Character.FINN_GEN_1, Character.MUHAMMAD);
+		
+		// Thoron
+		map.put(Character.ISHTORE, Character.TAILTIU);
+		map.put(Character.TAILTIU, Character.ISHTORE);
 		
 		return map;
 	}
@@ -1942,6 +1976,10 @@ public class FE4Data {
 		// Note that sameWeapon will result in a class that has at least one weapon shared with the current class.
 		// e.g. Calling this on SOCIAL_KNIGHT is going to result in all classes that can use Swords OR Lances.
 		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale, boolean requireWeakness, boolean requireAttack, boolean requireHorse, boolean requiresMelee, Item mustUseWeapon, Item mustBeWeakAgainstWeapon) {
+			return getClassPool(sameWeapon, isEnemy, allowSame, isFemale, requireWeakness, requireAttack, requireHorse, requiresMelee, fliers.contains(this), mustUseWeapon, mustBeWeakAgainstWeapon);
+		}
+		
+		public CharacterClass[] getClassPool(boolean sameWeapon, boolean isEnemy, boolean allowSame, boolean isFemale, boolean requireWeakness, boolean requireAttack, boolean requireHorse, boolean requiresMelee, boolean requiresFlying, Item mustUseWeapon, Item mustBeWeakAgainstWeapon) {
 			// Don't touch these. These are generally for bandits raiding villages.
 			// Adding pirates here too because Ch. 3 pirates are over water, which makes them stuck.
 			if (isEnemy && (this == MOUNTAIN_THIEF || this == PIRATE)) {
@@ -2018,9 +2056,8 @@ public class FE4Data {
 			if (requiresMelee) {
 				workingSet.removeAll(rangedOnlyClasses);
 			}
-			
-			// Lock fliers to flying classes, to make sure we don't blow anything up.
-			if (fliers.contains(this)) { workingSet.retainAll(fliers); }
+		
+			if (requiresFlying) { workingSet.retainAll(fliers); }
 			
 			if (requireHorse) { workingSet.retainAll(horsebackClasses); }
 			

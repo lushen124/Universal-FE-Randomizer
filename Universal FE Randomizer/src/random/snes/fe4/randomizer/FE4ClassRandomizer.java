@@ -212,23 +212,51 @@ public class FE4ClassRandomizer {
 			// Whoever gets randomized first chooses the weapon.
 			// The second character should refer to the first character.
 			FE4Data.CharacterClass referenceClass = null;
+			boolean requiresFlier = originalClass.isFlier();
 			if (FE4Data.WeaklyLinkedCharacters.containsKey(fe4Char)) {
 				FE4Data.Character referenceCharacter = FE4Data.WeaklyLinkedCharacters.get(fe4Char);
 				if (referenceCharacter.isPlayable() && referenceCharacter.isGen1()) {
+					// This addresses cases where the current character is linked to a playable character in gen 1 (regardless of gen of the current character).
 					referenceClass = predeterminedClasses.get(referenceCharacter);
-					if (referenceClass != null) {
-						if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
-							List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(staticChar.isFemale())));
-							Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
-							if (!demotedClasses.isEmpty()) {
-								referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
-							}
-						} else if (!referenceClass.isPromoted() && originalClass.isPromoted()) {
-							List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(staticChar.isFemale())));
-							Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
-							if (!promotedClasses.isEmpty()) {
-								referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
-							}
+				} else if ((referenceCharacter.isBoss() && !options.randomizeBosses) || (referenceCharacter.isMinion() && !options.randomizeMinions)) {
+					// If it's an enemy and we're not randomizing enemies, then we're restricted to the weapons that the linked enemy can use.
+					FE4StaticCharacter holyBoss = charData.getStaticCharacter(referenceCharacter);
+					if (holyBoss == null) {
+						FE4EnemyCharacter enemy = charData.getEnemyCharacter(referenceCharacter);
+						referenceClass = FE4Data.CharacterClass.valueOf(enemy.getClassID()); 
+					} else {
+						referenceClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
+					}
+				} else if (referenceCharacter.isMinion() || referenceCharacter.isBoss()) {
+					// We just need to make sure that, if it's a flier, it doesn't end up with something it can't use, because we're not
+					// going to change enemy fliers.
+					FE4StaticCharacter holyBoss = charData.getStaticCharacter(referenceCharacter);
+					if (holyBoss == null) {
+						FE4EnemyCharacter enemy = charData.getEnemyCharacter(referenceCharacter);
+						referenceClass = FE4Data.CharacterClass.valueOf(enemy.getClassID()); 
+					} else {
+						referenceClass = FE4Data.CharacterClass.valueOf(holyBoss.getClassID());
+					}
+					// If the enemy isn't a flier, then we don't need to worry about anything.
+					if (!referenceClass.isFlier()) {
+						referenceClass = null;
+					} else {
+						requiresFlier = false; // We want to use a reference class, but not necessarily adopt the same flying restriction.
+					}
+				}
+				
+				if (referenceClass != null) {
+					if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
+						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(staticChar.isFemale())));
+						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
+						if (!demotedClasses.isEmpty()) {
+							referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
+						}
+					} else if (!referenceClass.isPromoted() && originalClass.isPromoted()) {
+						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(staticChar.isFemale())));
+						Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
+						if (!promotedClasses.isEmpty()) {
+							referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
 						}
 					}
 				}
@@ -257,13 +285,13 @@ public class FE4ClassRandomizer {
 				if (fe4Char.mustLoseToCharacters().length > 0) {
 					// We know this is Ethlyn and Quan, so we could just set requireHorseback to true.
 					if (referenceClass != null) {
-						Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, true, staticChar.isFemale(), true, fe4Char.requiresAttack(), true, fe4Char.requiresMelee(), mustUseItem, Item.HORSESLAYER));
+						Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, true, staticChar.isFemale(), true, fe4Char.requiresAttack(), true, fe4Char.requiresMelee(), requiresFlier, mustUseItem, Item.HORSESLAYER));
 					} else {
 						Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, true, staticChar.isFemale(), true, fe4Char.requiresAttack(), true, fe4Char.requiresMelee(), mustUseItem, Item.HORSESLAYER));
 					}
 				} else {
 					if (referenceClass != null) {
-						Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, false, staticChar.isFemale(), false, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), mustUseItem, null));
+						Collections.addAll(potentialClasses, referenceClass.getClassPool(true, false, false, staticChar.isFemale(), false, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), requiresFlier, mustUseItem, null));
 					} else {
 						Collections.addAll(potentialClasses, originalClass.getClassPool(false, false, false, staticChar.isFemale(), false, fe4Char.requiresAttack(), options.retainHorses && originalClass.isHorseback(), fe4Char.requiresMelee(), mustUseItem, null));
 					}
@@ -1094,8 +1122,15 @@ public class FE4ClassRandomizer {
 			if (FE4Data.WeaklyLinkedCharacters.containsKey(fe4Char)) {
 				FE4Data.Character referenceCharacter = FE4Data.WeaklyLinkedCharacters.get(fe4Char);
 				if (referenceCharacter.isPlayable() && referenceCharacter.isGen1()) {
+					// Playable characters are already set at this point.
+					// So we can just refer to them directly.
 					FE4StaticCharacter playableCharacter = charData.getStaticCharacter(referenceCharacter);
 					referenceClass = FE4Data.CharacterClass.valueOf(playableCharacter.getClassID());
+				} else if (referenceCharacter.isBoss()) {
+					// These will not have been assigned yet, so if we do have this case, the minion decides the weapon.
+				}
+				
+				if (referenceClass != null) {
 					if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
 						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(holyBoss.isFemale())));
 						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
@@ -1226,23 +1261,33 @@ public class FE4ClassRandomizer {
 			// Whoever gets randomized first chooses the weapon.
 			// The second character should refer to the first character.
 			FE4Data.CharacterClass referenceClass = null;
-			if (FE4Data.WeaklyLinkedCharacters.containsKey(fe4Char)) {
-				FE4Data.Character referenceCharacter = FE4Data.WeaklyLinkedCharacters.get(fe4Char);
-				if (referenceCharacter.isPlayable() && referenceCharacter.isGen1()) {
-					FE4StaticCharacter playableCharacter = charData.getStaticCharacter(referenceCharacter);
-					referenceClass = FE4Data.CharacterClass.valueOf(playableCharacter.getClassID());
-					if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
-						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(holyBoss.isFemale())));
-						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
-						if (!demotedClasses.isEmpty()) {
-							referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
+			for (FE4Data.Character linkedChar : fe4Char.linkedCharacters()) {
+				if (FE4Data.WeaklyLinkedCharacters.containsKey(linkedChar)) {
+					FE4Data.Character referenceCharacter = FE4Data.WeaklyLinkedCharacters.get(linkedChar);
+					if (referenceCharacter.isPlayable() && referenceCharacter.isGen1()) {
+						FE4StaticCharacter playableCharacter = charData.getStaticCharacter(referenceCharacter);
+						referenceClass = FE4Data.CharacterClass.valueOf(playableCharacter.getClassID());
+					} else if (referenceCharacter.isBoss()) {
+						// Use the predetermined class (if it was already set)
+						referenceClass = predeterminedClasses.get(referenceCharacter);
+					}
+					
+					if (referenceClass != null) {
+						if (referenceClass.isPromoted() && !originalClass.isPromoted()) {
+							List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(holyBoss.isFemale())));
+							Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
+							if (!demotedClasses.isEmpty()) {
+								referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
+							}
+						} else if (!referenceClass.isPromoted() && originalClass.isPromoted()) {
+							List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(holyBoss.isFemale())));
+							Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
+							if (!promotedClasses.isEmpty()) {
+								referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
+							}
 						}
-					} else if (!referenceClass.isPromoted() && originalClass.isPromoted()) {
-						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(holyBoss.isFemale())));
-						Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
-						if (!promotedClasses.isEmpty()) {
-							referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
-						}
+						
+						break;
 					}
 				}
 			}
@@ -1585,6 +1630,38 @@ public class FE4ClassRandomizer {
 				if (item2 != null && item2.isSiegeTome()) { mustUseItem = item2; }
 			}
 			
+			// Check for weakly linked classes. Some enemies drop equipment that came from gen 1 and need to match.
+			FE4Data.CharacterClass referenceClass = null;
+			if (FE4Data.WeaklyLinkedCharacters.containsKey(fe4Char)) {
+				FE4Data.Character referenceCharacter = FE4Data.WeaklyLinkedCharacters.get(fe4Char);
+				if (referenceCharacter.isPlayable() && referenceCharacter.isGen1()) {
+					// Playable characters are already set at this point.
+					// So we can just refer to them directly.
+					FE4StaticCharacter playableCharacter = charData.getStaticCharacter(referenceCharacter);
+					referenceClass = FE4Data.CharacterClass.valueOf(playableCharacter.getClassID());
+				} else if (referenceCharacter.isBoss()) {
+					// Holy bosses are set after minion bosses, so the minion boss gets to decide the class.
+				} else {
+					// I don't think any minions drop weapons for other minions.
+				}
+				
+				if (referenceClass != null) {
+					if (referenceClass.isPromoted() && !currentClass.isPromoted()) {
+						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.demotedClasses(enemy.isFemale())));
+						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
+						if (!demotedClasses.isEmpty()) {
+							referenceClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
+						}
+					} else if (!referenceClass.isPromoted() && currentClass.isPromoted()) {
+						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(referenceClass.promotionClasses(enemy.isFemale())));
+						Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
+						if (!promotedClasses.isEmpty()) {
+							referenceClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
+						}
+					}	
+				}
+			}
+			
 			Collections.addAll(classPool, currentClass.getClassPool(false, true, true, enemy.isFemale(), false, true, false, fe4Char.requiresMelee(), mustUseItem, null));
 			
 			classPool.removeAll(FE4Data.CharacterClass.advancedClasses);
@@ -1759,8 +1836,15 @@ public class FE4ClassRandomizer {
 		}
 		
 		// Verify equipment.
-		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));
-		Collections.sort(usableItems, FE4Data.Item.defaultComparator);
+		List<FE4Data.Item> usableItems = new ArrayList<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood, true)));
+		// Bosses shouldn't be using anything low ranked, if they can help it.
+		Collections.sort(usableItems, new Comparator<FE4Data.Item>() {
+			@Override
+			public int compare(Item arg0, Item arg1) {
+				if (arg0.getRank() == arg1.getRank()) { return 0; }
+				return arg0.getRank().isHigher(arg1.getRank()) ? -1 : 1;
+			}
+		});
 		usableItems.removeIf(item -> (item.getRank() == FE4Data.Item.WeaponRank.PRF));
 		usableItems.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
 		if (!holyBoss.isFemale()) {
@@ -1781,43 +1865,55 @@ public class FE4ClassRandomizer {
 			} else if (!stafflessList.isEmpty()) {
 				replacement = stafflessList.get(rng.nextInt(stafflessList.size()));
 			} else {
-				replacement = usableItems.get(rng.nextInt(usableItems.size()));
+				replacement = usableItems.get(rng.nextInt(Math.max(1, usableItems.size() / 2)));
 			}
 			
 			if (isBroken) {
 				replacement = FE4Data.Item.getBrokenWeapon(replacement.getType(), replacement.getRank());
 			}
 			holyBoss.setEquipment1(replacement.ID);
-			usableItems.remove(replacement);
+			if (usableItems.size() > 1) { usableItems.remove(replacement); }
 			stafflessList.remove(replacement);
+			
+			item1 = replacement;
 		}
 		
 		int equip2 = holyBoss.getEquipment2();
 		FE4Data.Item item2 = FE4Data.Item.valueOf(equip2);
-		if (item2 != FE4Data.Item.NONE && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || (item1 != null && item2.ID == item1.ID))) {
+		if (item2 != FE4Data.Item.NONE && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || (item1 != null && item2.ID == equip1))) {
 			boolean isHolyWeapon = item2.getRank() == FE4Data.Item.WeaponRank.PRF;
 			boolean isBroken = item2.isBroken();
 			FE4Data.Item replacement = null;
 			if (isHolyWeapon) {
 				replacement = majorBloodType.holyWeapon;
 			} else {
-				replacement = usableItems.get(rng.nextInt(usableItems.size()));
+				replacement = usableItems.get(rng.nextInt(Math.max(1, usableItems.size() / 2)));
 			}
 
 			if (isBroken) {
 				replacement = FE4Data.Item.getBrokenWeapon(replacement.getType(), replacement.getRank());
 			}
 			holyBoss.setEquipment2(replacement.ID);
-			usableItems.remove(replacement);
+			if (usableItems.size() > 1) { usableItems.remove(replacement); }
+			
+			item2 = replacement;
 		}
 		
-		// If they drop something and are in Gen 1, we should make sure they can drop something they can use.
+		// Process drops if necessary.
 		int equip3 = holyBoss.getEquipment3();
-		if (equip3 != FE4Data.Item.NONE.ID && fe4Char.isGen1() && itemMap != null) {
+		if (equip3 != FE4Data.Item.NONE.ID && itemMap != null) {
 			FE4Data.Item droppedItem = itemMap.getItemAtIndex(equip3);
-			if (!targetClass.canUseWeapon(droppedItem, slot1Blood, slot2Blood, slot3Blood)) {
-				FE4Data.Item replacement = usableItems.get(rng.nextInt(usableItems.size()));
-				itemMap.setItemAtIndex(equip3, replacement);
+			// If their drop is the same as one of their items, it will collapse into the same item.
+			// We should make sure this stays consistent if we change their equipment.
+			if (droppedItem.ID == equip1) { itemMap.setItemAtIndex(equip3, item1); droppedItem = item1; }
+			else if (droppedItem.ID == equip2) { itemMap.setItemAtIndex(equip3, item2); droppedItem = item2; }
+			
+			// If they drop something and are in Gen 1, we should make sure they can drop something they can use.
+			if (fe4Char.isGen1()) {
+				if (!targetClass.canUseWeapon(droppedItem, slot1Blood, slot2Blood, slot3Blood)) {
+					FE4Data.Item replacement = usableItems.get(rng.nextInt(Math.max(1, usableItems.size() / 2)));
+					itemMap.setItemAtIndex(equip3, replacement);
+				}
 			}
 		}
 	}
@@ -2179,7 +2275,7 @@ public class FE4ClassRandomizer {
 		
 		int equip2 = character.getEquipment2();
 		FE4Data.Item item2 = itemMap.getItemAtIndex(equip2);
-		if (item2 != null && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || (item1 != null && item2.ID == item1.ID))) {
+		if (item2 != null && (targetClass.canUseWeapon(item2, slot1Blood, slot2Blood, slot3Blood) == false || (item1 != null && item2.ID == equip1))) {
 			boolean isHolyWeapon = item2.getRank() == FE4Data.Item.WeaponRank.PRF;
 			boolean isBroken = item2.isBroken();
 			FE4Data.Item replacement = null;
@@ -2504,8 +2600,17 @@ public class FE4ClassRandomizer {
 		itemSet.removeAll(FE4Data.Item.femaleOnlyWeapons);
 		itemSet.removeIf(item -> (FE4Data.Item.playerOnlySet.contains(item)));
 		List<FE4Data.Item> usableItems = new ArrayList<FE4Data.Item>(itemSet);
-		Collections.sort(usableItems, FE4Data.Item.defaultComparator);
-		
+		if (enemyChar.isBoss()) {
+			Collections.sort(usableItems, new Comparator<FE4Data.Item>() {
+				@Override
+				public int compare(Item o1, Item o2) {
+					if (o1.getRank() == o2.getRank()) { return 0; }
+					return o1.getRank().isHigher(o2.getRank()) ? -1 : 1;
+				}
+			});
+		} else {
+			Collections.sort(usableItems, FE4Data.Item.defaultComparator);
+		}
 		int item1ID = enemy.getEquipment1();
 		FE4Data.Item item1 = FE4Data.Item.valueOf(item1ID);
 		if (item1 != Item.NONE) {
@@ -2513,9 +2618,11 @@ public class FE4ClassRandomizer {
 				List<FE4Data.Item> usableWeapons = new ArrayList<Item>(usableItems);
 				usableWeapons = usableWeapons.stream().filter(item -> (item.isWeapon())).collect(Collectors.toList());
 				if (!usableWeapons.isEmpty()) {
-					FE4Data.Item weapon = usableWeapons.get(rng.nextInt(usableWeapons.size()));
+					FE4Data.Item weapon = usableWeapons.get(rng.nextInt(enemyChar.isBoss() ? Math.max(1, usableWeapons.size() / 2) : usableWeapons.size()));
 					enemy.setEquipment1(weapon.ID);
-					usableItems.remove(weapon);
+					if (usableItems.size() > 1) { usableItems.remove(weapon); }
+					
+					item1 = weapon;
 				}
 			}
 		}
@@ -2523,10 +2630,11 @@ public class FE4ClassRandomizer {
 		int item2ID = enemy.getEquipment2();
 		FE4Data.Item item2 = FE4Data.Item.valueOf(item2ID);
 		if (item2 != Item.NONE) {
-			if (!targetClass.canUseWeapon(item2, null, null, null) || (item1 != null && item2.ID == item1.ID)) {
+			if (!targetClass.canUseWeapon(item2, null, null, null) || (item1 != null && item2.ID == item1ID)) {
 				if (!usableItems.isEmpty()) {
-					FE4Data.Item item = usableItems.get(rng.nextInt(usableItems.size()));
+					FE4Data.Item item = usableItems.get(rng.nextInt(enemyChar.isBoss() ? Math.max(1, usableItems.size() / 2) : usableItems.size()));
 					enemy.setEquipment2(item.ID);
+					item2 = item;
 				} else {
 					enemy.setEquipment2(Item.NONE.ID);
 				}
@@ -2535,11 +2643,15 @@ public class FE4ClassRandomizer {
 		
 		// Gen 1 characters can alter their drops to a weapon they can use.
 		int droppedItemInventoryID = enemy.getDropableEquipment();
-		if (droppedItemInventoryID != FE4Data.Item.NONE.ID && enemyChar.isGen1()) {
+		if (droppedItemInventoryID != FE4Data.Item.NONE.ID && itemMap != null) {
 			FE4Data.Item droppedItem = itemMap.getItemAtIndex(droppedItemInventoryID);
-			if (!targetClass.canUseWeapon(droppedItem, null, null, null) && !itemSet.isEmpty()) {
+			
+			if (droppedItem.ID == item1ID) { itemMap.setItemAtIndex(droppedItemInventoryID, item1); droppedItem = item1; }
+			if (droppedItem.ID == item2ID) { itemMap.setItemAtIndex(droppedItemInventoryID, item2); droppedItem = item2; }
+			
+			if (enemyChar.isGen1() && !targetClass.canUseWeapon(droppedItem, null, null, null) && !itemSet.isEmpty()) {
 				usableItems = new ArrayList<FE4Data.Item>(itemSet);
-				FE4Data.Item replacement = usableItems.get(rng.nextInt(usableItems.size()));
+				FE4Data.Item replacement = usableItems.get(rng.nextInt(enemyChar.isBoss() ? Math.max(1, usableItems.size() / 2) : usableItems.size()));
 				itemMap.setItemAtIndex(droppedItemInventoryID, replacement);
 			}
 		}
