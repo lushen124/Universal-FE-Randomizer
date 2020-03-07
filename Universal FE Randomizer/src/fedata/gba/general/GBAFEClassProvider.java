@@ -25,6 +25,7 @@ public interface GBAFEClassProvider {
 	public Set<GBAFEClass> allValidClasses();
 	public Set<GBAFEClass> meleeSupportedClasses();
 	public Set<GBAFEClass> rangeSupportedClasses();
+	public Set<GBAFEClass> playerOnlyClasses();
 	
 	public GBAFEClass classWithID(int classID);
 	
@@ -37,7 +38,7 @@ public interface GBAFEClassProvider {
 	public boolean isFlier(GBAFEClass charClass);
 	
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options);
-	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, Map<String, Boolean> options);
+	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isForEnemy, Map<String, Boolean> options);
 	
 	public void prepareForClassRandomization(Map<Integer, GBAFEClassData> classMap);
 	
