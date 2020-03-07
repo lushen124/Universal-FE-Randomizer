@@ -450,6 +450,9 @@ public class RecruitmentRandomizer {
 		
 		GBAFECharacterData[] linkedSlots = characterData.linkedCharactersForCharacter(slotReference);
 		for (GBAFECharacterData linkedSlot : linkedSlots) {
+			// Do not modify if they happen to have a different class.
+			if (linkedSlot.getClassID() != slotReference.getClassID()) { continue; }
+			
 			// First, replace the description, and face
 			// The name is unnecessary because there's a text find/replace that we apply later.
 			linkedSlot.setDescriptionIndex(fill.getDescriptionIndex());
@@ -838,7 +841,8 @@ public class RecruitmentRandomizer {
 	}
 	
 	private static void setSlotClass(ItemAssignmentOptions inventoryOptions, GBAFECharacterData slot, GBAFEClassData targetClass, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, ChapterLoader chapterData, Random rng) {
-		GBAFEClassData originalClass = classData.classForID(slot.getClassID());
+		int oldClassID = slot.getClassID();
+		GBAFEClassData originalClass = classData.classForID(oldClassID);
 		slot.setClassID(targetClass.getID());
 		transferWeaponRanks(slot, originalClass, targetClass, itemData, rng);
 		
