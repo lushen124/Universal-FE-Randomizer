@@ -103,6 +103,18 @@ public class PaletteV2 {
 		identifier = other.identifier;
 	}
 	
+	public int getNumColors() {
+		return 16;
+	}
+	
+	public PaletteColor colorAtIndex(int index, PaletteType type) {
+		return colorArray[index].getColor(type);
+	}
+	
+	public int getClassID() {
+		return info.classID;
+	}
+	
 	public void overrideOffset(long newOffset) {
 		destinationOffset = newOffset;
 	}
