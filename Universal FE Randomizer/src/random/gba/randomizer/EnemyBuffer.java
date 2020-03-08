@@ -86,7 +86,7 @@ public class EnemyBuffer {
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
 				int leaderID = chapterUnit.getLeaderID();
-				if (charactersData.isBossCharacterID(leaderID)) {
+				if (charactersData.isBossCharacterID(leaderID) || (chapterUnit.isEnemy() && chapterUnit.isAutolevel())) {
 					GBAFEClassData originalClass = classData.classForID(chapterUnit.getStartingClass());
 					if (originalClass == null) {
 						continue;
@@ -142,8 +142,7 @@ public class EnemyBuffer {
 		int item1ID = unit.getItem1();
 		GBAFEItemData item1 = itemData.itemWithID(item1ID);
 		if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON && item1.getWeaponRank() != WeaponRank.A) {
-			GBAFEItemData[] improvedItems = availableItems(unitClass, 
-					WeaponRank.nextRankHigherThanRank(item1.getWeaponRank()), item1.getType(), itemData);
+			GBAFEItemData[] improvedItems = availableItems(unitClass, item1, itemData);
 			if (improvedItems.length > 0) {
 				GBAFEItemData replacementItem = improvedItems[rng.nextInt(improvedItems.length)];
 				unit.setItem1(replacementItem.getID());
@@ -153,8 +152,7 @@ public class EnemyBuffer {
 		int item2ID = unit.getItem2();
 		GBAFEItemData item2 = itemData.itemWithID(item2ID);
 		if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON && item2.getWeaponRank() != WeaponRank.A) {
-			GBAFEItemData[] improvedItems = availableItems(unitClass, 
-					WeaponRank.nextRankHigherThanRank(item2.getWeaponRank()), item2.getType(), itemData);
+			GBAFEItemData[] improvedItems = availableItems(unitClass, item2, itemData);
 			if (improvedItems.length > 0) {
 				GBAFEItemData replacementItem = improvedItems[rng.nextInt(improvedItems.length)];
 				unit.setItem2(replacementItem.getID());
@@ -164,8 +162,7 @@ public class EnemyBuffer {
 		int item3ID = unit.getItem3();
 		GBAFEItemData item3 = itemData.itemWithID(item3ID);
 		if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON && item3.getWeaponRank() != WeaponRank.A) {
-			GBAFEItemData[] improvedItems = availableItems(unitClass, 
-					WeaponRank.nextRankHigherThanRank(item3.getWeaponRank()), item3.getType(), itemData);
+			GBAFEItemData[] improvedItems = availableItems(unitClass, item3, itemData);
 			if (improvedItems.length > 0) {
 				GBAFEItemData replacementItem = improvedItems[rng.nextInt(improvedItems.length)];
 				unit.setItem3(replacementItem.getID());
@@ -175,8 +172,7 @@ public class EnemyBuffer {
 		int item4ID = unit.getItem4();
 		GBAFEItemData item4 = itemData.itemWithID(item4ID);
 		if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON && item4.getWeaponRank() != WeaponRank.A) {
-			GBAFEItemData[] improvedItems = availableItems(unitClass, 
-					WeaponRank.nextRankHigherThanRank(item4.getWeaponRank()), item4.getType(), itemData);
+			GBAFEItemData[] improvedItems = availableItems(unitClass, item4, itemData);
 			if (improvedItems.length > 0) {
 				GBAFEItemData replacementItem = improvedItems[rng.nextInt(improvedItems.length)];
 				unit.setItem4(replacementItem.getID());
@@ -184,7 +180,10 @@ public class EnemyBuffer {
 		}
 	}
 	
-	private static GBAFEItemData[] availableItems(GBAFEClassData characterClass, WeaponRank rank, WeaponType type, ItemDataLoader itemData) {
+	private static GBAFEItemData[] availableItems(GBAFEClassData characterClass, GBAFEItemData original, ItemDataLoader itemData) {
+		WeaponRank rank = WeaponRank.nextRankHigherThanRank(original.getWeaponRank());
+		WeaponType type = original.getType();
+		
 		if (rank == WeaponRank.NONE) {
 			return new GBAFEItemData[] {};
 		}
@@ -201,6 +200,13 @@ public class EnemyBuffer {
 		GBAFEItemData[] classWeapons = itemData.lockedWeaponsToClass(characterClass.getID());
 		if (classWeapons != null) {
 			items.addAll(Arrays.asList(classWeapons));
+		}
+		
+		GBAFEItemData[] sameRank = itemData.itemsOfTypeAndEqualRank(type, original.getWeaponRank(), false, false, false);
+		for (GBAFEItemData weapon : sameRank) {
+			if (weapon.getMight() > original.getMight()) {
+				items.add(weapon);
+			}
 		}
 		
 		return items.toArray(new GBAFEItemData[items.size()]);
