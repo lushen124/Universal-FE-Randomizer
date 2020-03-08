@@ -3,6 +3,7 @@ package random.gba.loader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -382,6 +383,17 @@ public class ItemDataLoader {
 		return itemMap.get(itemList.get(rng.nextInt(itemList.size())).getID());
 	}
 	
+	public GBAFEItemData getPrfWeaponForClass(int classID) {
+		Set<GBAFEItem> prfs = provider.prfWeaponsForClassID(classID);
+		GBAFEItem item = prfs.stream().min(new Comparator<GBAFEItem>() {
+			@Override
+			public int compare(GBAFEItem arg0, GBAFEItem arg1) {
+				return Integer.compare(arg0.getID(), arg1.getID());
+			}
+		}).orElse(null);
+		return item != null ? itemWithID(item.getID()) : null;
+	}
+	
 	public GBAFEItemData getRandomWeaponForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, Random rng) {
 		GBAFEItemData[] potentialItems = usableWeaponsForCharacter(character, ranged, melee);
 		if (potentialItems == null || potentialItems.length < 1) {
@@ -407,6 +419,9 @@ public class ItemDataLoader {
 		if (character.getLightRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.LIGHT, character.getLightRank(), ranged, melee))); }
 		if (character.getDarkRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.DARK, character.getDarkRank(), ranged, melee))); }
 		if (character.getStaffRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.STAFF, character.getStaffRank(), ranged, melee))); }
+		
+		Set<GBAFEItem> prfs = provider.prfWeaponsForClassID(character.getClassID());
+		items.addAll(Arrays.asList(feItemsFromItemSet(prfs)));
 		
 		return items.toArray(new GBAFEItemData[items.size()]);
 	}

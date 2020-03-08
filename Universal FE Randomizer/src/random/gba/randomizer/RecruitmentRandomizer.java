@@ -845,8 +845,17 @@ public class RecruitmentRandomizer {
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(slot.getID());
 			if (reward != null) {
-				GBAFEItemData item = itemData.getRandomWeaponForCharacter(slot, false, false, rng);
-				reward.setItemID(item.getID());
+				GBAFEItemData item = null;
+				GBAFEItemData[] prfWeapons = itemData.prfWeaponsForClass(targetClass.getID());
+				if (prfWeapons.length > 0) {
+					item = prfWeapons[rng.nextInt(prfWeapons.length)];
+				} else {
+					item = itemData.getRandomWeaponForCharacter(slot, false, false, rng);
+				}
+				
+				if (item != null) {
+					reward.setItemID(item.getID());
+				}
 			}
 			
 			for (GBAFEChapterUnitData unit : chapter.allUnits()) {
