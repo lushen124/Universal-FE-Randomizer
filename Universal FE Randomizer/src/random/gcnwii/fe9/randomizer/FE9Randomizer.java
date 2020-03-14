@@ -155,6 +155,8 @@ public class FE9Randomizer extends Randomizer {
 			charData.recordOriginalCharacterData(changelogBuilder, characterSection, textData, classData, skillData, itemData);
 			chapterData.recordOriginalChapterData(changelogBuilder, chapterSection, textData, charData, classData, skillData, itemData);
 			
+			makePreRandomizationAdjustments();
+			
 			randomizeClassesIfNecessary(seed);
 			randomizeGrowthsIfNecessary(seed);
 			randomizeBasesIfNecessary(seed);
@@ -191,6 +193,21 @@ public class FE9Randomizer extends Randomizer {
 		});
 		
 		notifyCompletion(null, changelogBuilder);
+	}
+	
+	private void makePreRandomizationAdjustments() {
+		// Remove KEY0 and KEY50 from Sothe and Volke, respectively, if randomize classes is enabled and thieves are also enabled.
+		if (classOptions.randomizePCs && classOptions.includeThieves) {
+			FE9Character sothe = charData.characterWithID(FE9Data.Character.SOTHE.getPID());
+			FE9Character volke = charData.characterWithID(FE9Data.Character.VOLKE.getPID());
+		
+			sothe.setSkill2Pointer(0);
+			//volke.setSkill2Pointer(0); // Maybe it would be interesting to allow Volke to always open chests for 50G a pop.
+			
+			// The thief class actually already has too many skills to fit another in its class data. We'll have to assign these manually
+			// in the chapter unit data.
+		}
+		
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
