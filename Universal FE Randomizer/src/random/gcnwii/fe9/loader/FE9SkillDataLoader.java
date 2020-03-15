@@ -83,6 +83,7 @@ public class FE9SkillDataLoader {
 	
 	public String getSID(FE9Skill skill) {
 		assert(fe8databin != null);
+		if (skill == null) { return null; }
 		return fe8databin.stringForPointer(skill.getSkillIDPointer());
 	}
 	
@@ -131,7 +132,11 @@ public class FE9SkillDataLoader {
 	}
 	
 	public FE9Skill occultSkillForJID(String jid) {
-		return getSkillWithSID(FE9Data.Skill.occultSkillForClass(FE9Data.CharacterClass.withJID(jid)).getSID());
+		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
+		if (charClass == null) { return null; }
+		FE9Data.Skill occultSkill = FE9Data.Skill.occultSkillForClass(charClass);
+		if (occultSkill == null) { return null; }
+		return getSkillWithSID(occultSkill.getSID());
 	}
 	
 	public List<FE9Skill> requiredSkillsForJID(String jid) {
