@@ -325,7 +325,7 @@ public class FE9ClassRandomizer {
 								equippedRanks.removeIf(rank -> (rank == WeaponRank.UNKNOWN || rank == WeaponRank.NONE));
 								
 								Map<WeaponType, WeaponRank> weaponLevelsMap = itemData.weaponLevelsForWeaponString(finalWeaponLevelString);
-								if (!classData.isPromotedClass(newClass)) { // Only promoted units can actually use Light magic.
+								if (!classData.canClassUseLightMagic(newClass)) { // Light magic keys off of staff ranks, but not every staff user uses light magic.
 									weaponLevelsMap.remove(WeaponType.LIGHT);
 								}
 								List<WeaponType> types = weaponLevelsMap.keySet().stream().sorted(WeaponType.getComparator()).collect(Collectors.toList());
@@ -736,7 +736,7 @@ public class FE9ClassRandomizer {
 								equippedRanks.removeIf(rank -> (rank == WeaponRank.UNKNOWN || rank == WeaponRank.NONE));
 								
 								Map<WeaponType, WeaponRank> weaponLevelsMap = itemData.weaponLevelsForWeaponString(finalWeaponLevelString);
-								if (!classData.isPromotedClass(newClass)) { // Only promoted units can actually use Light magic.
+								if (!classData.canClassUseLightMagic(newClass)) { // Light magic keys off of staff ranks, but not every staff user uses light magic.
 									weaponLevelsMap.remove(WeaponType.LIGHT);
 								}
 								List<WeaponType> types = weaponLevelsMap.keySet().stream().sorted(WeaponType.getComparator()).collect(Collectors.toList());
@@ -981,7 +981,7 @@ public class FE9ClassRandomizer {
 						equippedRanks.removeIf(rank -> (rank == WeaponRank.UNKNOWN || rank == WeaponRank.NONE));
 						
 						Map<WeaponType, WeaponRank> weaponLevelsMap = itemData.weaponLevelsForWeaponString(finalWeaponLevelString);
-						if (!classData.isPromotedClass(newClass)) { // Only promoted units can actually use Light magic.
+						if (!classData.canClassUseLightMagic(newClass)) { // Light magic keys off of staff ranks, but not every staff user uses light magic.
 							weaponLevelsMap.remove(WeaponType.LIGHT);
 						}
 						List<WeaponType> types = weaponLevelsMap.keySet().stream().sorted(WeaponType.getComparator()).collect(Collectors.toList());
