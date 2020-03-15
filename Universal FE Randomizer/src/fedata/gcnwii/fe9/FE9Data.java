@@ -836,6 +836,47 @@ public class FE9Data {
 		BLOSSOM_SCROLL("IID_FRAC90"), REINFORCE_SCROLL("IID_REINFORCEMENTS"), INSIGHT_SCROLL("IID_TELEGNOSIS"), VIGILANCE_SCROLL("IID_BIGEAR"),
 		;
 		
+		public enum WeaponTraits {
+			CANNOT_CRIT("crit0"), UNBREAKABLE("infinity"), POISON("poison"), BRAVE("twice"), UNSELLABLE("valuable"), MAGIC_SWORD("magsw"),
+			STEAL_HP("resire"), CANNOT_BE_CRIT("sealcrit"), RANGED_PHYSICAL_SWORD("stormsw"), BYPASS_BLESSED_ARMOR("weakA"),
+			
+			GUARANTEED_HIT("absolutehit"), // I think? Used for the stone thrower. It could also mean it doesn't use the user's STR stat.
+			
+			LAGUZ_WEAPON("fang"), SIEGE_WEAPON("longfar"), BALLISTA("sh"), AOE_ATTACK("areaattack"),
+			
+			FLUTTER("flutter"), // Seems to only be used for Vortex?
+			
+			// These are for the demi band. Not sure what each one does.
+			FORCE_LAGUZ_TRANSFORM("beastsamul"), STAT_REDUCTION("JH"), NON_ROYAL_LAGUZ_LOCK("eqrevA"),
+			
+			MOVE_AGAIN("movtw"), HALVE_LAGUZ_DAMAGE("lycdamhalf"), IGNORE_LAGUZ_EFFECTIVENESS("lycsfxseal"), IGNORE_EFFECTIVE_DAMAGE("sfxseal"),
+			
+			HERO_LOCK("heroonly"), ARCHER_LOCK("shootonly"), BK_LOCK("blackonly"), ASHNARD_LOCK("finalonly"), ROLF_LOCK("eqA"), ELINCIA_LOCK("eqB"),
+			BEORC_LOCK("humanonly"), LAGUZ_LOCK("beastonly"), SOLDIER_KNIGHT_CAV_LOCK("eqD"), LAGUZ_ROYAL_LOCK("eqC");
+			
+			private static Map<String, WeaponTraits> map = new HashMap<String, WeaponTraits>();
+			
+			private String traitString;
+			
+			static {
+				for (WeaponTraits trait : WeaponTraits.values()) {
+					map.put(trait.traitString, trait);
+				}
+			}
+			
+			private WeaponTraits(String string) {
+				traitString = string;
+			}
+			
+			public String getTraitString() {
+				return traitString;
+			}
+			
+			public static WeaponTraits traitWithString(String string) {
+				return map.get(string);
+			}
+		}
+		
 		private String iid;
 		
 		private static Map<String, Item> map = new HashMap<String, Item>();

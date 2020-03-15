@@ -2,6 +2,7 @@ package random.gcnwii.fe9.randomizer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
+import fedata.gcnwii.fe9.FE9Item;
 import io.FileHandler;
 import io.FileWriter;
 import io.gcn.GCNCMBFileHandler;
@@ -32,6 +34,7 @@ import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9CommonTextLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
+import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponRank;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
 import random.general.WeightedDistributor;
@@ -134,6 +137,10 @@ public class FE9Randomizer extends Randomizer {
 		mainTOC.addAnchorWithTitle("character-data", "Character Data");
 		changelogBuilder.addElement(characterSection);
 		
+		ChangelogSection itemSection = new ChangelogSection("item-data");
+		mainTOC.addAnchorWithTitle("item-data", "Item Data");
+		changelogBuilder.addElement(itemSection);
+		
 		ChangelogSection chapterSection = new ChangelogSection("chapter-data");
 		mainTOC.addAnchorWithTitle("chapter-data", "Chapter Data");
 		changelogBuilder.addElement(chapterSection);
@@ -153,6 +160,7 @@ public class FE9Randomizer extends Randomizer {
 			chapterData = new FE9ChapterDataLoader(handler, textData);
 			
 			charData.recordOriginalCharacterData(changelogBuilder, characterSection, textData, classData, skillData, itemData);
+			itemData.recordOriginalItemData(changelogBuilder, itemSection, textData);
 			chapterData.recordOriginalChapterData(changelogBuilder, chapterSection, textData, charData, classData, skillData, itemData);
 			
 			randomizeClassesIfNecessary(seed);
@@ -163,11 +171,15 @@ public class FE9Randomizer extends Randomizer {
 			randomizeMiscellaneousIfNecessary(seed);
 			buffEnemiesIfNecessary(seed);
 			
+			makePostRandomizationAdjustments();
+			
 			updateStatus(0.50, "Committing changes...");
 			charData.compileDiffs(handler);
+			itemData.compileDiffs(handler);
 			classData.compileDiffs(handler);
 			
 			charData.recordUpdatedCharacterData(characterSection, textData, classData, skillData, itemData);
+			itemData.recordUpdatedItemData(itemSection, textData);
 			chapterData.recordUpdatedChapterData(chapterSection, textData, charData, classData, skillData, itemData);
 			
 			ChangelogAsset.registerAssets(changelogBuilder);
@@ -191,6 +203,32 @@ public class FE9Randomizer extends Randomizer {
 		});
 		
 		notifyCompletion(null, changelogBuilder);
+	}
+	
+	private void makePostRandomizationAdjustments() {
+		// Remove damage immunity from Ch. 27 BK and Ashnard.
+		// Unfortunately, this isn't a skill that is on the characters.
+		// The only thing we know is that weapons with the trait 'weakA' seem to be capable of bypassing this.
+		// So outside of removing what is giving them damage immunity, we allow all weapons to bypass it.
+		List<FE9Item> bypassBlessedArmorWeaponList = new ArrayList<FE9Item>();
+		bypassBlessedArmorWeaponList.addAll(itemData.allWeaponsOfRank(WeaponRank.S));
+		bypassBlessedArmorWeaponList.addAll(itemData.allWeaponsOfRank(WeaponRank.A));
+		for (FE9Item weapon : bypassBlessedArmorWeaponList) {
+			List<String> traits = new ArrayList<String>(Arrays.asList(itemData.getItemTraits(weapon)));
+			if (traits.contains(FE9Data.Item.WeaponTraits.BYPASS_BLESSED_ARMOR.getTraitString())) {
+				continue;
+			}
+			for (int i = 0; i < traits.size(); i++) {
+				String trait = traits.get(i);
+				if (trait == null || trait.length() == 0) {
+					traits.remove(i);
+					traits.add(i, FE9Data.Item.WeaponTraits.BYPASS_BLESSED_ARMOR.getTraitString());
+					break;
+				}
+			}
+			String[] traitsArray = traits.toArray(new String[traits.size()]);
+			itemData.setItemTraits(weapon, traitsArray);
+		}
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {

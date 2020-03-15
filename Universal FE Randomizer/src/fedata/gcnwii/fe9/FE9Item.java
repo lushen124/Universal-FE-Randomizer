@@ -6,6 +6,13 @@ import fedata.general.FEModifiableData;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE9Item implements FEModifiableData {
+	
+	public static int ItemTrait1Offset = 0x18;
+	public static int ItemTrait2Offset = 0x1C;
+	public static int ItemTrait3Offset = 0x20;
+	public static int ItemTrait4Offset = 0x24;
+	public static int ItemTrait5Offset = 0x28;
+	public static int ItemTrait6Offset = 0x2C;
 
 	private byte[] originalData;
 	private byte[] data;
@@ -77,33 +84,69 @@ public class FE9Item implements FEModifiableData {
 	}
 	
 	public long getItemTrait1Pointer() {
-		if (cachedItemTrait1Pointer == null) { cachedItemTrait1Pointer = readPointerAtOffset(0x18); }
+		if (cachedItemTrait1Pointer == null) { cachedItemTrait1Pointer = readPointerAtOffset(ItemTrait1Offset); }
 		return cachedItemTrait1Pointer;
 	}
 	
+	public void setItemTrait1Pointer(long ptr) {
+		cachedItemTrait1Pointer = ptr;
+		writePointerToOffset(ptr, ItemTrait1Offset);
+		wasModified = true;
+	}
+	
 	public long getItemTrait2Pointer() {
-		if (cachedItemTrait2Pointer == null) { cachedItemTrait2Pointer = readPointerAtOffset(0x1C); }
+		if (cachedItemTrait2Pointer == null) { cachedItemTrait2Pointer = readPointerAtOffset(ItemTrait2Offset); }
 		return cachedItemTrait2Pointer;
 	}
 	
+	public void setItemTrait2Pointer(long ptr) {
+		cachedItemTrait2Pointer = ptr;
+		writePointerToOffset(ptr, ItemTrait2Offset);
+		wasModified = true;
+	}
+	
 	public long getItemTrait3Pointer() {
-		if (cachedItemTrait3Pointer == null) { cachedItemTrait3Pointer = readPointerAtOffset(0x20); }
+		if (cachedItemTrait3Pointer == null) { cachedItemTrait3Pointer = readPointerAtOffset(ItemTrait3Offset); }
 		return cachedItemTrait3Pointer;
 	}
 	
+	public void setItemTrait3Pointer(long ptr) {
+		cachedItemTrait3Pointer = ptr;
+		writePointerToOffset(ptr, ItemTrait3Offset);
+		wasModified = true;
+	}
+	
 	public long getItemTrait4Pointer() {
-		if (cachedItemTrait4Pointer == null) { cachedItemTrait4Pointer = readPointerAtOffset(0x24); }
+		if (cachedItemTrait4Pointer == null) { cachedItemTrait4Pointer = readPointerAtOffset(ItemTrait4Offset); }
 		return cachedItemTrait4Pointer;
 	}
 	
+	public void setItemTrait4Pointer(long ptr) {
+		cachedItemTrait4Pointer = ptr;
+		writePointerToOffset(ptr, ItemTrait4Offset);
+		wasModified = true;
+	}
+	
 	public long getItemTrait5Pointer() {
-		if (cachedItemTrait5Pointer == null) { cachedItemTrait5Pointer = readPointerAtOffset(0x28); }
+		if (cachedItemTrait5Pointer == null) { cachedItemTrait5Pointer = readPointerAtOffset(ItemTrait5Offset); }
 		return cachedItemTrait5Pointer;
 	}
 	
+	public void setItemTrait5Pointer(long ptr) {
+		cachedItemTrait5Pointer = ptr;
+		writePointerToOffset(ptr, ItemTrait5Offset);
+		wasModified = true;
+	}
+	
 	public long getItemTrait6Pointer() {
-		if (cachedItemTrait6Pointer == null) { cachedItemTrait6Pointer = readPointerAtOffset(0x2C); }
+		if (cachedItemTrait6Pointer == null) { cachedItemTrait6Pointer = readPointerAtOffset(ItemTrait6Offset); }
 		return cachedItemTrait6Pointer;
+	}
+	
+	public void setItemTrait6Pointer(long ptr) {
+		cachedItemTrait6Pointer = ptr;
+		writePointerToOffset(ptr, ItemTrait6Offset);
+		wasModified = true;
 	}
 	
 	public long getItemEffectiveness1Pointer() {
@@ -131,11 +174,11 @@ public class FE9Item implements FEModifiableData {
 	}
 	
 	public int getItemDurability() {
-		return data[0x42];
+		return (data[0x42] & 0xFF);
 	}
 	
 	public int getItemMight() {
-		return data[0x43];
+		return (data[0x43] & 0xFF);
 	}
 	
 	public int getItemAccuracy() {
@@ -143,19 +186,19 @@ public class FE9Item implements FEModifiableData {
 	}
 	
 	public int getItemWeight() {
-		return data[0x45];
+		return (data[0x45] & 0xFF);
 	}
 	
 	public int getItemCritical() {
-		return data[0x46];
+		return (data[0x46] & 0xFF);
 	}
 	
 	public int getMinimumRange() {
-		return data[0x47];
+		return (data[0x47] & 0xFF);
 	}
 	
 	public int getMaximumRange() {
-		return data[0x48];
+		return (data[0x48] & 0xFF);
 	}
 	
 	public int getItemNumber() {
@@ -163,7 +206,7 @@ public class FE9Item implements FEModifiableData {
 	}
 	
 	public int getWeaponExperience() {
-		return data[0x4A];
+		return (data[0x4A] & 0xFF);
 	}
 	
 	public int getUnknownValue2() {
