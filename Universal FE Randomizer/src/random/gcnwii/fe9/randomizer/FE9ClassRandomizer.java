@@ -290,6 +290,17 @@ public class FE9ClassRandomizer {
 				}
 			}
 			
+			FE9Skill matchingOccultSkill = skillData.occultSkillForJID(targetJID);
+			if (matchingOccultSkill != null) {
+				FE9Skill skill1 = skillData.getSkillWithSID(charData.getSID1ForCharacter(character));
+				FE9Skill skill2 = skillData.getSkillWithSID(charData.getSID2ForCharacter(character));
+				FE9Skill skill3 = skillData.getSkillWithSID(charData.getSID3ForCharacter(character));
+			
+				if (skillData.isOccultSkill(skill1)) { charData.setSID1ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+				if (skillData.isOccultSkill(skill2)) { charData.setSID2ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+				if (skillData.isOccultSkill(skill3)) { charData.setSID3ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+			}
+			
 			// Update chapter data (class, weapons, and equipment)
 			for (FE9Data.Chapter chapter : FE9Data.Chapter.values())  {
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Processing Chapter: " + chapter.toString());
@@ -712,6 +723,17 @@ public class FE9ClassRandomizer {
 						break;
 					}
 				}
+			}
+			
+			FE9Skill matchingOccultSkill = skillData.occultSkillForJID(targetJID);
+			if (matchingOccultSkill != null) {
+				FE9Skill skill1 = skillData.getSkillWithSID(charData.getSID1ForCharacter(character));
+				FE9Skill skill2 = skillData.getSkillWithSID(charData.getSID2ForCharacter(character));
+				FE9Skill skill3 = skillData.getSkillWithSID(charData.getSID3ForCharacter(character));
+			
+				if (skillData.isOccultSkill(skill1)) { charData.setSID1ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+				if (skillData.isOccultSkill(skill2)) { charData.setSID2ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+				if (skillData.isOccultSkill(skill3)) { charData.setSID3ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
 			}
 			
 			// Update chapter data (class, weapons, and equipment)
