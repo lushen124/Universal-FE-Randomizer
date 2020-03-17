@@ -31,6 +31,9 @@ public class FE9SkillRandomizer {
 			if (skillData.isModifiableSkill(skill1)) {
 				FE9Skill randomSkill = distributor.getRandomItem(rng);
 				charData.setSID1ForCharacter(character, skillData.getSID(randomSkill));
+			} else if (skillData.isOccultSkill(skill1)) {
+				// Occult skills should already be handled by the class randomization if they need to be changed.
+				// We'll add options for this later to randomize occult skills.
 			} else {
 				String sid2 = charData.getSID2ForCharacter(character);
 				if (sid2 == null) { continue; }
@@ -38,6 +41,8 @@ public class FE9SkillRandomizer {
 				if (skillData.isModifiableSkill(skill2)) {
 					FE9Skill randomSkill = distributor.getRandomItem(rng);
 					charData.setSID2ForCharacter(character, skillData.getSID(randomSkill));	
+				} else if (skillData.isOccultSkill(skill2)) {
+					// TODO: Randomize with Occult Skills
 				} else {
 					String sid3 = charData.getSID3ForCharacter(character);
 					if (sid3 == null) { continue; }
@@ -45,6 +50,8 @@ public class FE9SkillRandomizer {
 					if (skillData.isModifiableSkill(skill3)) {
 						FE9Skill randomSkill = distributor.getRandomItem(rng);
 						charData.setSID3ForCharacter(character, skillData.getSID(randomSkill));
+					} else if (skillData.isOccultSkill(skill3)) {
+						// TODO: Randomize with Occult Skills
 					}
 				}
 			}
@@ -66,6 +73,8 @@ public class FE9SkillRandomizer {
 				} else {
 					charData.setSID1ForCharacter(character, null);
 				}
+			} else if (skillData.isOccultSkill(skill1)) {
+				// TODO: Randomize with Occult Skills
 			} else {
 				String sid2 = charData.getSID2ForCharacter(character);
 				FE9Skill skill2 = skillData.getSkillWithSID(sid2);
@@ -81,6 +90,8 @@ public class FE9SkillRandomizer {
 					} else {
 						charData.setSID2ForCharacter(character, null);
 					}
+				} else if (skillData.isOccultSkill(skill2)) {
+					// TODO: Randomize with Occult Skills	
 				} else {
 					String sid3 = charData.getSID3ForCharacter(character);
 					FE9Skill skill3 = skillData.getSkillWithSID(sid3);
@@ -91,6 +102,8 @@ public class FE9SkillRandomizer {
 						} else {
 							charData.setSID3ForCharacter(character, null);
 						}
+					} else if (skillData.isOccultSkill(skill3)) {
+						// TODO: Randomize with Occult Skills
 					}
 				}
 			}

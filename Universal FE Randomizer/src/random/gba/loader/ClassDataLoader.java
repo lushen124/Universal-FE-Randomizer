@@ -106,11 +106,11 @@ public class ClassDataLoader {
 		return charClass != null ? charClass.isFemale() : false;
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
-		return potentialClasses(sourceClass, excludeLords, excludeThieves, excludeSpecial, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, mustLoseToClass);
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
+		return potentialClasses(sourceClass, isForEnemy, excludeLords, excludeThieves, excludeSpecial, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, mustLoseToClass);
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
 		GBAFEClass sourceCharClass = provider.classWithID(sourceClass.getID());
 		Set<GBAFEClass> targetClasses = null;
 		
@@ -130,7 +130,7 @@ public class ClassDataLoader {
 		}
 		
 		if (targetClasses == null || targetClasses.size() == 0) {
-			targetClasses = provider.targetClassesForRandomization(sourceCharClass, options);
+			targetClasses = provider.targetClassesForRandomization(sourceCharClass, isForEnemy, options);
 		}
 		
 		return feClassesFromSet(targetClasses);
@@ -149,6 +149,11 @@ public class ClassDataLoader {
 	public Boolean canClassPromote(int classID) {
 		GBAFEClass charClass = provider.classWithID(classID);
 		return charClass != null ? provider.canClassPromote(charClass) : false;
+	}
+	
+	public boolean isPlayerOnly(int classID) {
+		GBAFEClass charClass = provider.classWithID(classID);
+		return charClass != null ? provider.playerOnlyClasses().contains(charClass) : false;
 	}
 	
 	public List<GBAFEClassData> demotionOptions(int classID) {

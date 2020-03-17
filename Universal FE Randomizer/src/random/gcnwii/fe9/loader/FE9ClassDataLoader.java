@@ -305,6 +305,18 @@ public class FE9ClassDataLoader {
 		charClass.setWeaponLevelPointer(fe8databin.pointerForString(weaponLevelString));
 	}
 	
+	public boolean canClassUseLightMagic(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		
+		String sid1 = getSID1ForClass(charClass);
+		String sid2 = getSID2ForClass(charClass);
+		String sid3 = getSID3ForClass(charClass);
+		
+		return (sid1 != null && sid1.equals(FE9Data.Skill.LUMINA.getSID())) ||
+				(sid2 != null && sid2.equals(FE9Data.Skill.LUMINA.getSID())) ||
+				(sid3 != null && sid3.equals(FE9Data.Skill.LUMINA.getSID()));
+	}
+	
 	public StatBias statBiasForClass(FE9Class charClass) {
 		FE9Data.CharacterClass fe9Class = fe9ClassForClass(charClass);
 		if (fe9Class == null) { 

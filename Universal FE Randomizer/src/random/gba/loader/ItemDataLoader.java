@@ -324,6 +324,10 @@ public class ItemDataLoader {
 		return feItemsFromItemSet(provider.weaponsLockedToClass(classID));
 	}
 	
+	public boolean isPlayerOnly(int itemID) {
+		return provider.playerOnlyWeapons().stream().anyMatch(item -> item.getID() == itemID);
+	}
+	
 	public Boolean isHealingStaff(int itemID) {
 		return provider.itemWithID(itemID).isHealingStaff();
 	}
@@ -361,11 +365,14 @@ public class ItemDataLoader {
 			}
 		}
 		
+		// No minion should be getting any player only weapons.
+		potentialItems.removeAll(provider.playerOnlyWeapons());
+		
 		List<GBAFEItem> itemList = potentialItems.stream().sorted(GBAFEItem.defaultComparator()).collect(Collectors.toList());
 		return itemMap.get(itemList.get(rng.nextInt(itemList.size())).getID());
 	}
 	
-	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEClassData charClass, GBAFEItemData originalWeapon, boolean strict, Random rng) {
+	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEClassData charClass, GBAFEItemData originalWeapon, boolean isEnemy, boolean strict, Random rng) {
 		if (!isWeapon(originalWeapon) && originalWeapon.getType() != WeaponType.STAFF) {
 			return null;
 		}
@@ -377,6 +384,14 @@ public class ItemDataLoader {
 			if (potentialItems.isEmpty()) {
 				return null;
 			}
+		}
+		
+		if (isEnemy) {
+			potentialItems.removeAll(provider.playerOnlyWeapons());
+		}
+	
+		if (potentialItems.isEmpty()) {
+			return null;
 		}
 		
 		List<GBAFEItem> itemList = potentialItems.stream().sorted(GBAFEItem.defaultComparator()).collect(Collectors.toList());
@@ -394,8 +409,8 @@ public class ItemDataLoader {
 		return item != null ? itemWithID(item.getID()) : null;
 	}
 	
-	public GBAFEItemData getRandomWeaponForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, Random rng) {
-		GBAFEItemData[] potentialItems = usableWeaponsForCharacter(character, ranged, melee);
+	public GBAFEItemData getRandomWeaponForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, boolean isEnemy, Random rng) {
+		GBAFEItemData[] potentialItems = usableWeaponsForCharacter(character, ranged, melee, isEnemy);
 		if (potentialItems == null || potentialItems.length < 1) {
 			// Check class specific weapons (e.g. FE8 monsters)
 			potentialItems = feItemsFromItemSet(provider.weaponsForClass(character.getClassID()));
@@ -408,7 +423,7 @@ public class ItemDataLoader {
 		return potentialItems[index];
 	}
 	
-	private GBAFEItemData[] usableWeaponsForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee) {
+	private GBAFEItemData[] usableWeaponsForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, boolean isEnemy) {
 		ArrayList<GBAFEItemData> items = new ArrayList<GBAFEItemData>();
 		
 		if (character.getSwordRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.SWORD, character.getSwordRank(), ranged, melee))); }
@@ -422,6 +437,10 @@ public class ItemDataLoader {
 		
 		Set<GBAFEItem> prfs = provider.prfWeaponsForClassID(character.getClassID());
 		items.addAll(Arrays.asList(feItemsFromItemSet(prfs)));
+		
+		if (isEnemy) {
+			items.removeIf(item -> provider.playerOnlyWeapons().contains(provider.itemWithID(item.getID())));
+		}
 		
 		return items.toArray(new GBAFEItemData[items.size()]);
 	}

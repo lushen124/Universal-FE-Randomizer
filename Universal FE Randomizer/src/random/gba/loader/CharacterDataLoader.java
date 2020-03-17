@@ -143,6 +143,10 @@ public class CharacterDataLoader {
 		return provider.characterWithID(characterID).canBuff();
 	}
 	
+	public boolean isEnemyAtAnyPoint(int characterID) {
+		return provider.isEnemyAtAnyPoint(characterID);
+	}
+	
 	public int[] validAffinityValues() {
 		return provider.affinityValues();
 	}

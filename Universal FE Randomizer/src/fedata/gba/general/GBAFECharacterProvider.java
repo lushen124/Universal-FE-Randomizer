@@ -35,6 +35,8 @@ public interface GBAFECharacterProvider {
 	public boolean isValidCharacter(GBAFECharacter character);
 	public GBAFECharacter nullCharacter();
 	
+	public boolean isEnemyAtAnyPoint(int characterID);
+	
 	public int[] affinityValues();
 	
 	public int canonicalID(int characterID);
