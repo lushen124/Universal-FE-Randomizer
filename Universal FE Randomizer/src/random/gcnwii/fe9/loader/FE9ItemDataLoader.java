@@ -19,7 +19,15 @@ import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import util.DebugPrinter;
+import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
+import util.recordkeeper.ChangelogBuilder;
+import util.recordkeeper.ChangelogHeader;
+import util.recordkeeper.ChangelogSection;
+import util.recordkeeper.ChangelogStyleRule;
+import util.recordkeeper.ChangelogTOC;
+import util.recordkeeper.ChangelogTable;
+import util.recordkeeper.ChangelogHeader.HeaderLevel;
 
 public class FE9ItemDataLoader {
 	
@@ -136,6 +144,53 @@ public class FE9ItemDataLoader {
 		return fe8databin.stringForPointer(item.getItemNamePointer());
 	}
 	
+	public String[] getItemTraits(FE9Item item) {
+		if (item == null) { return null; }
+		String[] traits = new String[6];
+		traits[0] = fe8databin.stringForPointer(item.getItemTrait1Pointer());
+		traits[1] = fe8databin.stringForPointer(item.getItemTrait2Pointer());
+		traits[2] = fe8databin.stringForPointer(item.getItemTrait3Pointer());
+		traits[3] = fe8databin.stringForPointer(item.getItemTrait4Pointer());
+		traits[4] = fe8databin.stringForPointer(item.getItemTrait5Pointer());
+		traits[5] = fe8databin.stringForPointer(item.getItemTrait6Pointer());
+		return traits;
+	}
+	
+	public void setItemTraits(FE9Item item, String[] traitsArray) {
+		if (item == null || traitsArray == null) { return; }
+		assert(traitsArray.length == 6);
+		long[] pointers = new long[6];
+		for (int i = 0; i < Math.min(traitsArray.length, 6); i++) {
+			if (traitsArray[i] == null || traitsArray[i].length() == 0) {
+				pointers[i] = 0;
+			} else {
+				Long pointer = fe8databin.pointerForString(traitsArray[i]);
+				if (pointer == null) {
+					fe8databin.addString(traitsArray[i]);
+					fe8databin.commitAdditions();
+					pointer = fe8databin.pointerForString(traitsArray[i]);
+				}
+				pointers[i] = pointer;
+			}
+		}
+		
+		if (pointers[0] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait1Offset - 0x20); }
+		if (pointers[1] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait2Offset - 0x20); }
+		if (pointers[2] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait3Offset - 0x20); }
+		if (pointers[3] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait4Offset - 0x20); }
+		if (pointers[4] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait5Offset - 0x20); }
+		if (pointers[5] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait6Offset - 0x20); }
+		
+		fe8databin.commitAdditions();
+		
+		item.setItemTrait1Pointer(pointers[0]);
+		item.setItemTrait2Pointer(pointers[1]);
+		item.setItemTrait3Pointer(pointers[2]);
+		item.setItemTrait4Pointer(pointers[3]);
+		item.setItemTrait5Pointer(pointers[4]);
+		item.setItemTrait6Pointer(pointers[5]);
+	}
+	
 	public boolean isWeapon(FE9Item item) {
 		return FE9Data.Item.withIID(iidOfItem(item)).isWeapon();
 	}
@@ -215,6 +270,21 @@ public class FE9ItemDataLoader {
 		if (FE9Data.Item.withIID(iidOfItem(item)).isSRank()) { return WeaponRank.S; }
 		if (isWeapon(item)) { return WeaponRank.UNKNOWN; }
 		return WeaponRank.NONE;
+	}
+	
+	public List<FE9Item> allWeaponsOfRank(WeaponRank rank) {
+		Set<FE9Data.Item> items = new HashSet<FE9Data.Item>();
+		switch (rank) {
+		case E: items.addAll(FE9Data.Item.allERankWeapons); break;
+		case D: items.addAll(FE9Data.Item.allDRankWeapons); break;
+		case C: items.addAll(FE9Data.Item.allCRankWeapons); break;
+		case B: items.addAll(FE9Data.Item.allBRankWeapons); break;
+		case A: items.addAll(FE9Data.Item.allARankWeapons); break;
+		case S: items.addAll(FE9Data.Item.allSRankWeapons); break;
+		default: break;
+		}
+		
+		return fe9ItemListFromSet(items);
 	}
 	
 	public List<FE9Item> weaponsOfRankAndType(WeaponRank rank, WeaponType type) {
@@ -479,6 +549,21 @@ public class FE9ItemDataLoader {
 		}).collect(Collectors.toList());
 	}
 	
+	public void compileDiffs(GCNISOHandler isoHandler) {
+		try {
+			GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.ItemDataFilename);
+			for (FE9Item item : allItems) {
+				item.commitChanges();
+				if (item.hasCommittedChanges()) {
+					Diff itemDiff = new Diff(item.getAddressOffset(), item.getData().length, item.getData(), null);
+					handler.addChange(itemDiff);
+				}
+			}
+		} catch (GCNISOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private void debugPrintItem(FE9Item item, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "===== Printing Item =====");
 		
@@ -553,5 +638,169 @@ public class FE9ItemDataLoader {
 		} else {
 			return identifier;
 		}
+	}
+	
+	public void recordOriginalItemData(ChangelogBuilder builder, ChangelogSection itemDataSection,
+			FE9CommonTextLoader textData) {
+		ChangelogTOC itemTOC = new ChangelogTOC("item-data");
+		itemTOC.addClass("item-section-toc");
+		itemDataSection.addElement(new ChangelogHeader(HeaderLevel.HEADING_2, "Item Data", "item-data-header"));
+		itemDataSection.addElement(itemTOC);
+		
+		ChangelogSection itemContainer = new ChangelogSection("item-data-container");
+		itemDataSection.addElement(itemContainer);
+		
+		for (FE9Item item : allItems) {
+			createItemSection(item, textData, itemTOC, itemContainer, true);
+		}
+		
+		setupRules(builder);
+	}
+	
+	public void recordUpdatedItemData(ChangelogSection itemDataSection, FE9CommonTextLoader textData) {
+		ChangelogTOC itemTOC = (ChangelogTOC)itemDataSection.getChildWithIdentifier("item-data");
+		ChangelogSection itemContainer = (ChangelogSection)itemDataSection.getChildWithIdentifier("item-data-container");
+		
+		for (FE9Item item : allItems) {
+			createItemSection(item, textData, itemTOC, itemContainer, false);
+		}
+	}
+	
+	private void createItemSection(FE9Item item, FE9CommonTextLoader textData, ChangelogTOC toc, ChangelogSection parentSection, boolean isOriginal) {
+		String itemName = textData.textStringForIdentifier(getMIIDOfItem(item));
+		String anchor = "item-data-" + iidOfItem(item);
+		ChangelogTable itemDataTable;
+		ChangelogSection section;
+		if (isOriginal) {
+			section = new ChangelogSection(anchor + "-section");
+			section.addClass("item-data-section");
+			toc.addAnchorWithTitle(anchor, itemName);
+			
+			ChangelogHeader titleHeader = new ChangelogHeader(HeaderLevel.HEADING_3, itemName, anchor);
+			titleHeader.addClass("item-data-title");
+			section.addElement(titleHeader);
+			
+			itemDataTable = new ChangelogTable(3, new String[] {"", "Old Value", "New Value"}, anchor + "-data-table");
+			itemDataTable.addClass("item-data-table");
+			itemDataTable.addRow(new String[] {"IID", iidOfItem(item), ""});
+			itemDataTable.addRow(new String[] {"Name", itemName, ""});
+			itemDataTable.addRow(new String[] {"Description", textData.textStringForIdentifier(fe8databin.stringForPointer(item.getItemDescriptionPointer())), ""});
+			itemDataTable.addRow(new String[] {"Type", fe8databin.stringForPointer(item.getItemTypePointer()), ""});
+			itemDataTable.addRow(new String[] {"Sub-type", fe8databin.stringForPointer(item.getItemSubtypePointer()), ""});
+		} else {
+			section = (ChangelogSection)parentSection.getChildWithIdentifier(anchor + "-section");
+			itemDataTable = (ChangelogTable)section.getChildWithIdentifier(anchor + "-data-table");
+			itemDataTable.setContents(0, 2, iidOfItem(item));
+			itemDataTable.setContents(1, 2, itemName);
+			itemDataTable.setContents(2, 2, textData.textStringForIdentifier(fe8databin.stringForPointer(item.getItemDescriptionPointer())));
+			itemDataTable.setContents(3, 2, fe8databin.stringForPointer(item.getItemTypePointer()));
+			itemDataTable.setContents(4, 2, fe8databin.stringForPointer(item.getItemSubtypePointer()));
+		}
+		
+		if (isWeapon(item)) {
+			if (isOriginal) {
+				itemDataTable.addRow(new String[] {"Rank", weaponRankForItem(item).toString(), ""});
+				itemDataTable.addRow(new String[] {"Trait 1", fe8databin.stringForPointer(item.getItemTrait1Pointer()), ""});
+				itemDataTable.addRow(new String[] {"Trait 2", fe8databin.stringForPointer(item.getItemTrait2Pointer()), ""});
+				itemDataTable.addRow(new String[] {"Trait 3", fe8databin.stringForPointer(item.getItemTrait3Pointer()), ""});
+				itemDataTable.addRow(new String[] {"Trait 4", fe8databin.stringForPointer(item.getItemTrait4Pointer()), ""});
+				itemDataTable.addRow(new String[] {"Trait 5", fe8databin.stringForPointer(item.getItemTrait5Pointer()), ""});
+				itemDataTable.addRow(new String[] {"Trait 6", fe8databin.stringForPointer(item.getItemTrait6Pointer()), ""});
+				itemDataTable.addRow(new String[] {"Effectiveness 1", fe8databin.stringForPointer(item.getItemEffectiveness1Pointer()), ""});
+				itemDataTable.addRow(new String[] {"Effectiveness 2", fe8databin.stringForPointer(item.getItemEffectiveness2Pointer()), ""});
+				itemDataTable.addRow(new String[] {"Durability", Integer.toString(item.getItemDurability()), ""});
+				itemDataTable.addRow(new String[] {"Might", Integer.toString(item.getItemMight()), ""});
+				itemDataTable.addRow(new String[] {"Accuracy", Integer.toString(item.getItemAccuracy()), ""});
+				itemDataTable.addRow(new String[] {"Weight", Integer.toString(item.getItemWeight()), ""});
+				itemDataTable.addRow(new String[] {"Critical", Integer.toString(item.getItemCritical()), ""});
+				itemDataTable.addRow(new String[] {"Range", item.getMinimumRange() + " ~ " + item.getMaximumRange(), ""});
+			} else {
+				itemDataTable.setContents(5, 2, weaponRankForItem(item).toString());
+				itemDataTable.setContents(6, 2, fe8databin.stringForPointer(item.getItemTrait1Pointer()));
+				itemDataTable.setContents(7, 2, fe8databin.stringForPointer(item.getItemTrait2Pointer()));
+				itemDataTable.setContents(8, 2, fe8databin.stringForPointer(item.getItemTrait3Pointer()));
+				itemDataTable.setContents(9, 2, fe8databin.stringForPointer(item.getItemTrait4Pointer()));
+				itemDataTable.setContents(10, 2, fe8databin.stringForPointer(item.getItemTrait5Pointer()));
+				itemDataTable.setContents(11, 2, fe8databin.stringForPointer(item.getItemTrait6Pointer()));
+				itemDataTable.setContents(12, 2, fe8databin.stringForPointer(item.getItemEffectiveness1Pointer()));
+				itemDataTable.setContents(13, 2, fe8databin.stringForPointer(item.getItemEffectiveness2Pointer()));
+				itemDataTable.setContents(14, 2, Integer.toString(item.getItemDurability()));
+				itemDataTable.setContents(15, 2, Integer.toString(item.getItemMight()));
+				itemDataTable.setContents(16, 2, Integer.toString(item.getItemAccuracy()));
+				itemDataTable.setContents(17, 2, Integer.toString(item.getItemWeight()));
+				itemDataTable.setContents(18, 2, Integer.toString(item.getItemCritical()));
+				itemDataTable.setContents(19, 2, item.getMinimumRange() + " ~ " + item.getMaximumRange());
+			}
+		}
+		
+		if (isOriginal) {
+			section.addElement(itemDataTable);
+			parentSection.addElement(section);
+		}
+	}
+	
+	private void setupRules(ChangelogBuilder builder) {
+		ChangelogStyleRule tocStyle = new ChangelogStyleRule();
+		tocStyle.setElementClass("item-section-toc");
+		tocStyle.addRule("display", "flex");
+		tocStyle.addRule("flex-direction", "row");
+		tocStyle.addRule("width", "75%");
+		tocStyle.addRule("align-items", "center");
+		tocStyle.addRule("justify-content", "center");
+		tocStyle.addRule("flex-wrap", "wrap");
+		tocStyle.addRule("margin-left", "auto");
+		tocStyle.addRule("margin-right", "auto");
+		builder.addStyle(tocStyle);
+		
+		ChangelogStyleRule tocItemAfter = new ChangelogStyleRule();
+		tocItemAfter.setOverrideSelectorString(".item-section-toc div:not(:last-child)::after");
+		tocItemAfter.addRule("content", "\"|\"");
+		tocItemAfter.addRule("margin", "0px 5px");
+		builder.addStyle(tocItemAfter);
+		
+		ChangelogStyleRule itemContainer = new ChangelogStyleRule();
+		itemContainer.setElementIdentifier("item-data-container");
+		itemContainer.addRule("display", "flex");
+		itemContainer.addRule("flex-direction", "row");
+		itemContainer.addRule("flex-wrap", "wrap");
+		itemContainer.addRule("justify-content", "center");
+		itemContainer.addRule("margin-left", "10px");
+		itemContainer.addRule("margin-right", "10px");
+		builder.addStyle(itemContainer);
+		
+		ChangelogStyleRule itemSection = new ChangelogStyleRule();
+		itemSection.setElementClass("item-data-section");
+		itemSection.addRule("margin", "20px");
+		itemSection.addRule("flex", "0 0 400px");
+		builder.addStyle(itemSection);
+		
+		ChangelogStyleRule tableStyle = new ChangelogStyleRule();
+		tableStyle.setElementClass("item-data-table");
+		tableStyle.addRule("width", "100%");
+		tableStyle.addRule("border", "1px solid black");
+		builder.addStyle(tableStyle);
+		
+		ChangelogStyleRule titleStyle = new ChangelogStyleRule();
+		titleStyle.setElementClass("item-data-title");
+		titleStyle.addRule("text-align", "center");
+		builder.addStyle(titleStyle);
+		
+		ChangelogStyleRule columnStyle = new ChangelogStyleRule();
+		columnStyle.setElementClass("item-data-table");
+		columnStyle.setChildTags(new ArrayList<String>(Arrays.asList("td", "th")));
+		columnStyle.addRule("border", "1px solid black");
+		columnStyle.addRule("padding", "5px");
+		builder.addStyle(columnStyle);
+		
+		ChangelogStyleRule firstColumnStyle = new ChangelogStyleRule();
+		firstColumnStyle.setOverrideSelectorString(".item-data-table td:first-child");
+		firstColumnStyle.addRule("width", "20%");
+		firstColumnStyle.addRule("text-align", "right");
+		builder.addStyle(firstColumnStyle);
+		
+		ChangelogStyleRule otherColumnStyle = new ChangelogStyleRule();
+		otherColumnStyle.setOverrideSelectorString(".item-data-table th:not(:first-child)");
+		otherColumnStyle.addRule("width", "40%");
+		builder.addStyle(otherColumnStyle);
 	}
 }

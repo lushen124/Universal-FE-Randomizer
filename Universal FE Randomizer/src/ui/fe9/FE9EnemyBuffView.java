@@ -397,8 +397,10 @@ public class FE9EnemyBuffView extends Composite {
 	public FE9EnemyBuffOptions getEnemyBuffOptions() {
 		int minionAmount = minionGrowthSpinner.getSelection();
 		MinionGrowthMode minionMode = MinionGrowthMode.NONE;
-		if (minionModeFlatButton.getSelection()) { minionMode = MinionGrowthMode.FLAT; }
-		if (minionModeScalingButton.getSelection()) { minionMode = MinionGrowthMode.SCALING; }
+		if (buffMinionGrowthsButton.getSelection()) {
+			if (minionModeFlatButton.getSelection()) { minionMode = MinionGrowthMode.FLAT; }
+			if (minionModeScalingButton.getSelection()) { minionMode = MinionGrowthMode.SCALING; }
+		}
 		boolean minionWeapons = improveMinionWeaponButton.getSelection();
 		int minionWeaponChance = minionWeaponSpinner.getSelection();
 		boolean minionSkills = minionSkillButton.getSelection();
@@ -406,8 +408,10 @@ public class FE9EnemyBuffView extends Composite {
 		
 		int bossAmount = bossStatSpinner.getSelection();
 		BossStatMode bossMode = BossStatMode.NONE;
-		if (bossModeLinearButton.getSelection()) { bossMode = BossStatMode.LINEAR; }
-		if (bossModeEaseInOutButton.getSelection()) { bossMode = BossStatMode.EASE_IN_OUT; }
+		if (buffBossStatButton.getSelection()) {
+			if (bossModeLinearButton.getSelection()) { bossMode = BossStatMode.LINEAR; }
+			if (bossModeEaseInOutButton.getSelection()) { bossMode = BossStatMode.EASE_IN_OUT; }
+		}
 		boolean bossWeapons = improveBossWeaponButton.getSelection();
 		int bossWeaponChance = bossWeaponSpinner.getSelection();
 		boolean bossSkills = bossSkillButton.getSelection();
