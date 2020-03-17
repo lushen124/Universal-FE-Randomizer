@@ -9,6 +9,9 @@ public interface GBAFEChapterUnitData extends FEModifiableData {
 	public void setStartingClass(int classID);
 	
 	public int getStartingLevel();
+	public boolean isEnemy();
+	public boolean isNPC();
+	public boolean isAutolevel();
 	
 	public int getLeaderID();
 	

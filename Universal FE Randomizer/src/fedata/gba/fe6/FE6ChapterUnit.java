@@ -37,16 +37,31 @@ public class FE6ChapterUnit implements GBAFEChapterUnitData {
 		wasModified = true;
 	}
 	
-	public int getStartingLevel() {
-		// Level and alliance are stored in byte 3, but we need to interpret it properly.
-		// LLLL LENA
-		// L = Level (5 bits, 0 - 31)
-		// E = Set if enemy
-		// N = Set if NPC
-		// A = Set if autolevel
-		// Note: playable characters are defined as not enemies and not NPCs.
+	// Level and alliance are stored in byte 3, but we need to interpret it properly.
+	// LLLL LENA
+	// L = Level (5 bits, 0 - 31)
+	// E = Set if enemy
+	// N = Set if NPC
+	// A = Set if autolevel
+	// Note: playable characters are defined as not enemies and not NPCs.
+	public int getStartingLevel() {	
 		int value = data[3] & 0xFF;
 		return value >> 3;
+	}
+	
+	public boolean isEnemy() {
+		int value = data[3] & 0xFF;
+		return (value & 0x4) != 0;
+	}
+	
+	public boolean isNPC() {
+		int value = data[3] & 0xFF;
+		return (value & 0x2) != 0;
+	}
+	
+	public boolean isAutolevel() {
+		int value = data[3] & 0xFF;
+		return (value & 0x1) != 0;
 	}
 
 	@Override
