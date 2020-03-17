@@ -128,7 +128,7 @@ public class ClassRandomizer {
 			
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(options, inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, false, rng);
+				updateCharacterToClass(options, inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, charactersData, classData, chapterData, itemData, textData, false, rng);
 				linked.setIsLord(isLordCharacter);
 			}
 		}
@@ -198,7 +198,7 @@ public class ClassRandomizer {
 			
 			for (GBAFECharacterData linked : charactersData.linkedCharactersForCharacter(character)) {
 				determinedClasses.put(linked.getID(), targetClass);
-				updateCharacterToClass(options, inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
+				updateCharacterToClass(options, inventoryOptions, linked, originalClass, targetClass, characterRequiresRange, characterRequiresMelee, charactersData, classData, chapterData, itemData, textData, forceBasicWeaponry && linked.getID() == character.getID(), rng);
 				if (shouldNerf) { // Halve skill, speed, defense, and resistance if we need to make sure he loses to us.
 					linked.setBaseSKL(linked.getBaseSKL() >> 1);
 					linked.setBaseSPD(linked.getBaseSPD() >> 1);
@@ -309,7 +309,7 @@ public class ClassRandomizer {
 		}
 	}
 
-	private static void updateCharacterToClass(ClassOptions classOptions, ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Boolean ranged, Boolean melee, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasicWeapons, Random rng) {
+	private static void updateCharacterToClass(ClassOptions classOptions, ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Boolean ranged, Boolean melee, CharacterDataLoader charData, ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasicWeapons, Random rng) {
 		
 		character.prepareForClassRandomization();
 		character.setClassID(targetClass.getID());
@@ -337,7 +337,7 @@ public class ClassRandomizer {
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(character.getID());
 			if (reward != null) {
-				GBAFEItemData item = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+				GBAFEItemData item = itemData.getRandomWeaponForCharacter(character, ranged, melee, false, rng);
 				reward.setItemID(item.getID());
 			}
 			
@@ -347,7 +347,7 @@ public class ClassRandomizer {
 						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass());
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
-					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, ranged, melee, classData, itemData, textData, forceBasicWeapons, rng);
+					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, ranged, melee, charData, classData, itemData, textData, forceBasicWeapons, rng);
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
@@ -658,7 +658,7 @@ public class ClassRandomizer {
 		if (!hasItems) { hasItems = item1 != null; }
 		if (item1 != null && (itemData.isWeapon(item1) || item1.getType() == WeaponType.STAFF)) {
 			if (!canCharacterUseItem(minionCharacter, item1, itemData)) {
-				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item1, true, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 				if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
 					replacementItem = null; // We'll handle this later.
 				}
@@ -681,7 +681,7 @@ public class ClassRandomizer {
 		if (!hasItems) { hasItems = item2 != null; }
 		if (item2 != null && (itemData.isWeapon(item2) || item2.getType() == WeaponType.STAFF)) {
 			if (!canCharacterUseItem(minionCharacter, item2, itemData)) {
-				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item2, true, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 				if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
 					replacementItem = null; // We'll handle this later.
 				}
@@ -704,7 +704,7 @@ public class ClassRandomizer {
 		if (!hasItems) { hasItems = item3 != null; }
 		if (item3 != null && (itemData.isWeapon(item3) || item3.getType() == WeaponType.STAFF)) {
 			if (!canCharacterUseItem(minionCharacter, item3, itemData)) {
-				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item3, true, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 				if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
 					replacementItem = null; // We'll handle this later.
 				}
@@ -727,7 +727,7 @@ public class ClassRandomizer {
 		if (!hasItems) { hasItems = item4 != null; }
 		if (item4 != null && (itemData.isWeapon(item4) || item4.getType() == WeaponType.STAFF)) {
 			if (!canCharacterUseItem(minionCharacter, item4, itemData)) {
-				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+				replacementItem = itemData.getSidegradeWeapon(minionCharacter, unitClass, item4, true, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 				if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
 					replacementItem = null; // We'll handle this later.
 				}
@@ -772,7 +772,7 @@ public class ClassRandomizer {
 		}
 	}
 	
-	public static void validateCharacterInventory(ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData charClass, GBAFEChapterUnitData chapterUnit, Boolean ranged, Boolean melee, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, Random rng) {
+	public static void validateCharacterInventory(ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData charClass, GBAFEChapterUnitData chapterUnit, Boolean ranged, Boolean melee, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, Random rng) {
 		int item1ID = chapterUnit.getItem1();
 		GBAFEItemData item1 = itemData.itemWithID(item1ID);
 		int item2ID = chapterUnit.getItem2();
@@ -804,9 +804,9 @@ public class ClassRandomizer {
 				GBAFEItemData replacementItem = itemData.getBasicWeaponForCharacter(character, ranged, false, rng);
 				if (!forceBasic) {
 					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
-						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, charData.isEnemyAtAnyPoint(character.getID()), rng);
 					} else {
-						replacementItem = itemData.getSidegradeWeapon(character, charClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+						replacementItem = itemData.getSidegradeWeapon(character, charClass, item1, charData.isEnemyAtAnyPoint(character.getID()), inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					}
 				}
 				
@@ -834,9 +834,9 @@ public class ClassRandomizer {
 				GBAFEItemData replacementItem = itemData.getBasicWeaponForCharacter(character, ranged, false, rng);
 				if (!forceBasic) {
 					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
-						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, charData.isEnemyAtAnyPoint(character.getID()), rng);
 					} else {
-						replacementItem = itemData.getSidegradeWeapon(character, charClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+						replacementItem = itemData.getSidegradeWeapon(character, charClass, item2, charData.isEnemyAtAnyPoint(character.getID()), inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					}
 				}
 				
@@ -864,9 +864,9 @@ public class ClassRandomizer {
 				GBAFEItemData replacementItem = itemData.getBasicWeaponForCharacter(character, ranged, false, rng);
 				if (!forceBasic) {
 					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
-						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, charData.isEnemyAtAnyPoint(character.getID()), rng);
 					} else {
-						replacementItem = itemData.getSidegradeWeapon(character, charClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+						replacementItem = itemData.getSidegradeWeapon(character, charClass, item3, charData.isEnemyAtAnyPoint(character.getID()), inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					}
 				}
 				
@@ -894,9 +894,9 @@ public class ClassRandomizer {
 				GBAFEItemData replacementItem = itemData.getBasicWeaponForCharacter(character, ranged, false, rng);
 				if (!forceBasic) {
 					if (inventoryOptions.weaponPolicy == WeaponReplacementPolicy.ANY_USABLE || ranged || melee) {
-						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, rng);
+						replacementItem = itemData.getRandomWeaponForCharacter(character, ranged, melee, charData.isEnemyAtAnyPoint(character.getID()), rng);
 					} else {
-						replacementItem = itemData.getSidegradeWeapon(character, charClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+						replacementItem = itemData.getSidegradeWeapon(character, charClass, item4, charData.isEnemyAtAnyPoint(character.getID()), inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
 					}
 				}
 				
