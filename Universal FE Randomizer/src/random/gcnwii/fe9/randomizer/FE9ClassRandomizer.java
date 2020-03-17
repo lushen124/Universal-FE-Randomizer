@@ -339,30 +339,32 @@ public class FE9ClassRandomizer {
 								for (WeaponType type : types) {
 									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Type: " + type.toString() + " (" + weaponLevelsMap.get(type) + ")");
 								}
-								for (int i = 0; i < weaponCount; i++) {
-									WeaponType randomUsableType = types.get(rng.nextInt(types.size()));
-									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected type: " + randomUsableType.toString());
-									WeaponRank usableRank = equippedRanks.size() > i ? equippedRanks.get(i) : weaponLevelsMap.get(randomUsableType);
-									List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, randomUsableType);
-									if (replacements.isEmpty()) {
-										WeaponRank adjacentRank = usableRank.lowerRank();
-										if (adjacentRank == WeaponRank.NONE && usableRank.higherRank().isLowerThan(weaponLevelsMap.get(randomUsableType))) {
-											adjacentRank = usableRank.higherRank();
+								if (!types.isEmpty()) {
+									for (int i = 0; i < weaponCount; i++) {
+										WeaponType randomUsableType = types.get(rng.nextInt(types.size()));
+										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected type: " + randomUsableType.toString());
+										WeaponRank usableRank = equippedRanks.size() > i ? equippedRanks.get(i) : weaponLevelsMap.get(randomUsableType);
+										List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, randomUsableType);
+										if (replacements.isEmpty()) {
+											WeaponRank adjacentRank = usableRank.lowerRank();
+											if (adjacentRank == WeaponRank.NONE && usableRank.higherRank().isLowerThan(weaponLevelsMap.get(randomUsableType))) {
+												adjacentRank = usableRank.higherRank();
+											}
+											replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
 										}
-										replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
-									}
-									List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
-									if (specialWeapons != null) { replacements.addAll(specialWeapons); }
-									
-									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
-									for (FE9Item weapon : replacements) {
-										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + itemData.iidOfItem(weapon));
-									}
-									
-									if (!replacements.isEmpty()) {
-										FE9Item weapon = replacements.get(rng.nextInt(replacements.size()));
-										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected: " + itemData.iidOfItem(weapon));
-										weapons.add(weapon);
+										List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
+										if (specialWeapons != null) { replacements.addAll(specialWeapons); }
+										
+										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
+										for (FE9Item weapon : replacements) {
+											DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + itemData.iidOfItem(weapon));
+										}
+										
+										if (!replacements.isEmpty()) {
+											FE9Item weapon = replacements.get(rng.nextInt(replacements.size()));
+											DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected: " + itemData.iidOfItem(weapon));
+											weapons.add(weapon);
+										}
 									}
 								}
 							}
