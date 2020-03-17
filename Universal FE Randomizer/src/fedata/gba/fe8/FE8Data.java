@@ -2515,9 +2515,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 
 	public int[] affinityValues() {
-		int[] values = new int[FE8Character.Affinity.values().length];
+		int[] values = new int[FE8Character.Affinity.validAffinities().length];
 		int i = 0;
-		for (FE8Character.Affinity affinity : FE8Character.Affinity.values()) {
+		for (FE8Character.Affinity affinity : FE8Character.Affinity.validAffinities()) {
 			values[i++] = affinity.value;
 		}
 		
