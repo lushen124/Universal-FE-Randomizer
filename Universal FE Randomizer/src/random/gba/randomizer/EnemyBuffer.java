@@ -2,7 +2,9 @@ package random.gba.randomizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
@@ -209,6 +211,8 @@ public class EnemyBuffer {
 			}
 		}
 		
-		return items.toArray(new GBAFEItemData[items.size()]);
+		List<GBAFEItemData> filteredList = items.stream().filter(item -> (!itemData.isPlayerOnly(item.getID()))).collect(Collectors.toList());
+		
+		return filteredList.toArray(new GBAFEItemData[filteredList.size()]);
 	}
 }

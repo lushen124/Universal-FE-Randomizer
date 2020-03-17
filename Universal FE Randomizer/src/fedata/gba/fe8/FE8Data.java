@@ -421,6 +421,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				GREAT_KNIGHT_F, SUPER_RECRUIT, /*MANAKETE_F,*/ FALCON_KNIGHT, VALKYRIE, REVENANT, BONEWALKER, BONEWALKER_BOW, BAEL, MAUTHE_DOOG, TARVOS, MOGALL, GARGOYLE,
 				ENTOMBED, WIGHT, WIGHT_BOW, ELDER_BAEL, CYCLOPS, GWYLLGI, MAELDUIN, ARCH_MOGALL, GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2));
 		
+		// Leaving this empty for the time being. If it turns out to be an issue when hostile AI gets its hands on classes it doesn't know 
+		// how to deal with, we can add it back in.
+		public static Set<CharacterClass> allPlayerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList());
+		
 		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, PEGASUS_KNIGHT, MOGALL, GARGOYLE, WYVERN_LORD, WYVERN_KNIGHT, WYVERN_KNIGHT_F, FALCON_KNIGHT, ARCH_MOGALL, DEATHGOYLE));
 		
 		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, MERCENARY, MYRMIDON, SWORDMASTER, ASSASSIN, ROGUE, EIRIKA_LORD, MYRMIDON_F, MANAKETE_F, SWORDMASTER_F, ASSASSIN_F, REVENANT,
@@ -546,7 +550,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsterClasses, Boolean requireAttack, Boolean requiresRange, Boolean requiresMelee, Boolean applyRestrictions) {
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsterClasses, Boolean requireAttack, Boolean requiresRange, Boolean requiresMelee, Boolean applyRestrictions) {
 			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass, separateMonsterClasses, requiresRange, requiresMelee);
 			if (limited != null && applyRestrictions) {
 				return limited;
@@ -605,6 +609,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			}
 			
 			classList.retainAll(allValidClasses);
+			
+			if (isForEnemy) {
+				classList.removeAll(allPlayerOnlyClasses);
+			}
 			
 			return classList;
 		}
@@ -2106,13 +2114,13 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EIRIKA_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EPHRAIM_LORD:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {}, new int[] {9, 10}, new int[] {12, 13, 14});
 					break;
 				case EPHRAIM_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {}, new int[] {8, 9}, new int[] {13, 14});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {}, new int[] {9, 10}, new int[] {});
 					break;
 				case TRAINEE:
 				case TRAINEE_2:
@@ -2212,7 +2220,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 3, 9, 5, 10, 11}, new int[] {});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {7}, new int[] {5, 3, 4}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {6, 7}, new int[] {5, 3, 4}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
 					break;
 				case PALADIN_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {5, 3, 4}); // Hair also affects shield. Secondary is mane + shield crest.
@@ -2491,11 +2499,25 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public GBAFECharacter nullCharacter() {
 		return Character.NONE;
 	}
+	
+	public boolean isEnemyAtAnyPoint(int characterID) {
+		Character character = Character.valueOf(characterID);
+		switch (character) {
+		case JOSHUA:
+		case AMELIA:
+		case MARISA:
+		case CORMAG:
+		case RENNAC:
+			return true;
+		default:
+			return !allPlayableCharacters().contains(character);
+		}
+	}
 
 	public int[] affinityValues() {
-		int[] values = new int[FE8Character.Affinity.values().length];
+		int[] values = new int[FE8Character.Affinity.validAffinities().length];
 		int i = 0;
-		for (FE8Character.Affinity affinity : FE8Character.Affinity.values()) {
+		for (FE8Character.Affinity affinity : FE8Character.Affinity.validAffinities()) {
 			values[i++] = affinity.value;
 		}
 		
@@ -2550,6 +2572,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 		classes.removeAll(CharacterClass.meleeOnlyClasses);
 		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
+	
+	public Set<GBAFEClass> playerOnlyClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allPlayerOnlyClasses);
 		return classes;
 	}
 
@@ -2608,7 +2635,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.valueOf(winningClass.getID()), excludeLords, excludeThieves));
 	}
 
-	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, Map<String, Boolean> options) {
+	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isForEnemy, Map<String, Boolean> options) {
 		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);
 		if (excludeLords == null) { excludeLords = false; }
 		Boolean excludeThieves = options.get(GBAFEClassProvider.optionKeyExcludeThieves);
@@ -2628,7 +2655,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Boolean excludeSpecial = options.get(GBAFEClassProvider.optionKeyExcludeSpecial);
 		if (excludeSpecial == null) { excludeSpecial = false; }
 		
-		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), 
+		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isForEnemy,
 				excludeSource, excludeLords, excludeThieves, excludeSpecial, separateMonsters, requireAttack, requiresRange, requiresMelee, applyRestrictions));
 	}
 
@@ -3050,6 +3077,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Set<Item> kit = Item.specialClassKit(classID, rng);
 		if (kit == null) { return new HashSet<GBAFEItem>(); }
 		return new HashSet<GBAFEItem>(kit);
+	}
+	
+	public Set<GBAFEItem> playerOnlyWeapons() {
+		return new HashSet<GBAFEItem>();
 	}
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon) {

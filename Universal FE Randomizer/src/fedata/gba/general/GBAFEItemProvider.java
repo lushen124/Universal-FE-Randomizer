@@ -114,6 +114,7 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> thiefItemsToRemove();
 	public Set<GBAFEItem> specialItemsToRetain();
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng);
+	public Set<GBAFEItem> playerOnlyWeapons();
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon);
 	public String effectivenessStringForWeapon(GBAFEItem weapon, Boolean shortString);

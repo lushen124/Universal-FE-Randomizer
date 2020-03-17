@@ -73,34 +73,35 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	
 	public static PaletteColor[] coerceColors(PaletteColor[] colors, int numberOfColors) {
 		if (numberOfColors == 0) { return new PaletteColor[] {}; }
-		if (colors.length == numberOfColors) { return colors; }
-		else if (colors.length > numberOfColors) {
-			// Remove dupes first, if any.
-			List<PaletteColor> colorsArray = new ArrayList<PaletteColor>();
-			Set<String> uniqueColors = new HashSet<String>();
-			for (PaletteColor color : colors) {
-				if (uniqueColors.contains(color.toHexString())) { continue; }
-				uniqueColors.add(color.toHexString());
-				colorsArray.add(color);
-			}
-			
+		
+		// Remove dupes first, if any.
+		List<PaletteColor> colorsArray = new ArrayList<PaletteColor>();
+		Set<String> uniqueColors = new HashSet<String>();
+		for (PaletteColor color : colors) {
+			if (uniqueColors.contains(color.toHexString())) { continue; }
+			uniqueColors.add(color.toHexString());
+			colorsArray.add(color);
+		}
+					
+		if (colorsArray.size() == numberOfColors) { return colorsArray.toArray(new PaletteColor[colorsArray.size()]); }
+		else if (colorsArray.size() > numberOfColors) {
 			PaletteColor[] uniqueColorArray = colorsArray.toArray(new PaletteColor[colorsArray.size()]);
 			if (colorsArray.size() == numberOfColors) { return uniqueColorArray; }
 			else if (colorsArray.size() > numberOfColors) { return reduceColors(uniqueColorArray, numberOfColors); }
 			else { 
 				if (colorsArray.isEmpty()) { return new PaletteColor[] {}; }
 				else if (colorsArray.size() == 1) {
-					if (colors[0].brightness > 0.5) { return interpolateColors(new PaletteColor[] {colors[0], darkerColor(colors[0])}, numberOfColors); }
-					else { return interpolateColors(new PaletteColor[] {lighterColor(colors[0]), colors[0]}, numberOfColors); }
+					if (colorsArray.get(0).brightness > 0.5) { return interpolateColors(new PaletteColor[] {colorsArray.get(0), darkerColor(colorsArray.get(0))}, numberOfColors); }
+					else { return interpolateColors(new PaletteColor[] {lighterColor(colorsArray.get(0)), colorsArray.get(0)}, numberOfColors); }
 				} else { return interpolateColors(uniqueColorArray, numberOfColors); }
 			}
 		}
 		else { // (colors.length < numberOfColors) 
-			if (colors.length == 1) { 
-				if (colors[0].brightness > 0.5) { return interpolateColors(new PaletteColor[] {colors[0], darkerColor(colors[0])}, numberOfColors); }
-				else { return interpolateColors(new PaletteColor[] {lighterColor(colors[0]), colors[0]}, numberOfColors); }
+			if (colorsArray.size() == 1) { 
+				if (colorsArray.get(0).brightness > 0.5) { return interpolateColors(new PaletteColor[] {colorsArray.get(0), darkerColor(colorsArray.get(0))}, numberOfColors); }
+				else { return interpolateColors(new PaletteColor[] {lighterColor(colorsArray.get(0)), colorsArray.get(0)}, numberOfColors); }
 			}
-			else { return interpolateColors(colors, numberOfColors); }
+			else { return interpolateColors(colorsArray.toArray(new PaletteColor[colorsArray.size()]), numberOfColors); }
 		}
 	}
 	

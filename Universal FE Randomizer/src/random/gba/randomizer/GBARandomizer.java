@@ -177,6 +177,13 @@ public class GBARandomizer extends Randomizer {
 		RecordKeeper recordKeeper = initializeRecordKeeper();
 		recordKeeper.addHeaderItem("Randomizer Seed Phrase", seed);
 		
+		charData.recordCharacters(recordKeeper, true, classData, itemData, textData);
+		classData.recordClasses(recordKeeper, true, classData, textData);
+		itemData.recordWeapons(recordKeeper, true, classData, textData, handler);
+		chapterData.recordChapters(recordKeeper, true, charData, classData, itemData, textData);
+		
+		paletteData.recordReferencePalettes(recordKeeper, charData, classData, textData);
+		
 		updateStatusString("Randomizing...");
 		try { randomizeGrowthsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing growths.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.45);
@@ -252,6 +259,12 @@ public class GBARandomizer extends Randomizer {
 		classData.recordClasses(recordKeeper, false, classData, textData);
 		itemData.recordWeapons(recordKeeper, false, classData, textData, targetFileHandler);
 		chapterData.recordChapters(recordKeeper, false, charData, classData, itemData, textData);
+		
+		if (gameType == FEBase.GameType.FE8) {
+			paletteData.recordUpdatedFE8Palettes(recordKeeper, charData, classData, textData);
+		} else {
+			paletteData.recordUpdatedPalettes(recordKeeper, charData, classData, textData);
+		}
 		
 		recordKeeper.sortKeysInCategory(CharacterDataLoader.RecordKeeperCategoryKey);
 		recordKeeper.sortKeysInCategory(ClassDataLoader.RecordKeeperCategoryKey);
@@ -1046,11 +1059,6 @@ public class GBARandomizer extends Randomizer {
 				break;
 			}
 		}
-		
-		charData.recordCharacters(rk, true, classData, itemData, textData);
-		classData.recordClasses(rk, true, classData, textData);
-		itemData.recordWeapons(rk, true, classData, textData, handler);
-		chapterData.recordChapters(rk, true, charData, classData, itemData, textData);
 		
 		return rk;
 	}
