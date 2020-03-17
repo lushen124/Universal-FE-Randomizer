@@ -408,6 +408,17 @@ public class FE9ClassRandomizer {
 							army.setItem2ForUnit(unit, equipment.size() > 1 ? itemData.iidOfItem(equipment.get(1)) : null);
 							army.setItem3ForUnit(unit, equipment.size() > 2 ? itemData.iidOfItem(equipment.get(2)) : null);
 							army.setItem4ForUnit(unit, equipment.size() > 3 ? itemData.iidOfItem(equipment.get(3)) : null);
+							
+							// Make sure thieves have the ability to unlock stuff.
+							if (classData.isThiefClass(newClass)) {
+								if (army.getSkill1ForUnit(unit) == null) {
+									army.setSkill1ForUnit(unit, FE9Data.Skill.KEY_0.getSID());
+								} else if (army.getSkill2ForUnit(unit) == null) {
+									army.setSkill2ForUnit(unit, FE9Data.Skill.KEY_0.getSID());
+								} else if (army.getSkill3ForUnit(unit) == null) {
+									army.setSkill3ForUnit(unit, FE9Data.Skill.KEY_0.getSID());
+								}
+							}
 						}
 					}
 				}
