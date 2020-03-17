@@ -290,6 +290,17 @@ public class FE9ClassRandomizer {
 				}
 			}
 			
+			FE9Skill matchingOccultSkill = skillData.occultSkillForJID(targetJID);
+			if (matchingOccultSkill != null) {
+				FE9Skill skill1 = skillData.getSkillWithSID(charData.getSID1ForCharacter(character));
+				FE9Skill skill2 = skillData.getSkillWithSID(charData.getSID2ForCharacter(character));
+				FE9Skill skill3 = skillData.getSkillWithSID(charData.getSID3ForCharacter(character));
+			
+				if (skillData.isOccultSkill(skill1)) { charData.setSID1ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+				if (skillData.isOccultSkill(skill2)) { charData.setSID2ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+				if (skillData.isOccultSkill(skill3)) { charData.setSID3ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+			}
+			
 			// Update chapter data (class, weapons, and equipment)
 			for (FE9Data.Chapter chapter : FE9Data.Chapter.values())  {
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Processing Chapter: " + chapter.toString());
@@ -325,7 +336,7 @@ public class FE9ClassRandomizer {
 								equippedRanks.removeIf(rank -> (rank == WeaponRank.UNKNOWN || rank == WeaponRank.NONE));
 								
 								Map<WeaponType, WeaponRank> weaponLevelsMap = itemData.weaponLevelsForWeaponString(finalWeaponLevelString);
-								if (!classData.isPromotedClass(newClass)) { // Only promoted units can actually use Light magic.
+								if (!classData.canClassUseLightMagic(newClass)) { // Light magic keys off of staff ranks, but not every staff user uses light magic.
 									weaponLevelsMap.remove(WeaponType.LIGHT);
 								}
 								List<WeaponType> types = weaponLevelsMap.keySet().stream().sorted(WeaponType.getComparator()).collect(Collectors.toList());
@@ -339,30 +350,32 @@ public class FE9ClassRandomizer {
 								for (WeaponType type : types) {
 									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Type: " + type.toString() + " (" + weaponLevelsMap.get(type) + ")");
 								}
-								for (int i = 0; i < weaponCount; i++) {
-									WeaponType randomUsableType = types.get(rng.nextInt(types.size()));
-									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected type: " + randomUsableType.toString());
-									WeaponRank usableRank = equippedRanks.size() > i ? equippedRanks.get(i) : weaponLevelsMap.get(randomUsableType);
-									List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, randomUsableType);
-									if (replacements.isEmpty()) {
-										WeaponRank adjacentRank = usableRank.lowerRank();
-										if (adjacentRank == WeaponRank.NONE && usableRank.higherRank().isLowerThan(weaponLevelsMap.get(randomUsableType))) {
-											adjacentRank = usableRank.higherRank();
+								if (!types.isEmpty()) {
+									for (int i = 0; i < weaponCount; i++) {
+										WeaponType randomUsableType = types.get(rng.nextInt(types.size()));
+										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected type: " + randomUsableType.toString());
+										WeaponRank usableRank = equippedRanks.size() > i ? equippedRanks.get(i) : weaponLevelsMap.get(randomUsableType);
+										List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, randomUsableType);
+										if (replacements.isEmpty()) {
+											WeaponRank adjacentRank = usableRank.lowerRank();
+											if (adjacentRank == WeaponRank.NONE && usableRank.higherRank().isLowerThan(weaponLevelsMap.get(randomUsableType))) {
+												adjacentRank = usableRank.higherRank();
+											}
+											replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
 										}
-										replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
-									}
-									List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
-									if (specialWeapons != null) { replacements.addAll(specialWeapons); }
-									
-									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
-									for (FE9Item weapon : replacements) {
-										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + itemData.iidOfItem(weapon));
-									}
-									
-									if (!replacements.isEmpty()) {
-										FE9Item weapon = replacements.get(rng.nextInt(replacements.size()));
-										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected: " + itemData.iidOfItem(weapon));
-										weapons.add(weapon);
+										List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
+										if (specialWeapons != null) { replacements.addAll(specialWeapons); }
+										
+										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
+										for (FE9Item weapon : replacements) {
+											DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + itemData.iidOfItem(weapon));
+										}
+										
+										if (!replacements.isEmpty()) {
+											FE9Item weapon = replacements.get(rng.nextInt(replacements.size()));
+											DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected: " + itemData.iidOfItem(weapon));
+											weapons.add(weapon);
+										}
 									}
 								}
 							}
@@ -406,6 +419,17 @@ public class FE9ClassRandomizer {
 							army.setItem2ForUnit(unit, equipment.size() > 1 ? itemData.iidOfItem(equipment.get(1)) : null);
 							army.setItem3ForUnit(unit, equipment.size() > 2 ? itemData.iidOfItem(equipment.get(2)) : null);
 							army.setItem4ForUnit(unit, equipment.size() > 3 ? itemData.iidOfItem(equipment.get(3)) : null);
+							
+							// Make sure thieves have the ability to unlock stuff.
+							if (classData.isThiefClass(newClass)) {
+								if (army.getSkill1ForUnit(unit) == null) {
+									army.setSkill1ForUnit(unit, FE9Data.Skill.KEY_0.getSID());
+								} else if (army.getSkill2ForUnit(unit) == null) {
+									army.setSkill2ForUnit(unit, FE9Data.Skill.KEY_0.getSID());
+								} else if (army.getSkill3ForUnit(unit) == null) {
+									army.setSkill3ForUnit(unit, FE9Data.Skill.KEY_0.getSID());
+								}
+							}
 						}
 					}
 				}
@@ -701,6 +725,17 @@ public class FE9ClassRandomizer {
 				}
 			}
 			
+			FE9Skill matchingOccultSkill = skillData.occultSkillForJID(targetJID);
+			if (matchingOccultSkill != null) {
+				FE9Skill skill1 = skillData.getSkillWithSID(charData.getSID1ForCharacter(character));
+				FE9Skill skill2 = skillData.getSkillWithSID(charData.getSID2ForCharacter(character));
+				FE9Skill skill3 = skillData.getSkillWithSID(charData.getSID3ForCharacter(character));
+			
+				if (skillData.isOccultSkill(skill1)) { charData.setSID1ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+				if (skillData.isOccultSkill(skill2)) { charData.setSID2ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+				if (skillData.isOccultSkill(skill3)) { charData.setSID3ForCharacter(character, skillData.getSID(matchingOccultSkill)); }
+			}
+			
 			// Update chapter data (class, weapons, and equipment)
 			for (FE9Data.Chapter chapter : FE9Data.Chapter.values())  {
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Processing Chapter: " + chapter.toString());
@@ -736,7 +771,7 @@ public class FE9ClassRandomizer {
 								equippedRanks.removeIf(rank -> (rank == WeaponRank.UNKNOWN || rank == WeaponRank.NONE));
 								
 								Map<WeaponType, WeaponRank> weaponLevelsMap = itemData.weaponLevelsForWeaponString(finalWeaponLevelString);
-								if (!classData.isPromotedClass(newClass)) { // Only promoted units can actually use Light magic.
+								if (!classData.canClassUseLightMagic(newClass)) { // Light magic keys off of staff ranks, but not every staff user uses light magic.
 									weaponLevelsMap.remove(WeaponType.LIGHT);
 								}
 								List<WeaponType> types = weaponLevelsMap.keySet().stream().sorted(WeaponType.getComparator()).collect(Collectors.toList());
@@ -981,7 +1016,7 @@ public class FE9ClassRandomizer {
 						equippedRanks.removeIf(rank -> (rank == WeaponRank.UNKNOWN || rank == WeaponRank.NONE));
 						
 						Map<WeaponType, WeaponRank> weaponLevelsMap = itemData.weaponLevelsForWeaponString(finalWeaponLevelString);
-						if (!classData.isPromotedClass(newClass)) { // Only promoted units can actually use Light magic.
+						if (!classData.canClassUseLightMagic(newClass)) { // Light magic keys off of staff ranks, but not every staff user uses light magic.
 							weaponLevelsMap.remove(WeaponType.LIGHT);
 						}
 						List<WeaponType> types = weaponLevelsMap.keySet().stream().sorted(WeaponType.getComparator()).collect(Collectors.toList());

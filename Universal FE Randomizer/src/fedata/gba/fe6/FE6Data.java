@@ -354,6 +354,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				BERSERKER, /*MANAKETE,*/ MASTER_LORD, MYRMIDON_F, KNIGHT_F, ARCHER_F, CLERIC, MAGE_F, SHAMAN_F, TROUBADOUR, NOMAD_F, PEGASUS_KNIGHT, WYVERN_RIDER_F, THIEF_F, DANCER, HERO_F, SWORDMASTER_F, GENERAL_F, SNIPER_F,
 				BISHOP_F, SAGE_F, DRUID_F, VALKYRIE, NOMAD_TROOPER_F, FALCON_KNIGHT, WYVERN_KNIGHT_F/*, MANAKETE_F*/));
 		
+		public static Set<CharacterClass> allPlayerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARD, DANCER));
+		
 		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_KNIGHT, WYVERN_KNIGHT_F, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
 		
 		// Includes most sword locks. Yes, they gain range with magic swords, but we're not going to assume they can use magic swords.
@@ -467,7 +469,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
 			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass);
 			if (limited != null && applyRestrictions) {
 				return limited;
@@ -508,6 +510,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (requiresRange) {
 				classList.removeAll(allPacifistClasses);
 				classList.removeAll(allMeleeLockedClasses);
+			}
+			
+			if (isForEnemy) {
+				classList.removeAll(allPlayerOnlyClasses);
 			}
 			
 			classList.retainAll(allValidClasses);
@@ -899,6 +905,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				BRAVE_LANCE, JAVELIN, HORSESLAYER, KILLER_LANCE, AXEREAVER, SPEAR, POISON_AXE, BRAVE_AXE, HAND_AXE, HAMMER, KILLER_AXE, SWORDREAVER, DEVIL_AXE,
 				HALBERD, TOMAHAWK, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, AIRCALIBUR, BOLTING, PURGE, NOSFERATU, ECLIPSE, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER,
 				SILENCE, SLEEP, BERSERK, HOLY_MAIDEN));
+		
+		public static Set<Item> playerOnlySet = new HashSet<Item>(Arrays.asList(TORCH_STAFF, UNLOCK, RESTORE, HAMMERNE, BARRIER, RESCUE, WARP, TINA_STAFF));
 		
 		// These must be of lower rank than the siege tomes set, and each weapon type needs to have an equivalent analogue.
 		public static Set<Item> siegeReplacementSet = new HashSet<Item>(Arrays.asList(NOSFERATU, DIVINE, ELFIRE));
@@ -1818,11 +1826,31 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public GBAFECharacter nullCharacter() {
 		return Character.NONE;
 	}
+	
+	public boolean isEnemyAtAnyPoint(int characterID) {
+		Character character = Character.valueOf(characterID);
+		switch (character) {
+		case RUTGER:
+		case FIR:
+		case SHIN:
+		case GONZALES:
+		case KLEIN:
+		case THITO:
+		case CASS:
+		case PERCIVAL:
+		case GARET:
+		case HUGH:
+		case ZEISS:
+			return true;
+		default:
+			return !allPlayableCharacters().contains(character);
+		}
+	}
 
 	public int[] affinityValues() {
-		int[] values = new int[FE6Character.Affinity.values().length];
+		int[] values = new int[FE6Character.Affinity.validAffinities().length];
 		int i = 0;
-		for (FE6Character.Affinity affinity : FE6Character.Affinity.values()) {
+		for (FE6Character.Affinity affinity : FE6Character.Affinity.validAffinities()) {
 			values[i++] = affinity.value;
 		}
 		
@@ -1877,6 +1905,11 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 		classes.removeAll(CharacterClass.meleeOnlyClasses);
 		classes.removeAll(CharacterClass.allPacifistClasses);
+		return classes;
+	}
+	
+	public Set<GBAFEClass> playerOnlyClasses() {
+		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allPlayerOnlyClasses);
 		return classes;
 	}
 
@@ -1935,7 +1968,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.valueOf(winningClass.getID()), excludeLords, excludeThieves));
 	}
 
-	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, Map<String, Boolean> options) {
+	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isForEnemy, Map<String, Boolean> options) {
 		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);
 		if (excludeLords == null) { excludeLords = false; }
 		Boolean excludeThieves = options.get(GBAFEClassProvider.optionKeyExcludeThieves);
@@ -1951,7 +1984,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Boolean excludeSpecial = options.get(GBAFEClassProvider.optionKeyExcludeSpecial);
 		if (excludeSpecial == null) { excludeSpecial = false; }
 		
-		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), 
+		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isForEnemy,
 				excludeSource, excludeLords, excludeThieves, excludeSpecial, requireAttack, requiresRange, applyRestrictions));
 	}
 	
@@ -2312,6 +2345,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEItem>(kit);
 	}
 	
+	public Set<GBAFEItem> playerOnlyWeapons() {
+		return new HashSet<GBAFEItem>(Item.playerOnlySet);
+	}
+
 	public String statBoostStringForWeapon(GBAFEItem weapon) {
 		if (weapon == Item.DURANDAL) { return "+5 Strength"; }
 		if (weapon == Item.BINDING_BLADE) { return "+5 Defense, Resistance"; }

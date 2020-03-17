@@ -208,7 +208,7 @@ public class FE9ClassesView extends Composite {
 		minionChanceLabel.setLayoutData(labelData);
 		
 		forceDifferent = new Button(container, SWT.CHECK);
-		forceDifferent.setText("Force Class Chance");
+		forceDifferent.setText("Force Class Change");
 		forceDifferent.setToolTipText("Ensures that no character will remain the same class if randomized.");
 		forceDifferent.setEnabled(false);
 		forceDifferent.setSelection(false);

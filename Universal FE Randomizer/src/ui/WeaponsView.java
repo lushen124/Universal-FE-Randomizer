@@ -290,8 +290,8 @@ public class WeaponsView extends Composite {
 
 		durabilityRangeControl = new MinMaxControl(durabilityParamContainer, SWT.NONE, "Min Uses:", "Max Uses:");
 
-		durabilityRangeControl.getMinSpinner().setValues(15, 1, 99, 0, 1, 5);
-		durabilityRangeControl.getMaxSpinner().setValues(60, 1, 99, 0, 1, 5);
+		durabilityRangeControl.getMinSpinner().setValues(15, 1, 63, 0, 1, 5);
+		durabilityRangeControl.getMaxSpinner().setValues(60, 1, 63, 0, 1, 5);
 		durabilityRangeControl.setEnabled(false);
 
 		FormData durabilityRangeControlData = new FormData();
