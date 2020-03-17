@@ -21,7 +21,8 @@ public class OpenFileFlow implements Listener {
 	public void handleEvent(Event event) {
 		// TODO Auto-generated method stub
 		FileDialog openDialog = new FileDialog(parent, SWT.OPEN);
-		openDialog.setFilterExtensions(new String[] {"*.gba;*.smc;*.sfc;*.iso"});
+		openDialog.setFilterExtensions(new String[] {"*.gba;*.smc;*.sfc;*.iso", "*"});
+		openDialog.setFilterNames(new String[] {"*.gba, *.smc, *.sfc, *.iso", "All Files (*.*)"});
 		delegate.onSelectedFile(openDialog.open());
 	}
 
