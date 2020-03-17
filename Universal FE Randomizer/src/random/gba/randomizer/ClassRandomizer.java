@@ -313,7 +313,11 @@ public class ClassRandomizer {
 		
 		character.prepareForClassRandomization();
 		character.setClassID(targetClass.getID());
-		transferWeaponLevels(character, sourceClass, targetClass, rng);
+		if (charData.isBossCharacterID(character.getID())) {
+			transferBossWeaponLevels(character, sourceClass, targetClass);
+		} else {
+			transferWeaponLevels(character, sourceClass, targetClass, rng);
+		}
 		switch (classOptions.basesTransfer) {
 		case ADJUST_TO_MATCH:
 			applyBaseCorrectionForCharacter(character, sourceClass, targetClass);
@@ -966,6 +970,40 @@ public class ClassRandomizer {
 		}
 		
 		return false;
+	}
+	
+	private static void transferBossWeaponLevels(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass) {
+		int highestRank = 0;
+		// Start with the class defaults.
+		if (sourceClass.getSwordRank() > highestRank) { highestRank = sourceClass.getSwordRank(); }
+		if (sourceClass.getLanceRank() > highestRank) { highestRank = sourceClass.getLanceRank(); }
+		if (sourceClass.getAxeRank() > highestRank) { highestRank = sourceClass.getAxeRank(); }
+		if (sourceClass.getBowRank() > highestRank) { highestRank = sourceClass.getBowRank(); }
+		if (sourceClass.getAnimaRank() > highestRank) { highestRank = sourceClass.getAnimaRank(); }
+		if (sourceClass.getLightRank() > highestRank) { highestRank = sourceClass.getLightRank(); }
+		if (sourceClass.getDarkRank() > highestRank) { highestRank = sourceClass.getDarkRank(); }
+		if (sourceClass.getStaffRank() > highestRank) { highestRank = sourceClass.getStaffRank(); }
+		
+		// Overwrite with character values if they exist.
+		if (character.getSwordRank() > highestRank) { highestRank = character.getSwordRank(); }
+		if (character.getLanceRank() > highestRank) { highestRank = character.getLanceRank(); }
+		if (character.getAxeRank() > highestRank) { highestRank = character.getAxeRank(); }
+		if (character.getBowRank() > highestRank) { highestRank = character.getBowRank(); }
+		if (character.getAnimaRank() > highestRank) { highestRank = character.getAnimaRank(); }
+		if (character.getLightRank() > highestRank) { highestRank = character.getLightRank(); }
+		if (character.getDarkRank() > highestRank) { highestRank = character.getDarkRank(); }
+		if (character.getStaffRank() > highestRank) { highestRank = character.getStaffRank(); }
+		
+		// Bosses should just have all of their ranks set to the highest rank they normally have.
+		// This greatly simplifies weapon assignment.
+		if (targetClass.getSwordRank() > 0) { character.setSwordRank(highestRank); } else { character.setSwordRank(0); }
+		if (targetClass.getLanceRank() > 0) { character.setLanceRank(highestRank); } else { character.setLanceRank(0); }
+		if (targetClass.getAxeRank() > 0) { character.setAxeRank(highestRank); } else { character.setAxeRank(0); }
+		if (targetClass.getBowRank() > 0) { character.setBowRank(highestRank); } else { character.setBowRank(0); }
+		if (targetClass.getAnimaRank() > 0) { character.setAnimaRank(highestRank); } else { character.setAnimaRank(0); }
+		if (targetClass.getLightRank() > 0) { character.setLightRank(highestRank); } else { character.setLightRank(0); }
+		if (targetClass.getDarkRank() > 0) { character.setDarkRank(highestRank); } else { character.setDarkRank(0); }
+		if (targetClass.getStaffRank() > 0) { character.setStaffRank(highestRank); } else { character.setStaffRank(0); }
 	}
 	
 	private static void transferWeaponLevels(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Random rng) {
