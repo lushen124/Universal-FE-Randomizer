@@ -159,20 +159,6 @@ public class FE9EnemyBuffer {
 		}
 		
 		chapterData.commitChanges();
-		// Before we upgrade all class's base weapon levels to S, we need to explicitly write weapon ranks for all 
-		// playable characters so that they don't inherit the inflated weapon levels.
-		for (FE9Character character : charData.allPlayableCharacters()) {
-			String charWeaponLevel = charData.getWeaponLevelStringForCharacter(character);
-			String classWeaponLevel = classData.getWeaponLevelsForClass(classData.classWithID(charData.getJIDForCharacter(character)));
-			String definedWeaponLevel = explicitlyDefinedWeaponLevelString(charWeaponLevel, classWeaponLevel);
-			charData.setWeaponLevelStringForCharacter(character, definedWeaponLevel);
-		}
-		
-		for (FE9Class charClass : classData.allValidClasses()) {
-			String weaponLevelString = classData.getWeaponLevelsForClass(charClass);
-			classData.setWeaponLevelsForClass(charClass, sRankWeaponLevel(weaponLevelString));
-		}
-		classData.commit();
 	}
 	
 	public static void improveBossWeapons(int chance, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, FE9ItemDataLoader itemData, 
