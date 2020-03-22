@@ -28,6 +28,7 @@ import fedata.general.FEBase.GameType;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
+import io.UPSPatcherStatusListener;
 import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
@@ -47,6 +48,7 @@ import ui.model.WeaponOptions;
 import ui.model.EnemyOptions.BossStatMode;
 import ui.model.ItemAssignmentOptions.ShopAdjustment;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
+import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.FreeSpaceManager;
@@ -141,11 +143,18 @@ public class GBARandomizer extends Randomizer {
 				updateProgress(0.05);
 				
 				tempPath = new String(targetPath).concat(".tmp");
-				Boolean success = UPSPatcher.applyUPSPatch("FE6-TLRedux-v1.0.ups", sourcePath, tempPath, null);
-				if (!success) {
-					notifyError("Failed to apply translation patch.");
+				
+				try {
+					Boolean success = UPSPatcher.applyUPSPatch("FE6-TLRedux-v1.0.ups", sourcePath, tempPath, null);
+					if (!success) {
+						notifyError("Failed to apply translation patch.");
+						return;
+					}
+				} catch (Exception e) {
+					notifyError("Encountered error while applying patch.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList())));
 					return;
 				}
+				
 				try {
 					handler = new FileHandler(tempPath);
 				} catch (IOException e1) {

@@ -275,14 +275,65 @@ public class FE9ClassDataLoader {
 		return fe8databin.stringForPointer(charClass.getSkill1Pointer());
 	}
 	
+	public void setSID1ForClass(FE9Class charClass, String sid) {
+		if (charClass == null) { return; }
+		if (sid == null) {
+			charClass.setSkill1Pointer(0);
+			return;
+		}
+		
+		Long pointer = fe8databin.pointerForString(sid);
+		if (pointer == null) {
+			fe8databin.addString(sid);
+			fe8databin.commitAdditions();
+			pointer = fe8databin.pointerForString(sid);
+		}
+		
+		charClass.setSkill1Pointer(pointer);
+	}
+	
 	public String getSID2ForClass(FE9Class charClass) {
 		if (charClass == null) { return null; }
 		return fe8databin.stringForPointer(charClass.getSkill2Pointer());
 	}
 	
+	public void setSID2ForClass(FE9Class charClass, String sid) {
+		if (charClass == null) { return; }
+		if (sid == null) {
+			charClass.setSkill2Pointer(0);
+			return;
+		}
+		
+		Long pointer = fe8databin.pointerForString(sid);
+		if (pointer == null) {
+			fe8databin.addString(sid);
+			fe8databin.commitAdditions();
+			pointer = fe8databin.pointerForString(sid);
+		}
+		
+		charClass.setSkill2Pointer(pointer);
+	}
+	
 	public String getSID3ForClass(FE9Class charClass) {
 		if (charClass == null) { return null; }
 		return fe8databin.stringForPointer(charClass.getSkill3Pointer());
+	}
+	
+	public void setSID3ForClass(FE9Class charClass, String sid) {
+		if (charClass == null) { return; }
+		if (sid == null) {
+			charClass.setSkill3Pointer(0);
+			return;
+		}
+		
+		Long pointer = fe8databin.pointerForString(sid);
+		if (pointer == null) {
+			fe8databin.addString(sid);
+			fe8databin.commitAdditions();
+			pointer = fe8databin.pointerForString(sid);
+		}
+		
+		charClass.setSkill3Pointer(pointer);
 	}
 	
 	public String getWeaponLevelsForClass(FE9Class charClass) {

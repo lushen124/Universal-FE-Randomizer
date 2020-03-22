@@ -106,6 +106,14 @@ public class FE9ChapterArmy {
 		unit.setClassIDPointer(disposHandler.pointerForString(jid));
 	}
 	
+	public int getStartingLevelForUnit(FE9ChapterUnit unit) {
+		return unit.getStartingLevel();
+	}
+	
+	public void setStartingLevelForUnit(FE9ChapterUnit unit, int level) {
+		unit.setStartingLevel(level);
+	}
+	
 	public String getWeapon1ForUnit(FE9ChapterUnit unit) {
 		return disposHandler.stringForPointer(unit.getWeapon1Pointer());
 	}

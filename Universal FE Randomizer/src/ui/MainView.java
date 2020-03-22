@@ -8,9 +8,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -29,6 +33,9 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import application.Main;
@@ -62,6 +69,7 @@ import ui.general.ModalButtonListener;
 import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
 import ui.model.FE9OtherCharacterOptions;
+import util.DebugListener;
 import util.DebugPrinter;
 import util.DiffCompiler;
 import util.LZ77;
@@ -81,6 +89,9 @@ import util.recordkeeper.RecordKeeper;
 public class MainView implements FileFlowDelegate {
 	
 	public Shell mainShell;
+	
+	private Shell consoleShell;
+	private Table consoleLog;
 	
 	private ScrolledComposite scrollable;
 	private Composite container;
@@ -156,6 +167,15 @@ public class MainView implements FileFlowDelegate {
 		 
 		 /* Open shell window */
 		  mainShell.open();
+		  
+		  mainDisplay.addFilter(SWT.KeyDown, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				if (((event.stateMask & SWT.CTRL) != 0) && ((event.stateMask & SWT.SHIFT) != 0) && (event.keyCode == 'c')) {
+					openConsole();
+				}
+			}
+		  });
 	}
 	
 	private void resize() {
@@ -281,6 +301,79 @@ public class MainView implements FileFlowDelegate {
 		buttonData.top = new FormAttachment(field, 0, SWT.CENTER);
 		buttonData.width = 100;
 		button.setLayoutData(buttonData);
+	}
+	
+	private void openConsole() {
+		Display mainDisplay = Display.getDefault();
+		consoleShell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.MAX);
+		consoleShell.setText("Debug Console");
+		consoleShell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
+		setupConsoleShell();
+		consoleShell.open();
+		
+		consoleShell.addShellListener(new ShellListener() {
+			
+			@Override
+			public void shellIconified(ShellEvent e) {
+			}
+			
+			@Override
+			public void shellDeiconified(ShellEvent e) {
+			}
+			
+			@Override
+			public void shellDeactivated(ShellEvent e) {
+			}
+			
+			@Override
+			public void shellClosed(ShellEvent e) {
+				DebugPrinter.unregisterListener("consoleLog");
+			}
+			
+			@Override
+			public void shellActivated(ShellEvent e) {
+			}
+		});
+	}
+	
+	private void setupConsoleShell() {
+		consoleShell.setLayout(new FillLayout());
+		consoleShell.setSize(400, 400);
+		
+		consoleLog = new Table(consoleShell, SWT.BORDER | SWT.FULL_SELECTION);
+		consoleLog.setHeaderVisible(true);
+		consoleLog.setLinesVisible(true);
+		consoleLog.setSize(400, 400);
+		
+		TableColumn categoryColumn = new TableColumn(consoleLog, SWT.NONE);
+		categoryColumn.setText("Namespace");
+		categoryColumn.pack();
+		TableColumn messageColumn = new TableColumn(consoleLog, SWT.NONE);
+		messageColumn.setText("Message");
+		
+		consoleShell.addControlListener(new ControlListener() {
+			@Override
+			public void controlResized(ControlEvent e) {
+				consoleLog.setSize(consoleShell.getSize());
+				messageColumn.setWidth(consoleLog.getSize().x - categoryColumn.getWidth());
+			}
+			@Override
+			public void controlMoved(ControlEvent e) {	
+			}
+		});
+		
+		DebugPrinter.registerListener(new DebugListener() {
+			@Override
+			public void logMessage(String category, String message) {
+				try {
+					TableItem newItem = new TableItem(consoleLog, SWT.NONE);
+					newItem.setText(0, category);
+					newItem.setText(1, message);
+				} catch (SWTException e) {
+					e.printStackTrace();
+				}
+			}
+		}, "consoleLog");
 	}
 	
 	private void setupInfoLayout() {

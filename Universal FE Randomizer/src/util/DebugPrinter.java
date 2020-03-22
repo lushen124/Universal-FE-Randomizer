@@ -1,6 +1,13 @@
 package util;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.swt.widgets.Display;
+
 public class DebugPrinter {
+	
+	private static Map<String, DebugListener> listeners = new HashMap<String, DebugListener>();
 	
 	public enum Key {
 		MAIN("Main"),
@@ -26,6 +33,24 @@ public class DebugPrinter {
 		if (shouldPrintLabel(label)) {
 			System.out.println("[" + label.label + "] " + output);
 		}
+		
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				for (DebugListener listener : listeners.values()) {
+					listener.logMessage(label.label, output);
+				}	
+			}
+		});
+	}
+	
+	public static void registerListener(DebugListener listener, String key) {
+		listeners.put(key, listener);
+		listener.logMessage("DebugPrinter", "Registered Listener. Ready to send messages.");
+	}
+	
+	public static void unregisterListener(String key) {
+		listeners.remove(key);
 	}
 	
 	private static Boolean shouldPrintLabel(Key label) {
