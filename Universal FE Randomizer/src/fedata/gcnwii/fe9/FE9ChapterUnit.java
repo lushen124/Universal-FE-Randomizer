@@ -216,6 +216,15 @@ public class FE9ChapterUnit implements FEModifiableData {
 		return data[0x5F];
 	}
 	
+	public int getStartingLevel() {
+		return data[0x60];
+	}
+	
+	public void setStartingLevel(int level) {
+		data[0x60] = (byte)(level & 0xFF);
+		wasModified = true;
+	}
+	
 	private long readPointerAtOffset(int offset) {
 		byte[] ptr = Arrays.copyOfRange(data, offset, offset + 4);
 		if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(ptr, new byte[] {0, 0, 0, 0})) { return 0; }

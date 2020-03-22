@@ -228,7 +228,7 @@ public class FE9Randomizer extends Randomizer {
 		// Remove damage immunity from Ch. 27 BK and Ashnard.
 		// Unfortunately, this isn't a skill that is on the characters.
 		// The only thing we know is that weapons with the trait 'weakA' seem to be capable of bypassing this.
-		// So outside of removing what is giving them damage immunity, we allow all weapons to bypass it.
+		// So outside of removing what is giving them damage immunity, we allow some weapons to bypass it.
 		List<FE9Item> bypassBlessedArmorWeaponList = new ArrayList<FE9Item>();
 		bypassBlessedArmorWeaponList.addAll(itemData.allWeaponsOfRank(WeaponRank.S));
 		bypassBlessedArmorWeaponList.addAll(itemData.allWeaponsOfRank(WeaponRank.A));
@@ -247,6 +247,64 @@ public class FE9Randomizer extends Randomizer {
 			}
 			String[] traitsArray = traits.toArray(new String[traits.size()]);
 			itemData.setItemTraits(weapon, traitsArray);
+		}
+		
+		// Update Regal Sword and Ragnell's weapon lock.
+		// The lock normally is tied directly to the protagonist by character, which means if Ike doesn't use swords
+		// those two weapons are useless. Change it to the class instead.
+		// Thankfully, we can cheat by recycling Rolf's lock, which is locked to a skill.
+		// FE9 does the same check as GBA where the type of weapon still matters even if the lock is for you.
+		FE9Item regalSword = itemData.itemWithIID(FE9Data.Item.REGAL_SWORD.getIID());
+		String[] weaponTraits = itemData.getItemTraits(regalSword);
+		// The lock is in the first slot.
+		weaponTraits[0] = FE9Data.Item.WeaponTraits.ROLF_LOCK.getTraitString();
+		itemData.setItemTraits(regalSword, weaponTraits);
+		
+		FE9Item ragnell = itemData.itemWithIID(FE9Data.Item.RAGNELL.getIID());
+		weaponTraits = itemData.getItemTraits(ragnell);
+		// Also in the first slot.
+		weaponTraits[0] = FE9Data.Item.WeaponTraits.ROLF_LOCK.getTraitString();
+		itemData.setItemTraits(ragnell, weaponTraits);
+		
+		FE9Class ranger = classData.classWithID(FE9Data.CharacterClass.RANGER.getJID());
+		FE9Class lord = classData.classWithID(FE9Data.CharacterClass.LORD.getJID());
+		
+		// Give Ranger and Lord the Rolf Lock skill.
+		// Slot 1 is actually the same slot as the skill that forces Ike's promotion in Ch. 17, so this kills two birds with one stone.
+		classData.setSID1ForClass(ranger, FE9Data.Skill.EQUIP_A.getSID());
+		// Slot 1 for lord is SID_HIGHER, so we'll put this in slot 2.
+		classData.setSID2ForClass(lord, FE9Data.Skill.EQUIP_A.getSID());
+		
+		// Update the promotion lock on the Ranger class to only be for Ike and not the class.
+		// Ranger has a special skill that prevents it from promoting naturally.
+		// Remove it from Ranger (so anybody else that becomes a Ranger can promote)
+		// and add it specifically to Ike (so Ike will always promote in the same chapter no matter his class).
+		// We already removed it from Ranger in the above fix for Regal Sword and Ragnell, so we just need to give it to Ike.
+		FE9Character ike = charData.characterWithID(FE9Data.Character.IKE.getPID());
+		// His first slot is always SID_HERO, which gives him seizing capabilities among other things.
+		if (charData.getSID2ForCharacter(ike) == null) {
+			charData.setSID2ForCharacter(ike, FE9Data.Skill.EVENT_CC.getSID());
+		} else if (charData.getSID3ForCharacter(ike) == null) {
+			charData.setSID3ForCharacter(ike, FE9Data.Skill.EVENT_CC.getSID());
+		} else {
+			// Try giving it to him in the prologue script.
+			List<FE9ChapterArmy> prologueArmies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
+			for (FE9ChapterArmy army : prologueArmies) {
+				for (String unitID : army.getAllUnitIDs()) {
+					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+					if (army.getPIDForUnit(unit).equals(FE9Data.Character.IKE.getPID())) {
+						if (army.getSkill1ForUnit(unit) == null) {
+							army.setSkill1ForUnit(unit, FE9Data.Skill.EVENT_CC.getSID());
+						} else if (army.getSkill2ForUnit(unit) == null) {
+							army.setSkill2ForUnit(unit, FE9Data.Skill.EVENT_CC.getSID());
+						} else {
+							// We have nowhere else to put this. Even if slot 3 is used, force it here.
+							army.setSkill3ForUnit(unit, FE9Data.Skill.EVENT_CC.getSID());
+						}
+					}
+				}
+				army.commitChanges();
+			}
 		}
 	}
 	

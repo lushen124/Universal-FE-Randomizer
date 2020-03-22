@@ -94,6 +94,12 @@ public class FE9Class implements FEModifiableData {
 		return cachedSkill1Pointer;
 	}
 	
+	public void setSkill1Pointer(long ptr) {
+		cachedSkill1Pointer = ptr;
+		writePointerToOffset(ptr, 0x18);
+		wasModified = true;
+	}
+	
 	public long getSkill2Pointer() {
 		if (cachedSkill2Pointer == null) {
 			cachedSkill2Pointer = readPointerAtOffset(0x1C);
@@ -101,11 +107,23 @@ public class FE9Class implements FEModifiableData {
 		return cachedSkill2Pointer;
 	}
 	
+	public void setSkill2Pointer(long ptr) {
+		cachedSkill2Pointer = ptr;
+		writePointerToOffset(ptr, 0x1C);
+		wasModified = true;
+	}
+	
 	public long getSkill3Pointer() {
 		if (cachedSkill3Pointer == null) {
 			cachedSkill3Pointer = readPointerAtOffset(0x20);
 		}
 		return cachedSkill3Pointer;
+	}
+	
+	public void setSkill3Pointer(long ptr) {
+		cachedSkill3Pointer = ptr;
+		writePointerToOffset(ptr, 0x20);
+		wasModified = true;
 	}
 	
 	public long getRacePointer() {

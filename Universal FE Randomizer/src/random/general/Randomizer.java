@@ -2,6 +2,7 @@ package random.general;
 
 import org.eclipse.swt.widgets.Display;
 
+import util.DebugPrinter;
 import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.RecordKeeper;
 
@@ -14,6 +15,7 @@ public abstract class Randomizer extends Thread {
 	}
 	
 	protected void updateStatusString(String string) {
+		DebugPrinter.log(DebugPrinter.Key.MAIN, string);
 		if (listener != null) {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override
@@ -36,6 +38,7 @@ public abstract class Randomizer extends Thread {
 	}
 	
 	protected void notifyError(String errorString) {
+		DebugPrinter.log(DebugPrinter.Key.MAIN, errorString);
 		if (listener != null) {
 			Display.getDefault().asyncExec(new Runnable() {
 				@Override

@@ -116,15 +116,21 @@ public class FE4Randomizer extends Randomizer {
 			tempPath = new String(targetPath).concat(".tmp");
 			
 			Boolean success = false;
-			if (isHeadered) {
-				success = UPSPatcher.applyUPSPatch("FE4-Naga-Headered.ups", sourcePath, tempPath, null);
-			} else {
-				success = UPSPatcher.applyUPSPatch("FE4-Naga-Unheadered.ups", sourcePath, tempPath, null);
-			}
-			if (!success) {
-				notifyError("Failed to apply translation patch.");
+			try {
+				if (isHeadered) {
+					success = UPSPatcher.applyUPSPatch("FE4-Naga-Headered.ups", sourcePath, tempPath, null);
+				} else {
+					success = UPSPatcher.applyUPSPatch("FE4-Naga-Unheadered.ups", sourcePath, tempPath, null);
+				}
+				if (!success) {
+					notifyError("Failed to apply translation patch.");
+					return;
+				}
+			} catch (Exception e) {
+				notifyError("Encountered error while applying patch.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList())));
 				return;
 			}
+			
 			try {
 				handler = new FileHandler(tempPath);
 			} catch (IOException e1) {
