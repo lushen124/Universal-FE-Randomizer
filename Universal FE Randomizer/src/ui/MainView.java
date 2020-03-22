@@ -92,6 +92,7 @@ public class MainView implements FileFlowDelegate {
 	
 	private Shell consoleShell;
 	private Table consoleLog;
+	private boolean consoleShellOpened;
 	
 	private ScrolledComposite scrollable;
 	private Composite container;
@@ -171,7 +172,7 @@ public class MainView implements FileFlowDelegate {
 		  mainDisplay.addFilter(SWT.KeyDown, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				if (((event.stateMask & SWT.CTRL) != 0) && ((event.stateMask & SWT.SHIFT) != 0) && (event.keyCode == 'c')) {
+				if (((event.stateMask & SWT.CTRL) != 0) && ((event.stateMask & SWT.SHIFT) != 0) && (event.keyCode == 'c') && !consoleShellOpened) {
 					openConsole();
 				}
 			}
@@ -310,6 +311,7 @@ public class MainView implements FileFlowDelegate {
 		consoleShell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
 		setupConsoleShell();
 		consoleShell.open();
+		consoleShellOpened = true;
 		
 		consoleShell.addShellListener(new ShellListener() {
 			
@@ -328,6 +330,7 @@ public class MainView implements FileFlowDelegate {
 			@Override
 			public void shellClosed(ShellEvent e) {
 				DebugPrinter.unregisterListener("consoleLog");
+				consoleShellOpened = false;
 			}
 			
 			@Override
