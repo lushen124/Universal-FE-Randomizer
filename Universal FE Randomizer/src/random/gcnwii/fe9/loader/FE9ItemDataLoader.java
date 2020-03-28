@@ -50,12 +50,12 @@ public class FE9ItemDataLoader {
 		
 		public boolean isHigherThan(WeaponRank rank) {
 			switch (this) {
-			case E: return rank != E;
-			case D: return rank != E && rank != D;
-			case C: return rank != E && rank != D && rank != C;
-			case B: return rank == A || rank == S;
-			case A: return rank == S;
-			case S: return false;
+			case E: return rank == UNKNOWN;
+			case D: return rank == UNKNOWN || rank == E;
+			case C: return rank == UNKNOWN || rank == E || rank == D;
+			case B: return rank == UNKNOWN || rank == E || rank == D || rank == C;
+			case A: return rank == UNKNOWN || rank == E || rank == D || rank == C || rank == B;
+			case S: return rank == UNKNOWN || rank == E || rank == D || rank == C || rank == B || rank == A;
 			default: return false;
 			}
 		}

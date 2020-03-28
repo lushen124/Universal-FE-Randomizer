@@ -364,7 +364,17 @@ public class FE9ClassRandomizer {
 											replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
 										}
 										List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
-										if (specialWeapons != null) { replacements.addAll(specialWeapons); }
+										if (specialWeapons != null) { 
+											replacements.addAll(specialWeapons.stream().filter(item -> {
+												boolean isCorrectRank =!itemData.weaponRankForItem(item).isHigherThan(usableRank);
+												boolean isCorrectType = itemData.weaponTypeForItem(item) == randomUsableType;
+												if (isCorrectRank && isCorrectType) {
+													DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Added weapon " + itemData.iidOfItem(item) + " as special class weapon.");
+													return true;
+												}
+												return false;
+											}).collect(Collectors.toList()));
+										}
 										
 										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
 										for (FE9Item weapon : replacements) {
@@ -797,8 +807,8 @@ public class FE9ClassRandomizer {
 										}
 										replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
 									}
-									List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
-									if (specialWeapons != null) { replacements.addAll(specialWeapons); }
+//									List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
+//									if (specialWeapons != null) { replacements.addAll(specialWeapons); }
 									
 									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
 									for (FE9Item weapon : replacements) {
@@ -1042,8 +1052,8 @@ public class FE9ClassRandomizer {
 								}
 								replacements = itemData.weaponsOfRankAndType(adjacentRank, randomUsableType);
 							}
-							List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
-							if (specialWeapons != null) { replacements.addAll(specialWeapons); }
+//							List<FE9Item> specialWeapons = itemData.specialWeaponsForJID(targetJID);
+//							if (specialWeapons != null) { replacements.addAll(specialWeapons); }
 							
 							DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible replacements: ");
 							for (FE9Item weapon : replacements) {

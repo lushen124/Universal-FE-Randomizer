@@ -166,9 +166,12 @@ public class FE9CharacterDataLoader {
 		// These characters are specially referenced by chapter scripts, so we need to be careful about changing them.
 		if (isMinionCharacter(characterWithID(pid))) {
 			if (pid.contains("_DAYNE")) {
+				// Chapter 4 has some scripted soldiers that appear.
 				if (pid.matches("PID_DAYNE_[A-Z]{3}_[0-9]+")) { return true; }
 				return false;
 			} else {
+				// Chapter 10's watches are a little special.
+				if (pid.startsWith("PID_D_ZAKO_11_")) { return true; }
 				return false;
 			}
 		}
@@ -283,7 +286,9 @@ public class FE9CharacterDataLoader {
 		
 		// For some reason, giving Mist any AID for unpromoted causes her to render on the map
 		// as a shadow Ike. There may be other characters that share this trait.
-		if (getPIDForCharacter(character).equals(FE9Data.Character.MIST.getPID())) { return; }
+		// Nephenee also shares this trait.
+		if (getPIDForCharacter(character).equals(FE9Data.Character.MIST.getPID()) ||
+				getPIDForCharacter(character).equals(FE9Data.Character.NEPHENEE.getPID())) { return; }
 		
 		Long aidAddress = fe8databin.pointerForString(aid);
 		if (aidAddress == null) {
@@ -308,7 +313,8 @@ public class FE9CharacterDataLoader {
 		}
 		
 		// This was necessary for Mist's unpromoted model. It's probably true here too.
-		if (getPIDForCharacter(character).equals(FE9Data.Character.MIST.getPID())) { return; }
+		if (getPIDForCharacter(character).equals(FE9Data.Character.MIST.getPID()) ||
+				getPIDForCharacter(character).equals(FE9Data.Character.NEPHENEE.getPID())) { return; }
 		
 		Long aidAddress = fe8databin.pointerForString(aid);
 		if (aidAddress == null) {

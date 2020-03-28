@@ -482,7 +482,7 @@ public class FE9Data {
 				case HALBERDIER: return "AID_SOLDIER2";
 				case HALBERDIER_F: return "AID_SOLDIER2F";
 				case SWORDMASTER: return "AID_SWORDER2";
-				case SWORDMASTER_F: return "AID_SWORDERF2";
+				case SWORDMASTER_F: return "AID_SWORDER2F_LU"; // Lucia is the default swordmaster battle animation.
 				case ASSASSIN: return "AID_THIEF2";
 				case WYVERN_LORD: case WYVERN_LORD_F: return "AID_DRAGON2";
 				case VALKYRIE: return "AID_CLERIC2";
