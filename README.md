@@ -1,7 +1,6 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-# Latest Version: 0.9.0
-I hesitated on releasing this as 0.9.0, since it's not quite up to my quality standards yet, but I've hit a bit of a roadblock in terms of figuring things out, and between needing to test extensively as well as make changes to the code, I've decided to essentially outsource the testing to users and work on figuring out how to decompile the chapter scripts, because I suspect a lot of what I'm looking for is hiding there. The good news is a lot of things actually do work (or they should work at least). The bad news is that there's quite a few caveats with most of those options, and I haven't had the time to play through a complete randomized game yet, but that's where you all come in. I'm sure there are several issues that I have yet to encounter, but I would love to hear feedback on how a randomized FE9 works beyond Chapter 10.
+# Latest Version: 0.9.1
 
 ## Introduction
 
