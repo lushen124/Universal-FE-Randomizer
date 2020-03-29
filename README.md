@@ -29,27 +29,17 @@ FE7 and FE8 currently require US versions of those games. Like above, a cheksum 
 FE9 requires the US version of the ISO. You do not need to extract any part of the ISO as the randomizer is capable of reading the file system directly and modifying and rebuilding the ISO. Small caveat: I've run into out of memory issues when randomizing FE9 with a 32-bit JRE. If you are on a 32-bit JRE, you will receive a warning when loading FE9 that recommends you update to a 64-bit JRE. Even if I optimize FE9 to work on a 32-bit JRE, FE10 will almost certainly bust the memory limit.
 
 ## Installation
-Executables are found in the above executables folder and are separated by platform. The raw JAR file is available if you want to run it directly, but MacOS and Windows users also have the option of using an executable that generally makes things easier to launch.
+The list of releases can always be found here: https://github.com/lushen124/Universal-FE-Randomizer/releases.
 
 ### Windows
-Raw JAR:
-https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20Windows.jar
-https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20Windows%20(x86).jar
-
-Executable:
-https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Windows/Yune.exe
-https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/Windows/Yune%20(x86).exe
 
 **Requirements**: JRE >= 1.8.0. I was thinking about bundling this into the executable, but that's just a massive waste of space, and most of you probably can get JRE relatively easily. And if you can't, here you to: http://www.oracle.com/technetwork/java/javase/downloads/index.html. I've only tested this with Windows 10, but I don't see why older versions of Windows would be excluded so long as you have JRE.
 
-Important note: There are two versions of the JAR and binary. **The one you need depends on the version of JRE you have installed and NOT the version of Windows you have installed.** That is to say, you can have a 64-bit version of Windows but still be running an x86 (32-bit) version of JRE. I recommend you update your JRE to match the architecture for your Windows installation, but if you want to retain your x86 JRE, use the x86 version. Chances are, if you see a splash screen and then nothing happens, you have the wrong version.
+Important note: There are two versions of the JAR and binary. **The one you need depends on the version of JRE you have installed and NOT the version of Windows you have installed.** That is to say, you can have a 64-bit version of Windows but still be running an x86 (32-bit) version of JRE. I recommend you update your JRE to match the architecture for your Windows installation, but if you want to retain your x86 JRE, use the x86 version. Chances are, if you see a splash screen and then nothing happens, you have the wrong version. Also, if you're trying to randomize FE9, a 64-bit JRE is required, as there isn't enough memory to randomize FE9 with 32-bit JREs.
 
 ### MacOS
-Raw JAR:
-https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20MacOS.jar
 
-App Bundle:
-https://github.com/lushen124/Universal-FE-Randomizer/tree/master/Executables/MacOS - The ZIP file will extract an actual bundle that can be double clicked and run like usual (after any security settings that may try to stop you). If you don't know, MacOS apps are actually a folder in disguise, which is why Github shows it like one. If, for some reason, you want to run the raw JAR, you need to specify the `-XstartOnFirstThread` flag. For example:
+The ZIP file will extract an actual bundle that can be double clicked and run like usual (after any security settings that may try to stop you). If you don't know, MacOS apps are actually a folder in disguise, which is why Github shows it like one. If, for some reason, you want to run the raw JAR, you need to specify the `-XstartOnFirstThread` flag. For example:
 
 ```
 java -jar -XstartOnFirstThread Yune\ -\ MacOS.jar
@@ -58,8 +48,6 @@ java -jar -XstartOnFirstThread Yune\ -\ MacOS.jar
 **Requirements**: Like Windows, you need a JRE to run it, though most versions of MacOS have one included that should be sufficient. If it doesn't work, go ahead and grab the newest one at http://www.oracle.com/technetwork/java/javase/downloads/index.html. Tested with OS X 10.13 (High Sierra). Unlike Windows, if you have any Mac from the last 8 years, you should have a 64-bit machine (Mac OS X 10.7 Lion and above).
 
 ### GTK
-Raw JAR:
-https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Executables/JAR/Yune%20-%20GTK(x86_64).jar
 
 I don't actually know that much about Linux, but this should work on any distro that supports GTK, which I believe is most of them. I also assume that if you are running Linux, you also know your way around things and you don't need a wrapper for a JAR file since most of you are probably using command line, so you can figure it out. For those that are running Linux but don't know how to run this, I can only say how I run it for testing, which is to (like the other OSes) install JRE with:
 
@@ -84,6 +72,30 @@ Also, you may need to `chmod` it so that it's runnable. That can be done with
 ```
 chmod 777 Yune\ -\ GTK(x86_64).jar
 ```
+
+# Usage
+
+Usage is pretty straightforward. Once you've downloaded the app for your platform and you launch it, you should be greeted with a relatively unassuming box with a single button.
+
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Startup.png)
+
+Once you click on "Browse", you'll be taken to a File Open dialog that allows you to select a file. Yune looks for files with the common extensions for the supported games. That is, SFC and SMC for FE4, GBA for FE6, 7, 8, and ISO for FE9. If you have a different extension, you can disable the filter to show all files in the bottom right corner of the dialog window.
+
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/GameSelect.png)
+
+Once you select your file, if the file is supported (which Yune determines by checking the file's CRC-32 hash), then the main window will populate itself with the info of the ROM/ISO as well as the appropriate options for the game that was detected. Simply choose how you wish to randomize the game and click Randomize in the bottom right corner once you're ready.
+
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Options.png)
+
+Once you click on Randomize, Yune will prompt for a new file name to save as. If you choose the same filename as the original file, Yune will create a file with the same name with "(Randomized)" appended to it to avoid replacing your original file. Once you choose the name, Yune will start randomizing and show you a status bar to let you know things are working.
+
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Progress.png)
+
+Once it finishes, you'll be notified and then asked if you would like to save a changelog to let you know all of the changes made to the game. 
+
+![](https://github.com/lushen124/Universal-FE-Randomizer/blob/master/Screenshots/Finish.png)
+
+The changelog is in an HTML format and contains data about the settings you used and character, class, item, and chapter data for the game (sections depending on the game), alongside their original values and their new values. But beyond that, that's it! Launch your favorite emulator for your game and give it a spin! :)
 
 # Randomization Options
 
