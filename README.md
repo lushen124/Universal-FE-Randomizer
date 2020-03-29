@@ -1,6 +1,6 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-# Latest Version: 0.9.1
+# Latest Version: [0.9.1](https://github.com/lushen124/Universal-FE-Randomizer/releases/tag/0.9.1)
 
 ## Introduction
 
