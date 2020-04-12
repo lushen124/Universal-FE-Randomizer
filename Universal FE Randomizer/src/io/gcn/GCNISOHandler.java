@@ -211,10 +211,10 @@ public class GCNISOHandler {
 			
 			// We may not have loaded CMP files yet, so see if it's in a CMP file, and if it is, try loading it first and then trying again.
 			if (filename.contains(".cmp") && !filename.endsWith(".cmp")) {
-				// Remove everything past the last "/"
-				String cmpFilename = filename.substring(0, filename.lastIndexOf("/"));
-				if (cmpFilename.endsWith("/")) {
-					cmpFilename = cmpFilename.substring(0, cmpFilename.length() - 1);
+				// Remove path components until we get to the .cmp file.
+				String cmpFilename = filename;
+				while (!cmpFilename.endsWith(".cmp")) {
+					cmpFilename = cmpFilename.substring(0, cmpFilename.lastIndexOf("/"));
 				}
 				entry = fstLookup.get(cmpFilename.toLowerCase());
 			
@@ -237,7 +237,7 @@ public class GCNISOHandler {
 			}
 		}
 		if (entry.type == GCNFSTEntryType.FILE) {
-			if (filename.endsWith("cmp")) {
+			if (filename.endsWith(".cmp")) {
 				GCNCMPFileHandler cmpHandler = new GCNCMPFileHandler((GCNFSTFileEntry)entry, handler, this);
 				// Register all contained files as well.
 				for (String name : cmpHandler.getNames()) {
@@ -246,9 +246,12 @@ public class GCNISOHandler {
 				}
 				
 				fileHandler = cmpHandler;
-			} else if (filename.endsWith("cmb")) {
+			} else if (filename.endsWith(".cmb")) {
 				GCNCMBFileHandler cmbHandler = new GCNCMBFileHandler((GCNFSTFileEntry)entry, handler, this);
 				fileHandler = cmbHandler;
+			} else if (filename.endsWith(".m")) {
+				GCNMessageFileHandler messageHandler = new GCNMessageFileHandler((GCNFSTFileEntry)entry, handler, this);
+				fileHandler = messageHandler;
 			} else {
 				fileHandler = new GCNFileHandler((GCNFSTFileEntry)entry, handler);
 			}
@@ -341,6 +344,9 @@ public class GCNISOHandler {
 				} else if (fileHandler instanceof GCNCMBFileHandler) {
 					GCNCMBFileHandler cmbFileHandler = (GCNCMBFileHandler)fileHandler;
 					writer.write(cmbFileHandler.build());
+				} else if (fileHandler instanceof GCNMessageFileHandler) {
+					GCNMessageFileHandler messageFileHandler = (GCNMessageFileHandler)fileHandler;
+					writer.write(messageFileHandler.build());
 				} else {
 					fileHandler.setNextReadOffset(0);
 					fileHandler.beginBatchRead();
@@ -431,6 +437,9 @@ public class GCNISOHandler {
 			}
 			if (handler instanceof GCNCMBFileHandler) {
 				((GCNCMBFileHandler) handler).build();
+			}
+			if (handler instanceof GCNMessageFileHandler) {
+				((GCNMessageFileHandler) handler).build();
 			}
 			fileDataOrder.add(file);
 			if (currentDataOffset == -1) { currentDataOffset = file.fileOffset; } // Initialize the offset to the first file's offset.
