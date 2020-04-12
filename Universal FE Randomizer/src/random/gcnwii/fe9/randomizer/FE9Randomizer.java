@@ -222,6 +222,10 @@ public class FE9Randomizer extends Randomizer {
 			// The thief class actually already has too many skills to fit another in its class data. We'll have to assign these manually
 			// in the chapter unit data.
 		}
+		
+		// Give Warp a real name and description.
+		textData.setStringForIdentifier("MIID_WARP", "Warp");
+		textData.setStringForIdentifier("MH_I_WARP", "You could just play through the map properly...");
 	}
 	
 	private void makePostRandomizationAdjustments() {
