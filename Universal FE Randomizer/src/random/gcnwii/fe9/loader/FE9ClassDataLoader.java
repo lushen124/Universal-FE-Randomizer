@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import fedata.gba.fe8.FE8Data;
 import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
 import io.gcn.GCNDataFileHandler;
@@ -283,6 +282,7 @@ public class FE9ClassDataLoader {
 		}
 		
 		Long pointer = fe8databin.pointerForString(sid);
+		fe8databin.addPointerOffset(charClass.getAddressOffset() + FE9Class.ClassSkill1Offset - 0x20);
 		if (pointer == null) {
 			fe8databin.addString(sid);
 			fe8databin.commitAdditions();
@@ -305,6 +305,7 @@ public class FE9ClassDataLoader {
 		}
 		
 		Long pointer = fe8databin.pointerForString(sid);
+		fe8databin.addPointerOffset(charClass.getAddressOffset() + FE9Class.ClassSkill2Offset - 0x20);
 		if (pointer == null) {
 			fe8databin.addString(sid);
 			fe8databin.commitAdditions();
@@ -327,6 +328,7 @@ public class FE9ClassDataLoader {
 		}
 		
 		Long pointer = fe8databin.pointerForString(sid);
+		fe8databin.addPointerOffset(charClass.getAddressOffset() + FE9Class.ClassSkill3Offset - 0x20);
 		if (pointer == null) {
 			fe8databin.addString(sid);
 			fe8databin.commitAdditions();
