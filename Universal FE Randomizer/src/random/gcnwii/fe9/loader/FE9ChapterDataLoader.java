@@ -9,6 +9,7 @@ import java.util.Map;
 import fedata.gcnwii.fe9.FE9Base64;
 import fedata.gcnwii.fe9.FE9ChapterArmy;
 import fedata.gcnwii.fe9.FE9ChapterRewards;
+import fedata.gcnwii.fe9.FE9ChapterScript;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Class;
@@ -41,12 +42,18 @@ public class FE9ChapterDataLoader {
 	List<FE9ChapterRewards> allChapterRewards;
 	Map<FE9Data.Chapter, FE9ChapterRewards> rewardsByChapter;
 	
+	List<FE9ChapterScript> allChapterScripts;
+	Map<FE9Data.Chapter, FE9ChapterScript> scriptsByChapter;
+	
 	public FE9ChapterDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
 		allChapterArmies = new ArrayList<FE9ChapterArmy>();
 		armiesByChapter = new HashMap<FE9Data.Chapter, List<FE9ChapterArmy>>();
 		
 		allChapterRewards = new ArrayList<FE9ChapterRewards>();
 		rewardsByChapter = new HashMap<FE9Data.Chapter, FE9ChapterRewards>();
+		
+		allChapterScripts = new ArrayList<FE9ChapterScript>();
+		scriptsByChapter = new HashMap<FE9Data.Chapter, FE9ChapterScript>();
 		
 		for (FE9Data.Chapter chapter : FE9Data.Chapter.values()) {
 			List<FE9ChapterArmy> armyList = new ArrayList<FE9ChapterArmy>();
@@ -69,6 +76,10 @@ public class FE9ChapterDataLoader {
 				FE9ChapterRewards rewards = new FE9ChapterRewards(cmbFileHandler);
 				allChapterRewards.add(rewards);
 				rewardsByChapter.put(chapter, rewards);
+				
+				FE9ChapterScript script = new FE9ChapterScript(cmbFileHandler);
+				allChapterScripts.add(script);
+				scriptsByChapter.put(chapter, script);
 			}
 		}
 	}

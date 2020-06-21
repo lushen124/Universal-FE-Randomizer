@@ -188,6 +188,19 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 		return builder.toByteArray();
 	}
 	
+	public byte[] cmb_readBytesUpToNextTerminator(int offset) {
+		ByteArrayBuilder builder = new ByteArrayBuilder();
+		int index = offset;
+		byte currentByte = fullData[index++];
+		while (currentByte != 0) {
+			builder.appendByte(currentByte);
+			currentByte = fullData[index++];
+		}
+		
+		builder.appendByte((byte)0);
+		return builder.toByteArray();
+	}
+	
 	public void cmb_writeBytesToOffset(long offset, byte[] bytesToWrite) {
 		for (int i = 0; i < bytesToWrite.length; i++) {
 			fullData[(int)(offset + i)] = bytesToWrite[i];
@@ -207,6 +220,10 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 			currentOffset = nextOffset + 1;
 		}
 		return offsets;
+	}
+	
+	public long getScriptTableOffset() {
+		return scriptTableOffset;
 	}
 	
 	private Long advanceToNextInstance(byte[] bytesToSearch, long startingOffset) {
