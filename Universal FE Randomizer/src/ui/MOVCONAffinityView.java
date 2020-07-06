@@ -62,7 +62,7 @@ public class MOVCONAffinityView extends Composite {
 		movLimitControl = new MinMaxControl(container, SWT.NONE, "Min MOV:", "Max MOV:");
 		
 		movLimitControl.getMinSpinner().setValues(4, 1, 8, 0, 1, 1);
-		movLimitControl.getMaxSpinner().setValues(8, 4, 9, 0, 1, 1);
+		movLimitControl.getMaxSpinner().setValues(8, 4, 15, 0, 1, 1);
 		movLimitControl.setEnabled(false);
 		
 		FormData paramContainerData = new FormData();
