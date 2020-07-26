@@ -17,6 +17,7 @@ import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
+import fedata.gcnwii.fe9.FE9Data.Chapter;
 import fedata.gcnwii.fe9.FE9Item;
 import io.FileHandler;
 import io.FileWriter;
@@ -159,7 +160,7 @@ public class FE9Randomizer extends Randomizer {
 			updateStatus(0.35, "Loading Chapter Data...");
 			chapterData = new FE9ChapterDataLoader(handler, textData);
 			
-			charData.recordOriginalCharacterData(changelogBuilder, characterSection, textData, classData, skillData, itemData);
+			charData.recordOriginalCharacterData(changelogBuilder, characterSection, textData, classData, skillData, itemData, chapterData);
 			itemData.recordOriginalItemData(changelogBuilder, itemSection, textData);
 			chapterData.recordOriginalChapterData(changelogBuilder, chapterSection, textData, charData, classData, skillData, itemData);
 			
@@ -180,7 +181,7 @@ public class FE9Randomizer extends Randomizer {
 			itemData.compileDiffs(handler);
 			classData.compileDiffs(handler);
 			
-			charData.recordUpdatedCharacterData(characterSection, textData, classData, skillData, itemData);
+			charData.recordUpdatedCharacterData(characterSection, textData, classData, skillData, itemData, chapterData);
 			itemData.recordUpdatedItemData(itemSection, textData);
 			chapterData.recordUpdatedChapterData(chapterSection, textData, charData, classData, skillData, itemData);
 			
@@ -222,6 +223,72 @@ public class FE9Randomizer extends Randomizer {
 			// The thief class actually already has too many skills to fit another in its class data. We'll have to assign these manually
 			// in the chapter unit data.
 		}
+		
+		// FE9 routinely uses chapter unit data to modify boss units stats, which isn't accounted for in the
+		// normal logic flow. To alleviate this, we want to re-allocate those points appropriately
+		// to make sure the rest of the logic works. Effectively, we want to move those adjustments
+		// to the character data and only use the dispos adjustments for, say, hard mode adjustments.
+		for (FE9Character boss : charData.allBossCharacters()) {
+			String pid = charData.getPIDForCharacter(boss);
+			List<FE9ChapterUnit> bossUnits = new ArrayList<FE9ChapterUnit>();
+			for (FE9Data.Chapter chapter : FE9Data.Chapter.values()) {
+				for (FE9ChapterArmy army : chapterData.armiesForChapter(chapter)) {
+					FE9ChapterUnit bossUnit = army.getUnitForPID(pid);
+					if (bossUnit != null) {
+						bossUnits.add(bossUnit);
+					}
+					army.commitChanges();
+				}
+			}
+			chapterData.commitChanges();
+			
+			if (!bossUnits.isEmpty()) {
+				// Find the lowest offsets out of all of the boss units for each stat area.
+				// We're going to use that as the baseline. All additional adjustments
+				// will be higher than this value.
+				int normalizedHPAdjustment = 255;
+				int normalizedSTRAdjustment = 255;
+				int normalizedMAGAdjustment = 255;
+				int normalizedSKLAdjustment = 255;
+				int normalizedSPDAdjustment = 255;
+				int normalizedLCKAdjustment = 255;
+				int normalizedDEFAdjustment = 255;
+				int normalizedRESAdjustment = 255;
+				
+				for (FE9ChapterUnit bossUnit : bossUnits) {
+					normalizedHPAdjustment = Math.min(normalizedHPAdjustment, bossUnit.getHPAdjustment());
+					normalizedSTRAdjustment = Math.min(normalizedSTRAdjustment, bossUnit.getSTRAdjustment());
+					normalizedMAGAdjustment = Math.min(normalizedMAGAdjustment, bossUnit.getMAGAdjustment());
+					normalizedSKLAdjustment = Math.min(normalizedSKLAdjustment, bossUnit.getSKLAdjustment());
+					normalizedSPDAdjustment = Math.min(normalizedSPDAdjustment, bossUnit.getSPDAdjustment());
+					normalizedLCKAdjustment = Math.min(normalizedLCKAdjustment, bossUnit.getLCKAdjustment());
+					normalizedDEFAdjustment = Math.min(normalizedDEFAdjustment, bossUnit.getDEFAdjustment());
+					normalizedRESAdjustment = Math.min(normalizedRESAdjustment, bossUnit.getRESAdjustment());
+				}
+			
+				for (FE9ChapterUnit bossUnit : bossUnits) {
+					bossUnit.setHPAdjustment(bossUnit.getHPAdjustment() - normalizedHPAdjustment);
+					bossUnit.setSTRAdjustment(bossUnit.getSTRAdjustment() - normalizedSTRAdjustment);
+					bossUnit.setMAGAdjustment(bossUnit.getMAGAdjustment() - normalizedMAGAdjustment);
+					bossUnit.setSKLAdjustment(bossUnit.getSKLAdjustment() - normalizedSKLAdjustment);
+					bossUnit.setSPDAdjustment(bossUnit.getSPDAdjustment() - normalizedSPDAdjustment);
+					bossUnit.setLCKAdjustment(bossUnit.getLCKAdjustment() - normalizedLCKAdjustment);
+					bossUnit.setDEFAdjustment(bossUnit.getDEFAdjustment() - normalizedDEFAdjustment);
+					bossUnit.setRESAdjustment(bossUnit.getRESAdjustment() - normalizedRESAdjustment);
+				}
+			
+				// Apply the adjustment we took out of the dispos data and inject it back into the character data.
+				boss.setBaseHP(boss.getBaseHP() + normalizedHPAdjustment);
+				boss.setBaseSTR(boss.getBaseSTR() + normalizedSTRAdjustment);
+				boss.setBaseMAG(boss.getBaseMAG() + normalizedMAGAdjustment);
+				boss.setBaseSKL(boss.getBaseSKL() + normalizedSKLAdjustment);
+				boss.setBaseSPD(boss.getBaseSPD() + normalizedSPDAdjustment);
+				boss.setBaseLCK(boss.getBaseLCK() + normalizedLCKAdjustment);
+				boss.setBaseDEF(boss.getBaseDEF() + normalizedDEFAdjustment);
+				boss.setBaseRES(boss.getBaseRES() + normalizedRESAdjustment);
+			}
+		}
+		
 	}
 	
 	private void makePostRandomizationAdjustments() {
