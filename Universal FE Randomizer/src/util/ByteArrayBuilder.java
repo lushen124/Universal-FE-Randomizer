@@ -28,6 +28,12 @@ public class ByteArrayBuilder {
 			appendByte(otherArray[i]);
 		}
 	}
+	
+	public void replaceBytes(int offset, byte[] replacement) {
+		for (int i = offset; i < offset + replacement.length; i++) {
+			byteArray[i] = replacement[i - offset];
+		}
+	}
 
 	public byte[] toByteArray() {
 		return Arrays.copyOfRange(byteArray, 0, bytesWritten);

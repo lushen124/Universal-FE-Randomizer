@@ -41,10 +41,7 @@ public class FE9Data {
 	public static final int SkillCount = 0x62;
 	public static final int SkillDataSize = 0x28;
 	
-	public static final long CommonTextDataStartOffset = 0x155CC;
-	public static final long CommonTextIDStartOffset = 0x1A4DC;
-	public static final String CommonTextFilename = "mess/common.m";
-	public static final int CommonTextCount = 0x9E2;
+	public static final String CommonTextFilename = "system.cmp/mess/common.m";
 	public static final int CommonTextEntrySize = 0x8;
 	
 	public static final int ChapterUnitEntrySize = 0x6C;
