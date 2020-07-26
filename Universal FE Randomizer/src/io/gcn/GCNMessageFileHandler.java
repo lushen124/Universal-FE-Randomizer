@@ -50,12 +50,12 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 			
 			long idOffset = textEntry.getIDOffset() + idStartOffset;
 			byte[] idBytes = mess_readUntilTerminator(idOffset);
-			String identifier = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(idBytes);
+			String identifier = WhyDoesJavaNotHaveThese.stringFromShiftJIS(idBytes);
 			orderedIDs.add(identifier);
 			
 			long valueOffset = textEntry.getStringOffset();
 			byte[] stringData = mess_readUntilTerminator(valueOffset);
-			String result = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(stringData);
+			String result = WhyDoesJavaNotHaveThese.stringFromShiftJIS(stringData);
 			idToDisplayString.put(identifier, result);
 			
 			DebugPrinter.log(DebugPrinter.Key.FE9_TEXT_LOADER, "Loaded text entry: " + identifier + " (" + result + ")");
@@ -83,13 +83,13 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 			long idOffset = textEntry.getIDOffset() + idStartOffset;
 			setNextReadOffset(idOffset);
 			byte[] idBytes = continueReadingBytesUpToNextTerminator(idOffset + 0xFF);
-			String identifier = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(idBytes);
+			String identifier = WhyDoesJavaNotHaveThese.stringFromShiftJIS(idBytes);
 			orderedIDs.add(identifier);
 			
 			long valueOffset = textEntry.getStringOffset();
 			setNextReadOffset(valueOffset);
 			byte[] stringData = continueReadingBytesUpToNextTerminator(valueOffset + 0xFFFF);
-			String result = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(stringData);
+			String result = WhyDoesJavaNotHaveThese.stringFromShiftJIS(stringData);
 			idToDisplayString.put(identifier, result);
 			
 			DebugPrinter.log(DebugPrinter.Key.FE9_TEXT_LOADER, "Loaded text entry: " + identifier + " (" + result + ")");
