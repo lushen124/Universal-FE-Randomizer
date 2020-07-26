@@ -54,7 +54,7 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 			while (getNextReadOffset() < scriptTableOffset) {
 				long currentOffset = getNextReadOffset();
 				byte[] stringBytes = continueReadingBytesUpToNextTerminator(scriptTableOffset);
-				String stringValue = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(stringBytes);
+				String stringValue = WhyDoesJavaNotHaveThese.stringFromShiftJIS(stringBytes);
 				stringsByAddress.put(currentOffset, stringValue);
 				addressesByString.put(stringValue, currentOffset);
 			}

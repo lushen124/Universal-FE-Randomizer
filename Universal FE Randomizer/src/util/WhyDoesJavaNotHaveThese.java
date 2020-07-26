@@ -1,6 +1,13 @@
 package util;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -155,6 +162,27 @@ public class WhyDoesJavaNotHaveThese {
 			if (currentByte == 0) { break; }
 			sb.append((char)currentByte);
 		}
+		return sb.toString();
+	}
+	
+	public static String stringFromShiftJIS(byte[] input) {
+		StringBuilder sb = new StringBuilder();
+		
+		InputStream in = new ByteArrayInputStream(input);
+		try {
+			Reader reader = new InputStreamReader(in, Charset.forName("SJIS"));
+			int read;
+			while ((read = reader.read()) != -1) {
+				if (read == 0) { break; }
+				sb.append((char)read);
+			}
+			reader.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "<ShiftJIS Decoding Error>";
+		}
+		
 		return sb.toString();
 	}
 	

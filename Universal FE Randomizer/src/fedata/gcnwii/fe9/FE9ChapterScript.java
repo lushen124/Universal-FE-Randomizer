@@ -144,6 +144,7 @@ public class FE9ChapterScript {
 			
 			int index = 0;
 			while (index < scene.scriptBytes.length) {
+				sb.append(String.format("0x%1$04X", index) + ": ");
 				// Read Opcode
 				int opcode = scene.scriptBytes[index++];
 				int operand = 0;
@@ -413,31 +414,31 @@ public class FE9ChapterScript {
 					buffer = new byte[] {scene.scriptBytes[index], scene.scriptBytes[index+1]};
 					operand = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(buffer, false);
 					index += 2;
-					sb.append("BRANCH(PC + 1 + " + operand + ")\n");
+					sb.append("BRANCH(PC + 1 + 0x" + Long.toHexString(operand).toUpperCase() + ")\n");
 					break;
 				case 0x3B: // Pops top value, branch if not equal to 0.
 					buffer = new byte[] {scene.scriptBytes[index], scene.scriptBytes[index+1]};
 					operand = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(buffer, false);
 					index += 2;
-					sb.append("POP_AND_BRANCH_IF_TRUE(PC + 1 + " + operand + ")\n");
+					sb.append("POP_AND_BRANCH_IF_TRUE(PC + 1 + 0x" + Long.toHexString(operand).toUpperCase() + ")\n");
 					break;
 				case 0x3C: // Pops top value, pushes 1 and branch if not equal to 0.
 					buffer = new byte[] {scene.scriptBytes[index], scene.scriptBytes[index+1]};
 					operand = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(buffer, false);
 					index += 2;
-					sb.append("POP_AND_PUSH_BRANCH_IF_TRUE(PC + 1 + " + operand + ")\n");
+					sb.append("POP_AND_PUSH_BRANCH_IF_TRUE(PC + 1 + 0x" + Long.toHexString(operand).toUpperCase() + ")\n");
 					break;
 				case 0x3D: // Pops top value, branch if equal to 0.
 					buffer = new byte[] {scene.scriptBytes[index], scene.scriptBytes[index+1]};
 					operand = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(buffer, false);
 					index += 2;
-					sb.append("POP_AND_BRANCH_IF_FALSE(PC + 1 + " + operand + ")\n");
+					sb.append("POP_AND_BRANCH_IF_FALSE(PC + 1 + 0x" + Long.toHexString(operand).toUpperCase() + ")\n");
 					break;
 				case 0x3E: // Pops top value, pushes 1 and branch if equal to 0.
 					buffer = new byte[] {scene.scriptBytes[index], scene.scriptBytes[index+1]};
 					operand = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(buffer, false);
 					index += 2;
-					sb.append("POP_AND_PUSH_BRANCH_IF_FALSE(PC + 1 + " + operand + ")\n");
+					sb.append("POP_AND_PUSH_BRANCH_IF_FALSE(PC + 1 + 0x" + Long.toHexString(operand).toUpperCase() + ")\n");
 					break;
 				case 0x3F: // Holds scene without ending.
 					sb.append("YIELD");
