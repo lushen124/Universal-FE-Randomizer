@@ -110,6 +110,8 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 //			} catch (GCNISOException e) {
 			if (name.endsWith(".bin")) {
 				gcnFileHandler = new GCNDataFileHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
+			} else if (name.endsWith(".m")) {
+				gcnFileHandler = new GCNMessageFileHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
 			} else {
 				gcnFileHandler = new GCNByteArrayHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
 			}
@@ -149,6 +151,9 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 		for (String name : filenames) {
 			CMPFileEntry fileEntry = fileMap.get(name);
 			GCNFileHandler fileHandler = cachedHandlers.get(name);
+			if (fileHandler instanceof GCNMessageFileHandler) {
+				((GCNMessageFileHandler) fileHandler).build();
+			}
 			fileEntry.fileLength = fileHandler.getFileLength();
 			if (offset != -1) {
 				fileEntry.filePointer = offset;
@@ -184,15 +189,19 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			CMPFileEntry fileEntry = fileMap.get(name);
 			GCNFileHandler fileHandler = cachedHandlers.get(name);
 			while (builder.getBytesWritten() < fileEntry.filePointer) { builder.appendByte((byte)0); }
-			fileHandler.setNextReadOffset(0);
-			fileHandler.beginBatchRead();
-			int bytesRead = fileHandler.continueReadingBytes(fileData);
-			do {
-				builder.appendBytes(fileData, bytesRead);
-				bytesRead = fileHandler.continueReadingBytes(fileData);
-			} while (bytesRead > 0);
+			if (fileHandler instanceof GCNMessageFileHandler) {
+				builder.appendBytes(((GCNMessageFileHandler) fileHandler).build());
+			} else {
+				fileHandler.setNextReadOffset(0);
+				fileHandler.beginBatchRead();
+				int bytesRead = fileHandler.continueReadingBytes(fileData);
+				do {
+					builder.appendBytes(fileData, bytesRead);
+					bytesRead = fileHandler.continueReadingBytes(fileData);
+				} while (bytesRead > 0);
 			
-			fileHandler.endBatchRead();
+				fileHandler.endBatchRead();
+			}
 		}
 		
 		while (builder.getBytesWritten() % 0x20 != 0) { builder.appendByte((byte)0); }
