@@ -135,6 +135,17 @@ public class MiscellaneousView extends Composite {
 			});
 		}
 	}
+	
+	public void setPatchingEnabled(boolean patchingEnabled) {
+		if (applyEnglishPatch != null) {
+			if (patchingEnabled) {
+				applyEnglishPatch.setEnabled(true);
+			} else {
+				applyEnglishPatch.setEnabled(false);
+				applyEnglishPatch.setSelection(false);
+			}
+		}
+	}
 
 	public MiscellaneousOptions getMiscellaneousOptions() {
 		if (type.isGBA()) {

@@ -119,6 +119,7 @@ public class FE9Randomizer extends Randomizer {
 			return;
 		} catch (GCNISOException e) {
 			notifyError("Failed to read Gamecube ISO format.");
+			return;
 		}
 		
 		ChangelogBuilder changelogBuilder = new ChangelogBuilder();

@@ -113,6 +113,8 @@ public class MainView implements FileFlowDelegate {
 	private GameType loadedGameType = GameType.UNKNOWN;
 	private Boolean hasLoadedInfo = false;
 	
+	private boolean patchingAvailable = false;
+	
 	private Group romInfoGroup;
 	private Label romName;
 	private Label romCode;
@@ -800,8 +802,10 @@ public class MainView implements FileFlowDelegate {
 			checksum.setText("CRC-32: " + Long.toHexString(handler.getCRC32()).toUpperCase());
 			
 			GameType type = loadedGameType;
+			patchingAvailable = false;
 			if (handler.getCRC32() == FE6Data.CleanCRC32) { 
 				type = GameType.FE6;
+				patchingAvailable = true;
 				friendlyName.setText("Display Name: " + FE6Data.FriendlyName);
 			}
 			else if (handler.getCRC32() == FE7Data.CleanCRC32) { 
@@ -814,6 +818,7 @@ public class MainView implements FileFlowDelegate {
 			}
 			else if (handler.getCRC32() == FE4Data.CleanHeaderedCRC32 || handler.getCRC32() == FE4Data.CleanUnheaderedCRC32) {
 				type = GameType.FE4;
+				patchingAvailable = true;
 				friendlyName.setText("Display Name: " + FE4Data.FriendlyName);
 				romName.setText("ROM Name: " + FE4Data.InternalName);
 				romCode.setText("ROM Code: --");
@@ -844,7 +849,9 @@ public class MainView implements FileFlowDelegate {
 				loadingModal.hide();
 				
 				MessageModal checksumFailure = new MessageModal(mainShell, "Unrecognized Checksum", "Yune was unable to determine the game from the file selected.\n"
-						+ "If you know the game for the file, you may select it below.\n\nNote: Be aware that this file is likely untested and may cause errors.");
+						+ "If you know the game for the file, you may select it below.\n\nNote: Patching cannot be guaranteed, and is therefore, disabled.\n\n"
+						+ "Warning: Be aware that this file is likely untested and may cause errors.\n" 
+						+ "There will be very limited support for issues from randomizing this file.");
 				ModalButtonListener fe4Selection = new ModalButtonListener() {
 					@Override
 					public void onSelected() {
@@ -954,6 +961,7 @@ public class MainView implements FileFlowDelegate {
 
 		
 		miscView.setVisible(true);
+		miscView.setPatchingEnabled(patchingAvailable);
 		
 		randomizeButton.setVisible(true);
 		
