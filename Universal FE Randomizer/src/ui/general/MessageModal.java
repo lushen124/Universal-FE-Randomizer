@@ -1,6 +1,10 @@
 package ui.general;
 
+import java.util.Map;
+
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
@@ -15,6 +19,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
@@ -38,6 +43,11 @@ public class MessageModal {
 	
 	Composite buttonGroup;
 	int numberOfButtons = 0;
+	
+	List selectionList;
+	Map<String, ModalButtonListener> selectionChoices;
+	Button listOKButton;
+	ModalButtonListener selectionCancel;
 	
 	Boolean hasBeenDisplayed = false;
 	
@@ -117,8 +127,28 @@ public class MessageModal {
 		dialogShell.setLocation(parentBounds.x + (parentBounds.width - dialogBounds.width) / 2, parentBounds.y + (parentBounds.height - dialogBounds.height) / 2);
 	}
 	
-	public void addButton(String title, ModalButtonListener listener) {
+	public void addSelectionItems(Map<String, ModalButtonListener> items, java.util.List<String> orderedItems, ModalButtonListener onCancel) {
 		if (hasBeenDisplayed) { return; }
+		
+		if (selectionList == null) {
+			selectionList = new List(dialogShell, SWT.BORDER | SWT.SINGLE);
+			FormData listData = new FormData();
+			listData.top = new FormAttachment(contentGroup, 10);
+			listData.left = new FormAttachment(contentGroup, 0, SWT.LEFT);
+			listData.right = new FormAttachment(contentGroup, 0, SWT.RIGHT);
+			selectionList.setLayoutData(listData);
+		}
+		selectionChoices = items;
+		
+		for (String itemKey : orderedItems) {
+			selectionList.add(itemKey);
+		}
+		
+		selectionCancel = onCancel;
+	}
+	
+	public Button addButton(String title, ModalButtonListener listener) {
+		if (hasBeenDisplayed) { return null; }
 		
 		if (buttonGroup == null) {
 			buttonGroup = new Composite(dialogShell, SWT.NONE);
@@ -126,8 +156,13 @@ public class MessageModal {
 			buttonGroupLayout.spacing = 10;
 			buttonGroup.setLayout(buttonGroupLayout);
 			
-			FormData contentData = (FormData)contentGroup.getLayoutData();
-			contentData.bottom = new FormAttachment(buttonGroup, -10);
+			if (selectionList != null) {
+				FormData listData = (FormData)selectionList.getLayoutData();
+				listData.bottom = new FormAttachment(buttonGroup, -10);
+			} else {
+				FormData contentData = (FormData)contentGroup.getLayoutData();
+				contentData.bottom = new FormAttachment(buttonGroup, -10);
+			}
 		}
 		
 		numberOfButtons++;
@@ -149,6 +184,8 @@ public class MessageModal {
 		buttonGroup.setLayoutData(groupData);
 		
 		layoutSize();
+		
+		return button;
 	}
 	
 	private void layoutSize() {
@@ -159,12 +196,45 @@ public class MessageModal {
 	
 	public void show() {
 		if (numberOfButtons == 0) {
-			addButton("OK", new ModalButtonListener() {
-				@Override
-				public void onSelected() {
-					hide();
-				}
-			});
+			if (selectionList != null) {
+				addButton("Cancel", new ModalButtonListener() {
+					@Override
+					public void onSelected() {
+						if (selectionCancel != null) {
+							selectionCancel.onSelected();
+						}
+						hide();
+					}
+				});
+				listOKButton = addButton("OK", new ModalButtonListener() {
+					@Override
+					public void onSelected() {
+						int selectedIndex = selectionList.getSelectionIndices()[0];
+						selectionChoices.get(selectionList.getItem(selectedIndex)).onSelected();
+						hide();
+					}
+				});
+				listOKButton.setEnabled(false);
+				selectionList.addSelectionListener(new SelectionListener() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						int[] selection = selectionList.getSelectionIndices();
+						if (selection.length == 0) { listOKButton.setEnabled(false); }
+						else { listOKButton.setEnabled(true); }
+					}
+					@Override
+					public void widgetDefaultSelected(SelectionEvent e) {
+						
+					}
+				});
+			} else {
+				addButton("OK", new ModalButtonListener() {
+					@Override
+					public void onSelected() {
+						hide();
+					}
+				});
+			}
 		}
 		dialogShell.open();
 		hasBeenDisplayed = true;
