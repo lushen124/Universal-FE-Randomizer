@@ -466,7 +466,7 @@ public class FE9ClassRandomizer {
 			// TODO: Find a better way of doing this. This only address three of the items. The fourth item is stubbornly remaining an Iron sword.
 			GCNCMBFileHandler cmbHandler = (GCNCMBFileHandler)handler.handlerForFileWithName(FE9Data.Chapter.CHAPTER_1.getScriptPath());
 			cmbHandler.addString(itemData.iidOfItem(basicWeapon));
-			byte[] newIIDBytes = cmbHandler.bytePrefixForString(itemData.iidOfItem(basicWeapon));
+			byte[] newIIDBytes = cmbHandler.referenceToString(itemData.iidOfItem(basicWeapon));
 			cmbHandler.cmb_writeBytesToOffset(0x1FF1, newIIDBytes);
 			cmbHandler.cmb_writeBytesToOffset(0x1FFB, newIIDBytes);
 			cmbHandler.cmb_writeBytesToOffset(0x2005, newIIDBytes);

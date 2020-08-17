@@ -149,7 +149,7 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 		return builder.toByteArray();
 	}
 	
-	public byte[] bytePrefixForString(String string) {
+	public byte[] referenceToString(String string) {
 		if (string == null) {
 			return null;
 		}

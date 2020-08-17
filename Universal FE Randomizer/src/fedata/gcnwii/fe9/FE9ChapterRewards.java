@@ -112,7 +112,7 @@ public class FE9ChapterRewards {
 
 	private void loadChests() {
 		ByteArrayBuilder chestScript = new ByteArrayBuilder();
-		byte[] tboxOpen = cmbHandler.bytePrefixForString("TBoxOpen");
+		byte[] tboxOpen = cmbHandler.referenceToString("TBoxOpen");
 		if (tboxOpen == null) { DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "No Chests found in " + cmbHandler.getName()); return; }
 		chestScript.appendBytes(tboxOpen);
 		chestScript.appendBytes(new byte[] {0x02, 0x20});
@@ -141,7 +141,7 @@ public class FE9ChapterRewards {
 	
 	private void loadVillages() {
 		ByteArrayBuilder villageScript = new ByteArrayBuilder();
-		byte[] visitOut = cmbHandler.bytePrefixForString("VisitOut");
+		byte[] visitOut = cmbHandler.referenceToString("VisitOut");
 		if (visitOut == null) { DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "No Villages found in " + cmbHandler.getName()); return; }
 		villageScript.appendBytes(visitOut);
 		villageScript.appendBytes(new byte[] {0x03, 0x20});
@@ -189,7 +189,7 @@ public class FE9ChapterRewards {
 		if (chestReplacements.isEmpty()) { return; }
 		
 		ByteArrayBuilder chestScript = new ByteArrayBuilder();
-		byte[] tboxOpen = cmbHandler.bytePrefixForString("TBoxOpen");
+		byte[] tboxOpen = cmbHandler.referenceToString("TBoxOpen");
 		if (tboxOpen == null) { DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "No Chests found in " + cmbHandler.getName()); return; }
 		chestScript.appendBytes(tboxOpen);
 		chestScript.appendBytes(new byte[] {0x02, 0x20});
@@ -214,7 +214,7 @@ public class FE9ChapterRewards {
 				String replacementIID = chestReplacements.get(iid);
 				if (replacementIID != null && targetOffset != null) {
 					cmbHandler.addString(replacementIID);
-					byte[] newIIDBytes = cmbHandler.bytePrefixForString(replacementIID);
+					byte[] newIIDBytes = cmbHandler.referenceToString(replacementIID);
 					cmbHandler.cmb_writeBytesToOffset(targetOffset, newIIDBytes);
 				}
 			}
@@ -225,7 +225,7 @@ public class FE9ChapterRewards {
 		if (villageReplacements.isEmpty()) { return; }
 		
 		ByteArrayBuilder villageScript = new ByteArrayBuilder();
-		byte[] visitOut = cmbHandler.bytePrefixForString("VisitOut");
+		byte[] visitOut = cmbHandler.referenceToString("VisitOut");
 		if (visitOut == null) { DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_LOADER, "No Villages found in " + cmbHandler.getName()); return; }
 		villageScript.appendBytes(visitOut);
 		villageScript.appendBytes(new byte[] {0x03, 0x20});
@@ -250,7 +250,7 @@ public class FE9ChapterRewards {
 				String replacementIID = villageReplacements.get(iid);
 				if (replacementIID != null && targetOffset != null) {
 					cmbHandler.addString(replacementIID);
-					byte[] newIIDBytes = cmbHandler.bytePrefixForString(replacementIID);
+					byte[] newIIDBytes = cmbHandler.referenceToString(replacementIID);
 					cmbHandler.cmb_writeBytesToOffset(targetOffset, newIIDBytes);
 				}
 			}
@@ -276,7 +276,7 @@ public class FE9ChapterRewards {
 				String replacementIID = desertReplacements.get(iid);
 				if (replacementIID != null && targetOffset != null) {
 					cmbHandler.addString(replacementIID);
-					byte[] newIIDBytes = cmbHandler.bytePrefixForString(replacementIID);
+					byte[] newIIDBytes = cmbHandler.referenceToString(replacementIID);
 					cmbHandler.cmb_writeBytesToOffset(targetOffset, newIIDBytes);
 				}
 			}
