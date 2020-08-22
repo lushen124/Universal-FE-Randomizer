@@ -1,5 +1,7 @@
 package fedata.gcnwii.fe9.scripting;
 
+import io.gcn.GCNCMBFileHandler;
+
 public class NegateInstruction extends ScriptInstruction {
 
 	public NegateInstruction() {
@@ -24,6 +26,11 @@ public class NegateInstruction extends ScriptInstruction {
 	@Override
 	public int numArgBytes() {
 		return 0;
+	}
+
+	@Override
+	public ScriptInstruction createWithArgs(byte[] args, GCNCMBFileHandler handler) {
+		return new NegateInstruction();
 	}
 
 }

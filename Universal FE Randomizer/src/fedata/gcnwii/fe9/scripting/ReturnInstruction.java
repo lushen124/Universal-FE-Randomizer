@@ -2,25 +2,25 @@ package fedata.gcnwii.fe9.scripting;
 
 import io.gcn.GCNCMBFileHandler;
 
-public class IsLessThanInstruction extends ScriptInstruction {
+public class ReturnInstruction extends ScriptInstruction {
 
-	public IsLessThanInstruction() {
+	public ReturnInstruction() {
 		
 	}
 	
 	@Override
 	public String displayString() {
-		return "IS_LESS_THAN";
+		return "RETURN";
 	}
 
 	@Override
 	public byte[] rawBytes() {
-		return new byte[] {0x31};
+		return new byte[] {0x39};
 	}
 
 	@Override
 	public byte opcode() {
-		return 0x31;
+		return 0x39;
 	}
 
 	@Override
@@ -28,10 +28,9 @@ public class IsLessThanInstruction extends ScriptInstruction {
 		return 0;
 	}
 
-
 	@Override
 	public ScriptInstruction createWithArgs(byte[] args, GCNCMBFileHandler handler) {
-		return new IsLessThanInstruction();
+		return new ReturnInstruction();
 	}
 
 }

@@ -48,4 +48,9 @@ public class PushLiteralString32Instruction extends ScriptInstruction {
 		return 4;
 	}
 
+	@Override
+	public ScriptInstruction createWithArgs(byte[] args, GCNCMBFileHandler handler) {
+		return new PushLiteralString32Instruction(args, handler);
+	}
+
 }

@@ -1,5 +1,7 @@
 package fedata.gcnwii.fe9.scripting;
 
+import io.gcn.GCNCMBFileHandler;
+
 public class BitwiseOrInstruction extends ScriptInstruction {
 
 	public BitwiseOrInstruction() {
@@ -26,4 +28,8 @@ public class BitwiseOrInstruction extends ScriptInstruction {
 		return 0;
 	}
 
+	@Override
+	public ScriptInstruction createWithArgs(byte[] args, GCNCMBFileHandler handler) {
+		return new BitwiseOrInstruction();
+	}
 }

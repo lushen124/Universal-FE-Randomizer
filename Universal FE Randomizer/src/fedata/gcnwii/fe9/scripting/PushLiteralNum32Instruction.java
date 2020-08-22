@@ -1,5 +1,6 @@
 package fedata.gcnwii.fe9.scripting;
 
+import io.gcn.GCNCMBFileHandler;
 import util.WhyDoesJavaNotHaveThese;
 
 public class PushLiteralNum32Instruction extends ScriptInstruction {
@@ -38,6 +39,11 @@ public class PushLiteralNum32Instruction extends ScriptInstruction {
 	@Override
 	public int numArgBytes() {
 		return 4;
+	}
+
+	@Override
+	public ScriptInstruction createWithArgs(byte[] args, GCNCMBFileHandler handler) {
+		return new PushLiteralNum32Instruction(args);
 	}
 
 }

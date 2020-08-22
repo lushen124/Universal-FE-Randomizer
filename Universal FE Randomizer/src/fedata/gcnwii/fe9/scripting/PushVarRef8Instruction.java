@@ -1,5 +1,7 @@
 package fedata.gcnwii.fe9.scripting;
 
+import io.gcn.GCNCMBFileHandler;
+
 public class PushVarRef8Instruction extends ScriptInstruction {
 
 	int variableNumber;
@@ -30,6 +32,11 @@ public class PushVarRef8Instruction extends ScriptInstruction {
 	@Override
 	public int numArgBytes() {
 		return 1;
+	}
+
+	@Override
+	public ScriptInstruction createWithArgs(byte[] args, GCNCMBFileHandler handler) {
+		return new PushVarRef8Instruction(args);
 	}
 
 }

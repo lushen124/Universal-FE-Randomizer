@@ -1,5 +1,6 @@
 package fedata.gcnwii.fe9.scripting;
 
+import io.gcn.GCNCMBFileHandler;
 import util.WhyDoesJavaNotHaveThese;
 
 public class PushGlobalArrayVarItem16Instruction extends ScriptInstruction {
@@ -32,6 +33,11 @@ public class PushGlobalArrayVarItem16Instruction extends ScriptInstruction {
 	@Override
 	public int numArgBytes() {
 		return 2;
+	}
+
+	@Override
+	public ScriptInstruction createWithArgs(byte[] args, GCNCMBFileHandler handler) {
+		return new PushGlobalArrayVarItem16Instruction(args);
 	}
 
 }
