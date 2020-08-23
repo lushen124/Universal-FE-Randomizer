@@ -23,6 +23,10 @@ public class CallSceneByNameInstruction extends ScriptInstruction {
 		this.handler = handler;
 	}
 	
+	public String getSceneName() {
+		return sceneName;
+	}
+	
 	@Override
 	public String displayString() {
 		return "CALL_SCENE_NAME (\"" + sceneName + "\", " + numberOfArgs + ")";

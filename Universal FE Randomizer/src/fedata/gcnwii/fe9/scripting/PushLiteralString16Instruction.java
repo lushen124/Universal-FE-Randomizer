@@ -19,6 +19,10 @@ public class PushLiteralString16Instruction extends ScriptInstruction {
 		this.handler = handler;
 	}
 	
+	public String getString() {
+		return literal;
+	}
+	
 	@Override
 	public String displayString() {
 		return "PUSH_LITERAL_STRING_16 (" + literal + ")";

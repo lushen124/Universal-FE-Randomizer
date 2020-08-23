@@ -9,7 +9,6 @@ import java.util.Map;
 import fedata.gcnwii.fe9.FE9Base64;
 import fedata.gcnwii.fe9.FE9ChapterArmy;
 import fedata.gcnwii.fe9.FE9ChapterRewards;
-import fedata.gcnwii.fe9.FE9ChapterScript;
 import fedata.gcnwii.fe9.FE9ChapterStrings;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
@@ -44,8 +43,8 @@ public class FE9ChapterDataLoader {
 	List<FE9ChapterRewards> allChapterRewards;
 	Map<FE9Data.Chapter, FE9ChapterRewards> rewardsByChapter;
 	
-	List<FE9ChapterScript> allChapterScripts;
-	Map<FE9Data.Chapter, FE9ChapterScript> scriptsByChapter;
+	List<GCNCMBFileHandler> allChapterScripts;
+	Map<FE9Data.Chapter, GCNCMBFileHandler> scriptsByChapter;
 	
 	List<FE9ChapterStrings> allChapterStrings;
 	Map<FE9Data.Chapter, FE9ChapterStrings> stringsByChapter;
@@ -57,8 +56,8 @@ public class FE9ChapterDataLoader {
 		allChapterRewards = new ArrayList<FE9ChapterRewards>();
 		rewardsByChapter = new HashMap<FE9Data.Chapter, FE9ChapterRewards>();
 		
-		allChapterScripts = new ArrayList<FE9ChapterScript>();
-		scriptsByChapter = new HashMap<FE9Data.Chapter, FE9ChapterScript>();
+		allChapterScripts = new ArrayList<GCNCMBFileHandler>();
+		scriptsByChapter = new HashMap<FE9Data.Chapter, GCNCMBFileHandler>();
 		
 		allChapterStrings = new ArrayList<FE9ChapterStrings>();
 		stringsByChapter = new HashMap<FE9Data.Chapter, FE9ChapterStrings>();
@@ -85,9 +84,8 @@ public class FE9ChapterDataLoader {
 				allChapterRewards.add(rewards);
 				rewardsByChapter.put(chapter, rewards);
 				
-				FE9ChapterScript script = new FE9ChapterScript(cmbFileHandler);
-				allChapterScripts.add(script);
-				scriptsByChapter.put(chapter, script);
+				allChapterScripts.add(cmbFileHandler);
+				scriptsByChapter.put(chapter, cmbFileHandler);
 			}
 			
 			if (chapter.getStringsPath() != null) {

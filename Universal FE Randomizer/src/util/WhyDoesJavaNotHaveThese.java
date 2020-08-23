@@ -1,11 +1,15 @@
 package util;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.lang.reflect.Array;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -193,6 +197,21 @@ public class WhyDoesJavaNotHaveThese {
 		}
 		
 		return byteArray;
+	}
+	
+	public static byte[] shiftJISBytesFromString(String string) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		Writer writer = new OutputStreamWriter(out, Charset.forName("SJIS"));
+		try {
+			writer.write(string);
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return asciiBytesFromString(string);
+		}
+		
+		return out.toByteArray();
 	}
 	
 	public static long longValueFromByteArray(byte[] input, boolean isLittleEndian) {
