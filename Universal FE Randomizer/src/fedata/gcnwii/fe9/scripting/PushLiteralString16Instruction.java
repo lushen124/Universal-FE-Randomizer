@@ -30,10 +30,10 @@ public class PushLiteralString16Instruction extends ScriptInstruction {
 
 	@Override
 	public byte[] rawBytes() {
-		byte[] referenceToString = handler.referenceToString(literal);
+		byte[] referenceToString = handler.referenceToString(literal, 2);
 		if (referenceToString == null) { 
 			handler.addString(literal);
-			referenceToString = handler.referenceToString(literal);
+			referenceToString = handler.referenceToString(literal, 2);
 		}
 		assert(referenceToString != null);
 		assert(referenceToString.length == numArgBytes());

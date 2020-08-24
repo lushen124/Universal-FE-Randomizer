@@ -278,4 +278,12 @@ public class WhyDoesJavaNotHaveThese {
 		
 		return result;
 	}
+	
+	public static <T> List<T> createMutableCopy(List<T> list) {
+		List<T> copy = new ArrayList<T>();
+		for(T item : list) {
+			copy.add(item);
+		}
+		return copy;
+	}
 }

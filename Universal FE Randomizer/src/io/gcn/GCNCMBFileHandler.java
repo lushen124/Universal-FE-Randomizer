@@ -154,8 +154,8 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 	}
 	
 	public byte[] newBuild() {
-		boolean isModified = scenes.stream().anyMatch(scene -> { return scene.wasModified(); });
-		if (!isModified) { return fullData; }
+		boolean hasChanged = scenes.stream().anyMatch(scene -> { return scene.hasChanges(); });
+		if (!hasChanged) { return fullData; }
 		
 		ByteArrayBuilder builder = new ByteArrayBuilder();
 		
@@ -197,12 +197,22 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 			addedOffset += (newScriptLength - originalScriptLength);
 		}
 		
+		// The pointers are terminated with a 0 address.
+		builder.appendBytes(new byte[] {0, 0, 0, 0});
+		
 		// Scripts are stored header+identifier, then script bytes.
 		// These will be more complex, because the script length can change, and that can throw off future scripts.
 		for (FE9ScriptScene scene: scenes) {
-			assert(builder.getBytesWritten() == scene.getSceneHeaderOffset());
+			while(builder.getBytesWritten() != scene.getSceneHeaderOffset()) {
+				builder.appendByte((byte)0);
+			}
+			
 			builder.appendBytes(scene.buildHeader());
-			assert(builder.getBytesWritten() == scene.getScriptOffset());
+			
+			while (builder.getBytesWritten() != scene.getScriptOffset()) {
+				builder.appendByte((byte)0);
+			}
+			
 			builder.appendBytes(scene.buildScriptBytes());
 		}
 		
@@ -280,14 +290,14 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 		return builder.toByteArray();
 	}
 	
-	public byte[] referenceToString(String string) {
+	public byte[] referenceToString(String string, int numBytes) {
 		if (string == null) {
 			return null;
 		}
 		
 		Long addressForString = addressesByString.get(string);
 		if (addressForString != null) {
-			return WhyDoesJavaNotHaveThese.byteArrayFromLongValue(addressForString - stringTableOffset, false, 2);
+			return WhyDoesJavaNotHaveThese.byteArrayFromLongValue(addressForString - stringTableOffset, false, numBytes);
 		}
 		
 		return null;

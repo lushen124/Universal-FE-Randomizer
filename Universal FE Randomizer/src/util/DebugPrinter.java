@@ -45,6 +45,10 @@ public class DebugPrinter {
 		});
 	}
 	
+	public static void error(Key label, String output) {
+		System.err.println("[" + label.label + "] " + output);
+	}
+	
 	public static void registerListener(DebugListener listener, String key) {
 		listeners.put(key, listener);
 		listener.logMessage("DebugPrinter", "Registered Listener. Ready to send messages.");

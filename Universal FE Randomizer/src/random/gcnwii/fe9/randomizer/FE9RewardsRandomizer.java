@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Random;
 
 import fedata.gcnwii.fe9.FE9ChapterRewards;
+import fedata.gcnwii.fe9.FE9ChapterRewardsProcessor;
 import fedata.gcnwii.fe9.FE9Item;
 import random.gcnwii.fe9.loader.FE9ChapterDataLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
+import util.DebugPrinter;
 
 public class FE9RewardsRandomizer {
 	
@@ -14,15 +16,14 @@ public class FE9RewardsRandomizer {
 	
 	public static void randomizeSimilarRewards(FE9ItemDataLoader itemData, FE9ChapterDataLoader chapterData, Random rng) {
 		for (FE9ChapterRewards rewards : chapterData.getAllChapterRewards()) {
-			for (String iid : rewards.getChestContents()) {
-				rewards.replaceChest(iid, similarIID(iid, itemData, rng));
-			}
-			for (String iid : rewards.getVillageContents()) {
-				rewards.replaceVillage(iid, similarIID(iid, itemData, rng));
-			}
-			for (String iid : rewards.getDesertContents()) {
-				rewards.replaceDesert(iid, similarIID(iid, itemData, rng));
-			}
+			rewards.replaceRewards(new FE9ChapterRewardsProcessor() {
+				@Override
+				public String replaceItem(String iid) {
+					String newIID = similarIID(iid, itemData, rng);
+					DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Replacing item " + iid + " with " + newIID);
+					return newIID;
+				}
+			});
 			
 			rewards.commitChanges();
 		}
@@ -30,15 +31,14 @@ public class FE9RewardsRandomizer {
 	
 	public static void randomizeRewards(FE9ItemDataLoader itemData, FE9ChapterDataLoader chapterData, Random rng) {
 		for (FE9ChapterRewards rewards : chapterData.getAllChapterRewards()) {
-			for (String iid : rewards.getChestContents()) {
-				rewards.replaceChest(iid, randomIID(iid, itemData, rng));
-			}
-			for (String iid : rewards.getVillageContents()) {
-				rewards.replaceVillage(iid, randomIID(iid, itemData, rng));
-			}
-			for (String iid : rewards.getDesertContents()) {
-				rewards.replaceDesert(iid, randomIID(iid, itemData, rng));
-			}
+			rewards.replaceRewards(new FE9ChapterRewardsProcessor() {
+				@Override
+				public String replaceItem(String iid) {
+					String newIID = randomIID(iid, itemData, rng);
+					DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Replacing item " + iid + " with " + newIID);
+					return newIID;
+				}
+			});
 			
 			rewards.commitChanges();
 		}

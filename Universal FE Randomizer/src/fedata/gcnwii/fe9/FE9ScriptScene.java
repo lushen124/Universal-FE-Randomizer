@@ -1,10 +1,12 @@
 package fedata.gcnwii.fe9;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import fedata.gcnwii.fe9.scripting.ScriptInstruction;
 import io.gcn.GCNCMBFileHandler;
 import util.ByteArrayBuilder;
+import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE9ScriptScene {
@@ -25,6 +27,7 @@ public class FE9ScriptScene {
 	byte sceneKind;
 	byte numberOfArgs;
 	byte parameterCount;
+	byte unknownByte;
 	
 	short sceneIndex;
 	short varCount;
@@ -38,6 +41,7 @@ public class FE9ScriptScene {
 	List<ScriptInstruction> updatedInstructions;
 	
 	boolean wasModified = false;
+	boolean hasChanges = false;
 	
 	GCNCMBFileHandler handler;
 	
@@ -64,6 +68,7 @@ public class FE9ScriptScene {
 		sceneKind = handler.cmb_readBytesAtOffset(sceneHeaderOffset + 0xC, 1)[0];
 		numberOfArgs = handler.cmb_readBytesAtOffset(sceneHeaderOffset + 0xD, 1)[0];
 		parameterCount = handler.cmb_readBytesAtOffset(sceneHeaderOffset + 0xE, 1)[0];
+		unknownByte = handler.cmb_readBytesAtOffset(sceneHeaderOffset + 0xF, 1)[0];
 		
 		byte[] index = handler.cmb_readBytesAtOffset(sceneHeaderOffset + 0x10, 2);
 		sceneIndex = (short)WhyDoesJavaNotHaveThese.longValueFromByteArray(index, true);
@@ -101,12 +106,27 @@ public class FE9ScriptScene {
 	public void setSceneHeaderOffset(int newOffset) { updatedSceneHeaderOffset = newOffset; } // Also not written.
 	
 	public int getIdentifierOffset() { return updatedIdentifierOffset != null ? updatedIdentifierOffset : identifierOffset; }
-	public void setIdentifierOffset(int newOffset) { updatedIdentifierOffset = newOffset; wasModified = true; }
+	public void setIdentifierOffset(int newOffset) { 
+		if (newOffset == identifierOffset) { return; }
+		updatedIdentifierOffset = newOffset; 
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Changing identifierOffset from " + identifierOffset + " to " + newOffset + " for " + handler.getName());
+		wasModified = true;
+	}
 	public String getIdentifierName() { return identifierName; }
 	public int getScriptOffset() { return updatedScriptOffset != null ? updatedScriptOffset : scriptOffset; }
-	public void setScriptOffset(int newOffset) { updatedScriptOffset = newOffset; wasModified = true; }
+	public void setScriptOffset(int newOffset) { 
+		if (newOffset == scriptOffset) { return; }
+		updatedScriptOffset = newOffset; 
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Changing scriptOffset from " + scriptOffset + " to " + newOffset + " for " + handler.getName());
+		wasModified = true; 
+	}
 	public int getParentOffset() { return updatedParentOffset != null ? updatedParentOffset : parentOffset; }
-	public void setParentOffset(int newOffset) { updatedParentOffset = newOffset; wasModified = true; }
+	public void setParentOffset(int newOffset) {
+		if (newOffset == parentOffset) { return; }
+		updatedParentOffset = newOffset; 
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Changing parentOffset from " + parentOffset + " to " + newOffset + " for " + handler.getName());
+		wasModified = true;
+	}
 	
 	public byte getSceneKind() { return sceneKind; }
 	public byte getNumberOfArgs() { return numberOfArgs; }
@@ -122,15 +142,25 @@ public class FE9ScriptScene {
 	public void setScriptBytes(byte[] newBytes) {
 		updatedBytes = newBytes;
 		updatedInstructions = FE9ScriptInterpreter.instructionsFromBytes(updatedBytes, handler);
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Changing scriptBytes for " + handler.getName());
 		wasModified = true;
 	}
 	
-	public List<ScriptInstruction> getOriginalInstructions() { return List.copyOf(instructions); }
-	public List<ScriptInstruction> getInstructions() { return List.copyOf(updatedInstructions != null ? updatedInstructions : instructions); }
+	public List<ScriptInstruction> getOriginalInstructions() { return WhyDoesJavaNotHaveThese.createMutableCopy(instructions); }
+	public List<ScriptInstruction> getInstructions() { return WhyDoesJavaNotHaveThese.createMutableCopy(updatedInstructions != null ? updatedInstructions : instructions); }
 	public void setInstructions(List<ScriptInstruction> newInstructions) {
 		updatedInstructions = newInstructions;
 		ByteArrayBuilder newBytes = new ByteArrayBuilder();
 		updatedInstructions.stream().map(instruction -> { return instruction.rawBytes(); }).forEachOrdered(bytes -> { newBytes.appendBytes(bytes); });
+		updatedBytes = newBytes.toByteArray();
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Changing instructions for " + handler.getName());
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Old Instructions: ");
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, String.join("\n", instructions.stream().map(instruction -> { return instruction.displayString(); }).collect(Collectors.toList())));
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "New Instructions: ");
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, String.join("\n", updatedInstructions.stream().map(instruction -> { return instruction.displayString(); }).collect(Collectors.toList())));
+		
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Old bytes: " + WhyDoesJavaNotHaveThese.displayStringForBytes(scriptBytes));
+		DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "New Bytes: " + WhyDoesJavaNotHaveThese.displayStringForBytes(updatedBytes));
 		wasModified = true;
 	}
 	
@@ -148,54 +178,66 @@ public class FE9ScriptScene {
 	}
 	
 	public void commit() {
-		scriptBytes = updatedBytes;
+		if (!wasModified) { return; }
+		
+		if (updatedBytes != null) { scriptBytes = updatedBytes; }
 		updatedBytes = null;
-		instructions = updatedInstructions;
+		if (updatedInstructions != null) { instructions = WhyDoesJavaNotHaveThese.createMutableCopy(updatedInstructions); }
 		updatedInstructions = null;
-		pointerOffset = updatedPointerOffset;
+		if (updatedPointerOffset != null) { pointerOffset = updatedPointerOffset; }
 		updatedPointerOffset = null;
-		sceneHeaderOffset = updatedSceneHeaderOffset;
+		if (updatedSceneHeaderOffset != null) { sceneHeaderOffset = updatedSceneHeaderOffset; }
 		updatedSceneHeaderOffset = null;
-		identifierOffset = updatedIdentifierOffset;
+		if (updatedIdentifierOffset != null) { identifierOffset = updatedIdentifierOffset; }
 		updatedIdentifierOffset = null;
-		scriptOffset = updatedScriptOffset;
+		if (updatedScriptOffset != null) { scriptOffset = updatedScriptOffset; }
 		updatedScriptOffset = null;
-		parentOffset = updatedParentOffset;
+		if (updatedParentOffset != null) { parentOffset = updatedParentOffset; }
 		updatedParentOffset = null;
 		wasModified = false;
+		hasChanges = true;
 	}
 	
 	public boolean wasModified() {
 		return wasModified;
 	}
 	
+	public boolean hasChanges() {
+		return hasChanges;
+	}
+	
 	public byte[] buildHeader() {
 		// We basically have to reverse the steps we used to parse the header in the first place.
 		ByteArrayBuilder builder = new ByteArrayBuilder();
-		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(updatedIdentifierOffset, true, 4));
+		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(identifierOffset, true, 4));
 		// Remember to append the string after the proper header.
-		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(updatedScriptOffset, true, 4));
-		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(updatedParentOffset, true, 4));
+		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(scriptOffset, true, 4));
+		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(parentOffset, true, 4));
 		
 		builder.appendByte(sceneKind);
 		builder.appendByte(numberOfArgs);
 		builder.appendByte(parameterCount);
+		builder.appendByte(unknownByte);
 		
 		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(sceneIndex, true, 2));
 		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(varCount, true, 2));
 		
-		assert(builder.getBytesWritten() == 0x14);
+		if (builder.getBytesWritten() != 0x14) {
+			DebugPrinter.error(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Incorrect number of bytes written for header.");
+		}
+		
 		for (short param : params) {
 			builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(param, true, 2));
 		}
 		
-		params = new short[parameterCount];
-		
-		if (updatedIdentifierOffset != 0) {
+		if (identifierOffset != 0) {
+			if (builder.getBytesWritten() != identifierOffset - sceneHeaderOffset) {
+				DebugPrinter.error(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Script identifier written at the wrong place.");
+			}
 			builder.appendBytes(WhyDoesJavaNotHaveThese.shiftJISBytesFromString(identifierName));
 			if (builder.getLastByteWritten() != 0) { builder.appendByte((byte)0); }
 		}
-		
+
 		return builder.toByteArray();
 	}
 	

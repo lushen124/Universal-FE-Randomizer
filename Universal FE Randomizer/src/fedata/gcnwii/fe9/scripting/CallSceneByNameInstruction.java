@@ -34,10 +34,10 @@ public class CallSceneByNameInstruction extends ScriptInstruction {
 
 	@Override
 	public byte[] rawBytes() {
-		byte[] referenceToString = handler.referenceToString(sceneName);
+		byte[] referenceToString = handler.referenceToString(sceneName, 2);
 		if (referenceToString == null) { 
 			handler.addString(sceneName);
-			referenceToString = handler.referenceToString(sceneName);
+			referenceToString = handler.referenceToString(sceneName, 2);
 		}
 		assert(referenceToString != null);
 		assert(referenceToString.length == 2);
