@@ -6,6 +6,10 @@ import fedata.general.FEModifiableData;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE9Class implements FEModifiableData {
+	
+	public static int ClassSkill1Offset = 0x18;
+	public static int ClassSkill2Offset = 0x1C;
+	public static int ClassSkill3Offset = 0x20;
 
 	private byte[] originalData;
 	private byte[] data;
@@ -89,40 +93,40 @@ public class FE9Class implements FEModifiableData {
 	
 	public long getSkill1Pointer() {
 		if (cachedSkill1Pointer == null) {
-			cachedSkill1Pointer = readPointerAtOffset(0x18);
+			cachedSkill1Pointer = readPointerAtOffset(FE9Class.ClassSkill1Offset);
 		}
 		return cachedSkill1Pointer;
 	}
 	
 	public void setSkill1Pointer(long ptr) {
 		cachedSkill1Pointer = ptr;
-		writePointerToOffset(ptr, 0x18);
+		writePointerToOffset(ptr, FE9Class.ClassSkill1Offset);
 		wasModified = true;
 	}
 	
 	public long getSkill2Pointer() {
 		if (cachedSkill2Pointer == null) {
-			cachedSkill2Pointer = readPointerAtOffset(0x1C);
+			cachedSkill2Pointer = readPointerAtOffset(FE9Class.ClassSkill2Offset);
 		}
 		return cachedSkill2Pointer;
 	}
 	
 	public void setSkill2Pointer(long ptr) {
 		cachedSkill2Pointer = ptr;
-		writePointerToOffset(ptr, 0x1C);
+		writePointerToOffset(ptr, FE9Class.ClassSkill2Offset);
 		wasModified = true;
 	}
 	
 	public long getSkill3Pointer() {
 		if (cachedSkill3Pointer == null) {
-			cachedSkill3Pointer = readPointerAtOffset(0x20);
+			cachedSkill3Pointer = readPointerAtOffset(FE9Class.ClassSkill3Offset);
 		}
 		return cachedSkill3Pointer;
 	}
 	
 	public void setSkill3Pointer(long ptr) {
 		cachedSkill3Pointer = ptr;
-		writePointerToOffset(ptr, 0x20);
+		writePointerToOffset(ptr, FE9Class.ClassSkill3Offset);
 		wasModified = true;
 	}
 	

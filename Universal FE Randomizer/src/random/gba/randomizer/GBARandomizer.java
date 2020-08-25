@@ -317,7 +317,7 @@ public class GBARandomizer extends Randomizer {
 		
 		updateStatusString("Detecting Free Space...");
 		updateProgress(0.02);
-		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7, FE7Data.InternalFreeRange);
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7, FE7Data.InternalFreeRange, handler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.05);
 		textData = new TextLoader(FEBase.GameType.FE7, handler);
@@ -347,7 +347,7 @@ public class GBARandomizer extends Randomizer {
 		
 		updateStatusString("Detecting Free Space...");
 		updateProgress(0.02);
-		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6, FE6Data.InternalFreeRange);
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6, FE6Data.InternalFreeRange, handler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.05);
 		textData = new TextLoader(FEBase.GameType.FE6, handler);
@@ -379,7 +379,7 @@ public class GBARandomizer extends Randomizer {
 		
 		updateStatusString("Detecting Free Space...");
 		updateProgress(0.02);
-		freeSpace = new FreeSpaceManager(FEBase.GameType.FE8, FE8Data.InternalFreeRange);
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE8, FE8Data.InternalFreeRange, handler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.04);
 		textData = new TextLoader(FEBase.GameType.FE8, handler);

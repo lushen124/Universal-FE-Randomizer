@@ -120,6 +120,7 @@ public class FE9Randomizer extends Randomizer {
 			return;
 		} catch (GCNISOException e) {
 			notifyError("Failed to read Gamecube ISO format.");
+			return;
 		}
 		
 		ChangelogBuilder changelogBuilder = new ChangelogBuilder();
@@ -289,6 +290,9 @@ public class FE9Randomizer extends Randomizer {
 			}
 		}
 		
+		// Give Warp a real name and description.
+		textData.setStringForIdentifier("MIID_WARP", "Warp");
+		textData.setStringForIdentifier("MH_I_WARP", "You could just play through the map properly...");
 	}
 	
 	private void makePostRandomizationAdjustments() {
