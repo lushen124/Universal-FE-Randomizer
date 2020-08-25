@@ -19,6 +19,9 @@ import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9Data.Chapter;
 import fedata.gcnwii.fe9.FE9Item;
+import fedata.gcnwii.fe9.FE9ScriptScene;
+import fedata.gcnwii.fe9.scripting.PushLiteralString16Instruction;
+import fedata.gcnwii.fe9.scripting.ScriptInstruction;
 import io.FileHandler;
 import io.FileWriter;
 import io.gcn.GCNCMBFileHandler;
@@ -36,6 +39,7 @@ import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9CommonTextLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponRank;
+import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponType;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
 import random.general.WeightedDistributor;
@@ -293,6 +297,18 @@ public class FE9Randomizer extends Randomizer {
 		// Give Warp a real name and description.
 		textData.setStringForIdentifier("MIID_WARP", "Warp");
 		textData.setStringForIdentifier("MH_I_WARP", "You could just play through the map properly...");
+		
+		// Just to be doubly sure, give Ike a Vulnerary in Prologue.
+		List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
+		for (FE9ChapterArmy army : armies) {
+			for (String unitID : army.getAllUnitIDs()) {
+				FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+				if (army.getPIDForUnit(unit).equals(FE9Data.Character.IKE.getPID())) {
+					army.setItem1ForUnit(unit, FE9Data.Item.VULNERARY.getIID());
+				}
+			}
+			army.commitChanges();
+		}
 	}
 	
 	private void makePostRandomizationAdjustments() {
@@ -376,6 +392,49 @@ public class FE9Randomizer extends Randomizer {
 				}
 				army.commitChanges();
 			}
+		}
+		
+		// Update Ike's starting inventory based on class (if necessary).
+		FE9Class ikeClass = classData.classWithID(charData.getJIDForCharacter(ike));
+		List<WeaponType> ikeWeaponTypes = classData.getUsableWeaponTypesForClass(ikeClass);
+		FE9Item basicWeapon = null;
+		if (!ikeWeaponTypes.isEmpty()) {
+			WeaponType selectedType = ikeWeaponTypes.get(0);
+			basicWeapon =  itemData.basicItemForType(selectedType);
+		}
+		
+		if (basicWeapon != null && !itemData.iidOfItem(basicWeapon).equals(FE9Data.Item.IRON_SWORD.getIID())) {
+			// In the script for Prologue, the game gives him one iron sword.
+			// In the script for Chapter 1, the game gives him three more iron swords.
+			// TODO: See what's calling the script in Chapter 1. Maybe we can get it to not do that.
+			GCNCMBFileHandler prologue = chapterData.getHandlerForScripts(FE9Data.Chapter.PROLOGUE);
+			FE9ScriptScene scene = prologue.getSceneWithIndex(0x13);
+			List<ScriptInstruction> instructions = scene.getInstructions();
+			for (int i = 0; i < instructions.size(); i++) {
+				ScriptInstruction instruction = instructions.get(i);
+				if (instruction instanceof PushLiteralString16Instruction && 
+						((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.IRON_SWORD.getIID())) {
+					instructions.remove(i);
+					instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(basicWeapon), prologue));
+					break;
+				}
+			}
+			scene.setInstructions(instructions);
+			scene.commit();
+			
+			GCNCMBFileHandler chapter1 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_1);
+			scene = chapter1.getSceneWithIndex(0x1C);
+			instructions = scene.getInstructions();
+			for (int i = 0; i < instructions.size(); i++) {
+				ScriptInstruction instruction = instructions.get(i);
+				if (instruction instanceof PushLiteralString16Instruction &&
+					((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.IRON_SWORD.getIID())) {
+					instructions.remove(i);
+					instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(basicWeapon), chapter1));
+				}	
+			}
+			scene.setInstructions(instructions);
+			scene.commit();
 		}
 	}
 	
@@ -516,12 +575,6 @@ public class FE9Randomizer extends Randomizer {
 						classOptions.forceDifferent, 
 						classOptions.mixPCRaces, 
 						classOptions.allowCrossgender, charData, classData, chapterData, skillData, itemData, rng);
-				try {
-					FE9ClassRandomizer.updateIkeInventoryChapter1Script(charData, itemData, handler);
-				} catch (GCNISOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			}
 			if (classOptions.randomizeBosses) {
 				FE9ClassRandomizer.randomizeBossCharacters(classOptions.forceDifferent, 
