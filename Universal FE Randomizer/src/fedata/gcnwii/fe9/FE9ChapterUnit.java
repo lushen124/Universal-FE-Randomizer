@@ -24,6 +24,15 @@ public class FE9ChapterUnit implements FEModifiableData {
 	public static final int Skill3Offset = 0x34;
 	public static final int Skill4Offset = 0x38;
 	
+	public static final int HPAdjustmentOffset = 0x43;
+	public static final int STRAdjustmentOffset = 0x44;
+	public static final int MAGAdjustmentOffset = 0x45;
+	public static final int SKLAdjustmentOffset = 0x46;
+	public static final int SPDAdjustmentOffset = 0x47;
+	public static final int LCKAdjustmentOffset = 0x48;
+	public static final int DEFAdjustmentOffset = 0x49;
+	public static final int RESAdjustmentOffset = 0x4A;
+	
 	private byte[] originalData;
 	private byte[] data;
 	
@@ -200,6 +209,88 @@ public class FE9ChapterUnit implements FEModifiableData {
 		wasModified = true;
 	}
 	
+	public byte[] getPostSkillData() {
+		// 0x3C ~ 0x42
+		return Arrays.copyOfRange(data, 0x3C, 0x43);
+	}
+	
+	public int getHPAdjustment() {
+		return data[HPAdjustmentOffset];
+	}
+	
+	public void setHPAdjustment(int adjustment) {
+		data[HPAdjustmentOffset] = (byte)(adjustment & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getSTRAdjustment() {
+		return data[STRAdjustmentOffset];
+	}
+	
+	public void setSTRAdjustment(int adjustment) {
+		data[STRAdjustmentOffset] = (byte)(adjustment & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getMAGAdjustment() {
+		return data[MAGAdjustmentOffset];
+	}
+	
+	public void setMAGAdjustment(int adjustment) {
+		data[MAGAdjustmentOffset] = (byte)(adjustment & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getSKLAdjustment() {
+		return data[SKLAdjustmentOffset];
+	}
+	
+	public void setSKLAdjustment(int adjustment) {
+		data[SKLAdjustmentOffset] = (byte)(adjustment & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getSPDAdjustment() {
+		return data[SPDAdjustmentOffset];
+	}
+	
+	public void setSPDAdjustment(int adjustment) {
+		data[SPDAdjustmentOffset] = (byte)(adjustment & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getLCKAdjustment() {
+		return data[LCKAdjustmentOffset];
+	}
+	
+	public void setLCKAdjustment(int adjustment) {
+		data[LCKAdjustmentOffset] = (byte)(adjustment & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getDEFAdjustment() {
+		return data[DEFAdjustmentOffset];
+	}
+	
+	public void setDEFAdjustment(int adjustment) {
+		data[DEFAdjustmentOffset] = (byte)(adjustment & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getRESAdjustment() {
+		return data[RESAdjustmentOffset];
+	}
+	
+	public void setRESAdjustment(int adjustment) {
+		data[RESAdjustmentOffset] = (byte)(adjustment & 0xFF);
+		wasModified = true;
+	}
+	
+	public byte[] getPostAdjustmentData() {
+		// 0x4B ~ 0x5B
+		return Arrays.copyOfRange(data, 0x4B, 0x5C);
+	}
+	
 	public int getStartingX() {
 		return data[0x5C];
 	}
@@ -218,6 +309,11 @@ public class FE9ChapterUnit implements FEModifiableData {
 	
 	public int getStartingLevel() {
 		return data[0x60];
+	}
+	
+	public byte[] getSuffixData() {
+		// 0x61 ~ 0x6C
+		return Arrays.copyOfRange(data, 0x61, 0x6C);
 	}
 	
 	public void setStartingLevel(int level) {
