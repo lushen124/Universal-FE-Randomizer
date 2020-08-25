@@ -42,7 +42,9 @@ public class ClassRandomizer {
 		GBAFEClassData[] allClasses = classData.allClasses();
 		for (GBAFEClassData currentClass : allClasses) {
 			if (currentClass.getMOV() > 0) {
-				int randomMOV = rng.nextInt(maxMOV - minMOV) + minMOV;
+				// #259: Allow for maximum provided in UI
+				// Fringe benefit of allowing (min == max), i.e. every class has the same MOV
+				int randomMOV = rng.nextInt(maxMOV - minMOV + 1) + minMOV;
 				currentClass.setMOV(randomMOV);
 			}
 		}
