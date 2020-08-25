@@ -47,6 +47,14 @@ public class ByteArrayBuilder {
 		return reversed;
 	}
 	
+	public Byte getLastByteWritten() {
+		if (bytesWritten > 0) {
+			return byteArray[bytesWritten - 1];
+		}
+		
+		return null;
+	}
+	
 	public int getBytesWritten() {
 		return bytesWritten;
 	}

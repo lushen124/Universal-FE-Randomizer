@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import fedata.gcnwii.fe9.FE9ScriptScene;
 import io.FileHandler;
 import util.ByteArrayBuilder;
+import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
 public class GCNCMBFileHandler extends GCNFileHandler {
@@ -22,6 +25,18 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 	private byte[] fullData;
 	
 	private ByteArrayBuilder newStringData;
+	
+	private List<FE9ScriptScene> scenes;
+	
+	// Anatomy of a CMB file.
+	// 0x0 ~ 0x2C - Header
+	// 		0x0 ~ 0x4 - magic word 'cmb'
+	//		variable bytes - name (null terminated)
+	//		~ 0x24 - unknown
+	//		0x24 ~ 0x28 - String Table Offset
+	//		0x28 ~ 0x2C bytes - Script Table Offset
+	// 0x2C ~ Script Table offset - String table.
+	// Rest of the file is the scripts.
 	
 	public GCNCMBFileHandler(GCNFSTFileEntry entry, FileHandler handler, GCNISOHandler isoHandler) throws GCNISOException {
 		super(entry, handler);
@@ -54,10 +69,59 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 			while (getNextReadOffset() < scriptTableOffset) {
 				long currentOffset = getNextReadOffset();
 				byte[] stringBytes = continueReadingBytesUpToNextTerminator(scriptTableOffset);
-				String stringValue = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(stringBytes);
+				String stringValue = WhyDoesJavaNotHaveThese.stringFromShiftJIS(stringBytes);
 				stringsByAddress.put(currentOffset, stringValue);
 				addressesByString.put(stringValue, currentOffset);
 			}
+			
+			scenes = new ArrayList<FE9ScriptScene>();
+			
+			int scriptTableOffset = (int)getScriptTableOffset();
+			int currentSceneIndex = 0;
+			
+			byte[] nextHeaderOffset = cmb_readBytesAtOffset(scriptTableOffset, 4);
+			int next = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(nextHeaderOffset, true);
+			
+			while (next != 0) {
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Loading script " + currentSceneIndex);
+				FE9ScriptScene currentScene = new FE9ScriptScene(this, scriptTableOffset + (currentSceneIndex * 4));
+				scenes.add(currentScene);
+				
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tPointer Offset: 0x" + Integer.toHexString(currentScene.getPointerOffset()).toUpperCase());
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tHeader Offset: 0x" + Integer.toHexString(currentScene.getSceneHeaderOffset()).toUpperCase());
+				
+				if (currentScene.getIdentifierOffset() == 0) {
+					DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tIdentifier Offset: 0x" + Integer.toHexString(currentScene.getIdentifierOffset()).toUpperCase());
+				} else {
+					DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tIdentifier offset: 0x" + Integer.toHexString(currentScene.getIdentifierOffset()).toUpperCase() + " (" + currentScene.getIdentifierName() + ")");
+				}
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tScript Offset: 0x" + Integer.toHexString(currentScene.getScriptOffset()).toUpperCase());
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tParent Offset: 0x" + Integer.toHexString(currentScene.getParentOffset()).toUpperCase());
+				
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tScene Kind: 0x" + Integer.toHexString(currentScene.getSceneKind()).toUpperCase());
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tNumber of Arguments: " + currentScene.getNumberOfArgs());
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tNumber of Parameters: " + currentScene.getParameterCount());
+				
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tScene Index: 0x" + Integer.toHexString(currentScene.getSceneIndex()).toUpperCase());
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tVariable Count: " + currentScene.getVarCount());
+				
+				for (int i = 0; i < currentScene.getParams().length; i++) {
+					DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\t\tParameter: 0x" + Integer.toHexString(currentScene.getParams()[i]).toUpperCase());
+				}
+				
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tRaw script: " + WhyDoesJavaNotHaveThese.displayStringForBytes(currentScene.getScriptBytes()));
+			
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "\tDisassembled:\n" + String.join("", currentScene.getInstructions().stream().map( instruction -> {
+					return instruction.displayString() + "\n";
+				}).collect(Collectors.toList())));
+				
+				currentSceneIndex++;
+				nextHeaderOffset = cmb_readBytesAtOffset(scriptTableOffset + (currentSceneIndex * 4), 4);
+				next = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(nextHeaderOffset, true);
+			}
+			
+			DebugPrinter.log(DebugPrinter.Key.FE9_CHAPTER_SCRIPT, "Finished loading scripts for " + getName());
+			
 		} else {
 			throw new GCNISOException("Invalid CMB file header.");
 		}
@@ -65,6 +129,10 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public List<FE9ScriptScene> getScenes() {
+		return scenes;
 	}
 	
 	public void addString(String string) {
@@ -85,78 +153,85 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 		return;
 	}
 	
-	public byte[] build() {
-		if (newStringData.getBytesWritten() == 0) { return fullData; }
+	public byte[] newBuild() {
+		boolean hasChanged = scenes.stream().anyMatch(scene -> { return scene.hasChanges(); });
+		if (!hasChanged) { return fullData; }
 		
-		// Split into components.
-		byte[] headerData = WhyDoesJavaNotHaveThese.subArray(fullData, 0, 0x2C);
-		byte[] existingStringData = WhyDoesJavaNotHaveThese.subArray(fullData, (int)stringTableOffset, (int)(scriptTableOffset - stringTableOffset));
-		byte[] existingScriptData = WhyDoesJavaNotHaveThese.subArray(fullData, (int)scriptTableOffset, (int)(fullData.length - scriptTableOffset));
+		ByteArrayBuilder builder = new ByteArrayBuilder();
 		
+		// Write the first 0x28 bytes. These will not have changed.
+		builder.appendBytes(WhyDoesJavaNotHaveThese.subArray(fullData, 0, 0x28));
+		// The script table offset might have changed though.
 		// Pad the new string data to byte align.
 		while (newStringData.getBytesWritten() % 4 != 0) { newStringData.appendByte((byte)0); }
 		
 		// Update script table's offset in the header.
 		long newScriptTableOffset = scriptTableOffset + newStringData.getBytesWritten();
-		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newScriptTableOffset, true, 4), headerData, 0x28, 4);
+		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newScriptTableOffset, true, 4));
 		
-		// All of the pointers for the scripts need to be adjusted accordingly as well.
-		ByteArrayBuilder scriptPointerBuilder = new ByteArrayBuilder();
-		byte[] currentPtr = new byte[4];
-		for (int i = 0; i < existingScriptData.length; i += 4) {
-			currentPtr[0] = existingScriptData[i];
-			currentPtr[1] = existingScriptData[i + 1];
-			currentPtr[2] = existingScriptData[i + 2];
-			currentPtr[3] = existingScriptData[i + 3];
-			long pointer = WhyDoesJavaNotHaveThese.longValueFromByteArray(currentPtr, true);
-			if (pointer == 0) { break; }
-			pointer += newStringData.getBytesWritten();
-			byte[] newPointerBytes = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(pointer, true, 4);
-			scriptPointerBuilder.appendBytes(newPointerBytes);
-		}
-		
-		byte[] updatedPointerBytes = scriptPointerBuilder.toByteArray();
-		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(updatedPointerBytes, existingScriptData, 0, updatedPointerBytes.length);
-		
-		// We might need to change all of the pointers in the scripts themselves too...
-		// This is dangerous. We'll see if we can identify the pointers properly. They should be valid pointers pointing to addresses
-		// larger than the scriptTableOffset but smaller than the file size.
-		for (int i = updatedPointerBytes.length; i < existingScriptData.length; i += 4) {
-			currentPtr[0] = existingScriptData[i];
-			currentPtr[1] = existingScriptData[i + 1];
-			currentPtr[2] = existingScriptData[i + 2];
-			currentPtr[3] = existingScriptData[i + 3];
-			long pointer = WhyDoesJavaNotHaveThese.longValueFromByteArray(currentPtr, true);
-			if (pointer < scriptTableOffset || pointer > fullData.length) { continue; }
-			pointer += newStringData.getBytesWritten();
-			byte[] newPointerBytes = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(pointer, true, 4);
-			WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(newPointerBytes, existingScriptData, i, 4);
-		}
-		
-		// Build it.
-		ByteArrayBuilder builder = new ByteArrayBuilder();
-		builder.appendBytes(headerData);
-		builder.appendBytes(existingStringData);
-		assert(builder.getBytesWritten() == scriptTableOffset);
+		// What immediately follows those offsets is the string table.
+		// Write the original string data first.
+		byte[] originalStringData = WhyDoesJavaNotHaveThese.subArray(fullData, (int)stringTableOffset, (int)(scriptTableOffset - stringTableOffset));
+		builder.appendBytes(originalStringData);
+		// Write the added string data.
 		builder.appendBytes(newStringData.toByteArray());
-		assert(builder.getBytesWritten() == newScriptTableOffset);
-		builder.appendBytes(existingScriptData);
 		
-		newStringData.clear();
+		// The script table uses absolute pointers to point to each scene header, and the scene headers use absolute pointers to point to
+		// the name (if applicable), the script bytes, and the parent (if applicable).
+		
+		// The pointers to the scene headers will be offset by the strings added, as well as any expanded scripts preceding it.
+		int addedOffset = newStringData.getBytesWritten();
+		for (FE9ScriptScene scene : scenes) {
+			int headerOffset = scene.getSceneHeaderOffset();
+			headerOffset += addedOffset;
+			builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(headerOffset, true, 4));
+			
+			// Update offsets we will write later as well.
+			scene.setSceneHeaderOffset(headerOffset);
+			if (scene.getIdentifierOffset() != 0) { scene.setIdentifierOffset(scene.getIdentifierOffset() + addedOffset); }
+			if (scene.getParentOffset() != 0) { scene.setParentOffset(scene.getParentOffset() + addedOffset); }
+			if (scene.getScriptOffset() != 0) { scene.setScriptOffset(scene.getScriptOffset() + addedOffset); }
+			
+			int originalScriptLength = scene.getOriginalScriptBytes().length;
+			int newScriptLength = scene.getScriptBytes().length;
+			addedOffset += (newScriptLength - originalScriptLength);
+		}
+		
+		// The pointers are terminated with a 0 address.
+		builder.appendBytes(new byte[] {0, 0, 0, 0});
+		
+		// Scripts are stored header+identifier, then script bytes.
+		// These will be more complex, because the script length can change, and that can throw off future scripts.
+		for (FE9ScriptScene scene: scenes) {
+			while(builder.getBytesWritten() != scene.getSceneHeaderOffset()) {
+				builder.appendByte((byte)0);
+			}
+			
+			builder.appendBytes(scene.buildHeader());
+			
+			while (builder.getBytesWritten() != scene.getScriptOffset()) {
+				builder.appendByte((byte)0);
+			}
+			
+			builder.appendBytes(scene.buildScriptBytes());
+		}
+		
 		fullData = builder.toByteArray();
+		scenes.forEach(scene -> {scene.commit();});
+		newStringData.clear();
 		scriptTableOffset = newScriptTableOffset;
 		
-		return builder.toByteArray();
+		return fullData;
 	}
 	
-	public byte[] bytePrefixForString(String string) {
+	public byte[] referenceToString(String string, int numBytes) {
 		if (string == null) {
 			return null;
 		}
 		
 		Long addressForString = addressesByString.get(string);
 		if (addressForString != null) {
-			return WhyDoesJavaNotHaveThese.byteArrayFromLongValue(addressForString - stringTableOffset, false, 2);
+			return WhyDoesJavaNotHaveThese.byteArrayFromLongValue(addressForString - stringTableOffset, false, numBytes);
 		}
 		
 		return null;
@@ -188,6 +263,19 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 		return builder.toByteArray();
 	}
 	
+	public byte[] cmb_readBytesUpToNextTerminator(int offset) {
+		ByteArrayBuilder builder = new ByteArrayBuilder();
+		int index = offset;
+		byte currentByte = fullData[index++];
+		while (currentByte != 0) {
+			builder.appendByte(currentByte);
+			currentByte = fullData[index++];
+		}
+		
+		builder.appendByte((byte)0);
+		return builder.toByteArray();
+	}
+	
 	public void cmb_writeBytesToOffset(long offset, byte[] bytesToWrite) {
 		for (int i = 0; i < bytesToWrite.length; i++) {
 			fullData[(int)(offset + i)] = bytesToWrite[i];
@@ -207,6 +295,10 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 			currentOffset = nextOffset + 1;
 		}
 		return offsets;
+	}
+	
+	public long getScriptTableOffset() {
+		return scriptTableOffset;
 	}
 	
 	private Long advanceToNextInstance(byte[] bytesToSearch, long startingOffset) {

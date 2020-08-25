@@ -1008,73 +1008,75 @@ public class FE9Data {
 	
 	public enum Chapter {
 		
-		ALL_CHAPTERS("zmap/always/dispos.cmp", null), // Supposedly between-chapter units are loaded here? Only has a cross-difficulty definition.
+		ALL_CHAPTERS("zmap/always/dispos.cmp", null, null), // Supposedly between-chapter units are loaded here? Only has a cross-difficulty definition.
 		
-		PROLOGUE("zmap/bmap01/dispos.cmp", "Scripts/C01.cmb"),
-		CHAPTER_1("zmap/bmap02/dispos.cmp", "Scripts/C02.cmb"),
-		CHAPTER_2("zmap/bmap03/dispos.cmp", "Scripts/C03.cmb"),
-		CHAPTER_3("zmap/bmap04/dispos.cmp", "Scripts/C04.cmb"),
-		CHAPTER_4("zmap/bmap05/dispos.cmp", "Scripts/C05.cmb"),
-		CHAPTER_5("zmap/bmap06/dispos.cmp", "Scripts/C06.cmb"),
-		CHAPTER_5_CUTSCENE("zmap/bmap06_2/dispos.cmp", null),
-		CHAPTER_6("zmap/bmap07/dispos.cmp", "Scripts/C07.cmb"),
-		CHAPTER_7("zmap/bmap08/dispos.cmp", "Scripts/C08.cmb"),
-		CHAPTER_7_CUTSCENE("zmap/bmap08_2/dispos.cmp", null),
-		CHAPTER_8("zmap/bmap09/dispos.cmp", "Scripts/C09.cmb"),
-		CHAPTER_8_CUTSCENE("zmap/bmap09_2/dispos.cmp", null),
-		CHAPTER_8_CUTSCENE_2("zmap/bmap09_3/dispos.cmp", null),
-		CHAPTER_8_CUTSCENE_3("zmap/bmap09_4/dispos.cmp", null),
-		CHAPTER_8_CUTSCENE_4("zmap/bmap09_5/dispos.cmp", null),
-		CHAPTER_9("zmap/bmap10/dispos.cmp", "Scripts/C10.cmb"),
-		CHAPTER_10("zmap/bmap11/dispos.cmp", "Scripts/C11.cmb"),
-		CHAPTER_11("zmap/bmap12/dispos.cmp", "Scripts/C12.cmb"),
-		CHAPTER_11_CUTSCENE("zmap/bmap12_2/dispos.cmp", null),
-		CHAPTER_12("zmap/bmap13/dispos.cmp", "Scripts/C13.cmb"),
-		CHAPTER_13("zmap/bmap14/dispos.cmp", "Scripts/C14.cmb"),
-		CHAPTER_13_CUTSCENE("zmap/bmap14_2/dispos.cmp", null),
-		CHAPTER_14("zmap/bmap15/dispos.cmp", "Scripts/C15.cmb"),
-		CHAPTER_15("zmap/bmap16/dispos.cmp", "Scripts/C16.cmb"),
-		CHAPTER_16("zmap/bmap17/dispos.cmp", "Scripts/C17.cmb"),
-		CHAPTER_17("zmap/bmap18/dispos.cmp", "Scripts/C18.cmb"), // All of it.
-		CHAPTER_17_CUTSCENE("zmap/bmap18_3/dispos.cmp", null), // There's a bmap18_2, but that one only has a map.cmp.
-		CHAPTER_18("zmap/bmap19/dispos.cmp", "Scripts/C19.cmb"),
-		CHAPTER_19("zmap/bmap20/dispos.cmp", "Scripts/C20.cmb"),
-		CHAPTER_20("zmap/bmap21/dispos.cmp", "Scripts/C21.cmb"),
-		CHAPTER_21("zmap/bmap22/dispos.cmp", "Scripts/C22.cmb"),
-		CHAPTER_22("zmap/bmap23/dispos.cmp", "Scripts/C23.cmb"),
-		CHAPTER_23("zmap/bmap24/dispos.cmp", "Scripts/C24.cmb"),
-		CHAPTER_24("zmap/bmap25/dispos.cmp", "Scripts/C25.cmb"),
-		CHAPTER_24_CUTSCENE("zmap/bmap25_2/dispos.cmp", null),
-		CHAPTER_25("zmap/bmap26/dispos.cmp", "Scripts/C26.cmb"),
-		CHAPTER_25_CUTSCENE("zmap/bmap26_2/dispos.cmp", null),
-		CHAPTER_26("zmap/bmap27/dispos.cmp", "Scripts/C27.cmb"),
-		CHAPTER_27("zmap/bmap28/dispos.cmp", "Scripts/C28.cmb"),
-		CHAPTER_27_BK_FIGHT("zmap/bmap29/dispos.cmp", "Scripts/C29.cmb"), // This is its own, for some reason.
-		CHAPTER_28("zmap/bmap30/dispos.cmp", "Scripts/C30.cmb"),
-		ENDGAME("zmap/bmap31/dispos.cmp", "Scripts/C31.cmb"),
-		ENDGAME_CUTSCENE("zmap/bmap31_2/dispos.cmp", null),
-		ENDGAME_CUTSCENE_2("zmap/bmap31_3/dispos.cmp", null),
+		PROLOGUE("zmap/bmap01/dispos.cmp", "Scripts/C01.cmb", "Mess/c01.m"),
+		CHAPTER_1("zmap/bmap02/dispos.cmp", "Scripts/C02.cmb", "Mess/c02.m"),
+		CHAPTER_2("zmap/bmap03/dispos.cmp", "Scripts/C03.cmb", "Mess/c03.m"),
+		CHAPTER_3("zmap/bmap04/dispos.cmp", "Scripts/C04.cmb", "Mess/c04.m"),
+		CHAPTER_4("zmap/bmap05/dispos.cmp", "Scripts/C05.cmb", "Mess/c05.m"),
+		CHAPTER_5("zmap/bmap06/dispos.cmp", "Scripts/C06.cmb", "Mess/c06.m"),
+		CHAPTER_5_CUTSCENE("zmap/bmap06_2/dispos.cmp", null, null),
+		CHAPTER_6("zmap/bmap07/dispos.cmp", "Scripts/C07.cmb", "Mess/c07.m"),
+		CHAPTER_7("zmap/bmap08/dispos.cmp", "Scripts/C08.cmb", "Mess/c08.m"),
+		CHAPTER_7_CUTSCENE("zmap/bmap08_2/dispos.cmp", null, null),
+		CHAPTER_8("zmap/bmap09/dispos.cmp", "Scripts/C09.cmb", "Mess/c09.m"),
+		CHAPTER_8_CUTSCENE("zmap/bmap09_2/dispos.cmp", null, null),
+		CHAPTER_8_CUTSCENE_2("zmap/bmap09_3/dispos.cmp", null, null),
+		CHAPTER_8_CUTSCENE_3("zmap/bmap09_4/dispos.cmp", null, null),
+		CHAPTER_8_CUTSCENE_4("zmap/bmap09_5/dispos.cmp", null, null),
+		CHAPTER_9("zmap/bmap10/dispos.cmp", "Scripts/C10.cmb", "Mess/c10.m"),
+		CHAPTER_10("zmap/bmap11/dispos.cmp", "Scripts/C11.cmb", "Mess/c11.m"),
+		CHAPTER_11("zmap/bmap12/dispos.cmp", "Scripts/C12.cmb", "Mess/c12.m"),
+		CHAPTER_11_CUTSCENE("zmap/bmap12_2/dispos.cmp", null, null),
+		CHAPTER_12("zmap/bmap13/dispos.cmp", "Scripts/C13.cmb", "Mess/c13.m"),
+		CHAPTER_13("zmap/bmap14/dispos.cmp", "Scripts/C14.cmb", "Mess/c14.m"),
+		CHAPTER_13_CUTSCENE("zmap/bmap14_2/dispos.cmp", null, null),
+		CHAPTER_14("zmap/bmap15/dispos.cmp", "Scripts/C15.cmb", "Mess/c15.m"),
+		CHAPTER_15("zmap/bmap16/dispos.cmp", "Scripts/C16.cmb", "Mess/c16.m"),
+		CHAPTER_16("zmap/bmap17/dispos.cmp", "Scripts/C17.cmb", "Mess/c17.m"),
+		CHAPTER_17("zmap/bmap18/dispos.cmp", "Scripts/C18.cmb", "Mess/c18.m"), // All of it.
+		CHAPTER_17_CUTSCENE("zmap/bmap18_3/dispos.cmp", null, null), // There's a bmap18_2, but that one only has a map.cmp.
+		CHAPTER_18("zmap/bmap19/dispos.cmp", "Scripts/C19.cmb", "Mess/c19.m"),
+		CHAPTER_19("zmap/bmap20/dispos.cmp", "Scripts/C20.cmb", "Mess/c20.m"),
+		CHAPTER_20("zmap/bmap21/dispos.cmp", "Scripts/C21.cmb", "Mess/c21.m"),
+		CHAPTER_21("zmap/bmap22/dispos.cmp", "Scripts/C22.cmb", "Mess/c22.m"),
+		CHAPTER_22("zmap/bmap23/dispos.cmp", "Scripts/C23.cmb", "Mess/c23.m"),
+		CHAPTER_23("zmap/bmap24/dispos.cmp", "Scripts/C24.cmb", "Mess/c24.m"),
+		CHAPTER_24("zmap/bmap25/dispos.cmp", "Scripts/C25.cmb", "Mess/c25.m"),
+		CHAPTER_24_CUTSCENE("zmap/bmap25_2/dispos.cmp", null, null),
+		CHAPTER_25("zmap/bmap26/dispos.cmp", "Scripts/C26.cmb", "Mess/c26.m"),
+		CHAPTER_25_CUTSCENE("zmap/bmap26_2/dispos.cmp", null, null),
+		CHAPTER_26("zmap/bmap27/dispos.cmp", "Scripts/C27.cmb", "Mess/c27.m"),
+		CHAPTER_27("zmap/bmap28/dispos.cmp", "Scripts/C28.cmb", "Mess/c28.m"),
+		CHAPTER_27_BK_FIGHT("zmap/bmap29/dispos.cmp", "Scripts/C29.cmb", "Mess/c29.m"), // This is its own, for some reason.
+		CHAPTER_28("zmap/bmap30/dispos.cmp", "Scripts/C30.cmb", "Mess/c30.m"),
+		ENDGAME("zmap/bmap31/dispos.cmp", "Scripts/C31.cmb", "Mess/c31.m"),
+		ENDGAME_CUTSCENE("zmap/bmap31_2/dispos.cmp", null, null),
+		ENDGAME_CUTSCENE_2("zmap/bmap31_3/dispos.cmp", null, null),
 		
-		MAP_6("zmap/Map6/dispos.cmp", null), // Not sure what this is... debug map? 
-		T1("zmap/T1/dispos.cmp", null), // Only has cross-difficulty. Cutscene?
-		T2("zmap/T2/dispos.cmp", null), // See above.
-		T3("zmap/T3/dispos.cmp", null), // Actually, I think these are tutorial chapters.
+		MAP_6("zmap/Map6/dispos.cmp", null, null), // Not sure what this is... debug map? 
+		T1("zmap/T1/dispos.cmp", null, null), // Only has cross-difficulty. Cutscene?
+		T2("zmap/T2/dispos.cmp", null, null), // See above.
+		T3("zmap/T3/dispos.cmp", null, null), // Actually, I think these are tutorial chapters.
 		
 		// Trial maps. These also only have one difficulty (cross-difficulty)
-		TRIAL_MAP_1("zmap/trial_01/dispos.cmp", null),
-		TRIAL_MAP_2("zmap/trial_02/dispos.cmp", null),
-		TRIAL_MAP_3("zmap/trial_03/dispos.cmp", null),
-		TRIAL_MAP_4("zmap/trial_04/dispos.cmp", null),
-		TRIAL_MAP_5("zmap/trial_05/dispos.cmp", null),
-		TRIAL_MAP_6("zmap/trial_06/dispos.cmp", null)
+		TRIAL_MAP_1("zmap/trial_01/dispos.cmp", null, null),
+		TRIAL_MAP_2("zmap/trial_02/dispos.cmp", null, null),
+		TRIAL_MAP_3("zmap/trial_03/dispos.cmp", null, null),
+		TRIAL_MAP_4("zmap/trial_04/dispos.cmp", null, null),
+		TRIAL_MAP_5("zmap/trial_05/dispos.cmp", null, null),
+		TRIAL_MAP_6("zmap/trial_06/dispos.cmp", null, null)
 		;
 		
 		private String path;
 		private String scriptPath;
+		private String stringsPath;
 		
-		private Chapter(String path, String scriptPath) {
+		private Chapter(String path, String scriptPath, String stringsPath) {
 			this.path = path;
 			this.scriptPath = scriptPath;
+			this.stringsPath = stringsPath;
 		}
 		
 		public String getPath() {
@@ -1083,6 +1085,10 @@ public class FE9Data {
 		
 		public String getScriptPath() {
 			return scriptPath;
+		}
+		
+		public String getStringsPath() {
+			return stringsPath;
 		}
 		
 		public String getDisplayString() {

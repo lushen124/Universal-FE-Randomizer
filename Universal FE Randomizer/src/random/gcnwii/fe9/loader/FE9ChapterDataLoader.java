@@ -9,6 +9,7 @@ import java.util.Map;
 import fedata.gcnwii.fe9.FE9Base64;
 import fedata.gcnwii.fe9.FE9ChapterArmy;
 import fedata.gcnwii.fe9.FE9ChapterRewards;
+import fedata.gcnwii.fe9.FE9ChapterStrings;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Class;
@@ -20,6 +21,7 @@ import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
+import io.gcn.GCNMessageFileHandler;
 import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.Base64Asset;
@@ -42,12 +44,24 @@ public class FE9ChapterDataLoader {
 	List<FE9ChapterRewards> allChapterRewards;
 	Map<FE9Data.Chapter, FE9ChapterRewards> rewardsByChapter;
 	
+	List<GCNCMBFileHandler> allChapterScripts;
+	Map<FE9Data.Chapter, GCNCMBFileHandler> scriptsByChapter;
+	
+	List<FE9ChapterStrings> allChapterStrings;
+	Map<FE9Data.Chapter, FE9ChapterStrings> stringsByChapter;
+	
 	public FE9ChapterDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
 		allChapterArmies = new ArrayList<FE9ChapterArmy>();
 		armiesByChapter = new HashMap<FE9Data.Chapter, List<FE9ChapterArmy>>();
 		
 		allChapterRewards = new ArrayList<FE9ChapterRewards>();
 		rewardsByChapter = new HashMap<FE9Data.Chapter, FE9ChapterRewards>();
+		
+		allChapterScripts = new ArrayList<GCNCMBFileHandler>();
+		scriptsByChapter = new HashMap<FE9Data.Chapter, GCNCMBFileHandler>();
+		
+		allChapterStrings = new ArrayList<FE9ChapterStrings>();
+		stringsByChapter = new HashMap<FE9Data.Chapter, FE9ChapterStrings>();
 		
 		for (FE9Data.Chapter chapter : FE9Data.Chapter.values()) {
 			List<FE9ChapterArmy> armyList = new ArrayList<FE9ChapterArmy>();
@@ -70,6 +84,19 @@ public class FE9ChapterDataLoader {
 				FE9ChapterRewards rewards = new FE9ChapterRewards(cmbFileHandler);
 				allChapterRewards.add(rewards);
 				rewardsByChapter.put(chapter, rewards);
+				
+				allChapterScripts.add(cmbFileHandler);
+				scriptsByChapter.put(chapter, cmbFileHandler);
+			}
+			
+			if (chapter.getStringsPath() != null) {
+				GCNFileHandler handler = isoHandler.handlerForFileWithName(chapter.getStringsPath());
+				assert(handler instanceof GCNMessageFileHandler);
+				if (!(handler instanceof GCNMessageFileHandler)) { continue; }
+				GCNMessageFileHandler messageHandler = (GCNMessageFileHandler)handler;
+				FE9ChapterStrings strings = new FE9ChapterStrings(messageHandler);
+				allChapterStrings.add(strings);
+				stringsByChapter.put(chapter, strings);
 			}
 		}
 	}
@@ -80,6 +107,12 @@ public class FE9ChapterDataLoader {
 	
 	public List<FE9ChapterRewards> getAllChapterRewards() {
 		return allChapterRewards;
+	}
+	
+	public void debugPrintAllChapterStrings() {
+		for (FE9ChapterStrings strings : allChapterStrings) {
+			strings.debugPrintStrings();
+		}
 	}
 
 	public void debugPrintAllChapterArmies() {

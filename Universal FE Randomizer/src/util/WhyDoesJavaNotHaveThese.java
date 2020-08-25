@@ -1,6 +1,17 @@
 package util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.lang.reflect.Array;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -158,6 +169,27 @@ public class WhyDoesJavaNotHaveThese {
 		return sb.toString();
 	}
 	
+	public static String stringFromShiftJIS(byte[] input) {
+		StringBuilder sb = new StringBuilder();
+		
+		InputStream in = new ByteArrayInputStream(input);
+		try {
+			Reader reader = new InputStreamReader(in, Charset.forName("SJIS"));
+			int read;
+			while ((read = reader.read()) != -1) {
+				if (read == 0) { break; }
+				sb.append((char)read);
+			}
+			reader.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return "<ShiftJIS Decoding Error>";
+		}
+		
+		return sb.toString();
+	}
+	
 	public static byte[] asciiBytesFromString(String string) {
 		byte[] byteArray = new byte[string.length()];
 		for (int i = 0; i < string.length(); i++) {
@@ -165,6 +197,21 @@ public class WhyDoesJavaNotHaveThese {
 		}
 		
 		return byteArray;
+	}
+	
+	public static byte[] shiftJISBytesFromString(String string) {
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		Writer writer = new OutputStreamWriter(out, Charset.forName("SJIS"));
+		try {
+			writer.write(string);
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return asciiBytesFromString(string);
+		}
+		
+		return out.toByteArray();
 	}
 	
 	public static long longValueFromByteArray(byte[] input, boolean isLittleEndian) {
@@ -230,5 +277,13 @@ public class WhyDoesJavaNotHaveThese {
 		}
 		
 		return result;
+	}
+	
+	public static <T> List<T> createMutableCopy(List<T> list) {
+		List<T> copy = new ArrayList<T>();
+		for(T item : list) {
+			copy.add(item);
+		}
+		return copy;
 	}
 }

@@ -343,7 +343,7 @@ public class GCNISOHandler {
 					writer.write(cmpFileHandler.build());
 				} else if (fileHandler instanceof GCNCMBFileHandler) {
 					GCNCMBFileHandler cmbFileHandler = (GCNCMBFileHandler)fileHandler;
-					writer.write(cmbFileHandler.build());
+					writer.write(cmbFileHandler.newBuild());
 				} else if (fileHandler instanceof GCNMessageFileHandler) {
 					GCNMessageFileHandler messageFileHandler = (GCNMessageFileHandler)fileHandler;
 					writer.write(messageFileHandler.build());
@@ -436,7 +436,7 @@ public class GCNISOHandler {
 				((GCNCMPFileHandler)handler).build();
 			}
 			if (handler instanceof GCNCMBFileHandler) {
-				((GCNCMBFileHandler) handler).build();
+				((GCNCMBFileHandler) handler).newBuild();
 			}
 			if (handler instanceof GCNMessageFileHandler) {
 				((GCNMessageFileHandler) handler).build();
