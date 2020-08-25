@@ -54,15 +54,26 @@ public class DiffCompiler {
 	
 	public void applyDiffs(byte[] byteArray, long startingOffset) {
 		AddressRange range = new AddressRange(startingOffset, startingOffset + byteArray.length);
+		DebugPrinter.log(DebugPrinter.Key.DIFF, "Applying Diff to byte array starting from offset 0x" + Long.toHexString(startingOffset) + " for " + byteArray.length + " bytes.");
 		
 		for (Diff diff : diffArray) {
-			if (range.contains(diff.address)) {
-				int offset = (int)(diff.address - startingOffset);
-				for (int i = 0; i < diff.length; i++) {
-					if (offset + i >= byteArray.length) {
-						break;
+			if (range.contains(diff.address) || range.contains(diff.address + diff.length)) {
+				DebugPrinter.log(DebugPrinter.Key.DIFF, "Applying Diff starting from 0x" + Long.toHexString(diff.address));
+				if (diff.address < startingOffset) {
+					// We have a diff that started before this chunk but affects the start of this chunk.
+					int diffStartIndex = (int)(startingOffset - diff.address);
+					int remainingDiffLength = diff.length - diffStartIndex;
+					for (int i = 0; i < remainingDiffLength; i++) {
+						if (i >= byteArray.length) { break; }
+						byteArray[i] = diff.changes[i + diffStartIndex];
 					}
-					byteArray[offset + i] = diff.changes[i];
+				} else {
+					// This diff starts inside the chunk.
+					int offset = (int)(diff.address - startingOffset);
+					for (int i = 0; i < diff.length; i++) {
+						if (offset + i >= byteArray.length) { break; }
+						byteArray[offset + i] = diff.changes[i];
+					}
 				}
 			}
 		}
