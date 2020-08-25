@@ -346,7 +346,7 @@ public class GCNISOHandler {
 					writer.write(cmbFileHandler.newBuild());
 				} else if (fileHandler instanceof GCNMessageFileHandler) {
 					GCNMessageFileHandler messageFileHandler = (GCNMessageFileHandler)fileHandler;
-					writer.write(messageFileHandler.build());
+					writer.write(messageFileHandler.orderedBuild());
 				} else {
 					fileHandler.setNextReadOffset(0);
 					fileHandler.beginBatchRead();
@@ -439,7 +439,7 @@ public class GCNISOHandler {
 				((GCNCMBFileHandler) handler).newBuild();
 			}
 			if (handler instanceof GCNMessageFileHandler) {
-				((GCNMessageFileHandler) handler).build();
+				((GCNMessageFileHandler) handler).orderedBuild();
 			}
 			fileDataOrder.add(file);
 			if (currentDataOffset == -1) { currentDataOffset = file.fileOffset; } // Initialize the offset to the first file's offset.

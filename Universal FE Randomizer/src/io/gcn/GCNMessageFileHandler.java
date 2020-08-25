@@ -16,11 +16,52 @@ import util.WhyDoesJavaNotHaveThese;
 
 public class GCNMessageFileHandler extends GCNFileHandler {
 	
+	private static class StringEntry {
+		String identifier;
+		int valueOffset;
+		int identifierOffset;
+		int entryIndex;
+		
+		public StringEntry(String identifier, int valueOffset, int identifierOffset, int entryIndex) {
+			this.identifier = identifier;
+			this.valueOffset = valueOffset;
+			this.identifierOffset = identifierOffset;
+			this.entryIndex = entryIndex;
+		}
+		
+		public static Comparator<StringEntry> getValueComparator() {
+			return new Comparator<StringEntry>() {
+				@Override
+				public int compare(StringEntry arg0, StringEntry arg1) {
+					return Integer.compare(arg0.valueOffset, arg1.valueOffset);
+				}
+			};
+		}
+		
+		public static Comparator<StringEntry> getIdentifierOffsetComparator() {
+			return new Comparator<StringEntry>() {
+				@Override
+				public int compare(StringEntry arg0, StringEntry arg1) {
+					return Integer.compare(arg0.identifierOffset, arg1.identifierOffset);
+				}
+			};
+		}
+		
+		public static Comparator<StringEntry> getEntryIndexComparator() {
+			return new Comparator<StringEntry>() {
+				@Override
+				public int compare(StringEntry arg0, StringEntry arg1) {
+					return Integer.compare(arg0.entryIndex, arg1.entryIndex);
+				}
+			};
+		}
+	}
+	
 	private String fileIdentifier;
 	
 	private long entryStartingOffset;
 	
-	private List<String> orderedIDs;
+	private List<StringEntry> orderedIDs;
 	
 	private Map<String, String> idToDisplayString;
 	
@@ -33,7 +74,7 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 	public GCNMessageFileHandler(GCNFSTFileEntry entry, FileHandler handler, byte[] rawData) {
 		super(entry, handler);
 		
-		orderedIDs = new ArrayList<String>();
+		orderedIDs = new ArrayList<StringEntry>();
 		idToDisplayString = new HashMap<String, String>();
 		
 		builtData = rawData;
@@ -51,9 +92,9 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 			long idOffset = textEntry.getIDOffset() + idStartOffset;
 			byte[] idBytes = mess_readUntilTerminator(idOffset);
 			String identifier = WhyDoesJavaNotHaveThese.stringFromShiftJIS(idBytes);
-			orderedIDs.add(identifier);
-			
 			long valueOffset = textEntry.getStringOffset();
+			orderedIDs.add(new StringEntry(identifier, (int)valueOffset - 0x20, (int)idOffset, i));
+			
 			byte[] stringData = mess_readUntilTerminator(valueOffset);
 			String result = WhyDoesJavaNotHaveThese.stringFromShiftJIS(stringData);
 			idToDisplayString.put(identifier, result);
@@ -67,7 +108,7 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 		
 		fileIdentifier = isoHandler.fstNameOfEntry(entry);
 
-		orderedIDs = new ArrayList<String>();
+		orderedIDs = new ArrayList<StringEntry>();
 		idToDisplayString = new HashMap<String, String>();
 		
 		entryStartingOffset = WhyDoesJavaNotHaveThese.longValueFromByteArray(readBytesAtOffset(0x4, 4), false) + 0x20;
@@ -84,9 +125,9 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 			setNextReadOffset(idOffset);
 			byte[] idBytes = continueReadingBytesUpToNextTerminator(idOffset + 0xFF);
 			String identifier = WhyDoesJavaNotHaveThese.stringFromShiftJIS(idBytes);
-			orderedIDs.add(identifier);
-			
 			long valueOffset = textEntry.getStringOffset();
+			orderedIDs.add(new StringEntry(identifier, (int)valueOffset, (int)idOffset, i));
+			
 			setNextReadOffset(valueOffset);
 			byte[] stringData = continueReadingBytesUpToNextTerminator(valueOffset + 0xFFFF);
 			String result = WhyDoesJavaNotHaveThese.stringFromShiftJIS(stringData);
@@ -105,7 +146,7 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 	
 	public List<String> allIdentifiers() {
 		List<String> identifiers = new ArrayList<String>();
-		identifiers.addAll(orderedIDs);
+		identifiers.addAll(orderedIDs.stream().map(entry -> { return entry.identifier; }).collect(Collectors.toList()));
 		if (stringsToAdd != null) {
 			identifiers.addAll(stringsToAdd.keySet());
 		}
@@ -133,7 +174,7 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 		needsRebuild = true;
 	}
 	
-	public byte[] build() {
+	public byte[] orderedBuild() {
 		if (!needsRebuild) { return builtData; }
 		
 		ByteArrayBuilder builder = new ByteArrayBuilder();
@@ -157,69 +198,73 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 				0, 0, 0, 0,
 				0, 0, 0, 0});
 		
-		// Write the raw string data.
-		Map<String, Long> stringOffsets = new HashMap<String, Long>();
+		// Build the raw string data. These are word-aligned.
+		orderedIDs.sort(StringEntry.getValueComparator());
+		ByteArrayBuilder valueBuilder = new ByteArrayBuilder();
+		Map<String, Integer> valueOffsetsByID = new HashMap<String, Integer>();
 		
-		// Keep track of the IDs while we're at it.
+		for (StringEntry entry : orderedIDs) {
+			String id = entry.identifier;
+			while (valueBuilder.getBytesWritten() < entry.valueOffset) {
+				valueBuilder.appendByte((byte)0);
+			}
+			valueOffsetsByID.put(id, valueBuilder.getBytesWritten());
+			valueBuilder.appendBytes(WhyDoesJavaNotHaveThese.shiftJISBytesFromString(idToDisplayString.get(id)));
+		}
+		
+		// Add new strings here.
+		for (String addedStringID : stringsToAdd.keySet()) {
+			String addedString = stringsToAdd.get(addedStringID);
+			while (valueBuilder.getBytesWritten() % 4 != 0) { valueBuilder.appendByte((byte)0); }
+			valueOffsetsByID.put(addedStringID, valueBuilder.getBytesWritten());
+			valueBuilder.appendBytes(WhyDoesJavaNotHaveThese.shiftJISBytesFromString(addedString));
+		}
+		
+		// Build the ID table. These are null terminated, but not word-aligned.
+		orderedIDs.sort(StringEntry.getIdentifierOffsetComparator());
 		ByteArrayBuilder idBuilder = new ByteArrayBuilder();
-		Map<String, Long> idOffsets = new HashMap<String, Long>();
+		Map<String, Integer> idOffsetsByID = new HashMap<String, Integer>();
 		
-		for (String id : orderedIDs) {
-			stringOffsets.put(id, (long)builder.getBytesWritten() - 0x20); // Subtracting 0x20 to account for the header space.
-			String string = idToDisplayString.get(id);
-			builder.appendBytes(WhyDoesJavaNotHaveThese.asciiBytesFromString(string));
-			builder.appendByte((byte)0);
-			while (builder.getBytesWritten() % 4 != 0) { builder.appendByte((byte)0); }
-			
-			idOffsets.put(id, (long)idBuilder.getBytesWritten());
-			idBuilder.appendBytes(WhyDoesJavaNotHaveThese.asciiBytesFromString(id));
+		for (StringEntry entry : orderedIDs) {
+			String id = entry.identifier;
+			idOffsetsByID.put(id, idBuilder.getBytesWritten());
+			idBuilder.appendBytes(WhyDoesJavaNotHaveThese.shiftJISBytesFromString(id));
 			idBuilder.appendByte((byte)0);
 		}
 		
-		List<String> orderedNewIDs = null;
-		if (stringsToAdd != null) {
-			orderedNewIDs = stringsToAdd.keySet().stream().sorted(new Comparator<String>() {
-				@Override
-				public int compare(String o1, String o2) {
-					return o1.compareTo(o2);
-				}
-			}).collect(Collectors.toList());
-		
-			for (String addedID : orderedNewIDs) {
-				stringOffsets.put(addedID, (long)builder.getBytesWritten() - 0x20);
-				String string = stringsToAdd.get(addedID);
-				builder.appendBytes(WhyDoesJavaNotHaveThese.asciiBytesFromString(string));
-				builder.appendByte((byte)0);
-				while (builder.getBytesWritten() % 4 != 0) { builder.appendByte((byte)0); }
-				
-				idOffsets.put(addedID, (long)idBuilder.getBytesWritten());
-				idBuilder.appendBytes(WhyDoesJavaNotHaveThese.asciiBytesFromString(addedID));
-				idBuilder.appendByte((byte)0);
-			}
+		// Add new string IDs here.
+		for (String addedStringID : stringsToAdd.keySet()) {
+			idOffsetsByID.put(addedStringID, idBuilder.getBytesWritten());
+			idBuilder.appendBytes(WhyDoesJavaNotHaveThese.shiftJISBytesFromString(addedStringID));
+			idBuilder.appendByte((byte)0);
 		}
 		
-		// After the raw strings is the entry table. We can write the offset in the header now, based on our current offset.
-		builder.replaceBytes(4, WhyDoesJavaNotHaveThese.byteArrayFromLongValue(builder.getBytesWritten() - 0x20, false, 4));
-		
-		// Build the entries table.
-		for (String id : orderedIDs) {
-			// The order is the string offset first, followed by the ID offset.
-			builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(stringOffsets.get(id), false, 4));
-			builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(idOffsets.get(id), false, 4));
+		// Write the table of pointers.
+		// It should be a pointer to the value, followed by a pointer to the ID.
+		orderedIDs.sort(StringEntry.getEntryIndexComparator());
+		ByteArrayBuilder pointerBuilder = new ByteArrayBuilder();
+		for (StringEntry entry : orderedIDs) {
+			String identifier = entry.identifier;
+			pointerBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(valueOffsetsByID.get(identifier), false, 4));
+			pointerBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(idOffsetsByID.get(identifier), false, 4));
 		}
 		
-		if (orderedNewIDs != null) {
-			for (String addedID : orderedNewIDs) {
-				builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(stringOffsets.get(addedID), false, 4));
-				builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(idOffsets.get(addedID), false, 4));
-			}
+		// Add pointers for added strings.
+		for (String addedID : stringsToAdd.keySet()) {
+			pointerBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(valueOffsetsByID.get(addedID), false, 4));
+			pointerBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(idOffsetsByID.get(addedID), false, 4));
 		}
 		
-		// Append the idBuilder's data from earlier.
+		// Compile them all together.
+		builder.appendBytes(valueBuilder.toByteArray());
+		int pointerTableOffset = builder.getBytesWritten();
+		builder.appendBytes(pointerBuilder.toByteArray());
 		builder.appendBytes(idBuilder.toByteArray());
 		
-		// Now we can finish with writing the file size in the header.
+		// Set the file length.
 		builder.replaceBytes(0, WhyDoesJavaNotHaveThese.byteArrayFromLongValue(builder.getBytesWritten(), false, 4));
+		// Set the pointer table offset.
+		builder.replaceBytes(4, WhyDoesJavaNotHaveThese.byteArrayFromLongValue(pointerTableOffset - 0x20, false, 4));
 		
 		builtData = builder.toByteArray();
 		

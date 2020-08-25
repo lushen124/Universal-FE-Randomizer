@@ -152,7 +152,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			CMPFileEntry fileEntry = fileMap.get(name);
 			GCNFileHandler fileHandler = cachedHandlers.get(name);
 			if (fileHandler instanceof GCNMessageFileHandler) {
-				((GCNMessageFileHandler) fileHandler).build();
+				((GCNMessageFileHandler) fileHandler).orderedBuild();
 			}
 			fileEntry.fileLength = fileHandler.getFileLength();
 			if (offset != -1) {
@@ -190,7 +190,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			GCNFileHandler fileHandler = cachedHandlers.get(name);
 			while (builder.getBytesWritten() < fileEntry.filePointer) { builder.appendByte((byte)0); }
 			if (fileHandler instanceof GCNMessageFileHandler) {
-				builder.appendBytes(((GCNMessageFileHandler) fileHandler).build());
+				builder.appendBytes(((GCNMessageFileHandler) fileHandler).orderedBuild());
 			} else {
 				fileHandler.setNextReadOffset(0);
 				fileHandler.beginBatchRead();
