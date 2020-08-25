@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import fedata.general.FEBase;
+import io.FileHandler;
 
 public class FreeSpaceManager {
 	
@@ -20,14 +21,14 @@ public class FreeSpaceManager {
 	List<AddressRange> internalRanges;
 	List<Long> internalFreeAddress;
 	
-	public FreeSpaceManager(FEBase.GameType gameType, List<AddressRange> internalRanges) {
+	public FreeSpaceManager(FEBase.GameType gameType, List<AddressRange> internalRanges, FileHandler handler) {
 		switch (gameType) {
 		case FE6:
-			freeAddress = 0x1000200;
+			freeAddress = Math.max(0x1000200, handler.getFileLength());
 			break;
 		case FE7:
 		case FE8:
-			freeAddress = 0x1000000;
+			freeAddress = Math.max(0x1000000, handler.getFileLength());
 			break;
 		default:
 			freeAddress = -1;
