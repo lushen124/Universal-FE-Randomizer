@@ -19,6 +19,7 @@ import fedata.gcnwii.fe9.FE9ScriptScene;
 import fedata.gcnwii.fe9.scripting.PushLiteralString16Instruction;
 import fedata.gcnwii.fe9.scripting.ScriptInstruction;
 import io.FileHandler;
+import io.gcn.GCNCMBFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import io.gcn.GCNISOHandlerRecompilationDelegate;
