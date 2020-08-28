@@ -297,10 +297,20 @@ public class FE9Randomizer extends Randomizer {
 		
 		// Same for Blossom and Celerity.
 		textData.setStringForIdentifier("MIID_FRAC90", "Blossom");
+		sb = new StringBuilder();
+		sb.append("An item that allows you to acquire the skill");
+		sb.append((char)0xA);
+		sb.append("Blossom when you're at a base.");
+		textData.setStringForIdentifier("MH_I_FRAC90", sb.toString());
 		FE9Skill blossom = skillData.getSkillWithSID(FE9Data.Skill.BLOSSOM.getSID());
 		blossom.setRestrictionCount(0);
 		blossom.setRestrictionPointer(0);
 		textData.setStringForIdentifier("MIID_SWIFT", "Celerity");
+		sb = new StringBuilder();
+		sb.append("An item that allows you to acquire the skill");
+		sb.append((char)0xA);
+		sb.append("Celerity when you're at a base.");
+		textData.setStringForIdentifier("MH_I_SWIFT", sb.toString());
 	}
 	
 	private void makePostRandomizationAdjustments() {
