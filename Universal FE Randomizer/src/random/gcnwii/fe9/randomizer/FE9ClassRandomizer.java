@@ -450,29 +450,6 @@ public class FE9ClassRandomizer {
 		charData.commit();
 	}
 	
-	public static void updateIkeInventoryChapter1Script(FE9CharacterDataLoader charData, FE9ItemDataLoader itemData, GCNISOHandler handler) throws GCNISOException {
-		FE9Character ike = charData.characterWithID(FE9Data.Character.IKE.getPID());
-		String weaponLevels = charData.getWeaponLevelStringForCharacter(ike);
-		if (itemData.swordRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { return; } // He can use iron swords.
-		FE9Item basicWeapon = null;
-		if (itemData.lanceRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { basicWeapon = itemData.itemWithIID(FE9Data.Item.IRON_LANCE.getIID()); }
-		if (itemData.axeRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { basicWeapon = itemData.itemWithIID(FE9Data.Item.IRON_AXE.getIID()); }
-		if (itemData.bowRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { basicWeapon = itemData.itemWithIID(FE9Data.Item.IRON_BOW.getIID()); }
-		if (itemData.fireRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { basicWeapon = itemData.itemWithIID(FE9Data.Item.FIRE.getIID()); }
-		if (itemData.thunderRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { basicWeapon = itemData.itemWithIID(FE9Data.Item.THUNDER.getIID()); }
-		if (itemData.windRankForWeaponLevelString(weaponLevels) != WeaponRank.NONE) { basicWeapon = itemData.itemWithIID(FE9Data.Item.WIND.getIID()); }
-		
-		if (basicWeapon != null) {
-			// TODO: Find a better way of doing this. This only address three of the items. The fourth item is stubbornly remaining an Iron sword.
-			GCNCMBFileHandler cmbHandler = (GCNCMBFileHandler)handler.handlerForFileWithName(FE9Data.Chapter.CHAPTER_1.getScriptPath());
-			cmbHandler.addString(itemData.iidOfItem(basicWeapon));
-			byte[] newIIDBytes = cmbHandler.referenceToString(itemData.iidOfItem(basicWeapon), 2);
-			cmbHandler.cmb_writeBytesToOffset(0x1FF1, newIIDBytes);
-			cmbHandler.cmb_writeBytesToOffset(0x1FFB, newIIDBytes);
-			cmbHandler.cmb_writeBytesToOffset(0x2005, newIIDBytes);
-		}
-	}
-	
 	public static void randomizeBossCharacters(boolean forceDifferent, boolean mixRaces, boolean crossGenders, FE9CharacterDataLoader charData, 
 			FE9ClassDataLoader classData, FE9ChapterDataLoader chapterData, FE9SkillDataLoader skillData, FE9ItemDataLoader itemData, Random rng) {
 		

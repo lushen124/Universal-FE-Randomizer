@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import fedata.gcnwii.fe9.FE9ScriptScene;
@@ -133,6 +134,15 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 	
 	public List<FE9ScriptScene> getScenes() {
 		return scenes;
+	}
+	
+	public FE9ScriptScene getSceneWithIndex(int index) {
+		Optional<FE9ScriptScene> scriptScene = scenes.stream().filter(scene -> { return scene.getSceneIndex() == index; }).findFirst();
+		if (scriptScene.isPresent()) {
+			return scriptScene.get();
+		}
+		
+		return null;
 	}
 	
 	public void addString(String string) {

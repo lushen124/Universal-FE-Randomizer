@@ -41,7 +41,7 @@ public class CallSceneByNameInstruction extends ScriptInstruction {
 		}
 		assert(referenceToString != null);
 		assert(referenceToString.length == 2);
-		return new byte[] {0x38, (byte)((referenceToString[0] & 0xFF00) >> 8), (byte)(referenceToString[1] & 0xFF), (byte)(numberOfArgs & 0xFF)};
+		return new byte[] {0x38, referenceToString[0], referenceToString[1], (byte)(numberOfArgs & 0xFF)};
 	}
 
 	@Override

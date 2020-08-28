@@ -316,6 +316,22 @@ public class FE9ItemDataLoader {
 		return fe9ItemListFromSet(items);
 	}
 	
+	public FE9Item basicItemForType(WeaponType type) {
+		switch (type) {
+		case SWORD: return itemWithIID(FE9Data.Item.IRON_SWORD.getIID());
+		case LANCE: return itemWithIID(FE9Data.Item.IRON_LANCE.getIID());
+		case AXE: return itemWithIID(FE9Data.Item.IRON_AXE.getIID());
+		case BOW: return itemWithIID(FE9Data.Item.IRON_BOW.getIID());
+		case FIRE: return itemWithIID(FE9Data.Item.FIRE.getIID());
+		case THUNDER: return itemWithIID(FE9Data.Item.THUNDER.getIID());
+		case WIND: return itemWithIID(FE9Data.Item.WIND.getIID());
+		case STAFF: return itemWithIID(FE9Data.Item.HEAL.getIID());
+		case LIGHT: return itemWithIID(FE9Data.Item.LIGHT.getIID());
+		case KNIFE: return itemWithIID(FE9Data.Item.KNIFE.getIID());
+		default: return null;
+		}
+	}
+	
 	public List<FE9Item> specialWeaponsForJID(String jid) {
 		if (jid == null) { return null; }
 		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);

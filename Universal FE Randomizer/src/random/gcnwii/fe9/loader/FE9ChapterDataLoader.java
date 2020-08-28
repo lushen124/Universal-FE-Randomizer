@@ -109,6 +109,10 @@ public class FE9ChapterDataLoader {
 		return allChapterRewards;
 	}
 	
+	public GCNCMBFileHandler getHandlerForScripts(FE9Data.Chapter chapter) {
+		return scriptsByChapter.get(chapter);
+	}
+	
 	public void debugPrintAllChapterStrings() {
 		for (FE9ChapterStrings strings : allChapterStrings) {
 			strings.debugPrintStrings();

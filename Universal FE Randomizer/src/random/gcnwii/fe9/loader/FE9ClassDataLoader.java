@@ -12,6 +12,7 @@ import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
+import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponType;
 import util.DebugPrinter;
 import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
@@ -356,6 +357,42 @@ public class FE9ClassDataLoader {
 		fe8databin.addString(weaponLevelString);
 		fe8databin.commitAdditions();
 		charClass.setWeaponLevelPointer(fe8databin.pointerForString(weaponLevelString));
+	}
+	
+	public List<WeaponType> getUsableWeaponTypesForClass(FE9Class charClass) {
+		List<WeaponType> types = new ArrayList<WeaponType>();
+		String weaponLevels = getWeaponLevelsForClass(charClass);
+		if (weaponLevels.charAt(0) != '-') { types.add(WeaponType.SWORD); }
+		if (weaponLevels.charAt(1) != '-') { types.add(WeaponType.LANCE); }
+		if (weaponLevels.charAt(2) != '-') { types.add(WeaponType.AXE); }
+		if (weaponLevels.charAt(3) != '-') { types.add(WeaponType.BOW); }
+		if (weaponLevels.charAt(4) != '-') { types.add(WeaponType.FIRE); }
+		if (weaponLevels.charAt(5) != '-') { types.add(WeaponType.THUNDER); }
+		if (weaponLevels.charAt(6) != '-') { types.add(WeaponType.WIND); }
+		if (weaponLevels.charAt(7) != '-') {
+			types.add(WeaponType.STAFF);
+			if (canClassUseLightMagic(charClass)) {
+				types.add(WeaponType.LIGHT);
+			}
+		}
+		
+		if (canClassUseKnives(charClass)) {
+			types.add(WeaponType.KNIFE);
+		}
+		
+		return types;
+	}
+	
+	public boolean canClassUseKnives(FE9Class charClass) {
+		if (charClass == null) { return false; }
+		
+		String sid1 = getSID1ForClass(charClass);
+		String sid2 = getSID2ForClass(charClass);
+		String sid3 = getSID3ForClass(charClass);
+		
+		return (sid1 != null && sid1.equals(FE9Data.Skill.EQUIP_KNIFE.getSID())) ||
+				(sid2 != null && sid2.equals(FE9Data.Skill.EQUIP_KNIFE.getSID())) ||
+				(sid3 != null && sid3.equals(FE9Data.Skill.EQUIP_KNIFE.getSID()));
 	}
 	
 	public boolean canClassUseLightMagic(FE9Class charClass) {
