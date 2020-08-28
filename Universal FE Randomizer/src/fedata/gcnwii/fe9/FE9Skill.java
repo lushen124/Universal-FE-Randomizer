@@ -29,12 +29,9 @@ public class FE9Skill implements FEModifiableData {
 	private Long cachedHelpTextPointer2;
 	
 	private Long cachedEffectIDPointer;
-	
-	private Long cachedUnknownPointer2;
-	
-	// The following two pointers are double-dereferenced. (i.e. they point to another pointer.)
-	private Long cachedItemIDPointer; // Skill scroll?
-	private Long cachedClassRestrictionPointer;
+
+	private Long cachedItemIDPointer; // Points to the item that can grant this skill.
+	private Long cachedRestrictionsPointer; // Points to the start of a list of restrictions (can be JID or PID)
 	
 	public long getSkillIDPointer() {
 		if (cachedSkillIDPointer == null) { cachedSkillIDPointer = readPointerAtOffset(0x0); }
@@ -82,12 +79,13 @@ public class FE9Skill implements FEModifiableData {
 		return data[0x1B] & 0xFF;
 	}
 	
-	public long getUnknownPointer2() {
-		if (cachedUnknownPointer2 == null) { 
-			byte[] ptr = Arrays.copyOfRange(data, 0x1C, 0x20);
-			cachedUnknownPointer2 = WhyDoesJavaNotHaveThese.longValueFromByteArray(ptr, false);
-		}
-		return cachedUnknownPointer2;
+	public int getRestrictionCount() {
+		return data[0x1C] & 0xFF;
+	}
+	
+	public void setRestrictionCount(int newCount) {
+		data[0x1C] = (byte)(newCount & 0xFF);
+		wasModified = true;
 	}
 	
 	public long getItemIDPointer() {
@@ -95,9 +93,15 @@ public class FE9Skill implements FEModifiableData {
 		return cachedItemIDPointer;
 	}
 	
-	public long getClassRestrictionPointer() {
-		if (cachedClassRestrictionPointer == null) { cachedClassRestrictionPointer = readPointerAtOffset(0x24); }
-		return cachedClassRestrictionPointer;
+	public long getRestrictionPointer() {
+		if (cachedRestrictionsPointer == null) { cachedRestrictionsPointer = readPointerAtOffset(0x24); }
+		return cachedRestrictionsPointer;
+	}
+	
+	public void setRestrictionPointer(long newPointer) {
+		cachedRestrictionsPointer = newPointer;
+		writePointerToOffset(newPointer, 0x1C);
+		wasModified = true;
 	}
 	
 	private long readPointerAtOffset(int offset) {

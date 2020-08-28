@@ -1,7 +1,6 @@
 package random.gcnwii.fe9.loader;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,6 +18,7 @@ import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import util.DebugPrinter;
+import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE9SkillDataLoader {
@@ -70,9 +70,17 @@ public class FE9SkillDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Skill Cost: " + skill.getSkillCost());
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Unknown Value 2: " + skill.getUnknownValue2());
 		
-		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Unknown Pointer?: " + Long.toHexString(skill.getUnknownPointer2()));
-		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "IID: " + stringForPointer(pointerAtPointer(skill.getItemIDPointer(), handler), handler, commonTextLoader));
-		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "JID: " + stringForPointer(pointerAtPointer(skill.getClassRestrictionPointer(), handler), handler, commonTextLoader));
+		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Number of Restrictions: " + skill.getRestrictionCount());
+		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Item granting skill: " + stringForPointer(pointerAtPointer(skill.getItemIDPointer(), handler), handler, commonTextLoader));
+		if (skill.getRestrictionCount() > 0) {
+			List<String> restrictions = new ArrayList<String>();
+			for (int i = 0; i < skill.getRestrictionCount(); i++) {
+				restrictions.add(stringForPointer(pointerAtPointer(skill.getRestrictionPointer() + (i * 4), handler), handler, commonTextLoader));
+			}
+			DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Restrictions: " + String.join(", ", restrictions));
+		} else {
+			DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Restrictions: None");
+		}
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "===== End Printing Skill =====");
 	}
@@ -181,5 +189,29 @@ public class FE9SkillDataLoader {
 		handler.setNextReadOffset(pointer);
 		byte[] bytes = handler.continueReadingBytesUpToNextTerminator(pointer + 0xFF);
 		return WhyDoesJavaNotHaveThese.displayStringForBytes(bytes) + " (" + WhyDoesJavaNotHaveThese.stringFromAsciiBytes(bytes) + ")";
+	}
+	
+	public void commit() {
+		for (FE9Skill skill : allSkills) {
+			skill.commitChanges();
+		}
+	}
+	
+	public void compileDiffs(GCNISOHandler isoHandler) {
+		try {
+			GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.SkillDataFilename);
+			for (FE9Skill skill : allSkills) {
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Writing skill: " + getSID(skill));
+				skill.commitChanges();
+				if (skill.hasCommittedChanges()) {
+					Diff skillDiff = new Diff(skill.getAddressOffset(), skill.getData().length, skill.getData(), null);
+					DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Adding change for " + getSID(skill) + " at address 0x" + Long.toHexString(skill.getAddressOffset()));
+					handler.addChange(skillDiff);
+				}
+			}
+		} catch (GCNISOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

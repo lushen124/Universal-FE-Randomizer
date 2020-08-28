@@ -1,35 +1,25 @@
 package random.gcnwii.fe9.randomizer;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import fedata.gcnwii.fe9.FE9ChapterArmy;
-import fedata.gcnwii.fe9.FE9ChapterRewards;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
 import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
-import fedata.gcnwii.fe9.FE9Data.Chapter;
 import fedata.gcnwii.fe9.FE9Item;
+import fedata.gcnwii.fe9.FE9Skill;
 import fedata.gcnwii.fe9.FE9ScriptScene;
 import fedata.gcnwii.fe9.scripting.PushLiteralString16Instruction;
 import fedata.gcnwii.fe9.scripting.ScriptInstruction;
 import io.FileHandler;
-import io.FileWriter;
 import io.gcn.GCNCMBFileHandler;
-import io.gcn.GCNCMPFileHandler;
-import io.gcn.GCNDataFileHandler;
-import io.gcn.GCNFSTEntry;
-import io.gcn.GCNFSTFileEntry;
-import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import io.gcn.GCNISOHandlerRecompilationDelegate;
@@ -50,12 +40,7 @@ import ui.model.FE9EnemyBuffOptions;
 import ui.model.FE9OtherCharacterOptions;
 import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
-import util.DebugPrinter;
-import util.Diff;
-import util.DiffCompiler;
-import util.LZ77;
 import util.SeedGenerator;
-import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.ChangelogAsset;
 import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.ChangelogDivider;
@@ -185,6 +170,7 @@ public class FE9Randomizer extends Randomizer {
 			charData.compileDiffs(handler);
 			itemData.compileDiffs(handler);
 			classData.compileDiffs(handler);
+			skillData.compileDiffs(handler);
 			
 			charData.recordUpdatedCharacterData(characterSection, textData, classData, skillData, itemData, chapterData);
 			itemData.recordUpdatedItemData(itemSection, textData);
@@ -298,6 +284,39 @@ public class FE9Randomizer extends Randomizer {
 		textData.setStringForIdentifier("MIID_WARP", "Warp");
 		textData.setStringForIdentifier("MH_I_WARP", "You could just play through the map properly...");
 		
+		// Give Paragon scroll a real name and allow it to be used with all characters.
+		textData.setStringForIdentifier("MIID_ELITE", "Paragon");
+		StringBuilder sb = new StringBuilder();
+		sb.append("Doubles the experience");
+		sb.append((char)0xA); // line break
+		sb.append("points this unit gains.");
+		sb.append((char)0xA); // line break
+		sb.append((char)0x20); // spacing
+		sb.append((char)0x20); // spacing
+		sb.append("#C04All units");
+		textData.setStringForIdentifier("Mess_Help2_skill_Elite", sb.toString());
+		FE9Skill paragon = skillData.getSkillWithSID(FE9Data.Skill.PARAGON.getSID());
+		paragon.setRestrictionCount(0);
+		paragon.setRestrictionPointer(0);
+		paragon.commitChanges();
+		
+		// Same for Blossom and Celerity.
+		textData.setStringForIdentifier("MIID_FRAC90", "Blossom");
+		sb = new StringBuilder();
+		sb.append("An item that allows you to acquire the skill");
+		sb.append((char)0xA);
+		sb.append("Blossom when you're at a base.");
+		textData.setStringForIdentifier("MH_I_FRAC90", sb.toString());
+		FE9Skill blossom = skillData.getSkillWithSID(FE9Data.Skill.BLOSSOM.getSID());
+		blossom.setRestrictionCount(0);
+		blossom.setRestrictionPointer(0);
+		textData.setStringForIdentifier("MIID_SWIFT", "Celerity");
+		sb = new StringBuilder();
+		sb.append("An item that allows you to acquire the skill");
+		sb.append((char)0xA);
+		sb.append("Celerity when you're at a base.");
+		textData.setStringForIdentifier("MH_I_SWIFT", sb.toString());
+
 		// Just to be doubly sure, give Ike a Vulnerary in Prologue.
 		List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
 		for (FE9ChapterArmy army : armies) {
