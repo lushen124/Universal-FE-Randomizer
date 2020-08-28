@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import io.FileHandler;
 import io.FileWriter;
@@ -296,6 +297,8 @@ public class GCNISOHandler {
 			recalculateFileOffsets(rootEntry, -1, fileDataOrder, delegate);
 		} catch (GCNISOException e1) {
 			assert false : "Failed to recalculate File Offsets.";
+			if (delegate != null) { delegate.onError("Encountered error while recalculating file offsets.\n\n" + e1.getMessage()); }
+			return;
 		}
 		
 		// Start writing. Our header shouldn't have changed because our FST hasn't moved.
@@ -367,11 +370,14 @@ public class GCNISOHandler {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			if (delegate != null) { delegate.onError("Unable to open file.\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); }
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			if (delegate != null) { delegate.onError("Error writing file.\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); }
 			e.printStackTrace();
 		} catch (GCNISOException e) {
 			// TODO Auto-generated catch block
+			if (delegate != null) { delegate.onError("Error processing ISO file.\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); }
 			e.printStackTrace();
 		}
 	}

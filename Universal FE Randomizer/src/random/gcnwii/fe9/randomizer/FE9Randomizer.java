@@ -16,6 +16,8 @@ import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9Item;
 import fedata.gcnwii.fe9.FE9Skill;
 import fedata.gcnwii.fe9.FE9ScriptScene;
+import fedata.gcnwii.fe9.scripting.CallSceneByNameInstruction;
+import fedata.gcnwii.fe9.scripting.NOPInstruction;
 import fedata.gcnwii.fe9.scripting.PushLiteralString16Instruction;
 import fedata.gcnwii.fe9.scripting.ScriptInstruction;
 import io.FileHandler;
@@ -164,7 +166,7 @@ public class FE9Randomizer extends Randomizer {
 			randomizeMiscellaneousIfNecessary(seed);
 			buffEnemiesIfNecessary(seed);
 			
-			makePostRandomizationAdjustments();
+			makePostRandomizationAdjustments(seed);
 			
 			updateStatus(0.50, "Committing changes...");
 			charData.compileDiffs(handler);
@@ -196,6 +198,11 @@ public class FE9Randomizer extends Randomizer {
 			@Override
 			public void onProgressUpdate(double progress) {
 				updateProgress(0.5 + (0.5 * progress));
+			}
+
+			@Override
+			public void onError(String errorMessage) {
+				notifyError(errorMessage);
 			}
 		});
 		
@@ -316,21 +323,9 @@ public class FE9Randomizer extends Randomizer {
 		sb.append((char)0xA);
 		sb.append("Celerity when you're at a base.");
 		textData.setStringForIdentifier("MH_I_SWIFT", sb.toString());
-
-		// Just to be doubly sure, give Ike a Vulnerary in Prologue.
-		List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
-		for (FE9ChapterArmy army : armies) {
-			for (String unitID : army.getAllUnitIDs()) {
-				FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
-				if (army.getPIDForUnit(unit).equals(FE9Data.Character.IKE.getPID())) {
-					army.setItem1ForUnit(unit, FE9Data.Item.VULNERARY.getIID());
-				}
-			}
-			army.commitChanges();
-		}
 	}
 	
-	private void makePostRandomizationAdjustments() {
+	private void makePostRandomizationAdjustments(String seed) {
 		// Remove damage immunity from Ch. 27 BK and Ashnard.
 		// Unfortunately, this isn't a skill that is on the characters.
 		// The only thing we know is that weapons with the trait 'weakA' seem to be capable of bypassing this.
@@ -451,6 +446,118 @@ public class FE9Randomizer extends Randomizer {
 					instructions.remove(i);
 					instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(basicWeapon), chapter1));
 				}	
+			}
+			scene.setInstructions(instructions);
+			scene.commit();
+		}
+		
+		// Just to be doubly sure, give Ike a Vulnerary in Prologue.
+		List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
+		for (FE9ChapterArmy army : armies) {
+			for (String unitID : army.getAllUnitIDs()) {
+				FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+				if (army.getPIDForUnit(unit).equals(FE9Data.Character.IKE.getPID())) {
+					if (army.unitHasItem(unit, FE9Data.Item.VULNERARY.getIID()) || army.unitHasItem(unit, FE9Data.Item.ELIXIR.getIID())) { continue; }
+					army.setItem1ForUnit(unit, FE9Data.Item.VULNERARY.getIID());
+				}
+			}
+			army.commitChanges();
+		}
+		
+		// Update Gatrie's rejoin weapon in Chapter 13.
+		FE9Item replacement = null;
+		FE9Character gatrie = charData.characterWithID(FE9Data.Character.GATRIE.getPID());
+		FE9Class gatrieClass = classData.classWithID(charData.getJIDForCharacter(gatrie));
+		if (classData.isLaguzClass(gatrieClass)) {
+			replacement = itemData.laguzWeaponForJID(classData.getJIDForClass(gatrieClass));
+		} else {
+			List<WeaponType> weaponTypes = classData.getUsableWeaponTypesForClass(gatrieClass);
+			if (!weaponTypes.contains(WeaponType.LANCE)) {
+				for (WeaponType type : weaponTypes) {
+					List<FE9Item> items = itemData.weaponsOfRankAndType(WeaponRank.D, type);
+					if (items.size() > 0) {
+						Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
+						replacement = items.get(rng.nextInt(items.size()));
+						break;
+					}
+				}
+			}
+		}
+		
+		if (replacement != null) {
+			GCNCMBFileHandler chapter13 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_13);
+			FE9ScriptScene scene = chapter13.getSceneWithIndex(0x12);
+			List<ScriptInstruction> instructions = scene.getInstructions();
+			for (int i = 0; i < instructions.size(); i++) {
+				ScriptInstruction instruction = instructions.get(i);
+				if (instruction instanceof PushLiteralString16Instruction && 
+						((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.STEEL_LANCE.getIID())) {
+					instructions.remove(i);
+					instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(replacement), chapter13));
+				}
+			}
+			scene.setInstructions(instructions);
+			scene.commit();
+		}
+		
+		// Update Shinon's rejoin weapon.
+		replacement = null;
+		FE9Character shinon = charData.characterWithID(FE9Data.Character.SHINON.getPID());
+		FE9Class shinonClass = classData.classWithID(charData.getJIDForCharacter(shinon));
+		boolean shouldDrop = true;
+		if (classData.isLaguzClass(shinonClass)) {
+			replacement = itemData.laguzWeaponForJID(classData.getJIDForClass(shinonClass));
+			shouldDrop = false;
+		} else {
+			List<WeaponType> weaponTypes = classData.getUsableWeaponTypesForClass(shinonClass);
+			if (!weaponTypes.contains(WeaponType.BOW)) {
+				weaponTypes.remove(WeaponType.STAFF);
+				for (WeaponType type : weaponTypes) {
+					List<FE9Item> items = itemData.weaponsOfRankAndType(WeaponRank.B, type);
+					if (items.size() > 0) {
+						Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
+						replacement = items.get(rng.nextInt(items.size()));
+						break;
+					}
+				}
+			}
+		}
+		
+		if (replacement != null) {
+			GCNCMBFileHandler chapter18 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_18);
+			FE9ScriptScene scene = chapter18.getSceneWithIndex(0xE);
+			List<ScriptInstruction> instructions = scene.getInstructions();
+			for (int i = 0; i < instructions.size(); i++) {
+				ScriptInstruction instruction = instructions.get(i);
+				if (instruction instanceof PushLiteralString16Instruction && 
+						((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.BRAVE_BOW.getIID())) {
+					instructions.remove(i);
+					instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(replacement), chapter18));
+				}
+			}
+			
+			if (!shouldDrop) {
+				// Don't drop laguz weapons in case he's a laguz unit.
+				for (int i = 0; i < instructions.size(); i++) {
+					ScriptInstruction instruction = instructions.get(i);
+					if (instruction instanceof CallSceneByNameInstruction && 
+							((CallSceneByNameInstruction) instruction).getSceneName().equals("UnitItemSetDrop")) {
+						// There's four instructions to dummy out.
+						// PUSH_VAR_8 (0x0)
+						// PUSH_VAR_8 (0x1)
+						// CALL_SCENE_NAME ("UnitItemSetDrop", 2)
+						// DISCARD_TOP
+						instructions.remove(i + 1);
+						instructions.remove(i);
+						instructions.remove(i - 1);
+						instructions.remove(i - 2);
+						
+						instructions.add(i - 2, new NOPInstruction());
+						instructions.add(i - 1, new NOPInstruction());
+						instructions.add(i, new NOPInstruction());
+						instructions.add(i + 1, new NOPInstruction());
+					}
+				}
 			}
 			scene.setInstructions(instructions);
 			scene.commit();
