@@ -332,6 +332,24 @@ public class FE9ItemDataLoader {
 		}
 	}
 	
+	public boolean isSiegeTome(FE9Item item) {
+		FE9Data.Item fe9Item = FE9Data.Item.withIID(iidOfItem(item));
+		if (fe9Item != null) { return fe9Item.isSiegeTome(); }
+		return false;
+	}
+	
+	public boolean isRanged(FE9Item item) {
+		FE9Data.Item fe9Item = FE9Data.Item.withIID(iidOfItem(item));
+		if (fe9Item != null) { return !fe9Item.isMeleeLocked(); }	
+		return false;
+	}
+	
+	public boolean isMelee(FE9Item item) {
+		FE9Data.Item fe9Item = FE9Data.Item.withIID(iidOfItem(item));
+		if (fe9Item != null) { return !fe9Item.isRangeLocked(); }
+		return false;
+	}
+	
 	public List<FE9Item> specialWeaponsForJID(String jid) {
 		if (jid == null) { return null; }
 		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);

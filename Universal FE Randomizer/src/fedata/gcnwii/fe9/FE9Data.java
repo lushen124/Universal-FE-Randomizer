@@ -911,6 +911,14 @@ public class FE9Data {
 		public static Set<Item> allThunderMagic = new HashSet<Item>(Arrays.asList(THUNDER, ELTHUNDER, THORON, REXBOLT, BOLTING));
 		public static Set<Item> allLightMagic = new HashSet<Item>(Arrays.asList(LIGHT, SHINE, NOSFERATU, REXAURA, PURGE));
 		
+		public static Set<Item> meleeOnlyWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, PRACTICE_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, 
+				SILVER_BLADE, VENIN_EDGE, REGAL_SWORD, BRAVE_SWORD, VAGUE_KATTI, KILLING_EDGE, ARMORSLAYER, LAGUZSLAYER, LONGSWORD, AMITI, STEEL_BLADE,
+				IRON_LANCE, SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, VENIN_LANCE, BRAVE_LANCE, 
+				KILLER_LANCE, KNIGHT_KILLER, LAGUZ_LANCE, HEAVY_SPEAR, IRON_AXE, PRACTICE_AXE, STEEL_AXE, SILVER_AXE, VENIN_AXE, BRAVE_AXE, KILLER_AXE, 
+				POLEAX, HAMMER, DEVIL_AXE, LAGUZ_AXE, URVAN, KNIFE, DAGGER, STILETTO));
+		public static Set<Item> rangedOnlyWeapons = new HashSet<Item>(Arrays.asList(DOUBLE_BOW, IRON_BOW, STEEL_BOW, SILVER_BOW, VENIN_BOW, KILLER_BOW, BRAVE_BOW, 
+				LAGUZ_BOW, LONGBOW, ROLF_BOW, BRIGHT_BOW, METEOR, BLIZZARD, BOLTING, PURGE));
+		
 		public static Set<Item> allKnives = new HashSet<Item>(Arrays.asList(KNIFE, DAGGER, STILETTO));
 		public static Set<Item> allStaves = new HashSet<Item>(Arrays.asList(ASHERA_STAFF, HEAL, MEND, RECOVER, PHYSIC, FORTIFY, RESTORE, SILENCE, SLEEP, 
 				WARP, RESCUE, TORCH_STAFF, HAMMERNE, WARD));
@@ -951,6 +959,8 @@ public class FE9Data {
 				REXAURA, ASHERA_STAFF));
 		
 		public static Set<Item> blacklistedWeapons = new HashSet<Item>(Arrays.asList(PRACTICE_AXE, PRACTICE_SWORD, DEVIL_AXE));
+		
+		public static Set<Item> siegeTomes = new HashSet<Item>(Arrays.asList(PURGE, METEOR, BLIZZARD, BOLTING));
 		
 		public static Set<Item> allDroppableWeapons() {
 			Set<Item> result = new HashSet<Item>();
@@ -995,6 +1005,10 @@ public class FE9Data {
 		public boolean isSkillScroll() { return allSkillScrolls.contains(this); }
 		
 		public boolean isBlacklisted() { return blacklistedWeapons.contains(this); }
+		public boolean isSiegeTome() { return siegeTomes.contains(this); }
+		
+		public boolean isMeleeLocked() { return meleeOnlyWeapons.contains(this); }
+		public boolean isRangeLocked() { return rangedOnlyWeapons.contains(this); }
 		
 		public static Set<Item> specialWeaponsForClass(FE9Data.CharacterClass charClass) {
 			switch (charClass) {
