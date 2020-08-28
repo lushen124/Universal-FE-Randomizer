@@ -218,6 +218,7 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 			while (valueBuilder.getBytesWritten() % 4 != 0) { valueBuilder.appendByte((byte)0); }
 			valueOffsetsByID.put(addedStringID, valueBuilder.getBytesWritten());
 			valueBuilder.appendBytes(WhyDoesJavaNotHaveThese.shiftJISBytesFromString(addedString));
+			valueBuilder.appendByte((byte)0);
 		}
 		
 		// Build the ID table. These are null terminated, but not word-aligned.
@@ -257,6 +258,7 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 		
 		// Compile them all together.
 		builder.appendBytes(valueBuilder.toByteArray());
+		while (builder.getBytesWritten() % 4 != 0) { builder.appendByte((byte)0); }
 		int pointerTableOffset = builder.getBytesWritten();
 		builder.appendBytes(pointerBuilder.toByteArray());
 		builder.appendBytes(idBuilder.toByteArray());
