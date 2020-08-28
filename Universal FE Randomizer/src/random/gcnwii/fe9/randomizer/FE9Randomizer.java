@@ -294,6 +294,13 @@ public class FE9Randomizer extends Randomizer {
 		paragon.setRestrictionCount(0);
 		paragon.setRestrictionPointer(0);
 		paragon.commitChanges();
+		
+		// Same for Blossom and Celerity.
+		textData.setStringForIdentifier("MIID_FRAC90", "Blossom");
+		FE9Skill blossom = skillData.getSkillWithSID(FE9Data.Skill.BLOSSOM.getSID());
+		blossom.setRestrictionCount(0);
+		blossom.setRestrictionPointer(0);
+		textData.setStringForIdentifier("MIID_SWIFT", "Celerity");
 	}
 	
 	private void makePostRandomizationAdjustments() {
