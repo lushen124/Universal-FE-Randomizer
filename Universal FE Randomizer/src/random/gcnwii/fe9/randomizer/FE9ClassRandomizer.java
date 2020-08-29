@@ -311,8 +311,8 @@ public class FE9ClassRandomizer {
 							army.setJIDForUnit(unit, targetJID);
 							
 							List<FE9Item> weapons = new ArrayList<FE9Item>();
-							if (!itemData.weaponsSetForJID(targetJID).isEmpty()) {
-								weapons.addAll(itemData.weaponsSetForJID(targetJID));
+							if (itemData.laguzWeaponForJID(targetJID) != null) {
+								weapons.add(itemData.laguzWeaponForJID(targetJID));
 							} else {
 								int weaponCount = 0;
 								String iid1 = army.getWeapon1ForUnit(unit);
@@ -733,8 +733,8 @@ public class FE9ClassRandomizer {
 							army.setJIDForUnit(unit, targetJID);
 							
 							List<FE9Item> weapons = new ArrayList<FE9Item>();
-							if (!itemData.weaponsSetForJID(targetJID).isEmpty()) {
-								weapons.addAll(itemData.weaponsSetForJID(targetJID));
+							if (itemData.laguzWeaponForJID(targetJID) != null) {
+								weapons.add(itemData.laguzWeaponForJID(targetJID));
 							} else {
 								int weaponCount = 0;
 								String iid1 = army.getWeapon1ForUnit(unit);
@@ -1067,8 +1067,8 @@ public class FE9ClassRandomizer {
 					}
 					
 					List<FE9Item> weapons = new ArrayList<FE9Item>();
-					if (!itemData.weaponsSetForJID(targetJID).isEmpty()) {
-						weapons.addAll(itemData.weaponsSetForJID(targetJID));
+					if (itemData.laguzWeaponForJID(targetJID) != null) {
+						weapons.add(itemData.laguzWeaponForJID(targetJID));
 					} else {
 						int weaponCount = 0;
 						String iid1 = army.getWeapon1ForUnit(unit);

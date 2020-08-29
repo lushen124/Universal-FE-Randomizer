@@ -312,4 +312,25 @@ public class FE9ChapterArmy {
 			e.printStackTrace();
 		}
 	}
+	
+	public boolean unitHasItem(FE9ChapterUnit unit, String iid) {
+		String weapon1IID = getWeapon1ForUnit(unit);
+		String weapon2IID = getWeapon2ForUnit(unit);
+		String weapon3IID = getWeapon3ForUnit(unit);
+		String weapon4IID = getWeapon4ForUnit(unit);
+		
+		String item1IID = getItem1ForUnit(unit);
+		String item2IID = getItem2ForUnit(unit);
+		String item3IID = getItem3ForUnit(unit);
+		String item4IID = getItem4ForUnit(unit);
+		
+		return ((weapon1IID != null && weapon1IID.equals(iid)) ||
+				(weapon2IID != null && weapon2IID.equals(iid)) ||
+				(weapon3IID != null && weapon3IID.equals(iid)) ||
+				(weapon4IID != null && weapon4IID.equals(iid)) ||
+				(item1IID != null && item1IID.equals(iid)) ||
+				(item2IID != null && item2IID.equals(iid)) ||
+				(item3IID != null && item3IID.equals(iid)) ||
+				(item4IID != null && item4IID.equals(iid)));
+	}
 }

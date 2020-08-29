@@ -356,25 +356,25 @@ public class FE9ItemDataLoader {
 		return fe9ItemListFromSet(FE9Data.Item.specialWeaponsForClass(charClass));
 	}
 	
-	public List<FE9Item> weaponsSetForJID(String jid) {
+	public FE9Item laguzWeaponForJID(String jid) {
 		if (jid == null) { return null; }
 		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
-		List<FE9Item> weapons = new ArrayList<FE9Item>();
 		if (charClass.isLaguz()) {
 			switch (charClass) {
-			case LION: case FERAL_LION: weapons.add(itemWithIID(FE9Data.Item.LION_CLAW.getIID())); break;
-			case TIGER: case FERAL_TIGER: weapons.add(itemWithIID(FE9Data.Item.TIGER_CLAW.getIID())); break;
-			case CAT: case FERAL_CAT: case CAT_F: case FERAL_CAT_F: weapons.add(itemWithIID(FE9Data.Item.CAT_CLAW.getIID())); break;
-			case WHITE_DRAGON: case FERAL_WHITE_DRAGON: weapons.add(itemWithIID(FE9Data.Item.WHITE_BREATH.getIID())); break;
-			case RED_DRAGON: case FERAL_RED_DRAGON: case RED_DRAGON_F: case FERAL_RED_DRAGON_F: weapons.add(itemWithIID(FE9Data.Item.RED_BREATH.getIID())); break;
-			case HAWK: case FERAL_HAWK: weapons.add(itemWithIID(FE9Data.Item.HAWK_BEAK.getIID())); break;
-			case CROW: case FERAL_CROW: weapons.add(itemWithIID(FE9Data.Item.CROW_BEAK.getIID())); break;
-			case TIBARN_HAWK: weapons.add(itemWithIID(FE9Data.Item.HAWK_KING_BEAK.getIID())); break;
-			case NAESALA_CROW: weapons.add(itemWithIID(FE9Data.Item.CROW_KING_BEAK.getIID())); break;
-			default: break;
+			case LION: case FERAL_LION: return itemWithIID(FE9Data.Item.LION_CLAW.getIID());
+			case TIGER: case FERAL_TIGER: return itemWithIID(FE9Data.Item.TIGER_CLAW.getIID());
+			case CAT: case FERAL_CAT: case CAT_F: case FERAL_CAT_F: return itemWithIID(FE9Data.Item.CAT_CLAW.getIID());
+			case WHITE_DRAGON: case FERAL_WHITE_DRAGON: return itemWithIID(FE9Data.Item.WHITE_BREATH.getIID());
+			case RED_DRAGON: case FERAL_RED_DRAGON: case RED_DRAGON_F: case FERAL_RED_DRAGON_F: return itemWithIID(FE9Data.Item.RED_BREATH.getIID());
+			case HAWK: case FERAL_HAWK: return itemWithIID(FE9Data.Item.HAWK_BEAK.getIID());
+			case CROW: case FERAL_CROW: return itemWithIID(FE9Data.Item.CROW_BEAK.getIID());
+			case TIBARN_HAWK: return itemWithIID(FE9Data.Item.HAWK_KING_BEAK.getIID());
+			case NAESALA_CROW: return itemWithIID(FE9Data.Item.CROW_KING_BEAK.getIID());
+			default: return null;
 			}
 		}
-		return weapons;
+		
+		return null;
 	}
 	
 	public List<FE9Item> formerThiefKit() {
