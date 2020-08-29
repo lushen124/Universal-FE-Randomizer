@@ -74,6 +74,7 @@ public class FE9ClassRandomizer {
 				if (possibleReplacements.isEmpty()) { continue; }
 				newClass = possibleReplacements.get(rng.nextInt(possibleReplacements.size()));
 				targetJID = classData.getJIDForClass(newClass);
+				if (targetJID.equals(FE9Data.CharacterClass.W_HERON.getJID())) { heronAssigned = true; }
 				pidToJid.put(pid, targetJID);
 				charData.setJIDForCharacter(character, targetJID);
 				
@@ -959,6 +960,7 @@ public class FE9ClassRandomizer {
 					
 					FE9Character minionCharacter = charData.characterWithID(pid);
 					boolean isDaeinMinion = charData.isDaeinCharacter(minionCharacter);
+					boolean isPID14Minion = charData.isPID14Character(minionCharacter);
 					
 					List<FE9Class> replacementClasses = possibleReplacementsForClass(originalClass, false, false, false, 
 							forceDifferent, mixRaces, crossGenders, false, classData);
@@ -975,6 +977,16 @@ public class FE9ClassRandomizer {
 						DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + classData.getJIDForClass(charClass));
 					}
 					if (replacementClasses.isEmpty()) { continue; }
+					if (isDaeinMinion) {
+						replacementClasses.removeIf(charClass -> {
+							return !charData.availableJIDsForDaeinMinions().contains(classData.getJIDForClass(charClass));
+						});
+					} else if (isPID14Minion) {
+						replacementClasses.removeIf(charClass -> {
+							return !charData.availableJIDsForPID14Minions().contains(classData.getJIDForClass(charClass));
+						});
+					}
+					if (replacementClasses.isEmpty()) { continue; }
 					FE9Class newClass = replacementClasses.get(rng.nextInt(replacementClasses.size()));
 					String targetJID = classData.getJIDForClass(newClass);
 					if (isDaeinMinion) {
@@ -982,6 +994,17 @@ public class FE9ClassRandomizer {
 						List<FE9Character> replacementCharacters = charData.getDaeinCharactersForJID(targetJID);
 						if (replacementCharacters == null || replacementCharacters.isEmpty()) {
 							// Try ZAKO
+							DebugPrinter.error(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Replacing Daein minion with ZAKO.");
+							army.setPIDForUnit(unit, "PID_ZAKO");
+						} else {
+							FE9Character replacement = replacementCharacters.get(rng.nextInt(replacementCharacters.size()));
+							army.setPIDForUnit(unit, charData.getPIDForCharacter(replacement));
+						}
+					} else if (isPID14Minion) {
+						List<FE9Character> replacementCharacters = charData.getPID14CharactersForJID(targetJID);
+						if (replacementCharacters == null || replacementCharacters.isEmpty()) {
+							// This shouldn't happen with the new logic, but try ZAKO anyway if we get here somehow.
+							DebugPrinter.error(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Replacing PID_14 minion with ZAKO.");
 							army.setPIDForUnit(unit, "PID_ZAKO");
 						} else {
 							FE9Character replacement = replacementCharacters.get(rng.nextInt(replacementCharacters.size()));
