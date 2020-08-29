@@ -768,10 +768,22 @@ public class FE9ClassRandomizer {
 									weaponLevelsMap.put(WeaponType.KNIFE, itemData.highestRankInString(finalWeaponLevelString));
 								}
 								
+								// Don't give out staves to bosses.
+								if (types.contains(WeaponType.STAFF) && types.size() > 1) {
+									types.remove(WeaponType.STAFF);
+								}
+								
 								DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, weaponCount + " weapons to assign.");
 								for (WeaponType type : types) {
 									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Type: " + type.toString() + " (" + weaponLevelsMap.get(type) + ")");
 								}
+								
+								boolean hasNonSiegeTome = false;
+								boolean hasSiegeTome = false;
+								
+								boolean hasRangedOption = false;
+								boolean hasMeleeOption = false;
+								
 								for (int i = 0; i < weaponCount; i++) {
 									WeaponType randomUsableType = types.get(rng.nextInt(types.size()));
 									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected type: " + randomUsableType.toString());
@@ -796,6 +808,83 @@ public class FE9ClassRandomizer {
 										FE9Item weapon = replacements.get(rng.nextInt(replacements.size()));
 										DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected: " + itemData.iidOfItem(weapon));
 										weapons.add(weapon);
+										if (itemData.isSiegeTome(weapon)) { hasSiegeTome = true; }
+										else { hasNonSiegeTome = true; }
+										
+										if (itemData.isRanged(weapon)) { hasRangedOption = true; }
+										if (itemData.isMelee(weapon)) { hasMeleeOption = true; }
+									}
+								}
+								
+								if (hasSiegeTome && !hasNonSiegeTome) {
+									// Give this character an additional non-siege tome.
+									while (types.size() > 0) {
+										WeaponType usableType = types.get(rng.nextInt(types.size()));
+										WeaponRank usableRank = weaponLevelsMap.get(usableType);
+										List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, usableType);
+										replacements.removeIf(weapon -> { return itemData.isSiegeTome(weapon); });
+										while (replacements.isEmpty()) {
+											usableRank = usableRank.lowerRank();
+											if (usableRank == WeaponRank.NONE) { break; }
+											replacements = itemData.weaponsOfRankAndType(usableRank.lowerRank(), usableType);
+											replacements.removeIf(weapon -> { return itemData.isSiegeTome(weapon); });
+										}
+										if (!replacements.isEmpty()) {
+											FE9Item additionalWeapon = replacements.get(rng.nextInt(replacements.size()));
+											DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Additional Weapon: " + itemData.iidOfItem(additionalWeapon));
+											weapons.add(additionalWeapon);
+											break;
+										} else {
+											types.remove(usableType);
+										}
+									}
+								}
+								
+								if (hasRangedOption && !hasMeleeOption) {
+									// Give this character a melee option if possible.
+									while (types.size() > 0) {
+										WeaponType usableType = types.get(rng.nextInt(types.size()));
+										WeaponRank usableRank = weaponLevelsMap.get(usableType);
+										List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, usableType);
+										replacements.removeIf(weapon -> { return !itemData.isMelee(weapon); });
+										while (replacements.isEmpty()) {
+											usableRank = usableRank.lowerRank();
+											if (usableRank == WeaponRank.NONE) { break; }
+											replacements = itemData.weaponsOfRankAndType(usableRank, usableType);
+											replacements.removeIf(weapon -> {return !itemData.isMelee(weapon); });
+										}
+										if (!replacements.isEmpty()) {
+											FE9Item additionalWeapon = replacements.get(rng.nextInt(replacements.size()));
+											DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Additional Weapon: " + itemData.iidOfItem(additionalWeapon));
+											weapons.add(additionalWeapon);
+											break;
+										} else {
+											types.remove(usableType);
+										}
+									}
+								}
+								
+								if (hasMeleeOption && !hasRangedOption) {
+									// Give this character a ranged option if possible.
+									while (types.size() > 0) {
+										WeaponType usableType = types.get(rng.nextInt(types.size()));
+										WeaponRank usableRank = weaponLevelsMap.get(usableType);
+										List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, usableType);
+										replacements.removeIf(weapon -> { return !itemData.isRanged(weapon); });
+										while (replacements.isEmpty()) {
+											usableRank = usableRank.lowerRank();
+											if (usableRank == WeaponRank.NONE) { break; }
+											replacements = itemData.weaponsOfRankAndType(usableRank, usableType);
+											replacements.removeIf(weapon -> {return !itemData.isRanged(weapon); });
+										}
+										if (!replacements.isEmpty()) {
+											FE9Item additionalWeapon = replacements.get(rng.nextInt(replacements.size()));
+											DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Additional Weapon: " + itemData.iidOfItem(additionalWeapon));
+											weapons.add(additionalWeapon);
+											break;
+										} else {
+											types.remove(usableType);
+										}
 									}
 								}
 							}
