@@ -131,11 +131,11 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 			}
 			
 			// Update header.
-			int newFileLength = byteArray.length + stringDataBuilder.getBytesWritten() + pointerDataBuilder.getBytesWritten();
 			int newNumberOfPointers = pointerOffsetList.size() + addedPointersOffsets.size();
 			
 			ByteArrayBuilder headerDataBuilder = new ByteArrayBuilder();
-			headerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newFileLength, false, 4));
+			// We'll fill this in later.
+			headerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(0, false, 4));
 			headerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(pointerOffset, false, 4)); // We'll change this later once we know where the pointers end up.
 			headerDataBuilder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newNumberOfPointers, false, 4));
 			// There's one last value in the header that refers to the count of something else. They're 8 byte long entries, but I"m not sure what they are.
@@ -162,6 +162,8 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 			expandedFileBuilder.appendBytes(pointerDataBuilder.toByteArray()); // New pointer offsets
 			expandedFileBuilder.appendBytes(remainingData);
 			
+			while (expandedFileBuilder.getBytesWritten() % 4 != 0) { expandedFileBuilder.appendByte((byte)0); }
+			expandedFileBuilder.replaceBytes(0, WhyDoesJavaNotHaveThese.byteArrayFromLongValue(expandedFileBuilder.getBytesWritten(), false, 4));
 			byteArray = expandedFileBuilder.toByteArray();
 
 			// Write the new pointer offset (since we had to write everything before we could figure it out).

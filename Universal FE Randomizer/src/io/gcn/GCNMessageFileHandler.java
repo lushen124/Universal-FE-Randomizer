@@ -263,6 +263,9 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 		builder.appendBytes(pointerBuilder.toByteArray());
 		builder.appendBytes(idBuilder.toByteArray());
 		
+		// Make the file lengths a multiple of 4.
+		while (builder.getBytesWritten() % 4 != 0) { builder.appendByte((byte)0); }
+		
 		// Set the file length.
 		builder.replaceBytes(0, WhyDoesJavaNotHaveThese.byteArrayFromLongValue(builder.getBytesWritten(), false, 4));
 		// Set the pointer table offset.

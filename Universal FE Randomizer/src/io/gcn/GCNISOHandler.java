@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import io.FileHandler;
 import io.FileWriter;
+import util.ByteArrayBuilder;
+import util.CRC32Helper;
 import util.DebugPrinter;
 import util.DiffCompiler;
 import util.WhyDoesJavaNotHaveThese;
@@ -127,7 +129,9 @@ public class GCNISOHandler {
 				
 				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Loaded File " + fstNameOfEntry(fileEntry) + " at FST offset 0x" + Long.toHexString(currentOffset).toUpperCase()+ ".");
 				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "File Offset: 0x" + Long.toHexString(fileEntry.fileOffset).toUpperCase() + ". File Size: " + fileEntry.fileSize + " bytes.");
-				
+				long offset = handler.getNextReadOffset();
+				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "File crc32: " + CRC32Helper.getCRC32(handler.readBytesAtOffset(fileEntry.fileOffset, (int)fileEntry.fileSize)));
+				handler.setNextReadOffset(offset);
 				entryList.add(fileEntry);
 			} else if (flags == 0x01) { // This is a directory entry.
 				GCNFSTDirectoryEntry dirEntry = new GCNFSTDirectoryEntry();
@@ -329,6 +333,7 @@ public class GCNISOHandler {
 			
 			// Write all of the file data.
 			for (int i = 0; i < fileDataOrder.size(); i++) {
+				byte[] writtenBytes = null;
 				GCNFSTFileEntry fileEntry = fileDataOrder.get(i);
 				if (delegate != null) { 
 					delegate.onProgressUpdate(0.6 + 0.4 * (double)i / (double)fileDataOrder.size()); 
@@ -343,26 +348,33 @@ public class GCNISOHandler {
 				GCNFileHandler fileHandler = handlerForFileWithName(fstNameOfEntry(fileEntry));
 				if (fileHandler instanceof GCNCMPFileHandler) {
 					GCNCMPFileHandler cmpFileHandler = (GCNCMPFileHandler)fileHandler;
-					writer.write(cmpFileHandler.build());
+					writtenBytes = cmpFileHandler.build();
+					writer.write(writtenBytes);
 				} else if (fileHandler instanceof GCNCMBFileHandler) {
 					GCNCMBFileHandler cmbFileHandler = (GCNCMBFileHandler)fileHandler;
-					writer.write(cmbFileHandler.newBuild());
+					writtenBytes = cmbFileHandler.newBuild();
+					writer.write(writtenBytes);
 				} else if (fileHandler instanceof GCNMessageFileHandler) {
 					GCNMessageFileHandler messageFileHandler = (GCNMessageFileHandler)fileHandler;
-					writer.write(messageFileHandler.orderedBuild());
+					writtenBytes = messageFileHandler.orderedBuild();
+					writer.write(writtenBytes);
 				} else {
+					ByteArrayBuilder builder = new ByteArrayBuilder();
 					fileHandler.setNextReadOffset(0);
 					fileHandler.beginBatchRead();
 					int bytesRead = fileHandler.continueReadingBytes(dataChunk);
 					do {
 						writer.write(dataChunk, bytesRead);
+						builder.appendBytes(dataChunk);
 						bytesRead = fileHandler.continueReadingBytes(dataChunk);
 					} while (bytesRead > 0);
 					
+					writtenBytes = builder.toByteArray();
 					fileHandler.endBatchRead();
 				}
 				long bytesWritten = writer.getBytesWritten() - beginningOffset;
-				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Wrote " + bytesWritten + " btyes");
+				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Wrote " + bytesWritten + " bytes");
+				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "File crc32: " + CRC32Helper.getCRC32(writtenBytes));
 			}
 			
 			writer.finish();
