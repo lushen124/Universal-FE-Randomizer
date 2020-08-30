@@ -149,6 +149,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 		// Update all of the file entries first before we write them.
 		long offset = -1;
 		for (String name : filenames) {
+			DebugPrinter.log(DebugPrinter.Key.CMP_HANDLER, "Processing " + name + " in " + identifier);
 			CMPFileEntry fileEntry = fileMap.get(name);
 			GCNFileHandler fileHandler = cachedHandlers.get(name);
 			if (fileHandler instanceof GCNMessageFileHandler) {
@@ -160,6 +161,8 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			}
 			offset = fileEntry.filePointer + fileEntry.fileLength;
 			
+			DebugPrinter.log(DebugPrinter.Key.CMP_HANDLER, "Setting " + name + " to be written at offset 0x" + Long.toHexString(fileEntry.filePointer) + " with length " + fileEntry.fileLength);
+			
 			// It looks like every file starts aligned to 0. Not sure if this is true
 			// for all CMP files, but it's true for system.cmp. Moreover, 
 			// all files are aligned on a multiple of 0x20. Again, not sure if this is
@@ -168,6 +171,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			if (offset % 0x20 != 0) { offset += (0x20 - (offset % 0x20)); }
 			
 			// Might as well write them while we're iterating.
+			DebugPrinter.log(DebugPrinter.Key.CMP_HANDLER, "Writing header entry for " + name + ": " + WhyDoesJavaNotHaveThese.displayStringForBytes(fileEntry.toByteArray()));
 			builder.appendBytes(fileEntry.toByteArray());
 		}
 		
@@ -180,6 +184,8 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			while (builder.getBytesWritten() < fileEntry.namePointer) { builder.appendByte((byte)0); }
 			builder.appendBytes(WhyDoesJavaNotHaveThese.asciiBytesFromString(name));
 			builder.appendByte((byte)0);
+			
+			DebugPrinter.log(DebugPrinter.Key.CMP_HANDLER, "Writing file name " + name + " at 0x" + Long.toHexString(fileEntry.namePointer));
 		}
 		
 		byte[] fileData = new byte[1024];
@@ -189,6 +195,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			CMPFileEntry fileEntry = fileMap.get(name);
 			GCNFileHandler fileHandler = cachedHandlers.get(name);
 			while (builder.getBytesWritten() < fileEntry.filePointer) { builder.appendByte((byte)0); }
+			DebugPrinter.log(DebugPrinter.Key.CMP_HANDLER, "Writing file data for " + name + " at 0x" + Integer.toHexString(builder.getBytesWritten()));
 			if (fileHandler instanceof GCNMessageFileHandler) {
 				builder.appendBytes(((GCNMessageFileHandler) fileHandler).orderedBuild());
 			} else {
@@ -205,6 +212,8 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 		}
 		
 		while (builder.getBytesWritten() % 0x20 != 0) { builder.appendByte((byte)0); }
+		
+		DebugPrinter.log(DebugPrinter.Key.CMP_HANDLER, "Finished compiling " + identifier + ". Total bytes written: " + builder.getBytesWritten());
 		
 		return builder.toByteArray();
 	}
@@ -224,7 +233,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 				cachedBuild = originalCompressed; 
 			} else {
 				cachedBuild = LZ77.compress(buildRaw(), 0xFFF);
-				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Compressed " + identifier + " to " + cachedBuild.length + " bytes");
+				DebugPrinter.log(DebugPrinter.Key.CMP_HANDLER, "Compressed " + identifier + " to " + cachedBuild.length + " bytes");
 			}
 		}
 		return cachedBuild;

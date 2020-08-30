@@ -144,6 +144,10 @@ public class FE9CharacterDataLoader {
 		}
 	}
 	
+	public List<FE9Character> allCharacters() {
+		return new ArrayList<FE9Character>(allCharacters);
+	}
+	
 	public boolean isPlayableCharacter(FE9Character character) {
 		if (character == null) { return false; }
 		FE9Data.Character fe9Char = FE9Data.Character.withPID(fe8databin.stringForPointer(character.getCharacterIDPointer()));
@@ -243,6 +247,13 @@ public class FE9CharacterDataLoader {
 		if (character.getCharacterNamePointer() == 0) { return null; }
 		
 		return fe8databin.stringForPointer(character.getCharacterNamePointer());
+	}
+	
+	public String getFIDForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		if (character.getPortraitPointer() == 0) { return null; }
+		
+		return fe8databin.stringForPointer(character.getPortraitPointer());
 	}
 	
 	public String getJIDForCharacter(FE9Character character) {
@@ -472,6 +483,26 @@ public class FE9CharacterDataLoader {
 		if (character == null) { return; }
 		long affinityPtr = fe8databin.pointerForString(affinity.getInternalID());
 		character.setAffinityPointer(affinityPtr);
+	}
+	
+	public Integer getLevelForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		return character.getLevel();
+	}
+	
+	public Integer getBuildForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		return character.getBuild();
+	}
+	
+	public Integer getWeightForCharacter(FE9Character character) {
+		if (character == null) { return null; }
+		return character.getWeight();
+	}
+	
+	public String getDisplayName(FE9Character character) {
+		if (character == null) { return null; }
+		return fe8databin.stringForPointer(character.getCharacterNamePointer());
 	}
 	
 	public void commit() {

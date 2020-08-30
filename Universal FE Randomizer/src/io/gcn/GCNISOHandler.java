@@ -130,7 +130,7 @@ public class GCNISOHandler {
 				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Loaded File " + fstNameOfEntry(fileEntry) + " at FST offset 0x" + Long.toHexString(currentOffset).toUpperCase()+ ".");
 				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "File Offset: 0x" + Long.toHexString(fileEntry.fileOffset).toUpperCase() + ". File Size: " + fileEntry.fileSize + " bytes.");
 				long offset = handler.getNextReadOffset();
-				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "File crc32: " + CRC32Helper.getCRC32(handler.readBytesAtOffset(fileEntry.fileOffset, (int)fileEntry.fileSize)));
+				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "File crc32: " + Long.toHexString(CRC32Helper.getCRC32(handler.readBytesAtOffset(fileEntry.fileOffset, (int)fileEntry.fileSize))).toUpperCase());
 				handler.setNextReadOffset(offset);
 				entryList.add(fileEntry);
 			} else if (flags == 0x01) { // This is a directory entry.
@@ -365,7 +365,7 @@ public class GCNISOHandler {
 					int bytesRead = fileHandler.continueReadingBytes(dataChunk);
 					do {
 						writer.write(dataChunk, bytesRead);
-						builder.appendBytes(dataChunk);
+						builder.appendBytes(dataChunk, bytesRead);
 						bytesRead = fileHandler.continueReadingBytes(dataChunk);
 					} while (bytesRead > 0);
 					
@@ -374,7 +374,7 @@ public class GCNISOHandler {
 				}
 				long bytesWritten = writer.getBytesWritten() - beginningOffset;
 				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "Wrote " + bytesWritten + " bytes");
-				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "File crc32: " + CRC32Helper.getCRC32(writtenBytes));
+				DebugPrinter.log(DebugPrinter.Key.GCN_HANDLER, "File crc32: " + Long.toHexString(CRC32Helper.getCRC32(writtenBytes)).toUpperCase());
 			}
 			
 			writer.finish();
