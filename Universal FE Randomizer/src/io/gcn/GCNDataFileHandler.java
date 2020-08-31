@@ -1,17 +1,18 @@
 package io.gcn;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.FileHandler;
 import util.ByteArrayBuilder;
+import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
 // GCN Data files have a header that has some information, and all address references are offset by 0x20 to account for this.
@@ -21,14 +22,50 @@ import util.WhyDoesJavaNotHaveThese;
 // 0x00 - 0x03 - 4 bytes - The size of the file.
 // 0x04 - 0x07 - 4 bytes - The address of the start of the list of pointers (remember to add 0x20).
 // 0x08 - 0x0B - 4 bytes - The number of pointers in the list.
-// 0x0C - 0x0F - 4 bytes - Unknown currently. It looks like a count of items, and it seems to line up with the number of entries
-// 							of something after the pointer list, with each entry being 8 bytes long. After that is more strings
-//							that could theoretically be pointed at.
+// 0x0C - 0x0F - 4 bytes - The number of data sections in this file. These sections are specified after the list of pointers.
+//							Each entry is 8 bytes and immediately follows the pointers with no spacing.
+//							The first 4 bytes point to the data (adding 0x20 to account for the header) and the 
+//							second 4 bytes are an offset to the name of the section, relative to right after this list of
+//							entries concludes.
 //
 // Every pointer used in this file MUST be in this list, otherwise it will be ignored!
 //
 // This file handler is the same as a regular file handler, but it has the ability to manage the list of pointers as well.
 public class GCNDataFileHandler extends GCNByteArrayHandler {
+	
+	private static class DataSection {
+		int startingDataOffset;
+		int endingDataOffset;
+		
+		String name;
+		
+		byte[] updatedData;
+		
+		public DataSection(String name, int start, int end) {
+			this.name = name;
+			startingDataOffset = start;
+			endingDataOffset = end;
+			updatedData = null;
+		}
+		
+		public static Comparator<DataSection> startOffsetComparator() {
+			return new Comparator<DataSection>() {
+				@Override
+				public int compare(DataSection o1, DataSection o2) {
+					return Integer.compare(o1.startingDataOffset, o2.startingDataOffset);
+				}
+			};
+		}
+		
+		public static Comparator<DataSection> nameComparator() {
+			return new Comparator<DataSection>() {
+				@Override
+				public int compare(DataSection o1, DataSection o2) {
+					return o1.name.compareTo(o2.name);
+				}
+			};
+		}
+	}
 	
 	private Set<String> stringList;
 	private Set<Long> pointerOffsetList;
@@ -38,13 +75,19 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 	private Set<Long> addedPointersOffsets;
 	private Set<String> addedStrings;
 	
+	private List<DataSection> sections;
+	
 	private long pointerOffset;
+	
+	private String identifier;
 	
 	boolean needsExpansion = false;
 	boolean wasExpanded = false;
 
-	public GCNDataFileHandler(GCNFSTFileEntry file, FileHandler handler, byte[] byteArray) {
+	public GCNDataFileHandler(GCNFSTFileEntry file, FileHandler handler, byte[] byteArray, String identifier) {
 		super(file, handler, byteArray);
+		
+		this.identifier = identifier;
 		
 		stringList = new HashSet<String>();
 		pointerOffsetList = new HashSet<Long>();
@@ -58,6 +101,7 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 		
 		int numberOfPointers = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(readBytesAtOffset(0x08, 4), false);
 		long currentOffset = pointerOffset + 0x20;
+		List<Integer> pointerTargets = new ArrayList<Integer>();
 		for (int i = 0; i < numberOfPointers; i++) {
 			// Each item is the offset of a pointer used in the data.
 			long pointerOffset = WhyDoesJavaNotHaveThese.longValueFromByteArray(readBytesAtOffset(currentOffset, 4), false);
@@ -72,7 +116,54 @@ public class GCNDataFileHandler extends GCNByteArrayHandler {
 			
 			stringList.add(dereferenced);
 			currentOffset += 4;
+			pointerTargets.add((int)pointer);
 		}
+		
+		pointerTargets.sort(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				return Integer.compare(o1, o2);
+			}
+		});
+		
+		sections = new ArrayList<DataSection>();
+		int numberOfSections = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(readBytesAtOffset(0x0C, 4), false);
+		int sectionTableOffset = (int)pointerOffset + 0x20 + (numberOfPointers * 4);
+		int sectionNameTableOffset = sectionTableOffset + (numberOfSections * 8);
+		for (int i = 0; i < numberOfSections; i++) {
+			int entryOffset = sectionTableOffset + (i * 8);
+			int dataStartOffset = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(readBytesAtOffset(entryOffset, 4), false);
+			int nameStartOffset = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(readBytesAtOffset(entryOffset + 4, 4), false);
+			setNextReadOffset(sectionNameTableOffset + nameStartOffset);
+			String name = WhyDoesJavaNotHaveThese.stringFromShiftJIS(continueReadingBytesUpToNextTerminator(getFileLength()));
+			// We'll fill in the end address later once we know the other sections.
+			sections.add(new DataSection(name, dataStartOffset, 0));
+		}
+		
+		if (numberOfSections > 0) {
+			sections.sort(DataSection.startOffsetComparator());
+			for (int i = 1; i < sections.size(); i++) {
+				sections.get(i - 1).endingDataOffset = sections.get(i).startingDataOffset;
+			}
+			// The last section continues up to the first string entry.
+			DataSection lastSection = sections.get(sections.size() - 1);
+			pointerTargets.removeIf(target -> { return target < lastSection.startingDataOffset; });
+			sections.get(sections.size() - 1).endingDataOffset = pointerTargets.get(0);
+			
+			for (DataSection section : sections) {
+				DebugPrinter.log(DebugPrinter.Key.BIN_HANDLER, "Section of " + identifier + ": " + section.name + ": 0x" + Integer.toHexString(section.startingDataOffset) + " ~ 0x" + Integer.toHexString(section.endingDataOffset));
+			}
+		}
+	}
+	
+	public byte[] getDataForSection(String sectionName) {
+		Optional<DataSection> matchingSection = sections.stream().filter(section -> { return section.name.equals(sectionName); }).findFirst();
+		if (matchingSection.isPresent()) {
+			DataSection section = matchingSection.get();
+			return readBytesAtOffset(section.startingDataOffset, section.endingDataOffset - section.startingDataOffset);
+		}
+		
+		return null;
 	}
 	
 	public void addPointerOffset(long offset) {
