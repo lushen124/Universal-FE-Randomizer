@@ -45,6 +45,8 @@ public class FE6Chapter implements GBAFEChapterData {
 	
 	private CharacterNudge[] nudges;
 	
+	private int maxEnemyClassLimit = 0;
+	
 	public FE6Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, CharacterNudge[] nudgesRequired) {
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
@@ -474,4 +476,12 @@ public class FE6Chapter implements GBAFEChapterData {
 	}
 
 	public GBAFEChapterItemData chapterItemGivenToCharacter(int characterID) { return null; }
+	
+	public void setMaxEnemyClassLimit(int limit) {
+		maxEnemyClassLimit = limit;
+	}
+	
+	public int getMaxEnemyClassLimit() {
+		return maxEnemyClassLimit;
+	}
 }

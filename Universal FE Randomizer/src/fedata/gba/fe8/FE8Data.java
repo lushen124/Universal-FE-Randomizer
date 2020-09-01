@@ -1765,6 +1765,16 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				return null;
 			}
 		}
+		
+		public int enemyClassLimit() {
+			switch (this) {
+			case CHAPTER_20_EIRIKA:
+			case CHAPTER_20_EPHRAIM:
+				return 9;
+			default:
+				return 0;
+			}
+		}
 	}
 	
 	public enum PromotionItem implements GBAFEPromotionItem {
