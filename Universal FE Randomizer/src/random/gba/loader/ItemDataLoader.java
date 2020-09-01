@@ -369,6 +369,11 @@ public class ItemDataLoader {
 		potentialItems.removeAll(provider.playerOnlyWeapons());
 		
 		List<GBAFEItem> itemList = potentialItems.stream().sorted(GBAFEItem.defaultComparator()).collect(Collectors.toList());
+		if (itemList.isEmpty()) {
+			// Fall back to basic weapons.
+			itemList = provider.basicWeaponsForClass(targetClass.getID()).stream().sorted(GBAFEItem.defaultComparator()).collect(Collectors.toList());
+			if (itemList.isEmpty()) { return null; }
+		}
 		return itemMap.get(itemList.get(rng.nextInt(itemList.size())).getID());
 	}
 	
