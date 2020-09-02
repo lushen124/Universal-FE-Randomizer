@@ -323,6 +323,9 @@ public class FE9Randomizer extends Randomizer {
 		sb.append((char)0xA);
 		sb.append("Celerity when you're at a base.");
 		textData.setStringForIdentifier("MH_I_SWIFT", sb.toString());
+		
+		// Daunt scroll also doesn't have the correct name.
+		textData.setStringForIdentifier("MIID_HORROR", "Daunt");
 	}
 	
 	private void makePostRandomizationAdjustments(String seed) {
@@ -632,6 +635,10 @@ public class FE9Randomizer extends Randomizer {
 					FE9RewardsRandomizer.randomizeRewards(itemData, chapterData, rng);
 					break;
 				}
+			}
+			if (miscOptions.enemyDropChance > 0) {
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9RewardsRandomizer.rngSalt));
+				FE9RewardsRandomizer.addEnemyDrops(charData, itemData, chapterData, miscOptions.enemyDropChance, rng);
 			}
 		}
 	}
