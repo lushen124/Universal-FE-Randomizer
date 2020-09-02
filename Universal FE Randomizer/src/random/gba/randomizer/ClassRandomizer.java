@@ -240,6 +240,20 @@ public class ClassRandomizer {
 		}
 		
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
+			int maxEnemyClassLimit = chapter.getMaxEnemyClassLimit();
+			// There's really four slots we need to reserve.
+			// Unpromoted land unit
+			// Promoted land unit
+			// Unpromoted flying unit
+			// Promoted flying unit
+			// If we have all of these, we can guarantee a replacement if we run into the limit.
+			
+			List<GBAFEClassData> unpromotedLandUnit = new ArrayList<GBAFEClassData>();
+			List<GBAFEClassData> promotedLandUnit = new ArrayList<GBAFEClassData>();
+			List<GBAFEClassData> unpromotedFlyingUnit = new ArrayList<GBAFEClassData>();
+			List<GBAFEClassData> promotedFlyingUnit = new ArrayList<GBAFEClassData>();
+			
+			Map<GBAFEClassData, List<GBAFEChapterUnitData>> selectedClasses = new HashMap<GBAFEClassData, List<GBAFEChapterUnitData>>();
 			GBAFECharacterData lordCharacter = charactersData.characterWithID(chapter.lordLeaderID());
 			GBAFEClassData lordClass = classData.classForID(lordCharacter.getClassID());
 			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
@@ -291,20 +305,80 @@ public class ClassRandomizer {
 							continue;
 						}
 						
-						int randomIndex = rng.nextInt(possibleClasses.length);
-						targetClass = possibleClasses[randomIndex];
-						
-						if (classData.isFlying(originalClass.getID()) == false && classData.isFlying(targetClass.getID())) {
-							// If this is a new flier, roll one more time. 
-							// Reduce the number of non-flying minions that become fliers.
-							randomIndex = rng.nextInt(possibleClasses.length);
-							targetClass = possibleClasses[randomIndex];
+						if (maxEnemyClassLimit > 0) {
+							int numberOfSlotsNeededToFill = 4;
+							if (!promotedFlyingUnit.isEmpty()) { numberOfSlotsNeededToFill--; }
+							if (!unpromotedFlyingUnit.isEmpty()) { numberOfSlotsNeededToFill--; }
+							if (!promotedLandUnit.isEmpty()) { numberOfSlotsNeededToFill--; }
+							if (!unpromotedLandUnit.isEmpty()) { numberOfSlotsNeededToFill--; }
+							
+							if (selectedClasses.size() >= maxEnemyClassLimit - numberOfSlotsNeededToFill) {
+								// We've reached the maximum limit. Reuse one of the classes we've already assigned.
+								boolean isPromoted = classData.isPromotedClass(originalClass.getID());
+								boolean isFlying = classData.isFlying(originalClass.getID());
+								
+								if (isPromoted && isFlying && !promotedFlyingUnit.isEmpty()) {
+									targetClass = promotedFlyingUnit.get(rng.nextInt(promotedFlyingUnit.size()));
+								} else if (isPromoted && !isFlying && !promotedLandUnit.isEmpty()) {
+									// A land unit can be subbed with a flying unit.
+									targetClass = promotedLandUnit.get(rng.nextInt(promotedLandUnit.size()));
+								} else if (!isPromoted && isFlying && !unpromotedFlyingUnit.isEmpty()) {
+									targetClass = unpromotedFlyingUnit.get(rng.nextInt(unpromotedFlyingUnit.size()));
+								} else if (!isPromoted && !isFlying && !unpromotedLandUnit.isEmpty()) {
+									// A land unit can be subbed with a flying unit too.
+									targetClass = unpromotedLandUnit.get(rng.nextInt(unpromotedLandUnit.size()));
+								}
+							}
 						}
+						
+						if (targetClass == null) {
+							int randomIndex = rng.nextInt(possibleClasses.length);
+							targetClass = possibleClasses[randomIndex];
+						
+						
+							if (classData.isFlying(originalClass.getID()) == false && classData.isFlying(targetClass.getID())) {
+								// If this is a new flier, roll one more time. 
+								// Reduce the number of non-flying minions that become fliers.
+								randomIndex = rng.nextInt(possibleClasses.length);
+								targetClass = possibleClasses[randomIndex];
+							}
+							
+							// If we have a class limit, don't allow any non-flying unit to be flying.
+							if (maxEnemyClassLimit > 0) {
+								while (classData.isFlying(targetClass.getID()) && !classData.isFlying(originalClass.getID())) {
+									randomIndex = rng.nextInt(possibleClasses.length);
+									targetClass = possibleClasses[randomIndex];
+								}
+							}
+						}
+						
 						if (characterHasWeaponRanks) {
 							updateMinionCharacterToClass(inventoryOptions, chapterUnit, minionCharacterData, originalClass, targetClass, classData, itemData, rng);
 						} else {
 							updateMinionToClass(inventoryOptions, chapterUnit, minionCharacterData, targetClass, classData, itemData, rng);
 						}
+						
+						if (classData.isPromotedClass(targetClass.getID())) {
+							if (classData.isFlying(targetClass.getID())) {
+								promotedFlyingUnit.add(targetClass);
+							} else {
+								promotedLandUnit.add(targetClass);
+							}
+						} else {
+							if (classData.isFlying(targetClass.getID())) {
+								unpromotedFlyingUnit.add(targetClass);
+							} else {
+								unpromotedLandUnit.add(targetClass);
+							}
+						}
+						
+						List<GBAFEChapterUnitData> unitsInClass = selectedClasses.get(targetClass);
+						if (unitsInClass == null) {
+							unitsInClass = new ArrayList<GBAFEChapterUnitData>();
+							selectedClasses.put(targetClass, unitsInClass);
+						}
+						
+						unitsInClass.add(chapterUnit);
 					}
 				}
 			}

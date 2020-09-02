@@ -57,6 +57,7 @@ public class FE7Chapter implements GBAFEChapterData {
 	private int probableLordID = 0;
 	private int probableBossID = 0;
 	
+	private int maxEnemyClassLimit = 0;
 
 	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple) {
 		
@@ -667,4 +668,12 @@ public class FE7Chapter implements GBAFEChapterData {
 	}
 	
 	public GBAFEChapterItemData chapterItemGivenToCharacter(int characterID) { return null; }
+	
+	public void setMaxEnemyClassLimit(int limit) {
+		maxEnemyClassLimit = limit;
+	}
+	
+	public int getMaxEnemyClassLimit() {
+		return maxEnemyClassLimit;
+	}
 }

@@ -23,4 +23,6 @@ public interface GBAFEChapterData {
 	public void applyNudges();
 	
 	public GBAFEChapterItemData chapterItemGivenToCharacter(int characterID);
+	
+	public int getMaxEnemyClassLimit();
 }

@@ -128,7 +128,8 @@ public class ChapterLoader {
 					CharacterNudge[] nudges = chapter.nudgesRequired();
 					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE8Chapter fe8Chapter = new FE8Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy(), trackedRewardRecipients, unarmedCharacterIDs, chapter.additionalUnitOffsets(), nudges); 
+					FE8Chapter fe8Chapter = new FE8Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy(), trackedRewardRecipients, unarmedCharacterIDs, chapter.additionalUnitOffsets(), nudges);
+					fe8Chapter.setMaxEnemyClassLimit(chapter.enemyClassLimit());
 					chapters[i++] = fe8Chapter;
 					mappedChapters.put(chapterID, fe8Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe8Chapter.allUnits().length + " characters and " + fe8Chapter.allRewards().length + " rewards");
