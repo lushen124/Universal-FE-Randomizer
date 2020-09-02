@@ -531,7 +531,7 @@ public class ClassRandomizer {
 			if (item1 != null && (itemData.isWeapon(item1) || item1.getType() == WeaponType.STAFF)) {
 				if (!unitClass.canUseWeapon(item1)) {
 					replacementItem = itemData.getSidegradeWeapon(unitClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
-					if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
+					if (replacementItem != null && (isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
 						replacementItem = null; // We'll handle this later.
 					}
 					if (replacementItem != null) {
