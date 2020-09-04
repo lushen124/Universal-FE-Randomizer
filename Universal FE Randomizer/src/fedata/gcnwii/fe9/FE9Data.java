@@ -99,11 +99,7 @@ public class FE9Data {
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(VOLKE, SOTHE));
 		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(TIBARN, NAESALA, GIFFCA));
 		
-		// TODO: These characters are not quite working for randomization of classes.
-		// We'll need to figure out why exactly.
 		public static Set<Character> buggedCharacters = new HashSet<Character>(Arrays.asList(
-				LETHE, // Only affinity changes seem to be working. 
-				ROLF // Everything works except class. He's forced to being an Archer and always carries a Rolf's Bow.
 		));
 		
 		public static Set<Character> requiresRange = new HashSet<Character>(Arrays.asList());
@@ -344,7 +340,7 @@ public class FE9Data {
 				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, WYVERN_RIDER, WYVERN_LORD, FIRE_MAGE, /*WIND_MAGE, THUNDER_MAGE,*/ MAGE,
 				/*FIRE_SAGE, WIND_SAGE, THUNDER_SAGE,*/ SAGE, /*FIRE_SAGE_STAFF, WIND_SAGE_STAFF, THUNDER_SAGE_STAFF, FIRE_SAGE_KNIFE, WIND_SAGE_KNIFE,
 				THUNDER_SAGE_KNIFE,*/ PRIEST, BISHOP, THIEF, ASSASSIN, BANDIT, BERSERKER, TIGER, CAT, WHITE_DRAGON, RED_DRAGON,
-				HAWK, CROW, /*HERON,*/ W_HERON, FERAL_TIGER, FERAL_CAT, FERAL_WHITE_DRAGON,
+				HAWK, CROW, /*HERON,*/ W_HERON, FERAL_TIGER, FERAL_CAT, /*FERAL_WHITE_DRAGON*,*/
 				FERAL_RED_DRAGON, FERAL_HAWK, FERAL_CROW, SAGE_STAFF, SAGE_KNIFE,
 				MYRMIDON_F, SWORDMASTER_F, SOLDIER_F, HALBERDIER_F, 
 				/*SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F, */BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN,
