@@ -736,6 +736,10 @@ public class FE9ClassRandomizer {
 							List<FE9Item> weapons = new ArrayList<FE9Item>();
 							if (itemData.laguzWeaponForJID(targetJID) != null) {
 								weapons.add(itemData.laguzWeaponForJID(targetJID));
+								// Bosses should stay in laguz form.
+								if (army.getSkill1ForUnit(unit) == null) { army.setSkill1ForUnit(unit, FE9Data.Skill.FERAL.getSID()); }
+								else if (army.getSkill2ForUnit(unit) == null) { army.setSkill2ForUnit(unit, FE9Data.Skill.FERAL.getSID()); }
+								else if (army.getSkill3ForUnit(unit) == null) { army.setSkill3ForUnit(unit, FE9Data.Skill.FERAL.getSID()); }
 							} else {
 								int weaponCount = 0;
 								String iid1 = army.getWeapon1ForUnit(unit);

@@ -54,11 +54,11 @@ public class DiffCompiler {
 	
 	public void applyDiffs(byte[] byteArray, long startingOffset) {
 		AddressRange range = new AddressRange(startingOffset, startingOffset + byteArray.length);
-		DebugPrinter.log(DebugPrinter.Key.DIFF, "Applying Diff to byte array starting from offset 0x" + Long.toHexString(startingOffset) + " for " + byteArray.length + " bytes.");
+		//DebugPrinter.log(DebugPrinter.Key.DIFF, "Applying Diff to byte array starting from offset 0x" + Long.toHexString(startingOffset) + " for " + byteArray.length + " bytes.");
 		
 		for (Diff diff : diffArray) {
 			if (range.contains(diff.address) || range.contains(diff.address + diff.length)) {
-				DebugPrinter.log(DebugPrinter.Key.DIFF, "Applying Diff starting from 0x" + Long.toHexString(diff.address));
+				//DebugPrinter.log(DebugPrinter.Key.DIFF, "Applying Diff starting from 0x" + Long.toHexString(diff.address));
 				if (diff.address < startingOffset) {
 					// We have a diff that started before this chunk but affects the start of this chunk.
 					int diffStartIndex = (int)(startingOffset - diff.address);
