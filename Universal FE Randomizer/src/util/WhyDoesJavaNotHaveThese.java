@@ -286,4 +286,24 @@ public class WhyDoesJavaNotHaveThese {
 		}
 		return copy;
 	}
+	
+	public static int firstIndexOfBytesInByteArray(byte[] byteArray, byte[] targetBytes, int startOffset, int maxOffset) {
+		if (startOffset >= byteArray.length || maxOffset <= startOffset) { return -1; }
+		for (int i = startOffset; i < Math.min(maxOffset, byteArray.length); i++) {
+			if (byteArray[i] == targetBytes[0]) {
+				boolean isMatch = true;
+				for (int j = 0; j < targetBytes.length; j++) {
+					if (byteArray[i + j] != targetBytes[j]) {
+						isMatch = false;
+						break;
+					}
+				}
+				if (isMatch) {
+					return i;
+				}
+			}
+		}
+		
+		return -1;
+	}
 }

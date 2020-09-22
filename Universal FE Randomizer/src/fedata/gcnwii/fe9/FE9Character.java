@@ -342,7 +342,7 @@ public class FE9Character implements FEModifiableData {
 	}
 	
 	public byte[] getUnknown6Bytes() {
-		return Arrays.copyOfRange(data, 0x30, 0x36); // For some reason, 0x35 as the end drops a byte. :/
+		return Arrays.copyOfRange(data, 0x30, 0x36);
 	}
 	
 	public void setUnknown6Bytes(byte[] sixBytes) {
@@ -360,12 +360,12 @@ public class FE9Character implements FEModifiableData {
 		wasModified = true;
 	}
 	
-	public byte[] getUnknown8Bytes() {
-		return Arrays.copyOfRange(data, 0x49, 0x51);
+	public byte[] getUnknown13Bytes() {
+		return Arrays.copyOfRange(data, 0x49, 0x54);
 	}
 	
-	public void setUnknown8Bytes(byte[] eightBytes) {
-		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(eightBytes, data, 0x49, 8);
+	public void setUnknown13Bytes(byte[] eightBytes) {
+		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(eightBytes, data, 0x49, 13);
 		wasModified = true;
 	}
 	

@@ -13,6 +13,12 @@ public class FE9Item implements FEModifiableData {
 	public static int ItemTrait4Offset = 0x24;
 	public static int ItemTrait5Offset = 0x28;
 	public static int ItemTrait6Offset = 0x2C;
+	
+	public static int ItemEffectiveness1Offset = 0x30;
+	public static int ItemEffectiveness2Offset = 0x34;
+	
+	public static int ItemAnimation1Offset = 0x38;
+	public static int ItemAnimation2Offset = 0x3C;
 
 	private byte[] originalData;
 	private byte[] data;
@@ -150,27 +156,51 @@ public class FE9Item implements FEModifiableData {
 	}
 	
 	public long getItemEffectiveness1Pointer() {
-		if (cachedItemEffectiveness1Pointer == null) { cachedItemEffectiveness1Pointer = readPointerAtOffset(0x30); }
+		if (cachedItemEffectiveness1Pointer == null) { cachedItemEffectiveness1Pointer = readPointerAtOffset(ItemEffectiveness1Offset); }
 		return cachedItemEffectiveness1Pointer;
 	}
 	
+	public void setItemEffectiveness1Pointer(long ptr) {
+		cachedItemEffectiveness1Pointer = ptr;
+		writePointerToOffset(ptr, ItemEffectiveness1Offset);
+		wasModified = true;
+	}
+	
 	public long getItemEffectiveness2Pointer() {
-		if (cachedItemEffectiveness2Pointer == null) { cachedItemEffectiveness2Pointer = readPointerAtOffset(0x34); }
+		if (cachedItemEffectiveness2Pointer == null) { cachedItemEffectiveness2Pointer = readPointerAtOffset(ItemEffectiveness2Offset); }
 		return cachedItemEffectiveness2Pointer;
 	}
 	
+	public void setItemEffectiveness2Pointer(long ptr) {
+		cachedItemEffectiveness2Pointer = ptr;
+		writePointerToOffset(ptr, ItemEffectiveness2Offset);
+		wasModified = true;
+	}
+	
 	public long getItemEffectAnimation1Pointer() {
-		if (cachedItemEffectAnimation1Pointer == null) { cachedItemEffectAnimation1Pointer = readPointerAtOffset(0x38); }
+		if (cachedItemEffectAnimation1Pointer == null) { cachedItemEffectAnimation1Pointer = readPointerAtOffset(ItemAnimation1Offset); }
 		return cachedItemEffectAnimation1Pointer;
 	}
 	
+	public void setItemEffectAnimation1Pointer(long ptr) {
+		cachedItemEffectAnimation1Pointer = ptr;
+		writePointerToOffset(ptr, ItemAnimation1Offset);
+		wasModified = true;
+	}
+	
 	public long getItemEffectAnimation2Pointer() {
-		if (cachedItemEffectAnimation2Pointer == null) { cachedItemEffectAnimation2Pointer = readPointerAtOffset(0x3C); }
+		if (cachedItemEffectAnimation2Pointer == null) { cachedItemEffectAnimation2Pointer = readPointerAtOffset(ItemAnimation2Offset); }
 		return cachedItemEffectAnimation2Pointer;
 	}
 	
+	public void setItemEffectAnimation2Pointer(long ptr) {
+		cachedItemEffectAnimation2Pointer = ptr;
+		writePointerToOffset(ptr, ItemAnimation2Offset);
+		wasModified = true;
+	}
+	
 	public int getItemCost() {
-		return ((data[0x40] & 0xFF) << 8) | (data[0x41]);
+		return ((data[0x40] & 0xFF) << 8) | (data[0x41] & 0xFF);
 	}
 	
 	public int getItemDurability() {
@@ -183,6 +213,11 @@ public class FE9Item implements FEModifiableData {
 	
 	public int getItemAccuracy() {
 		return (data[0x44] & 0xFF);
+	}
+	
+	public void setItemAccuracy(int accuracy) {
+		data[0x44] = (byte)(accuracy & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getItemWeight() {
@@ -201,30 +236,108 @@ public class FE9Item implements FEModifiableData {
 		return (data[0x48] & 0xFF);
 	}
 	
-	public int getItemNumber() {
+	public void setRange(int min, int max) {
+		if (min <= max) {
+			data[0x47] = (byte)(min & 0xFF);
+			data[0x48] = (byte)(max & 0xFF);
+			wasModified = true;
+		}
+	}
+	
+	public int getIconNumber() {
 		return (data[0x49] & 0xFF);
+	}
+	
+	public void setIconNumber(int iconNumber) {
+		data[0x49] = (byte)(iconNumber & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getWeaponExperience() {
 		return (data[0x4A] & 0xFF);
 	}
 	
-	public int getUnknownValue2() {
+	public int getHPBonus() {
 		return data[0x4B];
 	}
 	
-	public long getItemUnknownPointer8() {
-		if (cachedItemUnknownPointer8 == null) { cachedItemUnknownPointer8 = readPointerAtOffset(0x4C); }
-		return cachedItemUnknownPointer8;
+	public void setHPBonus(int newValue) {
+		data[0x4B] = (byte)(newValue & 0xFF);
+		wasModified = true;
 	}
 	
-	public long getItemUnknownPointer9() {
-		if (cachedItemUnknownPointer9 == null) { cachedItemUnknownPointer9 = readPointerAtOffset(0x50); }
-		return cachedItemUnknownPointer9;
+	public int getSTRBonus() {
+		return (data[0x4C] & 0xFF);
 	}
 	
+	public void setSTRBonus(int bonus) {
+		data[0x4C] = (byte)(bonus & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getMAGBonus() {
+		return (data[0x4D] & 0xFF);
+	}
+	
+	public void setMAGBonus(int bonus) {
+		data[0x4D] = (byte)(bonus & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getSKLBonus() {
+		return (data[0x4E] & 0xFF);
+	}
+	
+	public void setSKLBonus(int bonus) {
+		data[0x4E] = (byte)(bonus & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getSPDBonus() {
+		return (data[0x4F] & 0xFF);
+	}
+	
+	public void setSPDBonus(int bonus) {
+		data[0x4F] = (byte)(bonus & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getLCKBonus() {
+		return (data[0x50] & 0xFF);
+	}
+	
+	public void setLCKBonus(int bonus) {
+		data[0x50] = (byte)(bonus & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getDEFBonus() {
+		return (data[0x51] & 0xFF);
+	}
+	
+	public void setDEFBonus(int bonus) {
+		data[0x51] = (byte)(bonus & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getRESBonus() {
+		return (data[0x52] & 0xFF);
+	}
+	
+	public void setRESBonus(int bonus) {
+		data[0x52] = (byte)(bonus & 0xFF);
+		wasModified = true;
+	}
+		
 	public byte[] getRemainingBytes() {
-		return Arrays.copyOfRange(data, 0x54, 0x60);
+		return Arrays.copyOfRange(data, 0x53, 0x60);
+	}
+	
+	public void setByteInRemainingBytes(byte value, int offset) {
+		if (offset >= 0x54 && offset < 0x60) {
+			data[offset] = value;
+			wasModified = true;
+		}
 	}
 	
 	private long readPointerAtOffset(int offset) {

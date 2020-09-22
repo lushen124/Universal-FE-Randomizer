@@ -151,10 +151,6 @@ public class FE9Class implements FEModifiableData {
 		return cachedAnimationPointer;
 	}
 	
-	public byte[] getUnknown8Bytes() {
-		return Arrays.copyOfRange(data, 0x3C, 0x3C + 8);
-	}
-	
 	// The first byte in the unknown 8 bytes seems to be the class's base CON.
 	public int getBaseCON() {
 		return data[0x3C];
@@ -165,10 +161,24 @@ public class FE9Class implements FEModifiableData {
 		return data[0x3C + 1];
 	}
 	
-	// The 4th byte in the unknown 8 bytes seems to be the skill capacity for the class.
+	// Third byte is movement range.
+	public int getMovementRange() {
+		return data[0x3C + 2];
+	}
+	
+	// No idea what this is.
+	public int getUnknownByte() {
+		return data[0x3C + 3];
+	}
+	
+	// The 5th byte in the unknown 8 bytes seems to be the skill capacity for the class.
 	// That's at offset 0x3C + 4
 	public int getSkillCapacity() {
-		return data[0x3C + 3];
+		return data[0x3C + 4];
+	}
+	
+	public byte[] getUnknown3Bytes() {
+		return Arrays.copyOfRange(data, 0x41, 0x41 + 3);
 	}
 	
 	public int getBaseHP() { return data[0x44]; }

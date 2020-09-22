@@ -859,7 +859,13 @@ public class FE9Data {
 			MOVE_AGAIN("movtw"), HALVE_LAGUZ_DAMAGE("lycdamhalf"), IGNORE_LAGUZ_EFFECTIVENESS("lycsfxseal"), IGNORE_EFFECTIVE_DAMAGE("sfxseal"),
 			
 			HERO_LOCK("heroonly"), ARCHER_LOCK("shootonly"), BK_LOCK("blackonly"), ASHNARD_LOCK("finalonly"), ROLF_LOCK("eqA"), ELINCIA_LOCK("eqB"),
-			BEORC_LOCK("humanonly"), LAGUZ_LOCK("beastonly"), SOLDIER_KNIGHT_CAV_LOCK("eqD"), LAGUZ_ROYAL_LOCK("eqC");
+			BEORC_LOCK("humanonly"), LAGUZ_LOCK("beastonly"), SOLDIER_KNIGHT_CAV_LOCK("eqD"), LAGUZ_ROYAL_LOCK("eqC"),
+			
+			// This is on boots.
+			BOOTS_UNKNOWN("noneart"),
+			
+			// Both dragon breaths have this.
+			DRAGON_BREATH("breath");
 			
 			private static Map<String, WeaponTraits> map = new HashMap<String, WeaponTraits>();
 			

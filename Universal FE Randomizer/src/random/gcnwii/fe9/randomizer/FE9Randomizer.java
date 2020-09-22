@@ -21,7 +21,9 @@ import fedata.gcnwii.fe9.scripting.NOPInstruction;
 import fedata.gcnwii.fe9.scripting.PushLiteralString16Instruction;
 import fedata.gcnwii.fe9.scripting.ScriptInstruction;
 import io.FileHandler;
+import io.gcn.GCNByteArrayHandler;
 import io.gcn.GCNCMBFileHandler;
+import io.gcn.GCNDBXFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import io.gcn.GCNISOHandlerRecompilationDelegate;
@@ -42,7 +44,9 @@ import ui.model.FE9EnemyBuffOptions;
 import ui.model.FE9OtherCharacterOptions;
 import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
+import util.DebugPrinter;
 import util.SeedGenerator;
+import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.ChangelogAsset;
 import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.ChangelogDivider;
@@ -156,7 +160,7 @@ public class FE9Randomizer extends Randomizer {
 			itemData.recordOriginalItemData(changelogBuilder, itemSection, textData);
 			chapterData.recordOriginalChapterData(changelogBuilder, chapterSection, textData, charData, classData, skillData, itemData);
 			
-			makePreRandomizationAdjustments();
+			/*makePreRandomizationAdjustments();
 			
 			randomizeClassesIfNecessary(seed);
 			randomizeGrowthsIfNecessary(seed);
@@ -166,7 +170,51 @@ public class FE9Randomizer extends Randomizer {
 			randomizeMiscellaneousIfNecessary(seed);
 			buffEnemiesIfNecessary(seed);
 			
-			makePostRandomizationAdjustments(seed);
+			makePostRandomizationAdjustments(seed);*/
+			
+			FE9Item ironAxe = itemData.itemWithIID(FE9Data.Item.IRON_AXE.getIID());
+			ironAxe.setRange(1, 2);
+			ironAxe.commitChanges();
+			
+			FE9Item ironLance = itemData.itemWithIID(FE9Data.Item.IRON_LANCE.getIID());
+			ironLance.setRange(1, 3);
+			ironLance.commitChanges();
+			
+			FE9Item ironBow = itemData.itemWithIID(FE9Data.Item.IRON_BOW.getIID());
+			ironBow.setRange(1, 6);
+			ironBow.commitChanges();
+			
+			FE9Item ironSword = itemData.itemWithIID(FE9Data.Item.IRON_SWORD.getIID());
+			itemData.setItemTraits(ironSword, new String[] {FE9Data.Item.WeaponTraits.RANGED_PHYSICAL_SWORD.getTraitString(), FE9Data.Item.WeaponTraits.BRAVE.getTraitString(), null, null, null, null});
+			itemData.setAnimation1ForItem(ironSword, "EID_REPPU1");
+			ironSword.setRange(1, 2);
+			ironSword.commitChanges();
+			
+			GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName("zdbx.cmp/xwp/IRONSWORD.dbx");
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("class", 0));
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("name", 0));
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("folder", 0));
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("model", 0));
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("doesn't exist", 0));
+			
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("class", 1));
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("name", 1));
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("model", 1));
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("show", 1));
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("kind", 1));
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, dbx.getStringForKey("missile", 1));
+			
+			dbx.setStringForKey("effectId", 1, "EID_REPPU1");
+			
+			dbx = (GCNDBXFileHandler)handler.handlerForFileWithName("zdbx.cmp/xwp/IRONAXE.dbx");
+			dbx.setStringForKey("kind", 1, "7");
+			dbx.setStringForKey("missile", 1, "1");
+			
+			dbx = (GCNDBXFileHandler)handler.handlerForFileWithName("zdbx.cmp/xwp/IRONLANCE.dbx");
+			dbx.setStringForKey("kind", 1, "6");
+			dbx.setStringForKey("missile", 1, "1");
+			
+			DebugPrinter.log(DebugPrinter.Key.DBX_HANDLER, WhyDoesJavaNotHaveThese.displayStringForBytes(dbx.getRawData()));
 			
 			updateStatus(0.50, "Committing changes...");
 			charData.compileDiffs(handler);

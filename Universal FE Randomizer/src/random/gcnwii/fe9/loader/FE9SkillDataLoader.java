@@ -28,6 +28,7 @@ public class FE9SkillDataLoader {
 	Map<String, FE9Skill> skillBySID;
 	
 	GCNDataFileHandler fe8databin;
+	FE9CommonTextLoader commonTextLoader;
 	
 	public FE9SkillDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
 		allSkills = new ArrayList<FE9Skill>();
@@ -39,6 +40,8 @@ public class FE9SkillDataLoader {
 			fe8databin = (GCNDataFileHandler)handler;
 		}
 		
+		this.commonTextLoader = commonTextLoader;
+		
 		long offset = FE9Data.SkillDataStartOffset;
 		for (int i = 0; i < FE9Data.SkillCount; i++) {
 			long dataOffset = offset + i * FE9Data.SkillDataSize;
@@ -46,24 +49,24 @@ public class FE9SkillDataLoader {
 			FE9Skill skill = new FE9Skill(data, dataOffset);
 			allSkills.add(skill);
 			
-			debugPrintSkill(skill, handler, commonTextLoader);
+			debugPrintSkill(skill, handler);
 			
-			String sid = stringForPointer(skill.getSkillIDPointer(), handler, commonTextLoader);
+			String sid = stringForPointer(skill.getSkillIDPointer(), handler);
 			skillBySID.put(sid, skill);
 		}
 	}
 
-	private void debugPrintSkill(FE9Skill skill, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {
+	private void debugPrintSkill(FE9Skill skill, GCNFileHandler handler) {
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "===== Printing Skill =====");
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "SID: " + getSID(skill));
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, 
 				"Unknown Pointer: 0x" + Long.toHexString(skill.getUnknownPointer()) + 
 				" (" + rawBytesStringForPointer(skill.getUnknownPointer(), handler) + ")");
-		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "MSID: " + stringForPointer(skill.getSkillNamePointer(), handler, commonTextLoader));
-		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Mess_Help: " + stringForPointer(skill.getHelpText1Pointer(), handler, commonTextLoader));
-		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Mess_Help2: " + stringForPointer(skill.getHelpText2Pointer(), handler, commonTextLoader));
-		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "EID: " + stringForPointer(skill.getEffectIDPointer(), handler, commonTextLoader));
+		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "MSID: " + stringForPointer(skill.getSkillNamePointer(), handler));
+		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Mess_Help: " + stringForPointer(skill.getHelpText1Pointer(), handler));
+		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Mess_Help2: " + stringForPointer(skill.getHelpText2Pointer(), handler));
+		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "EID: " + stringForPointer(skill.getEffectIDPointer(), handler));
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Skill Number?: " + skill.getSkillNumber());
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Unknown Value 1: " + skill.getUnknownValue1());
@@ -71,11 +74,11 @@ public class FE9SkillDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Unknown Value 2: " + skill.getUnknownValue2());
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Number of Restrictions: " + skill.getRestrictionCount());
-		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Item granting skill: " + stringForPointer(pointerAtPointer(skill.getItemIDPointer(), handler), handler, commonTextLoader));
+		DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Item granting skill: " + stringForPointer(pointerAtPointer(skill.getItemIDPointer(), handler), handler));
 		if (skill.getRestrictionCount() > 0) {
 			List<String> restrictions = new ArrayList<String>();
 			for (int i = 0; i < skill.getRestrictionCount(); i++) {
-				restrictions.add(stringForPointer(pointerAtPointer(skill.getRestrictionPointer() + (i * 4), handler), handler, commonTextLoader));
+				restrictions.add(stringForPointer(pointerAtPointer(skill.getRestrictionPointer() + (i * 4), handler), handler));
 			}
 			DebugPrinter.log(DebugPrinter.Key.FE9_SKILL_LOADER, "Restrictions: " + String.join(", ", restrictions));
 		} else {
@@ -107,6 +110,19 @@ public class FE9SkillDataLoader {
 		}
 		
 		return null;
+	}
+	
+	public String displayNameForSkill(FE9Skill skill) {
+		if (skill == null || skill.getSkillNamePointer() == 0) { return "(null)"; }
+		fe8databin.setNextReadOffset(skill.getSkillNamePointer());
+		byte[] bytes = fe8databin.continueReadingBytesUpToNextTerminator(skill.getSkillNamePointer() + 0xFF);
+		String identifier = WhyDoesJavaNotHaveThese.stringFromShiftJIS(bytes);
+		String resolvedValue = commonTextLoader.textStringForIdentifier(identifier);
+		if (resolvedValue != null) {
+			return resolvedValue;
+		} else {
+			return "(?)";
+		}
 	}
 	
 	public List<FE9Skill> skillList(boolean isForPlayableCharacter) {
@@ -164,11 +180,11 @@ public class FE9SkillDataLoader {
 		return skills;
 	}
 
-	private String stringForPointer(long pointer, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {
+	private String stringForPointer(long pointer, GCNFileHandler handler) {
 		if (pointer == 0) { return "(null)"; }
 		handler.setNextReadOffset(pointer);
 		byte[] bytes = handler.continueReadingBytesUpToNextTerminator(pointer + 0xFF);
-		String identifier = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(bytes);
+		String identifier = WhyDoesJavaNotHaveThese.stringFromShiftJIS(bytes);
 		String resolvedValue = commonTextLoader.textStringForIdentifier(identifier);
 		if (resolvedValue != null) {
 			return identifier + " (" + resolvedValue + ")";

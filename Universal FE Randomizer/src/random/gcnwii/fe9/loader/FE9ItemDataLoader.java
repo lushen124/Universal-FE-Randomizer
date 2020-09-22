@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9Data.CharacterClass;
 import fedata.gcnwii.fe9.FE9Data.Item;
@@ -105,8 +106,11 @@ public class FE9ItemDataLoader {
 	Map<String, FE9Item> idLookup;
 	
 	GCNDataFileHandler fe8databin;
+	FE9CommonTextLoader textLoader;
 	
 	public FE9ItemDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
+		textLoader = commonTextLoader;
+		
 		allItems = new ArrayList<FE9Item>();
 		
 		idLookup = new HashMap<String, FE9Item>();
@@ -131,6 +135,10 @@ public class FE9ItemDataLoader {
 		}
 	}
 	
+	public List<FE9Item> allItems() {
+		return allItems;
+	}
+	
 	public FE9Item itemWithIID(String iid) {
 		return idLookup.get(iid);
 	}
@@ -142,6 +150,22 @@ public class FE9ItemDataLoader {
 	
 	public String getMIIDOfItem(FE9Item item) {
 		return fe8databin.stringForPointer(item.getItemNamePointer());
+	}
+	
+	public String getMHIForItem(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemDescriptionPointer());
+	}
+	
+	public String getEquipType(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemTypePointer());
+	}
+	
+	public String getRealType(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemSubtypePointer());
+	}
+	
+	public String getRank(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemRankPointer());
 	}
 	
 	public String[] getItemTraits(FE9Item item) {
@@ -189,6 +213,98 @@ public class FE9ItemDataLoader {
 		item.setItemTrait4Pointer(pointers[3]);
 		item.setItemTrait5Pointer(pointers[4]);
 		item.setItemTrait6Pointer(pointers[5]);
+	}
+	
+	public String getEffectiveness1ForItem(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemEffectiveness1Pointer());
+	}
+	
+	public void setEffectiveness1ForItem(FE9Item item, String effective) {
+		if (item == null) { return; }
+		if (effective == null) { 
+			item.setItemEffectiveness1Pointer(0);
+			return;
+		}
+		
+		Long ptr = fe8databin.pointerForString(effective);
+		if (ptr == null) {
+			fe8databin.addString(effective);
+			fe8databin.commitAdditions();
+			ptr = fe8databin.pointerForString(effective);
+		}
+		item.setItemEffectiveness1Pointer(ptr);
+		
+		fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemEffectiveness1Offset - 0x20);
+		fe8databin.commitAdditions();
+	}
+	
+	public String getEffectiveness2ForItem(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemEffectiveness2Pointer());
+	}
+	
+	public void setEffectiveness2ForItem(FE9Item item, String effective) {
+		if (item == null) { return; }
+		if (effective == null) { 
+			item.setItemEffectiveness2Pointer(0);
+			return;
+		}
+		
+		Long ptr = fe8databin.pointerForString(effective);
+		if (ptr == null) {
+			fe8databin.addString(effective);
+			fe8databin.commitAdditions();
+			ptr = fe8databin.pointerForString(effective);
+		}
+		item.setItemEffectiveness2Pointer(ptr);
+		
+		fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemEffectiveness2Offset - 0x20);
+		fe8databin.commitAdditions();
+	}
+	
+	public String getAnimation1ForItem(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemEffectAnimation1Pointer());
+	}
+	
+	public void setAnimation1ForItem(FE9Item item, String animation) {
+		if (item == null) { return; }
+		if (animation == null) { 
+			item.setItemEffectAnimation1Pointer(0);
+			return;
+		}
+		
+		Long ptr = fe8databin.pointerForString(animation);
+		if (ptr == null) {
+			fe8databin.addString(animation);
+			fe8databin.commitAdditions();
+			ptr = fe8databin.pointerForString(animation);
+		}
+		item.setItemEffectAnimation1Pointer(ptr);
+		
+		fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemAnimation1Offset - 0x20);
+		fe8databin.commitAdditions();
+	}
+	
+	public String getAnimation2ForItem(FE9Item item) {
+		return fe8databin.stringForPointer(item.getItemEffectAnimation2Pointer());
+	}
+	
+	public void setAnimation2ForItem(FE9Item item, String animation) {
+		if (item == null) { return; }
+		if (animation == null) { 
+			item.setItemEffectAnimation2Pointer(0);
+			return;
+		}
+		
+		Long ptr = fe8databin.pointerForString(animation);
+		if (ptr == null) {
+			fe8databin.addString(animation);
+			fe8databin.commitAdditions();
+			ptr = fe8databin.pointerForString(animation);
+		}
+		item.setItemEffectAnimation2Pointer(ptr);
+		
+		fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemAnimation2Offset - 0x20);
+		fe8databin.commitAdditions();
 	}
 	
 	public boolean isWeapon(FE9Item item) {
@@ -598,6 +714,22 @@ public class FE9ItemDataLoader {
 		}
 	}
 	
+	public String getDisplayName(FE9Item item) {
+		long pointer = item.getItemNamePointer();
+		if (pointer == 0) { return "(null)"; }
+		fe8databin.setNextReadOffset(pointer);
+		byte[] bytes = fe8databin.continueReadingBytesUpToNextTerminator(pointer + 0xFF);
+		String identifier = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(bytes);
+		if (textLoader == null) { return identifier; }
+		
+		String resolvedValue = textLoader.textStringForIdentifier(identifier);
+		if (resolvedValue != null) {
+			return resolvedValue;
+		} else {
+			return identifier;
+		}
+	}
+	
 	private void debugPrintItem(FE9Item item, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "===== Printing Item =====");
 		
@@ -646,14 +778,17 @@ public class FE9ItemDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Critical: " + item.getItemCritical());
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Range: " + item.getMinimumRange() + " ~ " + item.getMaximumRange());
 		
-		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Unknown Value 1: " + item.getItemNumber());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Item Icon: " + item.getIconNumber());
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Weapon EXP: " + item.getWeaponExperience());
-		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "Unknown Value 2: " + item.getUnknownValue2());
 		
-		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Unknown 8: " + stringForPointer(item.getItemUnknownPointer8(), handler, commonTextLoader));
-		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
-				"Unknown 9: " + stringForPointer(item.getItemUnknownPointer9(), handler, commonTextLoader));
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "HP Bonus: " + item.getHPBonus());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "STR Bonus: " + item.getSTRBonus());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "MAG Bonus: " + item.getMAGBonus());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "SKL Bonus: " + item.getSKLBonus());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "SPD Bonus: " + item.getSPDBonus());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "LCK Bonus: " + item.getLCKBonus());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "DEF Bonus: " + item.getDEFBonus());
+		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER, "RES Bonus: " + item.getRESBonus());
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_ITEM_LOADER,
 				"Remaining Bytes: " + WhyDoesJavaNotHaveThese.displayStringForBytes(item.getRemainingBytes()));
