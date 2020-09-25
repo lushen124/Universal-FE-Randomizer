@@ -178,24 +178,13 @@ public class FE9ClassesView extends Composite {
 		minionData.top = new FormAttachment(mixBossRaces, 10);
 		randomizeMinions.setLayoutData(minionData);
 		
-		mixMinionRaces = new Button(container, SWT.CHECK);
-		mixMinionRaces.setText("Allow Cross-race Assignments");
-		mixMinionRaces.setToolTipText("Allows beorc minions to be assigned laguz classes and vice versa.");
-		mixMinionRaces.setEnabled(false);
-		mixMinionRaces.setSelection(false);
-		
-		FormData minionRaceData = new FormData();
-		minionRaceData.left = new FormAttachment(randomizeMinions, 5, SWT.LEFT);
-		minionRaceData.top = new FormAttachment(randomizeMinions, 5);
-		mixMinionRaces.setLayoutData(minionRaceData);
-		
 		minionChanceSpinner = new Spinner(container, SWT.NONE);
 		minionChanceSpinner.setValues(50, 1, 100, 0, 1, 5);
 		minionChanceSpinner.setEnabled(false);
 		
 		FormData spinnerData = new FormData();
 		spinnerData.right = new FormAttachment(100, -5);
-		spinnerData.top = new FormAttachment(mixMinionRaces, 5);
+		spinnerData.top = new FormAttachment(randomizeMinions, 5);
 		minionChanceSpinner.setLayoutData(spinnerData);
 		
 		minionChanceLabel = new Label(container, SWT.NONE);
@@ -207,6 +196,17 @@ public class FE9ClassesView extends Composite {
 		labelData.top = new FormAttachment(minionChanceSpinner, 0, SWT.CENTER);
 		minionChanceLabel.setLayoutData(labelData);
 		
+		mixMinionRaces = new Button(container, SWT.CHECK);
+		mixMinionRaces.setText("Allow Cross-race Assignments");
+		mixMinionRaces.setToolTipText("Allows beorc minions to be assigned laguz classes and vice versa.");
+		mixMinionRaces.setEnabled(false);
+		mixMinionRaces.setSelection(false);
+		
+		FormData minionRaceData = new FormData();
+		minionRaceData.left = new FormAttachment(randomizeMinions, 5, SWT.LEFT);
+		minionRaceData.top = new FormAttachment(minionChanceSpinner, 5);
+		mixMinionRaces.setLayoutData(minionRaceData);
+		
 		forceDifferent = new Button(container, SWT.CHECK);
 		forceDifferent.setText("Force Class Change");
 		forceDifferent.setToolTipText("Ensures that no character will remain the same class if randomized.");
@@ -215,7 +215,7 @@ public class FE9ClassesView extends Composite {
 		
 		FormData differentData = new FormData();
 		differentData.left = new FormAttachment(0, 5);
-		differentData.top = new FormAttachment(minionChanceLabel, 10);
+		differentData.top = new FormAttachment(mixMinionRaces, 20);
 		forceDifferent.setLayoutData(differentData);
 	}
 	

@@ -46,6 +46,8 @@ public class MinMaxControl extends Composite {
 				if (currentMaxValue < newMinValue) {
 					maxSpinner.setSelection(newMinValue);
 				}
+				
+				layout(true);
 			}
 		});
 		
@@ -58,28 +60,29 @@ public class MinMaxControl extends Composite {
 				if (currentMinValue > newMaxValue) {
 					minSpinner.setSelection(newMaxValue);
 				}
+				
+				layout(true);
 			}
 		});
 		
-		FormData labelData = new FormData();
-		labelData.left = new FormAttachment(0, 5);
-		labelData.right = new FormAttachment(minSpinner, -5);
-		labelData.top = new FormAttachment(minSpinner, 0, SWT.CENTER);
-		minLabel.setLayoutData(labelData);
-		
 		FormData spinnerData = new FormData();
-		spinnerData.right = new FormAttachment(50, -5);
-		minSpinner.setLayoutData(spinnerData);
+		spinnerData.right = new FormAttachment(100, -5);
+		maxSpinner.setLayoutData(spinnerData);
 		
-		labelData = new FormData();
+		FormData labelData = new FormData();
 		labelData.left = new FormAttachment(50, 5);
 		labelData.right = new FormAttachment(maxSpinner, -5);
 		labelData.top = new FormAttachment(maxSpinner, 0, SWT.CENTER);
 		maxLabel.setLayoutData(labelData);
 		
 		spinnerData = new FormData();
-		spinnerData.right = new FormAttachment(100, -5);
-		maxSpinner.setLayoutData(spinnerData);
+		spinnerData.right = new FormAttachment(50, -5);
+		minSpinner.setLayoutData(spinnerData);
+		
+		labelData = new FormData();
+		labelData.right = new FormAttachment(minSpinner, -5);
+		labelData.top = new FormAttachment(minSpinner, 0, SWT.CENTER);
+		minLabel.setLayoutData(labelData);
 	}
 	
 	public Spinner getMinSpinner() {

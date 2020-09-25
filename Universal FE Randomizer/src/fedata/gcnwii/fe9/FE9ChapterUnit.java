@@ -311,9 +311,97 @@ public class FE9ChapterUnit implements FEModifiableData {
 		return data[0x60];
 	}
 	
-	public byte[] getSuffixData() {
-		// 0x61 ~ 0x6C
-		return Arrays.copyOfRange(data, 0x61, 0x6C);
+	public byte[] getPreDropData() {
+		// 0x61 ~ 0x63
+		return Arrays.copyOfRange(data, 0x61, 0x64);
+	}
+	
+	public boolean willDropWeapon1() {
+		return data[0x64] != 0x0;
+	}
+	
+	public void setWillDropWeapon1(boolean drop) {
+		if (drop != willDropWeapon1()) { 
+			data[0x64] = (byte)(drop ? 0x1 : 0x0);
+			wasModified = true;
+		}
+	}
+	
+	public boolean willDropWeapon2() {
+		return data[0x65] != 0x0;
+	}
+	
+	public void setWillDropWeapon2(boolean drop) {
+		if (drop != willDropWeapon2()) {
+			data[0x65] = (byte)(drop ? 0x1 : 0x0);
+			wasModified = true;
+		}
+	}
+	
+	public boolean willDropWeapon3() {
+		return data[0x66] != 0x0;
+	}
+	
+	public void setWillDropWeapon3(boolean drop) {
+		if (drop != willDropWeapon3()) {
+			data[0x66] = (byte)(drop ? 0x1 : 0x0);
+			wasModified = true;
+		}
+	}
+	
+	public boolean willDropWeapon4() {
+		return data[0x67] != 0x0;
+	}
+	
+	public void setWillDropWeapon4(boolean drop) {
+		if (drop != willDropWeapon4()) {
+			data[0x67] = (byte)(drop ? 0x1 : 0x0);
+			wasModified = true;
+		}
+	}
+	
+	public boolean willDropItem1() {
+		return data[0x68] != 0x0;
+	}
+	
+	public void setWillDropItem1(boolean drop) {
+		if (drop != willDropItem1()) {
+			data[0x68] = (byte)(drop ? 0x1 : 0x0);
+			wasModified = true;
+		}
+	}
+	
+	public boolean willDropItem2() {
+		return data[0x69] != 0x0;
+	}
+	
+	public void setWillDropItem2(boolean drop) {
+		if (drop != willDropItem2()) {
+			data[0x69] = (byte)(drop ? 0x1 : 0x0);
+			wasModified = true;
+		}
+	}
+	
+	public boolean willDropItem3() {
+		return data[0x6A] != 0x0;
+	}
+	
+	public void setWillDropItem3(boolean drop) {
+		if (drop != willDropItem3()) {
+			data[0x6A] = (byte)(drop ? 0x1 : 0x0);
+			wasModified = true;
+		}
+	}
+	
+	public boolean willDropItem4() {
+		return data[0x6B] != 0x0;
+	}
+	
+	public void setWillDropItem4(boolean drop) {
+		if (drop != willDropItem4()) {
+			data[0x6B] = (byte)(drop ? 0x1 : 0x0);
+			wasModified = true;
+		}
 	}
 	
 	public void setStartingLevel(int level) {

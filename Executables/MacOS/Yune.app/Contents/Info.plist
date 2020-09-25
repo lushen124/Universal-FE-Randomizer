@@ -47,7 +47,7 @@
     
 
     <key>JVMMainClassName</key>
-    <string>application.Main</string>
+    <string>org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader</string>
 
     <key>JVMOptions</key>
     <array>

@@ -9,6 +9,7 @@ public class MiscellaneousOptions {
 	public final Boolean applyEnglishPatch;
 	
 	public final Boolean randomizeRewards;
+	public final Integer enemyDropChance;
 	
 	public final RewardMode rewardMode;
 	
@@ -17,6 +18,7 @@ public class MiscellaneousOptions {
 		this.applyEnglishPatch = false;
 		rewardMode = RewardMode.RANDOM;
 		this.randomizeRewards = randomRewards;
+		enemyDropChance = 0;
 	}
 
 	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards) {
@@ -24,12 +26,14 @@ public class MiscellaneousOptions {
 		this.applyEnglishPatch = applyEnglishPatch;
 		rewardMode = RewardMode.RANDOM;
 		this.randomizeRewards = randomRewards;
+		enemyDropChance = 0;
 	}
 	
-	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, RewardMode rewardMode) {
+	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, RewardMode rewardMode, Integer enemyDropChance) {
 		super();
 		this.applyEnglishPatch = applyEnglishPatch;
 		this.rewardMode = rewardMode;
 		this.randomizeRewards = randomRewards;
+		this.enemyDropChance = enemyDropChance;
 	}
 }

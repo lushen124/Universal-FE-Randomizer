@@ -2,6 +2,7 @@ package random.gcnwii.fe9.loader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ public class FE9CharacterDataLoader {
 	List<FE9Character> minionCharacters;
 	
 	Map<String, List<FE9Character>> daeinMinionsByJID;
+	Map<String, List<FE9Character>> pid14MinionsByJID;
 	
 	Map<String, Long> knownAddresses;
 	Map<Long, String> knownPointers;
@@ -51,6 +53,7 @@ public class FE9CharacterDataLoader {
 	Map<String, FE9Character> idLookup;
 	
 	GCNDataFileHandler fe8databin;
+	FE9CommonTextLoader textData;
 	
 	public FE9CharacterDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
 		allCharacters = new ArrayList<FE9Character>();
@@ -63,6 +66,7 @@ public class FE9CharacterDataLoader {
 		knownPointers = new HashMap<Long, String>();
 		
 		daeinMinionsByJID = new HashMap<String, List<FE9Character>>();
+		pid14MinionsByJID = new HashMap<String, List<FE9Character>>();
 		
 		idLookup = new HashMap<String, FE9Character>();
 		
@@ -71,6 +75,8 @@ public class FE9CharacterDataLoader {
 		if (handler instanceof GCNDataFileHandler) {
 			fe8databin = (GCNDataFileHandler)handler;
 		}
+		
+		textData = commonTextLoader;
 		
 		long offset = FE9Data.CharacterDataStartOffset;
 		for (int i = 0; i < FE9Data.CharacterCount; i++) {
@@ -126,7 +132,7 @@ public class FE9CharacterDataLoader {
 				bossCharacters.add(character);
 			}
 			
-			if ((pid.contains("_DAYNE") || pid.contains("_ZAKO") || pid.contains("_BANDIT")) && !pid.contains("_EV")) {
+			if (isMinionCharacter(character)) {
 				minionCharacters.add(character);
 				if (pid.contains("_DAYNE")) {
 					// Daein soldiers have classes built into them, so we need to explicitly change PIDs when randomizing minions later.
@@ -139,6 +145,14 @@ public class FE9CharacterDataLoader {
 						daeinMinionsByJID.put(jid, daeinCharacters);
 					}
 					daeinCharacters.add(character);
+				} else if (pid.startsWith("PID_14_")) {
+					// Chapter 13 units also do the same thing as the Daein soldiers, where their classes are baked in to the PID.
+					List<FE9Character> pid14Characters = pid14MinionsByJID.get(jid);
+					if (pid14Characters == null) {
+						pid14Characters = new ArrayList<FE9Character>();
+						pid14MinionsByJID.put(jid, pid14Characters);
+					}
+					pid14Characters.add(character);
 				}
 			}
 		}
@@ -165,7 +179,12 @@ public class FE9CharacterDataLoader {
 	public boolean isMinionCharacter(FE9Character character) {
 		if (character == null) { return false; }
 		String pid = fe8databin.stringForPointer(character.getCharacterIDPointer());
-		return ((pid.contains("_DAYNE") || pid.contains("_ZAKO") || pid.contains("_BANDIT")) && !pid.contains("_EV"));
+		return (pid.contains("_DAYNE") || pid.contains("_ZAKO") || pid.contains("_BANDIT") ||
+				pid.startsWith("PID_14_") || // Chapter 13, also has classes baked in.
+				pid.startsWith("PID_15_PEDDLING") || // Chapter 14 minions all use the same PID, with an optional suffix for the two Feral Ones.
+				pid.equals("PID_16_LIBERATION") || // Chapter 15 laguz units all use the same PID.
+				pid.equals("PID_178_TANAS") // Chapter 16 and 17 are all the same.
+				) && !pid.contains("_EV");
 	}
 	
 	public boolean isRestrictedMinionCharacterPID(String pid) {
@@ -190,6 +209,10 @@ public class FE9CharacterDataLoader {
 		FE9Data.Character fe9Char = FE9Data.Character.withPID(getPIDForCharacter(character));
 		if (fe9Char == null) { return false; }
 		return fe9Char.isModifiable() && !fe9Char.isBugged();
+	}
+	
+	public List<FE9Character> allCharacters() {
+		return allCharacters;
 	}
 	
 	public FE9Character[] allPlayableCharacters() {
@@ -228,8 +251,44 @@ public class FE9CharacterDataLoader {
 		return pid.contains("_DAYNE");
 	}
 	
+	public List<String> availableJIDsForDaeinMinions() {
+		List<String> jids = new ArrayList<String>(daeinMinionsByJID.keySet());
+		jids.sort(new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		return jids;
+	}
+	
+	public List<String> availableJIDsForPID14Minions() {
+		List<String> jids = new ArrayList<String>(pid14MinionsByJID.keySet());
+		jids.sort(new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		return jids;
+	}
+	
+	public boolean isPID14Character(FE9Character character) {
+		String pid = getPIDForCharacter(character);
+		if (pid == null) { return false; }
+		return pid.startsWith("PID_14");
+	}
+	
 	public List<FE9Character> getDaeinCharactersForJID(String jid) {
 		return daeinMinionsByJID.get(jid);
+	}
+	
+	public List<FE9Character> getPID14CharactersForJID(String jid) {
+		return pid14MinionsByJID.get(jid);
+	}
+	
+	public String getDisplayName(FE9Character character) {
+		return textData.textStringForIdentifier(getMPIDForCharacter(character));
 	}
 	
 	public String getPIDForCharacter(FE9Character character) {
@@ -474,6 +533,18 @@ public class FE9CharacterDataLoader {
 		}
 	}
 	
+	public int getLevelForCharacter(FE9Character character) {
+		return character.getLevel();
+	}
+	
+	public int getBuildForCharacter(FE9Character character) {
+		return character.getBuild();
+	}
+	
+	public int getWeightForCharacter(FE9Character character) {
+		return character.getWeight();
+	}
+	
 	public FE9Data.Affinity getAffinityForCharacter(FE9Character character) {
 		String affinityID = fe8databin.stringForPointer(character.getAffinityPointer());
 		return FE9Data.Affinity.withID(affinityID);
@@ -515,9 +586,11 @@ public class FE9CharacterDataLoader {
 		try {
 			GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.CharacterDataFilename);
 			for (FE9Character character : allCharacters) {
+				DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Writing character: " + getDisplayName(character));
 				character.commitChanges();
 				if (character.hasCommittedChanges()) {
 					Diff charDiff = new Diff(character.getAddressOffset(), character.getData().length, character.getData(), null);
+					DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Adding change for " + getDisplayName(character) + " at address 0x" + Long.toHexString(character.getAddressOffset()));
 					handler.addChange(charDiff);
 				}
 			}

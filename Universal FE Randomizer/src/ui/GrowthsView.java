@@ -310,8 +310,13 @@ public class GrowthsView extends Composite {
 				redistributeOption.setSelection(false);
 				byDeltaOption.setSelection(false);
 				fullRandomOption.setSelection(true);
-				growthRangeControl.setMin(options.fullOption.minValue);
-				growthRangeControl.setMax(options.fullOption.maxValue);
+				if (options.fullOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
+					growthRangeControl.setMin(options.fullOption.minValue);
+					growthRangeControl.setMax(options.fullOption.maxValue);	
+				} else {
+					growthRangeControl.setMax(options.fullOption.maxValue);
+					growthRangeControl.setMin(options.fullOption.minValue);
+				}
 				break;
 			}
 			

@@ -99,11 +99,7 @@ public class FE9Data {
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(VOLKE, SOTHE));
 		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(TIBARN, NAESALA, GIFFCA));
 		
-		// TODO: These characters are not quite working for randomization of classes.
-		// We'll need to figure out why exactly.
 		public static Set<Character> buggedCharacters = new HashSet<Character>(Arrays.asList(
-				LETHE, // Only affinity changes seem to be working. 
-				ROLF // Everything works except class. He's forced to being an Archer and always carries a Rolf's Bow.
 		));
 		
 		public static Set<Character> requiresRange = new HashSet<Character>(Arrays.asList());
@@ -341,10 +337,10 @@ public class FE9Data {
 		
 		public static Set<CharacterClass> allValidClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, RANGER, MYRMIDON, SWORDMASTER, 
 				SOLDIER, HALBERDIER, FIGHTER, WARRIOR, ARCHER, SNIPER, KNIGHT, GENERAL, SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT,
-				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, WYVERN_RIDER, WYVERN_LORD, FIRE_MAGE, /*WIND_MAGE, THUNDER_MAGE,*/ MAGE,
+				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, WYVERN_RIDER, WYVERN_LORD, /*FIRE_MAGE, WIND_MAGE, THUNDER_MAGE,*/ MAGE,
 				/*FIRE_SAGE, WIND_SAGE, THUNDER_SAGE,*/ SAGE, /*FIRE_SAGE_STAFF, WIND_SAGE_STAFF, THUNDER_SAGE_STAFF, FIRE_SAGE_KNIFE, WIND_SAGE_KNIFE,
 				THUNDER_SAGE_KNIFE,*/ PRIEST, BISHOP, THIEF, ASSASSIN, BANDIT, BERSERKER, TIGER, CAT, WHITE_DRAGON, RED_DRAGON,
-				HAWK, CROW, /*HERON,*/ W_HERON, FERAL_TIGER, FERAL_CAT, FERAL_WHITE_DRAGON,
+				HAWK, CROW, /*HERON,*/ W_HERON, FERAL_TIGER, FERAL_CAT, /*FERAL_WHITE_DRAGON*,*/
 				FERAL_RED_DRAGON, FERAL_HAWK, FERAL_CROW, SAGE_STAFF, SAGE_KNIFE,
 				MYRMIDON_F, SWORDMASTER_F, SOLDIER_F, HALBERDIER_F, 
 				/*SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F, */BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN,
@@ -505,15 +501,29 @@ public class FE9Data {
 		
 		public String getLaguzTransformedAidString() {
 			switch (this) {
-				case CAT: return "AID_BEAST";
-				case CAT_F: return "AID_BEAST_RE"; // This is Lethe's transformed.
-				case TIGER: return "AID_TIGER";
-				case HAWK: return "AID_FALCON";
-				case CROW: return "AID_CROW";
+				case CAT:
+				case FERAL_CAT:
+					return "AID_BEAST";
+				case CAT_F:
+				case FERAL_CAT_F:
+					return "AID_BEAST_RE"; // This is Lethe's transformed.
+				case TIGER:
+				case FERAL_TIGER:
+					return "AID_TIGER";
+				case HAWK:
+				case FERAL_HAWK:
+					return "AID_FALCON";
+				case CROW:
+				case FERAL_CROW:
+					return "AID_CROW";
 				case W_HERON: return "AID_EGRET";
 				case W_HERON_F: return "AID_EGRET";
 				case WHITE_DRAGON: return "AID_WDRAGON"; // This is the only white dragon human form we get...
-				case RED_DRAGON: case RED_DRAGON_F: return "AID_RDRAGON";
+				
+				case RED_DRAGON: 
+				case RED_DRAGON_F:
+				case FERAL_RED_DRAGON:
+					return "AID_RDRAGON";
 				default: return null;
 			}
 		}

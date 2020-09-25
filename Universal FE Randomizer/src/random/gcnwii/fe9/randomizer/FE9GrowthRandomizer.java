@@ -201,7 +201,7 @@ public class FE9GrowthRandomizer {
 			if (character.wasModified()) { continue; }
 			
 			if (adjustHP) { // Keep the HP growth in the upper half of the range.
-				int offset = rng.nextInt(range / 2);
+				int offset = (range > 2 ? rng.nextInt(range / 2) : 0);
 				character.setHPGrowth(minimum + (range / 2) + offset);
 			} else {
 				character.setHPGrowth(minimum + rng.nextInt(range));

@@ -755,6 +755,18 @@ public class GBARandomizer extends Randomizer {
 				}
 			}
 		}
+		
+		// Make sure no non-playable non-thief units have lock picks, as they will softlock the game when the AI gets a hold of them.
+		if (gameType == GameType.FE6) {
+			for (GBAFEChapterData chapter : chapterData.allChapters()) {
+				for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
+					FE6Data.CharacterClass charClass = FE6Data.CharacterClass.valueOf(chapterUnit.getStartingClass());
+					if (!FE6Data.CharacterClass.allThiefClasses.contains(charClass) && (chapterUnit.isNPC() || chapterUnit.isEnemy())) {
+						chapterUnit.removeItem(FE6Data.Item.LOCKPICK.ID);
+					}
+				}
+			}
+		}
 	}
 	
 	private void syncWorldMapSpriteToCharacter(GBAFEWorldMapSpriteData sprite, int characterID) {
