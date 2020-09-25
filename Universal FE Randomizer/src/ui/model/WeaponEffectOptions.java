@@ -11,11 +11,15 @@ public class WeaponEffectOptions {
 	public final Boolean highCritical;
 	public final Boolean magicDamage;
 	public final Boolean poison;
+	public final Boolean stealHP;
+	public final Boolean critImmune;
+	public final Boolean noCrit;
 	public final Boolean eclipse;
 	public final Boolean devil;
 	
 	public WeaponEffectOptions(Boolean statBoosts, Boolean effectiveness, Boolean unbreakable, Boolean brave,
 			Boolean reverseTriangle, Boolean extendedRange, Boolean highCritical, Boolean magicDamage, Boolean poison,
+			Boolean stealHP, Boolean critImmune, Boolean noCrit,
 			Boolean eclipse, Boolean devil) {
 		super();
 		this.statBoosts = statBoosts;
@@ -27,6 +31,9 @@ public class WeaponEffectOptions {
 		this.highCritical = highCritical;
 		this.magicDamage = magicDamage;
 		this.poison = poison;
+		this.stealHP = stealHP;
+		this.critImmune = critImmune;
+		this.noCrit = noCrit;
 		this.eclipse = eclipse;
 		this.devil = devil;
 	}

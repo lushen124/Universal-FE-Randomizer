@@ -7,14 +7,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
-import fedata.gcnwii.fe9.FE9Data.CharacterClass;
 import fedata.gcnwii.fe9.FE9Data.Item;
+import fedata.gcnwii.fe9.FE9Data.Item.Effectiveness;
+import fedata.gcnwii.fe9.FE9Data.Item.ItemType;
+import fedata.gcnwii.fe9.FE9Data.Item.WeaponTraits;
 import fedata.gcnwii.fe9.FE9Item;
+import io.gcn.GCNDBXFileHandler;
 import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
@@ -101,6 +104,10 @@ public class FE9ItemDataLoader {
 		}
 	}
 	
+	public enum WeaponEffect {
+		NONE, STAT_BOOST, EFFECTIVENESS, UNBREAKABLE, BRAVE, REVERSE_TRIANGLE, EXTEND_RANGE, CRITICAL, MAGIC_DAMAGE, POISON, STEAL_HP, CRIT_IMMUNE, NO_CRIT;
+	}
+	
 	List<FE9Item> allItems;
 	
 	Map<String, FE9Item> idLookup;
@@ -164,6 +171,19 @@ public class FE9ItemDataLoader {
 		return fe8databin.stringForPointer(item.getItemSubtypePointer());
 	}
 	
+	public void setRealType(FE9Item item, String typeString) {
+		if (item == null) { return; }
+		if (typeString == null) { return; }
+		
+		Long ptr = fe8databin.pointerForString(typeString);
+		if (ptr == null) {
+			fe8databin.addString(typeString);
+			fe8databin.commitAdditions();
+			ptr = fe8databin.pointerForString(typeString);
+		}
+		item.setItemSubtypePointer(ptr);
+	}
+	
 	public String getRank(FE9Item item) {
 		return fe8databin.stringForPointer(item.getItemRankPointer());
 	}
@@ -213,6 +233,49 @@ public class FE9ItemDataLoader {
 		item.setItemTrait4Pointer(pointers[3]);
 		item.setItemTrait5Pointer(pointers[4]);
 		item.setItemTrait6Pointer(pointers[5]);
+	}
+	
+	public boolean hasTrait(FE9Item item, String traitString) {
+		Set<String> existingTraits = new HashSet<String>();
+		existingTraits.addAll(Arrays.asList(getItemTraits(item)));
+		return existingTraits.contains(traitString);
+	}
+	
+	public boolean addTraitToItem(FE9Item item, String traitString, boolean force) {
+		if (item == null || traitString == null) { return false; }
+		
+		if (hasTrait(item, traitString)) { return false; }
+		
+		Long pointer = fe8databin.pointerForString(traitString);
+		if (pointer == null) {
+			fe8databin.addString(traitString);
+			fe8databin.commitAdditions();
+			pointer = fe8databin.pointerForString(traitString);
+		}
+		
+		if (fe8databin.stringForPointer(item.getItemTrait1Pointer()) == null) { 
+			item.setItemTrait1Pointer(pointer);
+			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait1Offset - 0x20);
+		} else if (fe8databin.stringForPointer(item.getItemTrait2Pointer()) == null) {
+			item.setItemTrait2Pointer(pointer);
+			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait2Offset - 0x20);
+		} else if (fe8databin.stringForPointer(item.getItemTrait3Pointer()) == null) { 
+			item.setItemTrait3Pointer(pointer);
+			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait3Offset - 0x20);
+		} else if (fe8databin.stringForPointer(item.getItemTrait4Pointer()) == null) {
+			item.setItemTrait4Pointer(pointer);
+			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait4Offset - 0x20);
+		} else if (fe8databin.stringForPointer(item.getItemTrait5Pointer()) == null) { 
+			item.setItemTrait5Pointer(pointer);
+			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait5Offset - 0x20);
+		} else if (fe8databin.stringForPointer(item.getItemTrait6Pointer()) == null || force) { 
+			item.setItemTrait6Pointer(pointer);
+			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait6Offset - 0x20);
+		} else {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public String getEffectiveness1ForItem(FE9Item item) {
@@ -311,6 +374,18 @@ public class FE9ItemDataLoader {
 		return FE9Data.Item.withIID(iidOfItem(item)).isWeapon();
 	}
 	
+	public boolean isStaff(FE9Item item) {
+		return FE9Data.Item.withIID(iidOfItem(item)).isStaff();
+	}
+	
+	public boolean isBasicWeapon(FE9Item item) {
+		return FE9Data.Item.withIID(iidOfItem(item)).isBasicWeapon();
+	}
+	
+	public boolean isLaguzWeapon(FE9Item item) {
+		return FE9Data.Item.withIID(iidOfItem(item)).isLaguzWeapon();
+	}
+	
 	public boolean isConsumable(FE9Item item) {
 		return FE9Data.Item.withIID(iidOfItem(item)).isConsumable();
 	}
@@ -325,6 +400,474 @@ public class FE9ItemDataLoader {
 	
 	public boolean isSkillScroll(FE9Item item) {
 		return FE9Data.Item.withIID(iidOfItem(item)).isSkillScroll();
+	}
+	
+	public boolean doesMagicDamage(FE9Item item) {
+		return FE9Data.Item.withIID(iidOfItem(item)).doesMagicDamage();
+	}
+	
+	public boolean applyEffectToWeapon(WeaponEffect effect, FE9Item item, GCNISOHandler handler, FE9CommonTextLoader textData, Random rng) {
+		if (item == null || effect == null) { return false; }
+		if (!isWeapon(item) || isStaff(item)) { return false; }
+		boolean applied;
+		switch (effect) {
+		case NONE:
+			return false;
+		case STAT_BOOST:
+			boolean assigned = false;
+			while (!assigned) {
+				switch (rng.nextInt(6)) {
+				case 0:
+					if (doesMagicDamage(item)) {
+						if (item.getMAGBonus() == 0) {
+							item.setMAGBonus(5);
+							assigned = true;
+						}
+					} 
+					else {
+						if (item.getSTRBonus() == 0) {
+							item.setSTRBonus(5);
+							assigned = true;
+						}
+					}
+					break;
+				case 1:
+					if (item.getSKLBonus() == 0) {
+						item.setSKLBonus(5);
+						assigned = true;
+					}
+					break;
+				case 2:
+					if (item.getSPDBonus() == 0) {
+						item.setSPDBonus(5);
+						assigned = true;
+					}
+					break;
+				case 3:
+					if (item.getLCKBonus() == 0) {
+						item.setLCKBonus(5);
+						assigned = true;
+					}
+					break;
+				case 4:
+					if (item.getDEFBonus() == 0) {
+						item.setDEFBonus(5);
+						assigned = true;
+					}
+					break;
+				case 5:
+					if (item.getRESBonus() == 0) {
+						item.setRESBonus(5);
+						assigned = true;
+					}
+					break;
+				}
+			}
+			break;
+		case EFFECTIVENESS:
+			if (getEffectiveness1ForItem(item) == null) {
+				Effectiveness[] effects = Effectiveness.eligibleEffects();
+				Effectiveness selectedEffectiveness = effects[rng.nextInt(effects.length)];
+				setEffectiveness1ForItem(item, selectedEffectiveness.getEffectString());
+			} else if (getEffectiveness2ForItem(item) == null) {
+				Effectiveness[] effects = Effectiveness.eligibleEffects();
+				Effectiveness selectedEffectiveness = effects[rng.nextInt(effects.length)];
+				while (selectedEffectiveness.getEffectString().equals(getEffectiveness1ForItem(item))) {
+					selectedEffectiveness = effects[rng.nextInt(effects.length)];
+				}
+				setEffectiveness2ForItem(item, selectedEffectiveness.getEffectString());
+			} else {
+				return false;
+			}
+			break;
+		case UNBREAKABLE:
+			if (isLaguzWeapon(item)) { return false; }
+			applied = addTraitToItem(item, FE9Data.Item.WeaponTraits.UNBREAKABLE.getTraitString(), false);
+			if (applied == false) { return false; }
+			item.setItemCost(item.getItemCost() * 100);
+			item.setItemDurability(1);
+			break;
+		case BRAVE:
+			applied = addTraitToItem(item, FE9Data.Item.WeaponTraits.BRAVE.getTraitString(), false);
+			if (applied == false) { return false; }
+			break;
+		case REVERSE_TRIANGLE: {
+			if (isLaguzWeapon(item)) { return false; }
+			FE9Data.Item.ItemType type = FE9Data.Item.ItemType.typeWithString(getRealType(item));
+			int triangleAffinity = rng.nextInt(3);
+			switch (type) {
+			case SWORD:
+				setRealType(item, triangleAffinity == 0 ? ItemType.AXE.getTypeString() : (triangleAffinity == 1 ? ItemType.LANCE.getTypeString() : ItemType.BOW.getTypeString()));
+				break;
+			case LANCE:
+				setRealType(item, triangleAffinity == 0 ? ItemType.SWORD.getTypeString() : (triangleAffinity == 1 ? ItemType.AXE.getTypeString() : ItemType.BOW.getTypeString()));
+				break;
+			case AXE:
+				setRealType(item, triangleAffinity == 0 ? ItemType.LANCE.getTypeString() : (triangleAffinity == 1 ? ItemType.SWORD.getTypeString() : ItemType.BOW.getTypeString()));
+				break;
+			case FIRE:
+				setRealType(item, triangleAffinity == 0 ? ItemType.WIND.getTypeString() : (triangleAffinity == 1 ? ItemType.THUNDER.getTypeString() : ItemType.STAFF_LIGHT.getTypeString()));
+				break;
+			case THUNDER:
+				setRealType(item, triangleAffinity == 0 ? ItemType.FIRE.getTypeString() : (triangleAffinity == 1 ? ItemType.WIND.getTypeString() : ItemType.STAFF_LIGHT.getTypeString()));
+				break;
+			case WIND:
+				setRealType(item, triangleAffinity == 0 ? ItemType.THUNDER.getTypeString() : (triangleAffinity == 1 ? ItemType.FIRE.getTypeString() : ItemType.STAFF_LIGHT.getTypeString()));
+				break;
+			case BOW:
+				setRealType(item, triangleAffinity == 0 ? ItemType.SWORD.getTypeString() : (triangleAffinity == 1 ? ItemType.LANCE.getTypeString() : ItemType.AXE.getTypeString()));
+				break;
+			case STAFF_LIGHT:
+				setRealType(item, triangleAffinity == 0 ? ItemType.FIRE.getTypeString() : (triangleAffinity == 1 ? ItemType.WIND.getTypeString() : ItemType.THUNDER.getTypeString()));
+			default:
+				return false;
+			}
+			break;
+		}
+		case EXTEND_RANGE: {
+			if (isLaguzWeapon(item)) { return false; }
+			FE9Data.Item.ItemType type = FE9Data.Item.ItemType.typeWithString(getRealType(item));
+			switch (type) {
+			case SWORD:
+				if (item.getMaximumRange() == 1) {
+					// We need to add shockwave animations when taking a sword from melee to ranged.
+					applied = addTraitToItem(item, FE9Data.Item.WeaponTraits.RANGED_PHYSICAL_SWORD.getTraitString(), false);
+					if (applied == false) { return false; }
+					setAnimation1ForItem(item, FE9Data.Item.EffectAnimation1.RAGNELL_SHOCKWAVE.getAnimationString());
+					
+					try {
+						GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName(FE9Data.ItemDBXFilePath + FE9Data.Item.withIID(iidOfItem(item)).getDBX());
+						dbx.setStringForKey("effectId", 1, FE9Data.Item.EffectAnimation1.RAGNELL_SHOCKWAVE.getAnimationString());
+					} catch (GCNISOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return false;
+					}
+				}
+				item.setRange(item.getMinimumRange(), item.getMaximumRange() + 1);
+				break;
+			case LANCE:
+				if (item.getMaximumRange() == 1) {
+					try {
+						GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName(FE9Data.ItemDBXFilePath + FE9Data.Item.withIID(iidOfItem(item)).getDBX());
+						dbx.setStringForKey("kind", 1, "6");
+						dbx.setStringForKey("missile", 1, "1");
+					} catch (GCNISOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return false;
+					}
+				}
+				item.setRange(item.getMinimumRange(), item.getMaximumRange() + 1);
+				break;
+			case AXE:
+				if (item.getMaximumRange() == 1) {
+					try {
+						GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName(FE9Data.ItemDBXFilePath + FE9Data.Item.withIID(iidOfItem(item)).getDBX());
+						dbx.setStringForKey("kind", 1, "7");
+						dbx.setStringForKey("missile", 1, "1");
+					} catch (GCNISOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						return false;
+					}
+				}
+				item.setRange(item.getMinimumRange(), item.getMaximumRange() + 1);
+				break;
+			case BOW:
+				if (rng.nextInt(2) == 0) {
+					item.setRange(item.getMinimumRange() - 1, item.getMaximumRange());
+				} else {
+					item.setRange(item.getMinimumRange(), item.getMaximumRange() + 1);
+				}
+				break;
+			case FIRE:
+			case THUNDER:
+			case WIND:
+			case STAFF_LIGHT:
+				if (isSiegeTome(item)) { return false; }
+				item.setRange(item.getMinimumRange(), item.getMaximumRange() + 1);
+				break;
+			default:
+				return false;
+			}
+		}
+		break;
+		case CRITICAL:
+			if (item.getItemCritical() >= 25) { return false; }
+			int bonusCrit = (rng.nextInt(6) + 5) * 5;
+			item.setItemCritical(item.getItemCritical() + bonusCrit);
+			break;
+		case MAGIC_DAMAGE:
+			if (doesMagicDamage(item)) { return false; }
+			FE9Data.Item.ItemType type = FE9Data.Item.ItemType.typeWithString(getRealType(item));
+			switch (type) {
+			case SWORD:
+				try {
+					applied = addTraitToItem(item, WeaponTraits.MAGIC_SWORD.getTraitString(), false);
+					if (!applied) { return false; }
+					GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName(FE9Data.ItemDBXFilePath + FE9Data.Item.withIID(iidOfItem(item)).getDBX());
+					dbx.setStringForKey("kind", 1, "8");
+					dbx.setStringForKey("missile", 1, "2");
+					dbx.setStringForKey("effectId", 1, "EID_K_LIGHT2_WP");
+					dbx.setStringForKey("damageEffId", 1, "EID_K_LIGHT2_WP");
+					
+					setAnimation1ForItem(item, FE9Data.Item.EffectAnimation1.LIGHT.getAnimationString());
+					setAnimation2ForItem(item, FE9Data.Item.EffectAnimation2.LIGHT.getAnimationString());
+				} catch (GCNISOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
+				break;
+			case LANCE:
+				try {
+					GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName(FE9Data.ItemDBXFilePath + FE9Data.Item.withIID(iidOfItem(item)).getDBX());
+					dbx.setStringForKey("kind", 1, "6");
+					dbx.setStringForKey("missile", 1, "1");
+					dbx.setStringForKey("effectId", 1, "EID_K_LIGHT2_WP");
+					dbx.setStringForKey("damageEffId", 1, "EID_K_LIGHT2_WP");
+					
+					setAnimation1ForItem(item, FE9Data.Item.EffectAnimation1.LIGHT.getAnimationString());
+					setAnimation2ForItem(item, FE9Data.Item.EffectAnimation2.LIGHT.getAnimationString());
+				} catch (GCNISOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
+				break;
+			case AXE:
+				try {
+					GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName(FE9Data.ItemDBXFilePath + FE9Data.Item.withIID(iidOfItem(item)).getDBX());
+					dbx.setStringForKey("kind", 1, "7");
+					dbx.setStringForKey("missile", 1, "1");
+					dbx.setStringForKey("effectId", 1, "EID_K_LIGHT2_WP");
+					dbx.setStringForKey("damageEffId", 1, "EID_K_LIGHT2_WP");
+					
+					setAnimation1ForItem(item, FE9Data.Item.EffectAnimation1.LIGHT.getAnimationString());
+					setAnimation2ForItem(item, FE9Data.Item.EffectAnimation2.LIGHT.getAnimationString());
+				} catch (GCNISOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
+				break;
+			case BOW:
+				try {
+					GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName(FE9Data.ItemDBXFilePath + FE9Data.Item.withIID(iidOfItem(item)).getDBX());
+					dbx.setStringForKey("kind", 1, "3");
+					dbx.setStringForKey("missile", 1, "1");
+					dbx.setStringForKey("effectId", 1, "EID_K_LIGHT2_WP");
+					dbx.setStringForKey("damageEffId", 1, "EID_K_LIGHT2_WP");
+					
+					setAnimation1ForItem(item, FE9Data.Item.EffectAnimation1.LIGHT.getAnimationString());
+					setAnimation2ForItem(item, FE9Data.Item.EffectAnimation2.LIGHT.getAnimationString());
+				} catch (GCNISOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
+				break;
+			case KNIFE:
+				try {
+					GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName(FE9Data.ItemDBXFilePath + FE9Data.Item.withIID(iidOfItem(item)).getDBX());
+					dbx.setStringForKey("effectId", 1, "EID_K_LIGHT2_WP");
+					dbx.setStringForKey("damageEffId", 1, "EID_K_LIGHT2_WP");
+					
+					setAnimation1ForItem(item, FE9Data.Item.EffectAnimation1.LIGHT.getAnimationString());
+					setAnimation2ForItem(item, FE9Data.Item.EffectAnimation2.LIGHT.getAnimationString());
+				} catch (GCNISOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
+				break;
+			case LAGUZ:
+				try {
+					GCNDBXFileHandler dbx = (GCNDBXFileHandler)handler.handlerForFileWithName(FE9Data.ItemDBXFilePath + FE9Data.Item.withIID(iidOfItem(item)).getDBX());
+					dbx.setStringForKey("effectId", 1, "EID_K_LIGHT2_WP");
+					dbx.setStringForKey("damageEffId", 1, "EID_K_LIGHT2_WP");
+					
+					setAnimation1ForItem(item, FE9Data.Item.EffectAnimation1.LIGHT.getAnimationString());
+					setAnimation2ForItem(item, FE9Data.Item.EffectAnimation2.LIGHT.getAnimationString());
+				} catch (GCNISOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return false;
+				}
+				break;
+			default:
+				return false;
+			}
+			
+			ItemType newType = ItemType.STAFF_LIGHT;
+			setRealType(item, newType.getTypeString());
+			break;
+		case POISON:
+			assigned = addTraitToItem(item, WeaponTraits.POISON.getTraitString(), false);
+			if (!assigned) { return false; }
+			break;
+		case STEAL_HP:
+			assigned = addTraitToItem(item, WeaponTraits.STEAL_HP.getTraitString(), false);
+			if (!assigned) { return false; }
+			break;
+		case CRIT_IMMUNE:
+			assigned = addTraitToItem(item, WeaponTraits.CANNOT_BE_CRIT.getTraitString(), false);
+			if (!assigned) { return false; }
+			break;
+		case NO_CRIT:
+			assigned = addTraitToItem(item, WeaponTraits.CANNOT_CRIT.getTraitString(), false);
+			if (!assigned) { return false; }
+			item.setItemAccuracy(item.getItemAccuracy() + 50);
+			item.setWeaponExperience(item.getWeaponExperience() * 3);
+			break;
+		}
+		
+		List<WeaponEffect> activeEffects = getWeaponEffects(item);
+		List<String> existingDescriptions = activeEffects.stream().map(currentEffect -> {
+			switch (currentEffect) {
+			case STAT_BOOST:
+				List<String> boosts = new ArrayList<String>();
+				if (item.getSTRBonus() > 0) { boosts.add("+" + item.getSTRBonus() + " Strength"); }
+				if (item.getMAGBonus() > 0) { boosts.add("+" + item.getMAGBonus() + " Magic"); }
+				if (item.getSKLBonus() > 0) { boosts.add("+" + item.getSKLBonus() + " Skill"); }
+				if (item.getSPDBonus() > 0) { boosts.add("+" + item.getSPDBonus() + " Speed"); }
+				if (item.getLCKBonus() > 0) { boosts.add("+" + item.getLCKBonus() + " Luck"); }
+				if (item.getDEFBonus() > 0) { boosts.add("+" + item.getDEFBonus() + " Defense"); }
+				if (item.getRESBonus() > 0) { boosts.add("+" + item.getRESBonus() + " Resistance"); }
+				return "Grants " + String.join(", ", boosts) + " while equipped.";
+			case EFFECTIVENESS:
+				FE9Data.Item.Effectiveness effect1 = FE9Data.Item.Effectiveness.effectWithString(getEffectiveness1ForItem(item));
+				FE9Data.Item.Effectiveness effect2 = FE9Data.Item.Effectiveness.effectWithString(getEffectiveness2ForItem(item));
+				if (effect1 == Effectiveness.DOORS) { effect1 = null; }
+				if (effect2 == Effectiveness.DOORS) { effect2 = null; }
+				List<String> effects = new ArrayList<String>();
+				if (effect1 != null) { effects.add(effect1.getShortDescription()); }
+				if (effect2 != null) { effects.add(effect2.getShortDescription()); }
+				if (effects.isEmpty()) { return ""; }
+				return "Effective against " + String.join(" and ", effects) + " units.";
+			case UNBREAKABLE:
+				return "Unbreakable.";
+			case BRAVE:
+				return "Strikes consecutively.";
+			case REVERSE_TRIANGLE:
+				switch (FE9Data.Item.ItemType.typeWithString(getRealType(item))) {
+				case SWORD:
+					return "Good against axes, weak against lances.";
+				case LANCE:
+					return "Good against swords, weak against axes.";
+				case AXE:
+					return "Good against lances, weak against swords.";
+				case FIRE:
+					return "Good against wind magic, weak against thunder magic.";
+				case WIND:
+					return "Good against thunder magic, weak against fire magic.";
+				case THUNDER:
+					return "Good against fire magic, weak against wind magic.";
+				case BOW:
+				case STAFF_LIGHT:
+					return "Not affected by the weapon triangle.";
+				default:
+					return "";
+				}
+			case EXTEND_RANGE:
+				switch (FE9Data.Item.ItemType.typeWithString(getEquipType(item))) {
+				case BOW:
+					if (item.getMinimumRange() < 2) { return "Can be used in close quarters."; }
+					if (item.getMaximumRange() > 2) { return "Has extended range."; }
+					break;
+				case SWORD:
+				case LANCE:
+				case AXE:
+					return "Can attack at range.";
+				default:
+					return "";
+				}
+				break;
+			case CRITICAL:
+				return "High critical rate.";
+			case MAGIC_DAMAGE:
+				return "Deals magical damage.";
+			case POISON:
+				return "Poisons on hit.";
+			case STEAL_HP:
+				return "Drains life from target.";
+			case CRIT_IMMUNE:
+				return "Prevents critical hits while equipped.";
+			case NO_CRIT:
+				return "Accurate, but unable to cause critical hits.";
+			default:
+				return "";
+			}
+			
+			return "";
+		}).filter(string -> { return string.length() > 0; }).collect(Collectors.toList());
+		
+		int lengths = existingDescriptions.stream().map(string -> { return string.length(); }).reduce(0, (subtotal, element) -> subtotal + element);
+		while (lengths > 80) {
+			if (effect != WeaponEffect.UNBREAKABLE && existingDescriptions.contains("Unbreakable.")) { existingDescriptions.remove("Unbreakable."); }
+			else if (effect != WeaponEffect.CRITICAL && existingDescriptions.contains("High critical rate.")) { existingDescriptions.remove("High critical rate."); }
+			else break;
+		}
+		
+		int charactersPerLine = 50;
+		
+		StringBuilder sb = new StringBuilder();
+		int currentLineCharacters = 0;
+		for (String string : existingDescriptions) {
+			if (currentLineCharacters + string.length() > charactersPerLine) {
+				String[] components = string.split(" ");
+				for (String word : components) {
+					if (currentLineCharacters + word.length() <= charactersPerLine) {
+						sb.append(word);
+						sb.append(" ");
+						currentLineCharacters += word.length() + 1;
+					} else {
+						sb.append((char)0xA);
+						sb.append(word);
+						sb.append(" ");
+						currentLineCharacters = word.length() + 1;
+					}
+				}
+			} else {
+				sb.append(string);
+				sb.append(" ");
+				currentLineCharacters += string.length() + 1;
+			}
+			
+		}
+		
+		textData.setStringForIdentifier(getMHIForItem(item), sb.toString());
+		
+		return true;
+	}
+	
+	private List<WeaponEffect> getWeaponEffects(FE9Item item) {
+		if (item == null || !isWeapon(item)) { return null; }
+		List<WeaponEffect> effects = new ArrayList<WeaponEffect>();
+		if (hasTrait(item, FE9Data.Item.WeaponTraits.CANNOT_CRIT.getTraitString())) { effects.add(WeaponEffect.NO_CRIT); }
+		if (hasTrait(item, FE9Data.Item.WeaponTraits.UNBREAKABLE.getTraitString())) { effects.add(WeaponEffect.UNBREAKABLE); }
+		if (hasTrait(item, FE9Data.Item.WeaponTraits.POISON.getTraitString())) { effects.add(WeaponEffect.POISON); }
+		if (getEffectiveness1ForItem(item) != null || getEffectiveness2ForItem(item) != null) { effects.add(WeaponEffect.EFFECTIVENESS); }
+		if (hasTrait(item, FE9Data.Item.WeaponTraits.BRAVE.getTraitString())) { effects.add(WeaponEffect.BRAVE); }
+		if (item.getItemCritical() >= 25) { effects.add(WeaponEffect.CRITICAL); }
+		if (item.getSTRBonus() > 0 || item.getMAGBonus() > 0 || item.getSKLBonus() > 0 || item.getSPDBonus() > 0 || 
+				item.getLCKBonus() > 0 || item.getDEFBonus() > 0 || item.getRESBonus() > 0) { effects.add(WeaponEffect.STAT_BOOST); }
+		if (hasTrait(item, FE9Data.Item.WeaponTraits.STEAL_HP.getTraitString())) { effects.add(WeaponEffect.STEAL_HP); }
+		if (!getEquipType(item).equals(getRealType(item)) && FE9Data.Item.ItemType.typeWithString(getEquipType(item)).isWeaponType()) {
+			boolean equipIsMagic = FE9Data.Item.ItemType.typeWithString(getEquipType(item)).isMagicType();
+			boolean realIsMagic = FE9Data.Item.ItemType.typeWithString(getRealType(item)).isMagicType(); 
+			if (!equipIsMagic && realIsMagic) {
+				effects.add(WeaponEffect.MAGIC_DAMAGE);
+			} else if ((equipIsMagic && realIsMagic) || (!equipIsMagic && !realIsMagic)) {
+				effects.add(WeaponEffect.REVERSE_TRIANGLE);
+			}
+		}
+		if (item.getMinimumRange() != item.getMaximumRange()) {
+			effects.add(WeaponEffect.EXTEND_RANGE);
+		}
+		if (hasTrait(item, FE9Data.Item.WeaponTraits.CANNOT_BE_CRIT.getTraitString())) { effects.add(WeaponEffect.CRIT_IMMUNE); }
+		return effects;
 	}
 	
 	public WeaponRank swordRankForWeaponLevelString(String weaponLevels) { return WeaponRank.rankForCharacter(weaponLevels.charAt(0)); }
@@ -512,7 +1055,6 @@ public class FE9ItemDataLoader {
 	
 	public List<FE9Item> potentialEquipmentListForJID(String jid) {
 		if (jid == null) { return null; }
-		FE9Data.CharacterClass charClass = FE9Data.CharacterClass.withJID(jid);
 		List<FE9Item> equipment = new ArrayList<FE9Item>();
 		equipment.add(itemWithIID(FE9Data.Item.VULNERARY.getIID()));
 		equipment.add(itemWithIID(FE9Data.Item.ELIXIR.getIID()));
@@ -595,6 +1137,8 @@ public class FE9ItemDataLoader {
 			break;
 		case THIEF:
 			equipment.add(itemWithIID(FE9Data.Item.THIEF_BAND.getIID()));
+			break;
+		default:
 			break;
 		}
 		

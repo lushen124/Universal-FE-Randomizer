@@ -49,9 +49,6 @@ public class FE9Item implements FEModifiableData {
 	private Long cachedItemEffectAnimation1Pointer;
 	private Long cachedItemEffectAnimation2Pointer;
 	
-	private Long cachedItemUnknownPointer8;
-	private Long cachedItemUnknownPointer9;
-	
 	public FE9Item(byte[] data, long originalOffset) {
 		super();
 		this.originalData = data;
@@ -82,6 +79,12 @@ public class FE9Item implements FEModifiableData {
 	public long getItemSubtypePointer() {
 		if (cachedItemSubtypePointer == null) { cachedItemSubtypePointer = readPointerAtOffset(0x10); }
 		return cachedItemSubtypePointer;
+	}
+	
+	public void setItemSubtypePointer(long ptr) {
+		cachedItemSubtypePointer = ptr;
+		writePointerToOffset(ptr, 0x10);
+		wasModified = true;
 	}
 	
 	public long getItemRankPointer() {
@@ -203,12 +206,28 @@ public class FE9Item implements FEModifiableData {
 		return ((data[0x40] & 0xFF) << 8) | (data[0x41] & 0xFF);
 	}
 	
+	public void setItemCost(int newCost) {
+		data[0x40] = (byte)((newCost & 0xFF00) >> 8);
+		data[0x41] = (byte)(newCost & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getItemDurability() {
 		return (data[0x42] & 0xFF);
 	}
 	
+	public void setItemDurability(int durability) {
+		data[0x42] = (byte)(durability & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getItemMight() {
 		return (data[0x43] & 0xFF);
+	}
+	
+	public void setItemMight(int might) {
+		data[0x43] = (byte)(might & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getItemAccuracy() {
@@ -224,8 +243,18 @@ public class FE9Item implements FEModifiableData {
 		return (data[0x45] & 0xFF);
 	}
 	
+	public void setItemWeight(int weight) {
+		data[0x45] = (byte)(weight & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getItemCritical() {
 		return (data[0x46] & 0xFF);
+	}
+	
+	public void setItemCritical(int crit) {
+		data[0x46] = (byte)(crit & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getMinimumRange() {
@@ -255,6 +284,11 @@ public class FE9Item implements FEModifiableData {
 	
 	public int getWeaponExperience() {
 		return (data[0x4A] & 0xFF);
+	}
+	
+	public void setWeaponExperience(int exp) {
+		data[0x4A] = (byte)(exp & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getHPBonus() {

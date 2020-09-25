@@ -10,6 +10,7 @@ public class WeaponOptions {
 	
 	public final Boolean shouldAddEffects;
 	public final Boolean noEffectIronWeapons;
+	public final Boolean includeLaguzWeapons;
 	public final int effectChance;
 	public final WeaponEffectOptions effectsList;
 	
@@ -21,7 +22,8 @@ public class WeaponOptions {
 			Boolean shouldAddEffects,
 			int effectChance,
 			WeaponEffectOptions effects,
-			Boolean noIrons) {
+			Boolean noIrons,
+			Boolean includeLaguzWeapons) {
 		super();
 		
 		this.mightOptions = mightOptions;
@@ -33,6 +35,7 @@ public class WeaponOptions {
 		effectsList = effects;
 		noEffectIronWeapons = noIrons;
 		this.effectChance = effectChance;
+		this.includeLaguzWeapons = includeLaguzWeapons;
 	}
 	
 }

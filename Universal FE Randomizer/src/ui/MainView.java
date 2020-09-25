@@ -478,6 +478,7 @@ public class MainView implements FileFlowDelegate {
 			conAffinityView.setOtherCharacterOptions(bundle.otherOptions);
 			fe9EnemyView.setEnemyBuffOptions(bundle.enemyBuff);
 			fe9ClassesView.setClassOptions(bundle.classes);
+			weaponView.setWeaponOptions(bundle.weapons);
 			miscView.setMiscellaneousOptions(bundle.misc);
 		}
 	}
@@ -663,13 +664,22 @@ public class MainView implements FileFlowDelegate {
 			skillData.bottom = new FormAttachment(100, -10);
 			fe9SkillView.setLayoutData(skillData);
 			
+			weaponView = new WeaponsView(container, SWT.NONE, type);
+			weaponView.setSize(200, 200);
+			weaponView.setVisible(false);
+		  
+			FormData weaponData = new FormData();
+			weaponData.top = new FormAttachment(growthView, 0, SWT.TOP);
+			weaponData.left = new FormAttachment(fe9SkillView, 5);
+			weaponView.setLayoutData(weaponData);
+			
 			fe9ClassesView = new FE9ClassesView(container, SWT.NONE);
 			fe9ClassesView.setSize(200, 200);
 			fe9ClassesView.setVisible(false);
 			
 			FormData classData = new FormData();
 			classData.top = new FormAttachment(growthView, 0, SWT.TOP);
-			classData.left = new FormAttachment(fe9SkillView, 5);
+			classData.left = new FormAttachment(weaponView, 5);
 			classData.right = new FormAttachment(100, -5);
 			fe9ClassesView.setLayoutData(classData);
 			
@@ -950,6 +960,7 @@ public class MainView implements FileFlowDelegate {
 			conAffinityView.setVisible(true);
 			fe9EnemyView.setVisible(true);
 			fe9ClassesView.setVisible(true);
+			weaponView.setVisible(true);
 		} else {
 			classView.setVisible(true);
 			otherCharOptionView.setVisible(true);
@@ -1080,6 +1091,7 @@ public class MainView implements FileFlowDelegate {
 								conAffinityView.getOtherCharacterOptions(),
 								fe9EnemyView.getEnemyBuffOptions(),
 								fe9ClassesView.getClassOptions(),
+								weaponView.getWeaponOptions(),
 								miscView.getMiscellaneousOptions(),
 								seedField.getText());
 						
@@ -1089,6 +1101,7 @@ public class MainView implements FileFlowDelegate {
 								conAffinityView.getOtherCharacterOptions(), 
 								fe9EnemyView.getEnemyBuffOptions(), 
 								fe9ClassesView.getClassOptions(), 
+								weaponView.getWeaponOptions(),
 								miscView.getMiscellaneousOptions(),
 								seedField.getText());
 					}

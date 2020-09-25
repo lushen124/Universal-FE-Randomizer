@@ -224,6 +224,10 @@ public class GCNISOHandler {
 					// Register all contained files as well.
 					for (String name : cmpHandler.getNames()) {
 						GCNFileHandler handler = cmpHandler.getChildHandler(name);
+						if (cachedFileHandlers.containsKey(cmpFilename + "/" + name)) {
+							// We've already loaded this. If we still don't have it, it doesn't exist.
+							throw new GCNISOException("File does not exist: " + filename);
+						}
 						cachedFileHandlers.put(cmpFilename + "/" + name, handler);
 					}
 					

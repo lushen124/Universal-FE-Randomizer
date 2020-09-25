@@ -25,6 +25,9 @@ public class WeaponEffectSelectionView extends Composite {
 	private Button highCriticalCheckBox;
 	private Button magicDamageCheckBox;
 	private Button poisonCheckBox;
+	private Button stealHPCheckBox;
+	private Button critImmuneCheckBox;
+	private Button noCritCheckBox;
 	private Button eclipseCheckBox;
 	private Button devilCheckBox;
 	
@@ -38,6 +41,9 @@ public class WeaponEffectSelectionView extends Composite {
 	public Boolean criticalEnabled;
 	public Boolean magicEnabled;
 	public Boolean poisonEnabled;
+	public Boolean stealHPEnabled;
+	public Boolean critImmuneEnabled;
+	public Boolean noCritEnabled;
 	public Boolean eclipseEnabled;
 	public Boolean devilEnabled;
 	
@@ -96,8 +102,13 @@ public class WeaponEffectSelectionView extends Composite {
 		});
 		
 		reverseTriangleCheckBox = new Button(this, SWT.CHECK);
-		reverseTriangleCheckBox.setText("Reverse Triangle");
-		reverseTriangleCheckBox.setToolTipText("Allows random weapons to reverse their Weapon Triangle advantage and disadvantage.");
+		if (type == GameType.FE9) {
+			reverseTriangleCheckBox.setText("Shifted Triangle");
+			reverseTriangleCheckBox.setToolTipText("Allows random weapons to have a different triangle type from their equip type\n(e.g. Axes that act like Swords (good against other axes, weak against lances).)");
+		} else {
+			reverseTriangleCheckBox.setText("Reverse Triangle");
+			reverseTriangleCheckBox.setToolTipText("Allows random weapons to reverse their Weapon Triangle advantage and disadvantage.");
+		}
 		reverseTriangleCheckBox.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -127,7 +138,11 @@ public class WeaponEffectSelectionView extends Composite {
 		
 		magicDamageCheckBox = new Button(this, SWT.CHECK);
 		magicDamageCheckBox.setText("Magic Damage");
-		magicDamageCheckBox.setToolTipText("Allows random physical weapons to gain a magic attack. Melee weapons gain range if they were not already ranged. Weapons get assigned a random magic animation. Tomes are unaffected.");
+		if (type == GameType.FE9) {
+			magicDamageCheckBox.setToolTipText("Allows random physical weapons to gain a magic attack that targets RES. Tomes are unaffected.");
+		} else {
+			magicDamageCheckBox.setToolTipText("Allows random physical weapons to gain a magic attack. Melee weapons gain range if they were not already ranged. Weapons get assigned a random magic animation. Tomes are unaffected.");
+		}
 		magicDamageCheckBox.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -145,7 +160,39 @@ public class WeaponEffectSelectionView extends Composite {
 			}
 		});
 		
-		if (type != GameType.FE6) {
+		if (type == GameType.FE9) {
+			stealHPCheckBox = new Button(this, SWT.CHECK);
+			stealHPCheckBox.setText("Steal HP");
+			stealHPCheckBox.setToolTipText("Allows random weapons to drain target's HP on hit.");
+			stealHPCheckBox.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					notifySelectionChange();
+				}
+			});
+			
+			critImmuneCheckBox = new Button(this, SWT.CHECK);
+			critImmuneCheckBox.setText("Crit. Immunity");
+			critImmuneCheckBox.setToolTipText("Allows random weapons to block non-Wrath critical hits while equipped.");
+			critImmuneCheckBox.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					notifySelectionChange();
+				}
+			});
+			
+			noCritCheckBox = new Button(this, SWT.CHECK);
+			noCritCheckBox.setText("Disable Crit.");
+			noCritCheckBox.setToolTipText("Disables the ability to trigger critical hits when random weapons are used. Hit is automatically improved by 50 and weapon experience gained per use is increased.");
+			noCritCheckBox.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					notifySelectionChange();
+				}
+			});
+		}
+		
+		if (type != GameType.FE6 && type != GameType.FE9) {
 			eclipseCheckBox = new Button(this, SWT.CHECK);
 			eclipseCheckBox.setText("Eclipse");
 			eclipseCheckBox.setToolTipText("Allows random weapons to always do half of the target's current HP.");
@@ -157,19 +204,21 @@ public class WeaponEffectSelectionView extends Composite {
 			});
 		}
 		
-		devilCheckBox = new Button(this, SWT.CHECK);
-		devilCheckBox.setText("Devil");
-		if (type == GameType.FE6) {
-			devilCheckBox.setToolTipText("Allows random weapons to occasionally deal damage to its user instead of its target. Might is automatically improved by at least 5.");
-		} else {
-			devilCheckBox.setToolTipText("Allows random weapons to occasionally deal damage to its user instead of its target. Might is automatically improved by at least 5 and weapon experience gained per use is increased.");
-		}
-		devilCheckBox.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				notifySelectionChange();
+		if (type != GameType.FE9) {
+			devilCheckBox = new Button(this, SWT.CHECK);
+			devilCheckBox.setText("Devil");
+			if (type == GameType.FE6) {
+				devilCheckBox.setToolTipText("Allows random weapons to occasionally deal damage to its user instead of its target. Might is automatically improved by at least 5.");
+			} else {
+				devilCheckBox.setToolTipText("Allows random weapons to occasionally deal damage to its user instead of its target. Might is automatically improved by at least 5 and weapon experience gained per use is increased.");
 			}
-		});
+			devilCheckBox.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					notifySelectionChange();
+				}
+			});
+		}
 	}
 
 	@Override
@@ -186,8 +235,11 @@ public class WeaponEffectSelectionView extends Composite {
 		highCriticalCheckBox.setEnabled(enabled);
 		magicDamageCheckBox.setEnabled(enabled);
 		poisonCheckBox.setEnabled(enabled);
+		if (stealHPCheckBox != null) { stealHPCheckBox.setEnabled(enabled); }
+		if (critImmuneCheckBox != null) { critImmuneCheckBox.setEnabled(enabled); }
+		if (noCritCheckBox != null) { noCritCheckBox.setEnabled(enabled); }
 		if (eclipseCheckBox != null) { eclipseCheckBox.setEnabled(enabled); }
-		devilCheckBox.setEnabled(enabled);
+		if (devilCheckBox != null) { devilCheckBox.setEnabled(enabled); }
 	}
 	
 	public void setSelectionListener(WeaponEffectSelectionViewListener weaponEffectSelectionViewListener) {
@@ -206,8 +258,11 @@ public class WeaponEffectSelectionView extends Composite {
 		highCriticalCheckBox.setSelection(true);
 		magicDamageCheckBox.setSelection(true);
 		poisonCheckBox.setSelection(true);
+		if (stealHPCheckBox != null) { stealHPCheckBox.setSelection(true); }
+		if (critImmuneCheckBox != null) { critImmuneCheckBox.setSelection(true); }
+		if (noCritCheckBox != null) { noCritCheckBox.setSelection(true); }
 		if (eclipseCheckBox != null) { eclipseCheckBox.setSelection(true); }
-		devilCheckBox.setSelection(true);
+		if (devilCheckBox != null) { devilCheckBox.setSelection(true); }
 		squelchCallbacks = false;
 		
 		notifySelectionChange();
@@ -225,19 +280,22 @@ public class WeaponEffectSelectionView extends Composite {
 		highCriticalCheckBox.setSelection(false);
 		magicDamageCheckBox.setSelection(false);
 		poisonCheckBox.setSelection(false);
+		if (stealHPCheckBox != null) { stealHPCheckBox.setSelection(false); }
+		if (critImmuneCheckBox != null) { critImmuneCheckBox.setSelection(false); }
+		if (noCritCheckBox != null) { noCritCheckBox.setSelection(false); }
 		if (eclipseCheckBox != null) { eclipseCheckBox.setSelection(false); }
-		devilCheckBox.setSelection(false);
+		if (devilCheckBox != null) { devilCheckBox.setSelection(false); }
 		squelchCallbacks = false;
 		
 		notifySelectionChange();
 	}
 	
 	public Boolean isAllDisabled() {
-		return !statBoostsEnabled && !effectivenessEnabled && !unbreakableEnabled && !braveEnabled && !reverseEnabled && !rangeEnabled && !criticalEnabled && !magicEnabled && !poisonEnabled && !eclipseEnabled && !devilEnabled;
+		return !statBoostsEnabled && !effectivenessEnabled && !unbreakableEnabled && !braveEnabled && !reverseEnabled && !rangeEnabled && !criticalEnabled && !magicEnabled && !poisonEnabled  && !stealHPEnabled && !critImmuneEnabled && !noCritEnabled && !eclipseEnabled && !devilEnabled;
 	}
 	
 	public WeaponEffectOptions getOptions() {
-		return new WeaponEffectOptions(statBoostsEnabled, effectivenessEnabled, unbreakableEnabled, braveEnabled, reverseEnabled, rangeEnabled, criticalEnabled, magicEnabled, poisonEnabled, eclipseEnabled, devilEnabled);
+		return new WeaponEffectOptions(statBoostsEnabled, effectivenessEnabled, unbreakableEnabled, braveEnabled, reverseEnabled, rangeEnabled, criticalEnabled, magicEnabled, poisonEnabled, stealHPEnabled, critImmuneEnabled, noCritEnabled, eclipseEnabled, devilEnabled);
 	}
 	
 	public void setOptions(WeaponEffectOptions options) {
@@ -252,8 +310,11 @@ public class WeaponEffectSelectionView extends Composite {
 			highCriticalCheckBox.setSelection(options.highCritical != null ? options.highCritical : false);
 			magicDamageCheckBox.setSelection(options.magicDamage != null ? options.magicDamage : false);
 			poisonCheckBox.setSelection(options.poison != null ? options.poison : false);
+			if (stealHPCheckBox != null) { stealHPCheckBox.setSelection(options.stealHP != null ? options.stealHP : false); }
+			if (critImmuneCheckBox != null) { critImmuneCheckBox.setSelection(options.critImmune != null ? options.critImmune : false); }
+			if (noCritCheckBox != null) { noCritCheckBox.setSelection(options.noCrit != null ? options.noCrit : false); }
 			if (eclipseCheckBox != null) { eclipseCheckBox.setSelection(options.eclipse != null ? options.eclipse : false); }
-			devilCheckBox.setSelection(options.devil != null ? options.devil : false);
+			if (devilCheckBox != null) { devilCheckBox.setSelection(options.devil != null ? options.devil : false); }
 			
 			notifySelectionChange();
 		}
@@ -270,8 +331,11 @@ public class WeaponEffectSelectionView extends Composite {
 		criticalEnabled = highCriticalCheckBox.getSelection();
 		magicEnabled = magicDamageCheckBox.getSelection();
 		poisonEnabled = poisonCheckBox.getSelection();
+		stealHPEnabled = stealHPCheckBox != null ? stealHPCheckBox.getSelection() : false;
+		critImmuneEnabled = critImmuneCheckBox != null ? critImmuneCheckBox.getSelection() : false;
+		noCritEnabled = noCritCheckBox != null ? noCritCheckBox.getSelection() : false;
 		eclipseEnabled = eclipseCheckBox != null ? eclipseCheckBox.getSelection() : false;
-		devilEnabled = devilCheckBox.getSelection();
+		devilEnabled = devilCheckBox != null ? devilCheckBox.getSelection() : false;
 		
 		if (!squelchCallbacks && listener != null) {
 			listener.onSelectionChanged();
