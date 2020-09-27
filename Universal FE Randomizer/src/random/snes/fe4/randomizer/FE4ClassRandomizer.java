@@ -722,7 +722,7 @@ public class FE4ClassRandomizer {
 				}
 			} else {
 				FE4Data.CharacterClass referenceClass = FE4Data.CharacterClass.valueOf(child.getClassID());
-				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && currentClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
+				Set<FE4Data.CharacterClass> poolSet = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(false, false, true, child.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && currentClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : fe4Char.requiresWeapon(), null)));
 				if (hasDancer) { poolSet.remove(FE4Data.CharacterClass.DANCER); }
 				poolSet.removeAll(Arrays.asList(fe4Char.blacklistedClasses()));
 				poolSet.removeAll(blacklistedClasses);
