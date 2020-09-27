@@ -36,6 +36,8 @@ public class FE9Data {
 	public static final int ItemCount = 0xBD;
 	public static final int ItemDataSize = 0x60;
 	
+	public static final String ItemDBXFilePath = "zdbx.cmp/xwp/";
+	
 	public static final long SkillDataStartOffset = 0xE398;
 	public static final String SkillDataFilename = "system.cmp/FE8Data.bin";
 	public static final int SkillCount = 0x62;
@@ -843,6 +845,65 @@ public class FE9Data {
 		BLOSSOM_SCROLL("IID_FRAC90"), REINFORCE_SCROLL("IID_REINFORCEMENTS"), INSIGHT_SCROLL("IID_TELEGNOSIS"), VIGILANCE_SCROLL("IID_BIGEAR"),
 		;
 		
+		public enum ItemType {
+			
+			NONE(null), SWORD("sword"), LANCE("lance"), AXE("axe"), BOW("bow"), FIRE("flame"), THUNDER("thunder"), WIND("wind"), STAFF_LIGHT("rod"), KNIFE("knife"), LAGUZ("fang"),
+			
+			ACCESSORY("acc"), ITEM("item");
+			
+			private static Map<String, ItemType> map = new HashMap<String, ItemType>();
+			
+			private String typeString;
+			
+			static {
+				for (ItemType type : ItemType.values()) {
+					map.put(type.typeString, type);
+				}
+			}
+			
+			private ItemType(String string) {
+				typeString = string;
+			}
+			
+			public String getTypeString() {
+				return typeString;
+			}
+			
+			public static ItemType typeWithString(String string) {
+				return map.get(string);
+			}
+			
+			public boolean isMagicType() {
+				switch (this) {
+				case FIRE:
+				case THUNDER:
+				case WIND:
+				case STAFF_LIGHT:
+					return true;
+				default: 
+					return false;
+				}
+			}
+			
+			public boolean isWeaponType() {
+				switch (this) {
+				case SWORD:
+				case LANCE:
+				case AXE:
+				case BOW:
+				case FIRE:
+				case WIND:
+				case THUNDER:
+				case STAFF_LIGHT:
+				case KNIFE:
+				case LAGUZ:
+					return true;
+				default:
+					return false;
+				}
+			}
+		}
+		
 		public enum WeaponTraits {
 			CANNOT_CRIT("crit0"), UNBREAKABLE("infinity"), POISON("poison"), BRAVE("twice"), UNSELLABLE("valuable"), MAGIC_SWORD("magsw"),
 			STEAL_HP("resire"), CANNOT_BE_CRIT("sealcrit"), RANGED_PHYSICAL_SWORD("stormsw"), BYPASS_BLESSED_ARMOR("weakA"),
@@ -859,7 +920,13 @@ public class FE9Data {
 			MOVE_AGAIN("movtw"), HALVE_LAGUZ_DAMAGE("lycdamhalf"), IGNORE_LAGUZ_EFFECTIVENESS("lycsfxseal"), IGNORE_EFFECTIVE_DAMAGE("sfxseal"),
 			
 			HERO_LOCK("heroonly"), ARCHER_LOCK("shootonly"), BK_LOCK("blackonly"), ASHNARD_LOCK("finalonly"), ROLF_LOCK("eqA"), ELINCIA_LOCK("eqB"),
-			BEORC_LOCK("humanonly"), LAGUZ_LOCK("beastonly"), SOLDIER_KNIGHT_CAV_LOCK("eqD"), LAGUZ_ROYAL_LOCK("eqC");
+			BEORC_LOCK("humanonly"), LAGUZ_LOCK("beastonly"), SOLDIER_KNIGHT_CAV_LOCK("eqD"), LAGUZ_ROYAL_LOCK("eqC"),
+			
+			// This is on boots.
+			BOOTS_UNKNOWN("noneart"),
+			
+			// Both dragon breaths have this.
+			DRAGON_BREATH("breath");
 			
 			private static Map<String, WeaponTraits> map = new HashMap<String, WeaponTraits>();
 			
@@ -881,6 +948,104 @@ public class FE9Data {
 			
 			public static WeaponTraits traitWithString(String string) {
 				return map.get(string);
+			}
+		}
+		
+		public enum Effectiveness {
+			FLIERS("fly"), CAVALRY("knight"), ARMOR("armor"), LAGUZ("alize"), BEAST_TRIBE("beast"), DOORS("doorbreak"), DRAGON_TRIBE("dragon");
+			
+			private static Map<String, Effectiveness> map = new HashMap<String, Effectiveness>();
+			
+			private String effectString;
+			
+			static {
+				for (Effectiveness effect : Effectiveness.values()) {
+					map.put(effect.effectString, effect);
+				}
+			}
+			
+			private Effectiveness(String string) {
+				effectString = string;
+			}
+			
+			public String getEffectString() {
+				return effectString;
+			}
+			
+			public String getEffectDescription() {
+				switch (this) {
+				case FLIERS:
+					return "Effective against fliers.";
+				case CAVALRY:
+					return "Effective against horseback units.";
+				case ARMOR:
+					return "Effective against armored units.";
+				case LAGUZ:
+					return "Effective against laguz units.";
+				case BEAST_TRIBE:
+					return "Effective against beasts.";
+				case DOORS:
+					return "";
+				case DRAGON_TRIBE:
+					return "Effective against dragons.";
+				default:
+					return "";
+				}
+			}
+			
+			public String getShortDescription() {
+				switch (this) {
+				case FLIERS:
+					return "flying";
+				case CAVALRY:
+					return "horseback";
+				case ARMOR:
+					return "armored";
+				case LAGUZ:
+					return "laguz";
+				case BEAST_TRIBE:
+					return "beast";
+				case DRAGON_TRIBE:
+					return "dragon";
+				default:
+					return "";
+				}
+			}
+			
+			public static Effectiveness effectWithString(String string) {
+				return map.get(string);
+			}
+			
+			public static Effectiveness[] eligibleEffects() {
+				return new Effectiveness[] {FLIERS, CAVALRY, ARMOR, LAGUZ, BEAST_TRIBE, DRAGON_TRIBE};
+			}
+		}
+		
+		public enum EffectAnimation1 {
+			LIGHT("EID_LIGHT2"), WIND("EID_WIND2"), FIRE("EID_FIRE2"), THUNDER("EID_THUNDER2"), RAGNELL_SHOCKWAVE("EID_REPPU1");
+			
+			private String animationString;
+			
+			private EffectAnimation1(String string) {
+				animationString = string;
+			}
+			
+			public String getAnimationString() {
+				return animationString;
+			}
+		}
+		
+		public enum EffectAnimation2 {
+			LIGHT("EID_LIGHT2_WP"), WIND("EID_WIND2_WP"), FIRE("EID_FIRE2_WP"), THUNDER("EID_THUNDER2");
+			
+			private String animationString;
+			
+			private EffectAnimation2(String string) {
+				animationString = string;
+			}
+			
+			public String getAnimationString() {
+				return animationString;
 			}
 		}
 		
@@ -906,6 +1071,11 @@ public class FE9Data {
 			return iid;
 		}
 		
+		public String getDBX() {
+			String dbx = iid.substring(4) + ".dbx";
+			return dbx;
+		}
+		
 		public static Set<Item> allSwords = new HashSet<Item>(Arrays.asList(IRON_SWORD, PRACTICE_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, 
 				SILVER_BLADE, VENIN_EDGE, REGAL_SWORD, BRAVE_SWORD, VAGUE_KATTI, KILLING_EDGE, ARMORSLAYER, LAGUZSLAYER, LONGSWORD, RUNESWORD, ALONDITE, 
 				RAGNELL, GURGURANT, AMITI, STEEL_BLADE, SONIC_SWORD));
@@ -920,6 +1090,9 @@ public class FE9Data {
 		public static Set<Item> allWindMagic = new HashSet<Item>(Arrays.asList(WIND, ELWIND, TORNADO, REXCALIBUR, BLIZZARD));
 		public static Set<Item> allThunderMagic = new HashSet<Item>(Arrays.asList(THUNDER, ELTHUNDER, THORON, REXBOLT, BOLTING));
 		public static Set<Item> allLightMagic = new HashSet<Item>(Arrays.asList(LIGHT, SHINE, NOSFERATU, REXAURA, PURGE));
+		
+		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, KNIFE,
+				FIRE, WIND, THUNDER, LIGHT, HEAL));
 		
 		public static Set<Item> meleeOnlyWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, PRACTICE_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, 
 				SILVER_BLADE, VENIN_EDGE, REGAL_SWORD, BRAVE_SWORD, VAGUE_KATTI, KILLING_EDGE, ARMORSLAYER, LAGUZSLAYER, LONGSWORD, AMITI, STEEL_BLADE,
@@ -1008,6 +1181,15 @@ public class FE9Data {
 		public boolean isSRank() { return allSRankWeapons.contains(this); }
 		
 		public boolean isWeapon() { return isSword() || isLance() || isAxe() || isBow() || isMagic() || isStaff(); }
+		
+		public boolean isBasicWeapon() { return allBasicWeapons.contains(this); }
+		public boolean isLaguzWeapon() { return allLaguzWeapons.contains(this); }
+		
+		public boolean doesMagicDamage() {
+			if (isMagic()) { return true; }
+			if (this == SONIC_SWORD || this == FLAME_LANCE || this == BOLT_AXE || this == RUNESWORD || this == BRIGHT_BOW) { return true; }
+			return false;
+		}
 		
 		public boolean isConsumable() { return allConsumables.contains(this); }
 		public boolean isStatBooster() { return allStatBoosters.contains(this); }

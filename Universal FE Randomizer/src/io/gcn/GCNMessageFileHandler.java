@@ -208,8 +208,11 @@ public class GCNMessageFileHandler extends GCNFileHandler {
 			while (valueBuilder.getBytesWritten() < entry.valueOffset) {
 				valueBuilder.appendByte((byte)0);
 			}
+			while (valueBuilder.getBytesWritten() % 4 != 0) { valueBuilder.appendByte((byte)0); }
+			
 			valueOffsetsByID.put(id, valueBuilder.getBytesWritten());
 			valueBuilder.appendBytes(WhyDoesJavaNotHaveThese.shiftJISBytesFromString(idToDisplayString.get(id)));
+			valueBuilder.appendByte((byte)0);
 		}
 		
 		// Add new strings here.

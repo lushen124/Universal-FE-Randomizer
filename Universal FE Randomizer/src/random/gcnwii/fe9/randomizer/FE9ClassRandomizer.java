@@ -74,7 +74,9 @@ public class FE9ClassRandomizer {
 				if (possibleReplacements.isEmpty()) { continue; }
 				newClass = possibleReplacements.get(rng.nextInt(possibleReplacements.size()));
 				targetJID = classData.getJIDForClass(newClass);
-				if (targetJID.equals(FE9Data.CharacterClass.W_HERON.getJID())) { heronAssigned = true; }
+				if (targetJID.equals(FE9Data.CharacterClass.W_HERON.getJID())) { 
+					heronAssigned = true;
+				}
 				pidToJid.put(pid, targetJID);
 				charData.setJIDForCharacter(character, targetJID);
 				
@@ -1189,7 +1191,7 @@ public class FE9ClassRandomizer {
 			} else {
 				classChoices.addAll(classData.allUnpromotedClasses());
 			}
-		} else if (classData.isPromotedClass(originalClass)) {
+		} else if (classData.isPromotedClass(originalClass) || classData.isLaguzClass(originalClass)) {
 			classChoices.addAll(classData.allPromotedClasses());
 			classChoices.addAll(classData.allLaguzClasses());
 		} else {

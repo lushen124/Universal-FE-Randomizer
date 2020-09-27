@@ -112,6 +112,8 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 				gcnFileHandler = new GCNDataFileHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
 			} else if (name.endsWith(".m")) {
 				gcnFileHandler = new GCNMessageFileHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
+			} else if (name.endsWith(".dbx")) {
+				gcnFileHandler = new GCNDBXFileHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
 			} else {
 				gcnFileHandler = new GCNByteArrayHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
 			}
@@ -191,6 +193,8 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			while (builder.getBytesWritten() < fileEntry.filePointer) { builder.appendByte((byte)0); }
 			if (fileHandler instanceof GCNMessageFileHandler) {
 				builder.appendBytes(((GCNMessageFileHandler) fileHandler).orderedBuild());
+			} else if (fileHandler instanceof GCNDBXFileHandler) {
+				builder.appendBytes(((GCNDBXFileHandler) fileHandler).getRawData());
 			} else {
 				fileHandler.setNextReadOffset(0);
 				fileHandler.beginBatchRead();

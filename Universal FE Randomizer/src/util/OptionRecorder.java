@@ -27,8 +27,8 @@ import ui.model.WeaponOptions;
 public class OptionRecorder {
 	
 	private static final Integer FE4OptionBundleVersion = 2;
-	private static final Integer GBAOptionBundleVersion = 2;
-	private static final Integer FE9OptionBundleVersion = 2;
+	private static final Integer GBAOptionBundleVersion = 3;
+	private static final Integer FE9OptionBundleVersion = 4;
 	
 	public static class AllOptions {
 		public FE4OptionBundle fe4;
@@ -72,6 +72,7 @@ public class OptionRecorder {
 		public FE9OtherCharacterOptions otherOptions;
 		public FE9EnemyBuffOptions enemyBuff;
 		public FE9ClassOptions classes;
+		public WeaponOptions weapons;
 		public MiscellaneousOptions misc;
 		public String seed;
 		public Integer version;
@@ -203,7 +204,7 @@ public class OptionRecorder {
 	}
 	
 	public static void recordFE9Options(GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions,
-			FE9OtherCharacterOptions otherOptions, FE9EnemyBuffOptions buffOptions, FE9ClassOptions classOptions,
+			FE9OtherCharacterOptions otherOptions, FE9EnemyBuffOptions buffOptions, FE9ClassOptions classOptions, WeaponOptions weaponOptions,
 			MiscellaneousOptions miscOptions, String seed) {
 		FE9OptionBundle bundle = new FE9OptionBundle();
 		bundle.growths = growthOptions;
@@ -212,6 +213,7 @@ public class OptionRecorder {
 		bundle.otherOptions = otherOptions;
 		bundle.enemyBuff = buffOptions;
 		bundle.classes = classOptions;
+		bundle.weapons = weaponOptions;
 		bundle.misc = miscOptions;
 		bundle.seed = seed;
 		bundle.version = FE9OptionBundleVersion;

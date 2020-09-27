@@ -21,7 +21,9 @@ import fedata.gcnwii.fe9.scripting.NOPInstruction;
 import fedata.gcnwii.fe9.scripting.PushLiteralString16Instruction;
 import fedata.gcnwii.fe9.scripting.ScriptInstruction;
 import io.FileHandler;
+import io.gcn.GCNByteArrayHandler;
 import io.gcn.GCNCMBFileHandler;
+import io.gcn.GCNDBXFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import io.gcn.GCNISOHandlerRecompilationDelegate;
@@ -42,7 +44,10 @@ import ui.model.FE9EnemyBuffOptions;
 import ui.model.FE9OtherCharacterOptions;
 import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
+import ui.model.WeaponOptions;
+import util.DebugPrinter;
 import util.SeedGenerator;
+import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.ChangelogAsset;
 import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.ChangelogDivider;
@@ -68,6 +73,7 @@ public class FE9Randomizer extends Randomizer {
 	private FE9OtherCharacterOptions otherCharOptions;
 	private FE9EnemyBuffOptions enemyBuffOptions;
 	private FE9ClassOptions classOptions;
+	private WeaponOptions weaponOptions;
 	
 	FE9CommonTextLoader textData;
 	FE9CharacterDataLoader charData;
@@ -76,7 +82,7 @@ public class FE9Randomizer extends Randomizer {
 	FE9SkillDataLoader skillData;
 	FE9ChapterDataLoader chapterData;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, FE9EnemyBuffOptions enemyBuffOptions, FE9ClassOptions classOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, FE9EnemyBuffOptions enemyBuffOptions, FE9ClassOptions classOptions, WeaponOptions weaponOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -88,6 +94,7 @@ public class FE9Randomizer extends Randomizer {
 		this.otherCharOptions = otherCharOptions;
 		this.enemyBuffOptions = enemyBuffOptions;
 		this.classOptions = classOptions;
+		this.weaponOptions = weaponOptions;
 		this.miscOptions = miscOptions;
 		
 		this.seedString = seed;
@@ -165,6 +172,7 @@ public class FE9Randomizer extends Randomizer {
 			randomizeOtherCharacterOptionsIfNecessary(seed);
 			randomizeMiscellaneousIfNecessary(seed);
 			buffEnemiesIfNecessary(seed);
+			randomizeWeaponsIfNecessary(seed);
 			
 			makePostRandomizationAdjustments(seed);
 			
@@ -588,7 +596,7 @@ public class FE9Randomizer extends Randomizer {
 	
 	private void randomizeBasesIfNecessary(String seed) {
 		if (baseOptions != null) {
-			updateStatus(0.44, "Randomizing bases...");
+			updateStatus(0.43, "Randomizing bases...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9BasesRandomizer.rngSalt));
 			switch (baseOptions.mode) {
 			case REDISTRIBUTE:
@@ -608,7 +616,7 @@ public class FE9Randomizer extends Randomizer {
 	
 	private void randomizeSkillsIfNecessary(String seed) {
 		if (skillOptions != null) {
-			updateStatus(0.46, "Randomizing skills...");
+			updateStatus(0.44, "Randomizing skills...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9SkillRandomizer.rngSalt));
 			switch (skillOptions.mode) {
 			case RANDOMIZE_EXISTING:
@@ -624,7 +632,7 @@ public class FE9Randomizer extends Randomizer {
 	
 	private void randomizeMiscellaneousIfNecessary(String seed) {
 		if (miscOptions != null) {
-			updateStatus(0.48, "Randomizing rewards...");
+			updateStatus(0.45, "Randomizing rewards...");
 			if (miscOptions.randomizeRewards) {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9RewardsRandomizer.rngSalt));
 				switch (miscOptions.rewardMode) {
@@ -645,7 +653,7 @@ public class FE9Randomizer extends Randomizer {
 	
 	private void randomizeOtherCharacterOptionsIfNecessary(String seed) {
 		if (otherCharOptions != null) {
-			updateStatus(0.47, "Randomizing other character options...");
+			updateStatus(0.46, "Randomizing other character options...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9MiscellaneousRandomizer.rngSalt));
 			if (otherCharOptions.randomizeCON) {
 				FE9MiscellaneousRandomizer.randomizeCON(otherCharOptions.conVariance, charData, classData, rng);
@@ -658,7 +666,7 @@ public class FE9Randomizer extends Randomizer {
 	
 	private void buffEnemiesIfNecessary(String seed) {
 		if (enemyBuffOptions != null) {
-			updateStatus(0.49, "Buffing enemies...");
+			updateStatus(0.47, "Buffing enemies...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9EnemyBuffer.rngSalt));
 			
 			switch (enemyBuffOptions.minionMode) {
@@ -717,6 +725,28 @@ public class FE9Randomizer extends Randomizer {
 				FE9ClassRandomizer.randomizeMinionCharacters(classOptions.minionRandomChance,
 						classOptions.forceDifferent, 
 						classOptions.mixMinionRaces, false, charData, classData, chapterData, skillData, itemData, rng);
+			}
+		}
+	}
+	
+	private void randomizeWeaponsIfNecessary(String seed) {
+		if (weaponOptions != null) {
+			updateStatus(0.48, "Randomizing Weapons...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9WeaponRandomizer.rngSalt));
+			if (weaponOptions.mightOptions != null) {
+				FE9WeaponRandomizer.randomizeWeaponMight(weaponOptions.mightOptions.variance, weaponOptions.mightOptions.minValue, weaponOptions.mightOptions.maxValue, itemData, rng);
+			}
+			if (weaponOptions.hitOptions != null) {
+				FE9WeaponRandomizer.randomizeWeaponAccuracy(weaponOptions.hitOptions.variance, weaponOptions.hitOptions.minValue, weaponOptions.hitOptions.maxValue, itemData, rng);
+			}
+			if (weaponOptions.weightOptions != null) {
+				FE9WeaponRandomizer.randomizeWeaponWeight(weaponOptions.weightOptions.variance, weaponOptions.weightOptions.minValue, weaponOptions.weightOptions.maxValue, itemData, rng);		
+			}
+			if (weaponOptions.durabilityOptions != null) {
+				FE9WeaponRandomizer.randomizeWeaponDurability(weaponOptions.durabilityOptions.variance, weaponOptions.durabilityOptions.minValue, weaponOptions.durabilityOptions.maxValue, itemData, rng);
+			}
+			if (weaponOptions.shouldAddEffects) {
+				FE9WeaponRandomizer.addRandomEffects(weaponOptions.effectChance, weaponOptions.noEffectIronWeapons, weaponOptions.includeLaguzWeapons, weaponOptions.effectsList, handler, itemData, textData, rng);
 			}
 		}
 	}

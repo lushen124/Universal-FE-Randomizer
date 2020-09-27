@@ -40,12 +40,15 @@ public class FE9ClassDataLoader {
 	Map<String, FE9Class> idLookup;
 	
 	GCNDataFileHandler fe8databin;
+	FE9CommonTextLoader textLoader;
 	
 	public enum StatBias {
 		NONE, PHYSICAL_ONLY, MAGICAL_ONLY, LEAN_PHYSICAL, LEAN_MAGICAL
 	}
 	
 	public FE9ClassDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
+		textLoader = commonTextLoader;
+		
 		allClasses = new ArrayList<FE9Class>();
 		
 		knownAddresses = new HashMap<String, Long>();
@@ -216,6 +219,31 @@ public class FE9ClassDataLoader {
 	public String getMJIDForClass(FE9Class charClass) {
 		if (charClass == null) { return null; }
 		return fe8databin.stringForPointer(charClass.getClassNamePointer());
+	}
+	
+	public String getMHJForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getClassDescriptionPointer());
+	}
+	
+	public FE9Class getPromotedClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return classWithID(fe8databin.stringForPointer(charClass.getPromotionIDPointer()));
+	}
+	
+	public String getDefaultIIDForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getDefaultWeaponPointer());
+	}
+	
+	public String getRaceForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getRacePointer());
+	}
+	
+	public String getTraitForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getMiscPointer());
 	}
 	
 	public int getLaguzSTROffset(FE9Class laguzClass) {
@@ -473,6 +501,22 @@ public class FE9ClassDataLoader {
 	public long addressLookup(String value) {
 		return knownAddresses.get(value);
 	}
+	
+	public String getDisplayName(FE9Class charClass) {
+		long pointer = charClass.getClassNamePointer();
+		if (pointer == 0) { return "(null)"; }
+		fe8databin.setNextReadOffset(pointer);
+		byte[] bytes = fe8databin.continueReadingBytesUpToNextTerminator(pointer + 0xFF);
+		String identifier = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(bytes);
+		if (textLoader == null) { return identifier; }
+		
+		String resolvedValue = textLoader.textStringForIdentifier(identifier);
+		if (resolvedValue != null) {
+			return resolvedValue;
+		} else {
+			return identifier;
+		}
+	}
 
 	private void debugPrintClass(FE9Class charClass, GCNFileHandler handler, FE9CommonTextLoader commonTextLoader) {
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "===== Printing Class =====");
@@ -500,7 +544,7 @@ public class FE9ClassDataLoader {
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, 
 				"Unknown: " + stringForPointer(charClass.getMiscPointer(), handler, commonTextLoader));
 		
-		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Unknown 8-1: " + WhyDoesJavaNotHaveThese.displayStringForBytes(charClass.getUnknown8Bytes()));
+		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Unknown 3: " + WhyDoesJavaNotHaveThese.displayStringForBytes(charClass.getUnknown3Bytes()));
 		
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Base HP: " + charClass.getBaseHP());
 		DebugPrinter.log(DebugPrinter.Key.FE9_CLASS_LOADER, "Base STR: " + charClass.getBaseSTR());
