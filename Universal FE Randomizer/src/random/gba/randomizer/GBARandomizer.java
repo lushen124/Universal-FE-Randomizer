@@ -23,6 +23,8 @@ import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8PaletteMapper;
 import fedata.gba.fe8.FE8PromotionManager;
 import fedata.gba.fe8.FE8SummonerModule;
+import fedata.gba.general.GBAFEClass;
+import fedata.gba.general.WeaponRank;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 import io.DiffApplicator;
@@ -763,6 +765,29 @@ public class GBARandomizer extends Randomizer {
 					FE6Data.CharacterClass charClass = FE6Data.CharacterClass.valueOf(chapterUnit.getStartingClass());
 					if (!FE6Data.CharacterClass.allThiefClasses.contains(charClass) && (chapterUnit.isNPC() || chapterUnit.isEnemy())) {
 						chapterUnit.removeItem(FE6Data.Item.LOCKPICK.ID);
+					}
+				}
+			}
+		}
+		
+		// Make sure healing classes have at least one healing staff in their starting inventory.
+		Random rng = new Random(1);
+		for (GBAFEChapterData chapter : chapterData.allChapters()) {
+			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
+				GBAFEClassData unitClass = classData.classForID(chapterUnit.getStartingClass());
+				if (unitClass == null) { continue; }
+				if (unitClass.getStaffRank() != 0) {
+					if (itemData.isHealingStaff(chapterUnit.getItem1()) || itemData.isHealingStaff(chapterUnit.getItem2()) ||
+							itemData.isHealingStaff(chapterUnit.getItem3()) || itemData.isHealingStaff(chapterUnit.getItem4())) {
+						continue;
+					} else {
+						if (charData.isPlayableCharacterID(chapterUnit.getCharacterNumber())) {
+							GBAFECharacterData character = charData.characterWithID(chapterUnit.getCharacterNumber());
+							GBAFEItemData healingStaff = itemData.getRandomHealingStaff(itemData.rankForValue(character.getStaffRank()), rng);
+							if (healingStaff != null) {
+								chapterUnit.giveItem(healingStaff.getID());
+							}
+						}
 					}
 				}
 			}

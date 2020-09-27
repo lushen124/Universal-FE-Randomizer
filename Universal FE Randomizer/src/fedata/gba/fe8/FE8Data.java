@@ -2778,6 +2778,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEItem>(equalRankWeapons);
 	}
 	
+	public Set<GBAFEItem> healingStaves(WeaponRank maxRank) {
+		Set<Item> staves = Item.allHealingStaves;
+		return new HashSet<GBAFEItem>(staves);
+	}
+	
 	public Set<GBAFEItem> prfWeaponsForClassID(int classID) {
 		Set<Item> weapons = Item.prfWeaponsForClassID(classID);
 		 if (weapons == null) { return new HashSet<GBAFEItem>(); }
