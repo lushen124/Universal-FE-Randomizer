@@ -394,6 +394,10 @@ public class FE9ItemDataLoader {
 		return FE9Data.Item.withIID(iidOfItem(item)).isConsumable();
 	}
 	
+	public boolean isPromotionItem(FE9Item item) {
+		return FE9Data.Item.withIID(iidOfItem(item)).isPromotionItem();
+	}
+	
 	public boolean isStatBooster(FE9Item item) {
 		return FE9Data.Item.withIID(iidOfItem(item)).isStatBooster();
 	}
@@ -1208,8 +1212,12 @@ public class FE9ItemDataLoader {
 			if (original.isBRank()) { fe9DataItems.addAll(FE9Data.Item.allBRankWeapons); }
 			if (original.isARank()) { fe9DataItems.addAll(FE9Data.Item.allARankWeapons); }
 			if (original.isSRank()) { fe9DataItems.addAll(FE9Data.Item.allSRankWeapons); }
-		} else if (isConsumable(originalItem)) {
+		} else if (isConsumable(originalItem) || isPromotionItem(originalItem)) {
 			fe9DataItems.addAll(FE9Data.Item.allConsumables);
+			// Equally weight these.
+			for (int i = 0; i < FE9Data.Item.allConsumables.size(); i += FE9Data.Item.allPromotionItems.size()) {
+				fe9DataItems.addAll(FE9Data.Item.allPromotionItems);
+			}
 		} else if (isStatBooster(originalItem)) {
 			fe9DataItems.addAll(FE9Data.Item.allStatBoosters);
 		} else if (isTreasure(originalItem)) {
@@ -1231,6 +1239,9 @@ public class FE9ItemDataLoader {
 		fe9DataItems.addAll(FE9Data.Item.allStatBoosters);
 		fe9DataItems.addAll(FE9Data.Item.allSkillScrolls);
 		fe9DataItems.addAll(FE9Data.Item.allConsumables);
+		for (int i = 0; i < FE9Data.Item.allConsumables.size(); i += FE9Data.Item.allPromotionItems.size()) {
+			fe9DataItems.addAll(FE9Data.Item.allPromotionItems);
+		}
 		
 		return fe9ItemListFromSet(fe9DataItems);
 	}

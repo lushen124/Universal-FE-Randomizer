@@ -663,9 +663,9 @@ public class FE9Data {
 		}
 		
 		public static Set<Skill> allValidSkills = new HashSet<Skill>(Arrays.asList(PARAGON, RENEWAL, CELERITY, RESOLVE, TEMPEST, SERENITY, SAVIOR, VANTAGE,
-				NIHIL, WRATH, GUARD, MIRACLE, ADEPT, CORROSION, COUNTER, DAUNT, PROVOKE, SHADE, GAMBLE, PARITY, SMITE, BLOSSOM));
+				NIHIL, WRATH, GUARD, MIRACLE, ADEPT, CORROSION, COUNTER, DAUNT, PROVOKE, SHADE, GAMBLE, PARITY, SMITE, BLOSSOM, INSIGHT, VIGILANCE));
 		public static Set<Skill> playerOnlySkills = new HashSet<Skill>(Arrays.asList(PARAGON, SAVIOR, PROVOKE, SHADE, GAMBLE, SMITE, BLOSSOM));
-		public static Set<Skill> replaceableInvalidSkills = new HashSet<Skill>(Arrays.asList(REINFORCE, INSIGHT, VIGILANCE));
+		public static Set<Skill> replaceableInvalidSkills = new HashSet<Skill>(Arrays.asList(REINFORCE));
 		
 		public static Set<Skill> occultSkills = new HashSet<Skill>(Arrays.asList(SOL, LUNA, ASTRA, LETHALITY, DEADEYE, COLOSSUS, STUN, ROAR, BOON, BLESSING, AETHER, FLARE, CANCEL));
 		public static Map<CharacterClass, Skill> occultSkillsByClass = new HashMap<CharacterClass, Skill>() {
@@ -762,7 +762,7 @@ public class FE9Data {
 		}};
 		
 		public boolean isModifiable() {
-			return allValidSkills.contains(this);
+			return allValidSkills.contains(this) || replaceableInvalidSkills.contains(this);
 		}
 		
 		public boolean isOccult() {
@@ -1118,7 +1118,8 @@ public class FE9Data {
 		public static Set<Item> allSkillScrolls = new HashSet<Item>(Arrays.asList(PARAGON_SCROLL, OCCULT_SCROLL, RESOLVE_SCROLL, SAVIOR_SCROLL, VANTAGE_SCROLL,
 				NIHIL_SCROLL, WRATH_SCROLL, CORROSION_SCROLL, MIRACLE_SCROLL, COUNTER_SCROLL, DAUNT_SCROLL, PROVOKE_SCROLL, SHADE_SCROLL, GAMBLE_SCROLL, 
 				PARITY_SCROLL, SMITE_SCROLL, GUARD_SCROLL, ADEPT_SCROLL, RENEWAL_SCROLL, CELERITY_SCROLL, BLOSSOM_SCROLL));
-		public static Set<Item> allConsumables = new HashSet<Item>(Arrays.asList(LAGUZ_STONE, LAGUZ_STONE_1, MASTER_SEAL, CHEST_KEY, DOOR_KEY, 
+		public static Set<Item> allPromotionItems = new HashSet<Item>(Arrays.asList(MASTER_SEAL));
+		public static Set<Item> allConsumables = new HashSet<Item>(Arrays.asList(LAGUZ_STONE, LAGUZ_STONE_1, CHEST_KEY, DOOR_KEY, 
 				VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH, COIN));
 		public static Set<Item> allGems = new HashSet<Item>(Arrays.asList(WHITE_GEM, BLUE_GEM, RED_GEM));
 		
@@ -1192,6 +1193,7 @@ public class FE9Data {
 		}
 		
 		public boolean isConsumable() { return allConsumables.contains(this); }
+		public boolean isPromotionItem() { return allPromotionItems.contains(this); }
 		public boolean isStatBooster() { return allStatBoosters.contains(this); }
 		public boolean isTreasure() { return allGems.contains(this); }
 		public boolean isSkillScroll() { return allSkillScrolls.contains(this); }
