@@ -378,6 +378,10 @@ public class FE9ItemDataLoader {
 		return FE9Data.Item.withIID(iidOfItem(item)).isStaff();
 	}
 	
+	public boolean isBlacklisted(FE9Item item) {
+		return FE9Data.Item.withIID(iidOfItem(item)).isBlacklisted();
+	}
+	
 	public boolean isBasicWeapon(FE9Item item) {
 		return FE9Data.Item.withIID(iidOfItem(item)).isBasicWeapon();
 	}

@@ -20,6 +20,7 @@ public class FE9WeaponRandomizer {
 		if (variance == 0) { return; }
 		List<FE9Item> items = itemData.allItems();
 		for (FE9Item item : items) {
+			if (itemData.isBlacklisted(item)) { continue; }
 			if (!itemData.isWeapon(item) || itemData.isStaff(item)) { continue; }
 			int factor = rng.nextInt(2) == 0 ? 1 : -1;
 			item.setItemMight(WhyDoesJavaNotHaveThese.clamp(item.getItemMight() + (rng.nextInt(variance + 1) * factor), min, max));
@@ -31,6 +32,7 @@ public class FE9WeaponRandomizer {
 		if (variance == 0) { return; }
 		List<FE9Item> items = itemData.allItems();
 		for (FE9Item item : items) {
+			if (itemData.isBlacklisted(item)) { continue; }
 			if (!itemData.isWeapon(item) || itemData.isStaff(item)) { continue; }
 			int factor = rng.nextInt(2) == 0 ? 1 : -1;
 			item.setItemAccuracy(WhyDoesJavaNotHaveThese.clamp(item.getItemAccuracy() + (rng.nextInt(variance + 1) * factor), min, max));
@@ -42,6 +44,7 @@ public class FE9WeaponRandomizer {
 		if (variance == 0) { return; }
 		List<FE9Item> items = itemData.allItems();
 		for (FE9Item item : items) {
+			if (itemData.isBlacklisted(item)) { continue; }
 			if (!itemData.isWeapon(item) || itemData.isStaff(item)) { continue; }
 			int factor = rng.nextInt(2) == 0 ? 1 : -1;
 			item.setItemWeight(WhyDoesJavaNotHaveThese.clamp(item.getItemWeight() + (rng.nextInt(variance + 1) * factor), min, max));
@@ -53,6 +56,7 @@ public class FE9WeaponRandomizer {
 		if (variance == 0) { return; }
 		List<FE9Item> items = itemData.allItems();
 		for (FE9Item item : items) {
+			if (itemData.isBlacklisted(item)) { continue; }
 			if (!itemData.isWeapon(item) || itemData.isStaff(item)) { continue; }
 			if (itemData.isSiegeTome(item)) { continue; }
 			int factor = rng.nextInt(2) == 0 ? 1 : -1;
@@ -84,6 +88,7 @@ public class FE9WeaponRandomizer {
 		List<WeaponEffect> possibleEffects = new ArrayList<WeaponEffect>();
 		
 		for (FE9Item item : items) {
+			if (itemData.isBlacklisted(item)) { continue; }
 			if (!itemData.isWeapon(item)) { continue; }
 			if (safeBasicWeapons && itemData.isBasicWeapon(item)) { continue; }
 			if (!includeLaguzWeapons && itemData.isLaguzWeapon(item)) { continue; }
