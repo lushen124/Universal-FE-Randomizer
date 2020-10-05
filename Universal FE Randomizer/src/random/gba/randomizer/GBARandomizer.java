@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,8 @@ import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
+import util.FileReadHelper;
+import util.FindAndReplace;
 import util.FreeSpaceManager;
 import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
@@ -218,7 +221,7 @@ public class GBARandomizer extends Randomizer {
 		updateProgress(0.95);
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
-		classData.compileDiffs(diffCompiler);
+		classData.compileDiffs(diffCompiler, handler, freeSpace);
 		itemData.compileDiffs(diffCompiler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
@@ -791,6 +794,122 @@ public class GBARandomizer extends Randomizer {
 					}
 				}
 			}
+		}
+		
+		// Create special lord classes to prevent them from promoting prematurely.
+		// Do this last, so that we don't mess up anything else that needs to read class IDs.
+		if (gameType == GameType.FE6) {
+			GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
+			
+			int oldRoyClassID = roy.getClassID();
+			
+			GBAFEClassData newRoyClass = classData.createLordClassBasedOnClass(classData.classForID(oldRoyClassID));
+			
+			roy.setClassID(newRoyClass.getID());
+			
+			// Incidentally, Roy doesn't need a promotion item, because his promotion is entirely scripted without any items.
+			
+			for (GBAFEChapterData chapter : chapterData.allChapters()) {
+				for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+					if (unit.getCharacterNumber() == FE6Data.Character.ROY.ID) {
+						if (unit.getStartingClass() == oldRoyClassID) { unit.setStartingClass(newRoyClass.getID()); }
+					}
+				}
+			}
+			
+			long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE6Data.ClassMapSpriteTablePointer);
+			byte[] spriteTable = handler.readBytesAtOffset(mapSpriteTableOffset, FE6Data.BytesPerMapSpriteTableEntry * FE6Data.NumberOfMapSpriteEntries);
+			long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
+			freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldRoyClassID - 1) * 8, 8), "Roy Map Sprite Entry");
+			diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
+		} else if (gameType == GameType.FE7) {
+			GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
+			GBAFECharacterData tutorialLyn = charData.characterWithID(FE7Data.Character.LYN_TUTORIAL.ID);
+			GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
+			GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
+			
+			int oldLynClassID = lyn.getClassID();
+			int oldEliwoodClassID = eliwood.getClassID();
+			int oldHectorClassID = hector.getClassID();
+			
+			GBAFEClassData newLynClass = classData.createLordClassBasedOnClass(classData.classForID(lyn.getClassID()));
+			GBAFEClassData newEliwoodClass = classData.createLordClassBasedOnClass(classData.classForID(eliwood.getClassID()));
+			GBAFEClassData newHectorClass = classData.createLordClassBasedOnClass(classData.classForID(hector.getClassID()));
+			
+			lyn.setClassID(newLynClass.getID());
+			tutorialLyn.setClassID(newLynClass.getID());
+			eliwood.setClassID(newEliwoodClass.getID());
+			hector.setClassID(newHectorClass.getID());
+			
+			itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.ELIWOOD_LYN_HEAVEN_SEAL, new ArrayList<Integer>(Arrays.asList(newLynClass.getID(), newEliwoodClass.getID())));
+			itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.HECTOR_LYN_HEAVEN_SEAL, new ArrayList<Integer>(Arrays.asList(newHectorClass.getID(), newLynClass.getID())));
+			
+			for (GBAFEChapterData chapter : chapterData.allChapters()) {
+				for(GBAFEChapterUnitData unit : chapter.allUnits()) {
+					if (unit.getCharacterNumber() == FE7Data.Character.LYN.ID || unit.getCharacterNumber() == FE7Data.Character.LYN_TUTORIAL.ID) {
+						if (unit.getStartingClass() == oldLynClassID) { unit.setStartingClass(newLynClass.getID()); }
+					} else if (unit.getCharacterNumber() == FE7Data.Character.ELIWOOD.ID) {
+						if (unit.getStartingClass() == oldEliwoodClassID) { unit.setStartingClass(newEliwoodClass.getID()); }
+					} else if (unit.getCharacterNumber() == FE7Data.Character.HECTOR.ID) {
+						if (unit.getStartingClass() == oldHectorClassID) { unit.setStartingClass(newHectorClass.getID()); }
+					}
+				}
+			}
+			
+			long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE7Data.ClassMapSpriteTablePointer);
+			byte[] spriteTable = handler.readBytesAtOffset(mapSpriteTableOffset, FE7Data.BytesPerMapSpriteTableEntry * FE7Data.NumberOfMapSpriteEntries);
+			long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
+			freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldLynClassID - 1) * 8, 8), "Lyn Map Sprite Entry");
+			freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldEliwoodClassID - 1) * 8, 8), "Eliwood Map Sprite Entry");
+			freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldHectorClassID - 1) * 8, 8), "Hector Map Sprite Entry");
+			diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
+			
+		} else if (gameType == GameType.FE8) {
+			GBAFECharacterData eirika = charData.characterWithID(FE8Data.Character.EIRIKA.ID);
+			GBAFECharacterData ephraim = charData.characterWithID(FE8Data.Character.EPHRAIM.ID);
+			
+			int oldEirikaClass = eirika.getClassID();
+			int oldEphraimClass = ephraim.getClassID();
+			
+			// GBAFE only stores 5 bits for the class (in save data), so using any ID greater than 0x7F will have issues. We have to replace an existing class.
+			GBAFEClassData newEirikaClass = classData.createLordClassBasedOnClass(classData.classForID(oldEirikaClass), FE8Data.CharacterClass.UNUSED_TENT.ID); // This was a (unused?) tent.
+			GBAFEClassData newEphraimClass = classData.createLordClassBasedOnClass(classData.classForID(oldEphraimClass), FE8Data.CharacterClass.UNUSED_MANAKETE.ID); // This is an unused manakete class.
+			
+			eirika.setClassID(newEirikaClass.getID());
+			ephraim.setClassID(newEphraimClass.getID());
+			
+			itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.LUNAR_BRACE, new ArrayList<Integer>(Arrays.asList(newEirikaClass.getID())));
+			itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.SOLAR_BRACE, new ArrayList<Integer>(Arrays.asList(newEphraimClass.getID())));
+			
+			for (GBAFEChapterData chapter : chapterData.allChapters()) {
+				for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+					if (unit.getCharacterNumber() == FE8Data.Character.EIRIKA.ID) {
+						if (unit.getStartingClass() == oldEirikaClass) { unit.setStartingClass(newEirikaClass.getID()); }
+					} else if (unit.getCharacterNumber() == FE8Data.Character.EPHRAIM.ID) {
+						if (unit.getStartingClass() == oldEphraimClass) { unit.setStartingClass(newEphraimClass.getID()); /* unit.setStartingLevel(10); */}
+					}
+					/*
+					if (unit.getCharacterNumber() == FE8Data.Character.ORSON_5X.ID) {
+						unit.giveItem(itemData.itemsToPromoteClass(oldEphraimClass).get(0).getID());
+						unit.giveItem(itemData.itemsToPromoteClass(newEphraimClass.getID()).get(0).getID());
+					}*/
+				}
+			}
+			
+			// Update the promotions table, since they're technically "different" classes.
+			fe8_promotionManager.setFirstPromotionOptionForClass(newEirikaClass.getID(), fe8_promotionManager.getFirstPromotionOptionClassID(oldEirikaClass));
+			fe8_promotionManager.setSecondPromotionOptionForClass(newEirikaClass.getID(), fe8_promotionManager.getSecondPromotionOptionClassID(oldEirikaClass));
+			fe8_promotionManager.setFirstPromotionOptionForClass(newEphraimClass.getID(), fe8_promotionManager.getFirstPromotionOptionClassID(oldEphraimClass));
+			fe8_promotionManager.setSecondPromotionOptionForClass(newEphraimClass.getID(), fe8_promotionManager.getSecondPromotionOptionClassID(oldEphraimClass));
+			
+			// On the bright side, we don't need to repoint the FE8 map sprite table. We just need to replace some entries in the existing one.
+			long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE8Data.ClassMapSpriteTablePointer);
+			long eirikaTargetOffset = (newEirikaClass.getID() - 1) * 8 + mapSpriteTableOffset;
+			long ephraimTargetOffset = (newEphraimClass.getID() - 1) * 8 + mapSpriteTableOffset;
+			byte[] eirikaSpriteData = handler.readBytesAtOffset((oldEirikaClass - 1) * 8 + mapSpriteTableOffset, 8);
+			byte[] ephraimSpriteData = handler.readBytesAtOffset((oldEphraimClass - 1) * 8 + mapSpriteTableOffset, 8);
+			diffCompiler.addDiff(new Diff(eirikaTargetOffset, 8, eirikaSpriteData, null));
+			diffCompiler.addDiff(new Diff(ephraimTargetOffset, 8, ephraimSpriteData, null));
 		}
 	}
 	

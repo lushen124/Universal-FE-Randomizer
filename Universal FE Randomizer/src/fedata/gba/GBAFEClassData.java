@@ -21,6 +21,9 @@ public interface GBAFEClassData extends FEModifiableData, FEPrintableData {
 	public int getDescriptionIndex();
 	
 	public int getID();
+	public void setID(int newID);
+	
+	public int getSpriteIndex();
 	
 	public int getTargetPromotionID();
 	public void setTargetPromotionID(int promotionTargetClassID);
@@ -106,4 +109,7 @@ public interface GBAFEClassData extends FEModifiableData, FEPrintableData {
 	
 	// Helpers
 	public Boolean canUseWeapon(GBAFEItemData weapon);
+	public void overrideAddress(long newAddress);
+	
+	public GBAFEClassData createClone();
 }

@@ -43,12 +43,16 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int NumberOfCharacters = 220;
 	public static final int BytesPerCharacter = 48;
 	public static final long CharacterTablePointer = 0x17680; // True in both prepatch and postpatch
-	//public static final long DefaultCharacterTableAddress = 0x6076A0; 
+	//public static final long DefaultCharacterTableAddress = 0x6076A0;
 	
 	public static final int NumberOfClasses = 76;
 	public static final int BytesPerClass = 72;
 	public static final long ClassTablePointer = 0x176E0; // True in both prepatch and postpatch
 	//public static final long DefaultClassTableAddress = 0x60A0E8;
+	
+	public static final long ClassMapSpriteTablePointer = 0x60ED8;
+	public static final int BytesPerMapSpriteTableEntry = 8;
+	public static final int NumberOfMapSpriteEntries = 75;
 	
 	public static final int NumberOfItems = 128;
 	public static final int BytesPerItem = 32;
@@ -1262,6 +1266,22 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public String itemName() {
 			return this.toString();
+		}
+		
+		public int getItemID() {
+			switch (this) {
+			case HERO_CREST:
+				return Item.HERO_CREST.ID;
+			case KNIGHT_CREST:
+				return Item.KNIGHT_CREST.ID;
+			case ORION_BOLT:
+				return Item.ORION_BOLT.ID;
+			case ELYSIAN_WHIP:
+				return Item.ELYSIAN_WHIP.ID;
+			case GUIDING_RING:
+				return Item.GUIDING_RING.ID;
+			default: return 0;
+			}
 		}
 	}
 	

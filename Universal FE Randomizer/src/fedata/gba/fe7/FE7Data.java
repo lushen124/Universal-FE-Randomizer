@@ -42,10 +42,16 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long CharacterTablePointer = 0x17890;
 	//public static final long DefaultCharacterTableAddress = 0xBDCE18; 
 	
-	public static final int NumberOfClasses = 99;
+	public static final int NumberOfClasses = 100;
 	public static final int BytesPerClass = 84;
 	public static final long ClassTablePointer = 0x178F0;
 	//public static final long DefaultClassTableAddress = 0xBE015C;
+	
+	// This also needs to be moved in order to make sure map sprites
+	// show up properly. This is implicitly tied to the class table.
+	public static final long ClassMapSpriteTablePointer = 0x6D574;
+	public static final int BytesPerMapSpriteTableEntry = 8;
+	public static final int NumberOfMapSpriteEntries = 99;
 	
 	public static final int NumberOfItems = 159;
 	public static final int BytesPerItem = 36;
@@ -67,10 +73,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	//public static final long DefaultChapterArrayOffset = 0xC9C9C8;
 	public static final int BytesPerChapterUnit = 16;
 	
-	public static final long PromotionItemTablePointer = 0x27428; // Accounts for most of them, except for ocean seal.
-	
-	public static final int OceanSealAddressPointer = 0x27574; // ???
-	public static final int OceanSealDefaultAddress = 0xC97F24;
+	// This is more than just promotion items, but they're all clustered together around here.
+	// I actually suspect this is the table for the class restrictions for item usage. 
+	// Most have the same value which is probably the no-restriction case.
+	public static final long PromotionItemTablePointer = 0x27428;											
 	
 	public static final long PaletteTableOffset = 0xFD8004L;
 	public static final int PaletteEntryCount = 256;
@@ -1623,14 +1629,14 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public enum PromotionItem implements GBAFEPromotionItem {
-		// Ocean Seal is missing, but I can't find it in this table.
-		// It's pointer can be found at 0x27574.
+		// The indexes here are based off of a table that starts at 0x27428 (this may not be the actual start of whatever this table is).
 		// Remember that the actual address of the class IDs starts at byte 4 after the jump.
 		// The class IDs are 00 terminated.
 		HERO_CREST(0x01), KNIGHT_CREST(0x02), ORION_BOLT(0x03), ELYSIAN_WHIP(0x04), GUIDING_RING(0x05), MASTER_SEAL(0x25), FALLEN_CONTRACT(0x29), 
 		
-		// Ocean seal is special because there's no indirect reference to it...
-		OCEAN_SEAL(0x0);
+		// These are special. I'm not sure what points to them, so they're direct.
+		HECTOR_LYN_HEAVEN_SEAL(0x46), ELIWOOD_LYN_HEAVEN_SEAL(0x47),
+		OCEAN_SEAL(0x53);
 		
 		int offset;
 		
@@ -1638,11 +1644,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			this.offset = offset;
 		}
 		
-		public long getPointerAddress() {
-			if (this == OCEAN_SEAL) {
-				return OceanSealAddressPointer;
-			}
-			
+		public long getPointerAddress() {			
 			return (offset * 4) + PromotionItemTablePointer;
 		}
 		
@@ -1651,11 +1653,37 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public Boolean isIndirected() {
-			return this != OCEAN_SEAL; // Ocean seal being the special case.
+			return this != OCEAN_SEAL && this != HECTOR_LYN_HEAVEN_SEAL && this != ELIWOOD_LYN_HEAVEN_SEAL;
 		}
 		
 		public String itemName() {
 			return this.toString();
+		}
+		
+		public int getItemID() {
+			switch (this) {
+			case HERO_CREST:
+				return Item.HERO_CREST.ID;
+			case KNIGHT_CREST:
+				return Item.KNIGHT_CREST.ID;
+			case ORION_BOLT:
+				return Item.ORION_BOLT.ID;
+			case ELYSIAN_WHIP:
+				return Item.ELYSIAN_WHIP.ID;
+			case GUIDING_RING:
+				return Item.GUIDING_RING.ID;
+			case MASTER_SEAL:
+				return Item.EARTH_SEAL.ID;
+			case FALLEN_CONTRACT:
+				return Item.FELL_CONTRACT.ID;
+			case HECTOR_LYN_HEAVEN_SEAL:
+			case ELIWOOD_LYN_HEAVEN_SEAL:
+				return Item.HEAVEN_SEAL.ID;
+			case OCEAN_SEAL:
+				return Item.OCEAN_SEAL.ID;
+			default:
+				return 0;
+			}
 		}
 	}
 	

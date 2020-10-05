@@ -47,6 +47,12 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		return value >> 3;
 	}
 	
+	public void setStartingLevel(int newLevel) {
+		int levelShifted = (newLevel << 3) & 0xF8;
+		data[3] = (byte)((byte)levelShifted | (data[3] & 0x7));
+		wasModified = true;
+	}
+	
 	public boolean isEnemy() {
 		int value = data[3] & 0xFF;
 		return (value & 0x4) != 0;

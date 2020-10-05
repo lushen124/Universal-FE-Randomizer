@@ -47,6 +47,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long ClassTablePointer = 0x17AB8;
 	//public static final long DefaultClassTableAddress = 0x807110;
 	
+	public static final long ClassMapSpriteTablePointer = 0x79584;
+	public static final int BytesPerMapSpriteTableEntry = 8;
+	public static final int NumberOfMapSpriteEntries = 127;
+	
 	public static final int NumberOfItems = 205;
 	public static final int BytesPerItem = 36;
 	public static final long ItemTablePointer = 0x16410;
@@ -352,9 +356,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		ENTOMBED(0x53), WIGHT(0x56), WIGHT_BOW(0x57), ELDER_BAEL(0x59), CYCLOPS(0x5A), GWYLLGI(0x5C), MAELDUIN(0x5E), ARCH_MOGALL(0x60), GORGON(0x61), DEATHGOYLE(0x64), CYCLOPS_2(0x7C), ELDER_BAEL_2(0x7D),
 		
-		MANAKETE(0x0E), MERCENARY_F(0x10), HERO_F(0x12), WYVERN_RIDER_F(0x20), WYVERN_LORD_F(0x22), SHAMAN_F(0x2E), DRUID_F(0x30), SUMMONER_F(0x32), MANAKETE_2(0x3B), BARD(0x46), 
+		UNUSED_MANAKETE(0x0E), MERCENARY_F(0x10), HERO_F(0x12), WYVERN_RIDER_F(0x20), WYVERN_LORD_F(0x22), SHAMAN_F(0x2E), DRUID_F(0x30), SUMMONER_F(0x32), MANAKETE_2(0x3B), BARD(0x46), 
 		
-		GORGON_EGG(0x34), NECROMANCER(0x4F), FLEET(0x50), GHOST_FIGHTER(0x51), DRACOZOMBIE(0x65), DEMON_KING(0x66)
+		GORGON_EGG(0x34), /*GORGON_EGG_2(0x62),*/ NECROMANCER(0x4F), FLEET(0x50), GHOST_FIGHTER(0x51), DRACOZOMBIE(0x65), DEMON_KING(0x66), UNUSED_TENT(0x79)
 		;
 		
 		public int ID;
@@ -1778,11 +1782,16 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public enum PromotionItem implements GBAFEPromotionItem {
+		// These are addresses starting from 0x29218.
 		// Ocean Seal is missing, but I can't find it in this table.
 		// It's pointer can be found at 0x29408. (Direct Read)
 		// Remember that the actual address of the class IDs starts at byte 4 after the jump.
 		// The class IDs are 00 terminated.
-		HERO_CREST(0x01), KNIGHT_CREST(0x02), ORION_BOLT(0x03), ELYSIAN_WHIP(0x04), GUIDING_RING(0x05), MASTER_SEAL(0x25); // "Conquorer's Proof", Lunar Brace and Solar Brace are later, but we probably don't need to modify them.
+		HERO_CREST(0x01), KNIGHT_CREST(0x02), ORION_BOLT(0x03), ELYSIAN_WHIP(0x04), GUIDING_RING(0x05), MASTER_SEAL(0x25),
+		
+		LUNAR_BRACE(0x6C), SOLAR_BRACE(0x6E), HEAVEN_SEAL(0x70),
+		OCEAN_SEAL(0x7C);
+		; 
 		
 		int offset;
 		
@@ -1799,11 +1808,36 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public Boolean isIndirected() {
-			return true;
+			return this != OCEAN_SEAL && this != LUNAR_BRACE && this != SOLAR_BRACE && this != HEAVEN_SEAL;
 		}
 		
 		public String itemName() {
 			return this.toString();
+		}
+		
+		public int getItemID() {
+			switch (this) {
+			case HERO_CREST:
+				return Item.HERO_CREST.ID;
+			case KNIGHT_CREST:
+				return Item.KNIGHT_CREST.ID;
+			case ORION_BOLT:
+				return Item.ORION_BOLT.ID;
+			case ELYSIAN_WHIP:
+				return Item.ELYSIAN_WHIP.ID;
+			case GUIDING_RING:
+				return Item.GUIDING_RING.ID;
+			case MASTER_SEAL:
+				return Item.MASTER_SEAL.ID;
+			case LUNAR_BRACE:
+				return Item.MOON_BRACELET.ID;
+			case SOLAR_BRACE:
+				return Item.SUN_BRACELET.ID;
+			case HEAVEN_SEAL:
+				return Item.HEAVEN_SEAL.ID;
+			default:
+				return 0;
+			}
 		}
 	}
 	
@@ -3193,7 +3227,6 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public List<GBAFEClass> dragonEffectivenessClasses() {
 		return new ArrayList<GBAFEClass>(Arrays.asList(
 				CharacterClass.DRACOZOMBIE,
-				CharacterClass.MANAKETE,
 				CharacterClass.MANAKETE_2,
 				CharacterClass.MANAKETE_F,
 				CharacterClass.WYVERN_RIDER,
@@ -3217,7 +3250,6 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.WYVERN_LORD_F,
 				CharacterClass.GARGOYLE,
 				CharacterClass.DEATHGOYLE,
-				CharacterClass.MANAKETE,
 				CharacterClass.MANAKETE_2,
 				CharacterClass.MANAKETE_F,
 				CharacterClass.DRACOZOMBIE
@@ -3258,11 +3290,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.ARCH_MOGALL,
 				CharacterClass.GORGON,
 				CharacterClass.GORGON_EGG,
+				//CharacterClass.GORGON_EGG_2,
 				CharacterClass.GARGOYLE,
 				CharacterClass.DEATHGOYLE,
 				CharacterClass.DRACOZOMBIE,
 				CharacterClass.DEMON_KING,
-				CharacterClass.MANAKETE,
 				CharacterClass.GHOST_FIGHTER
 				));
 	}

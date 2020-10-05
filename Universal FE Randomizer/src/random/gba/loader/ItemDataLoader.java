@@ -53,6 +53,8 @@ public class ItemDataLoader {
 	private FreeSpaceManager freeSpace;
 	private Map<AdditionalData, Long> offsetsForAdditionalData;
 	private Map<String, Long> promotionItemAddressPointers;
+	private Map<String, List<Byte>> promotionClassLists;
+	private Map<Integer, List<GBAFEPromotionItem>> promotionItemsForClassIDs;
 	
 	public static final String RecordKeeperCategoryWeaponKey = "Weapons";
 	
@@ -109,6 +111,8 @@ public class ItemDataLoader {
 		
 		// Set up promotion items.
 		promotionItemAddressPointers = new HashMap<String, Long>();
+		promotionClassLists = new HashMap<String, List<Byte>>();
+		promotionItemsForClassIDs = new HashMap<Integer, List<GBAFEPromotionItem>>();
 		for (GBAFEPromotionItem promotionItem : provider.allPromotionItems()) {
 			long promotionItemOffset = promotionItem.getListAddress();
 			if (promotionItem.isIndirected()) {
@@ -122,6 +126,13 @@ public class ItemDataLoader {
 				currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
 				if (currentByte != 0) {
 					idList.add(currentByte);
+					
+					List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get((int)currentByte & 0xFF);
+					if (promotionItems == null) { 
+						promotionItems = new ArrayList<GBAFEPromotionItem>();
+						promotionItemsForClassIDs.put((int)currentByte & 0xFF, promotionItems);
+					}
+					promotionItems.add(promotionItem);
 				}
 			} while (currentByte != 0);
 			
@@ -129,18 +140,74 @@ public class ItemDataLoader {
 			if (additionalClasses != null && !additionalClasses.isEmpty()) {
 				for (int i = 0; i < additionalClasses.size(); i++) {
 					GBAFEClass additionalClass = additionalClasses.get(i);
-					if (!idList.contains((byte)additionalClass.getID())) { idList.add((byte)additionalClass.getID()); }
+					if (!idList.contains((byte)additionalClass.getID())) { 
+						idList.add((byte)additionalClass.getID());
+						List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get((int)currentByte & 0xFF);
+						if (promotionItems == null) { 
+							promotionItems = new ArrayList<GBAFEPromotionItem>();
+							promotionItemsForClassIDs.put((int)currentByte & 0xFF, promotionItems);
+						}
+						promotionItems.add(promotionItem);
+					}
 				}
-				idList.add((byte)0x0);
-				byte[] byteArray = new byte[idList.size()];
-				for (int i = 0; i < idList.size(); i++) {
-					byteArray[i] = idList.get(i);
+			}
+			
+			promotionClassLists.put(promotionItem.itemName(), idList);
+			promotionItemAddressPointers.put(promotionItem.itemName(), promotionItemOffset);
+		}
+	}
+	
+	public void addClassToPromotionItem(GBAFEPromotionItem promotionItem, int classID) {
+		if (promotionItem == null) { return; }
+		List<Byte> idList = promotionClassLists.get(promotionItem.itemName());
+		if (idList == null) { return; }
+		idList.add((byte)(classID & 0xFF));
+		
+		List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get(classID & 0xFF);
+		if (promotionItems == null) { 
+			promotionItems = new ArrayList<GBAFEPromotionItem>();
+			promotionItemsForClassIDs.put(classID & 0xFF, promotionItems);
+		}
+		promotionItems.add(promotionItem);
+	}
+	
+	public void replaceClassesForPromotionItem(GBAFEPromotionItem promotionItem, List<Integer> classIDs) {
+		if (classIDs == null || promotionItem == null) { return; }
+		List<Byte> oldList = promotionClassLists.get(promotionItem.itemName());
+		if (oldList != null && oldList.size() > 0) {
+			for (Byte id : oldList) {
+				List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get((int)id & 0xFF);
+				if (promotionItems != null) { 
+					promotionItems.remove(promotionItem);
 				}
-				
-				offset = freeSpace.setValue(byteArray, promotionItem.itemName());
-				promotionItemAddressPointers.put(promotionItem.itemName(), promotionItemOffset);
 			}
 		}
+		
+		List<Byte> idList = new ArrayList<Byte>();
+		for (int id : classIDs) {
+			idList.add((byte)(id & 0xFF));
+			List<GBAFEPromotionItem> items = promotionItemsForClassIDs.get(id);
+			if (items == null) {
+				items = new ArrayList<GBAFEPromotionItem>();
+				promotionItemsForClassIDs.put(id, items);
+			}
+			items.add(promotionItem);
+		}
+		promotionClassLists.put(promotionItem.itemName(), idList);
+	}
+	
+	public List<GBAFEItemData> itemsToPromoteClass(int classID) {
+		List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get(classID);
+		List<GBAFEItemData> items = new ArrayList<GBAFEItemData>();
+		if (promotionItems == null) { return items; }
+		for (GBAFEPromotionItem item : promotionItems) {
+			GBAFEItemData itemData = itemWithID(item.getItemID());
+			if (itemData != null) {
+				items.add(itemData);
+			}
+		}
+		
+		return items;
 	}
 	
 	private void registerAdditionalData(AdditionalData dataName, byte[] byteArray) {
@@ -486,12 +553,17 @@ public class ItemDataLoader {
 		spellAnimations.compileDiffs(compiler);
 		
 		for (String promotionItemName : promotionItemAddressPointers.keySet()) {
-			if (freeSpace.hasOffsetForKey(promotionItemName)) {
-				long offset = freeSpace.getOffsetForKey(promotionItemName);
-				byte[] addressByteArray = WhyDoesJavaNotHaveThese.bytesFromAddress(offset);
-				long targetOffset = promotionItemAddressPointers.get(promotionItemName);
-				compiler.addDiff(new Diff(targetOffset, addressByteArray.length, addressByteArray, null));
+			List<Byte> idBytes = promotionClassLists.get(promotionItemName);
+			byte[] bytesToWrite = new byte[idBytes.size() + 1];
+			for (int i = 0; i < idBytes.size(); i++) {
+				bytesToWrite[i] = idBytes.get(i);
 			}
+			bytesToWrite[bytesToWrite.length - 1] = 0;
+			
+			long offset = freeSpace.setValue(bytesToWrite, promotionItemName);
+			byte[] addressByteArray = WhyDoesJavaNotHaveThese.bytesFromAddress(offset);
+			long targetOffset = promotionItemAddressPointers.get(promotionItemName);
+			compiler.addDiff(new Diff(targetOffset, addressByteArray.length, addressByteArray, null));
 		}
 	}
 	
