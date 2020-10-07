@@ -23,6 +23,7 @@ import fedata.gba.general.GBAFEPromotionItem;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import io.FileHandler;
+import util.ByteArrayBuilder;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
@@ -52,6 +53,7 @@ public class ItemDataLoader {
 	
 	private FreeSpaceManager freeSpace;
 	private Map<AdditionalData, Long> offsetsForAdditionalData;
+	private Map<AdditionalData, List<Byte>> additionalDataMap;
 	private Map<String, Long> promotionItemAddressPointers;
 	private Map<String, List<Byte>> promotionClassLists;
 	private Map<Integer, List<GBAFEPromotionItem>> promotionItemsForClassIDs;
@@ -78,6 +80,7 @@ public class ItemDataLoader {
 		spellAnimations = provider.spellAnimationCollectionAtAddress(spellAnimationData, spellAnimationBaseAddress);
 		
 		offsetsForAdditionalData = new HashMap<AdditionalData, Long>();
+		additionalDataMap = new HashMap<AdditionalData, List<Byte>>();
 		
 		// Set up effectiveness.
 		registerAdditionalData(AdditionalData.KNIGHTCAV_EFFECT, 
@@ -210,10 +213,26 @@ public class ItemDataLoader {
 		return items;
 	}
 	
+	public byte[] bytesForAdditionalData(AdditionalData dataName) {
+		if (additionalDataMap.containsKey(dataName)) {
+			List<Byte> byteList = additionalDataMap.get(dataName);
+			ByteArrayBuilder builder = new ByteArrayBuilder();
+			for (Byte current : byteList) {
+				assert current != null;
+				if (current == null) { return null; }
+				builder.appendByte(current);
+			}
+			return builder.toByteArray();
+		}
+		
+		return null;
+	}
+	
 	private void registerAdditionalData(AdditionalData dataName, byte[] byteArray) {
 		if (byteArray.length > 0) {
 			long offset = freeSpace.setValue(byteArray, dataName.key);
 			offsetsForAdditionalData.put(dataName, offset);
+			additionalDataMap.put(dataName, WhyDoesJavaNotHaveThese.byteArrayToByteList(byteArray));
 		}
 	}
 	
@@ -306,6 +325,10 @@ public class ItemDataLoader {
 		}
 		
 		return 0;
+	}
+	
+	public long offsetForAdditionalData(AdditionalData name) {
+		return offsetsForAdditionalData.get(name);
 	}
 	
 	public long[] possibleEffectivenessAddresses() {
@@ -550,7 +573,7 @@ public class ItemDataLoader {
 			}
 		}
 		
-		spellAnimations.compileDiffs(compiler);
+		spellAnimations.compileDiffs(compiler, freeSpace);
 		
 		for (String promotionItemName : promotionItemAddressPointers.keySet()) {
 			List<Byte> idBytes = promotionClassLists.get(promotionItemName);

@@ -19,6 +19,7 @@ import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapSpriteData;
 import fedata.gba.fe6.FE6Data;
+import fedata.gba.fe6.FE6SpellAnimationCollection;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8PaletteMapper;
@@ -26,6 +27,7 @@ import fedata.gba.fe8.FE8PromotionManager;
 import fedata.gba.fe8.FE8SummonerModule;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.WeaponRank;
+import fedata.gba.general.WeaponType;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 import io.DiffApplicator;
@@ -57,6 +59,7 @@ import util.DiffCompiler;
 import util.FileReadHelper;
 import util.FindAndReplace;
 import util.FreeSpaceManager;
+import util.GBAImageCodec;
 import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.RecordKeeper;
@@ -583,6 +586,10 @@ public class GBARandomizer extends Randomizer {
 	}
 	
 	private void makeFinalAdjustments(String seed) {
+		
+		// If we need RNG, set one up here.
+		Random rng = new Random(SeedGenerator.generateSeedValue(seed, 1));
+		
 		// Fix the palettes based on final classes.
 		if (needsPaletteFix) {
 			PaletteHelper.synchronizePalettes(gameType, recruitOptions != null ? recruitOptions.includeExtras : false, charData, classData, paletteData, characterMap, freeSpace);
@@ -774,7 +781,6 @@ public class GBARandomizer extends Randomizer {
 		}
 		
 		// Make sure healing classes have at least one healing staff in their starting inventory.
-		Random rng = new Random(1);
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
 				GBAFEClassData unitClass = classData.classForID(chapterUnit.getStartingClass());
@@ -910,6 +916,124 @@ public class GBARandomizer extends Randomizer {
 			byte[] ephraimSpriteData = handler.readBytesAtOffset((oldEphraimClass - 1) * 8 + mapSpriteTableOffset, 8);
 			diffCompiler.addDiff(new Diff(eirikaTargetOffset, 8, eirikaSpriteData, null));
 			diffCompiler.addDiff(new Diff(ephraimTargetOffset, 8, ephraimSpriteData, null));
+		}
+		
+		if (classes.createPrfs) {
+			// Create new PRF weapons.
+			if (gameType == GameType.FE6) {
+				GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
+				GBAFEClassData royClass = classData.classForID(roy.getClassID());
+				List<WeaponType> royWeaponTypes = classData.usableTypesForClass(royClass);
+				royWeaponTypes.remove(WeaponType.STAFF);
+				if (!royWeaponTypes.isEmpty()) {
+					WeaponType selectedType = royWeaponTypes.get(rng.nextInt(royWeaponTypes.size()));
+					String iconName = null;
+					String weaponName = null;
+					switch (selectedType) {
+					case SWORD:
+						weaponName = "Sun Sword";
+						iconName = "weaponIcons/SunSword.png";
+						break;
+					case LANCE:
+						weaponName = "Sea Spear";
+						iconName = "weaponIcons/SeaSpear.png";
+						break;
+					case AXE:
+						weaponName = "Gaea Splitter";
+						iconName = "weaponIcons/EarthSplitter.png";
+						break;
+					case BOW:
+						weaponName = "Gust Shot";
+						iconName = "weaponIcons/GustShot.png";
+						break;
+					case ANIMA:
+						weaponName = "Fierce Flame";
+						iconName = "weaponIcons/FierceFlame.png";
+						break;
+					case DARK:
+						weaponName = "Dark Miasma";
+						iconName = "weaponIcons/DarkMiasma.png";
+						break;
+					case LIGHT:
+						weaponName = "Holy Light";
+						iconName = "weaponIcons/HolyLight.png";
+						break;
+					default: 
+						break;
+					}
+					
+					if (weaponName != null && iconName != null) {
+						// Replace the old icon.
+						byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(iconName, GBAImageCodec.gbaWeaponColorPalette);
+						diffCompiler.addDiff(new Diff(0xFC400, iconData.length, iconData, null));
+						
+						// We're going to reuse some indices already used by the watch staff. While the name's index isn't available, both its
+						// description and use item description are available.
+						textData.setStringAtIndex(0x5FE, weaponName + "[X]");
+						// TODO: Maybe give it a description string?
+						
+						GBAFEItemData itemToReplace = itemData.itemWithID(FE6Data.Item.UNUSED_WATCH_STAFF.ID);
+						itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, classes.unbreakablePrfs, royClass.getCON() + roy.getConstitution(), 
+								itemData.itemWithID(FE6Data.Item.RAPIER.ID), itemData, freeSpace);
+						
+						switch (selectedType) {
+						case SWORD:
+						case LANCE:
+						case AXE:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.NONE2.value, FE6SpellAnimationCollection.Flash.WHITE.value);
+							break;
+						case BOW:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.ARROW.value, FE6SpellAnimationCollection.Flash.WHITE.value);
+							break;
+						case ANIMA:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.ELFIRE.value, FE6SpellAnimationCollection.Flash.RED.value);
+							break;
+						case DARK:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.FLUX.value, FE6SpellAnimationCollection.Flash.DARK.value);
+							break;
+						case LIGHT:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.DIVINE.value, FE6SpellAnimationCollection.Flash.YELLOW.value);
+							break;
+						default:
+							// No animation needed here.
+							break;
+						}
+						
+						// Make sure the old lord class, if anybody randomizes into it, can't use this weapon.
+						GBAFEClassData oldLordClass = classData.classForID(FE6Data.CharacterClass.LORD.ID);
+						oldLordClass.removeLordLocks();
+						GBAFEClassData oldPromotedLordClass = classData.classForID(FE6Data.CharacterClass.MASTER_LORD.ID);
+						oldPromotedLordClass.removeLordLocks();
+						
+						// Make sure Roy himself can.
+						roy.enableWeaponLock(FE6Data.CharacterAndClassAbility3Mask.RAPIER_LOCK.getValue());
+						
+						for (GBAFEChapterData chapter : chapterData.allChapters()) {
+							for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+								// Give Roy the weapon when he shows up.
+								if (unit.getCharacterNumber() == roy.getID()) {
+									unit.giveItem(itemToReplace.getID());
+								}
+								
+								// Replace any Rapiers with iron swords, since we need to reuse the same lock.
+								if (unit.hasItem(FE6Data.Item.RAPIER.ID)) {
+									unit.removeItem(FE6Data.Item.RAPIER.ID);
+									unit.giveItem(FE6Data.Item.IRON_SWORD.ID);
+								}
+							}
+						}
+					}
+				}
+			} else if (gameType == GameType.FE7) {
+				
+			} else if (gameType == GameType.FE8) {
+				
+			}
 		}
 	}
 	

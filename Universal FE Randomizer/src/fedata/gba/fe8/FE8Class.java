@@ -494,4 +494,10 @@ public class FE8Class implements GBAFEClassData {
 		clone.originalOffset = -1;
 		return clone;
 	}
+
+	@Override
+	public void removeLordLocks() {
+		data[43] &= 0x0F;
+		wasModified = true;
+	}
 }

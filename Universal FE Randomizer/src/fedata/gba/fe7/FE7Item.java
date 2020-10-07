@@ -19,6 +19,7 @@ import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
 import util.DebugPrinter;
+import util.FreeSpaceManager;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE7Item implements GBAFEItemData {
@@ -513,5 +514,13 @@ public class FE7Item implements GBAFEItemData {
 		sb.append(".");
 		
 		return sb.toString();
+	}
+
+	@Override
+	public void turnIntoLordWeapon(int lordID, int nameIndex, int descriptionIndex, WeaponType weaponType,
+			boolean isUnbreakable, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData,
+			FreeSpaceManager freeSpace) {
+		// TODO Auto-generated method stub
+		
 	}
 }

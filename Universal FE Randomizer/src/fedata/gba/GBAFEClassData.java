@@ -109,6 +109,7 @@ public interface GBAFEClassData extends FEModifiableData, FEPrintableData {
 	
 	// Helpers
 	public Boolean canUseWeapon(GBAFEItemData weapon);
+	public void removeLordLocks();
 	public void overrideAddress(long newAddress);
 	
 	public GBAFEClassData createClone();

@@ -287,6 +287,14 @@ public class WhyDoesJavaNotHaveThese {
 		return copy;
 	}
 	
+	public static List<Byte> byteArrayToByteList(byte[] byteArray) {
+		List<Byte> list = new ArrayList<Byte>();
+		for (byte current : byteArray) {
+			list.add(current);
+		}
+		return list;
+	}
+	
 	public static int firstIndexOfBytesInByteArray(byte[] byteArray, byte[] targetBytes, int startOffset, int maxOffset) {
 		if (startOffset >= byteArray.length || maxOffset <= startOffset) { return -1; }
 		for (int i = startOffset; i < Math.min(maxOffset, byteArray.length); i++) {

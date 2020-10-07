@@ -97,6 +97,51 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
 	
+	public enum CharacterAndClassAbility1Mask {
+		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
+		DANCE_(0x10), PLAY(0x20), CRIT30(0x40), BALLISTA(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility1Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility2Mask {
+		PROMOTED(0x1), SUPPLY_DEPOT(0x2), HORSE_ICON(0x4), WYVERN_ICON(0x8),
+		PEGASUS_ICON(0x10), LORD(0x20), FEMALE(0x40), BOSS(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility2Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility3Mask {
+		RAPIER_LOCK(0x1), WO_DAO_LOCK(0x2), DRAGONSTONE_LOCK(0x4), UNKNOWN(0x8),
+		UNKNOWN_2(0x10), PEGASUS_TRIANGLE(0x20), KNIGHT_TRIANGLE(0x40), NPC(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility3Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
 	public enum Character implements GBAFECharacter {
 		NONE(0x00),
 		
@@ -596,6 +641,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		HEAL(0x43), MEND(0x44), RECOVER(0x45), PHYSIC(0x46), FORTIFY(0x47), WARP(0x48), RESCUE(0x49), RESTORE(0x4A), SILENCE(0x4B), SLEEP(0x4C),
 		TORCH_STAFF(0x4D), HAMMERNE(0x4E), BERSERK(0x50), UNLOCK(0x51), BARRIER(0x52), TINA_STAFF(0x76), HOLY_MAIDEN(0x77),
+		
+		UNUSED_WATCH_STAFF(0x4F), // Will be used for lord weapon, if necessary.
 		
 		FIRE_DRAGON_STONE(0x53), DIVINE_DRAGON_STONE(0x54), MAGIC_DRAGON_STONE(0x55),
 		

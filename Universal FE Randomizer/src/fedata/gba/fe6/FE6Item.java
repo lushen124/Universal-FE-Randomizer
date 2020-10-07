@@ -18,7 +18,10 @@ import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
+import random.gba.loader.ItemDataLoader.AdditionalData;
+import util.ByteArrayBuilder;
 import util.DebugPrinter;
+import util.FreeSpaceManager;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE6Item implements GBAFEItemData {
@@ -126,20 +129,34 @@ public class FE6Item implements GBAFEItemData {
 	}
 	
 	public void setStatBonusPointer(long address) {
-		byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
-		data[12] = pointer[0];
-		data[13] = pointer[1];
-		data[14] = pointer[2];
-		data[15] = pointer[3];
+		if (address == 0) {
+			data[12] = 0;
+			data[13] = 0;
+			data[14] = 0;
+			data[15] = 0;
+		} else {
+			byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
+			data[12] = pointer[0];
+			data[13] = pointer[1];
+			data[14] = pointer[2];
+			data[15] = pointer[3];
+		}
 		wasModified = true;
 	}
 	
 	public void setEffectivenessPointer(long address) {
-		byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
-		data[16] = pointer[0];
-		data[17] = pointer[1];
-		data[18] = pointer[2];
-		data[19] = pointer[3];
+		if (address == 0) {
+			data[16] = 0;
+			data[17] = 0;
+			data[18] = 0;
+			data[19] = 0;
+		} else {
+			byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
+			data[16] = pointer[0];
+			data[17] = pointer[1];
+			data[18] = pointer[2];
+			data[19] = pointer[3];
+		}
 		wasModified = true;
 	}
 
@@ -505,6 +522,79 @@ public class FE6Item implements GBAFEItemData {
 		sb.append(".");
 		
 		return sb.toString();
+	}
+
+	@Override
+	public void turnIntoLordWeapon(int lordID, int nameIndex, int descriptionIndex, WeaponType weaponType,
+			boolean isUnbreakable, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData, FreeSpaceManager freeSpace) {
+		
+		// Update name and description pointers.
+		byte[] nameData = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(nameIndex, true, 2);
+		byte[] descriptionData = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(descriptionIndex, true, 2);
+		data[0] = nameData[0];
+		data[1] = nameData[1];
+		data[2] = descriptionData[0];
+		data[3] = descriptionData[1];
+		data[4] = 0;
+		data[5] = 0; // Use Item Description, which shouldn't be used.
+		// Item ID should not change.
+		switch (weaponType) {
+		case SWORD: data[7] = 0; break;
+		case LANCE: data[7] = 1; break;
+		case AXE: data[7] = 2; break;
+		case BOW: data[7] = 3; break;
+		case ANIMA: data[7] = 5; break;
+		case LIGHT: data[7] = 6; break;
+		case DARK: data[7] = 7; break;
+		default: assert false; break;
+		}
+		int ability1 = FE6Data.Item.Ability1Mask.WEAPON.ID;
+		if (weaponType == WeaponType.ANIMA || weaponType == WeaponType.LIGHT || weaponType == WeaponType.DARK) {
+			ability1 |= FE6Data.Item.Ability1Mask.MAGIC.ID;
+		}
+		ability1 |= FE6Data.Item.Ability1Mask.UNSELLABLE.ID;
+		if (isUnbreakable) {
+			ability1 |= FE6Data.Item.Ability1Mask.UNBREAKABLE.ID;
+		}
+		data[8] = (byte)(ability1 & 0xFF);
+		data[9] = (byte)(FE6Data.Item.Ability2Mask.LORD_LOCK.ID & 0xFF);
+		// Null out stat bonuses.
+		setStatBonusPointer(0);
+		// Effectiveness. It should be effective against Knights and Cavs. If it's a bow, it also needs fliers.
+		long knightCavClassOffsets = itemData.offsetForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
+		if (weaponType == WeaponType.BOW) {
+			byte[] flierClassIDs = itemData.bytesForAdditionalData(AdditionalData.FLIERS_EFFECT);
+			byte[] knightCavClassIDs = itemData.bytesForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
+			ByteArrayBuilder newClassIDs = new ByteArrayBuilder();
+			newClassIDs.appendBytes(knightCavClassIDs);
+			if (newClassIDs.getLastByteWritten() == 0) {
+				newClassIDs.deleteLastByte();
+			}
+			newClassIDs.appendBytes(flierClassIDs);
+			if (newClassIDs.getLastByteWritten() != 0) {
+				newClassIDs.appendByte((byte)0);
+			}
+			setEffectivenessPointer(freeSpace.setValue(newClassIDs.toByteArray(), "Knights, Cavs, and Flier Effectiveness"));
+		} else {
+			setEffectivenessPointer(knightCavClassOffsets);
+		}
+		
+		setDurability(referenceItem.getDurability());
+		setMight(referenceItem.getMight());
+		setHit(referenceItem.getHit());
+		setWeight(targetWeaponWeight);
+		setCritical(referenceItem.getCritical());
+		int minRange = weaponType == WeaponType.BOW ? 2 : 1;
+		int maxRange = weaponType == WeaponType.SWORD || weaponType == WeaponType.LANCE || weaponType == WeaponType.AXE ? 1 : 2; 
+		data[25] = (byte)((minRange << 4) | (maxRange));
+		data[26] = 0;
+		data[27] = 0; // Cost per use. Not useful since it's not sellable.
+		data[28] = (byte)(FE6Data.Item.FE6WeaponRank.E.value & 0xFF); // Not really necessary, but to be safe.
+		// Weapon icon is unchanged. We'll be replacing the icon.
+		// Staff use effect should be 0. We don't deal with staves.
+		data[30] = 0;
+		data[31] = 0; // No other weird effects.
+		wasModified = true;
 	}
 
 }

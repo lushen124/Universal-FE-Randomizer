@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
+import fedata.gba.general.WeaponType;
 import io.FileHandler;
 import util.AddressRange;
 import util.Diff;
@@ -301,6 +302,21 @@ public class ClassDataLoader {
 	public Boolean canClassAttack(int classID) {
 		GBAFEClass charClass = provider.classWithID(classID);
 		return charClass != null ? charClass.canAttack() : false;
+	}
+	
+	public List<WeaponType> usableTypesForClass(GBAFEClassData charClass) {
+		List<WeaponType> types = new ArrayList<WeaponType>();
+		
+		if (charClass.getSwordRank() > 0) { types.add(WeaponType.SWORD); }
+		if (charClass.getLanceRank() > 0) { types.add(WeaponType.LANCE); }
+		if (charClass.getAxeRank() > 0) { types.add(WeaponType.AXE); }
+		if (charClass.getBowRank() > 0) { types.add(WeaponType.BOW); }
+		if (charClass.getAnimaRank() > 0) { types.add(WeaponType.ANIMA); }
+		if (charClass.getDarkRank() > 0) { types.add(WeaponType.DARK); }
+		if (charClass.getLightRank() > 0) { types.add(WeaponType.LIGHT); }
+		if (charClass.getStaffRank() > 0) { types.add(WeaponType.STAFF); }
+		
+		return types;
 	}
 	
 	private GBAFEClassData[] feClassesFromSet(Set<GBAFEClass> classes) {

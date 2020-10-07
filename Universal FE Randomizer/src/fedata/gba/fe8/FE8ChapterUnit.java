@@ -210,6 +210,23 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		collapseItems();
 	}
 	
+	public boolean hasItem(int itemID) {
+		if (getItem1() == itemID) {
+			return true;
+		}
+		if (getItem2() == itemID) {
+			return true;
+		}
+		if (getItem3() == itemID) {
+			return true;
+		}
+		if (getItem4() == itemID) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	private void collapseItems() {
 		List<Integer> items = new ArrayList<Integer>();
 		

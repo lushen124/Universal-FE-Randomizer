@@ -452,6 +452,12 @@ public class FE8Character implements GBAFECharacterData {
 		wasModified = true;
 	}
 	
+	public void enableWeaponLock(int lockMask) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
+		data[43] |= lockMask;
+		wasModified = true;
+	}
+	
 	public void resetData() {
 		data = originalData;
 		wasModified = false;

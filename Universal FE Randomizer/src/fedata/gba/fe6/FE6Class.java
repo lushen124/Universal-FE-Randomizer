@@ -495,6 +495,11 @@ public class FE6Class implements GBAFEClassData {
 		return FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank();
 	}
 	
+	public void removeLordLocks() {
+		data[38] &= 0xFE;
+		wasModified = true;
+	}
+	
 	public GBAFEClassData createClone() {
 		FE6Class clone = new FE6Class(this);
 		clone.originalOffset = -1;
