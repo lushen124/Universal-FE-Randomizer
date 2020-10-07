@@ -199,6 +199,8 @@ public class FE7SpellAnimationCollection implements GBAFESpellAnimationCollectio
 			
 			currentOffset += FE7Data.BytesPerSpellAnimation;
 		}
+		
+		assert entries.size() == FE7Data.NumberOfSpellAnimations;
 	}
 	
 	public int getAnimationValueForID(int itemID) {
@@ -318,7 +320,7 @@ public class FE7SpellAnimationCollection implements GBAFESpellAnimationCollectio
 		// Then another 0.
 		entryBytes.appendByte((byte)0);
 		// Then the animation value.
-		entryBytes.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(animation.value, false, 2));
+		entryBytes.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(animation.value, true, 2));
 		// Then the alternate pointer, which we generally don't use (it's used for staves, which we don't touch).
 		entryBytes.appendBytes(new byte[] {0, 0, 0, 0});
 		// Then whether the animation returns to original position (used for staves and healing items). This is always on for us.
@@ -327,7 +329,9 @@ public class FE7SpellAnimationCollection implements GBAFESpellAnimationCollectio
 		entryBytes.appendByte((byte)0);
 		// The enemy of the flash with map animations.
 		entryBytes.appendByte((byte)flashColor.value);
-		// Then a trailing 0.
+		// Then 3 trailing 0s.
+		entryBytes.appendByte((byte)0);
+		entryBytes.appendByte((byte)0);
 		entryBytes.appendByte((byte)0);
 		
 		// This should be 16 bytes long.

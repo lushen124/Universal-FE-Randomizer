@@ -1182,9 +1182,9 @@ public class GBARandomizer extends Randomizer {
 					
 					textData.setStringAtIndex(0x1225, lynWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.MANI_KATTI.ID);
-					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, 0x9B, 0x1225, 0x0, 
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, 0x9F, 0x1225, 0x0, 
 							lynSelectedType, classes.unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 
-							0x9A, itemData, freeSpace);
+							0xAD, itemData, freeSpace);
 					
 					// Lyn's the first, so all weapon locks are unused.
 					// Try to use her own lock, assuming it's not a sword or a bow.
@@ -1252,9 +1252,9 @@ public class GBARandomizer extends Randomizer {
 					
 					textData.setStringAtIndex(0x1227, eliwoodWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.RAPIER.ID);
-					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, 0x9C, 0x1227, 0x0, 
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, 0xA0, 0x1227, 0x0, 
 							eliwoodSelectedType, classes.unbreakablePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 
-							0x9B, itemData, freeSpace);
+							0xAE, itemData, freeSpace);
 					
 					// Eliwood only has to take into account the locks that could have already be used (Athos, Eliwood, or Lyn).
 					// Try to use his own lock, assuming it's not a sword or a lance.
@@ -1352,9 +1352,9 @@ public class GBARandomizer extends Randomizer {
 					
 					textData.setStringAtIndex(0x1229, hectorWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.WOLF_BEIL.ID);
-					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, 0x9D, 0x1229, 0x0, 
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, 0xA1, 0x1229, 0x0, 
 							hectorSelectedType, classes.unbreakablePrfs, hectorClass.getCON() + hector.getConstitution(), 
-							0x9C, itemData, freeSpace);
+							0xAF, itemData, freeSpace);
 					
 					// We've avoided using Hector lock the entire time, so we just need to account for swords and axes.
 					if (hectorSelectedType == WeaponType.SWORD) {

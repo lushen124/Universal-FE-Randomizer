@@ -147,20 +147,34 @@ public class FE7Item implements GBAFEItemData {
 	}
 	
 	public void setStatBonusPointer(long address) {
-		byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
-		data[12] = pointer[0];
-		data[13] = pointer[1];
-		data[14] = pointer[2];
-		data[15] = pointer[3];
+		if (address == 0) {
+			data[12] = 0;
+			data[13] = 0;
+			data[14] = 0;
+			data[15] = 0;
+		} else {
+			byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
+			data[12] = pointer[0];
+			data[13] = pointer[1];
+			data[14] = pointer[2];
+			data[15] = pointer[3];
+		}
 		wasModified = true;
 	}
 	
 	public void setEffectivenessPointer(long address) {
-		byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
-		data[16] = pointer[0];
-		data[17] = pointer[1];
-		data[18] = pointer[2];
-		data[19] = pointer[3];
+		if (address == 0) {
+			data[16] = 0;
+			data[17] = 0;
+			data[18] = 0;
+			data[19] = 0;
+		} else {
+			byte[] pointer = WhyDoesJavaNotHaveThese.bytesFromAddress(address);
+			data[16] = pointer[0];
+			data[17] = pointer[1];
+			data[18] = pointer[2];
+			data[19] = pointer[3];
+		}
 		wasModified = true;
 	}
 
@@ -592,14 +606,14 @@ public class FE7Item implements GBAFEItemData {
 		// Ability 4 is also not used.
 		
 		// No need for stat bonuses.
-		setStatBonusPointer(0);
+		newItem.setStatBonusPointer(0);
 		// Effectiveness. It should be effective against Knights and Cavs. If it's a bow, it also needs fliers.
 		long knightCavClassOffsets = itemData.offsetForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
 		if (weaponType == WeaponType.BOW) {
 			String effectivenessKey = "Knights, Cavs, and Flier Effectiveness";
 			long effectivenessPointer = freeSpace.getOffsetForKey(effectivenessKey);
 			if (effectivenessPointer != -1) {
-				setEffectivenessPointer(effectivenessPointer);
+				newItem.setEffectivenessPointer(effectivenessPointer);
 			} else {
 				byte[] flierClassIDs = itemData.bytesForAdditionalData(AdditionalData.FLIERS_EFFECT);
 				byte[] knightCavClassIDs = itemData.bytesForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
@@ -612,10 +626,10 @@ public class FE7Item implements GBAFEItemData {
 				if (newClassIDs.getLastByteWritten() != 0) {
 					newClassIDs.appendByte((byte)0);
 				}
-				setEffectivenessPointer(freeSpace.setValue(newClassIDs.toByteArray(), effectivenessKey));
+				newItem.setEffectivenessPointer(freeSpace.setValue(newClassIDs.toByteArray(), effectivenessKey));
 			}
 		} else {
-			setEffectivenessPointer(knightCavClassOffsets);
+			newItem.setEffectivenessPointer(knightCavClassOffsets);
 		}
 		
 		// Weapon stats are copied from the base weapon (this).
