@@ -464,7 +464,11 @@ public class FE7Character implements GBAFECharacterData {
 	
 	public void enableWeaponLock(int lockMask) {
 		assert !isReadOnly : "Attempted to modify a locked character.";
-		data[43] |= lockMask;
+		if (lockMask == FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue()) {
+			data[42] |= lockMask;
+		} else {
+			data[43] |= lockMask;
+		}
 		wasModified = true;
 	}
 	

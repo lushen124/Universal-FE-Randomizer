@@ -97,6 +97,11 @@ public class FE8Item implements GBAFEItemData {
 	public String getAbility2Description(String delimiter) {
 		return FE8Data.Item.Ability2Mask.stringOfActiveAbilities(getAbility2(), delimiter);
 	}
+	
+	public void setAbility2(int ability) {
+		data[9] = (byte)(ability & 0xFF);
+		wasModified = true;
+	}
 
 	public boolean hasAbility3() {
 		return true;
@@ -108,6 +113,12 @@ public class FE8Item implements GBAFEItemData {
 	
 	public String getAbility3Description(String delimiter) {
 		return FE8Data.Item.Ability3Mask.stringOfActiveAbilities(getAbility3(), delimiter);
+	}
+	
+	@Override
+	public void setAbility3(int ability) {
+		data[10] = (byte)(ability & 0xFF);
+		wasModified = true;
 	}
 
 	public boolean hasAbility4() {
@@ -526,5 +537,13 @@ public class FE8Item implements GBAFEItemData {
 			FreeSpaceManager freeSpace) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public GBAFEItemData createLordWeapon(int lordID, int newItemID, int nameIndex, int descriptionIndex,
+			WeaponType weaponType, boolean isUnbreakable, int targetWeaponWeight, int iconIndex,
+			ItemDataLoader itemData, FreeSpaceManager freeSpace) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

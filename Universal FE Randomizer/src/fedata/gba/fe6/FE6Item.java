@@ -96,12 +96,21 @@ public class FE6Item implements GBAFEItemData {
 		return FE6Data.Item.Ability2Mask.stringOfActiveAbilities(getAbility2(), delimiter);
 	}
 	
+	public void setAbility2(int ability) {
+		data[9] = (byte)(ability & 0xFF);
+		wasModified = true;
+	}
+	
 	public boolean hasAbility3() {
 		return false;
 	}
 
 	public int getAbility3() {
 		return 0; // Unused
+	}
+	
+	public void setAbility3(int ability) {
+		// Unused.
 	}
 	
 	public String getAbility3Description(String delimiter) {
@@ -595,6 +604,14 @@ public class FE6Item implements GBAFEItemData {
 		data[30] = 0;
 		data[31] = 0; // No other weird effects.
 		wasModified = true;
+	}
+
+	@Override
+	public GBAFEItemData createLordWeapon(int lordID, int newItemID, int nameIndex, int descriptionIndex, WeaponType weaponType,
+			boolean isUnbreakable, int targetWeaponWeight, int iconIndex, ItemDataLoader itemData, FreeSpaceManager freeSpace) {
+		// This isn't really used for FE6, but if we need it in the future, we can implement it then.
+		assert false;
+		return null;
 	}
 
 }

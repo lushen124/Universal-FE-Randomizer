@@ -21,6 +21,7 @@ import fedata.gba.GBAFEWorldMapSpriteData;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe6.FE6SpellAnimationCollection;
 import fedata.gba.fe7.FE7Data;
+import fedata.gba.fe7.FE7SpellAnimationCollection;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8PaletteMapper;
 import fedata.gba.fe8.FE8PromotionManager;
@@ -225,7 +226,7 @@ public class GBARandomizer extends Randomizer {
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
 		classData.compileDiffs(diffCompiler, handler, freeSpace);
-		itemData.compileDiffs(diffCompiler);
+		itemData.compileDiffs(diffCompiler, handler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
 		
@@ -1030,6 +1031,410 @@ public class GBARandomizer extends Randomizer {
 					}
 				}
 			} else if (gameType == GameType.FE7) {
+				GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
+				GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
+				GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
+				
+				GBAFEClassData lynClass = classData.classForID(lyn.getClassID());
+				GBAFEClassData eliwoodClass = classData.classForID(eliwood.getClassID());
+				GBAFEClassData hectorClass = classData.classForID(hector.getClassID());
+				
+				List<WeaponType> lynWeaponTypes = classData.usableTypesForClass(lynClass);
+				List<WeaponType> eliwoodWeaponTypes = classData.usableTypesForClass(eliwoodClass);
+				List<WeaponType> hectorWeaponTypes = classData.usableTypesForClass(hectorClass);
+				
+				boolean lynLockUsed = false;
+				boolean eliwoodLockUsed = false;
+				boolean hectorLockUsed = false;
+				boolean athosLockUsed = false;
+				boolean unusedLockUsed = false;
+				
+				lynWeaponTypes.remove(WeaponType.STAFF);
+				eliwoodWeaponTypes.remove(WeaponType.STAFF);
+				hectorWeaponTypes.remove(WeaponType.STAFF);
+				
+				String lynIconName = null;
+				String lynWeaponName = null;
+				WeaponType lynSelectedType = null;
+				String eliwoodIconName = null;
+				String eliwoodWeaponName = null;
+				WeaponType eliwoodSelectedType = null;
+				String hectorIconName = null;
+				String hectorWeaponName = null;
+				WeaponType hectorSelectedType = null;
+				
+				if (!lynWeaponTypes.isEmpty()) {
+					// Deprioritize Swords, since we only have 2 locks we can use for it.
+					if (lynWeaponTypes.size() > 1) { lynWeaponTypes.remove(WeaponType.SWORD); } 
+					lynSelectedType = lynWeaponTypes.get(rng.nextInt(lynWeaponTypes.size()));
+					switch (lynSelectedType) {
+					case SWORD:
+						lynWeaponName = "Summeredge";
+						lynIconName = "weaponIcons/Summeredge.png";
+						break;
+					case LANCE:
+						lynWeaponName = "Flare Lance";
+						lynIconName = "weaponIcons/FlareLance.png";
+						break;
+					case AXE:
+						lynWeaponName = "Storm Axe";
+						lynIconName = "weaponIcons/StormAxe.png";
+						break;
+					case BOW:
+						lynWeaponName = "Summer Shot";
+						lynIconName = "weaponIcons/SummerShot.png";
+						break;
+					case ANIMA:
+						lynWeaponName = "Thunderstorm";
+						lynIconName = "weaponIcons/Thunderstorm.png";
+						break;
+					case DARK:
+						lynWeaponName = "Summer Void";
+						lynIconName = "weaponIcons/SummerVoid.png";
+						break;
+					case LIGHT:
+						lynWeaponName = "Sunlight";
+						lynIconName = "weaponIcons/Sunlight.png";
+						break;
+					default: break;
+					}
+				}
+					
+				if (!eliwoodWeaponTypes.isEmpty()) {
+					// Deprioritize Swords, since we only have 2 locks we can use for it.
+					if (eliwoodWeaponTypes.size() > 1) { eliwoodWeaponTypes.remove(WeaponType.SWORD); }
+					eliwoodSelectedType = eliwoodWeaponTypes.get(rng.nextInt(eliwoodWeaponTypes.size()));
+					switch (eliwoodSelectedType) {
+					case SWORD:
+						eliwoodWeaponName = "Autumn Blade";
+						eliwoodIconName = "weaponIcons/AutumnBlade.png";
+						break;
+					case LANCE:
+						eliwoodWeaponName = "Autumn's End";
+						eliwoodIconName = "weaponIcons/AutumnsEnd.png";
+						break;
+					case AXE:
+						eliwoodWeaponName = "Harvester";
+						eliwoodIconName = "weaponIcons/Harvester.png";
+						break;
+					case BOW:
+						eliwoodWeaponName = "Autumn Shot";
+						eliwoodIconName = "weaponIcons/AutumnShot.png";
+						break;
+					case ANIMA:
+						eliwoodWeaponName = "Will o' Wisp";
+						eliwoodIconName = "weaponIcons/WillOWisp.png";
+						break;
+					case DARK:
+						eliwoodWeaponName = "Fall Vortex";
+						eliwoodIconName = "weaponIcons/FallVortex.png";
+						break;
+					case LIGHT:
+						eliwoodWeaponName = "Starlight";
+						eliwoodIconName = "weaponIcons/Starlight.png";
+						break;
+					default:
+						break;
+					}
+				}
+				
+				if (!hectorWeaponTypes.isEmpty()) {
+					// Deprioritize Swords, since we only have 2 locks we can use for it.
+					if (hectorWeaponTypes.size() > 1) { hectorWeaponTypes.remove(WeaponType.SWORD); }
+					hectorSelectedType = hectorWeaponTypes.get(rng.nextInt(hectorWeaponTypes.size()));
+					switch (hectorSelectedType) {
+					case SWORD:
+						hectorWeaponName = "Winter Sword";
+						hectorIconName = "weaponIcons/WinterSword.png";
+						break;
+					case LANCE:
+						hectorWeaponName = "Icicle Lance";
+						hectorIconName = "weaponIcons/IcicleLance.png";
+						break;
+					case AXE:
+						hectorWeaponName = "Icy Mallet";
+						hectorIconName = "weaponIcons/IcyMallet.png";
+						break;
+					case BOW:
+						hectorWeaponName = "Winter Shot";
+						hectorIconName = "weaponIcons/WinterShot.png";
+						break;
+					case ANIMA:
+						hectorWeaponName = "Winter's Howl";
+						hectorIconName = "weaponIcons/WintersHowl.png";
+						break;
+					case DARK:
+						hectorWeaponName = "Winter Abyss";
+						hectorIconName = "weaponIcons/WinterAbyss.png";
+						break;
+					case LIGHT:
+						hectorWeaponName = "Moonlight";
+						hectorIconName = "weaponIcons/Moonlight.png";
+						break;
+					default:
+						break;
+					}
+				}
+				
+				if (lynSelectedType != null && lynWeaponName != null && lynIconName != null) {
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(lynIconName, GBAImageCodec.gbaWeaponColorPalette);
+					diffCompiler.addDiff(new Diff(0xCB524, iconData.length, iconData, null));
+					
+					textData.setStringAtIndex(0x1225, lynWeaponName + "[X]");
+					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.MANI_KATTI.ID);
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, 0x9B, 0x1225, 0x0, 
+							lynSelectedType, classes.unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 
+							0x9A, itemData, freeSpace);
+					
+					// Lyn's the first, so all weapon locks are unused.
+					// Try to use her own lock, assuming it's not a sword or a bow.
+					if (lynSelectedType == WeaponType.SWORD) {
+						athosLockUsed = true;
+						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+					} else if (lynSelectedType == WeaponType.BOW) {
+						eliwoodLockUsed = true;
+						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
+						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+					} else {
+						lynLockUsed = true;
+						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
+						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+					}
+					
+					itemData.addNewItem(newWeapon);
+					
+					switch (lynSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.NONE2.value, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.ARROW.value	, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.THUNDER.value, FE7SpellAnimationCollection.Flash.YELLOW.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.FLUX.value, FE7SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.SHINE.value, FE7SpellAnimationCollection.Flash.YELLOW.value);
+						break;
+					default:
+						break;
+					}
+					
+					// Give her the weapon in place of the Mani Katti in Lyn mode.
+					// In every other mode, give it to her by default.
+					for (GBAFEChapterData chapter : chapterData.allChapters()) {
+						if (chapter == chapterData.chapterWithID(FE7Data.ChapterPointer.CHAPTER_2.chapterID)) {
+							continue;
+						}
+						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+							if (unit.getCharacterNumber() == lyn.getID()) {
+								unit.removeItem(referenceWeapon.getID());
+								unit.giveItem(newWeapon.getID());
+							}
+						}
+					}
+				}
+				
+				if (eliwoodSelectedType != null && eliwoodWeaponName != null && eliwoodIconName != null) {
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(eliwoodIconName, GBAImageCodec.gbaWeaponColorPalette);
+					diffCompiler.addDiff(new Diff(0xCB5A4, iconData.length, iconData, null));
+					
+					textData.setStringAtIndex(0x1227, eliwoodWeaponName + "[X]");
+					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.RAPIER.ID);
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, 0x9C, 0x1227, 0x0, 
+							eliwoodSelectedType, classes.unbreakablePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 
+							0x9B, itemData, freeSpace);
+					
+					// Eliwood only has to take into account the locks that could have already be used (Athos, Eliwood, or Lyn).
+					// Try to use his own lock, assuming it's not a sword or a lance.
+					if (eliwoodSelectedType == WeaponType.SWORD) {
+						if (!athosLockUsed) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else {
+							// We only have the unused lock left.
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						}
+					} else if (eliwoodSelectedType == WeaponType.LANCE) {
+						if (!lynLockUsed) {
+							lynLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+						} else if (!athosLockUsed) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else {
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						}
+					} else {
+						if (!eliwoodLockUsed) {
+							eliwoodLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+						} else if (!lynLockUsed) {
+							lynLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+						} else if (!athosLockUsed && // Athos lock cannot be used with any tome.
+								eliwoodSelectedType != WeaponType.ANIMA && 
+								eliwoodSelectedType != WeaponType.DARK && 
+								eliwoodSelectedType != WeaponType.LIGHT) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else {
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						}
+					}
+					
+					itemData.addNewItem(newWeapon);
+					
+					switch (eliwoodSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.NONE2.value, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.ARROW.value	, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.ELFIRE.value, FE7SpellAnimationCollection.Flash.BLUE.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.FLUX.value, FE7SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.SHINE.value, FE7SpellAnimationCollection.Flash.GREEN.value);
+						break;
+					default:
+						break;
+					}
+					
+					// Replace Eliwood's starting Rapier, if he has one.
+					for (GBAFEChapterData chapter : chapterData.allChapters()) {
+						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+							if (unit.getCharacterNumber() == eliwood.getID()) {
+								unit.removeItem(referenceWeapon.getID());
+								unit.giveItem(newWeapon.getID());
+							}
+						}
+					}
+				}
+				
+				if (hectorSelectedType != null && hectorWeaponName != null && hectorIconName != null) {
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(hectorIconName, GBAImageCodec.gbaWeaponColorPalette);
+					diffCompiler.addDiff(new Diff(0xCB624, iconData.length, iconData, null));
+					
+					textData.setStringAtIndex(0x1229, hectorWeaponName + "[X]");
+					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.WOLF_BEIL.ID);
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, 0x9D, 0x1229, 0x0, 
+							hectorSelectedType, classes.unbreakablePrfs, hectorClass.getCON() + hector.getConstitution(), 
+							0x9C, itemData, freeSpace);
+					
+					// We've avoided using Hector lock the entire time, so we just need to account for swords and axes.
+					if (hectorSelectedType == WeaponType.SWORD) {
+						// Athos and Unused are the only ones possible here. If they're both used, GG.
+						if (!athosLockUsed) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else if (!unusedLockUsed) {
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						} else {
+							// GG. Just use Hector lock.
+							newWeapon.setAbility2(FE7Data.Item.Ability3Mask.HECTOR_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.HECTOR_LOCK.getValue());
+						}
+					} else if (hectorSelectedType == WeaponType.AXE) {
+						if (!lynLockUsed) {
+							lynLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+						} else if (!athosLockUsed) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else if (!eliwoodLockUsed) {
+							eliwoodLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+						} else { // There's no way we used 4 locks with two characters.
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						}
+					} else {
+						hectorLockUsed = true;
+						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.HECTOR_LOCK.ID);
+						hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.HECTOR_LOCK.getValue());
+					}
+					
+					itemData.addNewItem(newWeapon);
+					
+					switch (hectorSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.NONE2.value, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.ARROW.value	, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.FIMBULVETR.value, FE7SpellAnimationCollection.Flash.BLUE.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.FLUX.value, FE7SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.SHINE.value, FE7SpellAnimationCollection.Flash.BLUE.value);
+						break;
+					default:
+						break;
+					}
+					
+					// Replace Hector's starting Wolf Beil, if he has one.
+					for (GBAFEChapterData chapter : chapterData.allChapters()) {
+						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+							if (unit.getCharacterNumber() == hector.getID()) {
+								unit.removeItem(referenceWeapon.getID());
+								unit.giveItem(newWeapon.getID());
+							}
+						}
+					}
+				}
 				
 			} else if (gameType == GameType.FE8) {
 				

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data.Item.Ability1Mask;
 import fedata.gba.fe7.FE7Data.Item.Ability2Mask;
 import fedata.gba.fe7.FE7Data.Item.FE7WeaponRank;
@@ -18,6 +19,8 @@ import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
+import random.gba.loader.ItemDataLoader.AdditionalData;
+import util.ByteArrayBuilder;
 import util.DebugPrinter;
 import util.FreeSpaceManager;
 import util.WhyDoesJavaNotHaveThese;
@@ -39,6 +42,13 @@ public class FE7Item implements GBAFEItemData {
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
+	}
+	
+	public FE7Item() {
+		super();
+		this.originalData = new byte[FE7Data.BytesPerItem];
+		this.data = new byte[FE7Data.BytesPerItem];
+		this.originalOffset = -1;
 	}
 	
 	public void initializeDisplayString(String debugString) {
@@ -93,6 +103,11 @@ public class FE7Item implements GBAFEItemData {
 	public String getAbility2Description(String delimiter) {
 		return FE7Data.Item.Ability2Mask.stringOfActiveAbilities(getAbility2(), delimiter);
 	}
+	
+	public void setAbility2(int ability) {
+		data[9] = (byte)(ability & 0xFF);
+		wasModified = true;
+	}
 
 	public boolean hasAbility3() {
 		return true;
@@ -100,6 +115,11 @@ public class FE7Item implements GBAFEItemData {
 	
 	public int getAbility3() {
 		return data[10] & 0xFF;
+	}
+	
+	public void setAbility3(int ability) {
+		data[10] = (byte)(ability & 0xFF);
+		wasModified = true;
 	}
 	
 	public String getAbility3Description(String delimiter) {
@@ -520,7 +540,105 @@ public class FE7Item implements GBAFEItemData {
 	public void turnIntoLordWeapon(int lordID, int nameIndex, int descriptionIndex, WeaponType weaponType,
 			boolean isUnbreakable, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData,
 			FreeSpaceManager freeSpace) {
-		// TODO Auto-generated method stub
+		// We don't really use this for FE7, but if we need it, we can implement it.
 		
+	}
+
+	@Override
+	public GBAFEItemData createLordWeapon(int lordID, int newItemID, int nameIndex, int descriptionIndex, WeaponType weaponType,
+			boolean isUnbreakable, int targetWeaponWeight, int iconIndex, ItemDataLoader itemData, FreeSpaceManager freeSpace) {
+		
+		FE7Item newItem = new FE7Item();
+		
+		// First two bytes are the name index.
+		byte[] nameBytes = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(nameIndex, true, 2);
+		byte[] descriptionBytes = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(descriptionIndex, true, 2);
+		newItem.data[0] = nameBytes[0];
+		newItem.data[1] = nameBytes[1];
+		newItem.data[2] = descriptionBytes[0];
+		newItem.data[3] = descriptionBytes[1];
+		
+		// Two bytes of use item description, which we won't use.
+		newItem.data[4] = 0;
+		newItem.data[5] = 0;
+		
+		// The Item ID is next.
+		newItem.data[6] = (byte)newItemID;
+		
+		// Weapon type.
+		switch (weaponType) {
+		case SWORD: newItem.data[7] = 0; break;
+		case LANCE: newItem.data[7] = 1; break;
+		case AXE: newItem.data[7] = 2; break;
+		case BOW: newItem.data[7] = 3; break;
+		case ANIMA: newItem.data[7] = 5; break;
+		case LIGHT: newItem.data[7] = 6; break;
+		case DARK: newItem.data[7] = 7; break;
+		default: assert false; return null;
+		}
+		
+		int ability1 = FE7Data.Item.Ability1Mask.WEAPON.ID;
+		if (weaponType == WeaponType.ANIMA || weaponType == WeaponType.LIGHT || weaponType == WeaponType.DARK) {
+			ability1 |= FE7Data.Item.Ability1Mask.MAGIC.ID;
+		}
+		ability1 |= FE7Data.Item.Ability1Mask.UNSELLABLE.ID;
+		if (isUnbreakable) {
+			ability1 |= FE7Data.Item.Ability1Mask.UNBREAKABLE.ID;
+		}
+		newItem.data[8] = (byte)(ability1 & 0xFF);
+		
+		// Ability 2 has an unused weapon lock that we could use. We'll set it later if necessary.
+		// Ability 3 is the locks, but we'll have it set later, because the locks needed are going to take some more logic.
+		// Ability 4 is also not used.
+		
+		// No need for stat bonuses.
+		setStatBonusPointer(0);
+		// Effectiveness. It should be effective against Knights and Cavs. If it's a bow, it also needs fliers.
+		long knightCavClassOffsets = itemData.offsetForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
+		if (weaponType == WeaponType.BOW) {
+			String effectivenessKey = "Knights, Cavs, and Flier Effectiveness";
+			long effectivenessPointer = freeSpace.getOffsetForKey(effectivenessKey);
+			if (effectivenessPointer != -1) {
+				setEffectivenessPointer(effectivenessPointer);
+			} else {
+				byte[] flierClassIDs = itemData.bytesForAdditionalData(AdditionalData.FLIERS_EFFECT);
+				byte[] knightCavClassIDs = itemData.bytesForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
+				ByteArrayBuilder newClassIDs = new ByteArrayBuilder();
+				newClassIDs.appendBytes(knightCavClassIDs);
+				if (newClassIDs.getLastByteWritten() == 0) {
+					newClassIDs.deleteLastByte();
+				}
+				newClassIDs.appendBytes(flierClassIDs);
+				if (newClassIDs.getLastByteWritten() != 0) {
+					newClassIDs.appendByte((byte)0);
+				}
+				setEffectivenessPointer(freeSpace.setValue(newClassIDs.toByteArray(), effectivenessKey));
+			}
+		} else {
+			setEffectivenessPointer(knightCavClassOffsets);
+		}
+		
+		// Weapon stats are copied from the base weapon (this).
+		newItem.setDurability(getDurability());
+		newItem.setMight(getMight());
+		newItem.setHit(getHit());
+		newItem.setWeight(targetWeaponWeight);
+		newItem.setCritical(getCritical());
+		int minRange = weaponType == WeaponType.BOW ? 2 : 1;
+		int maxRange = weaponType == WeaponType.SWORD || weaponType == WeaponType.LANCE || weaponType == WeaponType.AXE ? 1 : 2; 
+		newItem.data[25] = (byte)((minRange << 4) | (maxRange));
+		newItem.data[26] = 0; 
+		newItem.data[27] = 0; // Cost per use. Not useful since it's not sellable.
+		newItem.data[28] = (byte)(FE7Data.Item.FE7WeaponRank.E.value & 0xFF); // Since we're re-using weapon locks, this needs to be set.
+		newItem.data[29] = (byte)iconIndex;
+		// Staff use effect should be 0. We don't deal with staves.
+		newItem.data[30] = 0;
+		newItem.data[31] = 0; // No other weird effects.
+		// Copy everything else from this reference item.
+		newItem.data[32] = data[32]; // Weapon XP
+		newItem.data[33] = data[33];
+		newItem.data[34] = data[34];
+		newItem.data[35] = data[35];
+		return newItem;
 	}
 }

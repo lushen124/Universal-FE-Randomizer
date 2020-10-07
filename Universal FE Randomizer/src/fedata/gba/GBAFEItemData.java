@@ -30,10 +30,12 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public boolean hasAbility2();
 	public int getAbility2();
 	public String getAbility2Description(String delimiter);
+	public void setAbility2(int ability); // Used for an unused weapon lock in FE7.
 	
 	public boolean hasAbility3();
 	public int getAbility3();
 	public String getAbility3Description(String delimiter);
+	public void setAbility3(int ability); // Used for FE7's weapon locks.
 	
 	public boolean hasAbility4();
 	public int getAbility4();
@@ -67,4 +69,6 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, ItemDataLoader itemData, TextLoader textData, GBAFESpellAnimationCollection spellAnimations, Random rng);
 
 	public void turnIntoLordWeapon(int lordID, int nameIndex, int descriptionIndex, WeaponType weaponType, boolean isUnbreakable, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData, FreeSpaceManager freeSpace);
+	
+	public GBAFEItemData createLordWeapon(int lordID, int newItemID, int nameIndex, int descriptionIndex, WeaponType weaponType, boolean isUnbreakable, int targetWeaponWeight, int iconIndex, ItemDataLoader itemData, FreeSpaceManager freeSpace);
 }

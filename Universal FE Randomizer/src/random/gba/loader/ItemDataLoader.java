@@ -23,10 +23,12 @@ import fedata.gba.general.GBAFEPromotionItem;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import io.FileHandler;
+import util.AddressRange;
 import util.ByteArrayBuilder;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
+import util.FindAndReplace;
 import util.FreeSpaceManager;
 import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.RecordKeeper;
@@ -47,6 +49,9 @@ public class ItemDataLoader {
 	}
 	
 	private Map<Integer, GBAFEItemData> itemMap = new HashMap<Integer, GBAFEItemData>();
+	private Map<Integer, GBAFEItemData> addedItems = new HashMap<Integer, GBAFEItemData>();
+	
+	private long originalTableOffset;
 	
 	// TODO: Put this somewhere else.
 	public GBAFESpellAnimationCollection spellAnimations;
@@ -67,6 +72,7 @@ public class ItemDataLoader {
 		this.provider = provider;
 		
 		long baseAddress = FileReadHelper.readAddress(handler, provider.itemTablePointer());
+		originalTableOffset = baseAddress;
 		for (GBAFEItem item : provider.allItems()) {
 			if (item.getID() == 0) { continue; }
 			
@@ -254,6 +260,12 @@ public class ItemDataLoader {
 		}
 		
 		return byteArray;
+	}
+	
+	public void addNewItem(GBAFEItemData newItem) {
+		if (newItem != null) {
+			addedItems.put(newItem.getID(), newItem);
+		}
 	}
 	
 	public GBAFEItemData itemWithID(int itemID) {
@@ -564,13 +576,54 @@ public class ItemDataLoader {
 		spellAnimations.commit();
 	}
 	
-	public void compileDiffs(DiffCompiler compiler) {
-		for (GBAFEItemData item : itemMap.values()) {
-			item.commitChanges();
-			if (item.hasCommittedChanges()) {
-				Diff charDiff = new Diff(item.getAddressOffset(), item.getData().length, item.getData(), null);
-				compiler.addDiff(charDiff);
+	public void compileDiffs(DiffCompiler compiler, FileHandler handler) {
+		if (addedItems.isEmpty()) {
+			for (GBAFEItemData item : itemMap.values()) {
+				item.commitChanges();
+				if (item.hasCommittedChanges()) {
+					Diff charDiff = new Diff(item.getAddressOffset(), item.getData().length, item.getData(), null);
+					compiler.addDiff(charDiff);
+				}
 			}
+		} else {
+			// Need a repoint.
+			
+			// Commit everything first.
+			for (GBAFEItemData item : itemMap.values()) {
+				item.commitChanges();
+			}
+			
+			for (GBAFEItemData item : addedItems.values()) {
+				item.commitChanges();
+			}
+			
+			long startingOffset = FileReadHelper.readAddress(handler, provider.itemTablePointer());
+			long newTableOffset = 0;
+			for (int i = 0; i < provider.numberOfItems(); i++) {
+				GBAFEItemData item = itemMap.get(i);
+				if (item != null) {
+					long writtenOffset = freeSpace.setValue(item.getData(), "Item data for 0x" + Integer.toHexString(item.getID()), i == 0);
+					if (i == 0) { newTableOffset = writtenOffset; }
+				} else {
+					long existingStart = startingOffset + i * provider.bytesPerItem();
+					long existingEnd = existingStart + provider.bytesPerItem();
+					long writtenOffset = freeSpace.setValue(FileReadHelper.readBytesInRange(new AddressRange(existingStart, existingEnd), handler), "Copied class data for Item 0x" + Integer.toHexString(i), i == 0);
+					if (i == 0) { newTableOffset = writtenOffset; }
+				}
+			}
+			
+			List<GBAFEItemData> addedItemList = new ArrayList<GBAFEItemData>(addedItems.values());
+			addedItemList.sort(new Comparator<GBAFEItemData>() {
+				@Override
+				public int compare(GBAFEItemData o1, GBAFEItemData o2) {
+					return Integer.compare(o1.getID(), o2.getID());
+				}
+			});
+			for (GBAFEItemData item : addedItemList) {
+				freeSpace.setValue(item.getData(), "Added Item Data for Class 0x" + Integer.toHexString(item.getID()));
+			}
+			
+			compiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.gbaAddressFromOffset(originalTableOffset), WhyDoesJavaNotHaveThese.gbaAddressFromOffset(newTableOffset), true));
 		}
 		
 		spellAnimations.compileDiffs(compiler, freeSpace);

@@ -483,6 +483,7 @@ public class FE7Class implements GBAFEClassData {
 
 	@Override
 	public void removeLordLocks() {
+		data[42] &= 0xFE;
 		data[43] &= 0x0F;
 		wasModified = true;
 	}

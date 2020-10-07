@@ -142,6 +142,66 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
 	
+	public enum CharacterAndClassAbility1Mask {
+		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
+		DANCE(0x10), PLAY(0x20), CRITICAL_15(0x40), BALLISTA(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility1Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility2Mask {
+		PROMOTED(0x1), SUPPLY_DEPOT(0x2), HORSE_ICON(0x4), WYVERN_ICON(0x8),
+		PEGASUS_ICON(0x10), LORD(0x20), FEMALE(0x40), BOSS(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility2Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility3Mask {
+		UNUSED_WEAPON_LOCK(0x1), WO_DAO_LOCK(0x2), DRAGONSTONE_LOCK(0x4), MORPHS_VAIDA(0x8),
+		UNCONTROLLABLE(0x10), TRIANGLE_ATTACK(0x20), UNUSED_TRIANGLE_ATTACK(0x40), UNKNOWN(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility3Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility4Mask {
+		NO_EXPERIENCE_GIVEN(0x1), LETHALITY(0x2), MAGIC_SEAL(0x4), DROP_LAST_ITEM(0x8),
+		ELIWOOD_LOCK(0x10), HECTOR_LOCK(0x20), LYN_LOCK(0x40), ATHOS_LOCK(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility4Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
 	public enum Character implements GBAFECharacter {
 		NONE(0x00),
 		
@@ -1004,7 +1064,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public enum Ability2Mask {
-			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), DRAGONSTONE_LOCK(0x04), 
+			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), DRAGONSTONE_LOCK(0x04), UNUSED_WEAPON_LOCK(0x08),
 			MYRMIDON_LOCK(0x10), IOTE_SHIELD_EFFECT(0x40), IRON_RUNE_EFFECT(0x80);
 			public int ID;
 			
