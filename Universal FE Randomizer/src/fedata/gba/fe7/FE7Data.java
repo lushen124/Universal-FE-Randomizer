@@ -2151,7 +2151,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case CAVALIER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 3, 9, 5, 10, 11}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {});
 					break;
 				case CLERIC:
 				case MONK: // May need to split out Lucius as a special case. This is assuming a Lucius sprite, which is unique from other monks.
