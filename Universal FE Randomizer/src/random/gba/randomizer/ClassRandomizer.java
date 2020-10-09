@@ -417,7 +417,13 @@ public class ClassRandomizer {
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(character.getID());
 			if (reward != null) {
-				GBAFEItemData item = itemData.getRandomWeaponForCharacter(character, ranged, melee, false, rng);
+				GBAFEItemData item = itemData.getRandomWeaponForCharacter(character, ranged, melee, false, rng); 
+				
+				// If this character has a prf weapon, use that instead.
+				GBAFEItemData[] prfWeapons = itemData.prfWeaponsForClass(targetClass.getID());
+				if (prfWeapons.length > 0) {
+					item = prfWeapons[rng.nextInt(prfWeapons.length)];
+				}
 				reward.setItemID(item.getID());
 			}
 			

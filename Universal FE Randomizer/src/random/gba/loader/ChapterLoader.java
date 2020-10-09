@@ -86,9 +86,13 @@ public class ChapterLoader {
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {
 						classBlacklist[index] = chapter.blacklistedClasses()[index].ID;
 					}
+					int[] trackedRewardRecipients = new int[chapter.targetedRewardRecipientsToTrack().length];
+					for (int index = 0; index < chapter.targetedRewardRecipientsToTrack().length; index++) {
+						trackedRewardRecipients[index] = chapter.targetedRewardRecipientsToTrack()[index].ID;
+					}
 					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE7Chapter fe7Chapter = new FE7Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.toString(), chapter.shouldBeEasy()); 
+					FE7Chapter fe7Chapter = new FE7Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), trackedRewardRecipients, classBlacklist, chapter.toString(), chapter.shouldBeEasy()); 
 					chapters[i++] = fe7Chapter;
 					mappedChapters.put(chapterID, fe7Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe7Chapter.allUnits().length + " characters and " + fe7Chapter.allRewards().length + " rewards");

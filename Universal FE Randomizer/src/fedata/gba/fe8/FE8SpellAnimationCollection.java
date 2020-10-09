@@ -277,6 +277,9 @@ public class FE8SpellAnimationCollection implements GBAFESpellAnimationCollectio
 		entryBytes.appendByte((byte)0);
 		// Then the animation value.
 		entryBytes.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(animation.value, false, 2));
+		// Then two 0s.
+		entryBytes.appendByte((byte)0);
+		entryBytes.appendByte((byte)0);
 		// Then the alternate pointer, which we generally don't use (it's used for staves, which we don't touch).
 		entryBytes.appendBytes(new byte[] {0, 0, 0, 0});
 		// Then whether the animation returns to original position (used for staves and healing items). This is always on for us.

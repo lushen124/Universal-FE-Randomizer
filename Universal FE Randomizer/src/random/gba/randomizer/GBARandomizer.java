@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEChapterData;
+import fedata.gba.GBAFEChapterItemData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
@@ -649,7 +650,7 @@ public class GBARandomizer extends Randomizer {
 			// Fix up the portraits in mode select, since they're hardcoded.
 			// Only necessary if we randomized recruitment.
 			// All of the data should have been commited at this point, so asking for Lyn will get you the Lyn replacement.
-			if (recruitOptions != null && recruitOptions.includeLords) {
+			if ((recruitOptions != null && recruitOptions.includeLords) || (classes != null && classes.includeLords)) {
 				GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
 				GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
 				GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
@@ -674,9 +675,9 @@ public class GBARandomizer extends Randomizer {
 						new byte[] {lynReplacementAnimationID, 0, 0, 0, eliwoodReplacementAnimationID, 0, 0, 0, hectorReplacementAnimationID, 0, 0, 0}, null));
 				
 				// See if we can apply their palettes to the class default.
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(lyn), lyn.getClassID(), paletteData, freeSpace, diffCompiler);
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(eliwood), eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(hector), hector.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(hector) : hector, hector.getClassID(), paletteData, freeSpace, diffCompiler);
 				
 				// Finally, fix the weapon text.
 				textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType() + "[X]");
@@ -1188,18 +1189,23 @@ public class GBARandomizer extends Randomizer {
 					
 					// Lyn's the first, so all weapon locks are unused.
 					// Try to use her own lock, assuming it's not a sword or a bow.
+					// Remember, Lyn has a tutorial version too.
+					GBAFECharacterData lynTutorial = charData.characterWithID(FE7Data.Character.LYN_TUTORIAL.ID);
 					if (lynSelectedType == WeaponType.SWORD) {
 						athosLockUsed = true;
 						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
 						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
 					} else if (lynSelectedType == WeaponType.BOW) {
 						eliwoodLockUsed = true;
 						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
 						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
 					} else {
 						lynLockUsed = true;
 						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
 						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
 					}
 					
 					itemData.addNewItem(newWeapon);
@@ -1233,9 +1239,13 @@ public class GBARandomizer extends Randomizer {
 					
 					// Give her the weapon in place of the Mani Katti in Lyn mode.
 					// In every other mode, give it to her by default.
+					// Thankfully Lyn Mode uses a different Lyn, so we're good.
 					for (GBAFEChapterData chapter : chapterData.allChapters()) {
 						if (chapter == chapterData.chapterWithID(FE7Data.ChapterPointer.CHAPTER_2.chapterID)) {
-							continue;
+							GBAFEChapterItemData item = chapter.chapterItemGivenToCharacter(FE7Data.Character.LYN_TUTORIAL.ID);
+							if (item != null) {
+								item.setItemID(newWeapon.getID());
+							}
 						}
 						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
 							if (unit.getCharacterNumber() == lyn.getID()) {

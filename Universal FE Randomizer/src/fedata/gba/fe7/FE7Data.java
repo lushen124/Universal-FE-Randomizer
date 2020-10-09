@@ -125,6 +125,13 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	// I'm not sure if this is used, but we're going to steal it for Eliwood's slot's weapon.
 	public static final int ModeSelectTextEliwoodWeaponTypeIndex = 0x123D;
 	
+	// Lucius's equipment is given to him in secret in Chapter 16/17 as part of ASM.
+	// The item ID bytes can be replaced at 0x7D0C2 (which is normally 0x3E for Lightning)
+	// and 0x7D0D8 (which is normally 0x6B for Vulnerary). After these are actually
+	// the equipment given to the green units if those are useful.
+	public static final int LuciusEquipment1IDOffset = 0x7D0C2;
+	public static final int LuciusEquipment2IDOffset = 0x7D0D8;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
@@ -1544,6 +1551,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		// TODO: Figure out how Lucius actually works, because it's not as easy as an ITGC.
 		public Character[] targetedRewardRecipientsToTrack() {
 			switch (this) {
+			case CHAPTER_2: {
+				return new Character[] {Character.LYN_TUTORIAL};
+			}
 			case CHAPTER_17: {
 				return new Character[] {Character.LUCIUS};
 			}
