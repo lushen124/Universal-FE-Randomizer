@@ -197,6 +197,18 @@ public class ChapterLoader {
 		return 0;
 	}
 	
+	public GBAFEItemData getWeaponForUnit(GBAFEChapterUnitData unit, ItemDataLoader itemData) {
+		GBAFEItemData item1 = itemData.itemWithID(unit.getItem1());
+		GBAFEItemData item2 = itemData.itemWithID(unit.getItem2());
+		GBAFEItemData item3 = itemData.itemWithID(unit.getItem3());
+		GBAFEItemData item4 = itemData.itemWithID(unit.getItem4());
+		if (itemData.isWeapon(item1)) { return item1; }
+		if (itemData.isWeapon(item2)) { return item2; }
+		if (itemData.isWeapon(item3)) { return item3; }
+		if (itemData.isWeapon(item4)) { return item4; }
+		return null;
+	}
+	
 	public void commit() {
 		for (GBAFEChapterData chapter : chapters) {
 			chapter.applyNudges();
