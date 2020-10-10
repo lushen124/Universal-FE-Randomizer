@@ -497,6 +497,7 @@ public class FE8Class implements GBAFEClassData {
 
 	@Override
 	public void removeLordLocks() {
+		data[42] &= ~FE8Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue();
 		data[43] &= 0x0F;
 		wasModified = true;
 	}

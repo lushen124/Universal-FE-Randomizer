@@ -126,6 +126,66 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
 	
+	public enum CharacterAndClassAbility1Mask {
+		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
+		DANCE(0x10), PLAY(0x20), CRIT15(0x40), BALLISTA(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility1Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility2Mask {
+		PROMOTED(0x1), SUPPLY_DEPOT(0x2), HORSE_ICON(0x4), WYVERN_ICON(0x8),
+		PEGASUS_ICON(0x10), LORD(0x20), FEMALE(0x40), BOSS(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility2Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility3Mask {
+		UNUSED_WEAPON_LOCK(0x1), SHAMSHIR_LOCK(0x2), MONSTER_WEAPON_LOCK(0x4), MAX_LEVEL_10(0x8),
+		UNSELECTABLE(0x10), TRIANGLE_ATTACK(0x20), TRIANGLE_ATTACK_2(0x40), GLITCHES(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility3Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility4Mask {
+		UNKNOWN(0x1), LETHALITY(0x2), UNKNOWN_2(0x4), SUMMON(0x8),
+		EIRIKA_WEAPON_LOCK(0x10), EPHRAIM_WEAPON_LOCK(0x20), UNUSED_LYN_LOCK(0x40), UNUSED_ATHOS_LOCK(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility4Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
 	public enum Character implements GBAFECharacter {
 		NONE(0x00),
 		
@@ -772,6 +832,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		GOLD_1(0x77), GOLD_1_AGAIN(0x9A), GOLD_5(0x9B), GOLD_10(0x9C), GOLD_50(0x9D), GOLD_100(0x9E), GOLD_3000(0x9F), GOLD_5000(0xA0),
 		
+		UNUSED_MANI_KATTI(0x0A), // Used for Eirika's Prf.
+		UNUSED_FORBLAZE(0x3D) // Used for Ephraim's Prf
+		
 		;
 		public int ID;
 		
@@ -957,7 +1020,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public enum Ability2Mask {
-			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), MONSTER_LOCK(0x04), 
+			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), MONSTER_LOCK(0x04), UNUSED_WEAPON_LOCK(0x08),
 			MYRMIDON_LOCK(0x10), FILI_SHIELD_EFFECT(0x40), HOPLON_GUARD_EFFECT(0x80);
 			public int ID;
 			
@@ -985,7 +1048,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public enum Ability3Mask {
-			NONE(0x00), UNUSABLE(0x01), NEGATE_DEFENSE(0x02), EIRIKA_LOCK(0x04), EPHRAIM_LOCK(0x08);
+			NONE(0x00), UNUSABLE(0x01), NEGATE_DEFENSE(0x02), EIRIKA_LOCK(0x04), EPHRAIM_LOCK(0x08),
+			UNUSED_LYN_LOCK(0x10), UNUSED_WEAPON_LOCK(0x20);
 			
 			public int ID;
 			

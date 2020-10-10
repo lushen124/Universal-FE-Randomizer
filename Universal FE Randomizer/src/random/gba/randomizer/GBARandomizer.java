@@ -26,6 +26,7 @@ import fedata.gba.fe7.FE7SpellAnimationCollection;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8PaletteMapper;
 import fedata.gba.fe8.FE8PromotionManager;
+import fedata.gba.fe8.FE8SpellAnimationCollection;
 import fedata.gba.fe8.FE8SummonerModule;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.WeaponRank;
@@ -105,6 +106,8 @@ public class GBARandomizer extends Randomizer {
 	private FreeSpaceManager freeSpace;
 	
 	private FileHandler handler;
+	
+	private boolean fe8_walkingSoundFixApplied = false;
 
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
@@ -202,6 +205,8 @@ public class GBARandomizer extends Randomizer {
 		chapterData.recordChapters(recordKeeper, true, charData, classData, itemData, textData);
 		
 		paletteData.recordReferencePalettes(recordKeeper, charData, classData, textData);
+		
+		makePreliminaryAdjustments();
 		
 		updateStatusString("Randomizing...");
 		try { randomizeGrowthsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing growths.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
@@ -587,6 +592,25 @@ public class GBARandomizer extends Randomizer {
 		}
 	}
 	
+	private void makePreliminaryAdjustments() {
+		// FE8 Walking sound effect fix.
+		// From Tequila's patch.
+		if (gameType == GameType.FE8) {
+			try {
+				InputStream stream = UPSPatcher.class.getClassLoader().getResourceAsStream("fe8_walking_sound_fix.bin");
+				byte[] fixData = new byte[0x14C];
+				stream.read(fixData);
+				stream.close();
+				
+				diffCompiler.addDiff(new Diff(0x78d78, fixData.length, fixData, null));
+				
+				fe8_walkingSoundFixApplied = true;
+			} catch (Exception e) {
+				
+			}
+		}
+	}
+	
 	private void makeFinalAdjustments(String seed) {
 		
 		// If we need RNG, set one up here.
@@ -910,6 +934,14 @@ public class GBARandomizer extends Randomizer {
 			fe8_promotionManager.setFirstPromotionOptionForClass(newEphraimClass.getID(), fe8_promotionManager.getFirstPromotionOptionClassID(oldEphraimClass));
 			fe8_promotionManager.setSecondPromotionOptionForClass(newEphraimClass.getID(), fe8_promotionManager.getSecondPromotionOptionClassID(oldEphraimClass));
 			
+			// Palettes are also tied to class.
+			FE8PaletteMapper.ClassMapEntry eirikaPalette = fe8_paletteMapper.getEntryForCharacter(FE8Data.Character.EIRIKA);
+			FE8PaletteMapper.ClassMapEntry ephraimPalette = fe8_paletteMapper.getEntryForCharacter(FE8Data.Character.EPHRAIM);
+			
+			// Only base classes need to be updated. Promoted classes are not special.
+			eirikaPalette.setBaseClassID(newEirikaClass.getID());
+			ephraimPalette.setBaseClassID(newEphraimClass.getID());
+			
 			// On the bright side, we don't need to repoint the FE8 map sprite table. We just need to replace some entries in the existing one.
 			long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE8Data.ClassMapSpriteTablePointer);
 			long eirikaTargetOffset = (newEirikaClass.getID() - 1) * 8 + mapSpriteTableOffset;
@@ -918,6 +950,27 @@ public class GBARandomizer extends Randomizer {
 			byte[] ephraimSpriteData = handler.readBytesAtOffset((oldEphraimClass - 1) * 8 + mapSpriteTableOffset, 8);
 			diffCompiler.addDiff(new Diff(eirikaTargetOffset, 8, eirikaSpriteData, null));
 			diffCompiler.addDiff(new Diff(ephraimTargetOffset, 8, ephraimSpriteData, null));
+			
+			if (fe8_walkingSoundFixApplied) {
+				long eirikaWalkingSoundOffset = 0x78D90 + newEirikaClass.getID();
+				long ephraimWalkingSoundOffset = 0x78D90 + newEphraimClass.getID();
+				
+				InputStream stream = UPSPatcher.class.getClassLoader().getResourceAsStream("fe8_walking_sound_fix.bin");
+				byte[] fixData = new byte[0x14C];
+				try {
+					stream.read(fixData);
+					stream.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				byte eirikaWalkingSoundID = fixData[0x18 + oldEirikaClass];
+				byte ephraimWalkingSoundID = fixData[0x18 + oldEphraimClass];
+				
+				diffCompiler.addDiff(new Diff(eirikaWalkingSoundOffset, 1, new byte[] {eirikaWalkingSoundID}, null));
+				diffCompiler.addDiff(new Diff(ephraimWalkingSoundOffset, 1, new byte[] {ephraimWalkingSoundID}, null));
+			}
 		}
 		
 		if (classes.createPrfs) {
@@ -967,6 +1020,9 @@ public class GBARandomizer extends Randomizer {
 					if (weaponName != null && iconName != null) {
 						// Replace the old icon.
 						byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(iconName, GBAImageCodec.gbaWeaponColorPalette);
+						if (iconData == null) {
+							notifyError("Invalid image data for icon " + iconName);
+						}
 						diffCompiler.addDiff(new Diff(0xFC400, iconData.length, iconData, null));
 						
 						// We're going to reuse some indices already used by the watch staff. While the name's index isn't available, both its
@@ -1179,6 +1235,9 @@ public class GBARandomizer extends Randomizer {
 				
 				if (lynSelectedType != null && lynWeaponName != null && lynIconName != null) {
 					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(lynIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + lynIconName);
+					}
 					diffCompiler.addDiff(new Diff(0xCB524, iconData.length, iconData, null));
 					
 					textData.setStringAtIndex(0x1225, lynWeaponName + "[X]");
@@ -1258,6 +1317,9 @@ public class GBARandomizer extends Randomizer {
 				
 				if (eliwoodSelectedType != null && eliwoodWeaponName != null && eliwoodIconName != null) {
 					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(eliwoodIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + eliwoodIconName);
+					}
 					diffCompiler.addDiff(new Diff(0xCB5A4, iconData.length, iconData, null));
 					
 					textData.setStringAtIndex(0x1227, eliwoodWeaponName + "[X]");
@@ -1358,6 +1420,9 @@ public class GBARandomizer extends Randomizer {
 				
 				if (hectorSelectedType != null && hectorWeaponName != null && hectorIconName != null) {
 					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(hectorIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + hectorIconName);
+					}
 					diffCompiler.addDiff(new Diff(0xCB624, iconData.length, iconData, null));
 					
 					textData.setStringAtIndex(0x1229, hectorWeaponName + "[X]");
@@ -1447,7 +1512,210 @@ public class GBARandomizer extends Randomizer {
 				}
 				
 			} else if (gameType == GameType.FE8) {
+				GBAFECharacterData eirika = charData.characterWithID(FE8Data.Character.EIRIKA.ID);
+				GBAFECharacterData ephraim = charData.characterWithID(FE8Data.Character.EPHRAIM.ID);
 				
+				GBAFEClassData eirikaClass = classData.classForID(eirika.getClassID());
+				GBAFEClassData ephraimClass = classData.classForID(ephraim.getClassID());
+				
+				List<WeaponType> eirikaWeaponTypes = classData.usableTypesForClass(eirikaClass);
+				List<WeaponType> ephraimWeaponTypes = classData.usableTypesForClass(ephraimClass);
+				
+				eirikaWeaponTypes.remove(WeaponType.STAFF);
+				ephraimWeaponTypes.remove(WeaponType.STAFF);
+				
+				String eirikaIconName = null;
+				String eirikaWeaponName = null;
+				WeaponType eirikaSelectedType = null;
+				String ephraimIconName = null;
+				String ephraimWeaponName = null;
+				WeaponType ephraimSelectedType = null;
+				
+				if (!eirikaWeaponTypes.isEmpty()) {
+					eirikaSelectedType = eirikaWeaponTypes.get(rng.nextInt(eirikaWeaponTypes.size()));
+					switch (eirikaSelectedType) {
+					case SWORD:
+						eirikaWeaponName = "Moon Blade";
+						eirikaIconName = "weaponIcons/MoonBlade.png";
+						break;
+					case LANCE:
+						eirikaWeaponName = "Moon Spear";
+						eirikaIconName = "weaponIcons/MoonSpear.png";
+						break;
+					case AXE:
+						eirikaWeaponName = "Moon Hammer";
+						eirikaIconName = "weaponIcons/MoonHammer.png";
+						break;
+					case BOW:
+						eirikaWeaponName = "Moon Shot";
+						eirikaIconName = "weaponIcons/MoonShot.png";
+						break;
+					case ANIMA:
+						eirikaWeaponName = "Lunar Bolt";
+						eirikaIconName = "weaponIcons/LunarBolt.png";
+						break;
+					case DARK:
+						eirikaWeaponName = "Lunar Eclipse";
+						eirikaIconName = "weaponIcons/LunarEclipse.png";
+						break;
+					case LIGHT:
+						eirikaWeaponName = "Lunar Beam";
+						eirikaIconName = "weaponIcons/LunarBeam.png";
+						break;
+					default: 
+						break;
+					}
+				}
+				
+				if (!ephraimWeaponTypes.isEmpty()) {
+					ephraimSelectedType = ephraimWeaponTypes.get(rng.nextInt(ephraimWeaponTypes.size()));
+					switch (ephraimSelectedType) {
+					case SWORD:
+						ephraimWeaponName = "Sun Blade";
+						ephraimIconName = "weaponIcons/SunBlade.png";
+						break;
+					case LANCE:
+						ephraimWeaponName = "Sun Spear";
+						ephraimIconName = "weaponIcons/SunSpear.png";
+						break;
+					case AXE:
+						ephraimWeaponName = "Sun Mallet";
+						ephraimIconName = "weaponIcons/SunMallet.png";
+						break;
+					case BOW:
+						ephraimWeaponName = "Sun Shot";
+						ephraimIconName = "weaponIcons/SunShot.png";
+						break;
+					case ANIMA:
+						ephraimWeaponName = "Solar Flare";
+						ephraimIconName = "weaponIcons/SolarFlare.png";
+						break;
+					case DARK:
+						ephraimWeaponName = "Solar Eclipse";
+						ephraimIconName = "weaponIcons/SolarEclipse.png";
+						break;
+					case LIGHT:
+						ephraimWeaponName = "Solar Beam";
+						ephraimIconName = "weaponIcons/SolarBeam.png";
+						break;
+					default: 
+						break;
+					}
+				}
+					
+				if (eirikaWeaponName != null && eirikaIconName != null) {
+					// Replace the old icon.
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(eirikaIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + eirikaIconName);
+					}
+					diffCompiler.addDiff(new Diff(0x592B74, iconData.length, iconData, null));
+					
+					// Reusing the dummy Mani Katti
+					textData.setStringAtIndex(0x3A, eirikaWeaponName + "[X]");
+					// We need a description string so that the rest of the weapon stats will show, even if it's a blank string.
+					textData.setStringAtIndex(0x3B, " [.][X]");
+					
+					GBAFEItemData itemToReplace = itemData.itemWithID(FE8Data.Item.UNUSED_MANI_KATTI.ID);
+					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3A, 0x3B, eirikaSelectedType, classes.unbreakablePrfs, eirikaClass.getCON() + eirika.getConstitution(), 
+							itemData.itemWithID(FE8Data.Item.RAPIER.ID), itemData, freeSpace);
+					
+					switch (eirikaSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.NONE2.value, FE8SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.ARROW.value, FE8SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.THUNDER.value, FE8SpellAnimationCollection.Flash.YELLOW.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.FLUX.value, FE8SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.DIVINE.value, FE8SpellAnimationCollection.Flash.BLUE.value);
+						break;
+					default:
+						// No animation needed here.
+						break;
+					}
+					
+					// Make sure Eirika herself can. She'll use the unused Lyn Lock.
+					eirika.enableWeaponLock(FE8Data.CharacterAndClassAbility4Mask.EIRIKA_WEAPON_LOCK.getValue());
+					itemToReplace.setAbility3(FE8Data.Item.Ability3Mask.EIRIKA_LOCK.ID);
+					
+					// Eirika will get her weapon from Seth.
+					GBAFEChapterData prologue = chapterData.chapterWithID(FE8Data.ChapterPointer.PROLOGUE.chapterID);
+					GBAFEChapterItemData item = prologue.chapterItemGivenToCharacter(FE8Data.Character.EIRIKA.ID);
+					item.setItemID(itemToReplace.getID());
+				}
+				
+				if (ephraimWeaponName != null && ephraimIconName != null) {
+					// Replace the old icon.
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(ephraimIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + ephraimIconName);
+					}
+					diffCompiler.addDiff(new Diff(0x594474, iconData.length, iconData, null));
+					
+					// Reusing the dummy Forblaze
+					textData.setStringAtIndex(0x3C, ephraimWeaponName + "[X]");
+					// We need a description string for the rest of the weapon stats to show up.
+					textData.setStringAtIndex(0x3D, " [.][X]");
+					
+					GBAFEItemData itemToReplace = itemData.itemWithID(FE8Data.Item.UNUSED_FORBLAZE.ID);
+					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3C, 0x3D, ephraimSelectedType, classes.unbreakablePrfs, ephraimClass.getCON() + ephraim.getConstitution(), 
+							itemData.itemWithID(FE8Data.Item.REGINLEIF.ID), itemData, freeSpace);
+					
+					switch (ephraimSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.NONE2.value, FE8SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.ARROW.value, FE8SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.ELFIRE.value, FE8SpellAnimationCollection.Flash.RED.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.FLUX.value, FE8SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.DIVINE.value, FE8SpellAnimationCollection.Flash.YELLOW.value);
+						break;
+					default:
+						// No animation needed here.
+						break;
+					}
+					
+					// Make sure Ephraim himself can. He'll use the unused Athos Lock.
+					ephraim.enableWeaponLock(FE8Data.CharacterAndClassAbility4Mask.UNUSED_ATHOS_LOCK.getValue());
+					itemToReplace.setAbility3(FE8Data.Item.Ability3Mask.UNUSED_WEAPON_LOCK.ID);
+					
+					// Ephraim starts with his weapon.
+					GBAFEChapterData ch5x = chapterData.chapterWithID(FE8Data.ChapterPointer.CHAPTER_5X.chapterID);
+					for (GBAFEChapterUnitData unit : ch5x.allUnits()) {
+						if (unit.getCharacterNumber() == ephraim.getID()) {
+							unit.removeItem(FE8Data.Item.REGINLEIF.ID);
+							unit.giveItem(itemToReplace.getID());
+						}
+					}
+				}
 			}
 		}
 	}
