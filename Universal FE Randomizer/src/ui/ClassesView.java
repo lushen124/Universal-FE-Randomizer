@@ -127,6 +127,11 @@ public class ClassesView extends Composite {
 			public void handleEvent(Event event) {
 				createNewPrfWeaponsButton.setEnabled(randomizePCLordsButton.getSelection());
 				unbreakablePrfsButton.setEnabled(randomizePCLordsButton.getSelection() && createNewPrfWeaponsButton.getSelection());
+				
+				if (!randomizePCLordsButton.getSelection()) {
+					createNewPrfWeaponsButton.setSelection(false);
+					unbreakablePrfsButton.setSelection(false);
+				}
 			}
 		});
 		
@@ -134,6 +139,10 @@ public class ClassesView extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				unbreakablePrfsButton.setEnabled(randomizePCLordsButton.getSelection() && createNewPrfWeaponsButton.getSelection());
+				
+				if (!createNewPrfWeaponsButton.getSelection()) {
+					unbreakablePrfsButton.setSelection(false);
+				}
 			}
 		});
 		
