@@ -19,7 +19,7 @@ public class FE4GrowthRandomizer {
 		HP, STR, MAG, SKL, SPD, LCK, DEF, RES;
 	}
 	
-	public static void randomizeGrowthsByRedistribution(int variance, boolean adjustHPGrowths, boolean adjustSTRMAGByClass, CharacterDataLoader charData, Random rng) {
+	public static void randomizeGrowthsByRedistribution(int variance, int min, int max, boolean adjustHPGrowths, boolean adjustSTRMAGByClass, CharacterDataLoader charData, Random rng) {
 		List<FE4StaticCharacter> allChars = new ArrayList<FE4StaticCharacter>();
 		allChars.addAll(charData.getGen1Characters());
 		allChars.addAll(charData.getGen2CommonCharacters());
@@ -40,14 +40,16 @@ public class FE4GrowthRandomizer {
 				growthTotal -= rng.nextInt(variance + 1);
 			}
 			
-			int newHPGrowth = 0;
-			int newSTRGrowth = 0;
-			int newMAGGrowth = 0;
-			int newSKLGrowth = 0;
-			int newSPDGrowth = 0;
-			int newLCKGrowth = 0;
-			int newDEFGrowth = 0;
-			int newRESGrowth = 0;
+			int newHPGrowth = min;
+			int newSTRGrowth = min;
+			int newMAGGrowth = min;
+			int newSKLGrowth = min;
+			int newSPDGrowth = min;
+			int newLCKGrowth = min;
+			int newDEFGrowth = min;
+			int newRESGrowth = min;
+			
+			growthTotal -= min * 8;
 			
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
 			FE4Data.CharacterClass fe4CharClass = FE4Data.CharacterClass.valueOf(staticChar.getClassID());
@@ -73,49 +75,62 @@ public class FE4GrowthRandomizer {
 				distributor.addItem(StatArea.MAG, 4);
 			}
 			
+			int effectiveMax = Math.min(max, GrowthCap);
+			
 			while (growthTotal > 0) {
 				int amount = Math.min(5, growthTotal);
 				
-				if (newHPGrowth + amount >= GrowthCap && newSTRGrowth + amount >= GrowthCap && newMAGGrowth + amount >= GrowthCap && newSKLGrowth + amount >= GrowthCap &&
-						newSPDGrowth + amount >= GrowthCap && newDEFGrowth + amount >= GrowthCap && newRESGrowth + amount >= GrowthCap && newLCKGrowth + amount >= GrowthCap) { break; }
+				if (newHPGrowth + amount >= effectiveMax && newSTRGrowth + amount >= effectiveMax && newMAGGrowth + amount >= effectiveMax && newSKLGrowth + amount >= effectiveMax &&
+						newSPDGrowth + amount >= effectiveMax && newDEFGrowth + amount >= effectiveMax && newRESGrowth + amount >= effectiveMax && newLCKGrowth + amount >= effectiveMax) { break; }
 				
 				StatArea area = distributor.getRandomItem(rng);
 				switch (area) {
 				case HP:
-					if (newHPGrowth + amount <= GrowthCap) { newHPGrowth += amount; }
+					if (newHPGrowth + amount <= effectiveMax) { newHPGrowth += amount; }
 					else { continue; }
 					break;
 				case STR:
-					if (newSTRGrowth + amount <= GrowthCap) { newSTRGrowth += amount; }
+					if (newSTRGrowth + amount <= effectiveMax) { newSTRGrowth += amount; }
 					else { continue; }
 					break;
 				case MAG:
-					if (newMAGGrowth + amount <= GrowthCap) { newMAGGrowth += amount; }
+					if (newMAGGrowth + amount <= effectiveMax) { newMAGGrowth += amount; }
 					else { continue; }
 					break;
 				case SKL:
-					if (newSKLGrowth + amount <= GrowthCap) { newSKLGrowth += amount; }
+					if (newSKLGrowth + amount <= effectiveMax) { newSKLGrowth += amount; }
 					else { continue; }
 					break;
 				case SPD:
-					if (newSPDGrowth + amount <= GrowthCap) { newSPDGrowth += amount; }
+					if (newSPDGrowth + amount <= effectiveMax) { newSPDGrowth += amount; }
 					else { continue; }
 					break;
 				case LCK:
-					if (newLCKGrowth + amount <= GrowthCap) { newLCKGrowth += amount; }
+					if (newLCKGrowth + amount <= effectiveMax) { newLCKGrowth += amount; }
 					else { continue; }
 					break;
 				case DEF:
-					if (newDEFGrowth + amount <= GrowthCap) { newDEFGrowth += amount; }
+					if (newDEFGrowth + amount <= effectiveMax) { newDEFGrowth += amount; }
 					else { continue; }
 					break;
 				case RES:
-					if (newRESGrowth + amount <= GrowthCap) { newRESGrowth += amount; }
+					if (newRESGrowth + amount <= effectiveMax) { newRESGrowth += amount; }
 					else { continue; }
 					break;
 				}
 				
 				growthTotal -= amount;
+			}
+			
+			if (growthTotal > 0) {
+				newHPGrowth = effectiveMax;
+				newSTRGrowth = effectiveMax;
+				newMAGGrowth = effectiveMax;
+				newSKLGrowth = effectiveMax;
+				newSPDGrowth = effectiveMax;
+				newLCKGrowth = effectiveMax;
+				newDEFGrowth = effectiveMax;
+				newRESGrowth = effectiveMax;
 			}
 			
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
@@ -134,11 +149,13 @@ public class FE4GrowthRandomizer {
 		}
 	}
 	
-	public static void randomizeGrowthsByRandomDelta(int maxDelta, boolean adjustHPGrowths, boolean adjustSTRMAGByClass, CharacterDataLoader charData, Random rng) {
+	public static void randomizeGrowthsByRandomDelta(int maxDelta, int min, int max, boolean adjustHPGrowths, boolean adjustSTRMAGByClass, CharacterDataLoader charData, Random rng) {
 		List<FE4StaticCharacter> allChars = new ArrayList<FE4StaticCharacter>();
 		allChars.addAll(charData.getGen1Characters());
 		allChars.addAll(charData.getGen2CommonCharacters());
 		allChars.addAll(charData.getGen2SubstituteCharacters());
+		
+		int effectiveMax = Math.min(max, GrowthCap);
 		
 		for (FE4StaticCharacter staticChar : allChars) {
 			if (staticChar.wasModified()) {
@@ -159,62 +176,59 @@ public class FE4GrowthRandomizer {
 			boolean weightMAG = adjustSTRMAGByClass ? fe4CharClass.primaryAttackIsMagic() : false;
 			
 			int randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newHPGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
-			} else {
-				newHPGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
-				if (adjustHPGrowths) {
-					newHPGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
-				}
+			if ((randomNum == 0 && newHPGrowth < effectiveMax) || adjustHPGrowths) {
+				newHPGrowth += Math.min(effectiveMax - newHPGrowth + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
+			} else if (newHPGrowth > min) {
+				newHPGrowth -= Math.min(newHPGrowth - min + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
 			}
 			
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newSTRGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
-			} else {
-				newSTRGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
+			if (randomNum == 0 && newSTRGrowth < effectiveMax) {
+				newSTRGrowth += Math.min(effectiveMax - newSTRGrowth + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
+			} else if (newSTRGrowth > min) {
+				newSTRGrowth -= Math.min(newSTRGrowth - min + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
 			}
 			
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newMAGGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
-			} else {
-				newMAGGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
+			if (randomNum == 0 && newMAGGrowth < effectiveMax) {
+				newMAGGrowth += Math.min(effectiveMax - newMAGGrowth + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
+			} else if (newMAGGrowth > min) {
+				newMAGGrowth -= Math.min(newMAGGrowth - min + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
 			}
 			
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newSKLGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
-			} else {
-				newSKLGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
+			if (randomNum == 0 && newSKLGrowth < effectiveMax) {
+				newSKLGrowth += Math.min(effectiveMax - newSKLGrowth + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
+			} else if (newSKLGrowth > min) {
+				newSKLGrowth -= Math.min(newSKLGrowth - min + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
 			}
 			
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newSPDGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
-			} else {
-				newSPDGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
+			if (randomNum == 0 && newSPDGrowth < effectiveMax) {
+				newSPDGrowth += Math.min(effectiveMax - newSPDGrowth + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
+			} else if (newSPDGrowth > min) {
+				newSPDGrowth -= Math.min(newSPDGrowth - min + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
 			}
 			
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newLCKGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
-			} else {
-				newLCKGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
+			if (randomNum == 0 && newLCKGrowth < effectiveMax) {
+				newLCKGrowth += Math.min(effectiveMax - newLCKGrowth + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
+			} else if (newLCKGrowth > min) {
+				newLCKGrowth -= Math.min(newLCKGrowth - min + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
 			}
 			
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newDEFGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
-			} else {
-				newDEFGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
+			if (randomNum == 0 && newDEFGrowth < effectiveMax) {
+				newDEFGrowth += Math.min(effectiveMax - newDEFGrowth + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
+			} else if (newDEFGrowth > min) {
+				newDEFGrowth -= Math.min(newDEFGrowth - min + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
 			}
 			
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newRESGrowth += rng.nextInt(maxDelta / 5 + 1) * 5;
-			} else {
-				newRESGrowth -= rng.nextInt(maxDelta / 5 + 1) * 5;
+			if (randomNum == 0 && newRESGrowth < effectiveMax) {
+				newRESGrowth += Math.min(effectiveMax - newRESGrowth + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
+			} else if (newRESGrowth > min) {
+				newRESGrowth -= Math.min(newRESGrowth - min + 1, rng.nextInt(maxDelta / 5 + 1) * 5);
 			}
 			
 			if ((weightSTR && !weightMAG && newSTRGrowth < newMAGGrowth) || (weightMAG && !weightSTR && newMAGGrowth < newSTRGrowth)) {
@@ -226,14 +240,14 @@ public class FE4GrowthRandomizer {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
 			for (FE4Data.Character linked : fe4Char.linkedCharacters()) {
 				FE4StaticCharacter character = charData.getStaticCharacter(linked);
-				character.setHPGrowth(Math.min(GrowthCap, Math.max(0, newHPGrowth)));
-				character.setSTRGrowth(Math.min(GrowthCap, Math.max(0, newSTRGrowth)));
-				character.setMAGGrowth(Math.min(GrowthCap, Math.max(0, newMAGGrowth)));
-				character.setSKLGrowth(Math.min(GrowthCap, Math.max(0, newSKLGrowth)));
-				character.setSPDGrowth(Math.min(GrowthCap, Math.max(0, newSPDGrowth)));
-				character.setLCKGrowth(Math.min(GrowthCap, Math.max(0, newLCKGrowth)));
-				character.setDEFGrowth(Math.min(GrowthCap, Math.max(0, newDEFGrowth)));
-				character.setRESGrowth(Math.min(GrowthCap, Math.max(0, newRESGrowth)));
+				character.setHPGrowth(Math.min(effectiveMax, Math.max(min, newHPGrowth)));
+				character.setSTRGrowth(Math.min(effectiveMax, Math.max(min, newSTRGrowth)));
+				character.setMAGGrowth(Math.min(effectiveMax, Math.max(min, newMAGGrowth)));
+				character.setSKLGrowth(Math.min(effectiveMax, Math.max(min, newSKLGrowth)));
+				character.setSPDGrowth(Math.min(effectiveMax, Math.max(min, newSPDGrowth)));
+				character.setLCKGrowth(Math.min(effectiveMax, Math.max(min, newLCKGrowth)));
+				character.setDEFGrowth(Math.min(effectiveMax, Math.max(min, newDEFGrowth)));
+				character.setRESGrowth(Math.min(effectiveMax, Math.max(min, newRESGrowth)));
 			}
 		}
 	}

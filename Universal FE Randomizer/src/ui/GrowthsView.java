@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Spinner;
 import ui.general.MinMaxControl;
 import ui.model.GrowthOptions;
 import ui.model.MinMaxOption;
+import ui.model.MinMaxVarOption;
 import ui.model.VarOption;
 
 public class GrowthsView extends Composite {
@@ -26,6 +27,8 @@ public class GrowthsView extends Composite {
 	private Group container;
 	
 	private Button enableButton;
+	
+	private Group modeContainer;
 	
 	private Button redistributeOption;
 	private Spinner varianceSpinner;
@@ -66,9 +69,36 @@ public class GrowthsView extends Composite {
 			}
 		});
 		
+		growthRangeControl = new MinMaxControl(container, SWT.NONE, "Min Growth:", "Max Growth:");
+		growthRangeControl.getMinSpinner().setValues(5, 0, 255, 0, 1, 5);
+		growthRangeControl.getMaxSpinner().setValues(80, 0, 255, 0, 1, 5);
+		growthRangeControl.setEnabled(false);
+		
+		FormData rangeData = new FormData();
+		rangeData.top = new FormAttachment(enableButton, 5);
+		rangeData.left = new FormAttachment(0, 5);
+		rangeData.right = new FormAttachment(100, -5);
+		growthRangeControl.setLayoutData(rangeData);
+		
+		modeContainer = new Group(container, SWT.NONE);
+		modeContainer.setText("Mode");
+		
+		FormLayout modeLayout = new FormLayout();
+		modeLayout.marginTop = 5;
+		modeLayout.marginLeft = 5;
+		modeLayout.marginBottom = 5;
+		modeLayout.marginRight = 5;
+		modeContainer.setLayout(modeLayout);
+		
+		FormData modeData = new FormData();
+		modeData.left = new FormAttachment(enableButton, 5, SWT.LEFT);
+		modeData.top = new FormAttachment(growthRangeControl, 10);
+		modeData.right = new FormAttachment(100, -5);
+		modeContainer.setLayoutData(modeData);
+		
 		/////////////////////////////////////////////////////////////
 		
-		redistributeOption = new Button(container, SWT.RADIO);
+		redistributeOption = new Button(modeContainer, SWT.RADIO);
 		redistributeOption.setText("Redistribute");
 		redistributeOption.setToolTipText("Randomly redistrubtes a character's total growths.");
 		redistributeOption.setEnabled(false);
@@ -81,11 +111,11 @@ public class GrowthsView extends Composite {
 		});
 		
 		FormData optionData = new FormData();
-		optionData.left = new FormAttachment(enableButton, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(enableButton, 5);
+		optionData.left = new FormAttachment(0, 0);
+		optionData.top = new FormAttachment(0, 0);
 		redistributeOption.setLayoutData(optionData);
 		
-		Composite redistParamContainer = new Composite(container, 0);
+		Composite redistParamContainer = new Composite(modeContainer, 0);
 		
 		FormLayout redistParamLayout = new FormLayout();
 		redistParamLayout.marginLeft = 5;
@@ -119,7 +149,7 @@ public class GrowthsView extends Composite {
 		
 		/////////////////////////////////////////////////////////////
 		
-		byDeltaOption = new Button(container, SWT.RADIO);
+		byDeltaOption = new Button(modeContainer, SWT.RADIO);
 		byDeltaOption.setText("Randomize Delta");
 		byDeltaOption.setToolTipText("Applies a random delta between +X and -X to all growth areas.");
 		byDeltaOption.setEnabled(false);
@@ -136,7 +166,7 @@ public class GrowthsView extends Composite {
 		optionData.top = new FormAttachment(redistParamContainer, 0);
 		byDeltaOption.setLayoutData(optionData);
 		
-		Composite deltaParamContainer = new Composite(container, 0);
+		Composite deltaParamContainer = new Composite(modeContainer, 0);
 		
 		FormLayout deltaParamLayout = new FormLayout();
 		deltaParamLayout.marginLeft = 5;
@@ -170,7 +200,7 @@ public class GrowthsView extends Composite {
 		
 		/////////////////////////////////////////////////////////////
 		
-		fullRandomOption = new Button(container, SWT.RADIO);
+		fullRandomOption = new Button(modeContainer, SWT.RADIO);
 		fullRandomOption.setText("Randomize Absolute");
 		fullRandomOption.setToolTipText("Generates fully random growth rates between the specified minimum and maximum.");
 		fullRandomOption.setEnabled(false);
@@ -186,25 +216,14 @@ public class GrowthsView extends Composite {
 		optionData.top = new FormAttachment(deltaParamContainer, 0);
 		fullRandomOption.setLayoutData(optionData);
 		
-		growthRangeControl = new MinMaxControl(container, SWT.NONE, "Min Growth:", "Max Growth:");
-		growthRangeControl.getMinSpinner().setValues(5, 0, 255, 0, 1, 5);
-		growthRangeControl.getMaxSpinner().setValues(80, 0, 255, 0, 1, 5);
-		growthRangeControl.setEnabled(false);
-		
-		paramContainerData = new FormData();
-		paramContainerData.top = new FormAttachment(fullRandomOption, 0);
-		paramContainerData.left = new FormAttachment(fullRandomOption, 0, SWT.LEFT);
-		paramContainerData.right = new FormAttachment(100, -5);
-		growthRangeControl.setLayoutData(paramContainerData);
-		
 		adjustHPGrowths = new Button(container, SWT.CHECK);
 		adjustHPGrowths.setText("Adjust HP Growths");
 		adjustHPGrowths.setToolTipText("Puts extra emphasis on HP growths relative to other stats.");
 		adjustHPGrowths.setEnabled(false);
 		
 		optionData = new FormData();
-		optionData.left = new FormAttachment(fullRandomOption, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(growthRangeControl, 10);
+		optionData.left = new FormAttachment(enableButton, 10, SWT.LEFT);
+		optionData.top = new FormAttachment(modeContainer, 10);
 		adjustHPGrowths.setLayoutData(optionData);
 		
 		if (hasSTRMAGSplit) {
@@ -214,7 +233,7 @@ public class GrowthsView extends Composite {
 			adjustSTRMAGSplit.setEnabled(false);
 			
 			optionData = new FormData();
-			optionData.left = new FormAttachment(fullRandomOption, 0, SWT.LEFT);
+			optionData.left = new FormAttachment(adjustHPGrowths, 0, SWT.LEFT);
 			optionData.top = new FormAttachment(adjustHPGrowths, 5);
 			adjustSTRMAGSplit.setLayoutData(optionData);
 		}
@@ -230,7 +249,7 @@ public class GrowthsView extends Composite {
 		fullRandomOption.setEnabled(enabled);
 		varianceSpinner.setEnabled(enabled && currentMode == GrowthOptions.Mode.REDISTRIBUTE);
 		deltaSpinner.setEnabled(enabled && currentMode == GrowthOptions.Mode.DELTA);
-		growthRangeControl.setEnabled(enabled && currentMode == GrowthOptions.Mode.FULL);
+		growthRangeControl.setEnabled(enabled);
 		adjustHPGrowths.setEnabled(enabled);
 		if (adjustSTRMAGSplit != null) { adjustSTRMAGSplit.setEnabled(enabled && currentMode != GrowthOptions.Mode.DELTA); }
 		
@@ -244,12 +263,12 @@ public class GrowthsView extends Composite {
 			case REDISTRIBUTE:
 				varianceSpinner.setEnabled(true);
 				deltaSpinner.setEnabled(false);
-				growthRangeControl.setEnabled(false);
+				growthRangeControl.setEnabled(true);
 				break;
 			case DELTA: 
 				varianceSpinner.setEnabled(false);
 				deltaSpinner.setEnabled(true);
-				growthRangeControl.setEnabled(false);
+				growthRangeControl.setEnabled(true);
 				break;
 			case FULL:
 				varianceSpinner.setEnabled(false);
@@ -263,16 +282,16 @@ public class GrowthsView extends Composite {
 	public GrowthOptions getGrowthOptions() {
 		if (!isEnabled) { return null; }
 		
-		VarOption redistributionOption = null;
-		VarOption deltaOption = null;
+		MinMaxVarOption redistributionOption = null;
+		MinMaxVarOption deltaOption = null;
 		MinMaxOption fullOption = null;
 		
 		switch (currentMode) {
 		case REDISTRIBUTE:
-			redistributionOption = new VarOption(varianceSpinner.getSelection());
+			redistributionOption = new MinMaxVarOption(growthRangeControl.getMinMaxOption(), varianceSpinner.getSelection());
 			break;
 		case DELTA:
-			deltaOption = new VarOption(deltaSpinner.getSelection());
+			deltaOption = new MinMaxVarOption(growthRangeControl.getMinMaxOption(), deltaSpinner.getSelection());
 			break;
 		case FULL:
 			fullOption = growthRangeControl.getMinMaxOption();
@@ -299,12 +318,26 @@ public class GrowthsView extends Composite {
 				byDeltaOption.setSelection(false);
 				fullRandomOption.setSelection(false);
 				varianceSpinner.setSelection(options.redistributionOption.variance);
+				if (options.redistributionOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
+					growthRangeControl.setMin(options.redistributionOption.minValue);
+					growthRangeControl.setMax(options.redistributionOption.maxValue);
+				} else {
+					growthRangeControl.setMax(options.redistributionOption.maxValue);
+					growthRangeControl.setMin(options.redistributionOption.minValue);
+				}
 				break;
 			case DELTA:
 				redistributeOption.setSelection(false);
 				byDeltaOption.setSelection(true);
 				fullRandomOption.setSelection(false);
 				deltaSpinner.setSelection(options.deltaOption.variance);
+				if (options.deltaOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
+					growthRangeControl.setMin(options.deltaOption.minValue);
+					growthRangeControl.setMax(options.deltaOption.maxValue);
+				} else {
+					growthRangeControl.setMax(options.deltaOption.maxValue);
+					growthRangeControl.setMin(options.deltaOption.minValue);
+				}
 				break;
 			case FULL:
 				redistributeOption.setSelection(false);

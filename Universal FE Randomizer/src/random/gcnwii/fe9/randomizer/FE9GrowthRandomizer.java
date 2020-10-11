@@ -16,7 +16,7 @@ public class FE9GrowthRandomizer {
 	
 	private enum StatArea { HP, STR, MAG, SKL, SPD, LCK, DEF, RES; }
 	
-	public static void randomizeGrowthsByRedistribution(int variance, boolean adjustSTRMAG, boolean adjustHP, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
+	public static void randomizeGrowthsByRedistribution(int variance, int min, int max, boolean adjustSTRMAG, boolean adjustHP, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
 		FE9Character[] characters = charData.allPlayableCharacters();
 		for (FE9Character character : characters) {
 			if (character.wasModified()) { continue; }
@@ -31,14 +31,16 @@ public class FE9GrowthRandomizer {
 				growthTotal -= rng.nextInt(variance + 1);
 			}
 			
-			int hpGrowth = 0;
-			int strGrowth = 0;
-			int magGrowth = 0;
-			int sklGrowth = 0;
-			int spdGrowth = 0;
-			int lckGrowth = 0;
-			int defGrowth = 0;
-			int resGrowth = 0;
+			int hpGrowth = min;
+			int strGrowth = min;
+			int magGrowth = min;
+			int sklGrowth = min;
+			int spdGrowth = min;
+			int lckGrowth = min;
+			int defGrowth = min;
+			int resGrowth = min;
+			
+			growthTotal -= 8 * min;
 			
 			String classID = charData.pointerLookup(character.getClassPointer());
 			FE9Class charClass = classData.classWithID(classID);
@@ -103,16 +105,48 @@ public class FE9GrowthRandomizer {
 			while (growthTotal > 0) {
 				StatArea area = distributor.getRandomItem(rng);
 				int value = Math.min(5, growthTotal);
-				growthTotal -= value;
+				int actualAmount = 0;
 				switch (area) {
-				case HP: hpGrowth += value; break;
-				case STR: strGrowth += value; break;
-				case MAG: magGrowth += value; break;
-				case SKL: sklGrowth += value; break;
-				case SPD: spdGrowth += value; break;
-				case LCK: lckGrowth += value; break;
-				case DEF: defGrowth += value; break;
-				case RES: resGrowth += value; break;
+				case HP:
+					actualAmount = Math.min(max - hpGrowth, value);
+					growthTotal -= actualAmount;
+					hpGrowth += actualAmount; 
+					break;
+				case STR:
+					actualAmount = Math.min(max - strGrowth, value);
+					growthTotal -= actualAmount;
+					strGrowth += actualAmount;
+					break;
+				case MAG:
+					actualAmount = Math.min(max - magGrowth, value);
+					growthTotal -= actualAmount;
+					magGrowth += actualAmount; 
+					break;
+				case SKL:
+					actualAmount = Math.min(max - sklGrowth, value);
+					growthTotal -= actualAmount;
+					sklGrowth += actualAmount;
+					break;
+				case SPD:
+					actualAmount = Math.min(max - spdGrowth, value);
+					growthTotal -= actualAmount;
+					spdGrowth += actualAmount;
+					break;
+				case LCK:
+					actualAmount = Math.min(max - lckGrowth, value);
+					growthTotal -= actualAmount;
+					lckGrowth += actualAmount;
+					break;
+				case DEF:
+					actualAmount = Math.min(max - defGrowth, value);
+					growthTotal -= actualAmount;
+					defGrowth += actualAmount;
+					break;
+				case RES:
+					actualAmount = Math.min(max - resGrowth, value);
+					growthTotal -= actualAmount;
+					resGrowth += actualAmount;
+					break;
 				}
 			}
 			
@@ -129,42 +163,82 @@ public class FE9GrowthRandomizer {
 		charData.commit();
 	}
 	
-	public static void randomizeGrowthsByDelta(int variance, boolean adjustSTRMAG, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
+	public static void randomizeGrowthsByDelta(int variance, int min, int max, boolean adjustSTRMAG, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
 		FE9Character[] characters = charData.allPlayableCharacters();
 		for (FE9Character character : characters) {
 			if (character.wasModified()) { continue; }
 			
-			int delta = rng.nextInt(variance + 1);
 			int sign = rng.nextInt(2) == 0 ? 1 : -1;
-			character.setHPGrowth(WhyDoesJavaNotHaveThese.clamp(character.getHPGrowth() + sign * delta, 0, 255));
+			int delta = 0;
+			if (sign > 0 && max > character.getHPGrowth()) {
+				delta = rng.nextInt(Math.min(max - character.getHPGrowth() + 1, variance + 1));	
+			} else if (min < character.getHPGrowth()) {
+				delta = rng.nextInt(Math.min(character.getHPGrowth() - min + 1, variance + 1));
+			}
+			character.setHPGrowth(WhyDoesJavaNotHaveThese.clamp(character.getHPGrowth() + sign * delta, min, max));
 			
-			delta = rng.nextInt(variance + 1);
+			delta = 0;
 			sign = rng.nextInt(2) == 0 ? 1 : -1;
-			character.setSTRGrowth(WhyDoesJavaNotHaveThese.clamp(character.getSTRGrowth() + sign * delta, 0, 255));
+			if (sign > 0 && max > character.getSTRGrowth()) {
+				delta = rng.nextInt(Math.min(max - character.getSTRGrowth() + 1, variance + 1));
+			} else if (min < character.getSTRGrowth()) {
+				delta = rng.nextInt(Math.min(character.getSTRGrowth() - min + 1, variance + 1));
+			}
+			character.setSTRGrowth(WhyDoesJavaNotHaveThese.clamp(character.getSTRGrowth() + sign * delta, min, max));
 			
-			delta = rng.nextInt(variance + 1);
+			delta = 0;
 			sign = rng.nextInt(2) == 0 ? 1 : -1;
-			character.setMAGGrowth(WhyDoesJavaNotHaveThese.clamp(character.getMAGGrowth() + sign * delta, 0, 255));
+			if (sign > 0 && max > character.getMAGGrowth()) {
+				delta = rng.nextInt(Math.min(max - character.getMAGGrowth() + 1, variance + 1));
+			} else if (min < character.getMAGGrowth()) {
+				delta = rng.nextInt(Math.min(character.getMAGGrowth() - min + 1, variance + 1));
+			}
+			character.setMAGGrowth(WhyDoesJavaNotHaveThese.clamp(character.getMAGGrowth() + sign * delta, min, max));
 			
-			delta = rng.nextInt(variance + 1);
+			delta = 0;
 			sign = rng.nextInt(2) == 0 ? 1 : -1;
-			character.setSKLGrowth(WhyDoesJavaNotHaveThese.clamp(character.getSKLGrowth() + sign * delta, 0, 255));
+			if (sign > 0 && max > character.getSKLGrowth()) {
+				delta = rng.nextInt(Math.min(max - character.getSKLGrowth() + 1, variance + 1));
+			} else if (min < character.getSKLGrowth()) {
+				delta = rng.nextInt(Math.min(character.getSKLGrowth() - min + 1, variance + 1));
+			}
+			character.setSKLGrowth(WhyDoesJavaNotHaveThese.clamp(character.getSKLGrowth() + sign * delta, min, max));
 			
-			delta = rng.nextInt(variance + 1);
+			delta = 0;
 			sign = rng.nextInt(2) == 0 ? 1 : -1;
-			character.setSPDGrowth(WhyDoesJavaNotHaveThese.clamp(character.getSPDGrowth() + sign * delta, 0, 255));
+			if (sign > 0 && max > character.getSPDGrowth()) {
+				delta = rng.nextInt(Math.min(max - character.getSPDGrowth() + 1, variance + 1));
+			} else if (min < character.getSPDGrowth()) {
+				delta = rng.nextInt(Math.min(character.getSPDGrowth() - min + 1, variance + 1));
+			}
+			character.setSPDGrowth(WhyDoesJavaNotHaveThese.clamp(character.getSPDGrowth() + sign * delta, min, max));
 			
-			delta = rng.nextInt(variance + 1);
+			delta = 0;
 			sign = rng.nextInt(2) == 0 ? 1 : -1;
-			character.setLCKGrowth(WhyDoesJavaNotHaveThese.clamp(character.getLCKGrowth() + sign * delta, 0, 255));
+			if (sign > 0 && max > character.getLCKGrowth()) {
+				delta = rng.nextInt(Math.min(max - character.getLCKGrowth() + 1, variance + 1));
+			} else if (min < character.getLCKGrowth()) {
+				delta = rng.nextInt(Math.min(character.getLCKGrowth() - min + 1, variance + 1));
+			}
+			character.setLCKGrowth(WhyDoesJavaNotHaveThese.clamp(character.getLCKGrowth() + sign * delta, min, max));
 			
-			delta = rng.nextInt(variance + 1);
+			delta = 0;
 			sign = rng.nextInt(2) == 0 ? 1 : -1;
-			character.setDEFGrowth(WhyDoesJavaNotHaveThese.clamp(character.getDEFGrowth() + sign * delta, 0, 255));
+			if (sign > 0 && max > character.getDEFGrowth()) {
+				delta = rng.nextInt(Math.min(max - character.getDEFGrowth() + 1, variance + 1));
+			} else if (min < character.getDEFGrowth()) {
+				delta = rng.nextInt(Math.min(character.getDEFGrowth() - min + 1, variance + 1));
+			}
+			character.setDEFGrowth(WhyDoesJavaNotHaveThese.clamp(character.getDEFGrowth() + sign * delta, min, max));
 			
-			delta = rng.nextInt(variance + 1);
+			delta = 0;
 			sign = rng.nextInt(2) == 0 ? 1 : -1;
-			character.setRESGrowth(WhyDoesJavaNotHaveThese.clamp(character.getRESGrowth() + sign * delta, 0, 255));
+			if (sign > 0 && max > character.getRESGrowth()) {
+				delta = rng.nextInt(Math.min(max - character.getRESGrowth() + 1, variance + 1));
+			} else if (min < character.getRESGrowth()) {
+				delta = rng.nextInt(Math.min(character.getRESGrowth() - min + 1, variance + 1));
+			}
+			character.setRESGrowth(WhyDoesJavaNotHaveThese.clamp(character.getRESGrowth() + sign * delta, min, max));
 			
 			if (adjustSTRMAG) {
 				FE9Class charClass = classData.classWithID(charData.getJIDForCharacter(character));

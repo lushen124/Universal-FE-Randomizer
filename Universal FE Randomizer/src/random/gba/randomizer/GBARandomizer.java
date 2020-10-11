@@ -423,11 +423,11 @@ public class GBARandomizer extends Randomizer {
 			switch (growths.mode) {
 			case REDISTRIBUTE:
 				updateStatusString("Redistributing growths...");
-				GrowthsRandomizer.randomizeGrowthsByRedistribution(growths.redistributionOption.variance, growths.adjustHP, charData, rng);
+				GrowthsRandomizer.randomizeGrowthsByRedistribution(growths.redistributionOption.variance, growths.redistributionOption.minValue, growths.redistributionOption.maxValue, growths.adjustHP, charData, rng);
 				break;
 			case DELTA:
 				updateStatusString("Applying random deltas to growths...");
-				GrowthsRandomizer.randomizeGrowthsByRandomDelta(growths.deltaOption.variance, growths.adjustHP, charData, rng);
+				GrowthsRandomizer.randomizeGrowthsByRandomDelta(growths.deltaOption.variance, growths.deltaOption.minValue, growths.deltaOption.maxValue, growths.adjustHP, charData, rng);
 				break;
 			case FULL:
 				updateStatusString("Randomizing growths...");
