@@ -36,9 +36,11 @@ public interface GBAFEChapterUnitData extends FEModifiableData {
 	public int getItem4();
 	public void setItem4(int itemID);
 	
+	public void giveItem(int itemID);
 	public void giveItems(int[] itemIDs);
 	public void removeItem(int itemID);
 	
 	public void setAIToHeal(Boolean allowAttack);
 	public void setAIToOnlyAttack(Boolean allowMove);
+	public void setUnitToDropLastItem(boolean drop);
 }

@@ -164,6 +164,18 @@ public class FE6ChapterUnit implements GBAFEChapterUnitData {
 		collapseItems();
 	}
 	
+	public void giveItem(int itemID) {
+		if (getItem1() == 0) {
+			setItem1(itemID);
+		} else if (getItem2() == 0) {
+			setItem2(itemID);
+		} else if (getItem3() == 0) {
+			setItem3(itemID);
+		} else {
+			setItem4(itemID);
+		}
+	}
+	
 	public void removeItem(int itemID) {
 		if (getItem1() == itemID) {
 			setItem1(0);
@@ -238,6 +250,10 @@ public class FE6ChapterUnit implements GBAFEChapterUnitData {
 			data[15] = 0x00;
 		}
 		wasModified = true;
+	}
+	
+	public void setUnitToDropLastItem(boolean drop) {
+		// We don't support this on FE6 (at least not yet).
 	}
 
 	public void resetData() {

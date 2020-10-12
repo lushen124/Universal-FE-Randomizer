@@ -68,6 +68,7 @@ public class DiffApplicator {
 					byte[] existingValue = new byte[length];
 					resultFile.read(existingValue);
 					if (!WhyDoesJavaNotHaveThese.byteArraysAreEqual(existingValue, oldValue)) {
+						assert false;
 						failedDiffs.add(currentDiff);
 						continue;
 					}

@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import javax.swing.plaf.metal.OceanTheme;
+
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
@@ -1077,6 +1079,13 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				WHITE_GEM, BLUE_GEM, RED_GEM, BLACK_GEM, GOLD_GEM,
 				CHEST_KEY, CHEST_KEY_5, DOOR_KEY, LOCKPICK, VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH));
 		
+		public static Set<Item> commonDrops = new HashSet<Item>(Arrays.asList(VULNERARY, ELIXIR, ANTITOXIN, PURE_WATER, TORCH,
+				CHEST_KEY, DOOR_KEY, RED_GEM));
+		public static Set<Item> uncommonDrops = new HashSet<Item>(Arrays.asList(HERO_CREST, KNIGHT_CREST, ORION_BOLT,
+				ELYSIAN_WHIP, GUIDING_RING, MASTER_SEAL, CONQUORER_PROOF, METIS_TOME, BLUE_GEM));
+		public static Set<Item> rareDrops = new HashSet<Item>(Arrays.asList(ANGELIC_ROBE, ENERGY_RING, SECRET_BOOK, SPEEDWINGS,
+				GODDESS_ICON, DRAGONSHIELD, TALISMAN, BOOTS, BODY_RING, WHITE_GEM));
+		
 		public static Set<Item> allWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, POISON_SWORD, RAPIER,
 				BRAVE_SWORD, SHAMSHIR, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, ZANBATO, SHADOWKILLER, SIEGLINDE, AUDHULMA, WIND_SWORD,
 				IRON_LANCE, SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, TOXIN_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN,
@@ -1130,6 +1139,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allRestrictedWeapons = new HashSet<Item>(Arrays.asList(SHAMSHIR));
 		
 		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, FIRE, LIGHTNING, FLUX, ROTTEN_CLAW, FIERY_FANG, EVIL_EYE));
+		public static Set<Item> allSteelWeapons = new HashSet<Item>(Arrays.asList(STEEL_SWORD, STEEL_LANCE, STEEL_AXE, STEEL_BOW, THUNDER));
+		public static Set<Item> allBasicThrownWeapons = new HashSet<Item>(Arrays.asList(JAVELIN, HAND_AXE));
 		
 		public static Set<Item> basicItemsOfType(WeaponType type) {
 			Set<Item> set = new HashSet<Item>();
@@ -1521,6 +1532,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public Boolean isBasicWeapon() {
 			return allBasicWeapons.contains(this);
 		}
+		
+		public Boolean isSteelWeapon() {
+			return allSteelWeapons.contains(this);
+		}
+		
+		public Boolean isBasicThrownWeapon() {
+			return allBasicThrownWeapons.contains(this);
+		}
 
 		public Boolean isStatBooster() {
 			return allStatBoosters.contains(this);
@@ -1573,6 +1592,19 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		// Include Tower/Ruins?
 		;
+		
+		public static List<ChapterPointer> orderedChapters() {
+			return new ArrayList<ChapterPointer>(Arrays.asList(PROLOGUE, CHAPTER_1, CHAPTER_2, CHAPTER_3,
+					CHAPTER_4, CHAPTER_5, CHAPTER_5, CHAPTER_7, CHAPTER_8, CHAPTER_9_EIRIKA,
+					CHAPTER_9_EPHRAIM, CHAPTER_10_EIRIKA, CHAPTER_10_EPHRAIM, CHAPTER_11_EIRIKA, CHAPTER_11_EPHRAIM,
+					CHAPTER_12_EIRIKA, CHAPTER_12_EPHRAIM, CHAPTER_13_EIRIKA, CHAPTER_13_EPHRAIM,
+					CHAPTER_14_EIRIKA, CHAPTER_14_EPHRAIM, CHAPTER_15_EIRIKA, CHAPTER_15_EPHRAIM,
+					CHAPTER_16_EIRIKA, CHAPTER_16_EPHRAIM, CHAPTER_17_EIRIKA, CHAPTER_17_EPHRAIM,
+					CHAPTER_18_EIRIKA, CHAPTER_18_EPHRAIM, CHAPTER_19_EIRIKA, CHAPTER_19_EPHRAIM,
+					CHAPTER_20_EIRIKA, CHAPTER_20_EPHRAIM, FINAL_1_EIRIKA, FINAL_1_EPHRAIM,
+					FINAL_2_EIRIKA, FINAL_2_EPHRAIM));
+		}
+		
 		public int chapterID;
 		
 		private ChapterPointer(int chapterID) {
@@ -2668,6 +2700,65 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isForEnemy,
 				excludeSource, excludeLords, excludeThieves, excludeSpecial, separateMonsters, requireAttack, requiresRange, requiresMelee, applyRestrictions));
 	}
+	
+	public GBAFEClass correspondingMaleClass(GBAFEClass charClass) {
+		switch ((FE8Data.CharacterClass)charClass) {
+		case RECRUIT: return FE8Data.CharacterClass.PUPIL;
+		case EIRIKA_LORD: return FE8Data.CharacterClass.EPHRAIM_LORD;
+		case CAVALIER_F: return FE8Data.CharacterClass.CAVALIER;
+		case KNIGHT_F: return FE8Data.CharacterClass.KNIGHT;
+		case MYRMIDON_F: return FE8Data.CharacterClass.MYRMIDON;
+		case ARCHER_F: return FE8Data.CharacterClass.ARCHER;
+		case MAGE_F: return FE8Data.CharacterClass.MAGE;
+		case CLERIC: return FE8Data.CharacterClass.PRIEST;
+		case RECRUIT_2: return FE8Data.CharacterClass.TRAINEE_2;
+		case EIRIKA_MASTER_LORD: return FE8Data.CharacterClass.EPHRAIM_MASTER_LORD;
+		case PALADIN_F: return FE8Data.CharacterClass.PALADIN;
+		case GENERAL_F: return FE8Data.CharacterClass.GENERAL;
+		case SWORDMASTER_F: return FE8Data.CharacterClass.SWORDMASTER;
+		case ASSASSIN_F: return FE8Data.CharacterClass.ASSASSIN;
+		case SNIPER_F: return FE8Data.CharacterClass.SNIPER;
+		case RANGER_F: return FE8Data.CharacterClass.RANGER;
+		case WYVERN_KNIGHT_F: return FE8Data.CharacterClass.WYVERN_KNIGHT;
+		case SAGE_F: return FE8Data.CharacterClass.SAGE;
+		case MAGE_KNIGHT_F: return FE8Data.CharacterClass.MAGE_KNIGHT;
+		case BISHOP_F: return FE8Data.CharacterClass.BISHOP;
+		case GREAT_KNIGHT_F: return FE8Data.CharacterClass.GREAT_KNIGHT;
+		case SUPER_RECRUIT: return FE8Data.CharacterClass.SUPER_TRAINEE;
+		default: return charClass;
+		}
+	}
+	
+	public GBAFEClass correspondingFemaleClass(GBAFEClass charClass) {
+		switch ((FE8Data.CharacterClass)charClass) {
+		case TRAINEE:
+		case PUPIL: return FE8Data.CharacterClass.RECRUIT; 
+		case EPHRAIM_LORD: return FE8Data.CharacterClass.EIRIKA_LORD;
+		case CAVALIER: return FE8Data.CharacterClass.CAVALIER_F;
+		case KNIGHT: return FE8Data.CharacterClass.KNIGHT_F;
+		case MYRMIDON: return FE8Data.CharacterClass.MYRMIDON_F;
+		case ARCHER: return FE8Data.CharacterClass.ARCHER_F;
+		case MAGE: return FE8Data.CharacterClass.MAGE_F;
+		case PRIEST: return FE8Data.CharacterClass.CLERIC;
+		case TRAINEE_2:
+		case PUPIL_2: return FE8Data.CharacterClass.RECRUIT_2;
+		case EPHRAIM_MASTER_LORD: return FE8Data.CharacterClass.EIRIKA_MASTER_LORD;
+		case PALADIN: return FE8Data.CharacterClass.PALADIN_F;
+		case GENERAL: return FE8Data.CharacterClass.GENERAL_F;
+		case SWORDMASTER: return FE8Data.CharacterClass.SWORDMASTER_F;
+		case ASSASSIN: return FE8Data.CharacterClass.ASSASSIN_F;
+		case SNIPER: return FE8Data.CharacterClass.SNIPER_F;
+		case RANGER: return FE8Data.CharacterClass.RANGER_F;
+		case WYVERN_KNIGHT: return FE8Data.CharacterClass.WYVERN_KNIGHT_F;
+		case SAGE: return FE8Data.CharacterClass.SAGE_F;
+		case MAGE_KNIGHT: return FE8Data.CharacterClass.MAGE_KNIGHT_F;
+		case BISHOP: return FE8Data.CharacterClass.BISHOP_F;
+		case GREAT_KNIGHT: return FE8Data.CharacterClass.GREAT_KNIGHT_F;
+		case SUPER_TRAINEE:
+		case SUPER_PUPIL: return FE8Data.CharacterClass.SUPER_RECRUIT;
+		default: return charClass;
+		}
+	}
 
 	public void prepareForClassRandomization(Map<Integer, GBAFEClassData> classMap) {
 		// This is handled by a separate helper.
@@ -3091,6 +3182,18 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> playerOnlyWeapons() {
 		return new HashSet<GBAFEItem>();
+	}
+	
+	public Set<GBAFEItem> commonDrops() {
+		return new HashSet<GBAFEItem>(Item.commonDrops);
+	}
+	
+	public Set<GBAFEItem> uncommonDrops() {
+		return new HashSet<GBAFEItem>(Item.uncommonDrops);
+	}
+	
+	public Set<GBAFEItem> rareDrops() {
+		return new HashSet<GBAFEItem>(Item.rareDrops);
 	}
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon) {

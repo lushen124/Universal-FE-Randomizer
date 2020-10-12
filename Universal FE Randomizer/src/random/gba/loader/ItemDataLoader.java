@@ -282,6 +282,14 @@ public class ItemDataLoader {
 		return provider.itemWithID(itemID).isBasicWeapon();
 	}
 	
+	public Boolean isSteelWeapon(int itemID) {
+		return provider.itemWithID(itemID).isSteelWeapon();
+	}
+	
+	public Boolean isBasicThrowingWeapon(int itemID) {
+		return provider.itemWithID(itemID).isBasicThrownWeapon();
+	}
+	
 	public GBAFEItemData basicItemOfType(WeaponType type) {
 		GBAFEItem basicItem = provider.basicWeaponOfType(type);
 		if (basicItem != null) { return itemMap.get(basicItem.getID()); }
@@ -314,6 +322,18 @@ public class ItemDataLoader {
 	
 	public GBAFEItemData[] getChestRewards() {
 		return feItemsFromItemSet(provider.allPotentialChestRewards());
+	}
+	
+	public GBAFEItemData[] commonDrops() {
+		return feItemsFromItemSet(provider.commonDrops());
+	}
+	
+	public GBAFEItemData[] uncommonDrops() {
+		return feItemsFromItemSet(provider.uncommonDrops());
+	}
+	
+	public GBAFEItemData[] rareDrops() {
+		return feItemsFromItemSet(provider.rareDrops());
 	}
 	
 	public GBAFEItemData[] relatedItems(int itemID) {

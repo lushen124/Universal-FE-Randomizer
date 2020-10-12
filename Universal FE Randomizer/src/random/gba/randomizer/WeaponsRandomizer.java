@@ -96,7 +96,7 @@ public class WeaponsRandomizer {
 		itemsData.commit();
 	}
 	
-	public static void randomizeEffects(WeaponEffectOptions effectOptions, ItemDataLoader itemsData, TextLoader textData, Boolean ignoreIronWeapons, int effectChance, Random rng) {
+	public static void randomizeEffects(WeaponEffectOptions effectOptions, ItemDataLoader itemsData, TextLoader textData, Boolean ignoreIronWeapons, Boolean ignoreSteelWeapons, Boolean ignoreThrownWeapons, int effectChance, Random rng) {
 		GBAFEItemData[] allWeapons = itemsData.getAllWeapons();
 		
 		Set<WeaponEffects> enabledEffects = new HashSet<WeaponEffects>();
@@ -115,6 +115,9 @@ public class WeaponsRandomizer {
 		
 		for (GBAFEItemData weapon : allWeapons) {
 			if (ignoreIronWeapons && itemsData.isBasicWeapon(weapon.getID())) { continue; }
+			if (ignoreSteelWeapons && itemsData.isSteelWeapon(weapon.getID())) { continue; }
+			if (ignoreThrownWeapons && itemsData.isBasicThrowingWeapon(weapon.getID())) { continue; }
+			
 			if (rng.nextInt(100) < effectChance) {
 				weapon.applyRandomEffect(enabledEffects, itemsData, textData, itemsData.spellAnimations, rng);
 			}

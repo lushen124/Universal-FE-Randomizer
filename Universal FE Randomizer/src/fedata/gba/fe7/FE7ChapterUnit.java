@@ -160,6 +160,18 @@ public class FE7ChapterUnit implements GBAFEChapterUnitData {
 		collapseItems();
 	}
 	
+	public void giveItem(int itemID) {
+		if (getItem1() == 0) {
+			setItem1(itemID);
+		} else if (getItem2() == 0) {
+			setItem2(itemID);
+		} else if (getItem3() == 0) {
+			setItem3(itemID);
+		} else {
+			setItem4(itemID);
+		}
+	}
+	
 	public void removeItem(int itemID) {
 		if (getItem1() == itemID) {
 			setItem1(0);
@@ -239,6 +251,16 @@ public class FE7ChapterUnit implements GBAFEChapterUnitData {
 
 	public void setAIToOnlyAttack(Boolean allowMove) {
 		data[12] = (byte) (allowMove ? 0x00 : 0x03);
+		wasModified = true;
+	}
+	
+	public void setUnitToDropLastItem(boolean drop) {
+		if (drop) {
+			data[15] |= 0x40;
+		} else {
+			data[15] &= ~0x40;
+		}
+		
 		wasModified = true;
 	}
 }

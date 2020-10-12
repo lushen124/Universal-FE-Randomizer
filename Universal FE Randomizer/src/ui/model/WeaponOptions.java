@@ -10,6 +10,8 @@ public class WeaponOptions {
 	
 	public final Boolean shouldAddEffects;
 	public final Boolean noEffectIronWeapons;
+	public final Boolean noEffectSteelWeapons;
+	public final Boolean noEffectThrownWeapons;
 	public final Boolean includeLaguzWeapons;
 	public final int effectChance;
 	public final WeaponEffectOptions effectsList;
@@ -23,6 +25,8 @@ public class WeaponOptions {
 			int effectChance,
 			WeaponEffectOptions effects,
 			Boolean noIrons,
+			Boolean noSteels,
+			Boolean noThrown,
 			Boolean includeLaguzWeapons) {
 		super();
 		
@@ -34,6 +38,8 @@ public class WeaponOptions {
 		this.shouldAddEffects = shouldAddEffects;
 		effectsList = effects;
 		noEffectIronWeapons = noIrons;
+		noEffectSteelWeapons = noSteels;
+		noEffectThrownWeapons = noThrown;
 		this.effectChance = effectChance;
 		this.includeLaguzWeapons = includeLaguzWeapons;
 	}
