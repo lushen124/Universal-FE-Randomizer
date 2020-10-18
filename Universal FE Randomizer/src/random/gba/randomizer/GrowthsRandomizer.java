@@ -4,12 +4,13 @@ import java.util.Random;
 
 import fedata.gba.GBAFECharacterData;
 import random.gba.loader.CharacterDataLoader;
+import util.WhyDoesJavaNotHaveThese;
 
 public class GrowthsRandomizer {
 	
 	static final int rngSalt = 124;
 	
-	public static void randomizeGrowthsByRedistribution(int variance, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
+	public static void randomizeGrowthsByRedistribution(int variance, int min, int max, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			
@@ -27,45 +28,78 @@ public class GrowthsRandomizer {
 				growthTotal -= rng.nextInt(variance + 1);
 			}
 			
-			int newHPGrowth = 0;
-			int newSTRGrowth = 0;
-			int newSKLGrowth = 0;
-			int newSPDGrowth = 0;
-			int newLCKGrowth = 0;
-			int newDEFGrowth = 0;
-			int newRESGrowth = 0;
+			int newHPGrowth = min;
+			int newSTRGrowth = min;
+			int newSKLGrowth = min;
+			int newSPDGrowth = min;
+			int newLCKGrowth = min;
+			int newDEFGrowth = min;
+			int newRESGrowth = min;
 			
-			while (growthTotal > 0) {
-				randomNum = rng.nextInt(adjustHP ? 10 : 8);
-				int amount = Math.min(5,  growthTotal);
-				growthTotal -= amount;
-				switch (randomNum) {
-				case 0:
-				case 1:
-					newHPGrowth += amount;
-					break;
-				case 2:
-					newSTRGrowth += amount;
-					break;
-				case 3:
-					newSKLGrowth += amount;
-					break;
-				case 4:
-					newSPDGrowth += amount;
-					break;
-				case 5:
-					newLCKGrowth += amount;
-					break;
-				case 6: 
-					newDEFGrowth += amount;
-					break;
-				case 7:
-					newRESGrowth += amount;
-					break;
-				default:
-					newHPGrowth += amount;
-					break;
+			growthTotal -= (min * 7);
+		
+			int availableGrowthRemaining = (max - newHPGrowth) + (max - newSTRGrowth) + (max - newSKLGrowth) +
+					(max - newSPDGrowth) + (max - newLCKGrowth) + (max - newDEFGrowth) + (max - newRESGrowth);
+			
+			if (availableGrowthRemaining > growthTotal) {
+				while (growthTotal > 0) {
+					randomNum = rng.nextInt(adjustHP ? 10 : 8);
+					int amount = Math.min(5,  growthTotal);
+					int increaseAmount = 0;
+					switch (randomNum) {
+					case 0:
+					case 1:
+						increaseAmount = Math.min(amount, max - newHPGrowth);
+						growthTotal -= increaseAmount;
+						newHPGrowth += increaseAmount;
+						break;
+					case 2:
+						increaseAmount = Math.min(amount, max - newSTRGrowth);
+						growthTotal -= increaseAmount;
+						newSTRGrowth += increaseAmount;
+						break;
+					case 3:
+						increaseAmount = Math.min(amount, max - newSKLGrowth);
+						growthTotal -= increaseAmount;
+						newSKLGrowth += increaseAmount;
+						break;
+					case 4:
+						increaseAmount = Math.min(amount, max - newSPDGrowth);
+						growthTotal -= increaseAmount;
+						newSPDGrowth += increaseAmount;
+						break;
+					case 5:
+						increaseAmount = Math.min(amount, max - newLCKGrowth);
+						growthTotal -= increaseAmount;
+						newLCKGrowth += increaseAmount;
+						break;
+					case 6: 
+						increaseAmount = Math.min(amount, max - newDEFGrowth);
+						growthTotal -= increaseAmount;
+						newDEFGrowth += increaseAmount;
+						break;
+					case 7:
+						increaseAmount = Math.min(amount, max - newDEFGrowth);
+						growthTotal -= increaseAmount;
+						newRESGrowth += increaseAmount;
+						break;
+					default:
+						increaseAmount = Math.min(amount, max - newHPGrowth);
+						growthTotal -= increaseAmount;
+						newHPGrowth += increaseAmount;
+						break;
+					}
 				}
+			} else {
+				// We can't satisfy the max constraints.
+				// Just max out everything.
+				newHPGrowth = max;
+				newSTRGrowth = max;
+				newSKLGrowth = max;
+				newSPDGrowth = max;
+				newLCKGrowth = max;
+				newDEFGrowth = max;
+				newRESGrowth = max;
 			}
 			
 			for (GBAFECharacterData thisCharacter : charactersData.linkedCharactersForCharacter(character)) {
@@ -82,7 +116,7 @@ public class GrowthsRandomizer {
 		charactersData.commit();
 	}
 	
-	public static void randomizeGrowthsByRandomDelta(int maxDelta, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
+	public static void randomizeGrowthsByRandomDelta(int maxDelta, int min, int max, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			
@@ -99,59 +133,56 @@ public class GrowthsRandomizer {
 			int newRESGrowth = character.getRESGrowth();
 			
 			int randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newHPGrowth += rng.nextInt(maxDelta + 1);
-			} else {
-				newHPGrowth -= rng.nextInt(maxDelta + 1);
-				if (adjustHP) {
-					newHPGrowth += rng.nextInt(maxDelta + 1);
-				}
+			if ((randomNum == 0 && newHPGrowth < max) || adjustHP) {
+				newHPGrowth += rng.nextInt(Math.min(maxDelta + 1, max - newHPGrowth + 1));
+			} else if (newHPGrowth > min) {
+				newHPGrowth -= rng.nextInt(Math.min(maxDelta + 1, newHPGrowth - min + 1));
 			}
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newSTRGrowth += rng.nextInt(maxDelta + 1);
-			} else {
-				newSTRGrowth -= rng.nextInt(maxDelta + 1);
+			if (randomNum == 0 && newSTRGrowth < max) {
+				newSTRGrowth += rng.nextInt(Math.min(maxDelta + 1, max - newSTRGrowth + 1));
+			} else if (newSTRGrowth > min) {
+				newSTRGrowth -= rng.nextInt(Math.min(maxDelta + 1, newSTRGrowth - min + 1));
 			}
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newSKLGrowth += rng.nextInt(maxDelta + 1);
-			} else {
-				newSKLGrowth -= rng.nextInt(maxDelta + 1);
+			if (randomNum == 0 && newSKLGrowth < max) {
+				newSKLGrowth += rng.nextInt(Math.min(maxDelta + 1, max - newSKLGrowth + 1));
+			} else if (newSKLGrowth > min) {
+				newSKLGrowth -= rng.nextInt(Math.min(maxDelta + 1, newSKLGrowth - min + 1));
 			}
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newSPDGrowth += rng.nextInt(maxDelta + 1);
-			} else {
-				newSPDGrowth -= rng.nextInt(maxDelta + 1);
+			if (randomNum == 0 && newSPDGrowth < max) {
+				newSPDGrowth += rng.nextInt(Math.min(maxDelta + 1, max - newSPDGrowth + 1));
+			} else if (newSPDGrowth > min) {
+				newSPDGrowth -= rng.nextInt(Math.min(maxDelta + 1, newSPDGrowth - min + 1));
 			}
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newLCKGrowth += rng.nextInt(maxDelta + 1);
-			} else {
-				newLCKGrowth -= rng.nextInt(maxDelta + 1);
+			if (randomNum == 0 && newLCKGrowth < max) {
+				newLCKGrowth += rng.nextInt(Math.min(maxDelta + 1, max - newLCKGrowth + 1));
+			} else if (newLCKGrowth > min) {
+				newLCKGrowth -= rng.nextInt(Math.min(maxDelta + 1, newLCKGrowth - min + 1));
 			}
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newDEFGrowth += rng.nextInt(maxDelta + 1);
-			} else {
-				newDEFGrowth -= rng.nextInt(maxDelta + 1);
+			if (randomNum == 0 && newDEFGrowth < max) {
+				newDEFGrowth += rng.nextInt(Math.min(maxDelta + 1, max - newDEFGrowth + 1));
+			} else if (newDEFGrowth > min) {
+				newDEFGrowth -= rng.nextInt(Math.min(maxDelta + 1, newDEFGrowth - min + 1));
 			}
 			randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				newRESGrowth += rng.nextInt(maxDelta + 1);
-			} else {
-				newRESGrowth -= rng.nextInt(maxDelta + 1);
+			if (randomNum == 0 && newRESGrowth < max) {
+				newRESGrowth += rng.nextInt(Math.min(maxDelta + 1, max - newRESGrowth + 1));
+			} else if (newRESGrowth > min) {
+				newRESGrowth -= rng.nextInt(Math.min(maxDelta + 1, newRESGrowth - min + 1));
 			}
 			
 			for (GBAFECharacterData thisCharacter : charactersData.linkedCharactersForCharacter(character)) {
-				thisCharacter.setHPGrowth(newHPGrowth);
-				thisCharacter.setSTRGrowth(newSTRGrowth);
-				thisCharacter.setSKLGrowth(newSKLGrowth);
-				thisCharacter.setSPDGrowth(newSPDGrowth);
-				thisCharacter.setLCKGrowth(newLCKGrowth);
-				thisCharacter.setDEFGrowth(newDEFGrowth);
-				thisCharacter.setRESGrowth(newRESGrowth);
+				thisCharacter.setHPGrowth(WhyDoesJavaNotHaveThese.clamp(newHPGrowth, min, max));
+				thisCharacter.setSTRGrowth(WhyDoesJavaNotHaveThese.clamp(newSTRGrowth, min, max));
+				thisCharacter.setSKLGrowth(WhyDoesJavaNotHaveThese.clamp(newSKLGrowth, min, max));
+				thisCharacter.setSPDGrowth(WhyDoesJavaNotHaveThese.clamp(newSPDGrowth, min, max));
+				thisCharacter.setLCKGrowth(WhyDoesJavaNotHaveThese.clamp(newLCKGrowth, min, max));
+				thisCharacter.setDEFGrowth(WhyDoesJavaNotHaveThese.clamp(newDEFGrowth, min, max));
+				thisCharacter.setRESGrowth(WhyDoesJavaNotHaveThese.clamp(newRESGrowth, min, max));
 			}
 		}
 		
