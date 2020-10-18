@@ -175,8 +175,13 @@ public class FE9SkillDataLoader {
 		else if (charClass == CharacterClass.ASSASSIN || 
 				charClass == CharacterClass.THIEF ||
 				charClass == CharacterClass.SAGE_KNIFE || 
-				charClass == CharacterClass.SAGE_KNIFE_F) { skills.add(getSkillWithSID(FE9Data.Skill.EQUIP_KNIFE.getSID())); }
-		
+				charClass == CharacterClass.SAGE_KNIFE_F) { 
+			skills.add(getSkillWithSID(FE9Data.Skill.EQUIP_KNIFE.getSID()));
+			if (charClass == CharacterClass.ASSASSIN || 
+				charClass == CharacterClass.THIEF) {
+				skills.add(getSkillWithSID(FE9Data.Skill.KEY_0.getSID()));
+			}
+		}
 		return skills;
 	}
 
