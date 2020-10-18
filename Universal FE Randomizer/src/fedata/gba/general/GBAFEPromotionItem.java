@@ -6,5 +6,7 @@ public interface GBAFEPromotionItem {
 	public Boolean isIndirected(); // True for FE7 and 8, but not FE6.
 	
 	public String itemName();
+	
+	public int getItemID();
 
 }

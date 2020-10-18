@@ -7,6 +7,8 @@ public class ClassOptions {
 	}
 	
 	public final Boolean randomizePCs;
+	public final Boolean createPrfs;
+	public final Boolean unbreakablePrfs;
 	public final Boolean includeLords;
 	public final Boolean includeThieves;
 	public final Boolean includeSpecial;
@@ -21,9 +23,11 @@ public class ClassOptions {
 	
 	public final BaseTransferOption basesTransfer;
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, Boolean special, boolean forceChange, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, boolean forceChange, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
 		super();
 		randomizePCs = pcs;
+		createPrfs = newPrfs;
+		this.unbreakablePrfs = unbreakablePrfs;
 		includeLords = lords;
 		includeThieves = thieves;
 		includeSpecial = special;
@@ -39,9 +43,11 @@ public class ClassOptions {
 		this.forceChange = forceChange;
 	}
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean thieves, Boolean special, Boolean separateMonsters, boolean forceChange, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, Boolean separateMonsters, boolean forceChange, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
 		super();
 		randomizePCs = pcs;
+		createPrfs = newPrfs;
+		this.unbreakablePrfs = unbreakablePrfs;
 		includeLords = lords;
 		includeThieves = thieves;
 		includeSpecial = special;

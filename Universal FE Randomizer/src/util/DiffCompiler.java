@@ -12,11 +12,13 @@ import io.DiffApplicator;
 public class DiffCompiler {
 	
 	public final ArrayList<Diff> diffArray;
+	public final ArrayList<FindAndReplace> replaceArray;
 	
 	public DiffCompiler() {
 		super();
 		
 		diffArray = new ArrayList<>();
+		replaceArray = new ArrayList<>();
 	}
 	
 	public void addDiffsFromFile(String diffName) throws IOException {
@@ -44,6 +46,10 @@ public class DiffCompiler {
 	
 	public void addDiff(Diff newDiff) {
 		diffArray.add(newDiff);
+	}
+	
+	public void findAndReplace(FindAndReplace replace) {
+		replaceArray.add(replace);
 	}
 	
 	public byte[] byteArrayWithDiffs(byte[] byteArray, long startingOffset) {

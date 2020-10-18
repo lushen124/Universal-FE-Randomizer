@@ -55,6 +55,12 @@ public class ByteArrayBuilder {
 		return null;
 	}
 	
+	public void deleteLastByte() {
+		if (bytesWritten > 0) {
+			bytesWritten--;
+		}
+	}
+	
 	public int getBytesWritten() {
 		return bytesWritten;
 	}

@@ -5,7 +5,7 @@ import fedata.general.FEModifiableData;
 public interface GBAFEChapterItemData extends FEModifiableData {
 
 	public enum Type {
-		CHES, ITGV
+		CHES, ITGV, ITGC
 	}
 	
 	public Type getRewardType();

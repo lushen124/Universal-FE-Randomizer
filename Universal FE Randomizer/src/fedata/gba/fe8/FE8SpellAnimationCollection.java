@@ -1,14 +1,21 @@
 package fedata.gba.fe8;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.general.FEModifiableData;
+import util.ByteArrayBuilder;
 import util.Diff;
 import util.DiffCompiler;
+import util.FindAndReplace;
+import util.FreeSpaceManager;
+import util.WhyDoesJavaNotHaveThese;
 
 public class FE8SpellAnimationCollection implements GBAFESpellAnimationCollection {
 	
@@ -38,6 +45,26 @@ public class FE8SpellAnimationCollection implements GBAFESpellAnimationCollectio
 		public static Animation randomMagicAnimation(Random rng) {
 			Animation[] magicAnimations = {FIRE, ELFIRE, THUNDER, BOLTING, FIMBULVETR, FLUX, LIGHTNING, PURGE, DIVINE, SHINE, EVIL_EYE, CRIMSON_EYE, SHADOWSHOT, DEMON_SURGE};
 			return magicAnimations[rng.nextInt(magicAnimations.length)];
+		}
+	}
+	
+	public enum Flash {
+		WHITE(0x00), DARK(0x01), RED(0x02), GREEN(0x03), BLUE(0x04), YELLOW(0x05);
+		
+		public int value;
+		
+		private static Map<Integer, Flash> map = new HashMap<Integer, Flash>();
+		
+		static {
+			for (Flash flash : Flash.values()) {
+				map.put(flash.value, flash);
+			}
+		}
+		
+		private Flash(final int value) { this.value = value; }
+		
+		public static Flash flashWithID(int value) {
+			return map.get(value);
 		}
 	}
 
@@ -109,13 +136,19 @@ public class FE8SpellAnimationCollection implements GBAFESpellAnimationCollectio
 	}
 
 	private Map<Integer, SpellAnimationEntry> entries;
+	private Map<Integer, SpellAnimationEntry> addedEntries;
+	
+	private long originalOffset;
 	
 	public FE8SpellAnimationCollection(byte[] data, long originalOffset) {
 		super();
 	
+		this.originalOffset = originalOffset;
+		
 		int currentOffset = 0;
 		
 		entries = new HashMap<Integer, SpellAnimationEntry>();
+		addedEntries = new HashMap<Integer, SpellAnimationEntry>();
 		
 		for (int i = 0; i < FE8Data.NumberOfSpellAnimations; i++) {
 			SpellAnimationEntry entry = new SpellAnimationEntry(Arrays.copyOfRange(data, currentOffset, currentOffset + FE8Data.BytesPerSpellAnimation), currentOffset + originalOffset);
@@ -127,11 +160,23 @@ public class FE8SpellAnimationCollection implements GBAFESpellAnimationCollectio
 	}
 	
 	public int getAnimationValueForID(int itemID) {
-		return entries.get(itemID).getAnimationRaw();
+		if (entries.containsKey(itemID)) {
+			return entries.get(itemID).getAnimationRaw();
+		} else if (addedEntries.containsKey(itemID)) {
+			return addedEntries.get(itemID).getAnimationRaw();
+		}
+		
+		return 0xFF;
 	}
 	
 	public Animation getAnimationForID(int itemID) {
-		return entries.get(itemID).getAnimation();
+		if (entries.containsKey(itemID)) {
+			return entries.get(itemID).getAnimation();
+		} else if (addedEntries.containsKey(itemID)) {
+			return addedEntries.get(itemID).getAnimation();
+		}
+		
+		return null;
 	}
 	
 	public void setAnimationValueForID(int itemID, int animationValue) {
@@ -139,7 +184,11 @@ public class FE8SpellAnimationCollection implements GBAFESpellAnimationCollectio
 	}
 	
 	public void setAnimationForID(int itemID, Animation animation) {
-		entries.get(itemID).setAnimationUsed(animation);
+		if (entries.containsKey(itemID)) {
+			entries.get(itemID).setAnimationUsed(animation);
+		} else if (addedEntries.containsKey(itemID)) {
+			addedEntries.get(itemID).setAnimationUsed(animation);
+		}
 	}
 	
 	public void commit() {
@@ -148,13 +197,104 @@ public class FE8SpellAnimationCollection implements GBAFESpellAnimationCollectio
 		}
 	}
 	
-	public void compileDiffs(DiffCompiler compiler) {
-		for (SpellAnimationEntry entry : entries.values()) {
-			entry.commitChanges();
-			if (entry.hasCommittedChanges()) {
-				Diff charDiff = new Diff(entry.getAddressOffset(), entry.getData().length, entry.getData(), null);
-				compiler.addDiff(charDiff);
+	public void compileDiffs(DiffCompiler compiler, FreeSpaceManager freeSpace) {
+		if (addedEntries.isEmpty()) {
+			for (SpellAnimationEntry entry : entries.values()) {
+				entry.commitChanges();
+				if (entry.hasCommittedChanges()) {
+					Diff charDiff = new Diff(entry.getAddressOffset(), entry.getData().length, entry.getData(), null);
+					compiler.addDiff(charDiff);
+				}
 			}
+		} else {
+			// Needs a repoint.
+			List<SpellAnimationEntry> orderedList = new ArrayList<SpellAnimationEntry>();
+			orderedList.addAll(entries.values());
+			orderedList.addAll(addedEntries.values());
+			orderedList.sort(new Comparator<SpellAnimationEntry>() {
+				@Override
+				public int compare(SpellAnimationEntry o1, SpellAnimationEntry o2) {
+					return Integer.compare(o1.getWeaponID(), o2.getWeaponID());
+				}
+			});
+			
+			Long newTableOffset = null;
+			for (SpellAnimationEntry entry : orderedList) {
+				entry.commitChanges();
+				if (newTableOffset == null) {
+					newTableOffset = freeSpace.setValue(entry.getData(), "Spell Animation for ID 0x" + Integer.toHexString(entry.getWeaponID()), true);
+				} else {
+					freeSpace.setValue(entry.getData(), "Spell Animation for ID 0x" + Integer.toHexString(entry.getWeaponID()), false);
+				}
+			}
+			
+			// Append a terminator entry.
+			freeSpace.setValue(new byte[] {
+					(byte)0xFF, (byte)0xFF, (byte)0x02, (byte)0, 
+					(byte)0xFF, (byte)0xFF, (byte)0, (byte)0, 
+					(byte)0, (byte)0, (byte)0, (byte)0,
+					(byte)0x1, (byte)0, (byte)0, (byte)0}, "Spell Animation Terminator", false);
+			
+			// Update the pointers
+			compiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.gbaAddressFromOffset(originalOffset), WhyDoesJavaNotHaveThese.gbaAddressFromOffset(newTableOffset), true));
 		}
+	}
+
+	@Override
+	public void addAnimation(int itemID, int numberOfCharacters, int animationValue, int colorValue) {
+		Flash flashColor = Flash.flashWithID(colorValue);
+		assert flashColor != null;
+		if (flashColor == null) { return; }
+		
+		if (entries.containsKey(itemID)) {
+			setAnimationValueForID(itemID, animationValue);
+			SpellAnimationEntry entry = entries.get(itemID);
+			entry.data[2] = 2; // Update the number of characters to display.
+			entry.data[8] = 0;
+			entry.data[9] = 0;
+			entry.data[10] = 0;
+			entry.data[11] = 0; // Null out the alternate pointer.
+			entry.data[12] = 1; // Set the map animation to return to original position.
+			entry.data[13] = 0; // Map animation always goes towards the target.
+			entry.data[14] = (byte)flashColor.value; // Update the flash color if necessary.
+			entry.wasModified = true;
+			
+			return;
+		}
+		
+		Animation animation = Animation.animationWithID(animationValue);
+		assert animation != null;
+		if (animation == null) { return; }
+		
+		ByteArrayBuilder entryBytes = new ByteArrayBuilder();
+		// First byte is the weapon ID itself.
+		entryBytes.appendByte((byte)(itemID & 0xFF));
+		// Next is a 0 byte.
+		entryBytes.appendByte((byte)0);
+		// Then the number of characters.
+		entryBytes.appendByte((byte)numberOfCharacters);
+		// Then another 0.
+		entryBytes.appendByte((byte)0);
+		// Then the animation value.
+		entryBytes.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(animation.value, false, 2));
+		// Then two 0s.
+		entryBytes.appendByte((byte)0);
+		entryBytes.appendByte((byte)0);
+		// Then the alternate pointer, which we generally don't use (it's used for staves, which we don't touch).
+		entryBytes.appendBytes(new byte[] {0, 0, 0, 0});
+		// Then whether the animation returns to original position (used for staves and healing items). This is always on for us.
+		entryBytes.appendByte((byte)0x1);
+		// The position to face (we're only messing with weapons, so this is always towards target).
+		entryBytes.appendByte((byte)0);
+		// The enemy of the flash with map animations.
+		entryBytes.appendByte((byte)flashColor.value);
+		// Then a trailing 0.
+		entryBytes.appendByte((byte)0);
+		
+		// This should be 16 bytes long.
+		assert entryBytes.getBytesWritten() == FE8Data.BytesPerSpellAnimation;
+		
+		SpellAnimationEntry newEntry = new SpellAnimationEntry(entryBytes.toByteArray(), -1);
+		addedEntries.put(itemID, newEntry);
 	}
 }

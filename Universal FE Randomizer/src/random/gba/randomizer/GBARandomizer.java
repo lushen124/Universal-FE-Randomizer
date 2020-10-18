@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEChapterData;
+import fedata.gba.GBAFEChapterItemData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
@@ -18,11 +20,17 @@ import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapSpriteData;
 import fedata.gba.fe6.FE6Data;
+import fedata.gba.fe6.FE6SpellAnimationCollection;
 import fedata.gba.fe7.FE7Data;
+import fedata.gba.fe7.FE7SpellAnimationCollection;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8PaletteMapper;
 import fedata.gba.fe8.FE8PromotionManager;
+import fedata.gba.fe8.FE8SpellAnimationCollection;
 import fedata.gba.fe8.FE8SummonerModule;
+import fedata.gba.general.GBAFEClass;
+import fedata.gba.general.WeaponRank;
+import fedata.gba.general.WeaponType;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 import io.DiffApplicator;
@@ -51,7 +59,10 @@ import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
+import util.FileReadHelper;
+import util.FindAndReplace;
 import util.FreeSpaceManager;
+import util.GBAImageCodec;
 import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.RecordKeeper;
@@ -95,6 +106,8 @@ public class GBARandomizer extends Randomizer {
 	private FreeSpaceManager freeSpace;
 	
 	private FileHandler handler;
+	
+	private boolean fe8_walkingSoundFixApplied = false;
 
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
@@ -193,6 +206,8 @@ public class GBARandomizer extends Randomizer {
 		
 		paletteData.recordReferencePalettes(recordKeeper, charData, classData, textData);
 		
+		makePreliminaryAdjustments();
+		
 		updateStatusString("Randomizing...");
 		try { randomizeGrowthsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing growths.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.45);
@@ -216,8 +231,8 @@ public class GBARandomizer extends Randomizer {
 		updateProgress(0.95);
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
-		classData.compileDiffs(diffCompiler);
-		itemData.compileDiffs(diffCompiler);
+		classData.compileDiffs(diffCompiler, handler, freeSpace);
+		itemData.compileDiffs(diffCompiler, handler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
 		
@@ -577,7 +592,30 @@ public class GBARandomizer extends Randomizer {
 		}
 	}
 	
+	private void makePreliminaryAdjustments() {
+		// FE8 Walking sound effect fix.
+		// From Tequila's patch.
+		if (gameType == GameType.FE8) {
+			try {
+				InputStream stream = UPSPatcher.class.getClassLoader().getResourceAsStream("fe8_walking_sound_fix.bin");
+				byte[] fixData = new byte[0x14C];
+				stream.read(fixData);
+				stream.close();
+				
+				diffCompiler.addDiff(new Diff(0x78d78, fixData.length, fixData, null));
+				
+				fe8_walkingSoundFixApplied = true;
+			} catch (Exception e) {
+				
+			}
+		}
+	}
+	
 	private void makeFinalAdjustments(String seed) {
+		
+		// If we need RNG, set one up here.
+		Random rng = new Random(SeedGenerator.generateSeedValue(seed, 1));
+		
 		// Fix the palettes based on final classes.
 		if (needsPaletteFix) {
 			PaletteHelper.synchronizePalettes(gameType, recruitOptions != null ? recruitOptions.includeExtras : false, charData, classData, paletteData, characterMap, freeSpace);
@@ -636,7 +674,7 @@ public class GBARandomizer extends Randomizer {
 			// Fix up the portraits in mode select, since they're hardcoded.
 			// Only necessary if we randomized recruitment.
 			// All of the data should have been commited at this point, so asking for Lyn will get you the Lyn replacement.
-			if (recruitOptions != null && recruitOptions.includeLords) {
+			if ((recruitOptions != null && recruitOptions.includeLords) || (classes != null && classes.includeLords)) {
 				GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
 				GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
 				GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
@@ -661,9 +699,9 @@ public class GBARandomizer extends Randomizer {
 						new byte[] {lynReplacementAnimationID, 0, 0, 0, eliwoodReplacementAnimationID, 0, 0, 0, hectorReplacementAnimationID, 0, 0, 0}, null));
 				
 				// See if we can apply their palettes to the class default.
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(lyn), lyn.getClassID(), paletteData, freeSpace, diffCompiler);
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(eliwood), eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap.get(hector), hector.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(hector) : hector, hector.getClassID(), paletteData, freeSpace, diffCompiler);
 				
 				// Finally, fix the weapon text.
 				textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType() + "[X]");
@@ -763,6 +801,1122 @@ public class GBARandomizer extends Randomizer {
 					FE6Data.CharacterClass charClass = FE6Data.CharacterClass.valueOf(chapterUnit.getStartingClass());
 					if (!FE6Data.CharacterClass.allThiefClasses.contains(charClass) && (chapterUnit.isNPC() || chapterUnit.isEnemy())) {
 						chapterUnit.removeItem(FE6Data.Item.LOCKPICK.ID);
+					}
+				}
+			}
+		}
+		
+		// Make sure healing classes have at least one healing staff in their starting inventory.
+		for (GBAFEChapterData chapter : chapterData.allChapters()) {
+			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
+				GBAFEClassData unitClass = classData.classForID(chapterUnit.getStartingClass());
+				if (unitClass == null) { continue; }
+				if (unitClass.getStaffRank() != 0) {
+					if (itemData.isHealingStaff(chapterUnit.getItem1()) || itemData.isHealingStaff(chapterUnit.getItem2()) ||
+							itemData.isHealingStaff(chapterUnit.getItem3()) || itemData.isHealingStaff(chapterUnit.getItem4())) {
+						continue;
+					} else {
+						if (charData.isPlayableCharacterID(chapterUnit.getCharacterNumber())) {
+							GBAFECharacterData character = charData.characterWithID(chapterUnit.getCharacterNumber());
+							GBAFEItemData healingStaff = itemData.getRandomHealingStaff(itemData.rankForValue(character.getStaffRank()), rng);
+							if (healingStaff != null) {
+								chapterUnit.giveItem(healingStaff.getID());
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// Adjust Wire and/or Hector in FE7, since he has a high chance of softlocking Hector and Matthew in Ch. 11.
+		// TODO: Maybe make this logic more generic to ensure winnable matchups.
+		if (gameType == GameType.FE7) {
+			GBAFECharacterData wire = charData.characterWithID(FE7Data.Character.WIRE.ID);
+			GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
+			
+			GBAFEClassData wireClass = classData.classForID(wire.getClassID());
+			GBAFEClassData hectorClass = classData.classForID(hector.getClassID());
+			
+			GBAFEChapterData ch11 = chapterData.chapterWithID(FE7Data.ChapterPointer.CHAPTER_11_H.chapterID);
+			GBAFEItemData wireWeapon = null;
+			GBAFEItemData hectorWeapon = null;
+			for (GBAFEChapterUnitData unit : ch11.allUnits()) {
+				if (unit.getCharacterNumber() == wire.getID()) {
+					wireWeapon = chapterData.getWeaponForUnit(unit, itemData);
+				}
+				if (unit.getCharacterNumber() == hector.getID()) {
+					hectorWeapon = chapterData.getWeaponForUnit(unit, itemData);
+				}
+			}
+			
+			// Simulate numbers for Hector v. Wire.
+			int hectorHP = hector.getBaseHP() + hectorClass.getBaseHP();
+			int hectorSPD = hector.getBaseSPD() + hectorClass.getBaseSPD();
+			int hectorCON = hector.getConstitution() + hectorClass.getCON();
+			if (wireWeapon.getType().isPhysical()) { // Wire attacks Hector.
+				int hectorDEF = hector.getBaseDEF() + hectorClass.getBaseDEF();
+				int wireSTR = wire.getBaseSTR() + wireClass.getBaseSTR();
+				int wireSPD = wire.getBaseSPD() + wireClass.getBaseSPD();
+				int wireCON = wire.getConstitution() + wireClass.getCON();
+				
+				int hectorAS = hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight());
+				int wireATK = wireSTR + wireWeapon.getMight() + (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+				int wireAS = wireSPD + Math.min(0, wireCON - wireWeapon.getWeight());
+				
+				boolean wireDoublesHector = hectorAS < wireAS - 3;
+				int damageDealtToHector = wireATK - hectorDEF;
+				int totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
+				
+				// Hector should not be two-rounded (unless buffing boss weapons is on).
+				while (totalDamageDealt * (enemies.improveBossWeapons ? 2 : 3) > hectorHP) {
+					// If he doubles, get rid of that first.
+					if (wireDoublesHector && (wireCON > 1 || wireSPD > 0)) {
+						if (wireCON > 1) {
+							wire.setConstitution(wire.getConstitution() - 1);
+							wireCON = wire.getConstitution() + wireClass.getCON();
+						} else if (wireSPD > 0) {
+							wire.setBaseSPD(wire.getBaseSPD() - 1);
+							wireSPD = wire.getBaseSPD() + wireClass.getBaseSPD();
+						}
+						wireAS = wireSPD + Math.min(0, wireCON - wireWeapon.getWeight());
+						wireDoublesHector = hectorAS < wireAS - 3;
+						totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
+					} else if (wireSTR > 0) { // Nerf Wire's damage output next.
+						wire.setBaseSTR(wire.getBaseSTR() - 1);
+						wireSTR = wire.getBaseSTR() + wireClass.getBaseSTR();
+						wireATK = wireSTR + wireWeapon.getMight() + (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+						damageDealtToHector = wireATK - hectorDEF;
+						totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
+					} else { // This is a pretty bad Hector if he can't take out a 0 AS, 0 STR Wire. Buff his DEF.
+						hector.setBaseDEF(hector.getBaseDEF() + 1);
+						hectorDEF = hector.getBaseDEF() + hectorClass.getBaseDEF();
+						damageDealtToHector = wireATK - hectorDEF;
+						totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
+					}
+				}
+			} else {
+				int hectorRES = hector.getBaseRES() + hectorClass.getBaseRES();
+				int wireMAG = wire.getBaseSTR() + wireClass.getBaseSTR();
+				int wireSPD = wire.getBaseSPD() + wireClass.getBaseSPD();
+				int wireCON = wire.getConstitution() + wireClass.getCON();
+				
+				int hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
+				int wireATK = wireMAG + wireWeapon.getMight() + (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+				int wireAS = Math.max(0, wireSPD + Math.min(0, wireCON - wireWeapon.getWeight()));
+				
+				boolean wireDoublesHector = hectorAS < wireAS - 3;
+				int damageDealtToHector = wireATK - hectorRES;
+				int totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
+				
+				// Hector should not be two-rounded.
+				while (totalDamageDealt * (enemies.improveBossWeapons ? 2 : 3) > hectorHP) {
+					// If he doubles, get rid of that first.
+					if (wireDoublesHector && (wireCON > 1 || wireSPD > 0)) {
+						if (wireCON > 1) {
+							wire.setConstitution(wire.getConstitution() - 1);
+							wireCON = wire.getConstitution() + wireClass.getCON();
+						} else if (wireSPD > 0) {
+							wire.setBaseSPD(wire.getBaseSPD() - 1);
+							wireSPD = wire.getBaseSPD() + wireClass.getBaseSPD();
+						}
+						wireAS = Math.max(0, wireSPD + Math.min(0, wireCON - wireWeapon.getWeight()));
+						wireDoublesHector = hectorAS < wireAS - 3;
+						totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
+					} else if (wireMAG > 0) { // Nerf Wire's damage output next.
+						wire.setBaseSTR(wire.getBaseSTR() - 1);
+						wireMAG = wire.getBaseSTR() + wireClass.getBaseSTR();
+						wireATK = wireMAG + wireWeapon.getMight() + (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+						damageDealtToHector = wireATK - hectorRES;
+						totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
+					} else { // This is a pretty bad Hector if he can't take out a 0 AS, 0 STR Wire. Buff his RES.
+						hector.setBaseRES(hector.getBaseRES() + 1);
+						hectorRES = hector.getBaseRES() + hectorClass.getBaseRES();
+						damageDealtToHector = wireATK - hectorRES;
+						totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
+					}
+				}
+			}
+			
+			// Hector attacks Wire
+			int wireHP = wire.getBaseHP() + wireClass.getBaseHP();
+			int wireSPD = wire.getBaseSPD() + wireClass.getBaseSPD();
+			int wireCON = wire.getConstitution() + wireClass.getCON();
+			if (hectorWeapon.getType().isPhysical()) {
+				int wireDEF = wire.getBaseDEF() + wireClass.getBaseDEF();
+				int hectorSTR = hector.getBaseSTR() + hectorClass.getBaseSTR();
+				
+				int hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
+				int hectorATK = hectorSTR + hectorWeapon.getMight() - (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+				int wireAS = Math.max(0, wireSPD + Math.min(0, wireCON - wireWeapon.getWeight()));
+				
+				boolean hectorDoublesWire = wireAS < hectorAS - 3;
+				int damageDealtToWire = hectorATK - wireDEF;
+				int totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
+				
+				// This fight shouldn't take more than 3 rounds.
+				int i = 0;
+				while (wireHP > totalDamageDealt * 3) {
+					// Lower his defense first.
+					if (wireDEF > 0) {
+						wire.setBaseDEF(wire.getBaseDEF() - 1);
+						wireDEF = wire.getBaseDEF() + wireClass.getBaseDEF();
+						damageDealtToWire = hectorATK - wireDEF;
+						totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
+					} else { // Alternate between increasing Hector's SPD and ATK.
+						if (i++ % 2 == 0) {
+							if (hectorWeapon.getWeight() > hectorCON) { // Try raising CON before we start raising SPD.
+								hector.setConstitution(hector.getConstitution() + 1);
+								hectorCON = hector.getConstitution() + hectorClass.getCON();
+							} else {
+								hector.setBaseSPD(hector.getBaseSPD() + 1);
+								hectorSPD = hector.getBaseSPD() + hectorClass.getBaseSPD();
+							}
+						} else {
+							hector.setBaseSTR(hector.getBaseSTR() + 1);
+							hectorSTR = hector.getBaseSTR() + hectorClass.getBaseSTR();
+						}
+						
+						hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
+						hectorATK = hectorSTR + hectorWeapon.getMight() - (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+						hectorDoublesWire = wireAS < hectorAS - 3;
+						damageDealtToWire = hectorATK - wireDEF;
+						totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
+					}
+				}
+			} else {
+				int wireRES = wire.getBaseRES() + wireClass.getBaseRES();
+				int hectorSTR = hector.getBaseSTR() + hectorClass.getBaseSTR();
+				
+				int hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
+				int hectorATK = hectorSTR + hectorWeapon.getMight() - (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+				int wireAS = Math.max(0, wireSPD + Math.min(0, wireCON - wireWeapon.getWeight()));
+				
+				boolean hectorDoublesWire = wireAS < hectorAS - 3;
+				int damageDealtToWire = hectorATK - wireRES;
+				int totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
+				
+				// This fight shouldn't take more than 3 rounds.
+				int i = 0;
+				while (wireHP > totalDamageDealt * 3) {
+					// Lower his defense first.
+					if (wireRES > 0) {
+						wire.setBaseRES(wire.getBaseRES() - 1);
+						wireRES = wire.getBaseRES() + wireClass.getBaseRES();
+						damageDealtToWire = hectorATK - wireRES;
+						totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
+					} else { // Alternate between increasing Hector's SPD and ATK.
+						if (i++ % 2 == 0) {
+							if (hectorWeapon.getWeight() > hectorCON) { // Try raising CON before we start raising SPD.
+								hector.setConstitution(hector.getConstitution() + 1);
+								hectorCON = hector.getConstitution() + hectorClass.getCON();
+							} else {
+								hector.setBaseSPD(hector.getBaseSPD() + 1);
+								hectorSPD = hector.getBaseSPD() + hectorClass.getBaseSPD();
+							}
+						} else {
+							hector.setBaseSTR(hector.getBaseSTR() + 1);
+							hectorSTR = hector.getBaseSTR() + hectorClass.getBaseSTR();
+						}
+						
+						hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
+						hectorATK = hectorSTR + hectorWeapon.getMight() - (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+						hectorDoublesWire = wireAS < hectorAS - 3;
+						damageDealtToWire = hectorATK - wireRES;
+						totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
+					}
+				}
+			}
+			
+			// Make sure Hector has at least 5 (assuming boss weapons are buffed, as this gives them S rank) + Wire's SKL/2 Luck to prevent crits.
+			hector.setBaseLCK(Math.max(hector.getBaseLCK(), (enemies.improveBossWeapons ? 5 : 0) + (wire.getBaseSKL() + wireClass.getBaseSKL()) / 2));
+		}
+		
+		// Create special lord classes to prevent them from promoting prematurely.
+		// Do this last, so that we don't mess up anything else that needs to read class IDs.
+		if (gameType == GameType.FE6) {
+			GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
+			
+			int oldRoyClassID = roy.getClassID();
+			
+			GBAFEClassData newRoyClass = classData.createLordClassBasedOnClass(classData.classForID(oldRoyClassID));
+			
+			roy.setClassID(newRoyClass.getID());
+			
+			// Incidentally, Roy doesn't need a promotion item, because his promotion is entirely scripted without any items.
+			
+			for (GBAFEChapterData chapter : chapterData.allChapters()) {
+				for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+					if (unit.getCharacterNumber() == FE6Data.Character.ROY.ID) {
+						if (unit.getStartingClass() == oldRoyClassID) { unit.setStartingClass(newRoyClass.getID()); }
+					}
+				}
+			}
+			
+			long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE6Data.ClassMapSpriteTablePointer);
+			byte[] spriteTable = handler.readBytesAtOffset(mapSpriteTableOffset, FE6Data.BytesPerMapSpriteTableEntry * FE6Data.NumberOfMapSpriteEntries);
+			long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
+			freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldRoyClassID - 1) * 8, 8), "Roy Map Sprite Entry");
+			diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
+		} else if (gameType == GameType.FE7) {
+			GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
+			GBAFECharacterData tutorialLyn = charData.characterWithID(FE7Data.Character.LYN_TUTORIAL.ID);
+			GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
+			GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
+			
+			int oldLynClassID = lyn.getClassID();
+			int oldEliwoodClassID = eliwood.getClassID();
+			int oldHectorClassID = hector.getClassID();
+			
+			GBAFEClassData newLynClass = classData.createLordClassBasedOnClass(classData.classForID(lyn.getClassID()));
+			GBAFEClassData newEliwoodClass = classData.createLordClassBasedOnClass(classData.classForID(eliwood.getClassID()));
+			GBAFEClassData newHectorClass = classData.createLordClassBasedOnClass(classData.classForID(hector.getClassID()));
+			
+			lyn.setClassID(newLynClass.getID());
+			tutorialLyn.setClassID(newLynClass.getID());
+			eliwood.setClassID(newEliwoodClass.getID());
+			hector.setClassID(newHectorClass.getID());
+			
+			itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.ELIWOOD_LYN_HEAVEN_SEAL, new ArrayList<Integer>(Arrays.asList(newLynClass.getID(), newEliwoodClass.getID())));
+			itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.HECTOR_LYN_HEAVEN_SEAL, new ArrayList<Integer>(Arrays.asList(newHectorClass.getID(), newLynClass.getID())));
+			
+			for (GBAFEChapterData chapter : chapterData.allChapters()) {
+				for(GBAFEChapterUnitData unit : chapter.allUnits()) {
+					if (unit.getCharacterNumber() == FE7Data.Character.LYN.ID || unit.getCharacterNumber() == FE7Data.Character.LYN_TUTORIAL.ID) {
+						if (unit.getStartingClass() == oldLynClassID) { unit.setStartingClass(newLynClass.getID()); }
+					} else if (unit.getCharacterNumber() == FE7Data.Character.ELIWOOD.ID) {
+						if (unit.getStartingClass() == oldEliwoodClassID) { unit.setStartingClass(newEliwoodClass.getID()); }
+					} else if (unit.getCharacterNumber() == FE7Data.Character.HECTOR.ID) {
+						if (unit.getStartingClass() == oldHectorClassID) { unit.setStartingClass(newHectorClass.getID()); }
+					}
+				}
+			}
+			
+			long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE7Data.ClassMapSpriteTablePointer);
+			byte[] spriteTable = handler.readBytesAtOffset(mapSpriteTableOffset, FE7Data.BytesPerMapSpriteTableEntry * FE7Data.NumberOfMapSpriteEntries);
+			long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
+			freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldLynClassID - 1) * 8, 8), "Lyn Map Sprite Entry");
+			freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldEliwoodClassID - 1) * 8, 8), "Eliwood Map Sprite Entry");
+			freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldHectorClassID - 1) * 8, 8), "Hector Map Sprite Entry");
+			diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
+			
+		} else if (gameType == GameType.FE8) {
+			GBAFECharacterData eirika = charData.characterWithID(FE8Data.Character.EIRIKA.ID);
+			GBAFECharacterData ephraim = charData.characterWithID(FE8Data.Character.EPHRAIM.ID);
+			
+			int oldEirikaClass = eirika.getClassID();
+			int oldEphraimClass = ephraim.getClassID();
+			
+			// GBAFE only stores 5 bits for the class (in save data), so using any ID greater than 0x7F will have issues. We have to replace an existing class.
+			GBAFEClassData newEirikaClass = classData.createLordClassBasedOnClass(classData.classForID(oldEirikaClass), FE8Data.CharacterClass.UNUSED_TENT.ID); // This was a (unused?) tent.
+			GBAFEClassData newEphraimClass = classData.createLordClassBasedOnClass(classData.classForID(oldEphraimClass), FE8Data.CharacterClass.UNUSED_MANAKETE.ID); // This is an unused manakete class.
+			
+			eirika.setClassID(newEirikaClass.getID());
+			ephraim.setClassID(newEphraimClass.getID());
+			
+			itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.LUNAR_BRACE, new ArrayList<Integer>(Arrays.asList(newEirikaClass.getID())));
+			itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.SOLAR_BRACE, new ArrayList<Integer>(Arrays.asList(newEphraimClass.getID())));
+			
+			for (GBAFEChapterData chapter : chapterData.allChapters()) {
+				for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+					if (unit.getCharacterNumber() == FE8Data.Character.EIRIKA.ID) {
+						if (unit.getStartingClass() == oldEirikaClass) { unit.setStartingClass(newEirikaClass.getID()); }
+					} else if (unit.getCharacterNumber() == FE8Data.Character.EPHRAIM.ID) {
+						if (unit.getStartingClass() == oldEphraimClass) { unit.setStartingClass(newEphraimClass.getID()); /* unit.setStartingLevel(10); */}
+					}
+					/*
+					if (unit.getCharacterNumber() == FE8Data.Character.ORSON_5X.ID) {
+						unit.giveItem(itemData.itemsToPromoteClass(oldEphraimClass).get(0).getID());
+						unit.giveItem(itemData.itemsToPromoteClass(newEphraimClass.getID()).get(0).getID());
+					}*/
+				}
+			}
+			
+			// Update the promotions table, since they're technically "different" classes.
+			fe8_promotionManager.setFirstPromotionOptionForClass(newEirikaClass.getID(), fe8_promotionManager.getFirstPromotionOptionClassID(oldEirikaClass));
+			fe8_promotionManager.setSecondPromotionOptionForClass(newEirikaClass.getID(), fe8_promotionManager.getSecondPromotionOptionClassID(oldEirikaClass));
+			fe8_promotionManager.setFirstPromotionOptionForClass(newEphraimClass.getID(), fe8_promotionManager.getFirstPromotionOptionClassID(oldEphraimClass));
+			fe8_promotionManager.setSecondPromotionOptionForClass(newEphraimClass.getID(), fe8_promotionManager.getSecondPromotionOptionClassID(oldEphraimClass));
+			
+			// Palettes are also tied to class.
+			FE8PaletteMapper.ClassMapEntry eirikaPalette = fe8_paletteMapper.getEntryForCharacter(FE8Data.Character.EIRIKA);
+			FE8PaletteMapper.ClassMapEntry ephraimPalette = fe8_paletteMapper.getEntryForCharacter(FE8Data.Character.EPHRAIM);
+			
+			// Only base classes need to be updated. Promoted classes are not special.
+			eirikaPalette.setBaseClassID(newEirikaClass.getID());
+			ephraimPalette.setBaseClassID(newEphraimClass.getID());
+			
+			// On the bright side, we don't need to repoint the FE8 map sprite table. We just need to replace some entries in the existing one.
+			long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE8Data.ClassMapSpriteTablePointer);
+			long eirikaTargetOffset = (newEirikaClass.getID() - 1) * 8 + mapSpriteTableOffset;
+			long ephraimTargetOffset = (newEphraimClass.getID() - 1) * 8 + mapSpriteTableOffset;
+			byte[] eirikaSpriteData = handler.readBytesAtOffset((oldEirikaClass - 1) * 8 + mapSpriteTableOffset, 8);
+			byte[] ephraimSpriteData = handler.readBytesAtOffset((oldEphraimClass - 1) * 8 + mapSpriteTableOffset, 8);
+			diffCompiler.addDiff(new Diff(eirikaTargetOffset, 8, eirikaSpriteData, null));
+			diffCompiler.addDiff(new Diff(ephraimTargetOffset, 8, ephraimSpriteData, null));
+			
+			if (fe8_walkingSoundFixApplied) {
+				long eirikaWalkingSoundOffset = 0x78D90 + newEirikaClass.getID();
+				long ephraimWalkingSoundOffset = 0x78D90 + newEphraimClass.getID();
+				
+				InputStream stream = UPSPatcher.class.getClassLoader().getResourceAsStream("fe8_walking_sound_fix.bin");
+				byte[] fixData = new byte[0x14C];
+				try {
+					stream.read(fixData);
+					stream.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				byte eirikaWalkingSoundID = fixData[0x18 + oldEirikaClass];
+				byte ephraimWalkingSoundID = fixData[0x18 + oldEphraimClass];
+				
+				diffCompiler.addDiff(new Diff(eirikaWalkingSoundOffset, 1, new byte[] {eirikaWalkingSoundID}, null));
+				diffCompiler.addDiff(new Diff(ephraimWalkingSoundOffset, 1, new byte[] {ephraimWalkingSoundID}, null));
+			}
+		}
+		
+		if (classes.createPrfs || recruitOptions.createPrfs) {
+			// Create new PRF weapons.
+			if (gameType == GameType.FE6) {
+				GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
+				GBAFEClassData royClass = classData.classForID(roy.getClassID());
+				List<WeaponType> royWeaponTypes = classData.usableTypesForClass(royClass);
+				royWeaponTypes.remove(WeaponType.STAFF);
+				if (!royWeaponTypes.isEmpty()) {
+					WeaponType selectedType = royWeaponTypes.get(rng.nextInt(royWeaponTypes.size()));
+					String iconName = null;
+					String weaponName = null;
+					switch (selectedType) {
+					case SWORD:
+						weaponName = "Sun Sword";
+						iconName = "weaponIcons/SunSword.png";
+						break;
+					case LANCE:
+						weaponName = "Sea Spear";
+						iconName = "weaponIcons/SeaSpear.png";
+						break;
+					case AXE:
+						weaponName = "Gaea Splitter";
+						iconName = "weaponIcons/EarthSplitter.png";
+						break;
+					case BOW:
+						weaponName = "Gust Shot";
+						iconName = "weaponIcons/GustShot.png";
+						break;
+					case ANIMA:
+						weaponName = "Fierce Flame";
+						iconName = "weaponIcons/FierceFlame.png";
+						break;
+					case DARK:
+						weaponName = "Dark Miasma";
+						iconName = "weaponIcons/DarkMiasma.png";
+						break;
+					case LIGHT:
+						weaponName = "Holy Light";
+						iconName = "weaponIcons/HolyLight.png";
+						break;
+					default: 
+						break;
+					}
+					
+					if (weaponName != null && iconName != null) {
+						// Replace the old icon.
+						byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(iconName, GBAImageCodec.gbaWeaponColorPalette);
+						if (iconData == null) {
+							notifyError("Invalid image data for icon " + iconName);
+						}
+						diffCompiler.addDiff(new Diff(0xFC400, iconData.length, iconData, null));
+						
+						// We're going to reuse some indices already used by the watch staff. While the name's index isn't available, both its
+						// description and use item description are available.
+						textData.setStringAtIndex(0x5FE, weaponName + "[X]");
+						// TODO: Maybe give it a description string?
+						
+						GBAFEItemData itemToReplace = itemData.itemWithID(FE6Data.Item.UNUSED_WATCH_STAFF.ID);
+						itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, royClass.getCON() + roy.getConstitution(), 
+								itemData.itemWithID(FE6Data.Item.RAPIER.ID), itemData, freeSpace);
+						
+						switch (selectedType) {
+						case SWORD:
+						case LANCE:
+						case AXE:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.NONE2.value, FE6SpellAnimationCollection.Flash.WHITE.value);
+							break;
+						case BOW:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.ARROW.value, FE6SpellAnimationCollection.Flash.WHITE.value);
+							break;
+						case ANIMA:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.ELFIRE.value, FE6SpellAnimationCollection.Flash.RED.value);
+							break;
+						case DARK:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.FLUX.value, FE6SpellAnimationCollection.Flash.DARK.value);
+							break;
+						case LIGHT:
+							itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+									FE6SpellAnimationCollection.Animation.DIVINE.value, FE6SpellAnimationCollection.Flash.YELLOW.value);
+							break;
+						default:
+							// No animation needed here.
+							break;
+						}
+						
+						// Make sure the old lord class, if anybody randomizes into it, can't use this weapon.
+						GBAFEClassData oldLordClass = classData.classForID(FE6Data.CharacterClass.LORD.ID);
+						oldLordClass.removeLordLocks();
+						GBAFEClassData oldPromotedLordClass = classData.classForID(FE6Data.CharacterClass.MASTER_LORD.ID);
+						oldPromotedLordClass.removeLordLocks();
+						
+						// Make sure Roy himself can.
+						roy.enableWeaponLock(FE6Data.CharacterAndClassAbility3Mask.RAPIER_LOCK.getValue());
+						
+						for (GBAFEChapterData chapter : chapterData.allChapters()) {
+							for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+								// Give Roy the weapon when he shows up.
+								if (unit.getCharacterNumber() == roy.getID()) {
+									unit.giveItem(itemToReplace.getID());
+								}
+								
+								// Replace any Rapiers with iron swords, since we need to reuse the same lock.
+								if (unit.hasItem(FE6Data.Item.RAPIER.ID)) {
+									unit.removeItem(FE6Data.Item.RAPIER.ID);
+									unit.giveItem(FE6Data.Item.IRON_SWORD.ID);
+								}
+							}
+						}
+					}
+				}
+			} else if (gameType == GameType.FE7) {
+				GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
+				GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
+				GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
+				
+				GBAFEClassData lynClass = classData.classForID(lyn.getClassID());
+				GBAFEClassData eliwoodClass = classData.classForID(eliwood.getClassID());
+				GBAFEClassData hectorClass = classData.classForID(hector.getClassID());
+				
+				List<WeaponType> lynWeaponTypes = classData.usableTypesForClass(lynClass);
+				List<WeaponType> eliwoodWeaponTypes = classData.usableTypesForClass(eliwoodClass);
+				List<WeaponType> hectorWeaponTypes = classData.usableTypesForClass(hectorClass);
+				
+				boolean lynLockUsed = false;
+				boolean eliwoodLockUsed = false;
+				boolean hectorLockUsed = false;
+				boolean athosLockUsed = false;
+				boolean unusedLockUsed = false;
+				
+				lynWeaponTypes.remove(WeaponType.STAFF);
+				eliwoodWeaponTypes.remove(WeaponType.STAFF);
+				hectorWeaponTypes.remove(WeaponType.STAFF);
+				
+				String lynIconName = null;
+				String lynWeaponName = null;
+				WeaponType lynSelectedType = null;
+				String eliwoodIconName = null;
+				String eliwoodWeaponName = null;
+				WeaponType eliwoodSelectedType = null;
+				String hectorIconName = null;
+				String hectorWeaponName = null;
+				WeaponType hectorSelectedType = null;
+				
+				if (!lynWeaponTypes.isEmpty()) {
+					// Deprioritize Swords, since we only have 2 locks we can use for it.
+					if (lynWeaponTypes.size() > 1) { lynWeaponTypes.remove(WeaponType.SWORD); } 
+					lynSelectedType = lynWeaponTypes.get(rng.nextInt(lynWeaponTypes.size()));
+					switch (lynSelectedType) {
+					case SWORD:
+						lynWeaponName = "Summeredge";
+						lynIconName = "weaponIcons/Summeredge.png";
+						break;
+					case LANCE:
+						lynWeaponName = "Flare Lance";
+						lynIconName = "weaponIcons/FlareLance.png";
+						break;
+					case AXE:
+						lynWeaponName = "Storm Axe";
+						lynIconName = "weaponIcons/StormAxe.png";
+						break;
+					case BOW:
+						lynWeaponName = "Summer Shot";
+						lynIconName = "weaponIcons/SummerShot.png";
+						break;
+					case ANIMA:
+						lynWeaponName = "Thunderstorm";
+						lynIconName = "weaponIcons/Thunderstorm.png";
+						break;
+					case DARK:
+						lynWeaponName = "Summer Void";
+						lynIconName = "weaponIcons/SummerVoid.png";
+						break;
+					case LIGHT:
+						lynWeaponName = "Sunlight";
+						lynIconName = "weaponIcons/Sunlight.png";
+						break;
+					default: break;
+					}
+				}
+					
+				if (!eliwoodWeaponTypes.isEmpty()) {
+					// Deprioritize Swords, since we only have 2 locks we can use for it.
+					if (eliwoodWeaponTypes.size() > 1) { eliwoodWeaponTypes.remove(WeaponType.SWORD); }
+					eliwoodSelectedType = eliwoodWeaponTypes.get(rng.nextInt(eliwoodWeaponTypes.size()));
+					switch (eliwoodSelectedType) {
+					case SWORD:
+						eliwoodWeaponName = "Autumn Blade";
+						eliwoodIconName = "weaponIcons/AutumnBlade.png";
+						break;
+					case LANCE:
+						eliwoodWeaponName = "Autumn's End";
+						eliwoodIconName = "weaponIcons/AutumnsEnd.png";
+						break;
+					case AXE:
+						eliwoodWeaponName = "Harvester";
+						eliwoodIconName = "weaponIcons/Harvester.png";
+						break;
+					case BOW:
+						eliwoodWeaponName = "Autumn Shot";
+						eliwoodIconName = "weaponIcons/AutumnShot.png";
+						break;
+					case ANIMA:
+						eliwoodWeaponName = "Will o' Wisp";
+						eliwoodIconName = "weaponIcons/WillOWisp.png";
+						break;
+					case DARK:
+						eliwoodWeaponName = "Fall Vortex";
+						eliwoodIconName = "weaponIcons/FallVortex.png";
+						break;
+					case LIGHT:
+						eliwoodWeaponName = "Starlight";
+						eliwoodIconName = "weaponIcons/Starlight.png";
+						break;
+					default:
+						break;
+					}
+				}
+				
+				if (!hectorWeaponTypes.isEmpty()) {
+					// Deprioritize Swords, since we only have 2 locks we can use for it.
+					if (hectorWeaponTypes.size() > 1) { hectorWeaponTypes.remove(WeaponType.SWORD); }
+					hectorSelectedType = hectorWeaponTypes.get(rng.nextInt(hectorWeaponTypes.size()));
+					switch (hectorSelectedType) {
+					case SWORD:
+						hectorWeaponName = "Winter Sword";
+						hectorIconName = "weaponIcons/WinterSword.png";
+						break;
+					case LANCE:
+						hectorWeaponName = "Icicle Lance";
+						hectorIconName = "weaponIcons/IcicleLance.png";
+						break;
+					case AXE:
+						hectorWeaponName = "Icy Mallet";
+						hectorIconName = "weaponIcons/IcyMallet.png";
+						break;
+					case BOW:
+						hectorWeaponName = "Winter Shot";
+						hectorIconName = "weaponIcons/WinterShot.png";
+						break;
+					case ANIMA:
+						hectorWeaponName = "Winter's Howl";
+						hectorIconName = "weaponIcons/WintersHowl.png";
+						break;
+					case DARK:
+						hectorWeaponName = "Winter Abyss";
+						hectorIconName = "weaponIcons/WinterAbyss.png";
+						break;
+					case LIGHT:
+						hectorWeaponName = "Moonlight";
+						hectorIconName = "weaponIcons/Moonlight.png";
+						break;
+					default:
+						break;
+					}
+				}
+				
+				if (lynSelectedType != null && lynWeaponName != null && lynIconName != null) {
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(lynIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + lynIconName);
+					}
+					diffCompiler.addDiff(new Diff(0xCB524, iconData.length, iconData, null));
+					
+					textData.setStringAtIndex(0x1225, lynWeaponName + "[X]");
+					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.MANI_KATTI.ID);
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, 0x9F, 0x1225, 0x0, 
+							lynSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 
+							0xAD, itemData, freeSpace);
+					
+					// Lyn's the first, so all weapon locks are unused.
+					// Try to use her own lock, assuming it's not a sword or a bow.
+					// Remember, Lyn has a tutorial version too.
+					GBAFECharacterData lynTutorial = charData.characterWithID(FE7Data.Character.LYN_TUTORIAL.ID);
+					if (lynSelectedType == WeaponType.SWORD) {
+						athosLockUsed = true;
+						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+					} else if (lynSelectedType == WeaponType.BOW) {
+						eliwoodLockUsed = true;
+						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
+						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+					} else {
+						lynLockUsed = true;
+						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
+						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+					}
+					
+					itemData.addNewItem(newWeapon);
+					
+					switch (lynSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.NONE2.value, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.ARROW.value	, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.THUNDER.value, FE7SpellAnimationCollection.Flash.YELLOW.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.FLUX.value, FE7SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.SHINE.value, FE7SpellAnimationCollection.Flash.YELLOW.value);
+						break;
+					default:
+						break;
+					}
+					
+					// Give her the weapon in place of the Mani Katti in Lyn mode.
+					// In every other mode, give it to her by default.
+					// Thankfully Lyn Mode uses a different Lyn, so we're good.
+					for (GBAFEChapterData chapter : chapterData.allChapters()) {
+						if (chapter == chapterData.chapterWithID(FE7Data.ChapterPointer.CHAPTER_2.chapterID)) {
+							GBAFEChapterItemData item = chapter.chapterItemGivenToCharacter(FE7Data.Character.LYN_TUTORIAL.ID);
+							if (item != null) {
+								item.setItemID(newWeapon.getID());
+							}
+						}
+						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+							if (unit.getCharacterNumber() == lyn.getID()) {
+								unit.removeItem(referenceWeapon.getID());
+								unit.giveItem(newWeapon.getID());
+							}
+						}
+					}
+				}
+				
+				if (eliwoodSelectedType != null && eliwoodWeaponName != null && eliwoodIconName != null) {
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(eliwoodIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + eliwoodIconName);
+					}
+					diffCompiler.addDiff(new Diff(0xCB5A4, iconData.length, iconData, null));
+					
+					textData.setStringAtIndex(0x1227, eliwoodWeaponName + "[X]");
+					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.RAPIER.ID);
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, 0xA0, 0x1227, 0x0, 
+							eliwoodSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 
+							0xAE, itemData, freeSpace);
+					
+					// Eliwood only has to take into account the locks that could have already be used (Athos, Eliwood, or Lyn).
+					// Try to use his own lock, assuming it's not a sword or a lance.
+					if (eliwoodSelectedType == WeaponType.SWORD) {
+						if (!athosLockUsed) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else {
+							// We only have the unused lock left.
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						}
+					} else if (eliwoodSelectedType == WeaponType.LANCE) {
+						if (!lynLockUsed) {
+							lynLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+						} else if (!athosLockUsed) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else {
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						}
+					} else {
+						if (!eliwoodLockUsed) {
+							eliwoodLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+						} else if (!lynLockUsed) {
+							lynLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+						} else if (!athosLockUsed && // Athos lock cannot be used with any tome.
+								eliwoodSelectedType != WeaponType.ANIMA && 
+								eliwoodSelectedType != WeaponType.DARK && 
+								eliwoodSelectedType != WeaponType.LIGHT) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else {
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						}
+					}
+					
+					itemData.addNewItem(newWeapon);
+					
+					switch (eliwoodSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.NONE2.value, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.ARROW.value	, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.ELFIRE.value, FE7SpellAnimationCollection.Flash.BLUE.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.FLUX.value, FE7SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.SHINE.value, FE7SpellAnimationCollection.Flash.GREEN.value);
+						break;
+					default:
+						break;
+					}
+					
+					// Replace Eliwood's starting Rapier, if he has one.
+					for (GBAFEChapterData chapter : chapterData.allChapters()) {
+						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+							if (unit.getCharacterNumber() == eliwood.getID()) {
+								unit.removeItem(referenceWeapon.getID());
+								unit.giveItem(newWeapon.getID());
+							}
+						}
+					}
+				}
+				
+				if (hectorSelectedType != null && hectorWeaponName != null && hectorIconName != null) {
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(hectorIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + hectorIconName);
+					}
+					diffCompiler.addDiff(new Diff(0xCB624, iconData.length, iconData, null));
+					
+					textData.setStringAtIndex(0x1229, hectorWeaponName + "[X]");
+					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.WOLF_BEIL.ID);
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, 0xA1, 0x1229, 0x0, 
+							hectorSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, hectorClass.getCON() + hector.getConstitution(), 
+							0xAF, itemData, freeSpace);
+					
+					// We've avoided using Hector lock the entire time, so we just need to account for swords and axes.
+					if (hectorSelectedType == WeaponType.SWORD) {
+						// Athos and Unused are the only ones possible here. If they're both used, GG.
+						if (!athosLockUsed) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else if (!unusedLockUsed) {
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						} else {
+							// GG. Just use Hector lock.
+							newWeapon.setAbility2(FE7Data.Item.Ability3Mask.HECTOR_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.HECTOR_LOCK.getValue());
+						}
+					} else if (hectorSelectedType == WeaponType.AXE) {
+						if (!lynLockUsed) {
+							lynLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+						} else if (!athosLockUsed) {
+							athosLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						} else if (!eliwoodLockUsed) {
+							eliwoodLockUsed = true;
+							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+						} else { // There's no way we used 4 locks with two characters.
+							unusedLockUsed = true;
+							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+						}
+					} else {
+						hectorLockUsed = true;
+						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.HECTOR_LOCK.ID);
+						hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.HECTOR_LOCK.getValue());
+					}
+					
+					itemData.addNewItem(newWeapon);
+					
+					switch (hectorSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.NONE2.value, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.ARROW.value	, FE7SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.FIMBULVETR.value, FE7SpellAnimationCollection.Flash.BLUE.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.FLUX.value, FE7SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+								FE7SpellAnimationCollection.Animation.SHINE.value, FE7SpellAnimationCollection.Flash.BLUE.value);
+						break;
+					default:
+						break;
+					}
+					
+					// Replace Hector's starting Wolf Beil, if he has one.
+					for (GBAFEChapterData chapter : chapterData.allChapters()) {
+						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+							if (unit.getCharacterNumber() == hector.getID()) {
+								unit.removeItem(referenceWeapon.getID());
+								unit.giveItem(newWeapon.getID());
+							}
+						}
+					}
+				}
+				
+			} else if (gameType == GameType.FE8) {
+				GBAFECharacterData eirika = charData.characterWithID(FE8Data.Character.EIRIKA.ID);
+				GBAFECharacterData ephraim = charData.characterWithID(FE8Data.Character.EPHRAIM.ID);
+				
+				GBAFEClassData eirikaClass = classData.classForID(eirika.getClassID());
+				GBAFEClassData ephraimClass = classData.classForID(ephraim.getClassID());
+				
+				List<WeaponType> eirikaWeaponTypes = classData.usableTypesForClass(eirikaClass);
+				List<WeaponType> ephraimWeaponTypes = classData.usableTypesForClass(ephraimClass);
+				
+				eirikaWeaponTypes.remove(WeaponType.STAFF);
+				ephraimWeaponTypes.remove(WeaponType.STAFF);
+				
+				String eirikaIconName = null;
+				String eirikaWeaponName = null;
+				WeaponType eirikaSelectedType = null;
+				String ephraimIconName = null;
+				String ephraimWeaponName = null;
+				WeaponType ephraimSelectedType = null;
+				
+				if (!eirikaWeaponTypes.isEmpty()) {
+					eirikaSelectedType = eirikaWeaponTypes.get(rng.nextInt(eirikaWeaponTypes.size()));
+					switch (eirikaSelectedType) {
+					case SWORD:
+						eirikaWeaponName = "Moon Blade";
+						eirikaIconName = "weaponIcons/MoonBlade.png";
+						break;
+					case LANCE:
+						eirikaWeaponName = "Moon Spear";
+						eirikaIconName = "weaponIcons/MoonSpear.png";
+						break;
+					case AXE:
+						eirikaWeaponName = "Moon Hammer";
+						eirikaIconName = "weaponIcons/MoonHammer.png";
+						break;
+					case BOW:
+						eirikaWeaponName = "Moon Shot";
+						eirikaIconName = "weaponIcons/MoonShot.png";
+						break;
+					case ANIMA:
+						eirikaWeaponName = "Lunar Bolt";
+						eirikaIconName = "weaponIcons/LunarBolt.png";
+						break;
+					case DARK:
+						eirikaWeaponName = "Lunar Eclipse";
+						eirikaIconName = "weaponIcons/LunarEclipse.png";
+						break;
+					case LIGHT:
+						eirikaWeaponName = "Lunar Beam";
+						eirikaIconName = "weaponIcons/LunarBeam.png";
+						break;
+					default: 
+						break;
+					}
+				}
+				
+				if (!ephraimWeaponTypes.isEmpty()) {
+					ephraimSelectedType = ephraimWeaponTypes.get(rng.nextInt(ephraimWeaponTypes.size()));
+					switch (ephraimSelectedType) {
+					case SWORD:
+						ephraimWeaponName = "Sun Blade";
+						ephraimIconName = "weaponIcons/SunBlade.png";
+						break;
+					case LANCE:
+						ephraimWeaponName = "Sun Spear";
+						ephraimIconName = "weaponIcons/SunSpear.png";
+						break;
+					case AXE:
+						ephraimWeaponName = "Sun Mallet";
+						ephraimIconName = "weaponIcons/SunMallet.png";
+						break;
+					case BOW:
+						ephraimWeaponName = "Sun Shot";
+						ephraimIconName = "weaponIcons/SunShot.png";
+						break;
+					case ANIMA:
+						ephraimWeaponName = "Solar Flare";
+						ephraimIconName = "weaponIcons/SolarFlare.png";
+						break;
+					case DARK:
+						ephraimWeaponName = "Solar Eclipse";
+						ephraimIconName = "weaponIcons/SolarEclipse.png";
+						break;
+					case LIGHT:
+						ephraimWeaponName = "Solar Beam";
+						ephraimIconName = "weaponIcons/SolarBeam.png";
+						break;
+					default: 
+						break;
+					}
+				}
+					
+				if (eirikaWeaponName != null && eirikaIconName != null) {
+					// Replace the old icon.
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(eirikaIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + eirikaIconName);
+					}
+					diffCompiler.addDiff(new Diff(0x592B74, iconData.length, iconData, null));
+					
+					// Reusing the dummy Mani Katti
+					textData.setStringAtIndex(0x3A, eirikaWeaponName + "[X]");
+					// We need a description string so that the rest of the weapon stats will show, even if it's a blank string.
+					textData.setStringAtIndex(0x3B, " [.][X]");
+					
+					GBAFEItemData itemToReplace = itemData.itemWithID(FE8Data.Item.UNUSED_MANI_KATTI.ID);
+					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3A, 0x3B, eirikaSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, eirikaClass.getCON() + eirika.getConstitution(), 
+							itemData.itemWithID(FE8Data.Item.RAPIER.ID), itemData, freeSpace);
+					
+					switch (eirikaSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.NONE2.value, FE8SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.ARROW.value, FE8SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.THUNDER.value, FE8SpellAnimationCollection.Flash.YELLOW.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.FLUX.value, FE8SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.DIVINE.value, FE8SpellAnimationCollection.Flash.BLUE.value);
+						break;
+					default:
+						// No animation needed here.
+						break;
+					}
+					
+					// Make sure Eirika herself can. She'll use the unused Lyn Lock.
+					eirika.enableWeaponLock(FE8Data.CharacterAndClassAbility4Mask.EIRIKA_WEAPON_LOCK.getValue());
+					itemToReplace.setAbility3(FE8Data.Item.Ability3Mask.EIRIKA_LOCK.ID);
+					
+					// Eirika will get her weapon from Seth.
+					GBAFEChapterData prologue = chapterData.chapterWithID(FE8Data.ChapterPointer.PROLOGUE.chapterID);
+					GBAFEChapterItemData item = prologue.chapterItemGivenToCharacter(FE8Data.Character.EIRIKA.ID);
+					item.setItemID(itemToReplace.getID());
+				}
+				
+				if (ephraimWeaponName != null && ephraimIconName != null) {
+					// Replace the old icon.
+					byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(ephraimIconName, GBAImageCodec.gbaWeaponColorPalette);
+					if (iconData == null) {
+						notifyError("Invalid image data for icon " + ephraimIconName);
+					}
+					diffCompiler.addDiff(new Diff(0x594474, iconData.length, iconData, null));
+					
+					// Reusing the dummy Forblaze
+					textData.setStringAtIndex(0x3C, ephraimWeaponName + "[X]");
+					// We need a description string for the rest of the weapon stats to show up.
+					textData.setStringAtIndex(0x3D, " [.][X]");
+					
+					GBAFEItemData itemToReplace = itemData.itemWithID(FE8Data.Item.UNUSED_FORBLAZE.ID);
+					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3C, 0x3D, ephraimSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, ephraimClass.getCON() + ephraim.getConstitution(), 
+							itemData.itemWithID(FE8Data.Item.REGINLEIF.ID), itemData, freeSpace);
+					
+					switch (ephraimSelectedType) {
+					case SWORD:
+					case LANCE:
+					case AXE:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.NONE2.value, FE8SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case BOW:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.ARROW.value, FE8SpellAnimationCollection.Flash.WHITE.value);
+						break;
+					case ANIMA:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.ELFIRE.value, FE8SpellAnimationCollection.Flash.RED.value);
+						break;
+					case DARK:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.FLUX.value, FE8SpellAnimationCollection.Flash.DARK.value);
+						break;
+					case LIGHT:
+						itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+								FE8SpellAnimationCollection.Animation.DIVINE.value, FE8SpellAnimationCollection.Flash.YELLOW.value);
+						break;
+					default:
+						// No animation needed here.
+						break;
+					}
+					
+					// Make sure Ephraim himself can. He'll use the unused Athos Lock.
+					ephraim.enableWeaponLock(FE8Data.CharacterAndClassAbility4Mask.UNUSED_ATHOS_LOCK.getValue());
+					itemToReplace.setAbility3(FE8Data.Item.Ability3Mask.UNUSED_WEAPON_LOCK.ID);
+					
+					// Ephraim starts with his weapon.
+					GBAFEChapterData ch5x = chapterData.chapterWithID(FE8Data.ChapterPointer.CHAPTER_5X.chapterID);
+					for (GBAFEChapterUnitData unit : ch5x.allUnits()) {
+						if (unit.getCharacterNumber() == ephraim.getID()) {
+							unit.removeItem(FE8Data.Item.REGINLEIF.ID);
+							unit.giveItem(itemToReplace.getID());
+						}
 					}
 				}
 			}
