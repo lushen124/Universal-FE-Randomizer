@@ -1,5 +1,7 @@
 package fedata.gba.fe6;
 
+import java.util.Arrays;
+
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.general.WeaponRank;
@@ -12,6 +14,7 @@ public class FE6Class implements GBAFEClassData {
 	private byte[] data;
 	
 	private long originalOffset;
+	private Long addressOverride;
 	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
@@ -24,6 +27,19 @@ public class FE6Class implements GBAFEClassData {
 	int promoRES;
 	
 	private String debugString = "Uninitialized";
+	
+	public FE6Class(GBAFEClassData reference) {
+		super();
+		this.originalData = Arrays.copyOf(reference.getData(), reference.getData().length);
+		this.data = Arrays.copyOf(reference.getData(), reference.getData().length);
+		
+		this.promoHP = reference.getPromoHP();
+		this.promoSTR = reference.getPromoSTR();
+		this.promoSKL = reference.getPromoSKL();
+		this.promoSPD = reference.getPromoSPD();
+		this.promoDEF = reference.getPromoDEF();
+		this.promoRES = reference.getPromoRES();
+	}
 	
 	public FE6Class(byte[] data, long originalOffset, GBAFEClassData demotedClass) {
 		super();
@@ -60,6 +76,15 @@ public class FE6Class implements GBAFEClassData {
 	@Override
 	public int getID() {
 		return data[4] & 0xFF;
+	}
+	
+	public void setID(int newID) {
+		data[4] = (byte)(newID & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getSpriteIndex() {
+		return data[6] & 0xFF;
 	}
 	
 	public int getTargetPromotionID() {
@@ -436,7 +461,12 @@ public class FE6Class implements GBAFEClassData {
 	}
 	
 	public long getAddressOffset() {
-		return originalOffset;
+		return addressOverride != null ? addressOverride : originalOffset;
+	}
+	
+	public void overrideAddress(long newAddress) {
+		addressOverride = newAddress;
+		wasModified = true;
 	}
 	
 	public Boolean canUseWeapon(GBAFEItemData weapon) {
@@ -463,5 +493,16 @@ public class FE6Class implements GBAFEClassData {
 		if (rankValue == 0) { return WeaponRank.NONE; }
 		
 		return FE6Data.Item.FE6WeaponRank.valueOf(rankValue).toGeneralRank();
+	}
+	
+	public void removeLordLocks() {
+		data[38] &= 0xFE;
+		wasModified = true;
+	}
+	
+	public GBAFEClassData createClone() {
+		FE6Class clone = new FE6Class(this);
+		clone.originalOffset = -1;
+		return clone;
 	}
 }

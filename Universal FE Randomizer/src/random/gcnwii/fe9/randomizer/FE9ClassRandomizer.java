@@ -132,12 +132,12 @@ public class FE9ClassRandomizer {
 			
 			if (classData.isLaguzClass(originalClass) && !classData.isLaguzClass(newClass)) {
 				// Laguz -> Beorc
-				strBase += (int)Math.floor(classData.getLaguzSTROffset(originalClass) * 1.5);
-				magBase += (int)Math.floor(classData.getLaguzMAGOffset(originalClass) * 1.5);
-				sklBase += (int)Math.floor(classData.getLaguzSKLOffset(originalClass) * 1.5);
-				spdBase += (int)Math.floor(classData.getLaguzSPDOffset(originalClass) * 1.5);
-				defBase += (int)Math.floor(classData.getLaguzDEFOffset(originalClass) * 1.5);
-				resBase += (int)Math.floor(classData.getLaguzRESOffset(originalClass) * 1.5);
+				strBase += (int)Math.floor(classData.getLaguzSTROffset(originalClass) * 0.5);
+				magBase += (int)Math.floor(classData.getLaguzMAGOffset(originalClass) * 0.5);
+				sklBase += (int)Math.floor(classData.getLaguzSKLOffset(originalClass) * 0.5);
+				spdBase += (int)Math.floor(classData.getLaguzSPDOffset(originalClass) * 0.5);
+				defBase += (int)Math.floor(classData.getLaguzDEFOffset(originalClass) * 0.5);
+				resBase += (int)Math.floor(classData.getLaguzRESOffset(originalClass) * 0.5);
 				
 				character.setBaseSKL(sklBase);
 				character.setBaseSPD(spdBase);
@@ -559,12 +559,12 @@ public class FE9ClassRandomizer {
 			
 			if (classData.isLaguzClass(originalClass) && !classData.isLaguzClass(newClass)) {
 				// Laguz -> Beorc
-				strBase += (int)Math.floor(classData.getLaguzSTROffset(originalClass) * 1.5);
-				magBase += (int)Math.floor(classData.getLaguzMAGOffset(originalClass) * 1.5);
-				sklBase += (int)Math.floor(classData.getLaguzSKLOffset(originalClass) * 1.5);
-				spdBase += (int)Math.floor(classData.getLaguzSPDOffset(originalClass) * 1.5);
-				defBase += (int)Math.floor(classData.getLaguzDEFOffset(originalClass) * 1.5);
-				resBase += (int)Math.floor(classData.getLaguzRESOffset(originalClass) * 1.5);
+				strBase += (int)Math.floor(classData.getLaguzSTROffset(originalClass) * 0.5);
+				magBase += (int)Math.floor(classData.getLaguzMAGOffset(originalClass) * 0.5);
+				sklBase += (int)Math.floor(classData.getLaguzSKLOffset(originalClass) * 0.5);
+				spdBase += (int)Math.floor(classData.getLaguzSPDOffset(originalClass) * 0.5);
+				defBase += (int)Math.floor(classData.getLaguzDEFOffset(originalClass) * 0.5);
+				resBase += (int)Math.floor(classData.getLaguzRESOffset(originalClass) * 0.5);
 				
 				character.setBaseSKL(sklBase);
 				character.setBaseSPD(spdBase);

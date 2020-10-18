@@ -9,6 +9,7 @@ public interface GBAFEChapterUnitData extends FEModifiableData {
 	public void setStartingClass(int classID);
 	
 	public int getStartingLevel();
+	public void setStartingLevel(int level);
 	public boolean isEnemy();
 	public boolean isNPC();
 	public boolean isAutolevel();
@@ -36,8 +37,10 @@ public interface GBAFEChapterUnitData extends FEModifiableData {
 	public int getItem4();
 	public void setItem4(int itemID);
 	
+	public void giveItem(int itemID);
 	public void giveItems(int[] itemIDs);
 	public void removeItem(int itemID);
+	public boolean hasItem(int itemID);
 	
 	public void setAIToHeal(Boolean allowAttack);
 	public void setAIToOnlyAttack(Boolean allowMove);

@@ -13,10 +13,15 @@ import java.util.stream.Collectors;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
+import fedata.gba.general.WeaponType;
 import io.FileHandler;
+import util.AddressRange;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
+import util.FindAndReplace;
+import util.FreeSpaceManager;
+import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.RecordKeeper;
 
 public class ClassDataLoader {
@@ -24,6 +29,9 @@ public class ClassDataLoader {
 	private GBAFEClassProvider provider;
 	
 	private Map<Integer, GBAFEClassData> classMap = new HashMap<Integer, GBAFEClassData>();
+	private Map<Integer, GBAFEClassData> addedClasses = new HashMap<Integer, GBAFEClassData>();
+	
+	private int lastClassID = 0;
 	
 	public static final String RecordKeeperCategoryKey = "Classes";
 	
@@ -57,10 +65,46 @@ public class ClassDataLoader {
 			byte[] classData = handler.readBytesAtOffset(offset, provider.bytesPerClass());
 			GBAFEClassData demoted = promotionMap.get(charClass);
 			GBAFEClassData classObject = provider.classDataWithData(classData, offset, demoted);
-			classMap.put(charClass.getID(), classObject); 
+			classMap.put(charClass.getID(), classObject);
 		}
 		
 		provider.prepareForClassRandomization(classMap);
+		
+		lastClassID = provider.numberOfClasses();
+	}
+	
+	public GBAFEClassData createLordClassBasedOnClass(GBAFEClassData referenceClass) {
+		if (referenceClass == null) { return null; }
+		GBAFEClassData clonedClass = referenceClass.createClone();
+		clonedClass.setID(lastClassID++);
+		addedClasses.put(clonedClass.getID(), clonedClass);
+		return clonedClass;
+	}
+	
+	public GBAFEClassData createLordClassBasedOnClass(GBAFEClassData referenceClass, int idToReplace) {
+		if (referenceClass == null) { return null; }
+		if (idToReplace >= provider.numberOfClasses()) { return null; }
+		GBAFEClassData clonedClass = referenceClass.createClone();
+		clonedClass.setID(idToReplace);
+		
+		GBAFEClassData classToReplace = classMap.get(idToReplace);
+		if (classToReplace == null) {
+			// Find one before it and calculate the correct address.
+			int offset = 0;
+			GBAFEClassData priorClass = null;
+			do {
+				offset++;
+				priorClass = classMap.get(idToReplace - offset);
+			} while (priorClass == null && idToReplace - offset > 0);
+			long targetAddress = priorClass.getAddressOffset() + (provider.bytesPerClass() * offset);
+			clonedClass.overrideAddress(targetAddress);
+			classMap.put(idToReplace, clonedClass);
+		} else {
+			clonedClass.overrideAddress(classToReplace.getAddressOffset());
+			classMap.put(idToReplace, clonedClass);
+		}
+		
+		return clonedClass;
 	}
 	
 	public GBAFEClassData[] allClasses() {
@@ -68,7 +112,12 @@ public class ClassDataLoader {
 	}
 	
 	public GBAFEClassData classForID(int classID) {
-		return classMap.get(classID);
+		if (classMap.containsKey(classID)) {
+			return classMap.get(classID);
+		}
+		else {
+			return addedClasses.get(classID);
+		}
 	}
 	
 	public String debugStringForClass(int classID) {
@@ -81,13 +130,59 @@ public class ClassDataLoader {
 		}
 	}
 	
-	public void compileDiffs(DiffCompiler compiler) {
-		for (GBAFEClassData charClass : classMap.values()) {
-			charClass.commitChanges();
-			if (charClass.hasCommittedChanges()) {
-				Diff charDiff = new Diff(charClass.getAddressOffset(), charClass.getData().length, charClass.getData(), null);
-				compiler.addDiff(charDiff);
+	public void compileDiffs(DiffCompiler compiler, FileHandler handler, FreeSpaceManager freeSpace) {
+		if (addedClasses.isEmpty()) {
+			for (GBAFEClassData charClass : classMap.values()) {
+				charClass.commitChanges();
+				if (charClass.hasCommittedChanges()) {
+					Diff charDiff = new Diff(charClass.getAddressOffset(), charClass.getData().length, charClass.getData(), null);
+					compiler.addDiff(charDiff);
+				}
 			}
+		} else {
+			// This needs a repoint.
+			
+			// Commit everything first.
+			for (GBAFEClassData charClass : classMap.values()) {
+				charClass.commitChanges();
+			}
+			for (GBAFEClassData charClass : addedClasses.values()) {
+				charClass.commitChanges();
+			}
+			
+			// Write the classes in order, including ones we didn't modify. Those will have to be copied from the handler, since we didn't have objects made for them.
+			long startingOffset = FileReadHelper.readAddress(handler, provider.classDataTablePointer());
+			long newStartingOffset = 0;
+			for (int i = 0; i < provider.numberOfClasses(); i++) {
+				// Thankfully, the index doubles as the ID.
+				GBAFEClassData objectData = classMap.get(i);
+				if (objectData != null) {
+					// This is a class we could have modified. Read it from the object data.
+					long writtenOffset = freeSpace.setValue(objectData.getData(), "Class Data for Class 0x" + Integer.toHexString(i), i == 0);
+					if (i == 0) { newStartingOffset = writtenOffset; }
+				} else {
+					// This is a class we don't touch. Read it from the original file.
+					long existingStart = startingOffset + i * provider.bytesPerClass();
+					long existingEnd = existingStart + provider.bytesPerClass();
+					long writtenOffset = freeSpace.setValue(FileReadHelper.readBytesInRange(new AddressRange(existingStart, existingEnd), handler), "Copied class data for Class 0x" + Integer.toHexString(i), i == 0);
+					if (i == 0) { newStartingOffset = writtenOffset; }
+				}
+			}
+			
+			// Append any classes we added.
+			List<GBAFEClassData> addedClassList = new ArrayList<GBAFEClassData>(addedClasses.values());
+			addedClassList.sort(new Comparator<GBAFEClassData>() {
+				@Override
+				public int compare(GBAFEClassData o1, GBAFEClassData o2) {
+					return Integer.compare(o1.getID(), o2.getID());
+				}
+			});
+			for (GBAFEClassData charClass : addedClassList) {
+				freeSpace.setValue(charClass.getData(), "Added Class Data for Class 0x" + Integer.toHexString(charClass.getID()));
+			}
+			
+			// Update the pointers to this table.
+			compiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.gbaAddressFromOffset(startingOffset), WhyDoesJavaNotHaveThese.gbaAddressFromOffset(newStartingOffset), true));
 		}
 	}
 	
@@ -207,6 +302,21 @@ public class ClassDataLoader {
 	public Boolean canClassAttack(int classID) {
 		GBAFEClass charClass = provider.classWithID(classID);
 		return charClass != null ? charClass.canAttack() : false;
+	}
+	
+	public List<WeaponType> usableTypesForClass(GBAFEClassData charClass) {
+		List<WeaponType> types = new ArrayList<WeaponType>();
+		
+		if (charClass.getSwordRank() > 0) { types.add(WeaponType.SWORD); }
+		if (charClass.getLanceRank() > 0) { types.add(WeaponType.LANCE); }
+		if (charClass.getAxeRank() > 0) { types.add(WeaponType.AXE); }
+		if (charClass.getBowRank() > 0) { types.add(WeaponType.BOW); }
+		if (charClass.getAnimaRank() > 0) { types.add(WeaponType.ANIMA); }
+		if (charClass.getDarkRank() > 0) { types.add(WeaponType.DARK); }
+		if (charClass.getLightRank() > 0) { types.add(WeaponType.LIGHT); }
+		if (charClass.getStaffRank() > 0) { types.add(WeaponType.STAFF); }
+		
+		return types;
 	}
 	
 	private GBAFEClassData[] feClassesFromSet(Set<GBAFEClass> classes) {

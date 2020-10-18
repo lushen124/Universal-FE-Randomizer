@@ -155,7 +155,7 @@ public class FE8PaletteMapper {
 		private void setFourthPromotionPaletteID(int paletteID) { setByte6(paletteID); }
 	}
 	
-	private class ClassMapEntry extends MapEntry {
+	public class ClassMapEntry extends MapEntry {
 		
 		private ClassMapType getMapType() {
 			if (getTraineeClassID() != 0 && getBaseClassID() != 0 && getSecondaryBaseClassID() != 0 && getFirstPromotionClassID() != 0 &&
@@ -171,26 +171,26 @@ public class FE8PaletteMapper {
 		
 		private ClassMapEntry(FileHandler handler, long offset) { super(handler, offset); }
 		
-		private int getTraineeClassID() { return getByte0(); }
-		private void setTraineeClassID(int newClassID) { setByte0(newClassID); }
+		public int getTraineeClassID() { return getByte0(); }
+		public void setTraineeClassID(int newClassID) { setByte0(newClassID); }
 		
-		private int getBaseClassID() { return getByte1(); }
-		private void setBaseClassID(int newClassID) { setByte1(newClassID); }
+		public int getBaseClassID() { return getByte1(); }
+		public void setBaseClassID(int newClassID) { setByte1(newClassID); }
 		
-		private int getSecondaryBaseClassID() { return getByte2(); }
-		private void setSecondaryBaseClassID(int newClassID) { setByte2(newClassID); }
+		public int getSecondaryBaseClassID() { return getByte2(); }
+		public void setSecondaryBaseClassID(int newClassID) { setByte2(newClassID); }
 		
-		private int getFirstPromotionClassID() { return getByte3(); }
-		private void setFirstPromotionClassID(int newClassID) { setByte3(newClassID); }
+		public int getFirstPromotionClassID() { return getByte3(); }
+		public void setFirstPromotionClassID(int newClassID) { setByte3(newClassID); }
 		
-		private int getSecondaryPromotionClassID() { return getByte4(); }
-		private void setSecondaryPromotionClassID(int newClassID) { setByte4(newClassID); }
+		public int getSecondaryPromotionClassID() { return getByte4(); }
+		public void setSecondaryPromotionClassID(int newClassID) { setByte4(newClassID); }
 		
-		private int getThirdPromotionClassID() { return getByte5(); }
-		private void setThirdPromotionClassID(int newClassID) { setByte5(newClassID); }
+		public int getThirdPromotionClassID() { return getByte5(); }
+		public void setThirdPromotionClassID(int newClassID) { setByte5(newClassID); }
 		
-		private int getFourthPromotionClassID() { return getByte6(); }
-		private void setFourthPromotionClassID(int newClassID) { setByte6(newClassID); }
+		public int getFourthPromotionClassID() { return getByte6(); }
+		public void setFourthPromotionClassID(int newClassID) { setByte6(newClassID); }
 	}
 	
 	private Map<FE8Data.Character, ClassMapEntry> paletteClassMap;
@@ -862,6 +862,10 @@ public class FE8PaletteMapper {
 			linkedClassMap.synchronize(classMap);
 			linkedPaletteMap.synchronize(existingPaletteMap);
 		}
+	}
+	
+	public ClassMapEntry getEntryForCharacter(FE8Data.Character character) {
+		return paletteClassMap.get(character);
 	}
 	
 	public void commitChanges(DiffCompiler compiler) {

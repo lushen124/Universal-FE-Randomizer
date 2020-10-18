@@ -42,10 +42,16 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long CharacterTablePointer = 0x17890;
 	//public static final long DefaultCharacterTableAddress = 0xBDCE18; 
 	
-	public static final int NumberOfClasses = 99;
+	public static final int NumberOfClasses = 100;
 	public static final int BytesPerClass = 84;
 	public static final long ClassTablePointer = 0x178F0;
 	//public static final long DefaultClassTableAddress = 0xBE015C;
+	
+	// This also needs to be moved in order to make sure map sprites
+	// show up properly. This is implicitly tied to the class table.
+	public static final long ClassMapSpriteTablePointer = 0x6D574;
+	public static final int BytesPerMapSpriteTableEntry = 8;
+	public static final int NumberOfMapSpriteEntries = 99;
 	
 	public static final int NumberOfItems = 159;
 	public static final int BytesPerItem = 36;
@@ -67,10 +73,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	//public static final long DefaultChapterArrayOffset = 0xC9C9C8;
 	public static final int BytesPerChapterUnit = 16;
 	
-	public static final long PromotionItemTablePointer = 0x27428; // Accounts for most of them, except for ocean seal.
-	
-	public static final int OceanSealAddressPointer = 0x27574; // ???
-	public static final int OceanSealDefaultAddress = 0xC97F24;
+	// This is more than just promotion items, but they're all clustered together around here.
+	// I actually suspect this is the table for the class restrictions for item usage. 
+	// Most have the same value which is probably the no-restriction case.
+	public static final long PromotionItemTablePointer = 0x27428;											
 	
 	public static final long PaletteTableOffset = 0xFD8004L;
 	public static final int PaletteEntryCount = 256;
@@ -119,6 +125,13 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	// I'm not sure if this is used, but we're going to steal it for Eliwood's slot's weapon.
 	public static final int ModeSelectTextEliwoodWeaponTypeIndex = 0x123D;
 	
+	// Lucius's equipment is given to him in secret in Chapter 16/17 as part of ASM.
+	// The item ID bytes can be replaced at 0x7D0C2 (which is normally 0x3E for Lightning)
+	// and 0x7D0D8 (which is normally 0x6B for Vulnerary). After these are actually
+	// the equipment given to the green units if those are useful.
+	public static final int LuciusEquipment1IDOffset = 0x7D0C2;
+	public static final int LuciusEquipment2IDOffset = 0x7D0D8;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
@@ -135,6 +148,66 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	
+	public enum CharacterAndClassAbility1Mask {
+		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
+		DANCE(0x10), PLAY(0x20), CRITICAL_15(0x40), BALLISTA(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility1Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility2Mask {
+		PROMOTED(0x1), SUPPLY_DEPOT(0x2), HORSE_ICON(0x4), WYVERN_ICON(0x8),
+		PEGASUS_ICON(0x10), LORD(0x20), FEMALE(0x40), BOSS(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility2Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility3Mask {
+		UNUSED_WEAPON_LOCK(0x1), WO_DAO_LOCK(0x2), DRAGONSTONE_LOCK(0x4), MORPHS_VAIDA(0x8),
+		UNCONTROLLABLE(0x10), TRIANGLE_ATTACK(0x20), UNUSED_TRIANGLE_ATTACK(0x40), UNKNOWN(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility3Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility4Mask {
+		NO_EXPERIENCE_GIVEN(0x1), LETHALITY(0x2), MAGIC_SEAL(0x4), DROP_LAST_ITEM(0x8),
+		ELIWOOD_LOCK(0x10), HECTOR_LOCK(0x20), LYN_LOCK(0x40), ATHOS_LOCK(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility4Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
 	
 	public enum Character implements GBAFECharacter {
 		NONE(0x00),
@@ -998,7 +1071,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public enum Ability2Mask {
-			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), DRAGONSTONE_LOCK(0x04), 
+			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), DRAGONSTONE_LOCK(0x04), UNUSED_WEAPON_LOCK(0x08),
 			MYRMIDON_LOCK(0x10), IOTE_SHIELD_EFFECT(0x40), IRON_RUNE_EFFECT(0x80);
 			public int ID;
 			
@@ -1478,6 +1551,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		// TODO: Figure out how Lucius actually works, because it's not as easy as an ITGC.
 		public Character[] targetedRewardRecipientsToTrack() {
 			switch (this) {
+			case CHAPTER_2: {
+				return new Character[] {Character.LYN_TUTORIAL};
+			}
 			case CHAPTER_17: {
 				return new Character[] {Character.LUCIUS};
 			}
@@ -1623,14 +1699,14 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public enum PromotionItem implements GBAFEPromotionItem {
-		// Ocean Seal is missing, but I can't find it in this table.
-		// It's pointer can be found at 0x27574.
+		// The indexes here are based off of a table that starts at 0x27428 (this may not be the actual start of whatever this table is).
 		// Remember that the actual address of the class IDs starts at byte 4 after the jump.
 		// The class IDs are 00 terminated.
 		HERO_CREST(0x01), KNIGHT_CREST(0x02), ORION_BOLT(0x03), ELYSIAN_WHIP(0x04), GUIDING_RING(0x05), MASTER_SEAL(0x25), FALLEN_CONTRACT(0x29), 
 		
-		// Ocean seal is special because there's no indirect reference to it...
-		OCEAN_SEAL(0x0);
+		// These are special. I'm not sure what points to them, so they're direct.
+		HECTOR_LYN_HEAVEN_SEAL(0x46), ELIWOOD_LYN_HEAVEN_SEAL(0x47),
+		OCEAN_SEAL(0x53);
 		
 		int offset;
 		
@@ -1638,11 +1714,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			this.offset = offset;
 		}
 		
-		public long getPointerAddress() {
-			if (this == OCEAN_SEAL) {
-				return OceanSealAddressPointer;
-			}
-			
+		public long getPointerAddress() {			
 			return (offset * 4) + PromotionItemTablePointer;
 		}
 		
@@ -1651,11 +1723,37 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public Boolean isIndirected() {
-			return this != OCEAN_SEAL; // Ocean seal being the special case.
+			return this != OCEAN_SEAL && this != HECTOR_LYN_HEAVEN_SEAL && this != ELIWOOD_LYN_HEAVEN_SEAL;
 		}
 		
 		public String itemName() {
 			return this.toString();
+		}
+		
+		public int getItemID() {
+			switch (this) {
+			case HERO_CREST:
+				return Item.HERO_CREST.ID;
+			case KNIGHT_CREST:
+				return Item.KNIGHT_CREST.ID;
+			case ORION_BOLT:
+				return Item.ORION_BOLT.ID;
+			case ELYSIAN_WHIP:
+				return Item.ELYSIAN_WHIP.ID;
+			case GUIDING_RING:
+				return Item.GUIDING_RING.ID;
+			case MASTER_SEAL:
+				return Item.EARTH_SEAL.ID;
+			case FALLEN_CONTRACT:
+				return Item.FELL_CONTRACT.ID;
+			case HECTOR_LYN_HEAVEN_SEAL:
+			case ELIWOOD_LYN_HEAVEN_SEAL:
+				return Item.HEAVEN_SEAL.ID;
+			case OCEAN_SEAL:
+				return Item.OCEAN_SEAL.ID;
+			default:
+				return 0;
+			}
 		}
 	}
 	
@@ -2053,7 +2151,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case CAVALIER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 3, 9, 5, 10, 11}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {});
 					break;
 				case CLERIC:
 				case MONK: // May need to split out Lucius as a special case. This is assuming a Lucius sprite, which is unique from other monks.
@@ -2600,6 +2698,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		return new HashSet<GBAFEItem>(equalRankWeapons);
+	}
+	
+	public Set<GBAFEItem> healingStaves(WeaponRank maxRank) {
+		Set<Item> staves = Item.allHealingStaves;
+		return new HashSet<GBAFEItem>(staves);
 	}
 	
 	public Set<GBAFEItem> prfWeaponsForClassID(int classID) {
