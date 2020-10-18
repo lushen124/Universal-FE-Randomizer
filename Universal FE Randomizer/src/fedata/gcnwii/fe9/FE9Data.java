@@ -525,9 +525,11 @@ public class FE9Data {
 				case WHITE_DRAGON: return "AID_WDRAGON"; // This is the only white dragon human form we get...
 				
 				case RED_DRAGON: 
-				case RED_DRAGON_F:
 				case FERAL_RED_DRAGON:
 					return "AID_RDRAGON";
+				case RED_DRAGON_F:
+				case FERAL_RED_DRAGON_F:
+					return "AID_RDRAGON_EN"; // There seems to be a problem using regular red dragon for a female dragon. We'll use Ena's animations instead.
 				default: return null;
 			}
 		}
