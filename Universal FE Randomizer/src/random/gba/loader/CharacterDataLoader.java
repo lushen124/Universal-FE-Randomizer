@@ -233,7 +233,7 @@ public class CharacterDataLoader {
 	}
 
 	public void recordCharacters(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
-		for (GBAFECharacterData character : canonicalPlayableCharacters(true)) {
+		for (GBAFECharacterData character : playableCharacters()) {
 			recordCharacter(rk, character, isInitial, classData, itemData, textData);
 		}
 		for (GBAFECharacterData boss : bossCharacters()) {
