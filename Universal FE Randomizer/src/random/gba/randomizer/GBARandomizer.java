@@ -1176,7 +1176,7 @@ public class GBARandomizer extends Randomizer {
 			}
 		}
 		
-		if (classes.createPrfs || recruitOptions.createPrfs) {
+		if ((classes != null && classes.createPrfs) || (recruitOptions != null && recruitOptions.createPrfs)) {
 			// Create new PRF weapons.
 			if (gameType == GameType.FE6) {
 				GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
@@ -2041,7 +2041,11 @@ public class GBARandomizer extends Randomizer {
 			if (weapons.effectsList.brave) { sb.append("<li>Brave</li>\n"); }
 			if (weapons.effectsList.reverseTriangle) { sb.append("<li>Reverse Triangle</li>\n"); }
 			if (weapons.effectsList.extendedRange) { sb.append("<li>Extended Range</li>\n"); }
-			if (weapons.effectsList.highCritical) { sb.append("<li>Critical</li>\n"); }
+			if (weapons.effectsList.highCritical) { 
+				sb.append("<li>Critical");
+				sb.append(" (" + weapons.effectsList.criticalRange.minValue + "% ~ " + weapons.effectsList.criticalRange.maxValue + "%)");
+				sb.append("</li>\n");
+			}
 			if (weapons.effectsList.magicDamage) { sb.append("<li>Magic Damage</li>\n"); }
 			if (weapons.effectsList.poison) { sb.append("<li>Poison</li>\n"); }
 			if (weapons.effectsList.eclipse) { sb.append("<li>Eclipse</li>\n"); }

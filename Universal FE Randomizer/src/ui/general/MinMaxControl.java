@@ -3,10 +3,12 @@ package ui.general;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
@@ -70,13 +72,12 @@ public class MinMaxControl extends Composite {
 		maxSpinner.setLayoutData(spinnerData);
 		
 		FormData labelData = new FormData();
-		labelData.left = new FormAttachment(50, 5);
 		labelData.right = new FormAttachment(maxSpinner, -5);
 		labelData.top = new FormAttachment(maxSpinner, 0, SWT.CENTER);
 		maxLabel.setLayoutData(labelData);
 		
 		spinnerData = new FormData();
-		spinnerData.right = new FormAttachment(50, -5);
+		spinnerData.right = new FormAttachment(maxLabel, -5);
 		minSpinner.setLayoutData(spinnerData);
 		
 		labelData = new FormData();

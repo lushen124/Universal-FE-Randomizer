@@ -9,6 +9,7 @@ public class WeaponEffectOptions {
 	public final Boolean reverseTriangle;
 	public final Boolean extendedRange;
 	public final Boolean highCritical;
+	public final MinMaxOption criticalRange;
 	public final Boolean magicDamage;
 	public final Boolean poison;
 	public final Boolean stealHP;
@@ -18,8 +19,8 @@ public class WeaponEffectOptions {
 	public final Boolean devil;
 	
 	public WeaponEffectOptions(Boolean statBoosts, Boolean effectiveness, Boolean unbreakable, Boolean brave,
-			Boolean reverseTriangle, Boolean extendedRange, Boolean highCritical, Boolean magicDamage, Boolean poison,
-			Boolean stealHP, Boolean critImmune, Boolean noCrit,
+			Boolean reverseTriangle, Boolean extendedRange, Boolean highCritical, MinMaxOption critRange,
+			Boolean magicDamage, Boolean poison, Boolean stealHP, Boolean critImmune, Boolean noCrit,
 			Boolean eclipse, Boolean devil) {
 		super();
 		this.statBoosts = statBoosts;
@@ -29,6 +30,7 @@ public class WeaponEffectOptions {
 		this.reverseTriangle = reverseTriangle;
 		this.extendedRange = extendedRange;
 		this.highCritical = highCritical;
+		this.criticalRange = critRange;
 		this.magicDamage = magicDamage;
 		this.poison = poison;
 		this.stealHP = stealHP;

@@ -76,7 +76,11 @@ public class FE9WeaponRandomizer {
 		if (effectOptions.brave) { effects.add(WeaponEffect.BRAVE); }
 		if (effectOptions.reverseTriangle) { effects.add(WeaponEffect.REVERSE_TRIANGLE); }
 		if (effectOptions.extendedRange) { effects.add(WeaponEffect.EXTEND_RANGE); }
-		if (effectOptions.highCritical) { effects.add(WeaponEffect.CRITICAL); }
+		if (effectOptions.highCritical) {
+			WeaponEffect effect = WeaponEffect.CRITICAL;
+			effect.additionalInfo.put(WeaponEffect.InfoKey.CRITICAL_RANGE, effectOptions.criticalRange);
+			effects.add(effect);
+		}
 		if (effectOptions.magicDamage) { effects.add(WeaponEffect.MAGIC_DAMAGE); }
 		if (effectOptions.poison) { effects.add(WeaponEffect.POISON); }
 		if (effectOptions.stealHP) { effects.add(WeaponEffect.STEAL_HP); }

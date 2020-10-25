@@ -22,6 +22,7 @@ import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
+import ui.model.MinMaxOption;
 import util.DebugPrinter;
 import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
@@ -106,6 +107,16 @@ public class FE9ItemDataLoader {
 	
 	public enum WeaponEffect {
 		NONE, STAT_BOOST, EFFECTIVENESS, UNBREAKABLE, BRAVE, REVERSE_TRIANGLE, EXTEND_RANGE, CRITICAL, MAGIC_DAMAGE, POISON, STEAL_HP, CRIT_IMMUNE, NO_CRIT;
+		
+		public enum InfoKey {
+			CRITICAL_RANGE;
+		}
+		
+		public Map<InfoKey, Object> additionalInfo;
+		
+		private WeaponEffect() {
+			additionalInfo = new HashMap<InfoKey, Object>();
+		}
 	}
 	
 	List<FE9Item> allItems;
@@ -603,7 +614,8 @@ public class FE9ItemDataLoader {
 		break;
 		case CRITICAL:
 			if (item.getItemCritical() >= 25) { return false; }
-			int bonusCrit = (rng.nextInt(6) + 5) * 5;
+			MinMaxOption range = (MinMaxOption)effect.additionalInfo.get(WeaponEffect.InfoKey.CRITICAL_RANGE);
+			int bonusCrit = 5 * ((range.minValue / 5) + rng.nextInt(((range.maxValue - range.minValue) / 5) + 1));
 			item.setItemCritical(item.getItemCritical() + bonusCrit);
 			break;
 		case MAGIC_DAMAGE:
