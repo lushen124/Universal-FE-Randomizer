@@ -147,18 +147,6 @@ public class FE6ChapterUnit implements GBAFEChapterUnitData {
 		wasModified = true;
 	}
 	
-	public void giveItem(int itemID) {
-		if (getItem1() == 0) {
-			setItem1(itemID);
-		} else if (getItem2() == 0) {
-			setItem2(itemID);
-		} else if (getItem3() == 0) {
-			setItem3(itemID);
-		} else {
-			setItem4(itemID);
-		}
-	}
-	
 	public void giveItems(int[] itemIDs) {
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
 		for (int i = 0; i < itemIDs.length; i++) {
