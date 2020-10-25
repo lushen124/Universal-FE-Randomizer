@@ -21,6 +21,8 @@ public class ClassesView extends Composite {
 	
 	private Button randomizePCButton;
 	private Button randomizePCLordsButton;
+	private Button createNewPrfWeaponsButton;
+	private Button unbreakablePrfsButton;
 	private Button randomizePCThievesButton;
 	private Button randomizePCSpecialButton;
 	private Button evenClassesButton;
@@ -94,6 +96,56 @@ public class ClassesView extends Composite {
 		pcLordsFormData.top = new FormAttachment(randomizePCButton, 5);
 		randomizePCLordsButton.setLayoutData(pcLordsFormData);
 		
+		createNewPrfWeaponsButton = new Button(container, SWT.CHECK);
+		createNewPrfWeaponsButton.setText("Create Matching Prf Weapons");
+		if (type == GameType.FE6) {
+			createNewPrfWeaponsButton.setToolTipText("If enabled, new weapons matching Roy's new class are created and replaces the starting Rapier (with identical stats and traits).\nThis weapon will be locked to Roy only. This also updates the Binding Blade to be a weapon type Roy can use.\n\nNote: Due to a lack of weapon locks, Rapiers will no longer be in the weapon pool.");
+		} else if (type == GameType.FE7) {
+			createNewPrfWeaponsButton.setToolTipText("If enabled, new weapons matching Lyn/Eliwood/Hector's new classes are created and replace the starting Prf weapons (with identical stats and traits).\nNew weapons are locked to the characters specifically. This also updates Sol Katti/Durandal/Armads to be the correct weapon type for their respective lords.");
+		} else if (type == GameType.FE8) {
+			createNewPrfWeaponsButton.setToolTipText("If enabled, new weapons matching Eirika/Ephraim's new classes are created and replace the starting Prf weapons (with identical stats and traits).\nNew weapons are locked specifically to their respective characters. This also updates Sieglinde/Siegmund to be the correct weapon type for their respective lords.");
+		}
+		createNewPrfWeaponsButton.setEnabled(false);
+		
+		FormData prfWeaponsData = new FormData();
+		prfWeaponsData.left = new FormAttachment(randomizePCLordsButton, 10, SWT.LEFT);
+		prfWeaponsData.top = new FormAttachment(randomizePCLordsButton, 5);
+		createNewPrfWeaponsButton.setLayoutData(prfWeaponsData);
+		
+		unbreakablePrfsButton = new Button(container, SWT.CHECK);
+		unbreakablePrfsButton.setText("Make Prf Weapons Unbreakable");
+		unbreakablePrfsButton.setToolTipText("If enabled, newly created Prf weapons will have infinite durability.");
+		unbreakablePrfsButton.setEnabled(false);
+		
+		FormData unbreakablePrfData = new FormData();
+		unbreakablePrfData.left = new FormAttachment(createNewPrfWeaponsButton, 10, SWT.LEFT);
+		unbreakablePrfData.top = new FormAttachment(createNewPrfWeaponsButton, 5);
+		unbreakablePrfsButton.setLayoutData(unbreakablePrfData);
+		
+		randomizePCLordsButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				createNewPrfWeaponsButton.setEnabled(randomizePCLordsButton.getSelection());
+				unbreakablePrfsButton.setEnabled(randomizePCLordsButton.getSelection() && createNewPrfWeaponsButton.getSelection());
+				
+				if (!randomizePCLordsButton.getSelection()) {
+					createNewPrfWeaponsButton.setSelection(false);
+					unbreakablePrfsButton.setSelection(false);
+				}
+			}
+		});
+		
+		createNewPrfWeaponsButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				unbreakablePrfsButton.setEnabled(randomizePCLordsButton.getSelection() && createNewPrfWeaponsButton.getSelection());
+				
+				if (!createNewPrfWeaponsButton.getSelection()) {
+					unbreakablePrfsButton.setSelection(false);
+				}
+			}
+		});
+		
 		randomizePCThievesButton = new Button(container, SWT.CHECK);
 		randomizePCThievesButton.setText("Include Thieves");
 		randomizePCThievesButton.setToolTipText("If enabled, allows thieves to be changed to random classes, as well as adds thieves to the randomizable class pool.");
@@ -101,7 +153,7 @@ public class ClassesView extends Composite {
 		
 		FormData pcThievesFormData = new FormData();
 		pcThievesFormData.left = new FormAttachment(randomizePCLordsButton, 0, SWT.LEFT);
-		pcThievesFormData.top = new FormAttachment(randomizePCLordsButton, 5);
+		pcThievesFormData.top = new FormAttachment(unbreakablePrfsButton, 5);
 		randomizePCThievesButton.setLayoutData(pcThievesFormData);
 		
 		randomizePCSpecialButton = new Button(container, SWT.CHECK);
@@ -256,14 +308,23 @@ public class ClassesView extends Composite {
 			specialEnabled = randomizePCSpecialButton.getSelection();
 		}
 		
+		Boolean newPrfs = false;
+		Boolean unbreakablePrfs = false;
+		if (lordsEnabled) {
+			newPrfs = createNewPrfWeaponsButton.getSelection();
+			if (newPrfs) {
+				unbreakablePrfs = unbreakablePrfsButton.getSelection();
+			}
+		}
+		
 		BaseTransferOption baseOption = BaseTransferOption.ADJUST_TO_MATCH;
 		if (basesNoChangeButton.getSelection()) { baseOption = BaseTransferOption.NO_CHANGE; }
 		else if (basesAdjustClassButton.getSelection()) { baseOption = BaseTransferOption.ADJUST_TO_CLASS; }
 		
 		if (hasMonsterOption) {
-			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, specialEnabled, !mixMonsterClasses.getSelection(), forceChangeButton.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, !mixMonsterClasses.getSelection(), forceChangeButton.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
 		} else {
-			return new ClassOptions(pcsEnabled, lordsEnabled, thievesEnabled, specialEnabled, forceChangeButton.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, forceChangeButton.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
 		}
 	}
 	
@@ -277,7 +338,17 @@ public class ClassesView extends Composite {
 				randomizePCThievesButton.setEnabled(true);
 				randomizePCSpecialButton.setEnabled(true);
 				evenClassesButton.setEnabled(true);
+				
 				randomizePCLordsButton.setSelection(options.includeLords != null ? options.includeLords : false);
+				if (options.includeLords) {
+					createNewPrfWeaponsButton.setEnabled(true);
+					createNewPrfWeaponsButton.setSelection(options.createPrfs != null ? options.createPrfs : false);
+					if (options.createPrfs) {
+						unbreakablePrfsButton.setEnabled(true);
+						unbreakablePrfsButton.setSelection(options.unbreakablePrfs != null ? options.unbreakablePrfs : false);
+					}
+				}
+				
 				randomizePCThievesButton.setSelection(options.includeThieves != null ? options.includeThieves : false);
 				randomizePCSpecialButton.setSelection(options.includeSpecial != null ? options.includeSpecial : false);
 				evenClassesButton.setSelection(options.assignEvenly);

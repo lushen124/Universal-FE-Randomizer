@@ -42,6 +42,8 @@ public class RecruitmentView extends Composite {
 	private Button slotClassButton;
 	
 	private Button lordsButton;
+	private Button createPrfsButton;
+	private Button unbreakablePrfsButton;
 	private Button thievesButton;
 	private Button specialButton;
 	
@@ -86,6 +88,9 @@ public class RecruitmentView extends Composite {
 				lordsButton.setEnabled(enableButton.getSelection());
 				thievesButton.setEnabled(enableButton.getSelection());
 				specialButton.setEnabled(enableButton.getSelection());
+				
+				createPrfsButton.setEnabled(enableButton.getSelection() && lordsButton.getSelection());
+				unbreakablePrfsButton.setEnabled(enableButton.getSelection() && lordsButton.getSelection() && createPrfsButton.getSelection());
 				
 				autolevelTypeContainer.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
 				autolevelOriginalButton.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
@@ -316,6 +321,52 @@ public class RecruitmentView extends Composite {
 		optionData.top = new FormAttachment(classContainer, 10);
 		lordsButton.setLayoutData(optionData);
 		
+		createPrfsButton = new Button(container, SWT.CHECK);
+		createPrfsButton.setText("Create Matching Prf Weapons");
+		createPrfsButton.setToolTipText("If enabled, creates Prf weapons for characters that randomize into the lord slots.");
+		createPrfsButton.setEnabled(false);
+		createPrfsButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(lordsButton, 10, SWT.LEFT);
+		optionData.top = new FormAttachment(lordsButton, 5);
+		createPrfsButton.setLayoutData(optionData);
+		
+		unbreakablePrfsButton = new Button(container, SWT.CHECK);
+		unbreakablePrfsButton.setText("Make Prf Weapons Unbreakable");
+		unbreakablePrfsButton.setToolTipText("If enabled, created Prf weapons are unbreakable.");
+		unbreakablePrfsButton.setEnabled(false);
+		unbreakablePrfsButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(createPrfsButton, 10, SWT.LEFT);
+		optionData.top = new FormAttachment(createPrfsButton, 5);
+		unbreakablePrfsButton.setLayoutData(optionData);
+		
+		lordsButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				createPrfsButton.setEnabled(lordsButton.getSelection());
+				unbreakablePrfsButton.setEnabled(lordsButton.getSelection() && createPrfsButton.getSelection());
+				
+				if (!lordsButton.getSelection()) {
+					createPrfsButton.setSelection(false);
+					unbreakablePrfsButton.setSelection(false);
+				}
+			}
+		});
+		
+		createPrfsButton.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				unbreakablePrfsButton.setEnabled(lordsButton.getSelection() && createPrfsButton.getSelection());
+				
+				if (!createPrfsButton.getSelection()) {
+					unbreakablePrfsButton.setSelection(false);
+				}
+			}
+		});
+		
 		thievesButton = new Button(container, SWT.CHECK);
 		thievesButton.setText("Include Thieves");
 		thievesButton.setToolTipText("Allows Thief characters to randomize their recruitment time.");
@@ -324,7 +375,7 @@ public class RecruitmentView extends Composite {
 		
 		optionData = new FormData();
 		optionData.left = new FormAttachment(lordsButton, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(lordsButton, 5);
+		optionData.top = new FormAttachment(unbreakablePrfsButton, 10);
 		thievesButton.setLayoutData(optionData);
 		
 		specialButton = new Button(container, SWT.CHECK);
@@ -387,7 +438,7 @@ public class RecruitmentView extends Composite {
 		if (slotClassButton.getSelection()) { classMode = ClassMode.USE_SLOT; }
 		
 		if (isEnabled && basesMode != null && growthMode != null) {
-			return new RecruitmentOptions(growthMode, basesMode, autolevel, classMode, lordsButton.getSelection(), thievesButton.getSelection(), specialButton.getSelection(), crossGenderButton.getSelection(), extras);
+			return new RecruitmentOptions(growthMode, basesMode, autolevel, classMode, lordsButton.getSelection(), createPrfsButton.getSelection(), unbreakablePrfsButton.getSelection(), thievesButton.getSelection(), specialButton.getSelection(), crossGenderButton.getSelection(), extras);
 		} else {
 			return null;
 		}
@@ -417,6 +468,8 @@ public class RecruitmentView extends Composite {
 			slotClassButton.setEnabled(false);
 			
 			lordsButton.setEnabled(false);
+			createPrfsButton.setEnabled(false);
+			unbreakablePrfsButton.setEnabled(false);
 			thievesButton.setEnabled(false);
 			specialButton.setEnabled(false);
 			crossGenderButton.setEnabled(false);
@@ -442,6 +495,8 @@ public class RecruitmentView extends Composite {
 			slotClassButton.setEnabled(true);
 			
 			lordsButton.setEnabled(true);
+			createPrfsButton.setEnabled(options.includeLords);
+			unbreakablePrfsButton.setEnabled(options.includeLords && options.createPrfs);
 			thievesButton.setEnabled(true);
 			specialButton.setEnabled(true);
 			crossGenderButton.setEnabled(true);
@@ -464,6 +519,8 @@ public class RecruitmentView extends Composite {
 			autolevelNewButton.setEnabled(autolevelButton.getSelection());
 			
 			lordsButton.setSelection(options.includeLords);
+			createPrfsButton.setSelection(options.createPrfs);
+			unbreakablePrfsButton.setSelection(options.unbreakablePrfs);
 			thievesButton.setSelection(options.includeThieves);
 			specialButton.setSelection(options.includeSpecial);
 			crossGenderButton.setSelection(options.allowCrossGender);

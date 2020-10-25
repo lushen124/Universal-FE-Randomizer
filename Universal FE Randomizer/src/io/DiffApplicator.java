@@ -13,6 +13,7 @@ import java.util.Scanner;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
+import util.FindAndReplace;
 import util.WhyDoesJavaNotHaveThese;
 
 public class DiffApplicator {
@@ -77,6 +78,47 @@ public class DiffApplicator {
 				resultFile.write(newValue);
 			} catch (IOException e) {
 				e.printStackTrace();
+			}
+		}
+		
+		// Apply any find and replaces.
+		for (int i = 0; i < compiler.replaceArray.size(); i++) {
+			FindAndReplace replace = compiler.replaceArray.get(i);
+			if (replace.oldBytes.length != replace.newBytes.length) { continue; }
+			
+			byte[] buffer = new byte[1024];
+			
+			try {
+				resultFile.seek(0);
+				long chunkStart = resultFile.getFilePointer();
+				int bytesAvailable = resultFile.read(buffer);
+				do {
+					if (bytesAvailable == 0) { break; }
+					
+					for (int index = 0; index < bytesAvailable; index++) {
+						if (buffer[index] == replace.oldBytes[0]) {
+							boolean isMatch = true;
+							for (int j = 1; j < replace.oldBytes.length; j++) {
+								if (index + j >= bytesAvailable || replace.oldBytes[j] != buffer[index + j]) {
+									isMatch = false;
+									break;
+								}
+							}
+							
+							if (isMatch) {
+								resultFile.seek(chunkStart + index);
+								resultFile.write(replace.newBytes);
+								index += replace.newBytes.length - 1;
+							}
+						}
+					}
+					
+					resultFile.seek(chunkStart + bytesAvailable - replace.oldBytes.length);
+					chunkStart = resultFile.getFilePointer();
+					bytesAvailable = resultFile.read(buffer);
+				} while (bytesAvailable > replace.oldBytes.length);
+			} catch (IOException e1) {
+				
 			}
 		}
 		

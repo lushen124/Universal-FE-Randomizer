@@ -23,9 +23,12 @@ import fedata.gba.general.GBAFEPromotionItem;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import io.FileHandler;
+import util.AddressRange;
+import util.ByteArrayBuilder;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
+import util.FindAndReplace;
 import util.FreeSpaceManager;
 import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.RecordKeeper;
@@ -46,13 +49,19 @@ public class ItemDataLoader {
 	}
 	
 	private Map<Integer, GBAFEItemData> itemMap = new HashMap<Integer, GBAFEItemData>();
+	private Map<Integer, GBAFEItemData> addedItems = new HashMap<Integer, GBAFEItemData>();
+	
+	private long originalTableOffset;
 	
 	// TODO: Put this somewhere else.
 	public GBAFESpellAnimationCollection spellAnimations;
 	
 	private FreeSpaceManager freeSpace;
 	private Map<AdditionalData, Long> offsetsForAdditionalData;
+	private Map<AdditionalData, List<Byte>> additionalDataMap;
 	private Map<String, Long> promotionItemAddressPointers;
+	private Map<String, List<Byte>> promotionClassLists;
+	private Map<Integer, List<GBAFEPromotionItem>> promotionItemsForClassIDs;
 	
 	public static final String RecordKeeperCategoryWeaponKey = "Weapons";
 	
@@ -63,6 +72,7 @@ public class ItemDataLoader {
 		this.provider = provider;
 		
 		long baseAddress = FileReadHelper.readAddress(handler, provider.itemTablePointer());
+		originalTableOffset = baseAddress;
 		for (GBAFEItem item : provider.allItems()) {
 			if (item.getID() == 0) { continue; }
 			
@@ -76,6 +86,7 @@ public class ItemDataLoader {
 		spellAnimations = provider.spellAnimationCollectionAtAddress(spellAnimationData, spellAnimationBaseAddress);
 		
 		offsetsForAdditionalData = new HashMap<AdditionalData, Long>();
+		additionalDataMap = new HashMap<AdditionalData, List<Byte>>();
 		
 		// Set up effectiveness.
 		registerAdditionalData(AdditionalData.KNIGHTCAV_EFFECT, 
@@ -109,6 +120,8 @@ public class ItemDataLoader {
 		
 		// Set up promotion items.
 		promotionItemAddressPointers = new HashMap<String, Long>();
+		promotionClassLists = new HashMap<String, List<Byte>>();
+		promotionItemsForClassIDs = new HashMap<Integer, List<GBAFEPromotionItem>>();
 		for (GBAFEPromotionItem promotionItem : provider.allPromotionItems()) {
 			long promotionItemOffset = promotionItem.getListAddress();
 			if (promotionItem.isIndirected()) {
@@ -122,6 +135,13 @@ public class ItemDataLoader {
 				currentByte = handler.readBytesAtOffset(currentOffset++, 1)[0];
 				if (currentByte != 0) {
 					idList.add(currentByte);
+					
+					List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get((int)currentByte & 0xFF);
+					if (promotionItems == null) { 
+						promotionItems = new ArrayList<GBAFEPromotionItem>();
+						promotionItemsForClassIDs.put((int)currentByte & 0xFF, promotionItems);
+					}
+					promotionItems.add(promotionItem);
 				}
 			} while (currentByte != 0);
 			
@@ -129,24 +149,96 @@ public class ItemDataLoader {
 			if (additionalClasses != null && !additionalClasses.isEmpty()) {
 				for (int i = 0; i < additionalClasses.size(); i++) {
 					GBAFEClass additionalClass = additionalClasses.get(i);
-					if (!idList.contains((byte)additionalClass.getID())) { idList.add((byte)additionalClass.getID()); }
+					if (!idList.contains((byte)additionalClass.getID())) { 
+						idList.add((byte)additionalClass.getID());
+						List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get((int)currentByte & 0xFF);
+						if (promotionItems == null) { 
+							promotionItems = new ArrayList<GBAFEPromotionItem>();
+							promotionItemsForClassIDs.put((int)currentByte & 0xFF, promotionItems);
+						}
+						promotionItems.add(promotionItem);
+					}
 				}
-				idList.add((byte)0x0);
-				byte[] byteArray = new byte[idList.size()];
-				for (int i = 0; i < idList.size(); i++) {
-					byteArray[i] = idList.get(i);
+			}
+			
+			promotionClassLists.put(promotionItem.itemName(), idList);
+			promotionItemAddressPointers.put(promotionItem.itemName(), promotionItemOffset);
+		}
+	}
+	
+	public void addClassToPromotionItem(GBAFEPromotionItem promotionItem, int classID) {
+		if (promotionItem == null) { return; }
+		List<Byte> idList = promotionClassLists.get(promotionItem.itemName());
+		if (idList == null) { return; }
+		idList.add((byte)(classID & 0xFF));
+		
+		List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get(classID & 0xFF);
+		if (promotionItems == null) { 
+			promotionItems = new ArrayList<GBAFEPromotionItem>();
+			promotionItemsForClassIDs.put(classID & 0xFF, promotionItems);
+		}
+		promotionItems.add(promotionItem);
+	}
+	
+	public void replaceClassesForPromotionItem(GBAFEPromotionItem promotionItem, List<Integer> classIDs) {
+		if (classIDs == null || promotionItem == null) { return; }
+		List<Byte> oldList = promotionClassLists.get(promotionItem.itemName());
+		if (oldList != null && oldList.size() > 0) {
+			for (Byte id : oldList) {
+				List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get((int)id & 0xFF);
+				if (promotionItems != null) { 
+					promotionItems.remove(promotionItem);
 				}
-				
-				offset = freeSpace.setValue(byteArray, promotionItem.itemName());
-				promotionItemAddressPointers.put(promotionItem.itemName(), promotionItemOffset);
 			}
 		}
+		
+		List<Byte> idList = new ArrayList<Byte>();
+		for (int id : classIDs) {
+			idList.add((byte)(id & 0xFF));
+			List<GBAFEPromotionItem> items = promotionItemsForClassIDs.get(id);
+			if (items == null) {
+				items = new ArrayList<GBAFEPromotionItem>();
+				promotionItemsForClassIDs.put(id, items);
+			}
+			items.add(promotionItem);
+		}
+		promotionClassLists.put(promotionItem.itemName(), idList);
+	}
+	
+	public List<GBAFEItemData> itemsToPromoteClass(int classID) {
+		List<GBAFEPromotionItem> promotionItems = promotionItemsForClassIDs.get(classID);
+		List<GBAFEItemData> items = new ArrayList<GBAFEItemData>();
+		if (promotionItems == null) { return items; }
+		for (GBAFEPromotionItem item : promotionItems) {
+			GBAFEItemData itemData = itemWithID(item.getItemID());
+			if (itemData != null) {
+				items.add(itemData);
+			}
+		}
+		
+		return items;
+	}
+	
+	public byte[] bytesForAdditionalData(AdditionalData dataName) {
+		if (additionalDataMap.containsKey(dataName)) {
+			List<Byte> byteList = additionalDataMap.get(dataName);
+			ByteArrayBuilder builder = new ByteArrayBuilder();
+			for (Byte current : byteList) {
+				assert current != null;
+				if (current == null) { return null; }
+				builder.appendByte(current);
+			}
+			return builder.toByteArray();
+		}
+		
+		return null;
 	}
 	
 	private void registerAdditionalData(AdditionalData dataName, byte[] byteArray) {
 		if (byteArray.length > 0) {
 			long offset = freeSpace.setValue(byteArray, dataName.key);
 			offsetsForAdditionalData.put(dataName, offset);
+			additionalDataMap.put(dataName, WhyDoesJavaNotHaveThese.byteArrayToByteList(byteArray));
 		}
 	}
 	
@@ -168,6 +260,12 @@ public class ItemDataLoader {
 		}
 		
 		return byteArray;
+	}
+	
+	public void addNewItem(GBAFEItemData newItem) {
+		if (newItem != null) {
+			addedItems.put(newItem.getID(), newItem);
+		}
 	}
 	
 	public GBAFEItemData itemWithID(int itemID) {
@@ -239,6 +337,10 @@ public class ItemDataLoader {
 		}
 		
 		return 0;
+	}
+	
+	public long offsetForAdditionalData(AdditionalData name) {
+		return offsetsForAdditionalData.get(name);
 	}
 	
 	public long[] possibleEffectivenessAddresses() {
@@ -357,7 +459,7 @@ public class ItemDataLoader {
 	}
 	
 	public GBAFEItemData getRandomHealingStaff(WeaponRank maxRank, Random rng) {
-		Set<GBAFEItem> healingStaves = provider.weaponsOfTypeUpToRank(WeaponType.STAFF, maxRank, false, false);
+		Set<GBAFEItem> healingStaves = provider.healingStaves(maxRank);
 		GBAFEItem[] staves = healingStaves.toArray(new GBAFEItem[healingStaves.size()]);
 		return itemMap.get(staves[rng.nextInt(staves.length)].getID());
 	}
@@ -494,24 +596,70 @@ public class ItemDataLoader {
 		spellAnimations.commit();
 	}
 	
-	public void compileDiffs(DiffCompiler compiler) {
-		for (GBAFEItemData item : itemMap.values()) {
-			item.commitChanges();
-			if (item.hasCommittedChanges()) {
-				Diff charDiff = new Diff(item.getAddressOffset(), item.getData().length, item.getData(), null);
-				compiler.addDiff(charDiff);
+	public void compileDiffs(DiffCompiler compiler, FileHandler handler) {
+		if (addedItems.isEmpty()) {
+			for (GBAFEItemData item : itemMap.values()) {
+				item.commitChanges();
+				if (item.hasCommittedChanges()) {
+					Diff charDiff = new Diff(item.getAddressOffset(), item.getData().length, item.getData(), null);
+					compiler.addDiff(charDiff);
+				}
 			}
+		} else {
+			// Need a repoint.
+			
+			// Commit everything first.
+			for (GBAFEItemData item : itemMap.values()) {
+				item.commitChanges();
+			}
+			
+			for (GBAFEItemData item : addedItems.values()) {
+				item.commitChanges();
+			}
+			
+			long startingOffset = FileReadHelper.readAddress(handler, provider.itemTablePointer());
+			long newTableOffset = 0;
+			for (int i = 0; i < provider.numberOfItems(); i++) {
+				GBAFEItemData item = itemMap.get(i);
+				if (item != null) {
+					long writtenOffset = freeSpace.setValue(item.getData(), "Item data for 0x" + Integer.toHexString(item.getID()), i == 0);
+					if (i == 0) { newTableOffset = writtenOffset; }
+				} else {
+					long existingStart = startingOffset + i * provider.bytesPerItem();
+					long existingEnd = existingStart + provider.bytesPerItem();
+					long writtenOffset = freeSpace.setValue(FileReadHelper.readBytesInRange(new AddressRange(existingStart, existingEnd), handler), "Copied class data for Item 0x" + Integer.toHexString(i), i == 0);
+					if (i == 0) { newTableOffset = writtenOffset; }
+				}
+			}
+			
+			List<GBAFEItemData> addedItemList = new ArrayList<GBAFEItemData>(addedItems.values());
+			addedItemList.sort(new Comparator<GBAFEItemData>() {
+				@Override
+				public int compare(GBAFEItemData o1, GBAFEItemData o2) {
+					return Integer.compare(o1.getID(), o2.getID());
+				}
+			});
+			for (GBAFEItemData item : addedItemList) {
+				freeSpace.setValue(item.getData(), "Added Item Data for Class 0x" + Integer.toHexString(item.getID()));
+			}
+			
+			compiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.gbaAddressFromOffset(originalTableOffset), WhyDoesJavaNotHaveThese.gbaAddressFromOffset(newTableOffset), true));
 		}
 		
-		spellAnimations.compileDiffs(compiler);
+		spellAnimations.compileDiffs(compiler, freeSpace);
 		
 		for (String promotionItemName : promotionItemAddressPointers.keySet()) {
-			if (freeSpace.hasOffsetForKey(promotionItemName)) {
-				long offset = freeSpace.getOffsetForKey(promotionItemName);
-				byte[] addressByteArray = WhyDoesJavaNotHaveThese.bytesFromAddress(offset);
-				long targetOffset = promotionItemAddressPointers.get(promotionItemName);
-				compiler.addDiff(new Diff(targetOffset, addressByteArray.length, addressByteArray, null));
+			List<Byte> idBytes = promotionClassLists.get(promotionItemName);
+			byte[] bytesToWrite = new byte[idBytes.size() + 1];
+			for (int i = 0; i < idBytes.size(); i++) {
+				bytesToWrite[i] = idBytes.get(i);
 			}
+			bytesToWrite[bytesToWrite.length - 1] = 0;
+			
+			long offset = freeSpace.setValue(bytesToWrite, promotionItemName);
+			byte[] addressByteArray = WhyDoesJavaNotHaveThese.bytesFromAddress(offset);
+			long targetOffset = promotionItemAddressPointers.get(promotionItemName);
+			compiler.addDiff(new Diff(targetOffset, addressByteArray.length, addressByteArray, null));
 		}
 	}
 	

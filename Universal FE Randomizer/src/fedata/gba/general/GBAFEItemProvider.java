@@ -103,6 +103,7 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> weaponsWithEffectiveness();
 	public Set<GBAFEItem> weaponsOfTypeUpToRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean requiresMelee);
 	public Set<GBAFEItem> weaponsOfTypeAndEqualRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean requiresMelee, Boolean allowLower);
+	public Set<GBAFEItem> healingStaves(WeaponRank maxRank);
 	public Set<GBAFEItem> prfWeaponsForClassID(int classID);
 	public Set<GBAFEItem> allPotentialChestRewards();
 	public Set<GBAFEItem> relatedItemsToItem(GBAFEItemData item);

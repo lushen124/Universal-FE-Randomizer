@@ -1,8 +1,10 @@
 package fedata.gba.fe7;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import fedata.gba.GBAFEChapterData;
@@ -47,6 +49,9 @@ public class FE7Chapter implements GBAFEChapterData {
 	private List<FE7ChapterUnit> allChapterUnits;
 	private List<FE7ChapterItem> allChapterRewards;
 	
+	private Map<Integer, FE7ChapterTargetedItem> targetedChapterRewards;
+	private Set<Integer> targetedRewardRecipients;
+	
 	private Set<Integer> blacklistedClassIDs;
 	private Set<Long> fightEventOffsets;
 	
@@ -59,7 +64,7 @@ public class FE7Chapter implements GBAFEChapterData {
 	
 	private int maxEnemyClassLimit = 0;
 
-	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple) {
+	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] targetedRecipientsToTrack, int[] blacklistedClassIDs, String friendlyName, Boolean simple) {
 		
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
@@ -68,6 +73,9 @@ public class FE7Chapter implements GBAFEChapterData {
 		}
 		this.removeFightScenes = removeFightScenes;
 		this.shouldBeSimplified = simple;
+		
+		targetedRewardRecipients = new HashSet<Integer>();
+		for (int recipient : targetedRecipientsToTrack) { targetedRewardRecipients.add(recipient); }
 				
 		// We need one jump.
 		long pointerTableOffset = FileReadHelper.readAddress(handler, pointer);
@@ -115,6 +123,8 @@ public class FE7Chapter implements GBAFEChapterData {
 		knownAllyIDs = new HashSet<Integer>();
 		knownEnemyIDs = new HashSet<Integer>();
 		
+		targetedChapterRewards = new HashMap<Integer, FE7ChapterTargetedItem>();
+		
 		loadUnits(handler);
 		loadRewards(handler);
 	}
@@ -141,7 +151,7 @@ public class FE7Chapter implements GBAFEChapterData {
 	}
 	
 	public GBAFEChapterItemData[] allTargetedRewards() {
-		return new GBAFEChapterItemData[] {};
+		return targetedChapterRewards.values().toArray(new GBAFEChapterItemData[targetedChapterRewards.size()]);
 	}
 	
 	public int lordLeaderID() {
@@ -622,6 +632,15 @@ public class FE7Chapter implements GBAFEChapterData {
 				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found reward at offset 0x" + Long.toHexString(currentAddress) + " Item ID: 0x" + Integer.toHexString(chapterItem.getItemID()));
 				currentAddress += 4;
 			}
+			// ITGC is also used for targeted items.
+			if (commandWord[0] == 0x5C) {
+				FE7ChapterTargetedItem chapterItem = new FE7ChapterTargetedItem(handler.readBytesAtOffset(currentAddress, 12), currentAddress);
+				if (targetedRewardRecipients.contains(chapterItem.getTargetID())) {
+					targetedChapterRewards.put(chapterItem.getTargetID(), chapterItem);
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found targeted reward at offset 0x" + Long.toHexString(currentAddress) + " Target ID: 0x" + Integer.toHexString(chapterItem.getTargetID()) + " Item ID: 0x" + Integer.toHexString(chapterItem.getItemID()));
+				}
+				currentAddress += 8;
+			}
 			
 			// Since we don't know how long each command is, we accidentally include what should be an argument for
 			// another event as a command code. Below is a whitelist of codes that cause issues and how many bytes we need to skip.
@@ -667,7 +686,13 @@ public class FE7Chapter implements GBAFEChapterData {
 		DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Finished searching for rewards at 0x" + Long.toHexString(currentAddress));
 	}
 	
-	public GBAFEChapterItemData chapterItemGivenToCharacter(int characterID) { return null; }
+	public GBAFEChapterItemData chapterItemGivenToCharacter(int characterID) {
+		if (targetedRewardRecipients.contains(characterID)) {
+			return targetedChapterRewards.get(characterID);
+		}
+		
+		return null;
+	}
 	
 	public void setMaxEnemyClassLimit(int limit) {
 		maxEnemyClassLimit = limit;

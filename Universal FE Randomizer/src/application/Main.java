@@ -10,6 +10,7 @@ public class Main {
 	static MainView mainView;
 
 	public static void main(String[] args) {
+		
 		 /* Instantiate Display object, it represents SWT session */
 		  mainDisplay = new Display();
 

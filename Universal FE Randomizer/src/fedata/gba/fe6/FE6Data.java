@@ -43,12 +43,16 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int NumberOfCharacters = 220;
 	public static final int BytesPerCharacter = 48;
 	public static final long CharacterTablePointer = 0x17680; // True in both prepatch and postpatch
-	//public static final long DefaultCharacterTableAddress = 0x6076A0; 
+	//public static final long DefaultCharacterTableAddress = 0x6076A0;
 	
 	public static final int NumberOfClasses = 76;
 	public static final int BytesPerClass = 72;
 	public static final long ClassTablePointer = 0x176E0; // True in both prepatch and postpatch
 	//public static final long DefaultClassTableAddress = 0x60A0E8;
+	
+	public static final long ClassMapSpriteTablePointer = 0x60ED8;
+	public static final int BytesPerMapSpriteTableEntry = 8;
+	public static final int NumberOfMapSpriteEntries = 75;
 	
 	public static final int NumberOfItems = 128;
 	public static final int BytesPerItem = 32;
@@ -92,6 +96,51 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	
+	public enum CharacterAndClassAbility1Mask {
+		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
+		DANCE_(0x10), PLAY(0x20), CRIT30(0x40), BALLISTA(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility1Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility2Mask {
+		PROMOTED(0x1), SUPPLY_DEPOT(0x2), HORSE_ICON(0x4), WYVERN_ICON(0x8),
+		PEGASUS_ICON(0x10), LORD(0x20), FEMALE(0x40), BOSS(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility2Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility3Mask {
+		RAPIER_LOCK(0x1), WO_DAO_LOCK(0x2), DRAGONSTONE_LOCK(0x4), UNKNOWN(0x8),
+		UNKNOWN_2(0x10), PEGASUS_TRIANGLE(0x20), KNIGHT_TRIANGLE(0x40), NPC(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility3Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
 	
 	public enum Character implements GBAFECharacter {
 		NONE(0x00),
@@ -592,6 +641,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		HEAL(0x43), MEND(0x44), RECOVER(0x45), PHYSIC(0x46), FORTIFY(0x47), WARP(0x48), RESCUE(0x49), RESTORE(0x4A), SILENCE(0x4B), SLEEP(0x4C),
 		TORCH_STAFF(0x4D), HAMMERNE(0x4E), BERSERK(0x50), UNLOCK(0x51), BARRIER(0x52), TINA_STAFF(0x76), HOLY_MAIDEN(0x77),
+		
+		UNUSED_WATCH_STAFF(0x4F), // Will be used for lord weapon, if necessary.
 		
 		FIRE_DRAGON_STONE(0x53), DIVINE_DRAGON_STONE(0x54), MAGIC_DRAGON_STONE(0x55),
 		
@@ -1289,6 +1340,22 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public String itemName() {
 			return this.toString();
+		}
+		
+		public int getItemID() {
+			switch (this) {
+			case HERO_CREST:
+				return Item.HERO_CREST.ID;
+			case KNIGHT_CREST:
+				return Item.KNIGHT_CREST.ID;
+			case ORION_BOLT:
+				return Item.ORION_BOLT.ID;
+			case ELYSIAN_WHIP:
+				return Item.ELYSIAN_WHIP.ID;
+			case GUIDING_RING:
+				return Item.GUIDING_RING.ID;
+			default: return 0;
+			}
 		}
 	}
 	
@@ -2171,6 +2238,11 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		return new HashSet<GBAFEItem>(equalRankWeapons);
+	}
+	
+	public Set<GBAFEItem> healingStaves(WeaponRank maxRank) {
+		Set<Item> staves = Item.allHealingStaves;
+		return new HashSet<GBAFEItem>(staves);
 	}
 	
 	public Set<GBAFEItem> prfWeaponsForClassID(int classID) {

@@ -49,6 +49,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long ClassTablePointer = 0x17AB8;
 	//public static final long DefaultClassTableAddress = 0x807110;
 	
+	public static final long ClassMapSpriteTablePointer = 0x79584;
+	public static final int BytesPerMapSpriteTableEntry = 8;
+	public static final int NumberOfMapSpriteEntries = 127;
+	
 	public static final int NumberOfItems = 205;
 	public static final int BytesPerItem = 36;
 	public static final long ItemTablePointer = 0x16410;
@@ -123,6 +127,66 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	
+	public enum CharacterAndClassAbility1Mask {
+		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
+		DANCE(0x10), PLAY(0x20), CRIT15(0x40), BALLISTA(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility1Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility2Mask {
+		PROMOTED(0x1), SUPPLY_DEPOT(0x2), HORSE_ICON(0x4), WYVERN_ICON(0x8),
+		PEGASUS_ICON(0x10), LORD(0x20), FEMALE(0x40), BOSS(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility2Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility3Mask {
+		UNUSED_WEAPON_LOCK(0x1), SHAMSHIR_LOCK(0x2), MONSTER_WEAPON_LOCK(0x4), MAX_LEVEL_10(0x8),
+		UNSELECTABLE(0x10), TRIANGLE_ATTACK(0x20), TRIANGLE_ATTACK_2(0x40), GLITCHES(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility3Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
+	
+	public enum CharacterAndClassAbility4Mask {
+		UNKNOWN(0x1), LETHALITY(0x2), UNKNOWN_2(0x4), SUMMON(0x8),
+		EIRIKA_WEAPON_LOCK(0x10), EPHRAIM_WEAPON_LOCK(0x20), UNUSED_LYN_LOCK(0x40), UNUSED_ATHOS_LOCK(0x80);
+		
+		private int value;
+		
+		private CharacterAndClassAbility4Mask(int value) {
+			this.value = value;
+		}
+		
+		public int getValue() {
+			return value;
+		}
+	}
 	
 	public enum Character implements GBAFECharacter {
 		NONE(0x00),
@@ -354,9 +418,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		ENTOMBED(0x53), WIGHT(0x56), WIGHT_BOW(0x57), ELDER_BAEL(0x59), CYCLOPS(0x5A), GWYLLGI(0x5C), MAELDUIN(0x5E), ARCH_MOGALL(0x60), GORGON(0x61), DEATHGOYLE(0x64), CYCLOPS_2(0x7C), ELDER_BAEL_2(0x7D),
 		
-		MANAKETE(0x0E), MERCENARY_F(0x10), HERO_F(0x12), WYVERN_RIDER_F(0x20), WYVERN_LORD_F(0x22), SHAMAN_F(0x2E), DRUID_F(0x30), SUMMONER_F(0x32), MANAKETE_2(0x3B), BARD(0x46), 
+		UNUSED_MANAKETE(0x0E), MERCENARY_F(0x10), HERO_F(0x12), WYVERN_RIDER_F(0x20), WYVERN_LORD_F(0x22), SHAMAN_F(0x2E), DRUID_F(0x30), SUMMONER_F(0x32), MANAKETE_2(0x3B), BARD(0x46), 
 		
-		GORGON_EGG(0x34), NECROMANCER(0x4F), FLEET(0x50), GHOST_FIGHTER(0x51), DRACOZOMBIE(0x65), DEMON_KING(0x66)
+		GORGON_EGG(0x34), /*GORGON_EGG_2(0x62),*/ NECROMANCER(0x4F), FLEET(0x50), GHOST_FIGHTER(0x51), DRACOZOMBIE(0x65), DEMON_KING(0x66), UNUSED_TENT(0x79)
 		;
 		
 		public int ID;
@@ -770,6 +834,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		GOLD_1(0x77), GOLD_1_AGAIN(0x9A), GOLD_5(0x9B), GOLD_10(0x9C), GOLD_50(0x9D), GOLD_100(0x9E), GOLD_3000(0x9F), GOLD_5000(0xA0),
 		
+		UNUSED_MANI_KATTI(0x0A), // Used for Eirika's Prf.
+		UNUSED_FORBLAZE(0x3D) // Used for Ephraim's Prf
+		
 		;
 		public int ID;
 		
@@ -955,7 +1022,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public enum Ability2Mask {
-			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), MONSTER_LOCK(0x04), 
+			NONE(0x00), REVERSE_WEAPON_TRIANGLE(0x01), MONSTER_LOCK(0x04), UNUSED_WEAPON_LOCK(0x08),
 			MYRMIDON_LOCK(0x10), FILI_SHIELD_EFFECT(0x40), HOPLON_GUARD_EFFECT(0x80);
 			public int ID;
 			
@@ -983,7 +1050,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public enum Ability3Mask {
-			NONE(0x00), UNUSABLE(0x01), NEGATE_DEFENSE(0x02), EIRIKA_LOCK(0x04), EPHRAIM_LOCK(0x08);
+			NONE(0x00), UNUSABLE(0x01), NEGATE_DEFENSE(0x02), EIRIKA_LOCK(0x04), EPHRAIM_LOCK(0x08),
+			UNUSED_LYN_LOCK(0x10), UNUSED_WEAPON_LOCK(0x20);
 			
 			public int ID;
 			
@@ -1810,11 +1878,16 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public enum PromotionItem implements GBAFEPromotionItem {
+		// These are addresses starting from 0x29218.
 		// Ocean Seal is missing, but I can't find it in this table.
 		// It's pointer can be found at 0x29408. (Direct Read)
 		// Remember that the actual address of the class IDs starts at byte 4 after the jump.
 		// The class IDs are 00 terminated.
-		HERO_CREST(0x01), KNIGHT_CREST(0x02), ORION_BOLT(0x03), ELYSIAN_WHIP(0x04), GUIDING_RING(0x05), MASTER_SEAL(0x25); // "Conquorer's Proof", Lunar Brace and Solar Brace are later, but we probably don't need to modify them.
+		HERO_CREST(0x01), KNIGHT_CREST(0x02), ORION_BOLT(0x03), ELYSIAN_WHIP(0x04), GUIDING_RING(0x05), MASTER_SEAL(0x25),
+		
+		LUNAR_BRACE(0x6C), SOLAR_BRACE(0x6E), HEAVEN_SEAL(0x70),
+		OCEAN_SEAL(0x7C);
+		; 
 		
 		int offset;
 		
@@ -1831,11 +1904,36 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public Boolean isIndirected() {
-			return true;
+			return this != OCEAN_SEAL && this != LUNAR_BRACE && this != SOLAR_BRACE && this != HEAVEN_SEAL;
 		}
 		
 		public String itemName() {
 			return this.toString();
+		}
+		
+		public int getItemID() {
+			switch (this) {
+			case HERO_CREST:
+				return Item.HERO_CREST.ID;
+			case KNIGHT_CREST:
+				return Item.KNIGHT_CREST.ID;
+			case ORION_BOLT:
+				return Item.ORION_BOLT.ID;
+			case ELYSIAN_WHIP:
+				return Item.ELYSIAN_WHIP.ID;
+			case GUIDING_RING:
+				return Item.GUIDING_RING.ID;
+			case MASTER_SEAL:
+				return Item.MASTER_SEAL.ID;
+			case LUNAR_BRACE:
+				return Item.MOON_BRACELET.ID;
+			case SOLAR_BRACE:
+				return Item.SUN_BRACELET.ID;
+			case HEAVEN_SEAL:
+				return Item.HEAVEN_SEAL.ID;
+			default:
+				return 0;
+			}
 		}
 	}
 	
@@ -2869,6 +2967,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEItem>(equalRankWeapons);
 	}
 	
+	public Set<GBAFEItem> healingStaves(WeaponRank maxRank) {
+		Set<Item> staves = Item.allHealingStaves;
+		return new HashSet<GBAFEItem>(staves);
+	}
+	
 	public Set<GBAFEItem> prfWeaponsForClassID(int classID) {
 		Set<Item> weapons = Item.prfWeaponsForClassID(classID);
 		 if (weapons == null) { return new HashSet<GBAFEItem>(); }
@@ -3291,7 +3394,6 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public List<GBAFEClass> dragonEffectivenessClasses() {
 		return new ArrayList<GBAFEClass>(Arrays.asList(
 				CharacterClass.DRACOZOMBIE,
-				CharacterClass.MANAKETE,
 				CharacterClass.MANAKETE_2,
 				CharacterClass.MANAKETE_F,
 				CharacterClass.WYVERN_RIDER,
@@ -3315,7 +3417,6 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.WYVERN_LORD_F,
 				CharacterClass.GARGOYLE,
 				CharacterClass.DEATHGOYLE,
-				CharacterClass.MANAKETE,
 				CharacterClass.MANAKETE_2,
 				CharacterClass.MANAKETE_F,
 				CharacterClass.DRACOZOMBIE
@@ -3356,11 +3457,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.ARCH_MOGALL,
 				CharacterClass.GORGON,
 				CharacterClass.GORGON_EGG,
+				//CharacterClass.GORGON_EGG_2,
 				CharacterClass.GARGOYLE,
 				CharacterClass.DEATHGOYLE,
 				CharacterClass.DRACOZOMBIE,
 				CharacterClass.DEMON_KING,
-				CharacterClass.MANAKETE,
 				CharacterClass.GHOST_FIGHTER
 				));
 	}

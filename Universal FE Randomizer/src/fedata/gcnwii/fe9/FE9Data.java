@@ -372,7 +372,9 @@ public class FE9Data {
 				SOLDIER, HALBERDIER, FIGHTER, WARRIOR, ARCHER, SNIPER, KNIGHT, GENERAL, SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT,
 				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, WYVERN_RIDER, WYVERN_LORD, THIEF, ASSASSIN, BANDIT, BERSERKER, KING_DAEIN, BLACK_KNIGHT, 
 				MYRMIDON_F, SWORDMASTER_F, SOLDIER_F, HALBERDIER_F, SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F, BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, 
-				AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN, PEGASUS_KNIGHT, FALCON_KNIGHT, WYVERN_RIDER_F, WYVERN_LORD_F, ASSASSIN_F));
+				AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN, PEGASUS_KNIGHT, FALCON_KNIGHT, WYVERN_RIDER_F, WYVERN_LORD_F, ASSASSIN_F,
+				LION, TIGER, CAT, CAT_F, WHITE_DRAGON, RED_DRAGON, RED_DRAGON_F, HAWK, CROW, FERAL_LION, FERAL_TIGER, FERAL_CAT, FERAL_WHITE_DRAGON, FERAL_RED_DRAGON, 
+				FERAL_HAWK, FERAL_CROW, FERAL_CAT_F, FERAL_RED_DRAGON_F));
 		public static Set<CharacterClass> magicalClasses = new HashSet<CharacterClass>(Arrays.asList(FIRE_MAGE, WIND_MAGE, THUNDER_MAGE, MAGE,
 				FIRE_SAGE, WIND_SAGE, THUNDER_SAGE, SAGE, FIRE_SAGE_STAFF, WIND_SAGE_STAFF, THUNDER_SAGE_STAFF, PRIEST, BISHOP, FIRE_MAGE_F, WIND_MAGE_F, 
 				THUNDER_MAGE_F, MAGE_F, FIRE_SAGE_F, WIND_SAGE_F, THUNDER_SAGE_F, SAGE_F, BISHOP_F, SAGE_STAFF, SAGE_STAFF_F, HERON, W_HERON, W_HERON_F));
@@ -523,9 +525,11 @@ public class FE9Data {
 				case WHITE_DRAGON: return "AID_WDRAGON"; // This is the only white dragon human form we get...
 				
 				case RED_DRAGON: 
-				case RED_DRAGON_F:
 				case FERAL_RED_DRAGON:
 					return "AID_RDRAGON";
+				case RED_DRAGON_F:
+				case FERAL_RED_DRAGON_F:
+					return "AID_RDRAGON_EN"; // There seems to be a problem using regular red dragon for a female dragon. We'll use Ena's animations instead.
 				default: return null;
 			}
 		}
@@ -663,9 +667,9 @@ public class FE9Data {
 		}
 		
 		public static Set<Skill> allValidSkills = new HashSet<Skill>(Arrays.asList(PARAGON, RENEWAL, CELERITY, RESOLVE, TEMPEST, SERENITY, SAVIOR, VANTAGE,
-				NIHIL, WRATH, GUARD, MIRACLE, ADEPT, CORROSION, COUNTER, DAUNT, PROVOKE, SHADE, GAMBLE, PARITY, SMITE, BLOSSOM));
+				NIHIL, WRATH, GUARD, MIRACLE, ADEPT, CORROSION, COUNTER, DAUNT, PROVOKE, SHADE, GAMBLE, PARITY, SMITE, BLOSSOM, INSIGHT, VIGILANCE));
 		public static Set<Skill> playerOnlySkills = new HashSet<Skill>(Arrays.asList(PARAGON, SAVIOR, PROVOKE, SHADE, GAMBLE, SMITE, BLOSSOM));
-		public static Set<Skill> replaceableInvalidSkills = new HashSet<Skill>(Arrays.asList(REINFORCE, INSIGHT, VIGILANCE));
+		public static Set<Skill> replaceableInvalidSkills = new HashSet<Skill>(Arrays.asList(REINFORCE));
 		
 		public static Set<Skill> occultSkills = new HashSet<Skill>(Arrays.asList(SOL, LUNA, ASTRA, LETHALITY, DEADEYE, COLOSSUS, STUN, ROAR, BOON, BLESSING, AETHER, FLARE, CANCEL));
 		public static Map<CharacterClass, Skill> occultSkillsByClass = new HashMap<CharacterClass, Skill>() {
@@ -762,7 +766,7 @@ public class FE9Data {
 		}};
 		
 		public boolean isModifiable() {
-			return allValidSkills.contains(this);
+			return allValidSkills.contains(this) || replaceableInvalidSkills.contains(this);
 		}
 		
 		public boolean isOccult() {
@@ -1118,7 +1122,8 @@ public class FE9Data {
 		public static Set<Item> allSkillScrolls = new HashSet<Item>(Arrays.asList(PARAGON_SCROLL, OCCULT_SCROLL, RESOLVE_SCROLL, SAVIOR_SCROLL, VANTAGE_SCROLL,
 				NIHIL_SCROLL, WRATH_SCROLL, CORROSION_SCROLL, MIRACLE_SCROLL, COUNTER_SCROLL, DAUNT_SCROLL, PROVOKE_SCROLL, SHADE_SCROLL, GAMBLE_SCROLL, 
 				PARITY_SCROLL, SMITE_SCROLL, GUARD_SCROLL, ADEPT_SCROLL, RENEWAL_SCROLL, CELERITY_SCROLL, BLOSSOM_SCROLL));
-		public static Set<Item> allConsumables = new HashSet<Item>(Arrays.asList(LAGUZ_STONE, LAGUZ_STONE_1, MASTER_SEAL, CHEST_KEY, DOOR_KEY, 
+		public static Set<Item> allPromotionItems = new HashSet<Item>(Arrays.asList(MASTER_SEAL));
+		public static Set<Item> allConsumables = new HashSet<Item>(Arrays.asList(LAGUZ_STONE, LAGUZ_STONE_1, CHEST_KEY, DOOR_KEY, 
 				VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH, COIN));
 		public static Set<Item> allGems = new HashSet<Item>(Arrays.asList(WHITE_GEM, BLUE_GEM, RED_GEM));
 		
@@ -1192,6 +1197,7 @@ public class FE9Data {
 		}
 		
 		public boolean isConsumable() { return allConsumables.contains(this); }
+		public boolean isPromotionItem() { return allPromotionItems.contains(this); }
 		public boolean isStatBooster() { return allStatBoosters.contains(this); }
 		public boolean isTreasure() { return allGems.contains(this); }
 		public boolean isSkillScroll() { return allSkillScrolls.contains(this); }

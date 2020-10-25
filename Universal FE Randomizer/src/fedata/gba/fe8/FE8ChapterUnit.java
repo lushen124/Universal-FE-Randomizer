@@ -47,6 +47,12 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		return value >> 3;
 	}
 	
+	public void setStartingLevel(int newLevel) {
+		int levelShifted = (newLevel << 3) & 0xF8;
+		data[3] = (byte)((byte)levelShifted | (data[3] & 0x7));
+		wasModified = true;
+	}
+	
 	public boolean isEnemy() {
 		int value = data[3] & 0xFF;
 		return (value & 0x4) != 0;
@@ -152,6 +158,18 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		wasModified = true;
 	}
 	
+	public void giveItem(int itemID) {
+		if (getItem1() == 0) {
+			setItem1(itemID);
+		} else if (getItem2() == 0) {
+			setItem2(itemID);
+		} else if (getItem3() == 0) {
+			setItem3(itemID);
+		} else {
+			setItem4(itemID);
+		}
+	}
+	
 	public void giveItems(int[] itemIDs) {
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
 		for (int i = 0; i < itemIDs.length; i++) {
@@ -202,6 +220,23 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		}
 		
 		collapseItems();
+	}
+	
+	public boolean hasItem(int itemID) {
+		if (getItem1() == itemID) {
+			return true;
+		}
+		if (getItem2() == itemID) {
+			return true;
+		}
+		if (getItem3() == itemID) {
+			return true;
+		}
+		if (getItem4() == itemID) {
+			return true;
+		}
+		
+		return false;
 	}
 	
 	private void collapseItems() {

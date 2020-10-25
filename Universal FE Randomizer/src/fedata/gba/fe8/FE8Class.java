@@ -1,5 +1,7 @@
 package fedata.gba.fe8;
 
+import java.util.Arrays;
+
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.general.WeaponRank;
@@ -12,11 +14,18 @@ public class FE8Class implements GBAFEClassData {
 	private byte[] data;
 	
 	private long originalOffset;
+	private Long addressOverride;
 	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
 	private String debugString = "Uninitialized";
+	
+	public FE8Class(GBAFEClassData reference) {
+		super();
+		this.originalData = Arrays.copyOf(reference.getData(), reference.getData().length);
+		this.data = Arrays.copyOf(reference.getData(), reference.getData().length);
+	}
 	
 	public FE8Class(byte[] data, long originalOffset) {
 		super();
@@ -44,6 +53,15 @@ public class FE8Class implements GBAFEClassData {
 	@Override
 	public int getID() {
 		return data[4] & 0xFF;
+	}
+	
+	public void setID(int newID) {
+		data[4] = (byte)(newID & 0xFF);
+		wasModified = true;
+	}
+	
+	public int getSpriteIndex() {
+		return data[6] & 0xFF;
 	}
 	
 	public int getTargetPromotionID() {
@@ -422,7 +440,12 @@ public class FE8Class implements GBAFEClassData {
 	}
 	
 	public long getAddressOffset() {
-		return originalOffset;
+		return addressOverride != null ? addressOverride : originalOffset;
+	}
+	
+	public void overrideAddress(long newAddress) {
+		addressOverride = newAddress;
+		wasModified = true;
 	}
 	
 	public Boolean canUseWeapon(GBAFEItemData weapon) {
@@ -464,5 +487,18 @@ public class FE8Class implements GBAFEClassData {
 		if (rankValue == 0) { return WeaponRank.NONE; }
 		
 		return FE8Data.Item.FE8WeaponRank.valueOf(rankValue).toGeneralRank();
+	}
+	
+	public GBAFEClassData createClone() {
+		FE8Class clone = new FE8Class(this);
+		clone.originalOffset = -1;
+		return clone;
+	}
+
+	@Override
+	public void removeLordLocks() {
+		data[42] &= ~FE8Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue();
+		data[43] &= 0x0F;
+		wasModified = true;
 	}
 }
