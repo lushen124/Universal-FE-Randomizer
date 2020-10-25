@@ -76,120 +76,124 @@ public class RecruitmentRandomizer {
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
 		
-		// Assign fliers first, since they are restricted in where they can end up.
-		// The slots are determined by the character, since we know which characters must be flying normally.
-		// The pool is determined by the character's new class (if it was randomized). This pool should always be larger than the number of slots
-		// since all fliers are required to randomize into flier classes. There might be other characters that randomized into fliers though.
-		// All fliers can promote and demote, so we should be ok here for promotions.
-		List<GBAFECharacterData> flierSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.isFlyingCharacter(character.getID()))).collect(Collectors.toList());
-		List<GBAFECharacterData> flierPool = characterPool.stream().filter(character -> (classData.isFlying(character.getClassID()))).collect(Collectors.toList());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning fliers...");
-		List<SlotAssignment> assignedSlots = shuffleCharactersInPool(false, separateByGender, flierSlotsRemaining, flierPool, characterMap, referenceData, characterData, classData, textData, rng);
-		for (SlotAssignment assignment : assignedSlots) {
-			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
-			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
-		}
-		
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
-		
-		// Prioritize those with melee/ranged requirements too.
-		List<GBAFECharacterData> meleeRequiredSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.characterIDRequiresMelee(character.getID()))).collect(Collectors.toList());
-		List<GBAFECharacterData> meleePool = characterPool.stream().filter(character -> (classData.canSupportMelee(character.getClassID()))).collect(Collectors.toList());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Melee Units...");
-		assignedSlots = shuffleCharactersInPool(false, separateByGender, meleeRequiredSlotsRemaining, meleePool, characterMap, referenceData, characterData, classData, textData, rng);
-		for (SlotAssignment assignment : assignedSlots) {
-			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
-			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
-		}
-		
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
-		
-		List<GBAFECharacterData> rangeRequiredSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.characterIDRequiresRange(character.getID()))).collect(Collectors.toList());
-		List<GBAFECharacterData> rangePool = characterPool.stream().filter(character -> (classData.canSupportRange(character.getClassID()))).collect(Collectors.toList());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Ranged Units...");
-		assignedSlots = shuffleCharactersInPool(false, separateByGender, rangeRequiredSlotsRemaining, rangePool, characterMap, referenceData, characterData, classData, textData, rng);
-		for (SlotAssignment assignment : assignedSlots) {
-			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
-			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
-		}
-		
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
-		
-		// Prioritize anybody that HAS to promote. This usually isn't an issue except for FE6, where the one class that can attack but can't promote is thieves.
-		List<GBAFECharacterData> mustPromoteSlots = slotsRemaining.stream().filter(character -> (characterData.mustPromote(character.getID()))).collect(Collectors.toList());
-		List<GBAFECharacterData> promotablePool = characterPool.stream().filter(character -> {
-			GBAFEClassData charClass = classData.classForID(character.getClassID());
-			if (classData.isPromotedClass(charClass.getID()) && classData.canClassDemote(charClass.getID())) {
-				// Roll in the requires attack here as well.
-				for (GBAFEClassData demotedClass : classData.demotionOptions(charClass.getID())) {
-					if (classData.canClassAttack(demotedClass.getID()) == false) { return false; }
-				}
-				return true;
-			} else if (!classData.isPromotedClass(charClass.getID()) && classData.canClassPromote(charClass.getID())) {
-				return classData.canClassAttack(charClass.getID()); // Roll in the attack requirement as well.
-			}
-			return false; // Everything else is not allowed.
-		}).collect(Collectors.toList());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Promotion Slots...");
-		assignedSlots = shuffleCharactersInPool(false, separateByGender, mustPromoteSlots, promotablePool, characterMap, referenceData, characterData, classData, textData, rng);
-		for (SlotAssignment assignment : assignedSlots) {
-			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
-			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
-		}
-		
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
-		
-		// Prioritize those that require attack next. This generally means lords.
-		// Note: these also have to be able to demote.
-		List<GBAFECharacterData> attackingSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.mustAttack(character.getID()))).collect(Collectors.toList());
-		List<GBAFECharacterData> attackingPool = characterPool.stream().filter(character -> {
-			GBAFEClassData charClass = classData.classForID(character.getClassID());
-			// Promoted class that can demote should check all of their demotion options. Any demotion that can't attack disqualifies the class.
-			if (classData.isPromotedClass(charClass.getID()) && classData.canClassDemote(charClass.getID())) {
-				for (GBAFEClassData demotedClass : classData.demotionOptions(charClass.getID())) {
-					if (classData.canClassAttack(demotedClass.getID()) == false) { return false; }
-				}
-			}
-			return classData.canClassAttack(charClass.getID());
-		}).collect(Collectors.toList());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Attackers...");
-		assignedSlots = shuffleCharactersInPool(false, separateByGender, attackingSlotsRemaining, attackingPool, characterMap, referenceData, characterData, classData, textData, rng);
-		for (SlotAssignment assignment : assignedSlots) {
-			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
-			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
-		}
-		
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
-		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
-		
-		// Prioritize those that can't demote into valid classes so they don't get left behind.
-		// Unlike the other criteria, this one is primarily based off the character's class and not the slot.
-		// We only need to do this if the pool is not empty.
-		List<GBAFECharacterData> promotedSlotsRemaining = slotsRemaining.stream().filter(character -> (classData.isPromotedClass(character.getClassID()))).collect(Collectors.toList());
-		List<GBAFECharacterData> mustBePromotedPool = characterPool.stream().filter(character -> {
-			GBAFEClassData charClass = classData.classForID(character.getClassID());
-			return !classData.canClassDemote(charClass.getID()) && classData.isPromotedClass(charClass.getID());
-		}).collect(Collectors.toList());
-		if (!mustBePromotedPool.isEmpty()) {
-			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning non-demotable classes...");
-			assignedSlots = shuffleCharactersInPool(false, separateByGender, promotedSlotsRemaining, mustBePromotedPool, characterMap, referenceData, characterData, classData, textData, rng);
-			for (SlotAssignment assignment : assignedSlots) {	
+		// The restrictions here only need to be implemented if we use the fill class.
+		// If we're using the slot class, then the class restrictions are no longer needed.
+		if (options.classMode == ClassMode.USE_FILL) {
+			// Assign fliers first, since they are restricted in where they can end up.
+			// The slots are determined by the character, since we know which characters must be flying normally.
+			// The pool is determined by the character's new class (if it was randomized). This pool should always be larger than the number of slots
+			// since all fliers are required to randomize into flier classes. There might be other characters that randomized into fliers though.
+			// All fliers can promote and demote, so we should be ok here for promotions.
+			List<GBAFECharacterData> flierSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.isFlyingCharacter(character.getID()))).collect(Collectors.toList());
+			List<GBAFECharacterData> flierPool = characterPool.stream().filter(character -> (classData.isFlying(character.getClassID()))).collect(Collectors.toList());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning fliers...");
+			List<SlotAssignment> assignedSlots = shuffleCharactersInPool(false, separateByGender, flierSlotsRemaining, flierPool, characterMap, referenceData, characterData, classData, textData, rng);
+			for (SlotAssignment assignment : assignedSlots) {
 				slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
 				characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
 			}
 			
 			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
 			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
+			
+			// Prioritize those with melee/ranged requirements too.
+			List<GBAFECharacterData> meleeRequiredSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.characterIDRequiresMelee(character.getID()))).collect(Collectors.toList());
+			List<GBAFECharacterData> meleePool = characterPool.stream().filter(character -> (classData.canSupportMelee(character.getClassID()))).collect(Collectors.toList());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Melee Units...");
+			assignedSlots = shuffleCharactersInPool(false, separateByGender, meleeRequiredSlotsRemaining, meleePool, characterMap, referenceData, characterData, classData, textData, rng);
+			for (SlotAssignment assignment : assignedSlots) {
+				slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+				characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
+			}
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
+			
+			List<GBAFECharacterData> rangeRequiredSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.characterIDRequiresRange(character.getID()))).collect(Collectors.toList());
+			List<GBAFECharacterData> rangePool = characterPool.stream().filter(character -> (classData.canSupportRange(character.getClassID()))).collect(Collectors.toList());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Ranged Units...");
+			assignedSlots = shuffleCharactersInPool(false, separateByGender, rangeRequiredSlotsRemaining, rangePool, characterMap, referenceData, characterData, classData, textData, rng);
+			for (SlotAssignment assignment : assignedSlots) {
+				slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+				characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
+			}
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
+			
+			// Prioritize anybody that HAS to promote. This usually isn't an issue except for FE6, where the one class that can attack but can't promote is thieves.
+			List<GBAFECharacterData> mustPromoteSlots = slotsRemaining.stream().filter(character -> (characterData.mustPromote(character.getID()))).collect(Collectors.toList());
+			List<GBAFECharacterData> promotablePool = characterPool.stream().filter(character -> {
+				GBAFEClassData charClass = classData.classForID(character.getClassID());
+				if (classData.isPromotedClass(charClass.getID()) && classData.canClassDemote(charClass.getID())) {
+					// Roll in the requires attack here as well.
+					for (GBAFEClassData demotedClass : classData.demotionOptions(charClass.getID())) {
+						if (classData.canClassAttack(demotedClass.getID()) == false) { return false; }
+					}
+					return true;
+				} else if (!classData.isPromotedClass(charClass.getID()) && classData.canClassPromote(charClass.getID())) {
+					return classData.canClassAttack(charClass.getID()); // Roll in the attack requirement as well.
+				}
+				return false; // Everything else is not allowed.
+			}).collect(Collectors.toList());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Promotion Slots...");
+			assignedSlots = shuffleCharactersInPool(false, separateByGender, mustPromoteSlots, promotablePool, characterMap, referenceData, characterData, classData, textData, rng);
+			for (SlotAssignment assignment : assignedSlots) {
+				slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+				characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
+			}
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
+			
+			// Prioritize those that require attack next. This generally means lords.
+			// Note: these also have to be able to demote.
+			List<GBAFECharacterData> attackingSlotsRemaining = slotsRemaining.stream().filter(character -> (characterData.mustAttack(character.getID()))).collect(Collectors.toList());
+			List<GBAFECharacterData> attackingPool = characterPool.stream().filter(character -> {
+				GBAFEClassData charClass = classData.classForID(character.getClassID());
+				// Promoted class that can demote should check all of their demotion options. Any demotion that can't attack disqualifies the class.
+				if (classData.isPromotedClass(charClass.getID()) && classData.canClassDemote(charClass.getID())) {
+					for (GBAFEClassData demotedClass : classData.demotionOptions(charClass.getID())) {
+						if (classData.canClassAttack(demotedClass.getID()) == false) { return false; }
+					}
+				}
+				return classData.canClassAttack(charClass.getID());
+			}).collect(Collectors.toList());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning Required Attackers...");
+			assignedSlots = shuffleCharactersInPool(false, separateByGender, attackingSlotsRemaining, attackingPool, characterMap, referenceData, characterData, classData, textData, rng);
+			for (SlotAssignment assignment : assignedSlots) {
+				slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+				characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
+			}
+			
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
+			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
+			
+			// Prioritize those that can't demote into valid classes so they don't get left behind.
+			// Unlike the other criteria, this one is primarily based off the character's class and not the slot.
+			// We only need to do this if the pool is not empty.
+			List<GBAFECharacterData> promotedSlotsRemaining = slotsRemaining.stream().filter(character -> (classData.isPromotedClass(character.getClassID()))).collect(Collectors.toList());
+			List<GBAFECharacterData> mustBePromotedPool = characterPool.stream().filter(character -> {
+				GBAFEClassData charClass = classData.classForID(character.getClassID());
+				return !classData.canClassDemote(charClass.getID()) && classData.isPromotedClass(charClass.getID());
+			}).collect(Collectors.toList());
+			if (!mustBePromotedPool.isEmpty()) {
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning non-demotable classes...");
+				assignedSlots = shuffleCharactersInPool(false, separateByGender, promotedSlotsRemaining, mustBePromotedPool, characterMap, referenceData, characterData, classData, textData, rng);
+				for (SlotAssignment assignment : assignedSlots) {	
+					slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
+					characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
+				}
+				
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slots Remaining: " + slotsRemaining.size());
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Pool Size: " + characterPool.size());
+			}
 		}
 		
 		// Assign everybody else randomly.
 		// We do have to make sure characters that can get assigned can promote/demote if necessary.
 		DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Assigning the remainder of the characters...");
-		assignedSlots = shuffleCharactersInPool(true, separateByGender, slotsRemaining, characterPool, characterMap, referenceData, characterData, classData, textData, rng);
+		List<SlotAssignment> assignedSlots = shuffleCharactersInPool(true, separateByGender, slotsRemaining, characterPool, characterMap, referenceData, characterData, classData, textData, rng);
 		for (SlotAssignment assignment : assignedSlots) {	
 			slotsRemaining.removeIf(character -> (character.getID() == assignment.slot.getID()));
 			characterPool.removeIf(character -> (character.getID() == assignment.fill.getID()));
