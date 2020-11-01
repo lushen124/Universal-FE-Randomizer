@@ -40,6 +40,8 @@ public interface GBAFEClassProvider {
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options);
 	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isForEnemy, Map<String, Boolean> options);
 	
+	public GBAFEClass correspondingMaleClass(GBAFEClass charClass);
+	public GBAFEClass correspondingFemaleClass(GBAFEClass charClass);
 	public void prepareForClassRandomization(Map<Integer, GBAFEClassData> classMap);
 	
 	public GBAFEClassData classDataWithData(byte[] data, long offset, GBAFEClassData demotedClass); // demotedClass is really only necessary for FE6.

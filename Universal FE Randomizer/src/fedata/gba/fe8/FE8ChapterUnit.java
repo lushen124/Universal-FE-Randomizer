@@ -158,18 +158,6 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		wasModified = true;
 	}
 	
-	public void giveItem(int itemID) {
-		if (getItem1() == 0) {
-			setItem1(itemID);
-		} else if (getItem2() == 0) {
-			setItem2(itemID);
-		} else if (getItem3() == 0) {
-			setItem3(itemID);
-		} else {
-			setItem4(itemID);
-		}
-	}
-	
 	public void giveItems(int[] itemIDs) {
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
 		for (int i = 0; i < itemIDs.length; i++) {
@@ -191,6 +179,18 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 		}
 		
 		collapseItems();
+	}
+	
+	public void giveItem(int itemID) {
+		if (getItem1() == 0) {
+			setItem1(itemID);
+		} else if (getItem2() == 0) {
+			setItem2(itemID);
+		} else if (getItem3() == 0) {
+			setItem3(itemID);
+		} else {
+			setItem4(itemID);
+		}
 	}
 	
 	public void removeItem(int itemID) {
@@ -297,13 +297,21 @@ public class FE8ChapterUnit implements GBAFEChapterUnitData {
 	
 	// TODO: Figure out FE8 AI flags.
 	public void setAIToHeal(Boolean allowAttack) {
-//		data[12] = (byte) (allowAttack ? 0x0F : 0x0E);
-//		wasModified = true;
+		data[17] = (byte) (allowAttack ? 0x0F : 0x0E);
+		wasModified = true;
 	}
 
 	public void setAIToOnlyAttack(Boolean allowMove) {
-//		data[12] = (byte) (allowMove ? 0x00 : 0x03);
-//		wasModified = true;
+		data[17] = (byte) (allowMove ? 0x00 : 0x03);
+		wasModified = true;
+	}
+	
+	public void setUnitToDropLastItem(boolean drop) {
+		if (drop) {
+			data[19] |= 0x40;
+		} else {
+			data[19] &= ~0x40;
+		}
 	}
 
 }

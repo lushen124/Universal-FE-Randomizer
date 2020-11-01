@@ -26,6 +26,7 @@ public class MiscellaneousView extends Composite {
 	GameType type;
 	
 	private Button applyEnglishPatch; // pre-FE6 only
+	private Button tripleEffectiveness; // FE7 only
 	
 	private Button randomizeChestVillageRewards;
 	
@@ -60,6 +61,8 @@ public class MiscellaneousView extends Composite {
 		
 		//////////////////////////////////////////////////////////////////
 		
+		Control lastControl = null;
+		
 		if (gameType.hasEnglishPatch()) {
 			applyEnglishPatch = new Button(container, SWT.CHECK);
 			applyEnglishPatch.setText("Apply English Patch");
@@ -68,7 +71,27 @@ public class MiscellaneousView extends Composite {
 			FormData patchData = new FormData();
 			patchData.left = new FormAttachment(0, 5);
 			patchData.top = new FormAttachment(0, 5);
+
 			applyEnglishPatch.setLayoutData(patchData);
+			
+			lastControl = applyEnglishPatch;
+		}
+		
+		if (gameType == GameType.FE7) {
+			tripleEffectiveness = new Button(container, SWT.CHECK);
+			tripleEffectiveness.setText("Set Effectiveness to 3x");
+			tripleEffectiveness.setToolTipText("Reverts the weapon effectiveness to 3x like in the Japanese release, instead of 2x.");
+			
+			FormData effectivenessData = new FormData();
+			effectivenessData.left = new FormAttachment(0, 5);
+			if (lastControl == null) {
+				effectivenessData.top = new FormAttachment(0, 5);
+			} else {
+				effectivenessData.top = new FormAttachment(lastControl, 10);
+			}
+			tripleEffectiveness.setLayoutData(effectivenessData);
+			
+			lastControl = tripleEffectiveness;
 		}
 		
 		//////////////////////////////////////////////////////////////////
@@ -85,8 +108,8 @@ public class MiscellaneousView extends Composite {
 		
 		FormData chestVillageData = new FormData();
 		chestVillageData.left = new FormAttachment(0, 5);
-		if (gameType.hasEnglishPatch()) {
-			chestVillageData.top = new FormAttachment(applyEnglishPatch, 5);
+		if (lastControl != null) {
+			chestVillageData.top = new FormAttachment(lastControl, 10);
 		} else {
 			chestVillageData.top = new FormAttachment(0, 5);
 		}
@@ -148,7 +171,7 @@ public class MiscellaneousView extends Composite {
 		}
 		
 		// Random enemy drops
-		if (gameType == GameType.FE9) {
+		if (gameType == GameType.FE9 || gameType == GameType.FE7 || gameType == GameType.FE8) {
 			enemyDropsButton = new Button(container, SWT.CHECK);
 			enemyDropsButton.setText("Add Random Enemy Drops");
 			enemyDropsButton.setToolTipText("Gives a chance for random minions to drop weapons or a random item.");
@@ -204,23 +227,23 @@ public class MiscellaneousView extends Composite {
 		if (type.isGBA()) {
 			switch (type) {
 			case FE6:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection());
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
 			case FE7:
 			default:
-				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection());
+				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0, tripleEffectiveness.getSelection());
 			}
 		} else if (type.isSFC()) {
 			switch (type) {
 			case FE4:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection());
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
 			default:
-				return new MiscellaneousOptions(false, false);
+				return new MiscellaneousOptions(false, 0, false);
 			}
 		} else if (type.isGCN()) {
-			return new MiscellaneousOptions(false, randomizeChestVillageRewards.getSelection(), rewardMode, enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0);
+			return new MiscellaneousOptions(false, randomizeChestVillageRewards.getSelection(), false, rewardMode, enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0);
 		}
 		
-		return new MiscellaneousOptions(false, false);
+		return new MiscellaneousOptions(false, 0, false);
 	}
 	
 	public void setMiscellaneousOptions(MiscellaneousOptions options) {
@@ -229,6 +252,9 @@ public class MiscellaneousView extends Composite {
 		} else {
 			if (applyEnglishPatch != null) {
 				applyEnglishPatch.setSelection(options.applyEnglishPatch);
+			}
+			if (tripleEffectiveness != null) {
+				tripleEffectiveness.setSelection(options.tripleEffectiveness);
 			}
 			if (randomizeChestVillageRewards != null) {
 				randomizeChestVillageRewards.setSelection(options.randomizeRewards);

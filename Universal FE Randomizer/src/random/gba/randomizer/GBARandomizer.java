@@ -516,7 +516,7 @@ public class GBARandomizer extends Randomizer {
 			if (weapons.shouldAddEffects && weapons.effectsList != null) {
 				updateStatusString("Adding random effects to weapons...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 4));
-				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, weapons.noEffectIronWeapons, weapons.effectChance, rng);
+				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, weapons.noEffectIronWeapons, weapons.noEffectSteelWeapons, weapons.noEffectThrownWeapons, weapons.effectChance, rng);
 			}
 		}
 	}
@@ -579,6 +579,32 @@ public class GBARandomizer extends Randomizer {
 				updateStatusString("Randomizing rewards...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt));
 				RandomRandomizer.randomizeRewards(itemData, chapterData, rng);
+			}
+			
+			if (miscOptions.enemyDropChance > 0) {
+				if (gameType == GameType.FE7) {
+					// Change the code at 0x17826 from
+					// 20 68 61 68 80 6A 89 6A 08 43 80 21 09 05 08 40
+					// to
+					// 20 1C 41 30 00 78 40 21 08 40 00 00 00 00 00 00
+					// This will allow us to set the 4th AI bit for units to drop the last item if
+					// the 0x40 bit is set.
+					diffCompiler.addDiff(new Diff(0x17826, 16,
+							new byte[] {(byte)0x20, (byte)0x1C, (byte)0x41, (byte)0x30,
+									(byte)0x00, (byte)0x78, (byte)0x40, (byte)0x21,
+									(byte)0x08, (byte)0x40, (byte)0x00, (byte)0x00,
+									(byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
+									
+							},
+							new byte[] {(byte)0x20, (byte)0x68, (byte)0x61, (byte)0x68,
+									(byte)0x80, (byte)0x6A, (byte)0x89, (byte)0x6A,
+									(byte)0x08, (byte)0x43, (byte)0x80, (byte)0x21,
+									(byte)0x09, (byte)0x05, (byte)0x08, (byte)0x40
+							}));
+				}
+				updateStatusString("Adding drops...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt + 1));
+				RandomRandomizer.addRandomEnemyDrops(miscOptions.enemyDropChance, charData, itemData, chapterData, rng);
 			}
 		}
 	}
@@ -806,6 +832,30 @@ public class GBARandomizer extends Randomizer {
 			}
 		}
 		
+		// If the option is enabled, set the effectiveness for FE7 to triple.
+		// TODO: FE9 could use this this if we could figure it out.
+		if (gameType == GameType.FE7 && miscOptions.tripleEffectiveness) {
+			// Replace bytes at 0x28B3E from 
+			// 01 28 07 D1 30 88 EE F7 36 FB 29 1C 5A 31 0A 88 50 00 08 80 29 1C 5A 31
+			// to
+			// 29 1C 5A 31 01 28 07 D1 30 78 C0 46 C0 46 0A 88 XX 20 50 43 08 80 C0 46
+			// where XX is the multiplier (03 in our case)
+			diffCompiler.addDiff(new Diff(0x28B3E, 24, 
+					new byte[] {(byte)0x29, (byte)0x1C, (byte)0x5A, (byte)0x31,
+							(byte)0x01, (byte)0x28, (byte)0x07, (byte)0xD1,
+							(byte)0x30, (byte)0x78, (byte)0xC0, (byte)0x46,
+							(byte)0xC0, (byte)0x46, (byte)0x0A, (byte)0x88,
+							(byte)0x03, (byte)0x20, (byte)0x50, (byte)0x43,
+							(byte)0x08, (byte)0x80, (byte)0xC0, (byte)0x46}, 
+					new byte[] {(byte)0x01, (byte)0x28, (byte)0x07, (byte)0xD1,
+							(byte)0x30, (byte)0x88, (byte)0xEE, (byte)0xF7,
+							(byte)0x36, (byte)0xFB, (byte)0x29, (byte)0x1C,
+							(byte)0x5A, (byte)0x31, (byte)0x0A, (byte)0x88,
+							(byte)0x50, (byte)0x00, (byte)0x08, (byte)0x80,
+							(byte)0x29, (byte)0x1C, (byte)0x5A, (byte)0x31
+					}));
+		}
+
 		// Make sure healing classes have at least one healing staff in their starting inventory.
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {

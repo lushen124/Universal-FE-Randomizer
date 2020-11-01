@@ -201,6 +201,16 @@ public class ClassDataLoader {
 		return charClass != null ? charClass.isFemale() : false;
 	}
 	
+	public GBAFEClassData correspondingMaleClass(GBAFEClassData originalClass) {
+		GBAFEClass correspondingClass = provider.correspondingMaleClass(provider.classWithID(originalClass.getID()));
+		return classForID(correspondingClass.getID());
+	}
+	
+	public GBAFEClassData correspondingFemaleClass(GBAFEClassData originalClass) {
+		GBAFEClass correspondingClass = provider.correspondingFemaleClass(provider.classWithID(originalClass.getID()));
+		return classForID(correspondingClass.getID());
+	}
+	
 	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
 		return potentialClasses(sourceClass, isForEnemy, excludeLords, excludeThieves, excludeSpecial, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, mustLoseToClass);
 	}

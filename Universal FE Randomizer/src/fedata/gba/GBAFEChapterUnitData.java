@@ -44,4 +44,5 @@ public interface GBAFEChapterUnitData extends FEModifiableData {
 	
 	public void setAIToHeal(Boolean allowAttack);
 	public void setAIToOnlyAttack(Boolean allowMove);
+	public void setUnitToDropLastItem(boolean drop);
 }

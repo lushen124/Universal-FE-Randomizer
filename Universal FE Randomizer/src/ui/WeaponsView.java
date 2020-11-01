@@ -7,6 +7,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -40,6 +41,8 @@ public class WeaponsView extends Composite {
 	
 	private Button enableRandomEffectsButton;
 	private Button noEffectsForIronButton;
+	private Button noEffectsForSteelButton;
+	private Button noEffectsForBasicThrownButton;
 	private Button includeLaguzButton;
 	private Label effectChanceLabel;
 	private Spinner effectChanceSpinner;
@@ -339,7 +342,41 @@ public class WeaponsView extends Composite {
 		ironData.top = new FormAttachment(enableRandomEffectsButton, 5);
 		noEffectsForIronButton.setLayoutData(ironData);
 		
-		if (type == GameType.FE9) {
+		Control lastControl = noEffectsForIronButton;
+		
+		if (type.isGBA()) {
+			noEffectsForSteelButton = new Button(container, SWT.CHECK);
+			noEffectsForSteelButton.setText("Include Steel Weapons");
+			noEffectsForSteelButton.setToolTipText("Steel Weapons (and Thunder) remain unchanged.");
+			noEffectsForSteelButton.setEnabled(false);
+			
+			FormData steelData = new FormData();
+			steelData.left = new FormAttachment(noEffectsForIronButton, 10, SWT.LEFT);
+			steelData.top = new FormAttachment(noEffectsForIronButton, 5);
+			noEffectsForSteelButton.setLayoutData(steelData);
+			
+			noEffectsForBasicThrownButton = new Button(container, SWT.CHECK);
+			noEffectsForBasicThrownButton.setText("Include Basic Thrown Weapons");
+			noEffectsForBasicThrownButton.setToolTipText("Thrown Weapons (Javelin, Hand Axe) remain unchanged.");
+			noEffectsForBasicThrownButton.setEnabled(false);
+			
+			FormData thrownData = new FormData();
+			thrownData.left = new FormAttachment(noEffectsForSteelButton, 0, SWT.LEFT);
+			thrownData.top = new FormAttachment(noEffectsForSteelButton, 5);
+			noEffectsForBasicThrownButton.setLayoutData(thrownData);
+			
+			noEffectsForIronButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					noEffectsForSteelButton.setEnabled(noEffectsForIronButton.getSelection());
+					noEffectsForBasicThrownButton.setEnabled(noEffectsForIronButton.getSelection());
+					noEffectsForSteelButton.setSelection(noEffectsForIronButton.getSelection());
+					noEffectsForBasicThrownButton.setSelection(noEffectsForIronButton.getSelection());
+				}
+			});
+			
+			lastControl = noEffectsForBasicThrownButton;
+		} else if (type == GameType.FE9) {
 			includeLaguzButton = new Button(container, SWT.CHECK);
 			includeLaguzButton.setText("Include Laguz Weapons");
 			includeLaguzButton.setToolTipText("Adds a random effect to claws, fangs, beaks, and breaths. All laguz of the same type share the same weapon trait.\nSome effects (like extended range) are not eligible for laguz weapons.");
@@ -349,6 +386,8 @@ public class WeaponsView extends Composite {
 			laguzData.left = new FormAttachment(noEffectsForIronButton, 0, SWT.LEFT);
 			laguzData.top = new FormAttachment(noEffectsForIronButton, 5);
 			includeLaguzButton.setLayoutData(laguzData);
+			
+			lastControl = includeLaguzButton;
 		}
 		
 		effectChanceSpinner = new Spinner(container, SWT.NONE);
@@ -363,7 +402,7 @@ public class WeaponsView extends Composite {
 		
 		FormData spinnerData = new FormData();
 		spinnerData.left = new FormAttachment(effectChanceLabel, 10);
-		spinnerData.top = new FormAttachment(includeLaguzButton != null ? includeLaguzButton : noEffectsForIronButton, 5);
+		spinnerData.top = new FormAttachment(lastControl, 5);
 		effectChanceSpinner.setLayoutData(spinnerData);
 		
 		FormData labelData = new FormData();
@@ -393,6 +432,8 @@ public class WeaponsView extends Composite {
 				if (effectsSelectionView.isAllDisabled()) {
 					enableRandomEffectsButton.setSelection(false);
 					noEffectsForIronButton.setEnabled(false);
+					if (noEffectsForSteelButton != null) { noEffectsForSteelButton.setEnabled(false); }
+					if (noEffectsForBasicThrownButton != null) { noEffectsForBasicThrownButton.setEnabled(false); }
 					effectChanceLabel.setEnabled(false);
 					effectChanceSpinner.setEnabled(false);
 					effectsSelectionView.setEnabled(false);
@@ -411,15 +452,21 @@ public class WeaponsView extends Composite {
 				Boolean enabled = enableRandomEffectsButton.getSelection();
 				effectsSelectionView.setEnabled(enabled);
 				noEffectsForIronButton.setEnabled(enabled);
+				if (noEffectsForSteelButton != null) { noEffectsForSteelButton.setEnabled(enabled); }
+				if (noEffectsForBasicThrownButton != null) { noEffectsForBasicThrownButton.setEnabled(enabled); }
 				effectChanceLabel.setEnabled(enabled);
 				effectChanceSpinner.setEnabled(enabled);
 				if (includeLaguzButton != null) { includeLaguzButton.setEnabled(enabled); }
 				if (enabled) {
 					effectsSelectionView.selectAll();
 					noEffectsForIronButton.setSelection(true);
+					if (noEffectsForSteelButton != null) { noEffectsForSteelButton.setSelection(true); }
+					if (noEffectsForBasicThrownButton != null) { noEffectsForBasicThrownButton.setSelection(true); }
 				} else {
 					effectsSelectionView.deselectAll();
 					noEffectsForIronButton.setSelection(false);
+					if (noEffectsForSteelButton != null) { noEffectsForSteelButton.setSelection(false); }
+					if (noEffectsForBasicThrownButton != null) { noEffectsForBasicThrownButton.setSelection(false); }
 				}
 			}
 		});
@@ -444,7 +491,11 @@ public class WeaponsView extends Composite {
 			durabilityOptions = new MinMaxVarOption(durabilityRangeControl.getMinMaxOption(), durabilityVarianceSpinner.getSelection());
 		}
 		
-		return new WeaponOptions(mightOptions, hitOptions, weightOptions, durabilityOptions, enableRandomEffectsButton.getSelection(), effectChanceSpinner.getSelection(), effectsSelectionView.getOptions(), noEffectsForIronButton.getSelection(), includeLaguzButton != null ? includeLaguzButton.getSelection() : false);
+		return new WeaponOptions(mightOptions, hitOptions, weightOptions, durabilityOptions, enableRandomEffectsButton.getSelection(), effectChanceSpinner.getSelection(), effectsSelectionView.getOptions(), 
+				noEffectsForIronButton.getSelection(),
+				noEffectsForIronButton.getSelection() ? (noEffectsForSteelButton != null ? noEffectsForSteelButton.getSelection() : false) : false,
+				noEffectsForIronButton.getSelection() ? (noEffectsForBasicThrownButton != null ? noEffectsForBasicThrownButton.getSelection() : false) : false, 
+				includeLaguzButton != null ? includeLaguzButton.getSelection() : false);
 	}
 	
 	public void setWeaponOptions(WeaponOptions options) {
@@ -495,6 +546,14 @@ public class WeaponsView extends Composite {
 				effectChanceLabel.setEnabled(true);
 				effectsSelectionView.setOptions(options.effectsList);
 				noEffectsForIronButton.setSelection(options.noEffectIronWeapons);
+				if (noEffectsForSteelButton != null) {
+					noEffectsForSteelButton.setEnabled(true);
+					noEffectsForSteelButton.setSelection(options.noEffectSteelWeapons);
+				}
+				if (noEffectsForBasicThrownButton != null) {
+					noEffectsForBasicThrownButton.setEnabled(true);
+					noEffectsForBasicThrownButton.setSelection(options.noEffectThrownWeapons);
+				}
 				effectChanceSpinner.setSelection(options.effectChance);
 				if (includeLaguzButton != null) {
 					includeLaguzButton.setEnabled(true);

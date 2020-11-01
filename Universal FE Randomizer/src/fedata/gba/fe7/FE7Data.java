@@ -501,7 +501,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<CharacterClass> allMaleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN, CAVALIER, NOMAD,
 				WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMADTROOPER, WYVERNLORD,
-				BERSERKER, ASSASSIN));
+				BERSERKER, ASSASSIN, LORD_KNIGHT, GREAT_LORD));
 		public static Set<CharacterClass> allFemaleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
 				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, UBER_SAGE));
 		public static Set<CharacterClass> allLordClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, LORD_KNIGHT, BLADE_LORD, GREAT_LORD));
@@ -1189,6 +1189,13 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				DELPHI_SHIELD, MEMBER_CARD, IRON_RUNE, SILVER_CARD,
 				WHITE_GEM, BLUE_GEM, RED_GEM));
 		
+		public static Set<Item> commonDrops = new HashSet<Item>(Arrays.asList(VULNERARY, ANTITOXIN, TORCH, MINE, LIGHT_RUNE,
+				DOOR_KEY, CHEST_KEY, CHEST_KEY_5, PURE_WATER, ELIXIR, RED_GEM));
+		public static Set<Item> uncommonDrops = new HashSet<Item>(Arrays.asList(HERO_CREST, KNIGHT_CREST, ORION_BOLT, ELYSIAN_WHIP,
+				GUIDING_RING, EARTH_SEAL, FELL_CONTRACT, OCEAN_SEAL, AFA_DROPS, BLUE_GEM));
+		public static Set<Item> rareDrops = new HashSet<Item>(Arrays.asList(ANGELIC_ROBE, ENERGY_RING, SECRET_BOOK, SPEEDWINGS,
+				GODDESS_ICON, DRAGONSHIELD, TALISMAN, BOOTS, BODY_RING, WHITE_GEM));
+		
 		public static Set<Item> allWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, POISON_SWORD, RAPIER, MANI_KATTI, BRAVE_SWORD,
 				WO_DAO, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, LONGSWORD, EMBLEM_SWORD, DURANDAL, SOL_KATTI, REGAL_BLADE, WIND_SWORD, IRON_LANCE, 
 				SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, POISON_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN, SPEAR, AXEREAVER, EMBLEM_LANCE, REX_HASTA, HEAVY_SPEAR, SHORT_SPEAR, 
@@ -1231,6 +1238,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allRestrictedWeapons = new HashSet<Item>(Arrays.asList(WO_DAO));
 		
 		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, FIRE, LIGHTNING, FLUX));
+		public static Set<Item> allSteelWeapons = new HashSet<Item>(Arrays.asList(STEEL_SWORD, STEEL_LANCE, STEEL_AXE, STEEL_BOW, THUNDER));
+		public static Set<Item> allBasicThrownWeapons = new HashSet<Item>(Arrays.asList(JAVELIN, HAND_AXE));
 		
 		public static Set<Item> basicItemsOfType(WeaponType type) {
 			Set<Item> set = new HashSet<Item>();
@@ -1445,6 +1454,14 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public Boolean isBasicWeapon() {
 			return allBasicWeapons.contains(this);
 		}
+		
+		public Boolean isSteelWeapon() {
+			return allSteelWeapons.contains(this);
+		}
+		
+		public Boolean isBasicThrownWeapon() {
+			return allBasicThrownWeapons.contains(this);
+		}
 
 		public Boolean isStatBooster() {
 			return allStatBoosters.contains(this);
@@ -1498,6 +1515,17 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		private ChapterPointer(int chapterID) {
 			this.chapterID = chapterID;
+		}
+		
+		public static List<ChapterPointer> orderedChapters() {
+			return new ArrayList<ChapterPointer>(Arrays.asList(PROLOGUE, CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4,
+					CHAPTER_5, CHAPTER_6, CHAPTER_7, CHAPTER_7X, CHAPTER_8, CHAPTER_9, CHAPTER_10, CHAPTER_11_E,
+					CHAPTER_11_H, CHAPTER_12, CHAPTER_13, CHAPTER_13X, CHAPTER_14, CHAPTER_15, CHAPTER_16,
+					CHAPTER_17, CHAPTER_17X, CHAPTER_18, CHAPTER_19, CHAPTER_19X, CHAPTER_19XX, CHAPTER_20,
+					CHAPTER_21, CHAPTER_22, CHAPTER_23, CHAPTER_23X, CHAPTER_24_LLOYD, CHAPTER_24_LINUS,
+					CHAPTER_25, CHAPTER_26, CHAPTER_27_KENNETH, CHAPTER_27_JERME, CHAPTER_28, CHAPTER_28X,
+					CHAPTER_28_E, CHAPTER_29, CHAPTER_30_H, CHAPTER_31, CHAPTER_31X, CHAPTER_32, CHAPTER_32X,
+					CHAPTER_FINAL, CHAPTER_FINAL_2));
 		}
 		
 		public FE7Data.CharacterClass[] blacklistedClasses() {
@@ -2594,6 +2622,42 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isForEnemy,
 				excludeSource, excludeLords, excludeThieves, excludeSpecial, requireAttack, requiresRange, applyRestrictions));
 	}
+	
+	public GBAFEClass correspondingMaleClass(GBAFEClass charClass) {
+		switch ((FE7Data.CharacterClass)charClass) {
+		case LORD_LYN: return FE7Data.CharacterClass.LORD_ELIWOOD;
+		case BLADE_LORD: return FE7Data.CharacterClass.GREAT_LORD;
+		case ARCHER_F: return FE7Data.CharacterClass.ARCHER;
+		case MAGE_F: return FE7Data.CharacterClass.MAGE;
+		case DANCER: return FE7Data.CharacterClass.BARD;
+		case SWORDMASTER_F: return FE7Data.CharacterClass.SWORDMASTER;
+		case SNIPER_F: return FE7Data.CharacterClass.SNIPER;
+		case BISHOP_F: return FE7Data.CharacterClass.BISHOP;
+		case SAGE_F: return FE7Data.CharacterClass.SAGE;
+		case PALADIN_F: return FE7Data.CharacterClass.PALADIN;
+		case WYVERNLORD_F: return FE7Data.CharacterClass.WYVERNLORD;
+		case UBER_SAGE: return FE7Data.CharacterClass.SAGE;
+		default: return charClass;
+		}
+	}
+	public GBAFEClass correspondingFemaleClass(GBAFEClass charClass) {
+		switch ((FE7Data.CharacterClass)charClass) {
+		case LORD_ELIWOOD:
+		case LORD_HECTOR: return FE7Data.CharacterClass.LORD_LYN;
+		case ARCHER: return FE7Data.CharacterClass.ARCHER_F;
+		case MAGE: return FE7Data.CharacterClass.MAGE_F;
+		case BARD: return FE7Data.CharacterClass.DANCER;
+		case GREAT_LORD:
+		case LORD_KNIGHT: return FE7Data.CharacterClass.BLADE_LORD;
+		case SWORDMASTER: return FE7Data.CharacterClass.SWORDMASTER_F;
+		case SNIPER: return FE7Data.CharacterClass.SNIPER_F;
+		case BISHOP: return FE7Data.CharacterClass.BISHOP_F;
+		case SAGE: return FE7Data.CharacterClass.SAGE_F;
+		case PALADIN: return FE7Data.CharacterClass.PALADIN_F;
+		case WYVERNLORD: return FE7Data.CharacterClass.WYVERNLORD_F;
+		default: return charClass;
+		}
+	}
 
 	public void prepareForClassRandomization(Map<Integer, GBAFEClassData> classMap) {
 		GBAFEClassData soldierData = classMap.get(CharacterClass.SOLDIER.ID);
@@ -2962,6 +3026,18 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> playerOnlyWeapons() {
 		return new HashSet<GBAFEItem>();
+	}
+	
+	public Set<GBAFEItem> commonDrops() {
+		return new HashSet<GBAFEItem>(Item.commonDrops);
+	}
+	
+	public Set<GBAFEItem> uncommonDrops() {
+		return new HashSet<GBAFEItem>(Item.uncommonDrops);
+	}
+	
+	public Set<GBAFEItem> rareDrops() {
+		return new HashSet<GBAFEItem>(Item.rareDrops);
 	}
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon) {

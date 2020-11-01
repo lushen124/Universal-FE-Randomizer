@@ -1,7 +1,11 @@
 package random.gba.loader;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterItemData;
@@ -51,7 +55,7 @@ public class ChapterLoader {
 				chapters = new GBAFEChapterData[numberOfChapters];
 				int i = 0;
 				long baseAddress = FileReadHelper.readAddress(handler, FE6Data.ChapterTablePointer);
-				for (FE6Data.ChapterPointer chapter : FE6Data.ChapterPointer.values()) {
+				for (FE6Data.ChapterPointer chapter : FE6Data.ChapterPointer.orderedChapters()) {
 					int chapterID = chapter.chapterID;
 					int[] classBlacklist = new int[chapter.blacklistedClasses().length];
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {
@@ -80,7 +84,7 @@ public class ChapterLoader {
 				chapters = new GBAFEChapterData[numberOfChapters];
 				i = 0;
 				baseAddress = FileReadHelper.readAddress(handler, FE7Data.ChapterTablePointer);
-				for (FE7Data.ChapterPointer chapter : FE7Data.ChapterPointer.values()) {
+				for (FE7Data.ChapterPointer chapter : FE7Data.ChapterPointer.orderedChapters()) {
 					int chapterID = chapter.chapterID;
 					int[] classBlacklist = new int[chapter.blacklistedClasses().length];
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {
@@ -113,7 +117,7 @@ public class ChapterLoader {
 				chapters = new GBAFEChapterData[numberOfChapters];
 				i = 0;
 				baseAddress = FileReadHelper.readAddress(handler, FE8Data.ChapterTablePointer);
-				for (FE8Data.ChapterPointer chapter : FE8Data.ChapterPointer.values()) {
+				for (FE8Data.ChapterPointer chapter : FE8Data.ChapterPointer.orderedChapters()) {
 					int chapterID = chapter.chapterID;
 					int[] classBlacklist = new int[chapter.blacklistedClasses().length];
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {

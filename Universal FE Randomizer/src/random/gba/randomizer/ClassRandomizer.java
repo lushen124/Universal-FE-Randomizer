@@ -92,6 +92,8 @@ public class ClassRandomizer {
 			
 			GBAFEClassData targetClass = null;
 			
+			boolean isFemale = charactersData.isFemale(character.getID());
+			
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {
@@ -119,6 +121,12 @@ public class ClassRandomizer {
 				} else {
 					int randomIndex = rng.nextInt(possibleClasses.length);
 					targetClass = possibleClasses[randomIndex];
+				}
+				
+				if (isFemale) {
+					targetClass = classData.correspondingFemaleClass(targetClass);
+				} else {
+					targetClass = classData.correspondingMaleClass(targetClass);
 				}
 			}
 			
@@ -172,6 +180,8 @@ public class ClassRandomizer {
 			Boolean forceBasicWeaponry = false;
 			Boolean shouldNerf = false;
 			
+			boolean isFemale = charactersData.isFemale(character.getID());
+			
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {			
@@ -192,6 +202,12 @@ public class ClassRandomizer {
 			
 				int randomIndex = rng.nextInt(possibleClasses.length);
 				targetClass = possibleClasses[randomIndex];
+			}
+			
+			if (isFemale) {
+				targetClass = classData.correspondingFemaleClass(targetClass);
+			} else {
+				targetClass = classData.correspondingMaleClass(targetClass);
 			}
 			
 			if (targetClass == null) {
