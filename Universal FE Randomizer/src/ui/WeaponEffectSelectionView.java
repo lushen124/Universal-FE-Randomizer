@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import fedata.general.FEBase.GameType;
+import ui.general.MinMaxControl;
 import ui.model.WeaponEffectOptions;
 
 public class WeaponEffectSelectionView extends Composite {
@@ -23,6 +24,7 @@ public class WeaponEffectSelectionView extends Composite {
 	private Button reverseTriangleCheckBox;
 	private Button extendedRangeCheckBox;
 	private Button highCriticalCheckBox;
+	private MinMaxControl criticalControl;
 	private Button magicDamageCheckBox;
 	private Button poisonCheckBox;
 	private Button stealHPCheckBox;
@@ -128,13 +130,19 @@ public class WeaponEffectSelectionView extends Composite {
 		
 		highCriticalCheckBox = new Button(this, SWT.CHECK);
 		highCriticalCheckBox.setText("Critical");
-		highCriticalCheckBox.setToolTipText("Allows random weapons to gain a large critical bonus (between 20% and 50%)");
+		highCriticalCheckBox.setToolTipText("Allows random weapons to gain a large critical bonus.");
 		highCriticalCheckBox.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
 				notifySelectionChange();
+				criticalControl.setEnabled(highCriticalCheckBox.getSelection());
 			}
 		});
+		
+		criticalControl = new MinMaxControl(this, SWT.NONE, "", "~");
+		criticalControl.getMinSpinner().setValues(20, 5, 50, 0, 5, 5);
+		criticalControl.getMaxSpinner().setValues(50, 20, 100, 0, 5, 5);
+		criticalControl.setEnabled(false);
 		
 		magicDamageCheckBox = new Button(this, SWT.CHECK);
 		magicDamageCheckBox.setText("Magic Damage");
@@ -256,6 +264,7 @@ public class WeaponEffectSelectionView extends Composite {
 		reverseTriangleCheckBox.setSelection(true);
 		extendedRangeCheckBox.setSelection(true);
 		highCriticalCheckBox.setSelection(true);
+		criticalControl.setEnabled(true);
 		magicDamageCheckBox.setSelection(true);
 		poisonCheckBox.setSelection(true);
 		if (stealHPCheckBox != null) { stealHPCheckBox.setSelection(true); }
@@ -278,6 +287,7 @@ public class WeaponEffectSelectionView extends Composite {
 		reverseTriangleCheckBox.setSelection(false);
 		extendedRangeCheckBox.setSelection(false);
 		highCriticalCheckBox.setSelection(false);
+		criticalControl.setEnabled(false);
 		magicDamageCheckBox.setSelection(false);
 		poisonCheckBox.setSelection(false);
 		if (stealHPCheckBox != null) { stealHPCheckBox.setSelection(false); }
@@ -295,7 +305,7 @@ public class WeaponEffectSelectionView extends Composite {
 	}
 	
 	public WeaponEffectOptions getOptions() {
-		return new WeaponEffectOptions(statBoostsEnabled, effectivenessEnabled, unbreakableEnabled, braveEnabled, reverseEnabled, rangeEnabled, criticalEnabled, magicEnabled, poisonEnabled, stealHPEnabled, critImmuneEnabled, noCritEnabled, eclipseEnabled, devilEnabled);
+		return new WeaponEffectOptions(statBoostsEnabled, effectivenessEnabled, unbreakableEnabled, braveEnabled, reverseEnabled, rangeEnabled, criticalEnabled, criticalControl.getMinMaxOption(), magicEnabled, poisonEnabled, stealHPEnabled, critImmuneEnabled, noCritEnabled, eclipseEnabled, devilEnabled);
 	}
 	
 	public void setOptions(WeaponEffectOptions options) {
@@ -308,6 +318,11 @@ public class WeaponEffectSelectionView extends Composite {
 			reverseTriangleCheckBox.setSelection(options.reverseTriangle != null ? options.reverseTriangle : false);
 			extendedRangeCheckBox.setSelection(options.extendedRange != null ? options.extendedRange : false);
 			highCriticalCheckBox.setSelection(options.highCritical != null ? options.highCritical : false);
+			if (options.highCritical != null) {
+				criticalControl.setMin(options.criticalRange.minValue);
+				criticalControl.setMax(options.criticalRange.maxValue);
+				criticalControl.setEnabled(options.highCritical);
+			}
 			magicDamageCheckBox.setSelection(options.magicDamage != null ? options.magicDamage : false);
 			poisonCheckBox.setSelection(options.poison != null ? options.poison : false);
 			if (stealHPCheckBox != null) { stealHPCheckBox.setSelection(options.stealHP != null ? options.stealHP : false); }

@@ -107,7 +107,11 @@ public class WeaponsRandomizer {
 		if (effectOptions.brave) { enabledEffects.add(WeaponEffects.BRAVE); }
 		if (effectOptions.reverseTriangle) { enabledEffects.add(WeaponEffects.REVERSE_TRIANGLE); }
 		if (effectOptions.extendedRange) { enabledEffects.add(WeaponEffects.EXTEND_RANGE); }
-		if (effectOptions.highCritical) { enabledEffects.add(WeaponEffects.HIGH_CRITICAL); }
+		if (effectOptions.highCritical) {
+			WeaponEffects effect = WeaponEffects.HIGH_CRITICAL;
+			effect.additionalInfo.put(WeaponEffects.InfoKeys.CRITICAL_RANGE, effectOptions.criticalRange);
+			enabledEffects.add(effect);
+		}
 		if (effectOptions.magicDamage) { enabledEffects.add(WeaponEffects.MAGIC_DAMAGE); }
 		if (effectOptions.poison) { enabledEffects.add(WeaponEffects.POISON); }
 		if (effectOptions.eclipse) { enabledEffects.add(WeaponEffects.HALF_HP); }

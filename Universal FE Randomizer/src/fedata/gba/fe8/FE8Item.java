@@ -19,6 +19,7 @@ import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
 import random.gba.loader.ItemDataLoader.AdditionalData;
+import ui.model.MinMaxOption;
 import util.ByteArrayBuilder;
 import util.DebugPrinter;
 import util.FreeSpaceManager;
@@ -385,8 +386,9 @@ public class FE8Item implements GBAFEItemData {
 			setEffectivenessPointer(selectedEffectivenessAddress);
 			break;
 		case HIGH_CRITICAL:
+			MinMaxOption range = (MinMaxOption)effect.additionalInfo.get(WeaponEffects.InfoKeys.CRITICAL_RANGE);
 			int currentCritical = getCritical();
-			int newCritical = currentCritical + 5 * (4 + rng.nextInt(7));
+			int newCritical = currentCritical + 5 * ((range.minValue / 5) + rng.nextInt(((range.maxValue - range.minValue) / 5) + 1));
 			setCritical(newCritical);
 			break;
 		case EXTEND_RANGE:
