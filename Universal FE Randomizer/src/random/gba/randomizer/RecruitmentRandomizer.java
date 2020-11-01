@@ -704,22 +704,22 @@ public class RecruitmentRandomizer {
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "RES: " + Integer.toString(fillSourceClass.getBaseRES()) + " + " + Integer.toString(fill.getBaseRES()) + " -> " + Integer.toString(targetClass.getBaseRES()) + " + " + Integer.toString(newRES));
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "LCK: " + Integer.toString(fillSourceClass.getBaseLCK()) + " + " + Integer.toString(fill.getBaseLCK()) + " -> " + Integer.toString(targetClass.getBaseLCK()) + " + " + Integer.toString(newLCK));
 			} else if (options.baseMode == StatAdjustmentMode.MATCH_SLOT) {
-				newHP = slotReference.getBaseHP() + slotSourceClass.getBaseHP() - targetClass.getBaseHP();
-				newSTR = slotReference.getBaseSTR() + slotSourceClass.getBaseSTR() - targetClass.getBaseSTR();
-				newSKL = slotReference.getBaseSKL() + slotSourceClass.getBaseSKL() - targetClass.getBaseSKL();
-				newSPD = slotReference.getBaseSPD() + slotSourceClass.getBaseSPD() - targetClass.getBaseSPD();
-				newLCK = slotReference.getBaseLCK() + slotSourceClass.getBaseLCK() - targetClass.getBaseLCK();
-				newDEF = slotReference.getBaseDEF() + slotSourceClass.getBaseDEF() - targetClass.getBaseDEF();
-				newRES = slotReference.getBaseRES() + slotSourceClass.getBaseRES() - targetClass.getBaseRES();
+				newHP = linkedSlot.getBaseHP() + slotSourceClass.getBaseHP() - targetClass.getBaseHP();
+				newSTR = linkedSlot.getBaseSTR() + slotSourceClass.getBaseSTR() - targetClass.getBaseSTR();
+				newSKL = linkedSlot.getBaseSKL() + slotSourceClass.getBaseSKL() - targetClass.getBaseSKL();
+				newSPD = linkedSlot.getBaseSPD() + slotSourceClass.getBaseSPD() - targetClass.getBaseSPD();
+				newLCK = linkedSlot.getBaseLCK() + slotSourceClass.getBaseLCK() - targetClass.getBaseLCK();
+				newDEF = linkedSlot.getBaseDEF() + slotSourceClass.getBaseDEF() - targetClass.getBaseDEF();
+				newRES = linkedSlot.getBaseRES() + slotSourceClass.getBaseRES() - targetClass.getBaseRES();
 			} else if (options.baseMode == StatAdjustmentMode.RELATIVE_TO_SLOT) {
-				newHP = slotReference.getBaseHP() + slotSourceClass.getBaseHP() - targetClass.getBaseHP(); // Keep HP the same logic as above.
+				newHP = linkedSlot.getBaseHP() + slotSourceClass.getBaseHP() - targetClass.getBaseHP(); // Keep HP the same logic as above.
 				
-				int slotSTR = slotReference.getBaseSTR() + slotSourceClass.getBaseSTR();
-				int slotSKL = slotReference.getBaseSKL() + slotSourceClass.getBaseSKL();
-				int slotSPD = slotReference.getBaseSPD() + slotSourceClass.getBaseSPD();
-				int slotLCK = slotReference.getBaseLCK() + slotSourceClass.getBaseLCK();
-				int slotDEF = slotReference.getBaseDEF() + slotSourceClass.getBaseDEF();
-				int slotRES = slotReference.getBaseRES() + slotSourceClass.getBaseRES();
+				int slotSTR = linkedSlot.getBaseSTR() + slotSourceClass.getBaseSTR();
+				int slotSKL = linkedSlot.getBaseSKL() + slotSourceClass.getBaseSKL();
+				int slotSPD = linkedSlot.getBaseSPD() + slotSourceClass.getBaseSPD();
+				int slotLCK = linkedSlot.getBaseLCK() + slotSourceClass.getBaseLCK();
+				int slotDEF = linkedSlot.getBaseDEF() + slotSourceClass.getBaseDEF();
+				int slotRES = linkedSlot.getBaseRES() + slotSourceClass.getBaseRES();
 				
 				int fillSTR = fill.getBaseSTR() + fillSourceClass.getBaseSTR();
 				int fillSKL = fill.getBaseSKL() + fillSourceClass.getBaseSKL();
