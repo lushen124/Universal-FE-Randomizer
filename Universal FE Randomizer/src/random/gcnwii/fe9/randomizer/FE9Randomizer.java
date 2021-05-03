@@ -818,6 +818,41 @@ public class FE9Randomizer extends Randomizer {
 		} else {
 			table.addRow(new String[] {"Randomize Skills", "NO"});
 		}
+		if (weaponOptions != null) {
+			if (weaponOptions.mightOptions != null) {
+				table.addRow(new String[] {"Randomize Weapon MT", "+/-" + weaponOptions.mightOptions.variance + ", " + weaponOptions.mightOptions.minValue + " ~ " + weaponOptions.mightOptions.maxValue});
+			}
+			if (weaponOptions.hitOptions != null) {
+				table.addRow(new String[] {"Randomize Weapon Hit", "+/-" + weaponOptions.hitOptions.variance + ", " + weaponOptions.hitOptions.minValue + " ~ " + weaponOptions.hitOptions.maxValue});
+			}
+			if (weaponOptions.weightOptions != null) {
+				table.addRow(new String[] {"Randomize Weapon WT", "+/-" + weaponOptions.weightOptions.variance + ", " + weaponOptions.weightOptions.minValue + " ~ " + weaponOptions.weightOptions.maxValue});
+			}
+			if (weaponOptions.durabilityOptions != null) {
+				table.addRow(new String[] {"Randomize Weapon Durability", "+/-" + weaponOptions.durabilityOptions.variance + ", " + weaponOptions.durabilityOptions.minValue + " ~ " + weaponOptions.durabilityOptions.maxValue});
+			}
+			if (weaponOptions.shouldAddEffects) {
+				table.addRow(new String[] {"Add Random Effects", "YES (" + weaponOptions.effectChance + "%)"});
+				table.addRow(new String[] {"Possible Effects", 
+						"<ul>" +
+						(weaponOptions.effectsList.statBoosts > 0 ? "<li>Stat Boosts (" + String.format("%.2f%%", (double)weaponOptions.effectsList.statBoosts / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.effectiveness > 0 ? "<li>Effectiveness (" + String.format("%.2f%%", (double)weaponOptions.effectsList.effectiveness / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.unbreakable > 0 ? "<li>Unbreakable (" + String.format("%.2f%%", (double)weaponOptions.effectsList.unbreakable / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.brave > 0 ? "<li>Brave (" + String.format("%.2f%%", (double)weaponOptions.effectsList.brave / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.reverseTriangle > 0 ? "<li>Shifted Triangle (" + String.format("%.2f%%", (double)weaponOptions.effectsList.reverseTriangle / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.extendedRange > 0 ? "<li>Extended Range (" + String.format("%.2f%%", (double)weaponOptions.effectsList.extendedRange / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.highCritical > 0 ? "<li>Critical (" + weaponOptions.effectsList.criticalRange.minValue + " ~ " + weaponOptions.effectsList.criticalRange.maxValue + ") (" + String.format("%.2f%%", (double)weaponOptions.effectsList.highCritical / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.magicDamage > 0 ? "<li>Magic Damage (" + String.format("%.2f%%", (double)weaponOptions.effectsList.magicDamage / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.poison > 0 ? "<li>Poison (" + String.format("%.2f%%", (double)weaponOptions.effectsList.poison / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.stealHP > 0 ? "<li>Steal HP (" + String.format("%.2f%%", (double)weaponOptions.effectsList.stealHP / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.critImmune > 0 ? "<li>Critical Immunity (" + String.format("%.2f%%", (double)weaponOptions.effectsList.critImmune / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						(weaponOptions.effectsList.noCrit > 0 ? "<li>Cannot Crit. (" + String.format("%.2f%%", (double)weaponOptions.effectsList.noCrit / (double)weaponOptions.effectsList.getWeightTotal() * 100) + ")</li>" : "") +
+						"</ul>"
+						});
+				table.addRow(new String[] {"Safe Basic Weapons", weaponOptions.noEffectIronWeapons ? "YES" : "NO"});
+				table.addRow(new String[] {"Include Laguz Weapons", weaponOptions.includeLaguzWeapons ? "YES" : "NO"});
+			}
+		}
 		if (classOptions != null) {
 			if (classOptions.randomizePCs) {
 				table.addRow(new String[] {"Randomize Playable Characters", "YES"});

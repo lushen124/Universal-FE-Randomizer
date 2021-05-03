@@ -1,6 +1,5 @@
 package random.gcnwii.fe9.randomizer;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -9,6 +8,7 @@ import io.gcn.GCNISOHandler;
 import random.gcnwii.fe9.loader.FE9CommonTextLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponEffect;
+import random.general.WeightedDistributor;
 import ui.model.WeaponEffectOptions;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -69,27 +69,25 @@ public class FE9WeaponRandomizer {
 		if (effectChance == 0) { return; }
 		List<FE9Item> items = itemData.allItems();
 		
-		List<WeaponEffect> effects = new ArrayList<WeaponEffect>();
-		if (effectOptions.statBoosts) { effects.add(WeaponEffect.STAT_BOOST); }
-		if (effectOptions.effectiveness) { effects.add(WeaponEffect.EFFECTIVENESS); }
-		if (effectOptions.unbreakable) { effects.add(WeaponEffect.UNBREAKABLE); }
-		if (effectOptions.brave) { effects.add(WeaponEffect.BRAVE); }
-		if (effectOptions.reverseTriangle) { effects.add(WeaponEffect.REVERSE_TRIANGLE); }
-		if (effectOptions.extendedRange) { effects.add(WeaponEffect.EXTEND_RANGE); }
-		if (effectOptions.highCritical) {
+		WeightedDistributor<WeaponEffect> effects = new WeightedDistributor<WeaponEffect>();
+		if (effectOptions.statBoosts > 0) { effects.addItem(WeaponEffect.STAT_BOOST, effectOptions.statBoosts); }
+		if (effectOptions.effectiveness > 0) { effects.addItem(WeaponEffect.EFFECTIVENESS, effectOptions.effectiveness); }
+		if (effectOptions.unbreakable > 0) { effects.addItem(WeaponEffect.UNBREAKABLE, effectOptions.unbreakable); }
+		if (effectOptions.brave > 0) { effects.addItem(WeaponEffect.BRAVE, effectOptions.brave); }
+		if (effectOptions.reverseTriangle > 0) { effects.addItem(WeaponEffect.REVERSE_TRIANGLE, effectOptions.reverseTriangle); }
+		if (effectOptions.extendedRange > 0) { effects.addItem(WeaponEffect.EXTEND_RANGE, effectOptions.extendedRange); }
+		if (effectOptions.highCritical > 0) {
 			WeaponEffect effect = WeaponEffect.CRITICAL;
 			effect.additionalInfo.put(WeaponEffect.InfoKey.CRITICAL_RANGE, effectOptions.criticalRange);
-			effects.add(effect);
+			effects.addItem(effect, effectOptions.highCritical);
 		}
-		if (effectOptions.magicDamage) { effects.add(WeaponEffect.MAGIC_DAMAGE); }
-		if (effectOptions.poison) { effects.add(WeaponEffect.POISON); }
-		if (effectOptions.stealHP) { effects.add(WeaponEffect.STEAL_HP); }
-		if (effectOptions.critImmune) { effects.add(WeaponEffect.CRIT_IMMUNE); }
-		if (effectOptions.noCrit) { effects.add(WeaponEffect.NO_CRIT); }
+		if (effectOptions.magicDamage > 0) { effects.addItem(WeaponEffect.MAGIC_DAMAGE, effectOptions.magicDamage); }
+		if (effectOptions.poison > 0) { effects.addItem(WeaponEffect.POISON, effectOptions.poison); }
+		if (effectOptions.stealHP > 0) { effects.addItem(WeaponEffect.STEAL_HP, effectOptions.stealHP); }
+		if (effectOptions.critImmune > 0) { effects.addItem(WeaponEffect.CRIT_IMMUNE, effectOptions.critImmune); }
+		if (effectOptions.noCrit > 0) { effects.addItem(WeaponEffect.NO_CRIT, effectOptions.noCrit); }
 		
-		if (effects.isEmpty()) { return ; }
-		
-		List<WeaponEffect> possibleEffects = new ArrayList<WeaponEffect>();
+		if (effects.possibleResults().isEmpty()) { return ; }
 		
 		for (FE9Item item : items) {
 			if (itemData.isBlacklisted(item)) { continue; }
@@ -98,14 +96,13 @@ public class FE9WeaponRandomizer {
 			if (!includeLaguzWeapons && itemData.isLaguzWeapon(item)) { continue; }
 			if (rng.nextInt(100) >= effectChance) { continue; }
 			
+			WeightedDistributor<WeaponEffect> possibleEffects = new WeightedDistributor<WeaponEffect>(effects);
 			boolean success = false;
-			possibleEffects.clear();
-			possibleEffects.addAll(effects);
 			do {
-				int selectedIndex = rng.nextInt(possibleEffects.size());
-				success = itemData.applyEffectToWeapon(possibleEffects.get(selectedIndex), item, handler, textData, rng);
-				possibleEffects.remove(selectedIndex);
-			} while (!success && !possibleEffects.isEmpty());
+				WeaponEffect selectedEffect = possibleEffects.getRandomItem(rng);
+				success = itemData.applyEffectToWeapon(selectedEffect, item, handler, textData, rng);
+				possibleEffects.removeItem(selectedEffect);
+			} while (!success && !possibleEffects.possibleResults().isEmpty());
 			
 			item.commitChanges();
 		}
