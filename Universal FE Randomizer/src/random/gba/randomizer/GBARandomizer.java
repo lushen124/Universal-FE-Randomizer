@@ -158,7 +158,7 @@ public class GBARandomizer extends Randomizer {
 				tempPath = new String(targetPath).concat(".tmp");
 				
 				try {
-					Boolean success = UPSPatcher.applyUPSPatch("FE6Localization_v1.1br1.ups", sourcePath, tempPath, null);
+					Boolean success = UPSPatcher.applyUPSPatch("FE6Localization_v1.1.ups", sourcePath, tempPath, null);
 					if (!success) {
 						notifyError("Failed to apply translation patch.");
 						return;
