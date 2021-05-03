@@ -252,6 +252,31 @@ public class FileHandler {
 		return outputBytes;
 	}
 	
+	public void readBytesAtOffset(byte[] buffer, long offset, int numBytes) {
+		if (inputFile == null) { return; }
+		
+		long remainingBytes = fileLength - offset;
+		if (numBytes > remainingBytes) {
+			numBytes = (int)remainingBytes;
+		}
+		
+		try {
+			inputFile.seek(offset);
+			inputFile.read(buffer, 0, numBytes);
+			nextReadOffset = inputFile.getFilePointer();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Failed to read " + numBytes + " bytes starting from offset " + Long.toHexString(offset) + ".");
+			return;
+		}
+		
+		if (appliedDiffs != null) {
+			appliedDiffs.applyDiffs(buffer, offset, numBytes);
+		}
+	}
+	
 	public long getCRC32() {
 		return crc32;
 	}

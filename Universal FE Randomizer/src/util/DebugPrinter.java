@@ -61,7 +61,7 @@ public class DebugPrinter {
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
 //		case MAIN:
-		case DBX_HANDLER:
+		case TEXT_LOADING:
 			return true;
 		default:
 			return false;

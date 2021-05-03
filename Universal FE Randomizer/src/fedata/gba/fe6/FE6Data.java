@@ -86,8 +86,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
 	private static final List<AddressRange> createFreeRangeList() {
 		List<AddressRange> ranges = new ArrayList<AddressRange>();
-		ranges.add(new AddressRange(0xA297B0L, 0xB00000L));
-		ranges.add(new AddressRange(0xB013F0L, 0xFFFFFFL));
+//		ranges.add(new AddressRange(0xA297B0L, 0xB00000L));
+//		ranges.add(new AddressRange(0xB013F0L, 0xFFFFFFL));
 		return ranges;
 	}
 	

@@ -1,6 +1,7 @@
 package util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -347,8 +348,7 @@ public class HuffmanHelper {
 	}
 
 	public byte[] decodeTextAddressWithHuffmanTree(long textAddress, long treeAddress, long rootAddress) {
-		byte[] result = new byte[0x1000];
-		int i = 0;
+		ByteArrayBuilder result = new ByteArrayBuilder();
 		
 		Boolean isMarked = (textAddress & 0x80000000) != 0;
 		long maskedAddress = textAddress & 0x7FFFFFFF;
@@ -359,12 +359,11 @@ public class HuffmanHelper {
 		if (isMarked) {
 			do {
 				currentByte = handler.readBytesAtOffset(maskedAddress, 1)[0];
-				result[i] = currentByte;
-				i++;
+				result.appendByte(currentByte);
 				maskedAddress += 1;
 			} while (currentByte != 0);
 			
-			return result;
+			return result.toByteArray();
 		} else {
 			staleEncoder = true;
 			int bit = 0;
@@ -373,7 +372,7 @@ public class HuffmanHelper {
 			long textDataPosition = maskedAddress + 1;
 			CacheEntry currentEntry = cacheRoot;
 			currentEntry.nodeValue = node;
-			while (i < 0x1000) {
+			for(;;) {
 				CacheEntry leftEntry = currentEntry.left;
 				CacheEntry rightEntry = currentEntry.right;
 				
@@ -384,10 +383,10 @@ public class HuffmanHelper {
 				}
 				Boolean nextBitIsZero = (currentByte & 0x1) == 0;
 				if (currentEntry.value != null) {
-					result[i++] = currentEntry.value.value1;
+					result.appendByte(currentEntry.value.value1);
 					//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value1));
 					if (currentEntry.value.hasValue2) {
-						result[i++] = currentEntry.value.value2;
+						result.appendByte(currentEntry.value.value2);
 						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Wrote Byte 0x" + Integer.toHexString(currentEntry.value.value2));
 					} else if (currentEntry.value.isTerminal) {
 						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "[cache] Terminal");
@@ -445,7 +444,7 @@ public class HuffmanHelper {
 						bit += 1;
 					} else {
 						node = rootAddress;
-						result[i] = (byte) (left & 0xFF);
+						result.appendByte((byte)(left & 0xFF));
 						
 						CacheEntry valueEntry = new CacheEntry(currentEntry);
 						currentEntry.value = valueEntry;
@@ -453,15 +452,11 @@ public class HuffmanHelper {
 						valueEntry.hasValue1 = true;
 						valueEntry.value1 = (byte) (left & 0xFF);
 						//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value1));
-						i += 1;
 						if ((left & 0xFF00) != 0) {
-							if (i != 0x1000) {
-								result[i] = (byte) ((left >> 8) & 0xFF);
+							result.appendByte((byte)((left >> 8) & 0xFF));
 								valueEntry.hasValue2 = true;
 								valueEntry.value2 = (byte) ((left >> 8) & 0xFF);
 								//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Wrote Byte 0x" + Integer.toHexString(valueEntry.value2));
-								i += 1;
-							}
 						} else if (left == 0) {
 							valueEntry.isTerminal = true;
 							//DebugPrinter.log(DebugPrinter.Key.HUFFMAN, "Terminal");
@@ -473,7 +468,7 @@ public class HuffmanHelper {
 			}
 		}
 		
-		return result;
+		return result.toByteArray();
 	}
 	
 	public String sanitizeByteArrayIntoTextString(byte[] byteArray, Boolean squelchCodes, FEBase.GameType gameType) {
@@ -573,7 +568,11 @@ public class HuffmanHelper {
 			} else if ((currentByte & 0xFF) == 0x83) {
 				// FE6 Stuff.
 				byte dataByte = byteArray[i + 1];
-				sb.append(fe6CharacterFrom83Byte(dataByte));
+				char character = fe6CharacterFrom83Byte(dataByte);
+				if (character == '[' || character == ']') {
+					sb.append("\\");
+				}
+				sb.append(character);
 				i++;
 			} else {
 				if (currentByte < 0x20) {
@@ -616,6 +615,11 @@ public class HuffmanHelper {
 			}
 			
 			return null;
+		}
+		
+		private StringByteProvider(List<Byte> byteArray) {
+			currentIndex = 0;
+			this.byteArray = byteArray;
 		}
 		
 		private StringByteProvider(String string, boolean includesCodes) {
@@ -694,10 +698,15 @@ public class HuffmanHelper {
 	}
 	
 	public byte[] encodeString(String string, boolean includesCodes) {
-		buildEncoder();
-		Bitstream result = new Bitstream();
-		
 		StringByteProvider provider = new StringByteProvider(string, includesCodes);
+		
+		return encodeHuffman(provider);
+	}
+	
+	public byte[] encodeHuffman(StringByteProvider provider) {
+		buildEncoder();
+		
+		Bitstream result = new Bitstream();
 		
 		while (provider.hasData()) {
 			Character encoderIndex = (char)((int)provider.getCurrent() & 0xFF);
@@ -759,10 +768,11 @@ public class HuffmanHelper {
 	}
 	
 	public byte[] encodeNonHuffmanString(String string) {
-		return encodeNonHuffmanString(string, false);
+		return encodeNonHuffmanString(string, false, false);
 	}
 	
-	public byte[] encodeNonHuffmanString(String string, boolean includesCodes) {
+	// TODO: This is a bit of a misnomer, since the new FE6 patch uses huffman again.
+	public byte[] encodeNonHuffmanString(String string, boolean includesCodes, boolean useThinCharacters) {
 		List<Byte> byteList = new ArrayList<Byte>();
 		
 		for (int i = 0; i < string.length(); i++) {
@@ -796,6 +806,19 @@ public class HuffmanHelper {
 				byteList.add((byte)(encoderIndex & 0xFF));
 				continue;
 			}*/
+			
+			// Read the next character literally.
+			if (character == '\\') {
+				character = string.charAt(++i);
+				byte prefix = fe6PrefixByteForCharacter(character);
+				byteList.add(prefix);
+				if (prefix == (byte)0x82) {
+					byteList.add(useThinCharacters ? fe6ByteFromThin82Character(character) : fe6ByteFrom82Character(character));
+				} else {
+					byteList.add(fe6ByteFrom83Character(character));
+				}
+				continue;
+			}
 			
 			if (includesCodes && character == '[') {
 				
@@ -843,7 +866,7 @@ public class HuffmanHelper {
 			byte prefix = fe6PrefixByteForCharacter(character);
 			byteList.add(prefix);
 			if (prefix == (byte)0x82) {
-				byteList.add(fe6ByteFrom82Character(character));
+				byteList.add(useThinCharacters ? fe6ByteFromThin82Character(character) : fe6ByteFrom82Character(character));
 			} else {
 				byteList.add(fe6ByteFrom83Character(character));
 			}
@@ -852,7 +875,14 @@ public class HuffmanHelper {
 		// Terminate the string.
 		byteList.add((byte)0);
 		
-		return WhyDoesJavaNotHaveThese.byteArrayFromByteList(byteList);
+		StringByteProvider provider = new StringByteProvider(byteList);
+		List<Byte> encoded = new ArrayList<Byte>();
+		byte[] encodedBytes = encodeHuffman(provider);
+		for (byte cur : encodedBytes) {
+			encoded.add(cur);
+		}
+		
+		return WhyDoesJavaNotHaveThese.byteArrayFromByteList(encoded);
 	}
 	
 	private char fe6CharacterFrom83Byte(byte charByte) {
@@ -863,8 +893,8 @@ public class HuffmanHelper {
 		case (byte)0x47: return '>';
 		case (byte)0x49: return '?';
 		case (byte)0x4A: return '@';
-		//case (byte)0x4C: return '[';
-		//case (byte)0x50: return ']';
+		case (byte)0x4C: return '[';
+		case (byte)0x50: return ']';
 		case (byte)0x52: return '^';
 		case (byte)0x54: return '_';
 		case (byte)0x56: return '`';
@@ -878,6 +908,30 @@ public class HuffmanHelper {
 	
 	private char fe6CharacterFrom82Byte(byte charByte) {
 		switch (charByte) {
+		
+		// The new translation patch uses some new characters, presumably because some of the names are too long to fit without having thinner characters.
+		// Gwendolyn's name is the main offender, but there might be more. Adding them here for reference.
+		case (byte)0x81: return 'a';
+		case (byte)0x83: return 'c';
+		case (byte)0x84: return 'd';
+		case (byte)0x85: return 'e';
+		case (byte)0x86: return 'S';
+		case (byte)0x87: return 'g';
+		case (byte)0x88: return 'h';
+		case (byte)0x8B: return 'B';
+		case (byte)0x89: return 'P';
+		case (byte)0x8C: return 'O';
+		case (byte)0x8D: return 'G';
+		case (byte)0x8E: return 'n';
+		case (byte)0x8F: return 'o';
+		case (byte)0x92: return 'r';
+		case (byte)0x93: return 's';
+		case (byte)0x94: return 'T';
+		case (byte)0x95: return 'u';
+		case (byte)0x96: return 'b';
+		case (byte)0x97: return 'U';
+		case (byte)0x99: return 'y';
+		
 		case (byte)0x9F: return '2';
 		case (byte)0xA0: return 'A';
 		case (byte)0xA1: return '3';
@@ -973,8 +1027,8 @@ public class HuffmanHelper {
 		case '>':
 		case '?':
 		case '@':
-		//case '[':
-		//case ']':
+		case '[':
+		case ']':
 		case '^':
 		case '_':
 		case '`':
@@ -1008,6 +1062,34 @@ public class HuffmanHelper {
 		default:
 			System.err.println("Unencodable character detected.");
 			return (byte)0x54; // '_'
+		}
+	}
+	
+	private byte fe6ByteFromThin82Character(char character) {
+		switch (character) {
+			// The new translation patch uses some new characters, presumably because some of the names are too long to fit without having thinner characters.
+			// Gwendolyn's name is the main offender, but there might be more. Adding them here for reference.
+			case 'a': return (byte)0x81;
+			case 'c': return (byte)0x83;
+			case 'd': return (byte)0x84;
+			case 'e': return (byte)0x85;
+			case 'S': return (byte)0x86;
+			case 'g': return (byte)0x87;
+			case 'h': return (byte)0x88;
+			case 'B': return (byte)0x8B;
+			case 'P': return (byte)0x89;
+			case 'O': return (byte)0x8C;
+			case 'G': return (byte)0x8D;
+			case 'n': return (byte)0x8E;
+			case 'o': return (byte)0x8F;
+			case 'r': return (byte)0x92;
+			case 's': return (byte)0x93;
+			case 'T': return (byte)0x94;
+			case 'u': return (byte)0x95;
+			case 'b': return (byte)0x96;
+			case 'U': return (byte)0x97;
+			case 'y': return (byte)0x99;
+			default: return fe6ByteFrom82Character(character);
 		}
 	}
 	
