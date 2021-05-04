@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
@@ -18,6 +17,7 @@ import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
+import random.general.WeightedDistributor;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import ui.model.MinMaxOption;
 import util.ByteArrayBuilder;
@@ -276,28 +276,25 @@ public class FE8Item implements GBAFEItemData {
 		wasModified = true;
 	}
 	
-	public void applyRandomEffect(Set<WeaponEffects> allowedEffects, ItemDataLoader itemData, TextLoader textData, GBAFESpellAnimationCollection spellAnimations, Random rng) {
+	public void applyRandomEffect(WeightedDistributor<WeaponEffects> allowedEffects, ItemDataLoader itemData, TextLoader textData, GBAFESpellAnimationCollection spellAnimations, Random rng) {
 		if (getType() == WeaponType.NOT_A_WEAPON) {
 			return;
 		}
 		
-		List<WeaponEffects> effectPool = effectsAvailable(allowedEffects);
+		filterEffects(allowedEffects);
 		
-		if (effectPool.isEmpty()) {
+		if (allowedEffects.possibleResults().isEmpty()) {
 			return;
 		}
 		
-		int randomEffect = rng.nextInt(effectPool.size());
-		WeaponEffects selectedEffect = effectPool.get(randomEffect);
+		WeaponEffects selectedEffect = allowedEffects.getRandomItem(rng);
 		applyEffect(selectedEffect, itemData, spellAnimations, rng);
-		if (selectedEffect != WeaponEffects.NONE) {
-			String updatedDescription = ingameDescriptionString(itemData);
-			if (updatedDescription != null) {
-				textData.setStringAtIndex(getDescriptionIndex(), updatedDescription + "[X]");
-				DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex(), true) + " is now " + updatedDescription);
-			} else {
-				DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex(), true) + " has no effect.");
-			}
+		String updatedDescription = ingameDescriptionString(itemData);
+		if (updatedDescription != null) {
+			textData.setStringAtIndex(getDescriptionIndex(), updatedDescription + "[X]");
+			DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex(), true) + " is now " + updatedDescription);
+		} else {
+			DebugPrinter.log(DebugPrinter.Key.WEAPONS, "Weapon " + textData.getStringAtIndex(getNameIndex(), true) + " has no effect.");
 		}
 	}
 	
@@ -329,46 +326,40 @@ public class FE8Item implements GBAFEItemData {
 		return originalOffset;
 	}
 	
-	private List<WeaponEffects> effectsAvailable(Set<WeaponEffects> allowedEffects) {
+	private void filterEffects(WeightedDistributor<WeaponEffects> allowedEffects) {
 		
-		List<WeaponEffects> effects = new ArrayList<WeaponEffects>();
-		
-		if (allowedEffects.contains(WeaponEffects.NONE)) { effects.add(WeaponEffects.NONE); }
-		
-		if (getStatBonusPointer() == 0) {
-			if (allowedEffects.contains(WeaponEffects.STAT_BOOSTS)) { effects.add(WeaponEffects.STAT_BOOSTS); }
+		if (getStatBonusPointer() != 0) {
+			allowedEffects.removeItem(WeaponEffects.STAT_BOOSTS);
 		}
-		if (getEffectivenessPointer() == 0) {
-			if (allowedEffects.contains(WeaponEffects.EFFECTIVENESS)) { effects.add(WeaponEffects.EFFECTIVENESS); }
+		if (getEffectivenessPointer() != 0) {
+			allowedEffects.removeItem(WeaponEffects.EFFECTIVENESS);
 		}
-		if (getCritical() < 10) {
-			if (allowedEffects.contains(WeaponEffects.HIGH_CRITICAL)) { effects.add(WeaponEffects.HIGH_CRITICAL); }
+		if (getCritical() > 10) {
+			allowedEffects.removeItem(WeaponEffects.HIGH_CRITICAL);
 		}
-		if ((getMinRange() == 2 || getMaxRange() == 1) && getType() != WeaponType.AXE) { // Ranged axes are stupid to implement. They require modifying animation pointers for each class.
-			if (allowedEffects.contains(WeaponEffects.EXTEND_RANGE)) { effects.add(WeaponEffects.EXTEND_RANGE); }
+		if (!(getMinRange() == 2 || getMaxRange() == 1) || getType() == WeaponType.AXE) { // Ranged axes are stupid to implement. They require modifying animation pointers for each class.
+			allowedEffects.removeItem(WeaponEffects.EXTEND_RANGE);
 		}
 
-		if ((getAbility1() & FE8Data.Item.Ability1Mask.UNBREAKABLE.ID) == 0) {
-			if (allowedEffects.contains(WeaponEffects.UNBREAKABLE)) { effects.add(WeaponEffects.UNBREAKABLE); }
+		if ((getAbility1() & FE8Data.Item.Ability1Mask.UNBREAKABLE.ID) != 0) {
+			allowedEffects.removeItem(WeaponEffects.UNBREAKABLE);
 		}
-		if ((getAbility1() & FE8Data.Item.Ability1Mask.BRAVE.ID) == 0) {
-			if (allowedEffects.contains(WeaponEffects.BRAVE)) { effects.add(WeaponEffects.BRAVE); }
+		if ((getAbility1() & FE8Data.Item.Ability1Mask.BRAVE.ID) != 0) {
+			allowedEffects.removeItem(WeaponEffects.BRAVE);
 		}
-		if ((getAbility1() & FE8Data.Item.Ability1Mask.MAGIC_DAMAGE.ID) == 0 && (getAbility1() & FE8Data.Item.Ability1Mask.MAGIC.ID) == 0 && getType() != WeaponType.AXE) {
-			if (allowedEffects.contains(WeaponEffects.MAGIC_DAMAGE)) { effects.add(WeaponEffects.MAGIC_DAMAGE); }
-		}
-		
-		if ((getAbility2() & FE8Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) == 0 && getType() != WeaponType.BOW) {
-			if (allowedEffects.contains(WeaponEffects.REVERSE_TRIANGLE)) { effects.add(WeaponEffects.REVERSE_TRIANGLE); }
+		if ((getAbility1() & FE8Data.Item.Ability1Mask.MAGIC_DAMAGE.ID) != 0 || (getAbility1() & FE8Data.Item.Ability1Mask.MAGIC.ID) != 0 || getType() == WeaponType.AXE) {
+			allowedEffects.removeItem(WeaponEffects.MAGIC_DAMAGE);
 		}
 		
-		if (getWeaponEffect() == 0) {
-			if (allowedEffects.contains(WeaponEffects.POISON)) { effects.add(WeaponEffects.POISON); }
-			if (allowedEffects.contains(WeaponEffects.HALF_HP)) { effects.add(WeaponEffects.HALF_HP); }
-			if (allowedEffects.contains(WeaponEffects.DEVIL)) { effects.add(WeaponEffects.DEVIL); }
+		if ((getAbility2() & FE8Data.Item.Ability2Mask.REVERSE_WEAPON_TRIANGLE.ID) != 0 || getType() == WeaponType.BOW) {
+			allowedEffects.removeItem(WeaponEffects.REVERSE_TRIANGLE);
 		}
 		
-		return effects;
+		if (getWeaponEffect() != 0) {
+			allowedEffects.removeItem(WeaponEffects.POISON);
+			allowedEffects.removeItem(WeaponEffects.HALF_HP);
+			allowedEffects.removeItem(WeaponEffects.DEVIL);
+		}
 	}
 	
 	private void applyEffect(WeaponEffects effect, ItemDataLoader itemData, GBAFESpellAnimationCollection spellAnimations, Random rng) {

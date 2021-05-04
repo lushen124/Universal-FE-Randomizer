@@ -26,8 +26,8 @@ import ui.model.WeaponOptions;
 
 public class OptionRecorder {
 	private static final Integer FE4OptionBundleVersion = 3;
-	private static final Integer GBAOptionBundleVersion = 7;
-	private static final Integer FE9OptionBundleVersion = 6;
+	private static final Integer GBAOptionBundleVersion = 10;
+	private static final Integer FE9OptionBundleVersion = 10;
 	
 	public static class AllOptions {
 		public FE4OptionBundle fe4;
@@ -121,12 +121,14 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey + FE4Suffix, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
+
+			FE4OptionBundle loadedOptions = null;
 			try {
-				FE4OptionBundle loadedOptions = gson.fromJson(jsonString, FE4OptionBundle.class);
-				return FE4OptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+				loadedOptions = gson.fromJson(jsonString, FE4OptionBundle.class);
 			} catch (Exception e) {
 				return null;
 			}
+			return FE4OptionBundleVersion != loadedOptions.version ? null : loadedOptions;
 		}
 		
 		return null;
@@ -137,12 +139,14 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey + FE6Suffix, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
+			
+			GBAOptionBundle loadedOptions;
 			try {
-				GBAOptionBundle loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);
-				return GBAOptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+				loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);
 			} catch (Exception e) {
 				return null;
 			}
+			return GBAOptionBundleVersion != loadedOptions.version ? null : loadedOptions;
 		}
 		
 		return null;
@@ -153,12 +157,13 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey + FE7Suffix, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
+			GBAOptionBundle loadedOptions;
 			try {
-				GBAOptionBundle loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);
-				return GBAOptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+				loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);
 			} catch (Exception e) {
 				return null;
 			}
+			return GBAOptionBundleVersion != loadedOptions.version ? null : loadedOptions;
 		}
 		
 		return null;
@@ -169,12 +174,13 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey + FE8Suffix, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
+			GBAOptionBundle loadedOptions;
 			try {
-				GBAOptionBundle loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);
-				return GBAOptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+				loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);
 			} catch (Exception e) {
 				return null;
 			}
+			return GBAOptionBundleVersion != loadedOptions.version ? null : loadedOptions;
 		}
 		
 		return null;
@@ -185,12 +191,13 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey + FE9Suffix, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
+			FE9OptionBundle loadedOptions;
 			try {
-				FE9OptionBundle loadedOptions = gson.fromJson(jsonString, FE9OptionBundle.class);
-				return FE9OptionBundleVersion != loadedOptions.version ? null : loadedOptions;
+				loadedOptions = gson.fromJson(jsonString, FE9OptionBundle.class);
 			} catch (Exception e) {
 				return null;
 			}
+			return FE9OptionBundleVersion != loadedOptions.version ? null : loadedOptions;
 		}
 		
 		return null;

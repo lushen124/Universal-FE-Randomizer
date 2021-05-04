@@ -1227,6 +1227,8 @@ public class GBARandomizer extends Randomizer {
 		}
 		
 		if ((classes != null && classes.createPrfs) || (recruitOptions != null && recruitOptions.createPrfs)) {
+			boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs) || (recruitOptions != null && recruitOptions.createPrfs));
+
 			// Create new PRF weapons.
 			if (gameType == GameType.FE6) {
 				GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
@@ -1284,7 +1286,7 @@ public class GBARandomizer extends Randomizer {
 						// TODO: Maybe give it a description string?
 						
 						GBAFEItemData itemToReplace = itemData.itemWithID(FE6Data.Item.UNUSED_WATCH_STAFF.ID);
-						itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, royClass.getCON() + roy.getConstitution(), 
+						itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, unbreakablePrfs, royClass.getCON() + roy.getConstitution(), 
 								itemData.itemWithID(FE6Data.Item.RAPIER.ID), itemData, freeSpace);
 						
 						switch (selectedType) {
@@ -1496,7 +1498,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x1225, lynWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.MANI_KATTI.ID);
 					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, 0x9F, 0x1225, 0x0, 
-							lynSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 
+							lynSelectedType, unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 
 							0xAD, itemData, freeSpace);
 					
 					// Lyn's the first, so all weapon locks are unused.
@@ -1578,7 +1580,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x1227, eliwoodWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.RAPIER.ID);
 					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, 0xA0, 0x1227, 0x0, 
-							eliwoodSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 
+							eliwoodSelectedType, unbreakablePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 
 							0xAE, itemData, freeSpace);
 					
 					// Eliwood only has to take into account the locks that could have already be used (Athos, Eliwood, or Lyn).
@@ -1681,7 +1683,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x1229, hectorWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.WOLF_BEIL.ID);
 					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, 0xA1, 0x1229, 0x0, 
-							hectorSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, hectorClass.getCON() + hector.getConstitution(), 
+							hectorSelectedType, unbreakablePrfs, hectorClass.getCON() + hector.getConstitution(), 
 							0xAF, itemData, freeSpace);
 					
 					// We've avoided using Hector lock the entire time, so we just need to account for swords and axes.
@@ -1870,7 +1872,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x3B, " [.][X]");
 					
 					GBAFEItemData itemToReplace = itemData.itemWithID(FE8Data.Item.UNUSED_MANI_KATTI.ID);
-					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3A, 0x3B, eirikaSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, eirikaClass.getCON() + eirika.getConstitution(), 
+					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3A, 0x3B, eirikaSelectedType, unbreakablePrfs, eirikaClass.getCON() + eirika.getConstitution(), 
 							itemData.itemWithID(FE8Data.Item.RAPIER.ID), itemData, freeSpace);
 					
 					switch (eirikaSelectedType) {
@@ -1925,7 +1927,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x3D, " [.][X]");
 					
 					GBAFEItemData itemToReplace = itemData.itemWithID(FE8Data.Item.UNUSED_FORBLAZE.ID);
-					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3C, 0x3D, ephraimSelectedType, classes.unbreakablePrfs || recruitOptions.unbreakablePrfs, ephraimClass.getCON() + ephraim.getConstitution(), 
+					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3C, 0x3D, ephraimSelectedType, unbreakablePrfs, ephraimClass.getCON() + ephraim.getConstitution(), 
 							itemData.itemWithID(FE8Data.Item.REGINLEIF.ID), itemData, freeSpace);
 					
 					switch (ephraimSelectedType) {
@@ -2085,27 +2087,38 @@ public class GBARandomizer extends Randomizer {
 			rk.addHeaderItem("Add Random Effects", "YES (" + weapons.effectChance + "%)");
 			StringBuilder sb = new StringBuilder();
 			sb.append("<ul>\n");
-			if (weapons.effectsList.statBoosts) { sb.append("<li>Stat Boosts</li>\n"); }
-			if (weapons.effectsList.effectiveness) { sb.append("<li>Effectiveness</li>\n"); }
-			if (weapons.effectsList.unbreakable) { sb.append("<li>Unbreakable</li>\n"); }
-			if (weapons.effectsList.brave) { sb.append("<li>Brave</li>\n"); }
-			if (weapons.effectsList.reverseTriangle) { sb.append("<li>Reverse Triangle</li>\n"); }
-			if (weapons.effectsList.extendedRange) { sb.append("<li>Extended Range</li>\n"); }
-			if (weapons.effectsList.highCritical) { 
+			if (weapons.effectsList.statBoosts > 0) { sb.append("<li>Stat Boosts" + String.format(" (%.2f%%)", (double)weapons.effectsList.statBoosts / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+			if (weapons.effectsList.effectiveness > 0) { sb.append("<li>Effectiveness" + String.format(" (%.2f%%)", (double)weapons.effectsList.effectiveness / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+			if (weapons.effectsList.unbreakable > 0) { sb.append("<li>Unbreakable" + String.format(" (%.2f%%)", (double)weapons.effectsList.unbreakable / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+			if (weapons.effectsList.brave > 0) { sb.append("<li>Brave" + String.format(" (%.2f%%)", (double)weapons.effectsList.brave / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+			if (weapons.effectsList.reverseTriangle > 0) { sb.append("<li>Reverse Triangle" + String.format(" (%.2f%%)", (double)weapons.effectsList.reverseTriangle / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+			if (weapons.effectsList.extendedRange > 0) { sb.append("<li>Extended Range" + String.format(" (%.2f%%)", (double)weapons.effectsList.extendedRange / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+			if (weapons.effectsList.highCritical > 0) { 
 				sb.append("<li>Critical");
 				sb.append(" (" + weapons.effectsList.criticalRange.minValue + "% ~ " + weapons.effectsList.criticalRange.maxValue + "%)");
+				sb.append(String.format(" (%.2f%%)", (double)weapons.effectsList.highCritical / (double)weapons.effectsList.getWeightTotal() * 100));
 				sb.append("</li>\n");
 			}
-			if (weapons.effectsList.magicDamage) { sb.append("<li>Magic Damage</li>\n"); }
-			if (weapons.effectsList.poison) { sb.append("<li>Poison</li>\n"); }
-			if (weapons.effectsList.eclipse) { sb.append("<li>Eclipse</li>\n"); }
-			if (weapons.effectsList.devil) { sb.append("<li>Devil</li>\n"); }
+			if (weapons.effectsList.magicDamage > 0) { sb.append("<li>Magic Damage" + String.format(" (%.2f%%)", (double)weapons.effectsList.magicDamage / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+			if (weapons.effectsList.poison > 0) { sb.append("<li>Poison" + String.format(" (%.2f%%)", (double)weapons.effectsList.poison / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+			if (weapons.effectsList.eclipse > 0) { sb.append("<li>Eclipse" + String.format(" (%.2f%%)", (double)weapons.effectsList.eclipse / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+			if (weapons.effectsList.devil > 0) { sb.append("<li>Devil" + String.format(" (%.2f%%)", (double)weapons.effectsList.devil / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
 			sb.append("</ul>\n");
 			rk.addHeaderItem("Random Effects Allowed", sb.toString());
 			if (weapons.noEffectIronWeapons) {
 				rk.addHeaderItem("Safe Basic Weapons", "YES");
 			} else {
 				rk.addHeaderItem("Safe Basic Weapons", "NO");
+			}
+			if (weapons.noEffectSteelWeapons) {
+				rk.addHeaderItem("Safe Steel Weapons", "YES");
+			} else {
+				rk.addHeaderItem("Safe Steel Weapons", "NO");
+			}
+			if (weapons.noEffectThrownWeapons) {
+				rk.addHeaderItem("Safe Basic Thrown Weapons", "YES");
+			} else {
+				rk.addHeaderItem("Safe Basic Thrown Weapons", "NO");
 			}
 		} else {
 			rk.addHeaderItem("Add Random Effects", "NO");
