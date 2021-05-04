@@ -15,6 +15,7 @@ public class ClassOptions {
 	public final boolean assignEvenly;
 	
 	public final boolean forceChange;
+	public final boolean restrictGender;
 	
 	public final Boolean separateMonsters; // FE8 only.
 	
@@ -23,7 +24,7 @@ public class ClassOptions {
 	
 	public final BaseTransferOption basesTransfer;
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, boolean forceChange, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, boolean forceChange, boolean restrictGender, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
 		super();
 		randomizePCs = pcs;
 		createPrfs = newPrfs;
@@ -41,9 +42,10 @@ public class ClassOptions {
 		this.basesTransfer = basesTransfer;
 		
 		this.forceChange = forceChange;
+		this.restrictGender = restrictGender;
 	}
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, Boolean separateMonsters, boolean forceChange, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, Boolean separateMonsters, boolean forceChange, boolean restrictGender, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
 		super();
 		randomizePCs = pcs;
 		createPrfs = newPrfs;
@@ -61,6 +63,7 @@ public class ClassOptions {
 		this.basesTransfer = basesTransfer;
 		
 		this.forceChange = forceChange;
+		this.restrictGender = restrictGender;
 	}
 
 }

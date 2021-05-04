@@ -61,6 +61,7 @@ public class ClassRandomizer {
 		Boolean separateMonsters = false;
 		
 		Boolean forceChange = options.forceChange;
+		Boolean restrictGender = options.restrictGender;
 		
 		if (type == GameType.FE8) {
 			hasMonsters = true;
@@ -97,8 +98,8 @@ public class ClassRandomizer {
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {
-				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, charactersData.isEnemyAtAnyPoint(character.getID()), !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
-					classData.potentialClasses(originalClass, charactersData.isEnemyAtAnyPoint(character.getID()), !includeLords, !includeThieves, !includeSpecial, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null);
+				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, charactersData.isEnemyAtAnyPoint(character.getID()), !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), restrictGender, null) :
+					classData.potentialClasses(originalClass, charactersData.isEnemyAtAnyPoint(character.getID()), !includeLords, !includeThieves, !includeSpecial, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), restrictGender, null);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -153,6 +154,7 @@ public class ClassRandomizer {
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
 		Boolean forceChange = options.forceChange;
+		Boolean restrictGender = options.restrictGender;
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -194,8 +196,8 @@ public class ClassRandomizer {
 				}
 				
 				GBAFEClassData[] possibleClasses = hasMonsters ? 
-						classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass) :
-					classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass);
+						classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), restrictGender, mustLoseToClass) :
+					classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), restrictGender, mustLoseToClass);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -234,6 +236,7 @@ public class ClassRandomizer {
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
 		Boolean forceChange = options.forceChange;
+		Boolean restrictGender = options.restrictGender;
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -315,8 +318,8 @@ public class ClassRandomizer {
 						Boolean shouldMakeEasy = chapter.shouldBeSimplified();
 						GBAFEClassData loseToClass = shouldMakeEasy ? lordClass : null;
 						GBAFEClassData[] possibleClasses = hasMonsters ? 
-								classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
-							classData.potentialClasses(originalClass, true, false, false, false, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass);
+								classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, false, false, shouldRestrictToSafeClasses, restrictGender, loseToClass) :
+							classData.potentialClasses(originalClass, true, false, false, false, forceChange, true, false, false, shouldRestrictToSafeClasses, restrictGender, loseToClass);
 						if (possibleClasses.length == 0) {
 							continue;
 						}
