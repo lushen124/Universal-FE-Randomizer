@@ -238,7 +238,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
 		
 		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(THITO, MILEDY, GALE, NARSHEN));
-		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(ROY));
+		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(ROY, CECILIA));
 		
 		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(CLARINE, FA, SUE, WENDY, DOROTHY, ELEN, FIR, IGRENE, LILINA, NIIME, LALAM, YUNNO, THITO, THANY, 
 				CASS, SOPHIA, MILEDY, ECHIDNA, CECILIA, GUINEVERE, TATE_UNIT, NIIME_NPC, YUNNO_NPC, THITO_NPC, ECHIDNA_NPC, THITO_ENEMY, SIGUNE, BRUNYA, IDOUN));
@@ -271,6 +271,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean canChange() {
 			return !doNotChange.contains(this);
+		}
+		
+		public Boolean requiresAttack() {
+			return requiredAttackers.contains(this);
 		}
 		
 		public Boolean requiresRange() {

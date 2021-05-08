@@ -15,6 +15,7 @@ public interface GBAFECharacter {
 	public Boolean requiresRange();
 	public Boolean requiresMelee();
 	public Boolean isClassLimited();
+	public Boolean requiresAttack();
 	public Boolean canBuff();
 	
 	public String toString();

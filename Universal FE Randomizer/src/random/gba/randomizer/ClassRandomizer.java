@@ -1040,6 +1040,24 @@ public class ClassRandomizer {
 		GBAFEItemData prf = itemData.getPrfWeaponForClass(charClass.getID());
 		if (prf != null) { chapterUnit.giveItem(prf.getID()); }
 		
+		if (charData.characterIDRequiresAttack(character.getID())) {
+			if (!itemData.isWeapon(itemData.itemWithID(chapterUnit.getItem1()))) {
+				int swap = chapterUnit.getItem1();
+				if (swap != 0) {
+					if (itemData.isWeapon(itemData.itemWithID(chapterUnit.getItem2()))) {
+						chapterUnit.setItem1(chapterUnit.getItem2());
+						chapterUnit.setItem2(swap);
+					} else if (itemData.isWeapon(itemData.itemWithID(chapterUnit.getItem3()))) {
+						chapterUnit.setItem1(chapterUnit.getItem3());
+						chapterUnit.setItem3(swap);
+					} else if (itemData.isWeapon(itemData.itemWithID(chapterUnit.getItem4()))) {
+						chapterUnit.setItem1(chapterUnit.getItem4());
+						chapterUnit.setItem4(swap);
+					}
+				}
+			}
+		}
+		
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Final Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex(), true) + ")") + "]");
 	}
 	

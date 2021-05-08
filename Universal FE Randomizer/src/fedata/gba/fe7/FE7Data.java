@@ -362,6 +362,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return !doNotChange.contains(this);
 		}
 		
+		public Boolean requiresAttack() {
+			return requiredAttackers.contains(this);
+		}
+		
 		public Boolean requiresRange() {
 			return charactersThatRequireRange.contains(this);
 		}
