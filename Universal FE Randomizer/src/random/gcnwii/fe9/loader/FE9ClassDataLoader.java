@@ -1,6 +1,7 @@
 package random.gcnwii.fe9.loader;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 
 import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
+import fedata.gcnwii.fe9.FE9Item;
 import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
@@ -16,6 +18,13 @@ import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponType;
 import util.DebugPrinter;
 import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
+import util.recordkeeper.ChangelogBuilder;
+import util.recordkeeper.ChangelogHeader;
+import util.recordkeeper.ChangelogSection;
+import util.recordkeeper.ChangelogStyleRule;
+import util.recordkeeper.ChangelogTOC;
+import util.recordkeeper.ChangelogTable;
+import util.recordkeeper.ChangelogHeader.HeaderLevel;
 
 public class FE9ClassDataLoader {
 	
@@ -618,5 +627,145 @@ public class FE9ClassDataLoader {
 		} catch (GCNISOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void recordOriginalClassData(ChangelogBuilder builder, ChangelogSection classDataSection,
+			FE9CommonTextLoader textData) {
+		ChangelogTOC classTOC = new ChangelogTOC("class-data");
+		classTOC.addClass("class-section-toc");
+		classDataSection.addElement(new ChangelogHeader(HeaderLevel.HEADING_2, "Class Data", "class-data-header"));
+		classDataSection.addElement(classTOC);
+		
+		ChangelogSection classContainer = new ChangelogSection("class-data-container");
+		classDataSection.addElement(classContainer);
+		
+		for (FE9Class charClass : allClasses) {
+			createClassSection(charClass, textData, classTOC, classContainer, true);
+		}
+		
+		setupRules(builder);
+	}
+	
+	public void recordUpdatedClassData(ChangelogSection classDataSection, FE9CommonTextLoader textData) {
+		ChangelogTOC classTOC = (ChangelogTOC)classDataSection.getChildWithIdentifier("class-data");
+		ChangelogSection classContainer = (ChangelogSection)classDataSection.getChildWithIdentifier("class-data-container");
+		
+		for (FE9Class charClass : allClasses) {
+			createClassSection(charClass, textData, classTOC, classContainer, false);
+		}
+	}
+	
+	private void createClassSection(FE9Class charClass, FE9CommonTextLoader textData, ChangelogTOC toc, ChangelogSection parentSection, boolean isOriginal) {
+		String className = textData.textStringForIdentifier(getMJIDForClass(charClass));
+		String anchor = "class-data-" + getJIDForClass(charClass);
+		ChangelogTable classDataTable;
+		ChangelogSection section;
+		if (isOriginal) {
+			section = new ChangelogSection(anchor + "-section");
+			section.addClass("class-data-section");
+			toc.addAnchorWithTitle(anchor, className);
+			
+			ChangelogHeader titleHeader = new ChangelogHeader(HeaderLevel.HEADING_3, className, anchor);
+			titleHeader.addClass("class-data-title");
+			section.addElement(titleHeader);
+			
+			classDataTable = new ChangelogTable(3, new String[] {"", "Old Value", "New Value"}, anchor + "-data-table");
+			classDataTable.addClass("class-data-table");
+			classDataTable.addRow(new String[] {"JID", getJIDForClass(charClass), ""});
+			classDataTable.addRow(new String[] {"Name", className, ""});
+			classDataTable.addRow(new String[] {"Description", textData.textStringForIdentifier(fe8databin.stringForPointer(charClass.getClassDescriptionPointer())), ""});
+			classDataTable.addRow(new String[] {"HP Growth", "" + charClass.getHPGrowth() + "%", ""});
+			classDataTable.addRow(new String[] {"STR Growth", "" + charClass.getSTRGrowth() + "%", ""});
+			classDataTable.addRow(new String[] {"MAG Growth", "" + charClass.getMAGGrowth() + "%", ""});
+			classDataTable.addRow(new String[] {"SKL Growth", "" + charClass.getSKLGrowth() + "%", ""});
+			classDataTable.addRow(new String[] {"SPD Growth", "" + charClass.getSPDGrowth() + "%", ""});
+			classDataTable.addRow(new String[] {"LCK Growth", "" + charClass.getLCKGrowth() + "%", ""});
+			classDataTable.addRow(new String[] {"DEF Growth", "" + charClass.getDEFGrowth() + "%", ""});
+			classDataTable.addRow(new String[] {"RES Growth", "" + charClass.getRESGrowth() + "%", ""});
+		} else {
+			section = (ChangelogSection)parentSection.getChildWithIdentifier(anchor + "-section");
+			classDataTable = (ChangelogTable)section.getChildWithIdentifier(anchor + "-data-table");
+			classDataTable.setContents(0, 2, getJIDForClass(charClass));
+			classDataTable.setContents(1, 2, className);
+			classDataTable.setContents(2, 2, textData.textStringForIdentifier(fe8databin.stringForPointer(charClass.getClassDescriptionPointer())));
+			classDataTable.setContents(3, 2, "" + charClass.getHPGrowth() + "%");
+			classDataTable.setContents(4, 2, "" + charClass.getSTRGrowth() + "%");
+			classDataTable.setContents(5, 2, "" + charClass.getMAGGrowth() + "%");
+			classDataTable.setContents(6, 2, "" + charClass.getSKLGrowth() + "%");
+			classDataTable.setContents(7, 2, "" + charClass.getSPDGrowth() + "%");
+			classDataTable.setContents(8, 2, "" + charClass.getLCKGrowth() + "%");
+			classDataTable.setContents(9, 2, "" + charClass.getDEFGrowth() + "%");
+			classDataTable.setContents(10, 2, "" + charClass.getRESGrowth() + "%");
+		}
+		
+		if (isOriginal) {
+			section.addElement(classDataTable);
+			parentSection.addElement(section);
+		}
+	}
+	
+	private void setupRules(ChangelogBuilder builder) {
+		ChangelogStyleRule tocStyle = new ChangelogStyleRule();
+		tocStyle.setElementClass("class-section-toc");
+		tocStyle.addRule("display", "flex");
+		tocStyle.addRule("flex-direction", "row");
+		tocStyle.addRule("width", "75%");
+		tocStyle.addRule("align-items", "center");
+		tocStyle.addRule("justify-content", "center");
+		tocStyle.addRule("flex-wrap", "wrap");
+		tocStyle.addRule("margin-left", "auto");
+		tocStyle.addRule("margin-right", "auto");
+		builder.addStyle(tocStyle);
+		
+		ChangelogStyleRule tocItemAfter = new ChangelogStyleRule();
+		tocItemAfter.setOverrideSelectorString(".class-section-toc div:not(:last-child)::after");
+		tocItemAfter.addRule("content", "\"|\"");
+		tocItemAfter.addRule("margin", "0px 5px");
+		builder.addStyle(tocItemAfter);
+		
+		ChangelogStyleRule classContainer = new ChangelogStyleRule();
+		classContainer.setElementIdentifier("class-data-container");
+		classContainer.addRule("display", "flex");
+		classContainer.addRule("flex-direction", "row");
+		classContainer.addRule("flex-wrap", "wrap");
+		classContainer.addRule("justify-content", "center");
+		classContainer.addRule("margin-left", "10px");
+		classContainer.addRule("margin-right", "10px");
+		builder.addStyle(classContainer);
+		
+		ChangelogStyleRule itemSection = new ChangelogStyleRule();
+		itemSection.setElementClass("item-data-section");
+		itemSection.addRule("margin", "20px");
+		itemSection.addRule("flex", "0 0 400px");
+		builder.addStyle(itemSection);
+		
+		ChangelogStyleRule tableStyle = new ChangelogStyleRule();
+		tableStyle.setElementClass("class-data-table");
+		tableStyle.addRule("width", "100%");
+		tableStyle.addRule("border", "1px solid black");
+		builder.addStyle(tableStyle);
+		
+		ChangelogStyleRule titleStyle = new ChangelogStyleRule();
+		titleStyle.setElementClass("class-data-title");
+		titleStyle.addRule("text-align", "center");
+		builder.addStyle(titleStyle);
+		
+		ChangelogStyleRule columnStyle = new ChangelogStyleRule();
+		columnStyle.setElementClass("class-data-table");
+		columnStyle.setChildTags(new ArrayList<String>(Arrays.asList("td", "th")));
+		columnStyle.addRule("border", "1px solid black");
+		columnStyle.addRule("padding", "5px");
+		builder.addStyle(columnStyle);
+		
+		ChangelogStyleRule firstColumnStyle = new ChangelogStyleRule();
+		firstColumnStyle.setOverrideSelectorString(".class-data-table td:first-child");
+		firstColumnStyle.addRule("width", "20%");
+		firstColumnStyle.addRule("text-align", "right");
+		builder.addStyle(firstColumnStyle);
+		
+		ChangelogStyleRule otherColumnStyle = new ChangelogStyleRule();
+		otherColumnStyle.setOverrideSelectorString(".class-data-table th:not(:first-child)");
+		otherColumnStyle.addRule("width", "40%");
+		builder.addStyle(otherColumnStyle);
 	}
 }

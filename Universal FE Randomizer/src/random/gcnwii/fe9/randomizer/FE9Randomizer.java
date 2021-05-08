@@ -141,6 +141,10 @@ public class FE9Randomizer extends Randomizer {
 		mainTOC.addAnchorWithTitle("item-data", "Item Data");
 		changelogBuilder.addElement(itemSection);
 		
+		ChangelogSection classSection = new ChangelogSection("class-data");
+		mainTOC.addAnchorWithTitle("class-data", "Class Data");
+		changelogBuilder.addElement(classSection);
+		
 		ChangelogSection chapterSection = new ChangelogSection("chapter-data");
 		mainTOC.addAnchorWithTitle("chapter-data", "Chapter Data");
 		changelogBuilder.addElement(chapterSection);
@@ -161,6 +165,7 @@ public class FE9Randomizer extends Randomizer {
 			
 			charData.recordOriginalCharacterData(changelogBuilder, characterSection, textData, classData, skillData, itemData, chapterData);
 			itemData.recordOriginalItemData(changelogBuilder, itemSection, textData);
+			classData.recordOriginalClassData(changelogBuilder, classSection, textData);
 			chapterData.recordOriginalChapterData(changelogBuilder, chapterSection, textData, charData, classData, skillData, itemData);
 			
 			makePreRandomizationAdjustments();
@@ -184,6 +189,7 @@ public class FE9Randomizer extends Randomizer {
 			
 			charData.recordUpdatedCharacterData(characterSection, textData, classData, skillData, itemData, chapterData);
 			itemData.recordUpdatedItemData(itemSection, textData);
+			classData.recordUpdatedClassData(classSection, textData);
 			chapterData.recordUpdatedChapterData(chapterSection, textData, charData, classData, skillData, itemData);
 			
 			ChangelogAsset.registerAssets(changelogBuilder);
@@ -671,10 +677,10 @@ public class FE9Randomizer extends Randomizer {
 			
 			switch (enemyBuffOptions.minionMode) {
 			case FLAT:
-				FE9EnemyBuffer.flatBuffMinionGrowths(enemyBuffOptions.minionBuff, classData);
+				FE9EnemyBuffer.flatBuffMinionGrowths(enemyBuffOptions.minionBuff, classData, enemyBuffOptions.minionBuffStats);
 				break;
 			case SCALING:
-				FE9EnemyBuffer.scaleBuffMinionGrowths(enemyBuffOptions.minionBuff, classData);
+				FE9EnemyBuffer.scaleBuffMinionGrowths(enemyBuffOptions.minionBuff, classData, enemyBuffOptions.minionBuffStats);
 				break;
 			default:
 				break;
@@ -688,10 +694,10 @@ public class FE9Randomizer extends Randomizer {
 			
 			switch (enemyBuffOptions.bossMode) {
 			case LINEAR:
-				FE9EnemyBuffer.buffBossStatsLinearly(enemyBuffOptions.bossBuff, charData, classData);
+				FE9EnemyBuffer.buffBossStatsLinearly(enemyBuffOptions.bossBuff, charData, classData, enemyBuffOptions.bossBuffStats);
 				break;
 			case EASE_IN_OUT:
-				FE9EnemyBuffer.buffBossStatsByEasing(enemyBuffOptions.bossBuff, charData, classData);
+				FE9EnemyBuffer.buffBossStatsByEasing(enemyBuffOptions.bossBuff, charData, classData, enemyBuffOptions.bossBuffStats);
 				break;
 			default:
 				break;
@@ -887,9 +893,11 @@ public class FE9Randomizer extends Randomizer {
 				break;
 			case FLAT:
 				table.addRow(new String[] {"Buff Minions", "Flat Buff (+" + enemyBuffOptions.minionBuff + "%)"});
+				table.addRow(new String[] {"Buffed Minion Stats", enemyBuffOptions.minionBuffStats.buffString()});
 				break;
 			case SCALING:
 				table.addRow(new String[] {"Buff Minions", "Scaling Buff (+" + enemyBuffOptions.minionBuff + "%)"});
+				table.addRow(new String[] {"Buffed Minion Stats", enemyBuffOptions.minionBuffStats.buffString()});
 				break;
 			}
 			table.addRow(new String[] {"Improve Minion Weapons", enemyBuffOptions.improveMinionWeapons ? "YES (" + enemyBuffOptions.minionImprovementChance + "%)" : "NO"});
@@ -901,9 +909,11 @@ public class FE9Randomizer extends Randomizer {
 				break;
 			case LINEAR:
 				table.addRow(new String[] {"Buff Bosses", "YES (Max Boost: " + enemyBuffOptions.bossBuff + " - Linear)"});
+				table.addRow(new String[] {"Buffed Boss Stats", enemyBuffOptions.bossBuffStats.buffString()});
 				break;
 			case EASE_IN_OUT:
 				table.addRow(new String[] {"Buff Bosses", "YES (Max Boost: " + enemyBuffOptions.bossBuff + " - Ease In/Ease Out);"});
+				table.addRow(new String[] {"Buffed Boss Stats", enemyBuffOptions.bossBuffStats.buffString()});
 				break;
 			}
 			table.addRow(new String[] {"Improve Boss Weapons", enemyBuffOptions.improveBossWeapons ? "YES (" + enemyBuffOptions.bossImprovementChance + "%)" : "NO"});
