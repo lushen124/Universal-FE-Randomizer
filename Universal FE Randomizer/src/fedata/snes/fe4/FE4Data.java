@@ -3227,6 +3227,7 @@ public class FE4Data {
 			switch (this) {
 			case NAGA:
 			case LOPTOUS:
+			case BRAGI: // There's too many cases where this can't be assigned to anybody because of the weapon, so we won't shuffle this blood.
 				return true;
 			default:
 					return false;

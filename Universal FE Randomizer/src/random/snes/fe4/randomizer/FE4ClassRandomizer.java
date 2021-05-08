@@ -67,15 +67,6 @@ public class FE4ClassRandomizer {
 				if (!limitedBloodSet.contains(replacementBlood) && !Collections.disjoint(limitedBloodSet, bloodDistributor.possibleResults())) {
 					replacementBlood = null;
 				}
-				// Special case for Bragi, as we don't want it to end up on a boss.
-				if (blood.isEnemyBlood() && replacementBlood == HolyBlood.BRAGI) {
-					if (bloodDistributor.possibleResults().size() > 1) {
-						replacementBlood = null;
-					} else {
-						// Restart.
-						return generateBloodMapForBloodShuffle(options, rng);
-					}
-				}
 			} while (replacementBlood == null);
 			bloodDistributor.removeItem(replacementBlood, true);
 			predeterminedBloodMap.put(blood, replacementBlood);
