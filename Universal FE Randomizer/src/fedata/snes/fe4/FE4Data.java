@@ -3164,7 +3164,7 @@ public class FE4Data {
 		NONE(Item.NONE, Item.ItemType.NONE, Character.NONE),
 		BALDR(Item.TYRFING, Item.ItemType.SWORD, Character.SIGURD), 
 		OD(Item.BALMUNG, Item.ItemType.SWORD, Character.SHANNAN), 
-		HEZUL(Item.MYSTLETAINN, Item.ItemType.SWORD, Character.ARES), 
+		HEZUL(Item.MYSTLETAINN, Item.ItemType.SWORD, Character.ELDIGAN_CH1_SCENE), 
 		NJORUN(Item.GAE_BOLG, Item.ItemType.LANCE, Character.QUAN), 
 		DAIN(Item.GUNGNIR, Item.ItemType.LANCE, Character.ARION_CH9), 
 		NEIR(Item.HELSWATH, Item.ItemType.AXE, Character.LOMBARD), 
