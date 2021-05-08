@@ -17,6 +17,7 @@ import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
+import ui.model.EnemyOptions;
 
 public class EnemyBuffer {
 	
@@ -25,61 +26,61 @@ public class EnemyBuffer {
 	// Enemy growths top out at 127. Going above that will underflow back to 0.
 	private static int MaximumGrowthRate = 127;
 
-	public static void buffMinionGrowthRates(int buffAmount, ClassDataLoader classData) {
+	public static void buffMinionGrowthRates(int buffAmount, ClassDataLoader classData, EnemyOptions.BuffStats buffStats) {
 		GBAFEClassData[] allClasses = classData.allClasses();
 		for (GBAFEClassData currentClass : allClasses) {
-			currentClass.setHPGrowth(Math.min(MaximumGrowthRate, currentClass.getHPGrowth() + buffAmount));
-			currentClass.setSTRGrowth(Math.min(MaximumGrowthRate, currentClass.getSTRGrowth() + buffAmount));
-			currentClass.setSKLGrowth(Math.min(MaximumGrowthRate, currentClass.getSKLGrowth() + buffAmount));
-			currentClass.setSPDGrowth(Math.min(MaximumGrowthRate, currentClass.getSPDGrowth() + buffAmount));
-			currentClass.setDEFGrowth(Math.min(MaximumGrowthRate, currentClass.getDEFGrowth() + buffAmount));
-			currentClass.setRESGrowth(Math.min(MaximumGrowthRate, currentClass.getRESGrowth() + buffAmount));
-			currentClass.setLCKGrowth(Math.min(MaximumGrowthRate, currentClass.getLCKGrowth() + buffAmount));
+			if (buffStats.hp) { currentClass.setHPGrowth(Math.min(MaximumGrowthRate, currentClass.getHPGrowth() + buffAmount)); }
+			if (buffStats.str) { currentClass.setSTRGrowth(Math.min(MaximumGrowthRate, currentClass.getSTRGrowth() + buffAmount)); }
+			if (buffStats.skl) { currentClass.setSKLGrowth(Math.min(MaximumGrowthRate, currentClass.getSKLGrowth() + buffAmount)); }
+			if (buffStats.spd) { currentClass.setSPDGrowth(Math.min(MaximumGrowthRate, currentClass.getSPDGrowth() + buffAmount)); }
+			if (buffStats.def) { currentClass.setDEFGrowth(Math.min(MaximumGrowthRate, currentClass.getDEFGrowth() + buffAmount)); }
+			if (buffStats.res) { currentClass.setRESGrowth(Math.min(MaximumGrowthRate, currentClass.getRESGrowth() + buffAmount)); }
+			if (buffStats.lck) { currentClass.setLCKGrowth(Math.min(MaximumGrowthRate, currentClass.getLCKGrowth() + buffAmount)); }
 		}
 	}
 	
-	public static void buffBossStatsLinearly(int maxBuff, CharacterDataLoader charData, ClassDataLoader classData) {
+	public static void buffBossStatsLinearly(int maxBuff, CharacterDataLoader charData, ClassDataLoader classData, EnemyOptions.BuffStats buffStats) {
 		for (GBAFECharacterData boss : charData.bossCharacters()) {
 			double appearanceFactor = (double)charData.appearanceChapter(boss) / (double)charData.chapterCount();
 			int buffAmount = Math.min(maxBuff, (int)Math.ceil(maxBuff * appearanceFactor));
 			GBAFEClassData bossClass = classData.classForID(boss.getClassID());
-			boss.setBaseHP(Math.min(boss.getBaseHP() + buffAmount, (bossClass.getMaxHP() - bossClass.getBaseHP())));
-			boss.setBaseSTR(Math.min(boss.getBaseSTR() + buffAmount, (bossClass.getMaxSTR() - bossClass.getBaseSTR())));
-			boss.setBaseSKL(Math.min(boss.getBaseSKL() + buffAmount, (bossClass.getMaxSKL() - bossClass.getBaseSKL())));
-			boss.setBaseSPD(Math.min(boss.getBaseSPD() + buffAmount, (bossClass.getMaxSPD() - bossClass.getBaseSPD())));
-			boss.setBaseDEF(Math.min(boss.getBaseDEF() + buffAmount, (bossClass.getMaxDEF() - bossClass.getBaseDEF())));
-			boss.setBaseRES(Math.min(boss.getBaseRES() + buffAmount, (bossClass.getMaxRES() - bossClass.getBaseRES())));
-			boss.setBaseLCK(Math.min(boss.getBaseLCK() + buffAmount, (bossClass.getMaxLCK() - bossClass.getBaseLCK())));
+			if (buffStats.hp) { boss.setBaseHP(Math.min(boss.getBaseHP() + buffAmount, (bossClass.getMaxHP() - bossClass.getBaseHP()))); }
+			if (buffStats.str) { boss.setBaseSTR(Math.min(boss.getBaseSTR() + buffAmount, (bossClass.getMaxSTR() - bossClass.getBaseSTR()))); }
+			if (buffStats.skl) { boss.setBaseSKL(Math.min(boss.getBaseSKL() + buffAmount, (bossClass.getMaxSKL() - bossClass.getBaseSKL()))); }
+			if (buffStats.spd) { boss.setBaseSPD(Math.min(boss.getBaseSPD() + buffAmount, (bossClass.getMaxSPD() - bossClass.getBaseSPD()))); }
+			if (buffStats.def) { boss.setBaseDEF(Math.min(boss.getBaseDEF() + buffAmount, (bossClass.getMaxDEF() - bossClass.getBaseDEF()))); }
+			if (buffStats.res) { boss.setBaseRES(Math.min(boss.getBaseRES() + buffAmount, (bossClass.getMaxRES() - bossClass.getBaseRES()))); }
+			if (buffStats.lck) { boss.setBaseLCK(Math.min(boss.getBaseLCK() + buffAmount, (bossClass.getMaxLCK() - bossClass.getBaseLCK()))); }
 		}
 	}
 	
-	public static void scaleEnemyGrowthRates(int scaleAmount, ClassDataLoader classData) {
+	public static void scaleEnemyGrowthRates(int scaleAmount, ClassDataLoader classData, EnemyOptions.BuffStats buffStats) {
 		GBAFEClassData[] allClasses = classData.allClasses();
 		double multiplier = 1 + (double)scaleAmount / 100.0;
 		for (GBAFEClassData currentClass : allClasses) {
-			currentClass.setHPGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getHPGrowth() * multiplier)));
-			currentClass.setSTRGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getSTRGrowth() * multiplier)));
-			currentClass.setSKLGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getSKLGrowth() * multiplier)));
-			currentClass.setSPDGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getSPDGrowth() * multiplier)));
-			currentClass.setDEFGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getDEFGrowth() * multiplier)));
-			currentClass.setRESGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getRESGrowth() * multiplier)));
-			currentClass.setLCKGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getLCKGrowth() * multiplier)));
+			if (buffStats.hp) { currentClass.setHPGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getHPGrowth() * multiplier))); }
+			if (buffStats.str) { currentClass.setSTRGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getSTRGrowth() * multiplier))); }
+			if (buffStats.skl) { currentClass.setSKLGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getSKLGrowth() * multiplier))); }
+			if (buffStats.spd) { currentClass.setSPDGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getSPDGrowth() * multiplier))); }
+			if (buffStats.def) { currentClass.setDEFGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getDEFGrowth() * multiplier))); }
+			if (buffStats.res) { currentClass.setRESGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getRESGrowth() * multiplier))); }
+			if (buffStats.lck) { currentClass.setLCKGrowth(Math.min(MaximumGrowthRate, (int)(currentClass.getLCKGrowth() * multiplier))); }
 		}
 	}
 	
-	public static void buffBossStatsWithEaseInOutCurve(int maxBuff, CharacterDataLoader charData, ClassDataLoader classData) {
+	public static void buffBossStatsWithEaseInOutCurve(int maxBuff, CharacterDataLoader charData, ClassDataLoader classData, EnemyOptions.BuffStats buffStats) {
 		for (GBAFECharacterData boss : charData.bossCharacters()) {
 			double appearanceFactor = (double)charData.appearanceChapter(boss) / (double)charData.chapterCount();
 			appearanceFactor = Math.pow(appearanceFactor, 2) / (Math.pow(appearanceFactor, 2) + Math.pow(1 - appearanceFactor, 2));
 			int buffAmount = Math.min(maxBuff, (int)Math.ceil(maxBuff * appearanceFactor));
 			GBAFEClassData bossClass = classData.classForID(boss.getClassID());
-			boss.setBaseHP(Math.min(boss.getBaseHP() + buffAmount, (bossClass.getMaxHP() - bossClass.getBaseHP())));
-			boss.setBaseSTR(Math.min(boss.getBaseSTR() + buffAmount, (bossClass.getMaxSTR() - bossClass.getBaseSTR())));
-			boss.setBaseSKL(Math.min(boss.getBaseSKL() + buffAmount, (bossClass.getMaxSKL() - bossClass.getBaseSKL())));
-			boss.setBaseSPD(Math.min(boss.getBaseSPD() + buffAmount, (bossClass.getMaxSPD() - bossClass.getBaseSPD())));
-			boss.setBaseDEF(Math.min(boss.getBaseDEF() + buffAmount, (bossClass.getMaxDEF() - bossClass.getBaseDEF())));
-			boss.setBaseRES(Math.min(boss.getBaseRES() + buffAmount, (bossClass.getMaxRES() - bossClass.getBaseRES())));
-			boss.setBaseLCK(Math.min(boss.getBaseLCK() + buffAmount, (bossClass.getMaxLCK() - bossClass.getBaseLCK())));
+			if (buffStats.hp) { boss.setBaseHP(Math.min(boss.getBaseHP() + buffAmount, (bossClass.getMaxHP() - bossClass.getBaseHP()))); }
+			if (buffStats.str) { boss.setBaseSTR(Math.min(boss.getBaseSTR() + buffAmount, (bossClass.getMaxSTR() - bossClass.getBaseSTR()))); }
+			if (buffStats.skl) { boss.setBaseSKL(Math.min(boss.getBaseSKL() + buffAmount, (bossClass.getMaxSKL() - bossClass.getBaseSKL()))); }
+			if (buffStats.spd) { boss.setBaseSPD(Math.min(boss.getBaseSPD() + buffAmount, (bossClass.getMaxSPD() - bossClass.getBaseSPD()))); }
+			if (buffStats.def) { boss.setBaseDEF(Math.min(boss.getBaseDEF() + buffAmount, (bossClass.getMaxDEF() - bossClass.getBaseDEF()))); }
+			if (buffStats.res) { boss.setBaseRES(Math.min(boss.getBaseRES() + buffAmount, (bossClass.getMaxRES() - bossClass.getBaseRES()))); }
+			if (buffStats.lck) { boss.setBaseLCK(Math.min(boss.getBaseLCK() + buffAmount, (bossClass.getMaxLCK() - bossClass.getBaseLCK()))); }
 		}
 	}
 	
