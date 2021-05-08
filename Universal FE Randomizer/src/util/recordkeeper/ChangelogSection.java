@@ -43,7 +43,7 @@ public class ChangelogSection implements ChangelogElement {
 		}
 		sb.append("\"></a>");
 		for (ChangelogElement element : childElements) {
-			sb.append(element.build());
+			sb.append(element.build() + System.lineSeparator());
 		}
 		sb.append("</div>");
 		return sb.toString();

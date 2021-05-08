@@ -47,7 +47,7 @@ public class ChangelogText implements ChangelogElement {
 		case BOLD: sb.append(" style=\"font-weight:bold;\""); break;
 		case ITALICS: sb.append(" style=\"font-style:italic;\""); break;
 		}
-		sb.append(">" + content + "</p>");
+		sb.append(">" + content + "</p>\n");
 		
 		return sb.toString();
 	}
