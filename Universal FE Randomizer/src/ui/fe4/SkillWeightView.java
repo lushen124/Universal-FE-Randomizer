@@ -38,6 +38,9 @@ public class SkillWeightView extends Composite {
 	private Label pursuitLabel;
 	private Spinner pursuitSpinner;
 	
+	private boolean currentlyEnabled;
+	private boolean pursuitWasRemoved;
+	
 	private Set<WeightView> allViews;
 	
 	private SkillWeightsListener listener;
@@ -297,9 +300,11 @@ public class SkillWeightView extends Composite {
 	}
 	
 	public void setEnabled(boolean enabled) {
+		currentlyEnabled = enabled;
+		
 		for (WeightView view : allViews) { view.setEnabled(enabled); }
-		pursuitSpinner.setEnabled(enabled);
-		pursuitLabel.setEnabled(enabled);
+		pursuitSpinner.setEnabled(enabled && !pursuitWasRemoved);
+		pursuitLabel.setEnabled(enabled && !pursuitWasRemoved);
 		
 		if (allItemsDisabled && enabled) {
 			for (WeightView view : allViews) { view.setSelected(true); }
@@ -307,6 +312,11 @@ public class SkillWeightView extends Composite {
 		}
 	}
 	
+	public void setRemovePursuit(boolean removePursuit) {
+		pursuitLabel.setEnabled(!removePursuit && currentlyEnabled);
+		pursuitSpinner.setEnabled(!removePursuit && currentlyEnabled);
+		pursuitWasRemoved = removePursuit;
+	}
 	
 	public SkillWeightOptions getSkillWeights() {
 		return new SkillWeightOptions(wrathView.getWeightedOptions(),  

@@ -40,6 +40,13 @@ public class MiscellaneousView extends Composite {
 	private Label enemyDropChanceLabel;
 	private Spinner enemyDropChanceSpinner;
 	
+	// FE4 only.
+	private Button followupRequirement;
+	private Label withPursuitLabel;
+	private Label withoutPursuitLabel;
+	private Spinner withPursuitSpinner;
+	private Spinner withoutPursuitSpinner;
+	
 	public MiscellaneousView(Composite parent, int style, GameType gameType) {
 		super(parent, style);
 		
@@ -210,6 +217,68 @@ public class MiscellaneousView extends Composite {
 			
 			previousControl = enemyDropChanceSpinner;
 		}
+		
+		if (gameType == GameType.FE4) {
+			followupRequirement = new Button(container, SWT.CHECK);
+			followupRequirement.setText("Remove Pursuit Follow-up Requirement");
+			followupRequirement.setToolTipText("Modifies the battle system so that the Pursuit skill is not needed to make follow-up attacks.");
+			followupRequirement.setSelection(false);
+			
+			FormData followupData = new FormData();
+			followupData.left = new FormAttachment(0, 5);
+			followupData.top = new FormAttachment(previousControl, 10);
+			followupRequirement.setLayoutData(followupData);
+			
+			withoutPursuitSpinner = new Spinner(container, SWT.NONE);
+			withoutPursuitSpinner.setValues(6, 1, 10, 0, 1, 1);
+			withoutPursuitSpinner.setEnabled(false);
+			withoutPursuitSpinner.setToolTipText("Sets the minimum Attack Speed advantage needed to perform follow-up attacks without the Pursuit skill.");
+			
+			FormData spinnerData = new FormData();
+			spinnerData.right = new FormAttachment(100, -5);
+			spinnerData.top = new FormAttachment(followupRequirement, 5);
+			withoutPursuitSpinner.setLayoutData(spinnerData);
+			
+			withoutPursuitLabel = new Label(container, SWT.NONE);
+			withoutPursuitLabel.setText("AS Threshold w/o Pursuit:");
+			withoutPursuitLabel.setEnabled(false);
+			
+			FormData labelData = new FormData();
+			labelData.right = new FormAttachment(withoutPursuitSpinner, -5);
+			labelData.top = new FormAttachment(withoutPursuitSpinner, 0, SWT.CENTER);
+			withoutPursuitLabel.setLayoutData(labelData);
+			
+			withPursuitSpinner = new Spinner(container, SWT.NONE);
+			withPursuitSpinner.setValues(3, 1, 10, 0, 1, 1);
+			withPursuitSpinner.setEnabled(false);
+			withPursuitSpinner.setToolTipText("Sets the minimum Attack Speed advantage needed to perform follow-up attacks with the Pursuit skill.");
+			
+			spinnerData = new FormData();
+			spinnerData.right = new FormAttachment(100, -5);
+			spinnerData.top = new FormAttachment(withoutPursuitSpinner, 5);
+			withPursuitSpinner.setLayoutData(spinnerData);
+			
+			withPursuitLabel = new Label(container, SWT.NONE);
+			withPursuitLabel.setText("AS Threshold w/ Pursuit:");
+			withPursuitLabel.setEnabled(false);
+			
+			labelData = new FormData();
+			labelData.right = new FormAttachment(withPursuitSpinner, -5);
+			labelData.top = new FormAttachment(withPursuitSpinner, 0, SWT.CENTER);
+			withPursuitLabel.setLayoutData(labelData);
+			
+			followupRequirement.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					withoutPursuitLabel.setEnabled(followupRequirement.getSelection());
+					withoutPursuitSpinner.setEnabled(followupRequirement.getSelection());
+					withPursuitLabel.setEnabled(followupRequirement.getSelection());
+					withPursuitSpinner.setEnabled(followupRequirement.getSelection());
+				}
+			});
+			
+			previousControl = withPursuitSpinner;
+		}
 	}
 	
 	public void setPatchingEnabled(boolean patchingEnabled) {
@@ -235,12 +304,12 @@ public class MiscellaneousView extends Composite {
 		} else if (type.isSFC()) {
 			switch (type) {
 			case FE4:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), new MiscellaneousOptions.FollowupRequirement(!followupRequirement.getSelection(), withPursuitSpinner.getSelection(), withoutPursuitSpinner.getSelection()));
 			default:
 				return new MiscellaneousOptions(false, 0, false);
 			}
 		} else if (type.isGCN()) {
-			return new MiscellaneousOptions(false, randomizeChestVillageRewards.getSelection(), false, rewardMode, enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0);
+			return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), false, rewardMode, enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0);
 		}
 		
 		return new MiscellaneousOptions(false, 0, false);
