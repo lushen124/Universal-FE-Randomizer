@@ -121,7 +121,11 @@ public class ClassDataLoader {
 	}
 	
 	public String debugStringForClass(int classID) {
-		return provider.classWithID(classID).toString();
+		if (provider.classWithID(classID) != null) {
+			return provider.classWithID(classID).toString();
+		} else {
+			return "UNKNOWN (0x" + Integer.toHexString(classID) + ")";
+		}
 	}
 	
 	public void commit() {
