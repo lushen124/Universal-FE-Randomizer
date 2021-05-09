@@ -2175,6 +2175,11 @@ public class GBARandomizer extends Randomizer {
 		} else {
 			rk.addHeaderItem("Force Class Change", "NO");
 		}
+		if (classes.restrictGender) {
+			rk.addHeaderItem("Restrict Gender", "YES");
+		} else {
+			rk.addHeaderItem("Restrict Gender", "NO");
+		}
 		if (gameType == GameType.FE8) {
 			if (classes.separateMonsters) {
 				rk.addHeaderItem("Mix Monster and Human Classes", "NO");
