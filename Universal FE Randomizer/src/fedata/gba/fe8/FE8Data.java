@@ -2677,6 +2677,18 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public int canonicalID(int characterID) {
 		return Character.canonicalIDForCharacterID(characterID);
 	}
+	
+	public Integer canonicalLevelForCharacter(GBAFECharacter character) {
+		Character fe8Char = Character.valueOf(character.getID());
+		switch (fe8Char) {
+		case FORDE: return 6;
+		case KYLE: return 5;
+		case SALEH: return 1;
+		case EWAN: return 1;
+		case KNOLL: return 10;
+		default: return null;
+		}
+	}
 
 	public GBAFECharacterData characterDataWithData(byte[] data, long offset, Boolean hasLimitedClasses) {
 		FE8Character character = new FE8Character(data, offset, hasLimitedClasses);

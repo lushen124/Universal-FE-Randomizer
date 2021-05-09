@@ -142,6 +142,12 @@ public class FE7Character implements GBAFECharacterData {
 		return data[11] & 0xFF;
 	}
 	
+	public void setLevel(int level) {
+		assert !isReadOnly : "Attempted to modify a locked character.";
+		data[11] = (byte)(level & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getHPGrowth() {
 		return data[28] & 0xFF;
 	}

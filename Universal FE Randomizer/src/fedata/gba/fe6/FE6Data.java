@@ -1966,6 +1966,22 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public int canonicalID(int characterID) {
 		return Character.canonicalIDForCharacterID(characterID);
 	}
+	
+	public Integer canonicalLevelForCharacter(GBAFECharacter character) {
+		Character fe6Character = Character.valueOf(character.getID());
+		switch (fe6Character) {
+		case DAYAN: return 12;
+		case YODEL: return 20;
+		case GARET: return 1;
+		case PERCIVAL: return 5;
+		case IGRENE: return 1;
+		case NIIME: return 18;
+		case REI: return 12;
+		case NOAH: return 7;
+		case TRECK: return 4;
+		default: return null;
+		}
+	}
 
 	public GBAFECharacterData characterDataWithData(byte[] data, long offset, Boolean hasLimitedClasses) {
 		FE6Character charData = new FE6Character(data, offset, hasLimitedClasses);
