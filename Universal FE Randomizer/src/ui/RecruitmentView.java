@@ -348,11 +348,6 @@ public class RecruitmentView extends Composite {
 			public void handleEvent(Event event) {
 				createPrfsButton.setEnabled(lordsButton.getSelection());
 				unbreakablePrfsButton.setEnabled(lordsButton.getSelection() && createPrfsButton.getSelection());
-				
-				if (!lordsButton.getSelection()) {
-					createPrfsButton.setSelection(false);
-					unbreakablePrfsButton.setSelection(false);
-				}
 			}
 		});
 		
@@ -360,10 +355,6 @@ public class RecruitmentView extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				unbreakablePrfsButton.setEnabled(lordsButton.getSelection() && createPrfsButton.getSelection());
-				
-				if (!createPrfsButton.getSelection()) {
-					unbreakablePrfsButton.setSelection(false);
-				}
 			}
 		});
 		
