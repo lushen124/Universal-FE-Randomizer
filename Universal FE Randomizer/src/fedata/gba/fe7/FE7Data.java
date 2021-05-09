@@ -632,7 +632,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions, Boolean restrictGender) {
 			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass);
 			if (limited != null && applyRestrictions) {
 				return limited;
@@ -673,6 +673,14 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (requiresRange) {
 				classList.removeAll(allPacifistClasses);
 				classList.removeAll(allMeleeLockedClasses);
+			}
+			
+			if (restrictGender) {
+				if (sourceClass.isFemale()) {
+					classList.retainAll(allFemaleClasses);
+				} else {
+					classList.retainAll(allMaleClasses);
+				}
 			}
 			
 			classList.retainAll(allValidClasses);
@@ -2618,9 +2626,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		if (applyRestrictions == null) { applyRestrictions = false; }
 		Boolean excludeSpecial = options.get(GBAFEClassProvider.optionKeyExcludeSpecial);
 		if (excludeSpecial == null) { excludeSpecial = false; }
+		Boolean restrictGender = options.get(GBAFEClassProvider.optionKeyRestrictGender);
+		if (restrictGender == null) { restrictGender = false; }
 		
 		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isForEnemy,
-				excludeSource, excludeLords, excludeThieves, excludeSpecial, requireAttack, requiresRange, applyRestrictions));
+				excludeSource, excludeLords, excludeThieves, excludeSpecial, requireAttack, requiresRange, applyRestrictions, restrictGender));
 	}
 	
 	public GBAFEClass correspondingMaleClass(GBAFEClass charClass) {
