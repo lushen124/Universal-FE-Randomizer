@@ -121,6 +121,7 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey + FE4Suffix, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
+
 			FE4OptionBundle loadedOptions = null;
 			try {
 				loadedOptions = gson.fromJson(jsonString, FE4OptionBundle.class);
@@ -138,6 +139,7 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey + FE6Suffix, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
+			
 			GBAOptionBundle loadedOptions;
 			try {
 				loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);

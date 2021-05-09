@@ -54,12 +54,16 @@ public class DiffCompiler {
 	
 	public byte[] byteArrayWithDiffs(byte[] byteArray, long startingOffset) {
 		byte[] resultByteArray = byteArray.clone();
-		applyDiffs(resultByteArray, startingOffset);
+		applyDiffs(resultByteArray, startingOffset, resultByteArray.length);
 		return resultByteArray;
 	}
 	
 	public void applyDiffs(byte[] byteArray, long startingOffset) {
-		AddressRange range = new AddressRange(startingOffset, startingOffset + byteArray.length);
+		applyDiffs(byteArray, startingOffset, byteArray.length);
+	}
+	
+	public void applyDiffs(byte[] byteArray, long startingOffset, long length) {
+		AddressRange range = new AddressRange(startingOffset, startingOffset + length);
 		//DebugPrinter.log(DebugPrinter.Key.DIFF, "Applying Diff to byte array starting from offset 0x" + Long.toHexString(startingOffset) + " for " + byteArray.length + " bytes.");
 		
 		for (Diff diff : diffArray) {

@@ -46,7 +46,7 @@ public class TextLoader {
 				rootAddress = FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, FE6Data.HuffmanTreeEnd));
 				for (int i = 1; i <= FE6Data.NumberOfTextStrings; i++) {
 					String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree(
-							FileReadHelper.readWord(handler, textArrayOffset + 4 * i, false), // FE6 uses the most significant bit on the text address to signify its english encoding, so this is a little less safe.
+							FileReadHelper.readAddress(handler, textArrayOffset + 4 * i),
 							treeAddress, 
 							rootAddress), false, gameType);
 					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, "Decoded FE6 String for index 0x" + Integer.toHexString(i).toUpperCase());
@@ -132,9 +132,18 @@ public class TextLoader {
 		for (int index : replacementsWithCodes.keySet()) {
 			String replacementWithCodes = replacementsWithCodes.get(index);
 			
-			byte[] newByteArray = gameType == GameType.FE6 ? huffman.encodeNonHuffmanString(replacementWithCodes, true) : huffman.encodeString(replacementWithCodes, true);
+			// FE6 has some junk entries (or at least they look like junk.)
+			if (index >= 0x1D2 && index <= 0x1E7) { continue; }
+			
+			// TODO: If we ever need to encode FE6 names, the new translation patch has a few characters that need special attention, since some characters are special thinner versions.
+			boolean useThin = false;
+			// These are character names. Only "Gwendolyn" needs this treatment.
+			if (index >= 0x7EC && index <= 0x8B5 && replacementWithCodes.contains("Gwendolyn")) { useThin = true; }
+			// The only other strings that have this are the Binding Blade (whose name we don't change), and some epilogue titles, which we also don't change.
+			
+			byte[] newByteArray = gameType == GameType.FE6 ? huffman.encodeNonHuffmanString(replacementWithCodes, true, useThin) : huffman.encodeString(replacementWithCodes, true);
 			long offset = freeSpace.setValue(newByteArray, "Text At Index 0x" + Integer.toHexString(index));
-			if (gameType == GameType.FE6) { offset |= 0x80000000; } // Mark this as uncompressed.
+			//if (gameType == GameType.FE6) { offset |= 0x80000000; } // Mark this as uncompressed.
 			long pointer = textArrayOffset + 4 * index;
 			byte[] addressBytes = WhyDoesJavaNotHaveThese.bytesFromAddress(offset);
 			compiler.addDiff(new Diff(pointer, 4, addressBytes, null));
