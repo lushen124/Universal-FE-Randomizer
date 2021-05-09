@@ -89,6 +89,7 @@ public class EnemyBuffsView extends Composite {
 		minionGroup.setLayout(minionLayout);
 		
 		FormData minionData = new FormData();
+		minionData.top = new FormAttachment(0, 0);
 		minionData.left = new FormAttachment(0, 0);
 		minionData.right = new FormAttachment(100, 0);
 		minionGroup.setLayoutData(minionData);
@@ -225,6 +226,7 @@ public class EnemyBuffsView extends Composite {
 		minionGroupData.left = new FormAttachment(0, 10);
 		minionGroupData.right = new FormAttachment(100, -10);
 		minionGroupData.top = new FormAttachment(buffParamContainer, 0);
+		minionGroupData.width = 200;
 		minionStatGroup.setLayoutData(minionGroupData);
 		
 		//////////////////////////////////////////////////////////////////
@@ -262,6 +264,7 @@ public class EnemyBuffsView extends Composite {
 		FormData chanceSpinnerData = new FormData();
 		chanceSpinnerData.right = new FormAttachment(100, -10);
 		chanceSpinnerData.top = new FormAttachment(improveEnemyWeaponsButton, 5);
+		chanceSpinnerData.bottom = new FormAttachment(100, -5);
 		weaponSpinner.setLayoutData(chanceSpinnerData);
 		
 		//////////////////////////////////////////////////////////////////	
@@ -277,9 +280,10 @@ public class EnemyBuffsView extends Composite {
 		bossGroup.setLayout(bossLayout);
 		
 		FormData bossData = new FormData();
-		bossData.left = new FormAttachment(minionGroup, 0, SWT.LEFT);
-		bossData.right = new FormAttachment(minionGroup, 0, SWT.RIGHT);
+		bossData.left = new FormAttachment(0, 0);
+		bossData.right = new FormAttachment(100, 0);
 		bossData.top = new FormAttachment(minionGroup, 5);
+		bossData.bottom = new FormAttachment(100, 0);
 		bossGroup.setLayoutData(bossData);
 		
 		buffBossStatButton = new Button(bossGroup, SWT.CHECK);
@@ -396,6 +400,7 @@ public class EnemyBuffsView extends Composite {
 		bossGroupData.left = new FormAttachment(0, 10);
 		bossGroupData.right = new FormAttachment(100, -10);
 		bossGroupData.top = new FormAttachment(bossStatSpinner, 5);
+		bossGroupData.width = 200;
 		bossStatGroup.setLayoutData(bossGroupData);
 		
 		improveBossWeaponButton = new Button(bossGroup, SWT.CHECK);
@@ -421,11 +426,6 @@ public class EnemyBuffsView extends Composite {
 		bossWeaponSpinner.setValues(25, 0, 100, 0, 1, 5);
 		bossWeaponSpinner.setEnabled(false);
 		
-		spinnerData = new FormData();
-		spinnerData.top = new FormAttachment(improveBossWeaponButton, 5);
-		spinnerData.right = new FormAttachment(100, -5);
-		bossWeaponSpinner.setLayoutData(spinnerData);
-		
 		bossWeaponSpinnerLabel = new Label(bossGroup, SWT.NONE);
 		bossWeaponSpinnerLabel.setText("Chance:");
 		bossWeaponSpinnerLabel.setEnabled(false);
@@ -434,6 +434,12 @@ public class EnemyBuffsView extends Composite {
 		labelData.right = new FormAttachment(bossWeaponSpinner, -5);
 		labelData.top = new FormAttachment(bossWeaponSpinner, 0, SWT.CENTER);
 		bossWeaponSpinnerLabel.setLayoutData(labelData);
+		
+		spinnerData = new FormData();
+		spinnerData.top = new FormAttachment(improveBossWeaponButton, 5);
+		spinnerData.right = new FormAttachment(100, -10);
+		spinnerData.bottom = new FormAttachment(100, -5);
+		bossWeaponSpinner.setLayoutData(spinnerData);
 	}
 	
 	public EnemyOptions getEnemyOptions() {
