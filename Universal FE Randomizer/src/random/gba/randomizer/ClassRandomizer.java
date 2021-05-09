@@ -450,6 +450,10 @@ public class ClassRandomizer {
 				if (chapterUnit.getCharacterNumber() == character.getID()) {
 					if (chapterUnit.getStartingClass() != sourceClass.getID()) {
 						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass());
+						if (!classData.isValidClass(chapterUnit.getStartingClass()) && chapterUnit.getStartingClass() != 0) {
+							System.err.println("Invalid class detected. Skipping class change for " + charData.debugStringForCharacter(character.getID()) + ". Invalid class: " + classData.debugStringForClass(chapterUnit.getStartingClass()));
+							continue;
+						}
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
 					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, ranged, melee, charData, classData, itemData, textData, forceBasicWeapons, rng);
