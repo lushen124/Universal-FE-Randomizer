@@ -411,7 +411,7 @@ public class ClassRandomizer {
 		if (charData.isBossCharacterID(character.getID())) {
 			transferBossWeaponLevels(character, sourceClass, targetClass);
 		} else {
-			transferWeaponLevels(character, sourceClass, targetClass, rng);
+			transferWeaponLevels(character, sourceClass, targetClass, itemData, rng);
 		}
 		switch (classOptions.basesTransfer) {
 		case ADJUST_TO_MATCH:
@@ -526,7 +526,7 @@ public class ClassRandomizer {
 	private static void updateMinionCharacterToClass(ItemAssignmentOptions inventoryOptions, GBAFEChapterUnitData chapterUnit, GBAFECharacterData minionCharacter, GBAFEClassData sourceClass, GBAFEClassData targetClass, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
 		// Write this into the character data.
 		minionCharacter.setClassID(targetClass.getID());
-		transferWeaponLevels(minionCharacter, sourceClass, targetClass, rng);
+		transferWeaponLevels(minionCharacter, sourceClass, targetClass, itemData, rng);
 		chapterUnit.setStartingClass(targetClass.getID());
 		validateMinionInventory(inventoryOptions, chapterUnit, minionCharacter, classData, itemData, rng);
 	}
@@ -1132,7 +1132,7 @@ public class ClassRandomizer {
 		if (targetClass.getStaffRank() > 0) { character.setStaffRank(highestRank); } else { character.setStaffRank(0); }
 	}
 	
-	private static void transferWeaponLevels(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, Random rng) {
+	private static void transferWeaponLevels(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, ItemDataLoader itemData, Random rng) {
 		Map<WeaponType, Integer> rankMap = new HashMap<WeaponType, Integer>();
 		
 		// Start with the class defaults.
@@ -1261,6 +1261,10 @@ public class ClassRandomizer {
 				if (rng.nextInt(2) == 0) {
 					ranks.remove(rankIndex);
 				}
+			}
+			// Dark is a special case, since the lowest ranking tome is Flux, which is D rank.
+			if (rankToApply == itemData.weaponRankValueForRank(WeaponRank.E)) {
+				rankToApply = itemData.weaponRankValueForRank(WeaponRank.D);
 			}
 			targetRanks[6] = rankToApply;
 		}
