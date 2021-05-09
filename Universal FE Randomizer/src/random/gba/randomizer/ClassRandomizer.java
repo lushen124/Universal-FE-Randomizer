@@ -61,6 +61,7 @@ public class ClassRandomizer {
 		Boolean separateMonsters = false;
 		
 		Boolean forceChange = options.forceChange;
+		Boolean restrictGender = options.restrictGender;
 		
 		if (type == GameType.FE8) {
 			hasMonsters = true;
@@ -97,8 +98,8 @@ public class ClassRandomizer {
 			if (determinedClasses.containsKey(character.getID())) {
 				continue;
 			} else {
-				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, charactersData.isEnemyAtAnyPoint(character.getID()), !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null) :
-					classData.potentialClasses(originalClass, charactersData.isEnemyAtAnyPoint(character.getID()), !includeLords, !includeThieves, !includeSpecial, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), null);
+				GBAFEClassData[] possibleClasses = hasMonsters ? classData.potentialClasses(originalClass, charactersData.isEnemyAtAnyPoint(character.getID()), !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), restrictGender, null) :
+					classData.potentialClasses(originalClass, charactersData.isEnemyAtAnyPoint(character.getID()), !includeLords, !includeThieves, !includeSpecial, forceChange, isLordCharacter, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), restrictGender, null);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -153,6 +154,7 @@ public class ClassRandomizer {
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
 		Boolean forceChange = options.forceChange;
+		Boolean restrictGender = options.restrictGender;
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -194,8 +196,8 @@ public class ClassRandomizer {
 				}
 				
 				GBAFEClassData[] possibleClasses = hasMonsters ? 
-						classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass) :
-					classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), mustLoseToClass);
+						classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), restrictGender, mustLoseToClass) :
+					classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, forceChange, true, characterRequiresRange, characterRequiresMelee, character.isClassRestricted(), restrictGender, mustLoseToClass);
 				if (possibleClasses.length == 0) {
 					continue;
 				}
@@ -234,6 +236,7 @@ public class ClassRandomizer {
 		Boolean hasMonsters = false;
 		Boolean separateMonsters = false;
 		Boolean forceChange = options.forceChange;
+		Boolean restrictGender = options.restrictGender;
 		if (type == GameType.FE8) {
 			hasMonsters = true;
 			separateMonsters = options.separateMonsters;
@@ -315,8 +318,8 @@ public class ClassRandomizer {
 						Boolean shouldMakeEasy = chapter.shouldBeSimplified();
 						GBAFEClassData loseToClass = shouldMakeEasy ? lordClass : null;
 						GBAFEClassData[] possibleClasses = hasMonsters ? 
-								classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass) :
-							classData.potentialClasses(originalClass, true, false, false, false, forceChange, true, false, false, shouldRestrictToSafeClasses, loseToClass);
+								classData.potentialClasses(originalClass, true, !includeLords, !includeThieves, !includeSpecial, separateMonsters, forceChange, true, false, false, shouldRestrictToSafeClasses, restrictGender, loseToClass) :
+							classData.potentialClasses(originalClass, true, false, false, false, forceChange, true, false, false, shouldRestrictToSafeClasses, restrictGender, loseToClass);
 						if (possibleClasses.length == 0) {
 							continue;
 						}
@@ -447,6 +450,10 @@ public class ClassRandomizer {
 				if (chapterUnit.getCharacterNumber() == character.getID()) {
 					if (chapterUnit.getStartingClass() != sourceClass.getID()) {
 						System.err.println("Class mismatch for character with ID " + character.getID() + ". Expected Class " + sourceClass.getID() + " but found " + chapterUnit.getStartingClass());
+						if (!classData.isValidClass(chapterUnit.getStartingClass()) && chapterUnit.getStartingClass() != 0) {
+							System.err.println("Invalid class detected. Skipping class change for " + charData.debugStringForCharacter(character.getID()) + ". Invalid class: " + classData.debugStringForClass(chapterUnit.getStartingClass()));
+							continue;
+						}
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
 					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, ranged, melee, charData, classData, itemData, textData, forceBasicWeapons, rng);
@@ -1039,6 +1046,24 @@ public class ClassRandomizer {
 		
 		GBAFEItemData prf = itemData.getPrfWeaponForClass(charClass.getID());
 		if (prf != null) { chapterUnit.giveItem(prf.getID()); }
+		
+		if (charData.characterIDRequiresAttack(character.getID())) {
+			if (!itemData.isWeapon(itemData.itemWithID(chapterUnit.getItem1()))) {
+				int swap = chapterUnit.getItem1();
+				if (swap != 0) {
+					if (itemData.isWeapon(itemData.itemWithID(chapterUnit.getItem2()))) {
+						chapterUnit.setItem1(chapterUnit.getItem2());
+						chapterUnit.setItem2(swap);
+					} else if (itemData.isWeapon(itemData.itemWithID(chapterUnit.getItem3()))) {
+						chapterUnit.setItem1(chapterUnit.getItem3());
+						chapterUnit.setItem3(swap);
+					} else if (itemData.isWeapon(itemData.itemWithID(chapterUnit.getItem4()))) {
+						chapterUnit.setItem1(chapterUnit.getItem4());
+						chapterUnit.setItem4(swap);
+					}
+				}
+			}
+		}
 		
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Final Inventory: [0x" + Integer.toHexString(item1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(item4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex(), true) + ")") + "]");
 	}

@@ -99,10 +99,26 @@ public class FE4Data {
 	// Seliph also has hard-coded blood. Since we limited the parent's blood. We can calculate what his blood should be.
 	public static final long SeliphHolyBloodByte1Offset = 0x4856DL;
 	public static final long SeliphHolyBloodByte2Offset = 0x4856EL;
+	public static final long SeliphHolyBloodByte3Offset = 0x48573L;
+	// Byte 4 is right after Byte 3, but since we don't plan on assigning Loptous, we don't need it.
 	
-	public static final long SellableHolyWeaponsOffset = 0x4B4E7L;
-	public static final byte SellableHolyWeaponEnabledValue = 0x00;
-	public static final byte SellableHolyWeaponsDisabledValue = 0x16;
+	// This changes the rank of the Circlet from 0xFF to 0xFE
+	// Used in conjunction with the next change.
+	public static final long ChangeCircletRankToFEOffset = 0x3F686L;
+	public static final byte ChangeCircletRankToFENewValue = (byte)0xFE;
+	public static final byte ChangeCircletRankToFEOldValue = (byte)0xFF;
+	
+	// This makes it so that items of rank 0xFE cannot be sold.
+	// Holy weapons have rank 0xFF, and can continue to be sold.
+	public static final long ChangeUnsellableRankToFEOffset = 0x4B4E4L;
+	public static final byte ChangeUnsellableRankToFENewValue = (byte)0xFE;
+	public static final byte ChangeUnsellableRankToFEOldValue = (byte)0xFF;
+	
+	// Old change to make holy weapons sellable. Has the undesirable side effect of making the Circlet also sellable.
+	// Leaving here deprecated for reference.
+	public static final long _deprecated_SellableHolyWeaponsOffset = 0x4B4E7L;
+	public static final byte _deprecated_SellableHolyWeaponEnabledValue = 0x00;
+	public static final byte _deprecated_SellableHolyWeaponsDisabledValue = 0x16;
 	
 	public static final long ItemTableOffset = 0x3ECE4L;
 	public static final int ItemTableCount = 107;
@@ -130,8 +146,15 @@ public class FE4Data {
 	// 0x2 is isolated from the rest of the game, but is programmatically inherited by Leif.
 	// 0x67 is the starting equipment for Nanna/Jeanne, and will be randomized by her, which might cause problems. Additionally, 0x67 is also found in the shop in Ch. 8. It's also possible for Leif to inherit this if he could.
 	// The solution then is to give Nanna/Jeanne a new inventory item to split it up. 0x67 will still fall into the Ch. 8 shop, but Jeanne and Nanna won't be able to give Ethlyn a problematic weapon now.
-	public static final int JeanneNannaOldStartingInventoryID = 0x67;
-	public static final int JeanneNannaNewStartingInventoryID = 0x40;
+	// This is deprecated, since we can simply unassign 0x67 from Ethlyn in the Yied Desert event.
+	public static final int _deprecated_JeanneNannaOldStartingInventoryID = 0x67;
+	public static final int _deprecated_JeanneNannaNewStartingInventoryID = 0x40;
+	
+	// Unassign Item 0x67 (Mend) from Ethlyn in Chapter 5. It's not that important, and it allows us to reclaim item 0x40 as unused.
+	public static final long UnassignMendFromCh5EthlynOffset = 0x1DC4E2L;
+	public static final byte[] UnassignMendFromCh5EthlynNewValues = new byte[] {0x0, 0x0, 0x0};
+	public static final byte[] UnassignMendFromCh5EthlynOldValues = new byte[] {0x11, 0x0, 0x67};
+	
 	// We should also assign Leif 0x2 so that he can randomize that weapon. Ideally it's something both of them can use, but otherwise, defer to Leif.
 	public static final int LeifEthlynSharedInventoryID = 0x02;
 	
@@ -140,9 +163,27 @@ public class FE4Data {
 	public static final byte[] Chapter8ShopOldListByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x34, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67};
 	public static final byte[] Chapter8ShopNewListByteArray = new byte[] {0x08, 0x1C, 0x23, 0x29, 0x32, 0x33, 0x44, 0x47, 0x4A, 0x50, 0x55, 0x58, 0x65, 0x72, 0x06, 0x30, 0x48, 0x5D, 0x64, 0x67, (byte)0xFF};
 	
+	// Follow-up logic change to update the requirements necessary.
+	// This stubs out the old logic with 0s and jumps to a new subroutine with the new logic.
+	// The assumption here is that it jumps to ROM address 0x50110.
+	public static final long OriginalFollowupLogicOffset = 0x4E567L;
+	public static final byte[] OriginalFollowupLogicNewValues = new byte[] {0x20, 0x10, (byte)0xFF, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	public static final byte[] OriginalFollowupLogicOldValues = new byte[] {(byte)0x90, 0x12, (byte)0xBD, 0x24, 0x00, (byte)0x89, 0x00, 0x40, (byte)0xF0, 0x0A, (byte)0xB9, 0x30, 0x00, (byte)0xDD, 0x30, 0x00, 0x10, 0x02, 0x38, 0x60, 0x18, 0x60};
+	
+	// This is the new follow-up logic, which allows doubling with and without Pursuit at two different AS thresholds.
+	// Should be used in conjunction with the above change.
+	public static final long NewFollowupLogicOffset = 0x50110L;
+	public static final byte[] NewFollowupLogicValues = new byte[] {(byte)0x90, 0x2C, (byte)0xB9, 0x30, 0x00, (byte)0xDD, 0x30, 0x00, 0x10, 0x24, (byte)0xBD, 0x24, 0x00, (byte)0x89, 0x00, 0x40, (byte)0xF0, 0x0E, (byte)0xBD, 0x30, 0x00, 0x38, (byte)0xF9, 0x30, 0x00, (byte)0xC9, 0x03, 0x00, (byte)0x90, 0x10, (byte)0x80, 0x0C, (byte)0xBD, 0x30, 0x00, 0x38, (byte)0xF9, 0x30, 0x00, (byte)0xC9, 0x06, 0x00, (byte)0x90, 0x02, 0x38, 0x60, 0x18, 0x60};
+	public static final byte[] NewFollowupLogicEmptySpace = new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	
+	// The above chunk assumes AS thresholds of 3 and 6 for with and without Pursuit, respectively.
+	// These values can be changed independently.
+	public static final long FollowupWithPursuitOffset = 0x5012AL;
+	public static final long FollowupWithoutPursuitOffset = 0x50138L;
+	
 	// These don't seem to be used by anybody in the game. Free holy weapons? Or free staves!
 	// The last two may or may not work. They're empty right now, but they may be serving as terminator bytes.
-	public static final List<Integer> UnusedInventoryIDs = new ArrayList<Integer>(Arrays.asList(0x12, 0x8D, 0x8E));
+	public static final List<Integer> UnusedInventoryIDs = new ArrayList<Integer>(Arrays.asList(0x12, 0x40, 0x8D, 0x8E));
 	
 	public static class EventGift {
 		public Character recipient;
@@ -1243,9 +1284,14 @@ public class FE4Data {
 		public HolyBlood[] limitedHolyBloodSelection() {
 			switch (this) {
 			case QUAN: return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN}; // Mostly due to Altena needing to fly (and therefore locked to lances and swords).
+			/* Sigurd and Deirdre no longer need to be limited because Seliph's blood can have all four bytes set (they're just not contiguous, for some reason).
+			 * We still want to avoid Loptous for obvious reasons (and possibly Bragi), but everything else is fair game.
+			 
 			case SIGURD:
 			case DEIRDRE: // Seliph's blood inheritence only supports the first two bytes, so neither parent can go beyond that.
 				return new HolyBlood[] {HolyBlood.BALDR, HolyBlood.NAGA, HolyBlood.DAIN, HolyBlood.NJORUN, HolyBlood.OD, HolyBlood.ULIR, HolyBlood.NEIR, HolyBlood.FJALAR};
+				
+			*/
 			case ELDIGAN_CH1_SCENE: // This is just to make sure he doesn't get stuck with Yewfelle in chapter 1.
 				return new HolyBlood[] { HolyBlood.BALDR, HolyBlood.OD, HolyBlood.HEZUL, HolyBlood.DAIN, HolyBlood.NJORUN, 
 						HolyBlood.NEIR, HolyBlood.FJALAR, HolyBlood.THRUD, HolyBlood.FORSETI, HolyBlood.NAGA};
@@ -3118,7 +3164,7 @@ public class FE4Data {
 		NONE(Item.NONE, Item.ItemType.NONE, Character.NONE),
 		BALDR(Item.TYRFING, Item.ItemType.SWORD, Character.SIGURD), 
 		OD(Item.BALMUNG, Item.ItemType.SWORD, Character.SHANNAN), 
-		HEZUL(Item.MYSTLETAINN, Item.ItemType.SWORD, Character.ARES), 
+		HEZUL(Item.MYSTLETAINN, Item.ItemType.SWORD, Character.ELDIGAN_CH1_SCENE), 
 		NJORUN(Item.GAE_BOLG, Item.ItemType.LANCE, Character.QUAN), 
 		DAIN(Item.GUNGNIR, Item.ItemType.LANCE, Character.ARION_CH9), 
 		NEIR(Item.HELSWATH, Item.ItemType.AXE, Character.LOMBARD), 
@@ -3181,6 +3227,7 @@ public class FE4Data {
 			switch (this) {
 			case NAGA:
 			case LOPTOUS:
+			case BRAGI: // There's too many cases where this can't be assigned to anybody because of the weapon, so we won't shuffle this blood.
 				return true;
 			default:
 					return false;

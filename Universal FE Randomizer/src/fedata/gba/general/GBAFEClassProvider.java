@@ -15,6 +15,7 @@ public interface GBAFEClassProvider {
 	public static final String optionKeyRequireRange = "requireRange";
 	public static final String optionKeyRequireMelee = "requireMelee";
 	public static final String optionKeyApplyRestrictions = "applyRestrictions";
+	public static final String optionKeyRestrictGender = "restrictGender";
 	
 	public long classDataTablePointer();
 	public int numberOfClasses();

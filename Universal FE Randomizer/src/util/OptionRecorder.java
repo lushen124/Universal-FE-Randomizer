@@ -25,9 +25,9 @@ import ui.model.RecruitmentOptions;
 import ui.model.WeaponOptions;
 
 public class OptionRecorder {
-	private static final Integer FE4OptionBundleVersion = 3;
+	private static final Integer FE4OptionBundleVersion = 4;
 	private static final Integer GBAOptionBundleVersion = 11;
-	private static final Integer FE9OptionBundleVersion = 10;
+	private static final Integer FE9OptionBundleVersion = 11;
 	
 	public static class AllOptions {
 		public FE4OptionBundle fe4;
@@ -121,6 +121,7 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey + FE4Suffix, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
+
 			FE4OptionBundle loadedOptions = null;
 			try {
 				loadedOptions = gson.fromJson(jsonString, FE4OptionBundle.class);
@@ -138,6 +139,7 @@ public class OptionRecorder {
 		String jsonString = prefs.get(SettingsKey + FE6Suffix, null);
 		if (jsonString != null) {
 			Gson gson = new Gson();
+			
 			GBAOptionBundle loadedOptions;
 			try {
 				loadedOptions = gson.fromJson(jsonString, GBAOptionBundle.class);

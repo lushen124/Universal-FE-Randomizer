@@ -168,7 +168,7 @@ public class FE4Randomizer extends Randomizer {
 		updateProgress(0.85);
 		try { buffEnemiesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while buffing enemies.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.90);
-		try { makeFinalAdjustments(seed); } catch (Exception e) { notifyError("Encountered error while finalizing adjustments.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		try { makeFinalAdjustments(seed, isHeadered); } catch (Exception e) { notifyError("Encountered error while finalizing adjustments.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.95);
 		
 		updateStatusString("Compiling changes...");
@@ -284,7 +284,8 @@ public class FE4Randomizer extends Randomizer {
 			diffCompiler.addDiff(new Diff(0x7ABE8L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));
 			
 			// Diffs to allow holy weapons to be sellable.
-			diffCompiler.addDiff(new Diff(FE4Data.SellableHolyWeaponsOffset, 1, new byte[] {FE4Data.SellableHolyWeaponEnabledValue}, new byte[] {FE4Data.SellableHolyWeaponsDisabledValue}));
+			diffCompiler.addDiff(new Diff(FE4Data.ChangeCircletRankToFEOffset, 1, new byte[] {FE4Data.ChangeCircletRankToFENewValue}, new byte[] {FE4Data.ChangeCircletRankToFEOldValue}));
+			diffCompiler.addDiff(new Diff(FE4Data.ChangeUnsellableRankToFEOffset, 1, new byte[] {FE4Data.ChangeUnsellableRankToFENewValue}, new byte[] {FE4Data.ChangeUnsellableRankToFEOldValue}));
 			
 			// Diff to fix Female Emperor battle animation.
 			diffCompiler.addDiff(new Diff(FE4Data.FemaleEmperorStaffAnimationFixOffset, 1, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixNewValue}, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixOldValue}));
@@ -294,6 +295,9 @@ public class FE4Randomizer extends Randomizer {
 			
 			// Diff to enable Lord Knight's map sprite for more than just Sigurd.
 			diffCompiler.addDiff(new Diff(FE4Data.KnightLordMapSpriteFixOffset, 1, new byte[] {FE4Data.KnightLordMapSpriteFixNewValue}, new byte[] {FE4Data.KnightLordMapSpriteFixOldValue}));
+			
+			// Diff to remove 0x67 from Ethlyn's Ch. 5 inventory. This separates it from Nanna/Jeanne's inventory and frees up item 0x40 for use.
+			diffCompiler.addDiff(new Diff(FE4Data.UnassignMendFromCh5EthlynOffset, FE4Data.UnassignMendFromCh5EthlynNewValues.length, FE4Data.UnassignMendFromCh5EthlynNewValues, FE4Data.UnassignMendFromCh5EthlynOldValues));
 			
 		} else {
 			// Diffs for allowing Sigurd/Seliph to sieze, regardless of their class.
@@ -328,7 +332,8 @@ public class FE4Randomizer extends Randomizer {
 			diffCompiler.addDiff(new Diff(0x7A9E8L, 1, new byte[] {(byte)0xFF}, new byte[] {(byte)0x07}));			
 			
 			// Diffs to allow holy weapons to be sellable.
-			diffCompiler.addDiff(new Diff(FE4Data.SellableHolyWeaponsOffset - 0x200, 1, new byte[] {FE4Data.SellableHolyWeaponEnabledValue}, new byte[] {FE4Data.SellableHolyWeaponsDisabledValue}));
+			diffCompiler.addDiff(new Diff(FE4Data.ChangeCircletRankToFEOffset - 0x200, 1, new byte[] {FE4Data.ChangeCircletRankToFENewValue}, new byte[] {FE4Data.ChangeCircletRankToFEOldValue}));
+			diffCompiler.addDiff(new Diff(FE4Data.ChangeUnsellableRankToFEOffset - 0x200, 1, new byte[] {FE4Data.ChangeUnsellableRankToFENewValue}, new byte[] {FE4Data.ChangeUnsellableRankToFEOldValue}));
 			
 			// Diff to fix Female Emperor battle animation.
 			diffCompiler.addDiff(new Diff(FE4Data.FemaleEmperorStaffAnimationFixOffset - 0x200, 1, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixNewValue}, new byte[] {FE4Data.FemaleEmperorStaffAnimationFixOldValue}));
@@ -338,6 +343,9 @@ public class FE4Randomizer extends Randomizer {
 			
 			// Diff to enable Lord Knight's map sprite for more than just Sigurd.
 			diffCompiler.addDiff(new Diff(FE4Data.KnightLordMapSpriteFixOffset - 0x200, 1, new byte[] {FE4Data.KnightLordMapSpriteFixNewValue}, new byte[] {FE4Data.KnightLordMapSpriteFixOldValue}));
+			
+			// Diff to remove 0x67 from Ethlyn's Ch. 5 inventory. This separates it from Nanna/Jeanne's inventory and frees up item 0x40 for use.
+			diffCompiler.addDiff(new Diff(FE4Data.UnassignMendFromCh5EthlynOffset - 0x200, FE4Data.UnassignMendFromCh5EthlynNewValues.length, FE4Data.UnassignMendFromCh5EthlynNewValues, FE4Data.UnassignMendFromCh5EthlynOldValues));
 		}
 	}
 
@@ -369,16 +377,6 @@ public class FE4Randomizer extends Randomizer {
 	
 	// These changes are made after data loaders are set up but before any randomization happens.
 	private void makeInitialAdjustments() {
-		// Fix Jeanne/Nanna's inventory so that it splits from Ethlyn's Ch. 5 inventory.
-		FE4ChildCharacter nanna = charData.getChildCharacter(FE4Data.Character.NANNA);
-		if (nanna.getEquipment1() == FE4Data.JeanneNannaOldStartingInventoryID) { nanna.setEquipment1(FE4Data.JeanneNannaNewStartingInventoryID); }
-		else if (nanna.getEquipment2() == FE4Data.JeanneNannaOldStartingInventoryID) { nanna.setEquipment2(FE4Data.JeanneNannaNewStartingInventoryID); }
-		
-		FE4StaticCharacter jeanne = charData.getStaticCharacter(FE4Data.Character.JEANNE);
-		if (jeanne.getEquipment1() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment1(FE4Data.JeanneNannaNewStartingInventoryID); }
-		else if (jeanne.getEquipment2() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment2(FE4Data.JeanneNannaNewStartingInventoryID); }
-		else if (jeanne.getEquipment3() == FE4Data.JeanneNannaOldStartingInventoryID) { jeanne.setEquipment3(FE4Data.JeanneNannaNewStartingInventoryID); }
-		
 		// Give A rank Light magic to Sages.
 		classData.classForID(FE4Data.CharacterClass.SAGE.ID).setLightRank(WeaponRank.A);
 	}
@@ -531,7 +529,7 @@ public class FE4Randomizer extends Randomizer {
 	}
 	
 	// Should be called after all other randomizations.
-	private void makeFinalAdjustments(String seed) {
+	private void makeFinalAdjustments(String seed, boolean isHeadered) {
 		updateStatusString("Making final adjustments...");
 		
 		// Give Dark magic a price
@@ -624,7 +622,7 @@ public class FE4Randomizer extends Randomizer {
 		
 		if (classOptions.playerBloodOption != BloodOptions.NO_CHANGE || bloodOptions.giveHolyBlood) {
 			// Hard code Seliph's Holy Blood, based on his parents.
-			// He only has the first two bytes, so drop the other blood (which they should be limited in already).
+			// He only has the first three bytes, so drop the other blood (which they should be limited in already).
 			FE4StaticCharacter sigurd = charData.getStaticCharacter(FE4Data.Character.SIGURD);
 			FE4StaticCharacter deirdre = charData.getStaticCharacter(FE4Data.Character.DEIRDRE);
 			
@@ -634,20 +632,30 @@ public class FE4Randomizer extends Randomizer {
 			List<FE4Data.HolyBloodSlot2> sigurdSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(sigurd.getHolyBlood2Value());
 			List<FE4Data.HolyBloodSlot2> deirdreSlot2 = FE4Data.HolyBloodSlot2.slot2HolyBlood(deirdre.getHolyBlood2Value());
 			
+			List<FE4Data.HolyBloodSlot3> sigurdSlot3 = FE4Data.HolyBloodSlot3.slot3HolyBlood(sigurd.getHolyBlood3Value());
+			List<FE4Data.HolyBloodSlot3> deirdreSlot3 = FE4Data.HolyBloodSlot3.slot3HolyBlood(deirdre.getHolyBlood3Value()); 
+			
 			// We can discard any major blood Deirdre has, as that will generally go to Julia. Seliph will always inherit Sigurd's Major blood and a minor version of Deirdre's Major Blood.
 			FE4Data.HolyBlood deirdreMajorBlood = null;
 			FE4Data.HolyBlood sigurdMajorBlood = null;
 			sigurdMajorBlood = sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? sigurdSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
 			if (sigurdMajorBlood == null) {
 				sigurdMajorBlood = sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? sigurdSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
+				if (sigurdMajorBlood == null) {
+					sigurdMajorBlood = sigurdSlot3.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? sigurdSlot3.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
+				}
 			}
 			deirdreMajorBlood = deirdreSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? deirdreSlot1.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
 			if (deirdreMajorBlood == null) {
 				deirdreMajorBlood = deirdreSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? deirdreSlot2.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
+				if (deirdreMajorBlood == null) {
+					deirdreMajorBlood = deirdreSlot3.stream().filter(blood -> (blood.isMajor())).findFirst().isPresent() ? deirdreSlot3.stream().filter(blood -> (blood.isMajor())).findFirst().get().bloodType() : null;
+				}
 			}
 			
 			Set<FE4Data.HolyBloodSlot1> seliphSlot1Set = new HashSet<FE4Data.HolyBloodSlot1>();
 			Set<FE4Data.HolyBloodSlot2> seliphSlot2Set = new HashSet<FE4Data.HolyBloodSlot2>();
+			Set<FE4Data.HolyBloodSlot3> seliphSlot3Set = new HashSet<FE4Data.HolyBloodSlot3>();
 			
 			if (sigurdMajorBlood != null) {
 				FE4Data.HolyBloodSlot1 slot1Major = FE4Data.HolyBloodSlot1.blood(sigurdMajorBlood, true);
@@ -657,6 +665,11 @@ public class FE4Randomizer extends Randomizer {
 					FE4Data.HolyBloodSlot2 slot2Major = FE4Data.HolyBloodSlot2.blood(sigurdMajorBlood, true);
 					if (slot2Major != null) {
 						seliphSlot2Set.add(slot2Major);
+					} else {
+						FE4Data.HolyBloodSlot3 slot3Major = FE4Data.HolyBloodSlot3.blood(sigurdMajorBlood, true);
+						if (slot3Major != null) {
+							seliphSlot3Set.add(slot3Major);
+						}
 					}
 				}
 			}
@@ -669,6 +682,11 @@ public class FE4Randomizer extends Randomizer {
 					FE4Data.HolyBloodSlot2 slot2Minor = FE4Data.HolyBloodSlot2.blood(deirdreMajorBlood, false);
 					if (slot2Minor != null) {
 						seliphSlot2Set.add(slot2Minor);
+					} else {
+						FE4Data.HolyBloodSlot3 slot3Minor = FE4Data.HolyBloodSlot3.blood(deirdreMajorBlood, false);
+						if (slot3Minor != null) {
+							seliphSlot3Set.add(slot3Minor);
+						}
 					}
 				}
 			}
@@ -678,6 +696,8 @@ public class FE4Randomizer extends Randomizer {
 			seliphSlot1Set.addAll(deirdreSlot1.stream().filter(blood -> (blood.isMajor() == false)).collect(Collectors.toList()));
 			seliphSlot2Set.addAll(sigurdSlot2.stream().filter(blood -> (blood.isMajor() == false)).collect(Collectors.toList()));
 			seliphSlot2Set.addAll(deirdreSlot2.stream().filter(blood -> (blood.isMajor() == false)).collect(Collectors.toList()));
+			seliphSlot3Set.addAll(sigurdSlot3.stream().filter(blood -> (blood.isMajor() == false)).collect(Collectors.toList()));
+			seliphSlot3Set.addAll(deirdreSlot3.stream().filter(blood -> (blood.isMajor() == false)).collect(Collectors.toList()));
 			
 			// Search for shared minor, which will become major.
 			Set<FE4Data.HolyBloodSlot1> sharedSlot1 = new HashSet<FE4Data.HolyBloodSlot1>(sigurdSlot1);
@@ -700,14 +720,27 @@ public class FE4Randomizer extends Randomizer {
 				seliphSlot2Set.add(FE4Data.HolyBloodSlot2.blood(bloodType, true));
 			}
 			
+			Set<FE4Data.HolyBloodSlot3> sharedSlot3 = new HashSet<FE4Data.HolyBloodSlot3>(sigurdSlot3);
+			sharedSlot3.retainAll(deirdreSlot3);
+			for(FE4Data.HolyBloodSlot3 slot3 : sharedSlot3) {
+				if (slot3.isMajor()) { continue; }
+				// Remove shared minor blood and add the major version.
+				seliphSlot3Set.remove(slot3);
+				FE4Data.HolyBlood bloodType = slot3.bloodType();
+				seliphSlot3Set.add(FE4Data.HolyBloodSlot3.blood(bloodType, true));
+			}
+			
 			List<FE4Data.HolyBloodSlot1> seliphSlot1 = new ArrayList<FE4Data.HolyBloodSlot1>(seliphSlot1Set);
 			List<FE4Data.HolyBloodSlot2> seliphSlot2 = new ArrayList<FE4Data.HolyBloodSlot2>(seliphSlot2Set);
+			List<FE4Data.HolyBloodSlot3> seliphSlot3 = new ArrayList<FE4Data.HolyBloodSlot3>(seliphSlot3Set); 
 			
 			int slot1Value = FE4Data.HolyBloodSlot1.valueForSlot1HolyBlood(seliphSlot1);
 			int slot2Value = FE4Data.HolyBloodSlot2.valueForSlot2HolyBlood(seliphSlot2);
+			int slot3Value = FE4Data.HolyBloodSlot3.valueForSlot3HolyBlood(seliphSlot3);
 			
 			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte1Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot1Value}, null));
 			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte2Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot2Value}, null));
+			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte3Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot3Value}, null));
 			
 			if (classOptions != null && promoOptions != null && promoOptions.promotionMode != FE4PromotionOptions.Mode.STRICT) {
 				// Make sure Seliph's promoted class can use Sigurd's major blood weapon.
@@ -762,6 +795,14 @@ public class FE4Randomizer extends Randomizer {
 					holyBoss.setBaseMAG(oldSTR);
 				}
 			}
+		}
+		
+		// Add new Follow-up logic code if necessary.
+		if (miscOptions.followupRequirement != null && miscOptions.followupRequirement.requiresPursuit == false) {
+			diffCompiler.addDiff(new Diff(FE4Data.OriginalFollowupLogicOffset - (isHeadered ? 0 : 0x200), FE4Data.OriginalFollowupLogicNewValues.length, FE4Data.OriginalFollowupLogicNewValues, FE4Data.OriginalFollowupLogicOldValues));
+			diffCompiler.addDiff(new Diff(FE4Data.NewFollowupLogicOffset - (isHeadered ? 0 : 0x200), FE4Data.NewFollowupLogicValues.length, FE4Data.NewFollowupLogicValues, FE4Data.NewFollowupLogicEmptySpace));
+			diffCompiler.addDiff(new Diff(FE4Data.FollowupWithPursuitOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)(miscOptions.followupRequirement.thresholdWithPursuit & 0xFF)}, new byte[] {0x03}));
+			diffCompiler.addDiff(new Diff(FE4Data.FollowupWithoutPursuitOffset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)(miscOptions.followupRequirement.thresholdWithoutPursuit & 0xFF)}, new byte[] {0x06}));
 		}
 	}
 	
@@ -872,8 +913,8 @@ public class FE4Randomizer extends Randomizer {
 				rk.addHeaderItem("Wrath Weight", skillsOptions.skillWeights.wrathWeight.enabled ? skillsOptions.skillWeights.wrathWeight.weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(FE4Data.Skill.WRATH) * 100) : "Disabled");
 				
 				rk.addHeaderItem("Pursuit Chance", String.format(" %d%%", skillsOptions.skillWeights.pursuitChance));
+				break;
 			}
-			
 		} else {
 			rk.addHeaderItem("Randomize Skills", "NO");
 		}

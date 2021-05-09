@@ -121,7 +121,11 @@ public class ClassDataLoader {
 	}
 	
 	public String debugStringForClass(int classID) {
-		return provider.classWithID(classID).toString();
+		if (provider.classWithID(classID) != null) {
+			return provider.classWithID(classID).toString();
+		} else {
+			return "UNKNOWN (0x" + Integer.toHexString(classID) + ")";
+		}
 	}
 	
 	public void commit() {
@@ -211,11 +215,11 @@ public class ClassDataLoader {
 		return classForID(correspondingClass.getID());
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
-		return potentialClasses(sourceClass, isForEnemy, excludeLords, excludeThieves, excludeSpecial, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, mustLoseToClass);
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, Boolean restrictGender, GBAFEClassData mustLoseToClass) {
+		return potentialClasses(sourceClass, isForEnemy, excludeLords, excludeThieves, excludeSpecial, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, restrictGender, mustLoseToClass);
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, GBAFEClassData mustLoseToClass) {
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, Boolean restrictGender, GBAFEClassData mustLoseToClass) {
 		GBAFEClass sourceCharClass = provider.classWithID(sourceClass.getID());
 		Set<GBAFEClass> targetClasses = null;
 		
@@ -229,6 +233,7 @@ public class ClassDataLoader {
 		options.put(GBAFEClassProvider.optionKeyRequireRange, requireRange);
 		options.put(GBAFEClassProvider.optionKeyRequireMelee, requireMelee);
 		options.put(GBAFEClassProvider.optionKeyApplyRestrictions, applyRestrictions);
+		options.put(GBAFEClassProvider.optionKeyRestrictGender, restrictGender);
 		
 		if (mustLoseToClass != null) {
 			targetClasses = provider.classesThatLoseToClass(provider.classWithID(sourceClass.getID()), provider.classWithID(mustLoseToClass.getID()), options);

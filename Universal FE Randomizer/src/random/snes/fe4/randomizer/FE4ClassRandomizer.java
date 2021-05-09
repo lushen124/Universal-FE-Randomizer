@@ -67,15 +67,6 @@ public class FE4ClassRandomizer {
 				if (!limitedBloodSet.contains(replacementBlood) && !Collections.disjoint(limitedBloodSet, bloodDistributor.possibleResults())) {
 					replacementBlood = null;
 				}
-				// Special case for Bragi, as we don't want it to end up on a boss.
-				if (blood.isEnemyBlood() && replacementBlood == HolyBlood.BRAGI) {
-					if (bloodDistributor.possibleResults().size() > 1) {
-						replacementBlood = null;
-					} else {
-						// Restart.
-						return generateBloodMapForBloodShuffle(options, rng);
-					}
-				}
 			} while (replacementBlood == null);
 			bloodDistributor.removeItem(replacementBlood, true);
 			predeterminedBloodMap.put(blood, replacementBlood);
@@ -2194,6 +2185,7 @@ public class FE4ClassRandomizer {
 		// If this is Deirdre, substitute her aura (0x60) with chapter 8 steel lance (0x34) to prevent duplicate items in Gen 2.
 		if (character.getCharacterID() == FE4Data.Character.DEIRDRE.ID) {
 			character.setEquipment2(FE4Data.Chapter8ShopSteelLanceInventoryID);
+			itemMap.setItemAtIndex(FE4Data.Chapter8ShopSteelLanceInventoryID, FE4Data.Item.AURA);
 		}
 		
 		Set<FE4Data.Item> usableSet = new HashSet<Item>(Arrays.asList(targetClass.usableItems(slot1Blood, slot2Blood, slot3Blood)));

@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import javax.swing.plaf.metal.OceanTheme;
-
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
@@ -338,6 +336,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return !doNotChange.contains(this);
 		}
 		
+		public Boolean requiresAttack() {
+			return requiredAttackers.contains(this);
+		}
+		
 		public Boolean requiresRange() {
 			return charactersThatRequireRange.contains(this);
 		}
@@ -616,7 +618,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsterClasses, Boolean requireAttack, Boolean requiresRange, Boolean requiresMelee, Boolean applyRestrictions) {
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsterClasses, Boolean requireAttack, Boolean requiresRange, Boolean requiresMelee, Boolean applyRestrictions, Boolean restrictGender) {
 			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass, separateMonsterClasses, requiresRange, requiresMelee);
 			if (limited != null && applyRestrictions) {
 				return limited;
@@ -672,6 +674,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (requiresMelee) {
 				classList.removeAll(allPacifistClasses);
 				classList.removeAll(allRangeLockedClasses);
+			}
+			
+			if (restrictGender) {
+				if (sourceClass.isFemale()) {
+					classList.retainAll(allFemaleClasses);
+				} else {
+					classList.retainAll(allMaleClasses);
+				}
 			}
 			
 			classList.retainAll(allValidClasses);
@@ -2794,9 +2804,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		if (separateMonsters == null) { separateMonsters = false; }
 		Boolean excludeSpecial = options.get(GBAFEClassProvider.optionKeyExcludeSpecial);
 		if (excludeSpecial == null) { excludeSpecial = false; }
+		Boolean restrictGender = options.get(GBAFEClassProvider.optionKeyRestrictGender);
+		if (restrictGender == null) { restrictGender = false; }
 		
 		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isForEnemy,
-				excludeSource, excludeLords, excludeThieves, excludeSpecial, separateMonsters, requireAttack, requiresRange, requiresMelee, applyRestrictions));
+				excludeSource, excludeLords, excludeThieves, excludeSpecial, separateMonsters, requireAttack, requiresRange, requiresMelee, applyRestrictions, restrictGender));
 	}
 	
 	public GBAFEClass correspondingMaleClass(GBAFEClass charClass) {

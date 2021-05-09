@@ -86,8 +86,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
 	private static final List<AddressRange> createFreeRangeList() {
 		List<AddressRange> ranges = new ArrayList<AddressRange>();
-		ranges.add(new AddressRange(0xA297B0L, 0xB00000L));
-		ranges.add(new AddressRange(0xB013F0L, 0xFFFFFFL));
+//		ranges.add(new AddressRange(0xA297B0L, 0xB00000L));
+//		ranges.add(new AddressRange(0xB013F0L, 0xFFFFFFL));
 		return ranges;
 	}
 	
@@ -238,7 +238,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList());
 		
 		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(THITO, MILEDY, GALE, NARSHEN));
-		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(ROY));
+		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(ROY, CECILIA));
 		
 		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(CLARINE, FA, SUE, WENDY, DOROTHY, ELEN, FIR, IGRENE, LILINA, NIIME, LALAM, YUNNO, THITO, THANY, 
 				CASS, SOPHIA, MILEDY, ECHIDNA, CECILIA, GUINEVERE, TATE_UNIT, NIIME_NPC, YUNNO_NPC, THITO_NPC, ECHIDNA_NPC, THITO_ENEMY, SIGUNE, BRUNYA, IDOUN));
@@ -271,6 +271,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean canChange() {
 			return !doNotChange.contains(this);
+		}
+		
+		public Boolean requiresAttack() {
+			return requiredAttackers.contains(this);
 		}
 		
 		public Boolean requiresRange() {
@@ -518,7 +522,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions) {
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions, Boolean restrictGender) {
 			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass);
 			if (limited != null && applyRestrictions) {
 				return limited;
@@ -563,6 +567,14 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			
 			if (isForEnemy) {
 				classList.removeAll(allPlayerOnlyClasses);
+			}
+			
+			if (restrictGender) {
+				if (sourceClass.isFemale()) {
+					classList.retainAll(allFemaleClasses);
+				} else {
+					classList.retainAll(allMaleClasses);
+				}
 			}
 			
 			classList.retainAll(allValidClasses);
@@ -2077,9 +2089,11 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		if (applyRestrictions == null) { applyRestrictions = false; }
 		Boolean excludeSpecial = options.get(GBAFEClassProvider.optionKeyExcludeSpecial);
 		if (excludeSpecial == null) { excludeSpecial = false; }
+		Boolean restrictGender = options.get(GBAFEClassProvider.optionKeyRestrictGender);
+		if (restrictGender == null) { restrictGender = false; }
 		
 		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isForEnemy,
-				excludeSource, excludeLords, excludeThieves, excludeSpecial, requireAttack, requiresRange, applyRestrictions));
+				excludeSource, excludeLords, excludeThieves, excludeSpecial, requireAttack, requiresRange, applyRestrictions, restrictGender));
 	}
 	
 	public GBAFEClass correspondingMaleClass(GBAFEClass charClass) {
