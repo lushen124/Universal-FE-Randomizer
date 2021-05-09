@@ -67,7 +67,6 @@ public class UPSPatcher {
 			
 			while (patchHandler.getNextReadOffset() < patchHandler.getFileLength() - 12) {
 				bytesToSkip = readVariableWidthOffset(patchHandler);
-				DebugPrinter.log(DebugPrinter.Key.UPS, "Skipping " + bytesToSkip + " bytes");
 				if (lastWrittenOffset + bytesToSkip > outputLength) { continue; }
 				
 				int sourceBytesLength = 0;
@@ -76,7 +75,6 @@ public class UPSPatcher {
 					outputStream.write(sourceBytes);
 					totalBytesWritten += sourceBytes.length;
 					sourceBytesLength = sourceBytes.length;
-					DebugPrinter.log(DebugPrinter.Key.UPS, "Read/copied " + sourceBytesLength + " bytes from the source.");
 				}
 				if (sourceBytesLength < bytesToSkip) {
 					int difference = (int)bytesToSkip - sourceBytesLength;
@@ -86,33 +84,42 @@ public class UPSPatcher {
 					}
 					outputStream.write(zeros);
 					totalBytesWritten += zeros.length;
-					DebugPrinter.log(DebugPrinter.Key.UPS, "Filled in " + zeros.length + " bytes worth of 0.");
 				}
 				lastWrittenOffset += bytesToSkip;
-				DebugPrinter.log(DebugPrinter.Key.UPS, "Starting diffs from offset 0x" + Long.toHexString(lastWrittenOffset).toUpperCase());
 				
 				byte[] delta = patchHandler.continueReadingBytesUpToNextTerminator((int)patchHandler.getFileLength() - 12);
 				if (delta == null) {
-					DebugPrinter.log(DebugPrinter.Key.UPS, "No more differences found.");
 					if (totalBytesWritten < outputLength) {
-						long differenceRemaining = outputLength - totalBytesWritten;
-						DebugPrinter.log(DebugPrinter.Key.UPS, "Filling in remaining " + differenceRemaining + " bytes with 0s.");
-						while (differenceRemaining > 0) {
-							int chunk = 0;
-							if (differenceRemaining > Integer.MAX_VALUE) {
-								chunk = Integer.MAX_VALUE;
-								differenceRemaining -= Integer.MAX_VALUE;
-							} else {
-								chunk = (int)differenceRemaining;
-								differenceRemaining = 0;
+						if (totalBytesWritten < inputLength) {
+							long differenceRemaining = inputLength - totalBytesWritten;
+							byte[] sourceBuffer = new byte[1024];
+							while (differenceRemaining > 0) {
+								int chunk = (int)Math.min(1024, differenceRemaining);
+								differenceRemaining -= chunk;
+								
+								sourceHandler.readBytesAtOffset(sourceBuffer, totalBytesWritten, chunk);
+								outputStream.write(sourceBuffer, 0, chunk);
+								totalBytesWritten += chunk;
 							}
-							byte[] zeros = new byte[chunk];
-							for (int i = 0; i < chunk; i++) {
-								zeros[i] = 0;
+						} else {
+							long differenceRemaining = outputLength - totalBytesWritten;
+							while (differenceRemaining > 0) {
+								int chunk = 0;
+								if (differenceRemaining > Integer.MAX_VALUE) {
+									chunk = Integer.MAX_VALUE;
+									differenceRemaining -= Integer.MAX_VALUE;
+								} else {
+									chunk = (int)differenceRemaining;
+									differenceRemaining = 0;
+								}
+								byte[] zeros = new byte[chunk];
+								for (int i = 0; i < chunk; i++) {
+									zeros[i] = 0;
+								}
+								
+								outputStream.write(zeros);
+								totalBytesWritten += zeros.length;
 							}
-							
-							outputStream.write(zeros);
-							totalBytesWritten += zeros.length;
 						}
 					} else if (totalBytesWritten > outputLength) {
 						System.err.println("Warning: Bytes written exceeds expected result size.");
@@ -129,8 +136,11 @@ public class UPSPatcher {
 					resultBytes[i] = result;
 					lastWrittenOffset++;
 				}
-				DebugPrinter.log(DebugPrinter.Key.UPS, "Wrote " + deltaLength + " bytes");
-				DebugPrinter.log(DebugPrinter.Key.UPS, "Bytes written: " + WhyDoesJavaNotHaveThese.displayStringForBytes(resultBytes));
+			}
+			
+			while (totalBytesWritten < outputLength) {
+				outputStream.write(0);
+				totalBytesWritten++;
 			}
 			
 			outputStream.close();

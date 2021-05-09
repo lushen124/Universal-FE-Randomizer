@@ -24,7 +24,7 @@ public class FreeSpaceManager {
 	public FreeSpaceManager(FEBase.GameType gameType, List<AddressRange> internalRanges, FileHandler handler) {
 		switch (gameType) {
 		case FE6:
-			freeAddress = Math.max(0x1000200, handler.getFileLength());
+			freeAddress = Math.max(0x82D4A0, handler.getFileLength());
 			break;
 		case FE7:
 		case FE8:
@@ -41,6 +41,9 @@ public class FreeSpaceManager {
 	}
 	
 	public long reserveSpace(int length, String key, boolean byteAligned) {
+		if (byteAligned) {
+			while ((freeAddress & 0x3) != 0) { freeAddress++; }
+		}
 		long offset = freeAddress;
 		freeAddress += length;
 		DebugPrinter.log(DebugPrinter.Key.FREESPACE, "Reserving Space for " + key + " (" + Integer.toString(length) + " bytes) to offset 0x" + Long.toHexString(freeAddress));
@@ -70,7 +73,8 @@ public class FreeSpaceManager {
 			return offset;
 		}
 		
-		return 0;
+		// Fall back to tacking it onto the end of the ROM.
+		return reserveSpace(length, key, byteAligned);
 	}
 	
 	// This is limited, so don't use this unless absolutely necessary.
@@ -106,7 +110,8 @@ public class FreeSpaceManager {
 			return assignment.offset;
 		}
 		
-		return 0;
+		// Fall back to tacking it onto the end of the ROM.
+		return setValue(value, key, byteAligned);
 	}
 	
 	public long setValue(byte[] value, String key) {
