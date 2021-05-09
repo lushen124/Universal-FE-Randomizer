@@ -282,7 +282,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Character> allThieves = new HashSet<Character>(Arrays.asList(COLM, RENNAC));
 		public static Set<Character> doNotChange = new HashSet<Character>(Arrays.asList(MORVA, LYON, LYON_CH17, LYON_FINAL, DEMON_KING, DARA, KLIMT, MYRRH));
 		
-		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList());
+		public static Set<Character> charactersThatRequireRange = new HashSet<Character>(Arrays.asList(ARTUR)); // Skippable, but Ch.4 has a scripted fight against a Mogall.
 		public static Set<Character> charactersThatRequireMelee = new HashSet<Character>(Arrays.asList(SETH)); // The prologue scripted battle.
 		
 		// Vanessa isn't strictly required, but Ross is likely screwed otherwise.
