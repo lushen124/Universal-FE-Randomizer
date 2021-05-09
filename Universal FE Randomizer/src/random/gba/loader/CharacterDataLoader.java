@@ -151,6 +151,10 @@ public class CharacterDataLoader {
 		return provider.affinityValues();
 	}
 	
+	public Boolean characterIDRequiresAttack(int characterID) {
+		return provider.characterWithID(characterID).requiresAttack();
+	}
+	
 	public Boolean characterIDRequiresRange(int characterID) {
 		return provider.characterWithID(characterID).requiresRange();
 	}
