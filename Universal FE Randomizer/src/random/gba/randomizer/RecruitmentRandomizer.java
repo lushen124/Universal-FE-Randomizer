@@ -455,6 +455,15 @@ public class RecruitmentRandomizer {
 				textData.getStringAtIndex(fill.getNameIndex(), true) + "](" + textData.getStringAtIndex(fillSourceClass.getNameIndex(), true) + ")");
 		
 		GBAFECharacterData[] linkedSlots = characterData.linkedCharactersForCharacter(slotReference);
+		
+		// Used only for FE8 trainees that can promote twice.
+		int additionalPromoHP = 0;
+		int additionalPromoSTR = 0;
+		int additionalPromoSKL = 0;
+		int additionalPromoSPD = 0;
+		int additionalPromoDEF = 0;
+		int additionalPromoRES = 0;
+		
 		for (GBAFECharacterData linkedSlot : linkedSlots) {
 			// Do not modify if they happen to have a different class.
 			if (linkedSlot.getClassID() != slotReference.getClassID()) { continue; }
@@ -484,12 +493,12 @@ public class RecruitmentRandomizer {
 				levelsToAdd -= 3;
 			}
 			
-			int promoAdjustHP = 0;
-			int promoAdjustSTR = 0;
-			int promoAdjustSKL = 0;
-			int promoAdjustSPD = 0;
-			int promoAdjustDEF = 0;
-			int promoAdjustRES = 0;
+			int promoAdjustHP = additionalPromoHP;
+			int promoAdjustSTR = additionalPromoSTR;
+			int promoAdjustSKL = additionalPromoSKL;
+			int promoAdjustSPD = additionalPromoSPD;
+			int promoAdjustDEF = additionalPromoDEF;
+			int promoAdjustRES = additionalPromoRES;
 			
 			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Adjusted Slot level: " + Integer.toString(targetLevel) + "\tAdjusted Fill Level: " + Integer.toString(sourceLevel) + "\tLevels To Add: " + Integer.toString(levelsToAdd));
 			
@@ -509,6 +518,15 @@ public class RecruitmentRandomizer {
 							promoAdjustSPD += targetClass.getPromoSPD();
 							promoAdjustDEF += targetClass.getPromoDEF();
 							promoAdjustRES += targetClass.getPromoRES();
+							
+							// Save these if we need them for later for additional linked slots after we've determined our class.
+							additionalPromoHP = targetClass.getPromoHP();
+							additionalPromoSTR = targetClass.getPromoSTR();
+							additionalPromoSKL = targetClass.getPromoSKL();
+							additionalPromoSPD = targetClass.getPromoSPD();
+							additionalPromoDEF = targetClass.getPromoDEF();
+							additionalPromoRES = targetClass.getPromoRES();
+							
 							promotionOptions = classData.promotionOptions(targetClass.getID());
 							DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Promotion Options: [" + String.join(", ", promotionOptions.stream().map(charClass -> (textData.getStringAtIndex(charClass.getNameIndex(), true))).collect(Collectors.toList())) + "]");
 							if (!promotionOptions.isEmpty()) {
@@ -525,22 +543,22 @@ public class RecruitmentRandomizer {
 					}
 					
 					DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Selected Class: " + (targetClass != null ? textData.getStringAtIndex(targetClass.getNameIndex(), true) : "None"));
-					
-					promoAdjustHP += targetClass.getPromoHP();
-					promoAdjustSTR += targetClass.getPromoSTR();
-					promoAdjustSKL += targetClass.getPromoSKL();
-					promoAdjustSPD += targetClass.getPromoSPD();
-					promoAdjustDEF += targetClass.getPromoDEF();
-					promoAdjustRES += targetClass.getPromoRES();
-					
-					// For some reason, some promoted class seem to have lower bases than their unpromoted variants (FE8 lords are an example). If they are lower, adjust upwards.
-					if (targetClass.getBaseHP() < fillSourceClass.getBaseHP()) { promoAdjustHP += fillSourceClass.getBaseHP() - targetClass.getBaseHP(); }
-					if (targetClass.getBaseSTR() < fillSourceClass.getBaseSTR()) { promoAdjustSTR += fillSourceClass.getBaseSTR() - targetClass.getBaseSTR(); }
-					if (targetClass.getBaseSKL() < fillSourceClass.getBaseSKL()) { promoAdjustSKL += fillSourceClass.getBaseSKL() - targetClass.getBaseSKL(); }
-					if (targetClass.getBaseSPD() < fillSourceClass.getBaseSPD()) { promoAdjustSPD += fillSourceClass.getBaseSPD() - targetClass.getBaseSPD(); }
-					if (targetClass.getBaseDEF() < fillSourceClass.getBaseDEF()) { promoAdjustDEF += fillSourceClass.getBaseDEF() - targetClass.getBaseDEF(); }
-					if (targetClass.getBaseRES() < fillSourceClass.getBaseRES()) { promoAdjustRES += fillSourceClass.getBaseRES() - targetClass.getBaseRES(); }
 				}
+				
+				promoAdjustHP += targetClass.getPromoHP();
+				promoAdjustSTR += targetClass.getPromoSTR();
+				promoAdjustSKL += targetClass.getPromoSKL();
+				promoAdjustSPD += targetClass.getPromoSPD();
+				promoAdjustDEF += targetClass.getPromoDEF();
+				promoAdjustRES += targetClass.getPromoRES();
+				
+				// For some reason, some promoted class seem to have lower bases than their unpromoted variants (FE8 lords are an example). If they are lower, adjust upwards.
+				if (targetClass.getBaseHP() < fillSourceClass.getBaseHP()) { promoAdjustHP += fillSourceClass.getBaseHP() - targetClass.getBaseHP(); }
+				if (targetClass.getBaseSTR() < fillSourceClass.getBaseSTR()) { promoAdjustSTR += fillSourceClass.getBaseSTR() - targetClass.getBaseSTR(); }
+				if (targetClass.getBaseSKL() < fillSourceClass.getBaseSKL()) { promoAdjustSKL += fillSourceClass.getBaseSKL() - targetClass.getBaseSKL(); }
+				if (targetClass.getBaseSPD() < fillSourceClass.getBaseSPD()) { promoAdjustSPD += fillSourceClass.getBaseSPD() - targetClass.getBaseSPD(); }
+				if (targetClass.getBaseDEF() < fillSourceClass.getBaseDEF()) { promoAdjustDEF += fillSourceClass.getBaseDEF() - targetClass.getBaseDEF(); }
+				if (targetClass.getBaseRES() < fillSourceClass.getBaseRES()) { promoAdjustRES += fillSourceClass.getBaseRES() - targetClass.getBaseRES(); }
 				
 				setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			} else if (!shouldBePromoted && isPromoted) {
@@ -560,22 +578,22 @@ public class RecruitmentRandomizer {
 					}
 					
 					DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Selected Class: " + (targetClass != null ? textData.getStringAtIndex(targetClass.getNameIndex(), true) : "None"));
-					
-					promoAdjustHP = fillSourceClass.getPromoHP() * -1;
-					promoAdjustSTR = fillSourceClass.getPromoSTR() * -1;
-					promoAdjustSKL = fillSourceClass.getPromoSKL() * -1;
-					promoAdjustSPD = fillSourceClass.getPromoSPD() * -1;
-					promoAdjustDEF = fillSourceClass.getPromoDEF() * -1;
-					promoAdjustRES = fillSourceClass.getPromoRES() * -1;
-					
-					// For some reason, some promoted class seem to have lower bases than their unpromoted variants (FE8 lords are an example). If our demoted class has higher bases, adjust downwards
-					if (targetClass.getBaseHP() > fillSourceClass.getBaseHP()) { promoAdjustHP -= targetClass.getBaseHP() - fillSourceClass.getBaseHP(); }
-					if (targetClass.getBaseSTR() > fillSourceClass.getBaseSTR()) { promoAdjustSTR -= targetClass.getBaseSTR() - fillSourceClass.getBaseSTR(); }
-					if (targetClass.getBaseSKL() > fillSourceClass.getBaseSKL()) { promoAdjustSKL -= targetClass.getBaseSKL() - fillSourceClass.getBaseSKL(); }
-					if (targetClass.getBaseSPD() > fillSourceClass.getBaseSPD()) { promoAdjustSPD -= targetClass.getBaseSPD() - fillSourceClass.getBaseSPD(); }
-					if (targetClass.getBaseDEF() > fillSourceClass.getBaseDEF()) { promoAdjustDEF -= targetClass.getBaseDEF() - fillSourceClass.getBaseDEF(); }
-					if (targetClass.getBaseRES() > fillSourceClass.getBaseRES()) { promoAdjustRES -= targetClass.getBaseRES() - fillSourceClass.getBaseRES(); }
 				}
+				
+				promoAdjustHP = fillSourceClass.getPromoHP() * -1;
+				promoAdjustSTR = fillSourceClass.getPromoSTR() * -1;
+				promoAdjustSKL = fillSourceClass.getPromoSKL() * -1;
+				promoAdjustSPD = fillSourceClass.getPromoSPD() * -1;
+				promoAdjustDEF = fillSourceClass.getPromoDEF() * -1;
+				promoAdjustRES = fillSourceClass.getPromoRES() * -1;
+				
+				// For some reason, some promoted class seem to have lower bases than their unpromoted variants (FE8 lords are an example). If our demoted class has higher bases, adjust downwards
+				if (targetClass.getBaseHP() > fillSourceClass.getBaseHP()) { promoAdjustHP -= targetClass.getBaseHP() - fillSourceClass.getBaseHP(); }
+				if (targetClass.getBaseSTR() > fillSourceClass.getBaseSTR()) { promoAdjustSTR -= targetClass.getBaseSTR() - fillSourceClass.getBaseSTR(); }
+				if (targetClass.getBaseSKL() > fillSourceClass.getBaseSKL()) { promoAdjustSKL -= targetClass.getBaseSKL() - fillSourceClass.getBaseSKL(); }
+				if (targetClass.getBaseSPD() > fillSourceClass.getBaseSPD()) { promoAdjustSPD -= targetClass.getBaseSPD() - fillSourceClass.getBaseSPD(); }
+				if (targetClass.getBaseDEF() > fillSourceClass.getBaseDEF()) { promoAdjustDEF -= targetClass.getBaseDEF() - fillSourceClass.getBaseDEF(); }
+				if (targetClass.getBaseRES() > fillSourceClass.getBaseRES()) { promoAdjustRES -= targetClass.getBaseRES() - fillSourceClass.getBaseRES(); }
 				
 				setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			} else {
