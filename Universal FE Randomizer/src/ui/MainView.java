@@ -692,7 +692,7 @@ public class MainView implements FileFlowDelegate {
 			FormData enemyData = new FormData();
 			enemyData.top = new FormAttachment(fe9ClassesView, 5); 
 			enemyData.left = new FormAttachment(fe9ClassesView, 0, SWT.LEFT);
-			enemyData.right = new FormAttachment(fe9ClassesView, 0, SWT.RIGHT);
+			enemyData.right = new FormAttachment(100, -5);
 			fe9EnemyView.setLayoutData(enemyData);
 			
 			FormData randomizeData = new FormData();

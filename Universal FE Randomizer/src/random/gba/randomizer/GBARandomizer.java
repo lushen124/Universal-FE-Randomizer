@@ -545,10 +545,10 @@ public class GBARandomizer extends Randomizer {
 		if (enemies != null) {
 			if (enemies.minionMode == EnemyOptions.MinionGrowthMode.FLAT) {
 				updateStatusString("Buffing enemies...");
-				EnemyBuffer.buffMinionGrowthRates(enemies.minionBuff, classData);
+				EnemyBuffer.buffMinionGrowthRates(enemies.minionBuff, classData, enemies.minionBuffStats);
 			} else if (enemies.minionMode == EnemyOptions.MinionGrowthMode.SCALING) {
 				updateStatusString("Buffing enemies...");
-				EnemyBuffer.scaleEnemyGrowthRates(enemies.minionBuff, classData);
+				EnemyBuffer.scaleEnemyGrowthRates(enemies.minionBuff, classData, enemies.minionBuffStats);
 			}
 			
 			if (enemies.improveMinionWeapons) {
@@ -559,10 +559,10 @@ public class GBARandomizer extends Randomizer {
 			
 			if (enemies.bossMode == BossStatMode.LINEAR) {
 				updateStatusString("Buffing Bosses...");
-				EnemyBuffer.buffBossStatsLinearly(enemies.bossBuff, charData, classData);
+				EnemyBuffer.buffBossStatsLinearly(enemies.bossBuff, charData, classData, enemies.bossBuffStats);
 			} else if (enemies.bossMode == BossStatMode.EASE_IN_OUT) {
 				updateStatusString("Buffing Bosses...");
-				EnemyBuffer.buffBossStatsWithEaseInOutCurve(enemies.bossBuff, charData, classData);
+				EnemyBuffer.buffBossStatsWithEaseInOutCurve(enemies.bossBuff, charData, classData, enemies.bossBuffStats);
 			}
 			
 			if (enemies.improveBossWeapons) {
@@ -2194,9 +2194,11 @@ public class GBARandomizer extends Randomizer {
 			break;
 		case FLAT:
 			rk.addHeaderItem("Buff Minions", "Flat Buff (Growths +" + enemies.minionBuff + "%)");
+			rk.addHeaderItem("Buffed Minion Stats", enemies.minionBuffStats.buffString());
 			break;
 		case SCALING:
 			rk.addHeaderItem("Buff Minions", "Scaling Buff (Growths x" + String.format("%.2f", (enemies.minionBuff / 100.0) + 1) + ")");
+			rk.addHeaderItem("Buffed Minion Stats", enemies.minionBuffStats.buffString());
 			break;
 		}
 		
@@ -2212,9 +2214,11 @@ public class GBARandomizer extends Randomizer {
 			break;
 		case LINEAR:
 			rk.addHeaderItem("Buff Bosses", "Linear - Max Gain: +" + enemies.bossBuff);
+			rk.addHeaderItem("Buffed Boss Stats", enemies.bossBuffStats.buffString());
 			break;
 		case EASE_IN_OUT:
 			rk.addHeaderItem("Buff Bosses", "Ease In/Ease Out - Max Gain: +" + enemies.bossBuff);
+			rk.addHeaderItem("Buffed Boss Stats", enemies.bossBuffStats.buffString());
 			break;
 		}
 		

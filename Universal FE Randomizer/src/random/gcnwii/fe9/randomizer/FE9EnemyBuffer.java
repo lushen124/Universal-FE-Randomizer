@@ -15,43 +15,44 @@ import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
+import ui.model.FE9EnemyBuffOptions;
 
 public class FE9EnemyBuffer {
 	
 	public static final int rngSalt = 9139;
 	
-	public static void flatBuffMinionGrowths(int buffAmount, FE9ClassDataLoader classData) {
+	public static void flatBuffMinionGrowths(int buffAmount, FE9ClassDataLoader classData, FE9EnemyBuffOptions.BuffStats buffStats) {
 		for (FE9Class charClass : classData.allValidClasses()) {
-			charClass.setHPGrowth(Math.min(charClass.getHPGrowth() + buffAmount, 255));
-			charClass.setSTRGrowth(Math.min(charClass.getSTRGrowth() + buffAmount, 255));
-			charClass.setMAGGrowth(Math.min(charClass.getMAGGrowth() + buffAmount, 255));
-			charClass.setSKLGrowth(Math.min(charClass.getSKLGrowth() + buffAmount, 255));
-			charClass.setSPDGrowth(Math.min(charClass.getSPDGrowth() + buffAmount, 255));
-			charClass.setLCKGrowth(Math.min(charClass.getLCKGrowth() + buffAmount, 255));
-			charClass.setDEFGrowth(Math.min(charClass.getDEFGrowth() + buffAmount, 255));
-			charClass.setRESGrowth(Math.min(charClass.getRESGrowth() + buffAmount, 255));
+			if (buffStats.hp) { charClass.setHPGrowth(Math.min(charClass.getHPGrowth() + buffAmount, 255)); }
+			if (buffStats.str) { charClass.setSTRGrowth(Math.min(charClass.getSTRGrowth() + buffAmount, 255)); }
+			if (buffStats.mag) { charClass.setMAGGrowth(Math.min(charClass.getMAGGrowth() + buffAmount, 255)); }
+			if (buffStats.skl) { charClass.setSKLGrowth(Math.min(charClass.getSKLGrowth() + buffAmount, 255)); }
+			if (buffStats.spd) { charClass.setSPDGrowth(Math.min(charClass.getSPDGrowth() + buffAmount, 255)); }
+			if (buffStats.lck) { charClass.setLCKGrowth(Math.min(charClass.getLCKGrowth() + buffAmount, 255)); }
+			if (buffStats.def) { charClass.setDEFGrowth(Math.min(charClass.getDEFGrowth() + buffAmount, 255)); }
+			if (buffStats.res) { charClass.setRESGrowth(Math.min(charClass.getRESGrowth() + buffAmount, 255)); }
 		}
 		
 		classData.commit();
 	}
 	
-	public static void scaleBuffMinionGrowths(int buffAmount, FE9ClassDataLoader classData) {
+	public static void scaleBuffMinionGrowths(int buffAmount, FE9ClassDataLoader classData, FE9EnemyBuffOptions.BuffStats buffStats) {
 		double multiplier = 1 + (double)buffAmount / (double)100;
 		for (FE9Class charClass : classData.allValidClasses()) {
-			charClass.setHPGrowth(Math.min((int)(charClass.getHPGrowth() * multiplier), 255));
-			charClass.setSTRGrowth(Math.min((int)(charClass.getSTRGrowth() * multiplier), 255));
-			charClass.setMAGGrowth(Math.min((int)(charClass.getMAGGrowth() * multiplier), 255));
-			charClass.setSKLGrowth(Math.min((int)(charClass.getSKLGrowth() * multiplier), 255));
-			charClass.setSPDGrowth(Math.min((int)(charClass.getSPDGrowth() * multiplier), 255));
-			charClass.setLCKGrowth(Math.min((int)(charClass.getLCKGrowth() * multiplier), 255));
-			charClass.setDEFGrowth(Math.min((int)(charClass.getDEFGrowth() * multiplier), 255));
-			charClass.setRESGrowth(Math.min((int)(charClass.getRESGrowth() * multiplier), 255));
+			if (buffStats.hp) { charClass.setHPGrowth(Math.min((int)(charClass.getHPGrowth() * multiplier), 255)); }
+			if (buffStats.str) { charClass.setSTRGrowth(Math.min((int)(charClass.getSTRGrowth() * multiplier), 255)); }
+			if (buffStats.mag) { charClass.setMAGGrowth(Math.min((int)(charClass.getMAGGrowth() * multiplier), 255)); }
+			if (buffStats.skl) { charClass.setSKLGrowth(Math.min((int)(charClass.getSKLGrowth() * multiplier), 255)); }
+			if (buffStats.spd) { charClass.setSPDGrowth(Math.min((int)(charClass.getSPDGrowth() * multiplier), 255)); }
+			if (buffStats.lck) { charClass.setLCKGrowth(Math.min((int)(charClass.getLCKGrowth() * multiplier), 255)); }
+			if (buffStats.def) { charClass.setDEFGrowth(Math.min((int)(charClass.getDEFGrowth() * multiplier), 255)); }
+			if (buffStats.res) { charClass.setRESGrowth(Math.min((int)(charClass.getRESGrowth() * multiplier), 255)); }
 		}
 		
 		classData.commit();
 	}
 
-	public static void buffBossStatsLinearly(int buffAmount, FE9CharacterDataLoader charData, FE9ClassDataLoader classData) {
+	public static void buffBossStatsLinearly(int buffAmount, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, FE9EnemyBuffOptions.BuffStats buffStats) {
 		double divisor = FE9Data.Chapter.allChapters().size();
 		double dividend = 0;
 		for (FE9Data.Chapter chapter : FE9Data.Chapter.allChapters()) {
@@ -60,14 +61,14 @@ public class FE9EnemyBuffer {
 			for (FE9Data.Character character : bosses) {
 				FE9Character boss = charData.characterWithID(character.getPID());
 				FE9Class bossClass = classData.classWithID(charData.getJIDForCharacter(boss));
-				boss.setBaseHP(Math.min(bossClass.getMaxHP() - bossClass.getBaseHP(), boss.getBaseHP() + delta));
-				boss.setBaseSTR(Math.min(bossClass.getMaxSTR() - bossClass.getBaseSTR(), boss.getBaseSTR() + delta));
-				boss.setBaseMAG(Math.min(bossClass.getMaxMAG() - bossClass.getBaseMAG(), boss.getBaseMAG() + delta));
-				boss.setBaseSKL(Math.min(bossClass.getMaxSKL() - bossClass.getBaseSKL(), boss.getBaseSKL() + delta));
-				boss.setBaseSPD(Math.min(bossClass.getMaxSPD() - bossClass.getBaseSPD(), boss.getBaseSPD() + delta));
-				boss.setBaseLCK(Math.min(bossClass.getMaxLCK() - bossClass.getBaseLCK(), boss.getBaseLCK() + delta));
-				boss.setBaseDEF(Math.min(bossClass.getMaxDEF() - bossClass.getBaseDEF(), boss.getBaseDEF() + delta));
-				boss.setBaseRES(Math.min(bossClass.getMaxRES() - bossClass.getBaseRES(), boss.getBaseRES() + delta));
+				if (buffStats.hp) { boss.setBaseHP(Math.min(bossClass.getMaxHP() - bossClass.getBaseHP(), boss.getBaseHP() + delta)); }
+				if (buffStats.str) { boss.setBaseSTR(Math.min(bossClass.getMaxSTR() - bossClass.getBaseSTR(), boss.getBaseSTR() + delta)); }
+				if (buffStats.mag) { boss.setBaseMAG(Math.min(bossClass.getMaxMAG() - bossClass.getBaseMAG(), boss.getBaseMAG() + delta)); }
+				if (buffStats.skl) { boss.setBaseSKL(Math.min(bossClass.getMaxSKL() - bossClass.getBaseSKL(), boss.getBaseSKL() + delta)); }
+				if (buffStats.spd) { boss.setBaseSPD(Math.min(bossClass.getMaxSPD() - bossClass.getBaseSPD(), boss.getBaseSPD() + delta)); }
+				if (buffStats.lck) { boss.setBaseLCK(Math.min(bossClass.getMaxLCK() - bossClass.getBaseLCK(), boss.getBaseLCK() + delta)); }
+				if (buffStats.def) { boss.setBaseDEF(Math.min(bossClass.getMaxDEF() - bossClass.getBaseDEF(), boss.getBaseDEF() + delta)); }
+				if (buffStats.res) { boss.setBaseRES(Math.min(bossClass.getMaxRES() - bossClass.getBaseRES(), boss.getBaseRES() + delta)); }
 			}
 			dividend += 1;
 		}
@@ -75,7 +76,7 @@ public class FE9EnemyBuffer {
 		charData.commit();
 	}
 	
-	public static void buffBossStatsByEasing(int buffAmount, FE9CharacterDataLoader charData, FE9ClassDataLoader classData) {
+	public static void buffBossStatsByEasing(int buffAmount, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, FE9EnemyBuffOptions.BuffStats buffStats) {
 		double[] factors = new double[] {
 				1.0 / 31.0, // Prologue (not used) 
 				1.4 / 31.0, // Ch 1 (+ 0.4)
@@ -116,14 +117,14 @@ public class FE9EnemyBuffer {
 			for (FE9Data.Character character : bosses) {
 				FE9Character boss = charData.characterWithID(character.getPID());
 				FE9Class bossClass = classData.classWithID(charData.getJIDForCharacter(boss));
-				boss.setBaseHP(Math.min(bossClass.getMaxHP() - bossClass.getBaseHP(), boss.getBaseHP() + delta));
-				boss.setBaseSTR(Math.min(bossClass.getMaxSTR() - bossClass.getBaseSTR(), boss.getBaseSTR() + delta));
-				boss.setBaseMAG(Math.min(bossClass.getMaxMAG() - bossClass.getBaseMAG(), boss.getBaseMAG() + delta));
-				boss.setBaseSKL(Math.min(bossClass.getMaxSKL() - bossClass.getBaseSKL(), boss.getBaseSKL() + delta));
-				boss.setBaseSPD(Math.min(bossClass.getMaxSPD() - bossClass.getBaseSPD(), boss.getBaseSPD() + delta));
-				boss.setBaseLCK(Math.min(bossClass.getMaxLCK() - bossClass.getBaseLCK(), boss.getBaseLCK() + delta));
-				boss.setBaseDEF(Math.min(bossClass.getMaxDEF() - bossClass.getBaseDEF(), boss.getBaseDEF() + delta));
-				boss.setBaseRES(Math.min(bossClass.getMaxRES() - bossClass.getBaseRES(), boss.getBaseRES() + delta));
+				if (buffStats.hp) { boss.setBaseHP(Math.min(bossClass.getMaxHP() - bossClass.getBaseHP(), boss.getBaseHP() + delta)); }
+				if (buffStats.str) { boss.setBaseSTR(Math.min(bossClass.getMaxSTR() - bossClass.getBaseSTR(), boss.getBaseSTR() + delta)); }
+				if (buffStats.mag) { boss.setBaseMAG(Math.min(bossClass.getMaxMAG() - bossClass.getBaseMAG(), boss.getBaseMAG() + delta)); }
+				if (buffStats.skl) { boss.setBaseSKL(Math.min(bossClass.getMaxSKL() - bossClass.getBaseSKL(), boss.getBaseSKL() + delta)); }
+				if (buffStats.spd) { boss.setBaseSPD(Math.min(bossClass.getMaxSPD() - bossClass.getBaseSPD(), boss.getBaseSPD() + delta)); }
+				if (buffStats.lck) { boss.setBaseLCK(Math.min(bossClass.getMaxLCK() - bossClass.getBaseLCK(), boss.getBaseLCK() + delta)); }
+				if (buffStats.def) { boss.setBaseDEF(Math.min(bossClass.getMaxDEF() - bossClass.getBaseDEF(), boss.getBaseDEF() + delta)); }
+				if (buffStats.res) { boss.setBaseRES(Math.min(bossClass.getMaxRES() - bossClass.getBaseRES(), boss.getBaseRES() + delta)); }
 			}
 		}
 		

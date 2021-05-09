@@ -5,6 +5,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
@@ -15,6 +16,7 @@ import org.eclipse.swt.widgets.Spinner;
 
 import ui.model.FE9EnemyBuffOptions;
 import ui.model.FE9EnemyBuffOptions.BossStatMode;
+import ui.model.FE9EnemyBuffOptions.BuffStats;
 import ui.model.FE9EnemyBuffOptions.MinionGrowthMode;
 
 public class FE9EnemyBuffView extends Composite {
@@ -28,6 +30,15 @@ public class FE9EnemyBuffView extends Composite {
 	private Spinner minionGrowthSpinner;
 	private Button minionModeFlatButton;
 	private Button minionModeScalingButton;
+	
+	private Button minionHP;
+	private Button minionSTR;
+	private Button minionMAG;
+	private Button minionSKL;
+	private Button minionSPD;
+	private Button minionLCK;
+	private Button minionDEF;
+	private Button minionRES;
 	
 	private Button improveMinionWeaponButton;
 	private Label minionWeaponLabel;
@@ -44,6 +55,15 @@ public class FE9EnemyBuffView extends Composite {
 	private Spinner bossStatSpinner;
 	private Button bossModeLinearButton;
 	private Button bossModeEaseInOutButton;
+	
+	private Button bossHP;
+	private Button bossSTR;
+	private Button bossMAG;
+	private Button bossSKL;
+	private Button bossSPD;
+	private Button bossLCK;
+	private Button bossDEF;
+	private Button bossRES;
 	
 	private Button improveBossWeaponButton;
 	private Label bossWeaponLabel;
@@ -96,6 +116,15 @@ public class FE9EnemyBuffView extends Composite {
 				minionGrowthLabel.setEnabled(isEnabled);
 				minionModeFlatButton.setEnabled(isEnabled);
 				minionModeScalingButton.setEnabled(isEnabled);
+				
+				minionHP.setEnabled(isEnabled);
+				minionSTR.setEnabled(isEnabled);
+				minionMAG.setEnabled(isEnabled);
+				minionSKL.setEnabled(isEnabled);
+				minionSPD.setEnabled(isEnabled);
+				minionLCK.setEnabled(isEnabled);
+				minionDEF.setEnabled(isEnabled);
+				minionRES.setEnabled(isEnabled);
 			}
 		});
 		
@@ -156,6 +185,65 @@ public class FE9EnemyBuffView extends Composite {
 		minionGrowthBuffContainerData.right = new FormAttachment(100, -5);
 		minionBuffParamContainer.setLayoutData(minionGrowthBuffContainerData);
 		
+		Composite minionStatGroup = new Composite(minionGroup, SWT.NONE);
+		RowLayout rowLayout = new RowLayout();
+		minionStatGroup.setLayout(rowLayout);
+		
+		minionHP = new Button(minionStatGroup, SWT.CHECK);
+		minionHP.setText("HP");
+		minionHP.setToolTipText("Apply buff to minion health.");
+		minionHP.setEnabled(false);
+		minionHP.setSelection(true);
+		
+		minionSTR = new Button(minionStatGroup, SWT.CHECK);
+		minionSTR.setText("STR");
+		minionSTR.setToolTipText("Apply buff to minion physical attack power.");
+		minionSTR.setEnabled(false);
+		minionSTR.setSelection(true);
+		
+		minionMAG = new Button(minionStatGroup, SWT.CHECK);
+		minionMAG.setText("MAG");
+		minionMAG.setToolTipText("Apply buff to minion magical attack power.");
+		minionMAG.setEnabled(false);
+		minionMAG.setSelection(true);
+		
+		minionSKL = new Button(minionStatGroup, SWT.CHECK);
+		minionSKL.setText("SKL");
+		minionSKL.setToolTipText("Apply buff to minion accuracy and critical chance.");
+		minionSKL.setEnabled(false);
+		minionSKL.setSelection(true);
+		
+		minionSPD = new Button(minionStatGroup, SWT.CHECK);
+		minionSPD.setText("SPD");
+		minionSPD.setToolTipText("Apply buff to minion speed and evasion.");
+		minionSPD.setEnabled(false);
+		minionSPD.setSelection(true);
+		
+		minionLCK = new Button(minionStatGroup, SWT.CHECK);
+		minionLCK.setText("LCK");
+		minionLCK.setToolTipText("Apply buff to minion accuracy and critical evasion.");
+		minionLCK.setEnabled(false);
+		minionLCK.setSelection(true);
+		
+		minionDEF = new Button(minionStatGroup, SWT.CHECK);
+		minionDEF.setText("DEF");
+		minionDEF.setToolTipText("Apply buff to minion physical defense.");
+		minionDEF.setEnabled(false);
+		minionDEF.setSelection(true);
+		
+		minionRES = new Button(minionStatGroup, SWT.CHECK);
+		minionRES.setText("RES");
+		minionRES.setToolTipText("Apply buff to minion magical defense.");
+		minionRES.setEnabled(false);
+		minionRES.setSelection(true);
+		
+		FormData minionGroupData = new FormData();
+		minionGroupData.left = new FormAttachment(0, 10);
+		minionGroupData.right = new FormAttachment(100, -10);
+		minionGroupData.top = new FormAttachment(minionBuffParamContainer, 0);
+		minionGroupData.width = 100;
+		minionStatGroup.setLayoutData(minionGroupData);
+		
 		//////////////////////////////////////////////////////////////////
 		
 		improveMinionWeaponButton = new Button(minionGroup, SWT.CHECK);
@@ -171,7 +259,7 @@ public class FE9EnemyBuffView extends Composite {
 		
 		FormData minionWeaponData = new FormData();
 		minionWeaponData.left = new FormAttachment(0, 5);
-		minionWeaponData.top = new FormAttachment(minionBuffParamContainer, 5);
+		minionWeaponData.top = new FormAttachment(minionStatGroup, 5);
 		improveMinionWeaponButton.setLayoutData(minionWeaponData);
 		
 		minionWeaponLabel = new Label(minionGroup, SWT.NONE);
@@ -259,6 +347,15 @@ public class FE9EnemyBuffView extends Composite {
 				bossStatSpinner.setEnabled(isEnabled);
 				bossModeLinearButton.setEnabled(isEnabled);
 				bossModeEaseInOutButton.setEnabled(isEnabled);
+				
+				bossHP.setEnabled(isEnabled);
+				bossSTR.setEnabled(isEnabled);
+				bossMAG.setEnabled(isEnabled);
+				bossSKL.setEnabled(isEnabled);
+				bossSPD.setEnabled(isEnabled);
+				bossLCK.setEnabled(isEnabled);
+				bossDEF.setEnabled(isEnabled);
+				bossRES.setEnabled(isEnabled);
 			}
 		});
 		
@@ -319,6 +416,65 @@ public class FE9EnemyBuffView extends Composite {
 		bossStatBuffContainerData.right = new FormAttachment(100, -5);
 		bossBuffParamContainer.setLayoutData(bossStatBuffContainerData);
 		
+		Composite bossStatGroup = new Composite(bossGroup, SWT.NONE);
+		rowLayout = new RowLayout();
+		bossStatGroup.setLayout(rowLayout);
+		
+		bossHP = new Button(bossStatGroup, SWT.CHECK);
+		bossHP.setText("HP");
+		bossHP.setToolTipText("Apply buff to boss health.");
+		bossHP.setEnabled(false);
+		bossHP.setSelection(true);
+		
+		bossSTR = new Button(bossStatGroup, SWT.CHECK);
+		bossSTR.setText("STR");
+		bossSTR.setToolTipText("Apply buff to boss physical attack power.");
+		bossSTR.setEnabled(false);
+		bossSTR.setSelection(true);
+		
+		bossMAG = new Button(bossStatGroup, SWT.CHECK);
+		bossMAG.setText("MAG");
+		bossMAG.setToolTipText("Apply buff to boss magical attack power.");
+		bossMAG.setEnabled(false);
+		bossMAG.setSelection(true);
+		
+		bossSKL = new Button(bossStatGroup, SWT.CHECK);
+		bossSKL.setText("SKL");
+		bossSKL.setToolTipText("Apply buff to boss accuracy and critical chance.");
+		bossSKL.setEnabled(false);
+		bossSKL.setSelection(true);
+		
+		bossSPD = new Button(bossStatGroup, SWT.CHECK);
+		bossSPD.setText("SPD");
+		bossSPD.setToolTipText("Apply buff to boss speed and evasion.");
+		bossSPD.setEnabled(false);
+		bossSPD.setSelection(true);
+		
+		bossLCK = new Button(bossStatGroup, SWT.CHECK);
+		bossLCK.setText("LCK");
+		bossLCK.setToolTipText("Apply buff to boss accuracy and critical evasion.");
+		bossLCK.setEnabled(false);
+		bossLCK.setSelection(true);
+		
+		bossDEF = new Button(bossStatGroup, SWT.CHECK);
+		bossDEF.setText("DEF");
+		bossDEF.setToolTipText("Apply buff to boss physical defense.");
+		bossDEF.setEnabled(false);
+		bossDEF.setSelection(true);
+		
+		bossRES = new Button(bossStatGroup, SWT.CHECK);
+		bossRES.setText("RES");
+		bossRES.setToolTipText("Apply buff to boss magical defense.");
+		bossRES.setEnabled(false);
+		bossRES.setSelection(true);
+		
+		FormData bossGroupData = new FormData();
+		bossGroupData.left = new FormAttachment(0, 10);
+		bossGroupData.right = new FormAttachment(100, -10);
+		bossGroupData.top = new FormAttachment(bossBuffParamContainer, 0);
+		bossGroupData.width = 100;
+		bossStatGroup.setLayoutData(bossGroupData);
+		
 		//////////////////////////////////////////////////////////////////
 		
 		improveBossWeaponButton = new Button(bossGroup, SWT.CHECK);
@@ -334,7 +490,7 @@ public class FE9EnemyBuffView extends Composite {
 		
 		FormData bossWeaponData = new FormData();
 		bossWeaponData.left = new FormAttachment(0, 5);
-		bossWeaponData.top = new FormAttachment(bossBuffParamContainer, 5);
+		bossWeaponData.top = new FormAttachment(bossStatGroup, 5);
 		improveBossWeaponButton.setLayoutData(bossWeaponData);
 		
 		bossWeaponLabel = new Label(bossGroup, SWT.NONE);
@@ -417,8 +573,12 @@ public class FE9EnemyBuffView extends Composite {
 		boolean bossSkills = bossSkillButton.getSelection();
 		int bossSkillChance = bossSkillSpinner.getSelection();
 		
-		return new FE9EnemyBuffOptions(minionMode, minionAmount, minionWeapons, minionWeaponChance, minionSkills, minionSkillChance, 
-				bossMode, bossAmount, bossWeapons, bossWeaponChance, bossSkills, bossSkillChance);
+		return new FE9EnemyBuffOptions(minionMode, minionAmount,
+				new FE9EnemyBuffOptions.BuffStats(minionHP.getSelection(), minionSTR.getSelection(), minionMAG.getSelection(), minionSKL.getSelection(), minionSPD.getSelection(), minionLCK.getSelection(), minionDEF.getSelection(), minionRES.getSelection()),
+				minionWeapons, minionWeaponChance, minionSkills, minionSkillChance, 
+				bossMode, bossAmount,
+				new FE9EnemyBuffOptions.BuffStats(bossHP.getSelection(), bossSTR.getSelection(), bossMAG.getSelection(), bossSKL.getSelection(), bossSPD.getSelection(), bossLCK.getSelection(), bossDEF.getSelection(), bossRES.getSelection()),
+				bossWeapons, bossWeaponChance, bossSkills, bossSkillChance);
 	}
 	
 	public void setEnemyBuffOptions(FE9EnemyBuffOptions options) {
@@ -458,6 +618,28 @@ public class FE9EnemyBuffView extends Composite {
 					
 					minionGrowthSpinner.setSelection(options.minionBuff);
 					break;
+				}
+				
+				if (options.minionMode != FE9EnemyBuffOptions.MinionGrowthMode.NONE) {
+					minionHP.setEnabled(true);
+					minionSTR.setEnabled(true);
+					minionMAG.setEnabled(true);
+					minionSKL.setEnabled(true);
+					minionSPD.setEnabled(true);
+					minionLCK.setEnabled(true);
+					minionDEF.setEnabled(true);
+					minionRES.setEnabled(true);
+					
+					if (options.minionBuffStats != null) {
+						minionHP.setSelection(options.minionBuffStats.hp);
+						minionSTR.setSelection(options.minionBuffStats.str);
+						minionMAG.setSelection(options.minionBuffStats.mag);
+						minionSKL.setSelection(options.minionBuffStats.skl);
+						minionSPD.setSelection(options.minionBuffStats.spd);
+						minionLCK.setSelection(options.minionBuffStats.lck);
+						minionDEF.setSelection(options.minionBuffStats.def);
+						minionRES.setSelection(options.minionBuffStats.res);
+					}
 				}
 			}
 			if (options.improveMinionWeapons) {
@@ -506,6 +688,28 @@ public class FE9EnemyBuffView extends Composite {
 					
 					bossStatSpinner.setSelection(options.bossBuff);
 					break;
+				}
+				
+				if (options.bossMode != FE9EnemyBuffOptions.BossStatMode.NONE) {
+					bossHP.setEnabled(true);
+					bossSTR.setEnabled(true);
+					bossMAG.setEnabled(true);
+					bossSKL.setEnabled(true);
+					bossSPD.setEnabled(true);
+					bossLCK.setEnabled(true);
+					bossDEF.setEnabled(true);
+					bossRES.setEnabled(true);
+					
+					if (options.bossBuffStats != null) {
+						bossHP.setSelection(options.bossBuffStats.hp);
+						bossSTR.setSelection(options.bossBuffStats.str);
+						bossMAG.setSelection(options.bossBuffStats.mag);
+						bossSKL.setSelection(options.bossBuffStats.skl);
+						bossSPD.setSelection(options.bossBuffStats.spd);
+						bossLCK.setSelection(options.bossBuffStats.lck);
+						bossDEF.setSelection(options.bossBuffStats.def);
+						bossRES.setSelection(options.bossBuffStats.res);
+					}
 				}
 			}
 			if (options.improveBossWeapons) {
