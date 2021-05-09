@@ -14,6 +14,7 @@ import org.eclipse.swt.widgets.Listener;
 import fedata.general.FEBase.GameType;
 import ui.model.ClassOptions;
 import ui.model.ClassOptions.BaseTransferOption;
+import ui.model.ClassOptions.GenderRestrictionOption;
 
 public class ClassesView extends Composite {
 	
@@ -32,7 +33,11 @@ public class ClassesView extends Composite {
 	private Button randomizeBossesButton;
 	
 	private Button forceChangeButton;
-	private Button disableCrossGenderButton;
+	
+	private Button strictGenderButton;
+	private Button looseGenderButton;
+	private Button noGenderButton;
+	
 	private Boolean hasMonsterOption;
 	private Button mixMonsterClasses;
 	
@@ -65,6 +70,8 @@ public class ClassesView extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				randomizePCLordsButton.setEnabled(randomizePCButton.getSelection());
+				createNewPrfWeaponsButton.setEnabled(randomizePCButton.getSelection() && randomizePCLordsButton.getSelection());
+				unbreakablePrfsButton.setEnabled(randomizePCButton.getSelection() && randomizePCLordsButton.getSelection() && createNewPrfWeaponsButton.getSelection());
 				randomizePCThievesButton.setEnabled(randomizePCButton.getSelection());
 				randomizePCSpecialButton.setEnabled(randomizePCButton.getSelection());
 				evenClassesButton.setEnabled(randomizePCButton.getSelection());
@@ -75,7 +82,9 @@ public class ClassesView extends Composite {
 				basesAdjustClassButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				
 				forceChangeButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
-				disableCrossGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
+				strictGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
+				looseGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
+				noGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				
 				if (hasMonsterOption) {
 					mixMonsterClasses.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
@@ -127,24 +136,15 @@ public class ClassesView extends Composite {
 		randomizePCLordsButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				createNewPrfWeaponsButton.setEnabled(randomizePCLordsButton.getSelection());
-				unbreakablePrfsButton.setEnabled(randomizePCLordsButton.getSelection() && createNewPrfWeaponsButton.getSelection());
-				
-				if (!randomizePCLordsButton.getSelection()) {
-					createNewPrfWeaponsButton.setSelection(false);
-					unbreakablePrfsButton.setSelection(false);
-				}
+				createNewPrfWeaponsButton.setEnabled(randomizePCLordsButton.getSelection() && randomizePCButton.getSelection());
+				unbreakablePrfsButton.setEnabled(randomizePCLordsButton.getSelection() && createNewPrfWeaponsButton.getSelection() && randomizePCButton.getSelection());
 			}
 		});
 		
 		createNewPrfWeaponsButton.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				unbreakablePrfsButton.setEnabled(randomizePCLordsButton.getSelection() && createNewPrfWeaponsButton.getSelection());
-				
-				if (!createNewPrfWeaponsButton.getSelection()) {
-					unbreakablePrfsButton.setSelection(false);
-				}
+				unbreakablePrfsButton.setEnabled(randomizePCLordsButton.getSelection() && createNewPrfWeaponsButton.getSelection() && randomizePCButton.getSelection());
 			}
 		});
 		
@@ -186,7 +186,6 @@ public class ClassesView extends Composite {
 			@Override
 			public void handleEvent(Event event) {
 				forceChangeButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
-				disableCrossGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
 				if (hasMonsterOption) {
 					mixMonsterClasses.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
 				}
@@ -211,7 +210,9 @@ public class ClassesView extends Composite {
 				basesAdjustClassButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				
 				forceChangeButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
-				disableCrossGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
+				strictGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
+				looseGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
+				noGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				if (hasMonsterOption) {
 					mixMonsterClasses.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
 				}
@@ -274,6 +275,54 @@ public class ClassesView extends Composite {
 		optionData.top = new FormAttachment(basesAdjustMatchButton, 5);
 		basesAdjustClassButton.setLayoutData(optionData);
 		
+		Group genderGroup = new Group(container, SWT.NONE);
+		genderGroup.setText("Gender Restriction");
+		FormLayout genderLayout = new FormLayout();
+		genderLayout.marginLeft = 5;
+		genderLayout.marginTop = 5;
+		genderLayout.marginRight = 5;
+		genderLayout.marginBottom = 5;
+		genderGroup.setLayout(genderLayout);
+		
+		noGenderButton = new Button(genderGroup, SWT.RADIO);
+		noGenderButton.setText("No Restriction");
+		noGenderButton.setToolTipText("No gender restrictions. Any character can become any class.");
+		noGenderButton.setEnabled(false);
+		noGenderButton.setSelection(true);
+		
+		FormData genderData = new FormData();
+		genderData.top = new FormAttachment(0, 0);
+		genderData.left = new FormAttachment(0, 0);
+		noGenderButton.setLayoutData(genderData);
+		
+		looseGenderButton = new Button(genderGroup, SWT.RADIO);
+		looseGenderButton.setText("Loose Restrictions");
+		looseGenderButton.setToolTipText("No gender restriction, but will use the correct gender version of a selected class, if it exists.");
+		looseGenderButton.setEnabled(false);
+		looseGenderButton.setSelection(false);
+		
+		genderData = new FormData();
+		genderData.top = new FormAttachment(noGenderButton, 5);
+		genderData.left = new FormAttachment(0, 0);
+		looseGenderButton.setLayoutData(genderData);
+		
+		strictGenderButton = new Button(genderGroup, SWT.RADIO);
+		strictGenderButton.setText("Strict Restrictions");
+		strictGenderButton.setToolTipText("Class options are restricted to those that match the character's gender.");
+		strictGenderButton.setEnabled(false);
+		strictGenderButton.setSelection(false);
+		
+		genderData = new FormData();
+		genderData.top = new FormAttachment(looseGenderButton, 5);
+		genderData.left = new FormAttachment(0, 0);
+		strictGenderButton.setLayoutData(genderData);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(0, 5);
+		optionData.right = new FormAttachment(100, -5);
+		optionData.top = new FormAttachment(baseTransferGroup, 10);
+		genderGroup.setLayoutData(optionData);
+		
 		forceChangeButton = new Button(container, SWT.CHECK);
 		forceChangeButton.setText("Force Class Change");
 		forceChangeButton.setToolTipText("Attempts to force every character to change to a different class.");
@@ -281,20 +330,9 @@ public class ClassesView extends Composite {
 		forceChangeButton.setSelection(false);
 		
 		optionData = new FormData();
-		optionData.left = new FormAttachment(baseTransferGroup, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(baseTransferGroup, 10);
+		optionData.left = new FormAttachment(genderGroup, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(genderGroup, 10);
 		forceChangeButton.setLayoutData(optionData);
-		
-		disableCrossGenderButton = new Button(container, SWT.CHECK);
-		disableCrossGenderButton.setText("Disable Cross-Gender Assignments");
-		disableCrossGenderButton.setToolTipText("Restricts class assignments to those that match the original class's gender.");
-		disableCrossGenderButton.setEnabled(false);
-		disableCrossGenderButton.setSelection(false);
-		
-		optionData = new FormData();
-		optionData.left = new FormAttachment(forceChangeButton, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(forceChangeButton, 5);
-		disableCrossGenderButton.setLayoutData(optionData);
 		
 		if (type == GameType.FE8) {
 			mixMonsterClasses = new Button(container, SWT.CHECK);
@@ -302,8 +340,8 @@ public class ClassesView extends Composite {
 			mixMonsterClasses.setToolTipText("If enabled, allows cross-assignment of classes between humans and monsters.\nIf disabled, ensures that units that were monsters remain monsters and units that were human remain humans when randomizing classes.\nHas no effect unless another class randomization option is enabled.");
 			
 			FormData monsterData = new FormData();
-			monsterData.left = new FormAttachment(disableCrossGenderButton, 0, SWT.LEFT);
-			monsterData.top = new FormAttachment(disableCrossGenderButton, 5);
+			monsterData.left = new FormAttachment(forceChangeButton, 0, SWT.LEFT);
+			monsterData.top = new FormAttachment(forceChangeButton, 5);
 			mixMonsterClasses.setLayoutData(monsterData);
 			
 			hasMonsterOption = true;
@@ -336,10 +374,14 @@ public class ClassesView extends Composite {
 		if (basesNoChangeButton.getSelection()) { baseOption = BaseTransferOption.NO_CHANGE; }
 		else if (basesAdjustClassButton.getSelection()) { baseOption = BaseTransferOption.ADJUST_TO_CLASS; }
 		
+		GenderRestrictionOption genderOption = GenderRestrictionOption.NONE;
+		if (looseGenderButton.getSelection()) { genderOption = GenderRestrictionOption.LOOSE; }
+		else if (strictGenderButton.getSelection()) { genderOption = GenderRestrictionOption.STRICT; }
+		
 		if (hasMonsterOption) {
-			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, !mixMonsterClasses.getSelection(), forceChangeButton.getSelection(), disableCrossGenderButton.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, !mixMonsterClasses.getSelection(), forceChangeButton.getSelection(), genderOption, evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
 		} else {
-			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, forceChangeButton.getSelection(), disableCrossGenderButton.getSelection(), evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, forceChangeButton.getSelection(), genderOption, evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
 		}
 	}
 	
@@ -378,21 +420,31 @@ public class ClassesView extends Composite {
 				basesAdjustMatchButton.setEnabled(true);
 				basesAdjustClassButton.setEnabled(true);
 				
+				noGenderButton.setEnabled(true);
+				looseGenderButton.setEnabled(true);
+				strictGenderButton.setEnabled(true);
+				
 				basesNoChangeButton.setSelection(options.basesTransfer == BaseTransferOption.NO_CHANGE);
 				basesAdjustMatchButton.setSelection(options.basesTransfer == BaseTransferOption.ADJUST_TO_MATCH || options.basesTransfer == null);
 				basesAdjustClassButton.setSelection(options.basesTransfer == BaseTransferOption.ADJUST_TO_CLASS);
+				
+				noGenderButton.setSelection(options.genderOption == GenderRestrictionOption.NONE);
+				looseGenderButton.setSelection(options.genderOption == GenderRestrictionOption.LOOSE);
+				strictGenderButton.setSelection(options.genderOption == GenderRestrictionOption.STRICT);
 			} else {
 				baseTransferGroup.setEnabled(false);
 				basesNoChangeButton.setEnabled(false);
 				basesAdjustMatchButton.setEnabled(false);
 				basesAdjustClassButton.setEnabled(false);
+				
+				noGenderButton.setEnabled(false);
+				looseGenderButton.setEnabled(false);
+				strictGenderButton.setEnabled(false);
 			}
 			
-			if (options.randomizePCs || options.randomizeEnemies || options.randomizeEnemies) {
+			if (options.randomizePCs || options.randomizeEnemies || options.randomizeBosses) {
 				forceChangeButton.setEnabled(true);
 				forceChangeButton.setSelection(options.forceChange);
-				disableCrossGenderButton.setEnabled(true);
-				disableCrossGenderButton.setSelection(options.restrictGender);
 				
 				if (hasMonsterOption) {
 					mixMonsterClasses.setEnabled(true);
@@ -400,7 +452,6 @@ public class ClassesView extends Composite {
 				}
 			} else {
 				forceChangeButton.setEnabled(false);
-				disableCrossGenderButton.setEnabled(false);
 				if (hasMonsterOption) {
 					mixMonsterClasses.setEnabled(false);
 				}

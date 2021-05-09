@@ -15,6 +15,8 @@ import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
 import fedata.gba.general.WeaponType;
 import io.FileHandler;
+import ui.model.ClassOptions;
+import ui.model.ClassOptions.GenderRestrictionOption;
 import util.AddressRange;
 import util.Diff;
 import util.DiffCompiler;
@@ -215,11 +217,11 @@ public class ClassDataLoader {
 		return classForID(correspondingClass.getID());
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, Boolean restrictGender, GBAFEClassData mustLoseToClass) {
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, ClassOptions.GenderRestrictionOption restrictGender, GBAFEClassData mustLoseToClass) {
 		return potentialClasses(sourceClass, isForEnemy, excludeLords, excludeThieves, excludeSpecial, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, restrictGender, mustLoseToClass);
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, Boolean restrictGender, GBAFEClassData mustLoseToClass) {
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, ClassOptions.GenderRestrictionOption restrictGender, GBAFEClassData mustLoseToClass) {
 		GBAFEClass sourceCharClass = provider.classWithID(sourceClass.getID());
 		Set<GBAFEClass> targetClasses = null;
 		
@@ -233,7 +235,7 @@ public class ClassDataLoader {
 		options.put(GBAFEClassProvider.optionKeyRequireRange, requireRange);
 		options.put(GBAFEClassProvider.optionKeyRequireMelee, requireMelee);
 		options.put(GBAFEClassProvider.optionKeyApplyRestrictions, applyRestrictions);
-		options.put(GBAFEClassProvider.optionKeyRestrictGender, restrictGender);
+		options.put(GBAFEClassProvider.optionKeyRestrictGender, restrictGender == GenderRestrictionOption.STRICT);
 		
 		if (mustLoseToClass != null) {
 			targetClasses = provider.classesThatLoseToClass(provider.classWithID(sourceClass.getID()), provider.classWithID(mustLoseToClass.getID()), options);
