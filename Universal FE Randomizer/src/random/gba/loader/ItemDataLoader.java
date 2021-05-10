@@ -422,8 +422,12 @@ public class ItemDataLoader {
 		return feItemsFromItemSet(provider.prfWeaponsForClassID(classID));
 	}
 	
-	public GBAFEItemData[] getChestRewards() {
-		return feItemsFromItemSet(provider.allPotentialChestRewards());
+	public GBAFEItemData[] getChestRewards(boolean includePromoWeapons) {
+		Set<GBAFEItem> rewards = provider.allPotentialChestRewards();
+		if (!includePromoWeapons) {
+			rewards.removeAll(provider.promoWeapons());
+		}
+		return feItemsFromItemSet(rewards);
 	}
 	
 	public GBAFEItemData[] commonDrops() {
@@ -451,7 +455,15 @@ public class ItemDataLoader {
 	}
 	
 	public Boolean isHealingStaff(int itemID) {
-		return provider.itemWithID(itemID).isHealingStaff();
+		return provider.itemWithID(itemID) != null ? provider.itemWithID(itemID).isHealingStaff() : false;
+	}
+	
+	public Boolean isPromoWeapon(int itemID) {
+		return provider.itemWithID(itemID) != null ? provider.itemWithID(itemID).isPromoWeapon() : false;
+	}
+	
+	public Boolean isPoisonWeapon(int itemID) {
+		return provider.itemWithID(itemID) != null ? provider.itemWithID(itemID).isPoisonWeapon() : false;
 	}
 	
 	public WeaponRank weaponRankFromValue(int rankValue) {
@@ -499,7 +511,7 @@ public class ItemDataLoader {
 		return itemMap.get(itemList.get(rng.nextInt(itemList.size())).getID());
 	}
 	
-	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEClassData charClass, GBAFEItemData originalWeapon, boolean isEnemy, boolean strict, Random rng) {
+	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEClassData charClass, GBAFEItemData originalWeapon, boolean isEnemy, boolean strict, boolean includePromo, boolean includePoison, Random rng) {
 		if (!isWeapon(originalWeapon) && originalWeapon.getType() != WeaponType.STAFF) {
 			return null;
 		}
@@ -515,6 +527,13 @@ public class ItemDataLoader {
 		
 		if (isEnemy) {
 			potentialItems.removeAll(provider.playerOnlyWeapons());
+		}
+		
+		if (!includePromo) {
+			potentialItems.removeAll(provider.promoWeapons());
+		}
+		if (!includePoison) {
+			potentialItems.removeAll(provider.poisonWeapons());
 		}
 	
 		if (potentialItems.isEmpty()) {
@@ -536,11 +555,16 @@ public class ItemDataLoader {
 		return item != null ? itemWithID(item.getID()) : null;
 	}
 	
-	public GBAFEItemData getRandomWeaponForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, boolean isEnemy, Random rng) {
-		GBAFEItemData[] potentialItems = usableWeaponsForCharacter(character, ranged, melee, isEnemy);
+	public GBAFEItemData getRandomWeaponForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, boolean isEnemy, boolean includePromo, boolean includePoison, Random rng) {
+		GBAFEItemData[] potentialItems = usableWeaponsForCharacter(character, ranged, melee, isEnemy, includePromo, includePoison);
 		if (potentialItems == null || potentialItems.length < 1) {
 			// Check class specific weapons (e.g. FE8 monsters)
-			potentialItems = feItemsFromItemSet(provider.weaponsForClass(character.getClassID()));
+			Set<GBAFEItem> classWeaponSet = provider.weaponsForClass(character.getClassID());
+			if (!includePromo) {
+				classWeaponSet.removeAll(provider.promoWeapons());
+				classWeaponSet.removeAll(provider.poisonWeapons());
+			}
+			potentialItems = feItemsFromItemSet(classWeaponSet);
 			if (potentialItems == null || potentialItems.length < 1) {
 				return null;
 			}
@@ -550,7 +574,7 @@ public class ItemDataLoader {
 		return potentialItems[index];
 	}
 	
-	private GBAFEItemData[] usableWeaponsForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, boolean isEnemy) {
+	private GBAFEItemData[] usableWeaponsForCharacter(GBAFECharacterData character, Boolean ranged, Boolean melee, boolean isEnemy, boolean includePromo, boolean includePoison) {
 		ArrayList<GBAFEItemData> items = new ArrayList<GBAFEItemData>();
 		
 		if (character.getSwordRank() > 0) { items.addAll(Arrays.asList(itemsOfTypeAndBelowRankValue(WeaponType.SWORD, character.getSwordRank(), ranged, melee))); }
@@ -567,6 +591,14 @@ public class ItemDataLoader {
 		
 		if (isEnemy) {
 			items.removeIf(item -> provider.playerOnlyWeapons().contains(provider.itemWithID(item.getID())));
+		}
+		
+		if (!includePromo) {
+			items.removeIf(item -> provider.promoWeapons().contains(provider.itemWithID(item.getID())));
+		}
+		
+		if (!includePoison) {
+			items.removeIf(item -> provider.poisonWeapons().contains(provider.itemWithID(item.getID())));
 		}
 		
 		return items.toArray(new GBAFEItemData[items.size()]);

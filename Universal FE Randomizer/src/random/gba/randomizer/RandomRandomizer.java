@@ -20,13 +20,13 @@ import random.general.WeightedDistributor;
 public class RandomRandomizer {
 	static final int rngSalt = 27682;
 	
-	public static void randomizeRewards(ItemDataLoader itemData, ChapterLoader chapterData, Random rng) {
+	public static void randomizeRewards(ItemDataLoader itemData, ChapterLoader chapterData, boolean includePromoWeapons, Random rng) {
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData[] allRewards = chapter.allRewards();
 			for (GBAFEChapterItemData chapterItem : allRewards) {
 				int itemID = chapterItem.getItemID();
 				GBAFEItemData[] relatedItems = itemData.relatedItems(itemID);
-				GBAFEItemData[] allPossibleItems = itemData.getChestRewards();
+				GBAFEItemData[] allPossibleItems = itemData.getChestRewards(includePromoWeapons);
 				
 				if (relatedItems.length == 0 && allPossibleItems.length == 0) {
 					continue;

@@ -1190,8 +1190,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<Item> allSiegeTomes = new HashSet<Item>(Arrays.asList(BOLTING, PURGE, ECLIPSE));
 		
-		public static Set<Item> allPotentialRewards = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, EMBLEM_SWORD, IRON_LANCE, SLIM_LANCE, JAVELIN, EMBLEM_LANCE, POISON_LANCE, HAND_AXE, IRON_AXE, EMBLEM_AXE, STEEL_AXE,
-				DEVIL_AXE, IRON_BOW, EMBLEM_BOW, FIRE, LIGHTNING, HEAL, POISON_SWORD, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, WO_DAO, STEEL_LANCE, HEAVY_SPEAR, HORSESLAYER, POISON_AXE, HALBERD, HAMMER, POISON_BOW,
+		public static Set<Item> allPotentialRewards = new HashSet<Item>(Arrays.asList(/*IRON_SWORD, SLIM_SWORD, EMBLEM_SWORD, IRON_LANCE, SLIM_LANCE,*/ JAVELIN, /*EMBLEM_LANCE, POISON_LANCE,*/ HAND_AXE, /*IRON_AXE, EMBLEM_AXE,*/ STEEL_AXE,
+				DEVIL_AXE, /*IRON_BOW, EMBLEM_BOW, FIRE, LIGHTNING, HEAL, POISON_SWORD,*/ STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, WO_DAO, STEEL_LANCE, HEAVY_SPEAR, HORSESLAYER, /*POISON_AXE,*/ HALBERD, HAMMER, /*POISON_BOW,*/
 				SHORT_BOW, LONGBOW, STEEL_BOW, THUNDER, SHINE, FLUX, MEND, TORCH_STAFF, UNLOCK, STEEL_BLADE, KILLING_EDGE, WYRMSLAYER, LIGHT_BRAND, LANCEREAVER, SHORT_SPEAR, KILLER_LANCE, AXEREAVER, DRAGON_AXE, KILLER_AXE, SWORDREAVER, 
 				SWORDSLAYER, KILLER_BOW, ELFIRE, DIVINE, NOSFERATU, RECOVER, RESTORE, HAMMERNE, BARRIER, BRAVE_SWORD, WIND_SWORD, BRAVE_LANCE, SPEAR, BRAVE_AXE, BRAVE_BOW, BOLTING, PURGE, ECLIPSE, PHYSIC, SILENCE, SLEEP, BERSERK, 
 				RESCUE, SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, TOMAHAWK, SILVER_AXE, SILVER_BOW, FIMBULVETR, AURA, FENRIR, FORTIFY, WARP,
@@ -1236,6 +1236,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				WO_DAO, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, LONGSWORD, WIND_SWORD, POISON_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN, SPEAR, AXEREAVER, HEAVY_SPEAR, SHORT_SPEAR, 
 				POISON_AXE, BRAVE_AXE, KILLER_AXE, HALBERD, HAMMER, DEVIL_AXE, HAND_AXE, TOMAHAWK, SWORDREAVER, SWORDSLAYER, DRAGON_AXE, 
 				WOLF_BEIL, POISON_BOW, KILLER_BOW, BRAVE_BOW, LONGBOW, THUNDER, BOLTING, SHINE, PURGE, LUNA, NOSFERATU, ECLIPSE, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER, SILENCE, SLEEP, BERSERK));
+		public static Set<Item> promoSet = new HashSet<Item>(Arrays.asList(EMBLEM_AXE, EMBLEM_BOW, EMBLEM_LANCE, EMBLEM_SWORD, EMBLEM_SEAL));
 		
 		// These must be of lower rank than the siege tomes set, and each weapon type needs to have an equivalent analogue.
 		public static Set<Item> siegeReplacementSet = new HashSet<Item>(Arrays.asList(DIVINE, NOSFERATU, ELFIRE));
@@ -1509,6 +1510,14 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 		public Boolean isHealingStaff() {
 			return allHealingStaves.contains(this);
+		}
+		
+		public Boolean isPromoWeapon() {
+			return promoSet.contains(this);
+		}
+		
+		public Boolean isPoisonWeapon() {
+			return poisonSet.contains(this);
 		}
 	}
 	
@@ -3052,6 +3061,14 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> playerOnlyWeapons() {
 		return new HashSet<GBAFEItem>();
+	}
+	
+	public Set<GBAFEItem> promoWeapons() {
+		return new HashSet<GBAFEItem>(Item.promoSet);
+	}
+	
+	public Set<GBAFEItem> poisonWeapons() {
+		return new HashSet<GBAFEItem>(Item.poisonSet);
 	}
 	
 	public Set<GBAFEItem> commonDrops() {

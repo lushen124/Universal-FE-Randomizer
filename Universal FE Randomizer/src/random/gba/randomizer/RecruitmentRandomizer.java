@@ -2,7 +2,6 @@ package random.gba.randomizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,6 @@ import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapPortraitData;
-import fedata.gba.fe6.FE6Data;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase.GameType;
@@ -917,7 +915,7 @@ public class RecruitmentRandomizer {
 				if (prfWeapons.length > 0) {
 					item = prfWeapons[rng.nextInt(prfWeapons.length)];
 				} else {
-					item = itemData.getRandomWeaponForCharacter(slot, false, false, characterData.isEnemyAtAnyPoint(slot.getID()), rng);
+					item = itemData.getRandomWeaponForCharacter(slot, false, false, characterData.isEnemyAtAnyPoint(slot.getID()), inventoryOptions.assignPromoWeapons, inventoryOptions.assignPoisonWeapons, rng);
 				}
 				
 				if (item != null) {

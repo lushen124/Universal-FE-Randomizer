@@ -21,6 +21,9 @@ public interface GBAFEItem {
 	public Boolean isStatBooster();
 	public Boolean isPromotionItem();
 	public Boolean isHealingStaff();
+	
+	public Boolean isPromoWeapon();
+	public Boolean isPoisonWeapon();
 
 	public WeaponType getType();
 	public WeaponRank getRank();

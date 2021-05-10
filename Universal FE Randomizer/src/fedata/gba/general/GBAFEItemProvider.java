@@ -117,6 +117,9 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng);
 	public Set<GBAFEItem> playerOnlyWeapons();
 	
+	public Set<GBAFEItem> promoWeapons();
+	public Set<GBAFEItem> poisonWeapons();
+	
 	public Set<GBAFEItem> commonDrops();
 	public Set<GBAFEItem> uncommonDrops();
 	public Set<GBAFEItem> rareDrops();
