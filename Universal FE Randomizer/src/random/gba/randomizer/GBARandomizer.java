@@ -2147,6 +2147,18 @@ public class GBARandomizer extends Randomizer {
 			}
 			if (sb.length() == 0) { sb.append("YES"); }
 			rk.addHeaderItem("Randomize Playable Character Classes", sb.toString());
+			
+			switch (classes.growthOptions) {
+			case NO_CHANGE:
+				rk.addHeaderItem("Growth Transfer Option", "No Change");
+				break;
+			case TRANSFER_PERSONAL_GROWTHS:
+				rk.addHeaderItem("Growth Transfer Option", "Transfer Personal Growths");
+				break;
+			case CLASS_RELATIVE_GROWTHS:
+				rk.addHeaderItem("Growth Transfer Option", "Class Relative Growths");
+				break;
+			}
 		} else {
 			rk.addHeaderItem("Randomize Playable Character Classes", "NO");
 		}

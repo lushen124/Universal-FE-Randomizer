@@ -434,6 +434,30 @@ public class ClassRandomizer {
 			break;
 		}
 		
+		switch (classOptions.growthOptions) {
+		case TRANSFER_PERSONAL_GROWTHS:
+			int hpOffset = character.getHPGrowth() - sourceClass.getHPGrowth();
+			int strOffset = character.getSTRGrowth() - sourceClass.getSTRGrowth();
+			int sklOffset = character.getSKLGrowth() - sourceClass.getSKLGrowth();
+			int spdOffset = character.getSPDGrowth() - sourceClass.getSPDGrowth();
+			int lckOffset = character.getLCKGrowth() - sourceClass.getLCKGrowth();
+			int defOffset = character.getDEFGrowth() - sourceClass.getDEFGrowth();
+			int resOffset = character.getRESGrowth() - sourceClass.getRESGrowth();
+			
+			character.setHPGrowth(Math.max(0, targetClass.getHPGrowth() + hpOffset));
+			character.setSTRGrowth(Math.max(0, targetClass.getSTRGrowth() + strOffset));
+			character.setSKLGrowth(Math.max(0, targetClass.getSKLGrowth() + sklOffset));
+			character.setSPDGrowth(Math.max(0, targetClass.getSPDGrowth() + spdOffset));
+			character.setLCKGrowth(Math.max(0, targetClass.getLCKGrowth() + lckOffset));
+			character.setDEFGrowth(Math.max(0, targetClass.getDEFGrowth() + defOffset));
+			character.setRESGrowth(Math.max(0, targetClass.getRESGrowth() + resOffset));
+			break;
+		case CLASS_RELATIVE_GROWTHS:
+			adjustGrowthsToMatchClass(character, sourceClass, targetClass);
+			break;
+		default:
+			break;
+		}
 		
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(character.getID());
@@ -513,7 +537,19 @@ public class ClassRandomizer {
 		character.setBaseSPD(mappedStats.get(2) - targetClass.getBaseSPD());
 		character.setBaseDEF(mappedStats.get(3) - targetClass.getBaseDEF());
 		character.setBaseRES(mappedStats.get(4) - targetClass.getBaseRES());
+	}
+	
+	private static void adjustGrowthsToMatchClass(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass) {
+		List<Integer> mappedGrowths = RelativeValueMapper.mappedValues(Arrays.asList(character.getHPGrowth(), character.getSTRGrowth(), character.getSKLGrowth(), character.getSPDGrowth(), character.getDEFGrowth(), character.getRESGrowth(), character.getLCKGrowth()),
+				Arrays.asList(targetClass.getHPGrowth(), targetClass.getSTRGrowth(), targetClass.getSKLGrowth(), targetClass.getSPDGrowth(), targetClass.getDEFGrowth(), targetClass.getRESGrowth(), targetClass.getLCKGrowth()));
 		
+		character.setHPGrowth(mappedGrowths.get(0));
+		character.setSTRGrowth(mappedGrowths.get(1));
+		character.setSKLGrowth(mappedGrowths.get(2));
+		character.setSPDGrowth(mappedGrowths.get(3));
+		character.setDEFGrowth(mappedGrowths.get(4));
+		character.setRESGrowth(mappedGrowths.get(5));
+		character.setLCKGrowth(mappedGrowths.get(6));
 	}
 	
 	// TODO: Offer an option for sidegrade strictness?

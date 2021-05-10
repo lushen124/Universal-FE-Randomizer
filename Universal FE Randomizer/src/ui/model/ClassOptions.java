@@ -10,6 +10,10 @@ public class ClassOptions {
 		STRICT, LOOSE, NONE
 	}
 	
+	public enum GrowthAdjustmentOption {
+		NO_CHANGE, TRANSFER_PERSONAL_GROWTHS, CLASS_RELATIVE_GROWTHS
+	}
+	
 	public final Boolean randomizePCs;
 	public final Boolean createPrfs;
 	public final Boolean unbreakablePrfs;
@@ -28,8 +32,9 @@ public class ClassOptions {
 	public final Boolean randomizeBosses;
 	
 	public final BaseTransferOption basesTransfer;
+	public final GrowthAdjustmentOption growthOptions;
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, boolean forceChange, GenderRestrictionOption genderOption, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, boolean forceChange, GenderRestrictionOption genderOption, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer, GrowthAdjustmentOption growthOptions) {
 		super();
 		randomizePCs = pcs;
 		createPrfs = newPrfs;
@@ -45,12 +50,13 @@ public class ClassOptions {
 		randomizeBosses = bosses;
 		
 		this.basesTransfer = basesTransfer;
+		this.growthOptions = growthOptions;
 		
 		this.forceChange = forceChange;
 		this.genderOption = genderOption;
 	}
 	
-	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, Boolean separateMonsters, boolean forceChange, GenderRestrictionOption genderOption, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer) {
+	public ClassOptions(Boolean pcs, Boolean lords, Boolean newPrfs, Boolean unbreakablePrfs, Boolean thieves, Boolean special, Boolean separateMonsters, boolean forceChange, GenderRestrictionOption genderOption, boolean assignEvenly, Boolean enemies, Boolean bosses, BaseTransferOption basesTransfer, GrowthAdjustmentOption growthOptions) {
 		super();
 		randomizePCs = pcs;
 		createPrfs = newPrfs;
@@ -66,6 +72,7 @@ public class ClassOptions {
 		randomizeBosses = bosses;
 		
 		this.basesTransfer = basesTransfer;
+		this.growthOptions = growthOptions;
 		
 		this.forceChange = forceChange;
 		this.genderOption = genderOption;
