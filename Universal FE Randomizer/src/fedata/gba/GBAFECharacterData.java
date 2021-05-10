@@ -26,6 +26,7 @@ public interface GBAFECharacterData extends FEModifiableData, FELockableData, FE
 	public void setFaceID(int faceID);
 	
 	public int getLevel();
+	public void setLevel(int level);
 	
 	// Growths
 	

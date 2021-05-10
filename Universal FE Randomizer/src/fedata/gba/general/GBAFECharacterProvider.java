@@ -41,6 +41,11 @@ public interface GBAFECharacterProvider {
 	
 	public int canonicalID(int characterID);
 	
+	// Some characters have levels in their character data that don't match with their chapter data.
+	// Since our calculations rely on character data and not chapter data, some discrepancies might be significant.
+	// This method will return the "correct" character level as they appear in gameplay if it doesn't match.
+	// If the character data is consistent with the canonical level, this method should return null.
+	public Integer canonicalLevelForCharacter(GBAFECharacter character);
+	
 	public GBAFECharacterData characterDataWithData(byte[] data, long offset, Boolean hasLimitedClasses);
-
 }

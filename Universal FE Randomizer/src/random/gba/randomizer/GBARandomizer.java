@@ -635,6 +635,9 @@ public class GBARandomizer extends Randomizer {
 				
 			}
 		}
+		
+		// Some characters have discrepancies between character data and chapter data. We'll try to address that before we get to any modifications.
+		charData.applyLevelCorrectionsIfNecessary();
 	}
 	
 	private void makeFinalAdjustments(String seed) {

@@ -60,6 +60,17 @@ public class CharacterDataLoader {
 		}
 	}
 	
+	public void applyLevelCorrectionsIfNecessary() {
+		for (GBAFECharacter character : provider.allPlayableCharacters()) {
+			Integer canonicalLevel = provider.canonicalLevelForCharacter(character);
+			if (canonicalLevel != null) {
+				GBAFECharacterData characterData = characterWithID(character.getID());
+				characterData.setLevel(canonicalLevel);
+				characterData.commitChanges();
+			}
+		}
+	}
+	
 	public String debugStringForCharacter(int characterID) {
 		return provider.characterWithID(characterID).toString();
 	}
@@ -260,6 +271,7 @@ public class CharacterDataLoader {
 		if (isInitial) {
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Name", name);
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Class", classValue);
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Level", Integer.toString(character.getLevel()));
 			
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "HP Growth", String.format("%d%%", character.getHPGrowth()));
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "STR/MAG Growth", String.format("%d%%", character.getSTRGrowth()));
@@ -292,6 +304,7 @@ public class CharacterDataLoader {
 		} else {
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Name", name);
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Class", classValue);
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Level", Integer.toString(character.getLevel()));
 			
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "HP Growth", String.format("%d%%", character.getHPGrowth()));
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "STR/MAG Growth", String.format("%d%%", character.getSTRGrowth()));
