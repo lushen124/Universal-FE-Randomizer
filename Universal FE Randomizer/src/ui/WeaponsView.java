@@ -346,7 +346,7 @@ public class WeaponsView extends Composite {
 		
 		if (type.isGBA()) {
 			noEffectsForSteelButton = new Button(container, SWT.CHECK);
-			noEffectsForSteelButton.setText("Include Steel Weapons");
+			noEffectsForSteelButton.setText("Safe Steel Weapons");
 			noEffectsForSteelButton.setToolTipText("Steel Weapons (and Thunder) remain unchanged.");
 			noEffectsForSteelButton.setEnabled(false);
 			
@@ -356,7 +356,7 @@ public class WeaponsView extends Composite {
 			noEffectsForSteelButton.setLayoutData(steelData);
 			
 			noEffectsForBasicThrownButton = new Button(container, SWT.CHECK);
-			noEffectsForBasicThrownButton.setText("Include Basic Thrown Weapons");
+			noEffectsForBasicThrownButton.setText("Safe Basic Thrown Weapons");
 			noEffectsForBasicThrownButton.setToolTipText("Thrown Weapons (Javelin, Hand Axe) remain unchanged.");
 			noEffectsForBasicThrownButton.setEnabled(false);
 			

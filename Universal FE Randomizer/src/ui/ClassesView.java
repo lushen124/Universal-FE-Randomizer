@@ -15,6 +15,7 @@ import fedata.general.FEBase.GameType;
 import ui.model.ClassOptions;
 import ui.model.ClassOptions.BaseTransferOption;
 import ui.model.ClassOptions.GenderRestrictionOption;
+import ui.model.ClassOptions.GrowthAdjustmentOption;
 
 public class ClassesView extends Composite {
 	
@@ -45,6 +46,13 @@ public class ClassesView extends Composite {
 	private Button basesNoChangeButton;
 	private Button basesAdjustMatchButton;
 	private Button basesAdjustClassButton;
+	
+	private Group growthAdjustmentGroup;
+	private Button growthNoAdjustmentButton;
+	private Button personalGrowthButton;
+	// Maybe enable this option in the future, but it does result in basically every character of the same class have the same exact growth spread,
+	// which, on reflection, doesn't sound very interesting.
+//	private Button classRelativeGrowthButton;
 
 	public ClassesView(Composite parent, int style, GameType type) {
 		super(parent, style);
@@ -80,6 +88,11 @@ public class ClassesView extends Composite {
 				basesNoChangeButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				basesAdjustMatchButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
 				basesAdjustClassButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
+				
+				growthAdjustmentGroup.setEnabled(randomizePCButton.getSelection());
+				growthNoAdjustmentButton.setEnabled(randomizePCButton.getSelection());
+				personalGrowthButton.setEnabled(randomizePCButton.getSelection());
+//				classRelativeGrowthButton.setEnabled(randomizePCButton.getSelection());
 				
 				forceChangeButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection() || randomizeEnemiesButton.getSelection());
 				strictGenderButton.setEnabled(randomizePCButton.getSelection() || randomizeBossesButton.getSelection());
@@ -178,6 +191,55 @@ public class ClassesView extends Composite {
 		optionData.top = new FormAttachment(randomizePCSpecialButton, 5);
 		evenClassesButton.setLayoutData(optionData);
 		
+		growthAdjustmentGroup = new Group(container, SWT.NONE);
+		growthAdjustmentGroup.setText("Growths");
+		
+		FormLayout groupLayout = new FormLayout();
+		groupLayout.marginLeft = 5;
+		groupLayout.marginRight = 5;
+		groupLayout.marginTop = 5;
+		groupLayout.marginBottom = 5;
+		growthAdjustmentGroup.setLayout(groupLayout);
+		
+		FormData groupData = new FormData();
+		groupData.left = new FormAttachment(0, 10);
+		groupData.right = new FormAttachment(100, 0);
+		groupData.top = new FormAttachment(evenClassesButton, 10);
+		growthAdjustmentGroup.setLayoutData(groupData);
+		
+		growthNoAdjustmentButton = new Button(growthAdjustmentGroup, SWT.RADIO);
+		growthNoAdjustmentButton.setText("No Adjustment");
+		growthNoAdjustmentButton.setToolTipText("Do not adjust growth rates.");
+		growthNoAdjustmentButton.setEnabled(false);
+		growthNoAdjustmentButton.setSelection(true);
+		
+		FormData noAdjustData = new FormData();
+		noAdjustData.left = new FormAttachment(0, 0);
+		noAdjustData.top = new FormAttachment(0, 0);
+		growthNoAdjustmentButton.setLayoutData(noAdjustData);
+		
+		personalGrowthButton = new Button(growthAdjustmentGroup, SWT.RADIO);
+		personalGrowthButton.setText("Transfer Personal Growths");
+		personalGrowthButton.setToolTipText("Apply personal growth offsets from the old class growths to the new class growths.\n\nFor example, if a character's old SPD growth was 10% higher than the old class's SPD growth,\ntheir new SPD growth would be 10% higher than the new class's SPD growth.");
+		personalGrowthButton.setEnabled(false);
+		personalGrowthButton.setSelection(false);
+		
+		FormData personalData = new FormData();
+		personalData.left = new FormAttachment(0, 0);
+		personalData.top = new FormAttachment(growthNoAdjustmentButton, 5);
+		personalGrowthButton.setLayoutData(personalData);
+		
+//		classRelativeGrowthButton = new Button(growthAdjustmentGroup, SWT.RADIO);
+//		classRelativeGrowthButton.setText("Class Relative Growths");
+//		classRelativeGrowthButton.setToolTipText("Match the character's growth values to the class's growth spread.\n\nFor example, a character becoming a myrmidon will rearrange their growths such that Speed is their highest growth value.");
+//		classRelativeGrowthButton.setEnabled(false);
+//		classRelativeGrowthButton.setSelection(false);
+//		
+//		FormData classRelativeData = new FormData();
+//		classRelativeData.left = new FormAttachment(0, 0);
+//		classRelativeData.top = new FormAttachment(personalGrowthButton, 5);
+//		classRelativeGrowthButton.setLayoutData(classRelativeData);
+		
 		//////////////////////////////////////////////////////////////////
 		
 		randomizeEnemiesButton = new Button(container, SWT.CHECK);
@@ -194,7 +256,7 @@ public class ClassesView extends Composite {
 		
 		FormData enemyFormData = new FormData();
 		enemyFormData.left = new FormAttachment(randomizePCButton, 0, SWT.LEFT);
-		enemyFormData.top = new FormAttachment(evenClassesButton, 10);
+		enemyFormData.top = new FormAttachment(growthAdjustmentGroup, 10);
 		randomizeEnemiesButton.setLayoutData(enemyFormData);
 		
 		//////////////////////////////////////////////////////////////////
@@ -229,14 +291,14 @@ public class ClassesView extends Composite {
 		baseTransferGroup = new Group(container, SWT.NONE);
 		baseTransferGroup.setText("Bases");
 		
-		FormLayout groupLayout = new FormLayout();
+		groupLayout = new FormLayout();
 		groupLayout.marginLeft = 5;
 		groupLayout.marginRight = 5;
 		groupLayout.marginTop = 5;
 		groupLayout.marginBottom = 5;
 		baseTransferGroup.setLayout(groupLayout);
 		
-		FormData groupData = new FormData();
+		groupData = new FormData();
 		groupData.left = new FormAttachment(randomizeBossesButton, 0, SWT.LEFT);
 		groupData.top = new FormAttachment(randomizeBossesButton, 10);
 		groupData.right = new FormAttachment(100, -5);
@@ -378,10 +440,14 @@ public class ClassesView extends Composite {
 		if (looseGenderButton.getSelection()) { genderOption = GenderRestrictionOption.LOOSE; }
 		else if (strictGenderButton.getSelection()) { genderOption = GenderRestrictionOption.STRICT; }
 		
+		GrowthAdjustmentOption growthOption = GrowthAdjustmentOption.NO_CHANGE;
+		if (personalGrowthButton.getSelection()) { growthOption = GrowthAdjustmentOption.TRANSFER_PERSONAL_GROWTHS; }
+//		else if (classRelativeGrowthButton.getSelection()) { growthOption = GrowthAdjustmentOption.CLASS_RELATIVE_GROWTHS; }
+		
 		if (hasMonsterOption) {
-			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, !mixMonsterClasses.getSelection(), forceChangeButton.getSelection(), genderOption, evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, !mixMonsterClasses.getSelection(), forceChangeButton.getSelection(), genderOption, evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption, growthOption);
 		} else {
-			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, forceChangeButton.getSelection(), genderOption, evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption);
+			return new ClassOptions(pcsEnabled, lordsEnabled, newPrfs, unbreakablePrfs, thievesEnabled, specialEnabled, forceChangeButton.getSelection(), genderOption, evenClassesButton.getSelection(), randomizeEnemiesButton.getSelection(), randomizeBossesButton.getSelection(), baseOption, growthOption);
 		}
 	}
 	
@@ -409,6 +475,15 @@ public class ClassesView extends Composite {
 				randomizePCThievesButton.setSelection(options.includeThieves != null ? options.includeThieves : false);
 				randomizePCSpecialButton.setSelection(options.includeSpecial != null ? options.includeSpecial : false);
 				evenClassesButton.setSelection(options.assignEvenly);
+				
+				growthAdjustmentGroup.setEnabled(true);
+				growthNoAdjustmentButton.setEnabled(true);
+				personalGrowthButton.setEnabled(true);
+//				classRelativeGrowthButton.setEnabled(true);
+				
+				growthNoAdjustmentButton.setSelection(options.growthOptions == null || options.growthOptions == GrowthAdjustmentOption.NO_CHANGE);
+				personalGrowthButton.setSelection(options.growthOptions == GrowthAdjustmentOption.TRANSFER_PERSONAL_GROWTHS);
+//				classRelativeGrowthButton.setSelection(options.growthOptions == GrowthAdjustmentOption.CLASS_RELATIVE_GROWTHS);
 			}
 			
 			randomizeEnemiesButton.setSelection(options.randomizeEnemies);
