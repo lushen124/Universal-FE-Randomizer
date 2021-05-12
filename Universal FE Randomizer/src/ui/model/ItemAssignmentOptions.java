@@ -13,8 +13,13 @@ public class ItemAssignmentOptions {
 	public final WeaponReplacementPolicy weaponPolicy;
 	public final ShopAdjustment shopAdjustment;
 	
-	public ItemAssignmentOptions(WeaponReplacementPolicy weapons, ShopAdjustment shops) {
+	public final boolean assignPromoWeapons;
+	public final boolean assignPoisonWeapons;
+	
+	public ItemAssignmentOptions(WeaponReplacementPolicy weapons, ShopAdjustment shops, boolean assignPromo, boolean assignPoison) {
 		this.weaponPolicy = weapons;
 		shopAdjustment = shops;
+		assignPromoWeapons = assignPromo;
+		assignPoisonWeapons = assignPoison;
 	}
 }

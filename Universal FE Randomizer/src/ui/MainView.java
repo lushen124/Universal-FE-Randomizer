@@ -763,7 +763,7 @@ public class MainView implements FileFlowDelegate {
 			recruitData.right = new FormAttachment(100, -5);
 			recruitView.setLayoutData(recruitData);
 			
-			itemAssignmentView = new ItemAssignmentView(container, SWT.NONE);
+			itemAssignmentView = new ItemAssignmentView(container, SWT.NONE, type);
 			itemAssignmentView.setSize(200, 200);
 			itemAssignmentView.setVisible(false);
 			

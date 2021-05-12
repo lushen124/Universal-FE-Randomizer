@@ -7,8 +7,10 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 
+import fedata.general.FEBase.GameType;
 import ui.model.ItemAssignmentOptions;
 import ui.model.ItemAssignmentOptions.ShopAdjustment;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
@@ -27,7 +29,10 @@ public class ItemAssignmentView extends Composite {
 	private Button partyAdjustButton;
 	private Button randomShopButton;*/
 	
-	public ItemAssignmentView(Composite parent, int style) {
+	private Button promoWeaponsButton;
+	private Button poisonWeaponsButton;
+	
+	public ItemAssignmentView(Composite parent, int style, GameType type) {
 		super(parent, style);
 		
 		FillLayout layout = new FillLayout();
@@ -98,6 +103,45 @@ public class ItemAssignmentView extends Composite {
 		optionData.top = new FormAttachment(rankWeaponButton, 5);
 		randomWeaponButton.setLayoutData(optionData);
 		
+		Control lastElement = randomWeaponButton;
+		
+		if (type.isGBA() && type != GameType.FE6) {
+			promoWeaponsButton = new Button(container, SWT.CHECK);
+			promoWeaponsButton.setText("Assign Promotional Weapons");
+			switch (type) {
+			case FE7:
+				promoWeaponsButton.setToolTipText("Allows the assignment of Emblem weapons.");
+				break;
+			case FE8:
+				promoWeaponsButton.setToolTipText("Allows the assignment of monster slaying weapons.");
+				break;
+			default:
+				break;
+			}
+			promoWeaponsButton.setEnabled(true);
+			promoWeaponsButton.setSelection(false);
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(lastElement, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(lastElement, 10);
+			promoWeaponsButton.setLayoutData(optionData);
+			
+			lastElement = promoWeaponsButton;
+		}
+		
+		poisonWeaponsButton = new Button(container, SWT.CHECK);
+		poisonWeaponsButton.setText("Assign Poison Weapons");
+		poisonWeaponsButton.setToolTipText("Allows the assignment of poison weapons.\nRegardless of this option, enemies may still have them if they had them before.");
+		poisonWeaponsButton.setEnabled(true);
+		poisonWeaponsButton.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(lastElement, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(lastElement, 10);
+		poisonWeaponsButton.setLayoutData(optionData);
+		
+		lastElement = poisonWeaponsButton;
+		
 		/*shopContainer = new Group(container, SWT.NONE);
 		shopContainer.setText("Shops");
 		
@@ -162,7 +206,7 @@ public class ItemAssignmentView extends Composite {
 			shopPolicy = ShopAdjustment.NO_CHANGE;
 		//}
 		
-		return new ItemAssignmentOptions(weaponPolicy, shopPolicy);		
+		return new ItemAssignmentOptions(weaponPolicy, shopPolicy, promoWeaponsButton != null ? promoWeaponsButton.getSelection() : false, poisonWeaponsButton.getSelection());		
 	}
 	
 	public void setItemAssignmentOptions(ItemAssignmentOptions options) {
@@ -175,5 +219,10 @@ public class ItemAssignmentView extends Composite {
 		/*noChangeButton.setSelection(options.shopAdjustment == ShopAdjustment.NO_CHANGE);
 		partyAdjustButton.setSelection(options.shopAdjustment == ShopAdjustment.ADJUST_TO_PARTY);
 		randomShopButton.setSelection(options.shopAdjustment == ShopAdjustment.RANDOM);*/
+		
+		if (promoWeaponsButton != null) {
+			promoWeaponsButton.setSelection(options.assignPromoWeapons);
+		}
+		poisonWeaponsButton.setSelection(options.assignPoisonWeapons);
 	}
 }

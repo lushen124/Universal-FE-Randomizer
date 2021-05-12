@@ -129,7 +129,7 @@ public class GBARandomizer extends Randomizer {
 		miscOptions = otherOptions;
 		recruitOptions = recruit;
 		itemAssignmentOptions = itemAssign;
-		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE); }
+		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE, false, false); }
 		
 		this.gameType = gameType;
 	}
@@ -578,7 +578,7 @@ public class GBARandomizer extends Randomizer {
 			if (miscOptions.randomizeRewards) {
 				updateStatusString("Randomizing rewards...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt));
-				RandomRandomizer.randomizeRewards(itemData, chapterData, rng);
+				RandomRandomizer.randomizeRewards(itemData, chapterData, itemAssignmentOptions.assignPromoWeapons, rng);
 			}
 			
 			if (miscOptions.enemyDropChance > 0) {
@@ -2318,6 +2318,11 @@ public class GBARandomizer extends Randomizer {
 				rk.addHeaderItem("Weapon Assignment Policy", "Random");
 				break;
 			}
+			
+			if (gameType != GameType.FE6) {
+				rk.addHeaderItem("Assign Promotional Weapons", itemAssignmentOptions.assignPromoWeapons ? "YES" : "NO");
+			}
+			rk.addHeaderItem("Assign Poison Weapons", itemAssignmentOptions.assignPoisonWeapons ? "YES" : "NO");
 		}
 		
 		return rk;
