@@ -23,6 +23,10 @@ public class PushVar8Instruction extends ScriptInstruction{
 	public byte[] rawBytes() {
 		return new byte[] {0x1, (byte)variableNumber};
 	}
+	
+	public int getVariableNumber() {
+		return variableNumber;
+	}
 
 	@Override
 	public byte opcode() {

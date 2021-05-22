@@ -34,9 +34,11 @@ public class FE9ScriptScene {
 	
 	short[] params;
 	
+	byte[] originalBytes;
 	byte[] scriptBytes;
 	byte[] updatedBytes;
 	
+	List<ScriptInstruction> originalInstructions;
 	List<ScriptInstruction> instructions;
 	List<ScriptInstruction> updatedInstructions;
 	
@@ -95,8 +97,10 @@ public class FE9ScriptScene {
 		}
 		
 		scriptBytes = handler.cmb_readBytesAtOffset(scriptOffset, scriptLength);
+		originalBytes = scriptBytes;
 		
 		instructions = FE9ScriptInterpreter.instructionsFromScript(this);
+		originalInstructions = List.copyOf(instructions);
 	}
 	
 	public int getPointerOffset() { return updatedPointerOffset != null ? updatedPointerOffset : pointerOffset; }
@@ -137,7 +141,7 @@ public class FE9ScriptScene {
 	
 	public short[] getParams() { return params; }
 	
-	public byte[] getOriginalScriptBytes() { return scriptBytes; }
+	public byte[] getOriginalScriptBytes() { return originalBytes; }
 	public byte[] getScriptBytes() { return updatedBytes != null ? updatedBytes : scriptBytes; }
 	public void setScriptBytes(byte[] newBytes) {
 		updatedBytes = newBytes;
@@ -146,7 +150,7 @@ public class FE9ScriptScene {
 		wasModified = true;
 	}
 	
-	public List<ScriptInstruction> getOriginalInstructions() { return WhyDoesJavaNotHaveThese.createMutableCopy(instructions); }
+	public List<ScriptInstruction> getOriginalInstructions() { return WhyDoesJavaNotHaveThese.createMutableCopy(originalInstructions); }
 	public List<ScriptInstruction> getInstructions() { return WhyDoesJavaNotHaveThese.createMutableCopy(updatedInstructions != null ? updatedInstructions : instructions); }
 	public void setInstructions(List<ScriptInstruction> newInstructions) {
 		updatedInstructions = newInstructions;
@@ -180,19 +184,33 @@ public class FE9ScriptScene {
 	public void commit() {
 		if (!wasModified) { return; }
 		
-		if (updatedBytes != null) { scriptBytes = updatedBytes; }
+		if (updatedBytes != null) { 
+			scriptBytes = updatedBytes;
+		}
 		updatedBytes = null;
-		if (updatedInstructions != null) { instructions = WhyDoesJavaNotHaveThese.createMutableCopy(updatedInstructions); }
+		if (updatedInstructions != null) { 
+			instructions = WhyDoesJavaNotHaveThese.createMutableCopy(updatedInstructions);
+		}
 		updatedInstructions = null;
-		if (updatedPointerOffset != null) { pointerOffset = updatedPointerOffset; }
+		if (updatedPointerOffset != null) {
+			pointerOffset = updatedPointerOffset;
+		}
 		updatedPointerOffset = null;
-		if (updatedSceneHeaderOffset != null) { sceneHeaderOffset = updatedSceneHeaderOffset; }
+		if (updatedSceneHeaderOffset != null) {
+			sceneHeaderOffset = updatedSceneHeaderOffset;
+		}
 		updatedSceneHeaderOffset = null;
-		if (updatedIdentifierOffset != null) { identifierOffset = updatedIdentifierOffset; }
+		if (updatedIdentifierOffset != null) {
+			identifierOffset = updatedIdentifierOffset;
+		}
 		updatedIdentifierOffset = null;
-		if (updatedScriptOffset != null) { scriptOffset = updatedScriptOffset; }
+		if (updatedScriptOffset != null) {
+			scriptOffset = updatedScriptOffset;
+		}
 		updatedScriptOffset = null;
-		if (updatedParentOffset != null) { parentOffset = updatedParentOffset; }
+		if (updatedParentOffset != null) {
+			parentOffset = updatedParentOffset;
+		}
 		updatedParentOffset = null;
 		wasModified = false;
 		hasChanges = true;
@@ -207,6 +225,9 @@ public class FE9ScriptScene {
 	}
 	
 	public byte[] buildHeader() {
+		// If there's any chages outstanding, we need to commit them now before we build the header.
+		commit();
+		
 		// We basically have to reverse the steps we used to parse the header in the first place.
 		ByteArrayBuilder builder = new ByteArrayBuilder();
 		builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(identifierOffset, true, 4));

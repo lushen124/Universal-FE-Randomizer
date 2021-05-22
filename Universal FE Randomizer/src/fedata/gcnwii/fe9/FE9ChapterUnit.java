@@ -22,7 +22,6 @@ public class FE9ChapterUnit implements FEModifiableData {
 	public static final int Skill1Offset = 0x2C;
 	public static final int Skill2Offset = 0x30;
 	public static final int Skill3Offset = 0x34;
-	public static final int Skill4Offset = 0x38;
 	
 	public static final int HPAdjustmentOffset = 0x43;
 	public static final int STRAdjustmentOffset = 0x44;
@@ -32,6 +31,11 @@ public class FE9ChapterUnit implements FEModifiableData {
 	public static final int LCKAdjustmentOffset = 0x48;
 	public static final int DEFAdjustmentOffset = 0x49;
 	public static final int RESAdjustmentOffset = 0x4A;
+	
+	private static final int SEQ1Offset = 0x4C;
+	private static final int SEQ2Offset = 0x50;
+	private static final int SEQ3Offset = 0x54;
+	private static final int MTYPEOffset = 0x58;
 	
 	private byte[] originalData;
 	private byte[] data;
@@ -58,6 +62,11 @@ public class FE9ChapterUnit implements FEModifiableData {
 	private Long cachedSkill2Pointer;
 	private Long cachedSkill3Pointer;
 	private Long cachedSkill4Pointer;
+	
+	private Long cachedSEQ1Pointer;
+	private Long cachedSEQ2Pointer;
+	private Long cachedSEQ3Pointer;
+	private Long cachedMTYPEPointer;
 	
 	public FE9ChapterUnit(byte[] data, long originalOffset) {
 		super();
@@ -210,8 +219,8 @@ public class FE9ChapterUnit implements FEModifiableData {
 	}
 	
 	public byte[] getPostSkillData() {
-		// 0x3C ~ 0x42
-		return Arrays.copyOfRange(data, 0x3C, 0x43);
+		// 0x38 ~ 0x42
+		return Arrays.copyOfRange(data, 0x38, 0x43);
 	}
 	
 	public int getHPAdjustment() {
@@ -287,8 +296,52 @@ public class FE9ChapterUnit implements FEModifiableData {
 	}
 	
 	public byte[] getPostAdjustmentData() {
-		// 0x4B ~ 0x5B
-		return Arrays.copyOfRange(data, 0x4B, 0x5C);
+		// 0x4B
+		return Arrays.copyOfRange(data, 0x4B, 0x4C);
+	}
+	
+	public long getSEQ1Pointer() {
+		if (cachedSEQ1Pointer == null) { cachedSEQ1Pointer = readPointerAtOffset(SEQ1Offset); }
+		return cachedSEQ1Pointer;
+	}
+	
+	public void setSEQ1Pointer(long seqPtr) {
+		cachedSEQ1Pointer = seqPtr;
+		writePointerToOffset(seqPtr, SEQ1Offset);
+		wasModified = true;
+	}
+	
+	public long getSEQ2Pointer() {
+		if (cachedSEQ2Pointer == null) { cachedSEQ2Pointer = readPointerAtOffset(SEQ2Offset); }
+		return cachedSEQ2Pointer;
+	}
+	
+	public void setSEQ2Pointer(long seqPtr) {
+		cachedSEQ2Pointer = seqPtr;
+		writePointerToOffset(seqPtr, SEQ2Offset);
+		wasModified = true;
+	}
+	
+	public long getSEQ3Pointer() {
+		if (cachedSEQ3Pointer == null) { cachedSEQ3Pointer = readPointerAtOffset(SEQ3Offset); }
+		return cachedSEQ3Pointer;
+	}
+	
+	public void setSEQ3Pointer(long seqPtr) {
+		cachedSEQ3Pointer = seqPtr;
+		writePointerToOffset(seqPtr, SEQ3Offset);
+		wasModified = true;
+	}
+	
+	public long getMTYPEPointer() {
+		if (cachedMTYPEPointer == null) { cachedMTYPEPointer = readPointerAtOffset(MTYPEOffset); }
+		return cachedMTYPEPointer;
+	}
+	
+	public void setMTYPEPointer(long mtypePtr) {
+		cachedMTYPEPointer = mtypePtr;
+		writePointerToOffset(mtypePtr, MTYPEOffset);
+		wasModified = true;
 	}
 	
 	public int getStartingX() {
@@ -413,11 +466,11 @@ public class FE9ChapterUnit implements FEModifiableData {
 		byte[] ptr = Arrays.copyOfRange(data, offset, offset + 4);
 		if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(ptr, new byte[] {0, 0, 0, 0})) { return 0; }
 		
-		return WhyDoesJavaNotHaveThese.longValueFromByteArray(ptr, false) + 0x20;
+		return WhyDoesJavaNotHaveThese.longValueFromByteArray(ptr, false);
 	}
 	
 	private void writePointerToOffset(long pointer, int offset) {
-		byte[] ptr = pointer == 0 ? new byte[] {0, 0, 0, 0} : WhyDoesJavaNotHaveThese.bytesFromPointer(pointer - 0x20);
+		byte[] ptr = pointer == 0 ? new byte[] {0, 0, 0, 0} : WhyDoesJavaNotHaveThese.bytesFromPointer(pointer);
 		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(ptr, data, offset, 4);
 	}
 	

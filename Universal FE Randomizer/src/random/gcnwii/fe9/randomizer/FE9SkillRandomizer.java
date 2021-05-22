@@ -85,7 +85,7 @@ public class FE9SkillRandomizer {
 						// Ike is special for Normal mode. For whatever reason, his skill won't show up without
 						// coding it into the chapter army data. It shows up fine in Hard mode though.
 						if (charData.getPIDForCharacter(character).equals(FE9Data.Character.IKE.getPID())) {
-							giveIkeSkill(chapterData, skillData.pointerForSkill(randomSkill));
+							giveIkeSkill(chapterData, skillData.getSID(randomSkill));
 						}
 					} else {
 						charData.setSID2ForCharacter(character, null);
@@ -112,12 +112,12 @@ public class FE9SkillRandomizer {
 		charData.commit();
 	}
 	
-	private static void giveIkeSkill(FE9ChapterDataLoader chapterData, long sidPtr) {
+	private static void giveIkeSkill(FE9ChapterDataLoader chapterData, String sid) {
 		List<FE9ChapterArmy> prologueArmies =  chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
 		for (FE9ChapterArmy army : prologueArmies) {
 			FE9ChapterUnit ike = army.getUnitForPID(FE9Data.Character.IKE.getPID());
 			if (ike != null) {
-				ike.setSkill2Pointer(sidPtr);
+				army.setSkill2ForUnit(ike, sid);
 				army.commitChanges();
 			}
 		}

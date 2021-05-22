@@ -41,7 +41,7 @@ public class FE9BasesRandomizer {
 			int defBase = 0;
 			int resBase = 0;
 			
-			String classID = charData.pointerLookup(character.getClassPointer());
+			String classID = charData.getJIDForCharacter(character);
 			FE9Class charClass = classData.classWithID(classID);
 			StatBias bias = classData.statBiasForClass(charClass);
 			
@@ -112,7 +112,7 @@ public class FE9BasesRandomizer {
 		for (FE9Character character : characters) {
 			if (character.wasModified()) { continue; }
 			
-			String classID = charData.pointerLookup(character.getClassPointer());
+			String classID = charData.getJIDForCharacter(character);
 			FE9Class charClass = classData.classWithID(classID);
 			
 			int minHP = -1 * charClass.getBaseHP();

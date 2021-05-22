@@ -18,6 +18,7 @@ import fedata.gcnwii.fe9.FE9Item;
 import fedata.gcnwii.fe9.FE9Skill;
 import io.gcn.GCNCMBFileHandler;
 import io.gcn.GCNDataFileHandler;
+import io.gcn.GCNDataFileHandlerV2;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
@@ -67,9 +68,9 @@ public class FE9ChapterDataLoader {
 			List<FE9ChapterArmy> armyList = new ArrayList<FE9ChapterArmy>();
 			for (String difficultyPath : chapter.getAllDifficulties()) {
 				GCNFileHandler handler = isoHandler.handlerForFileWithName(difficultyPath);
-				assert(handler instanceof GCNDataFileHandler);
-				if (!(handler instanceof GCNDataFileHandler)) { continue; }
-				GCNDataFileHandler dataFileHandler = (GCNDataFileHandler)handler;
+				assert(handler instanceof GCNDataFileHandlerV2);
+				if (!(handler instanceof GCNDataFileHandlerV2)) { continue; }
+				GCNDataFileHandlerV2 dataFileHandler = (GCNDataFileHandlerV2)handler;
 				FE9ChapterArmy army = new FE9ChapterArmy(dataFileHandler, chapter, difficultyPath);
 				allChapterArmies.add(army);
 				armyList.add(army);

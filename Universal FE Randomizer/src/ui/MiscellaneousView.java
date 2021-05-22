@@ -309,7 +309,7 @@ public class MiscellaneousView extends Composite {
 				return new MiscellaneousOptions(false, 0, false);
 			}
 		} else if (type.isGCN()) {
-			return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), false, rewardMode, enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0);
+			return new MiscellaneousOptions(false, randomizeChestVillageRewards.getSelection(), rewardMode, enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0);
 		}
 		
 		return new MiscellaneousOptions(false, 0, false);

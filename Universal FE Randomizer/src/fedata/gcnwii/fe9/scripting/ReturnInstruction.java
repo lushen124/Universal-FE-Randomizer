@@ -1,8 +1,11 @@
 package fedata.gcnwii.fe9.scripting;
 
 import io.gcn.GCNCMBFileHandler;
+import util.ByteArrayBuilder;
 
 public class ReturnInstruction extends ScriptInstruction {
+	
+	private byte[] remainder;
 
 	public ReturnInstruction() {
 		
@@ -15,7 +18,10 @@ public class ReturnInstruction extends ScriptInstruction {
 
 	@Override
 	public byte[] rawBytes() {
-		return new byte[] {0x39};
+		ByteArrayBuilder builder = new ByteArrayBuilder();
+		builder.appendByte((byte)0x39);
+		builder.appendBytes(remainder);
+		return builder.toByteArray();
 	}
 
 	@Override
@@ -31,6 +37,14 @@ public class ReturnInstruction extends ScriptInstruction {
 	@Override
 	public ScriptInstruction createWithArgs(byte[] args, GCNCMBFileHandler handler) {
 		return new ReturnInstruction();
+	}
+	
+	public void setRemainder(byte[] remainder) {
+		this.remainder = remainder;
+	}
+	
+	public byte[] getRemainder() {
+		return remainder;
 	}
 
 }

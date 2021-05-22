@@ -15,6 +15,8 @@ import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9Skill;
 import io.gcn.GCNDataFileHandler;
+import io.gcn.GCNDataFileHandlerV2;
+import io.gcn.GCNDataFileHandlerV2.GCNDataFileDataSection;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
@@ -47,12 +49,10 @@ public class FE9CharacterDataLoader {
 	Map<String, List<FE9Character>> daeinMinionsByJID;
 	Map<String, List<FE9Character>> pid14MinionsByJID;
 	
-	Map<String, Long> knownAddresses;
-	Map<Long, String> knownPointers;
-	
 	Map<String, FE9Character> idLookup;
 	
-	GCNDataFileHandler fe8databin;
+	GCNDataFileHandlerV2 fe8databin;
+	GCNDataFileDataSection characterDataSection;
 	FE9CommonTextLoader textData;
 	
 	public FE9CharacterDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
@@ -62,75 +62,47 @@ public class FE9CharacterDataLoader {
 		bossCharacters = new ArrayList<FE9Character>();
 		minionCharacters = new ArrayList<FE9Character>();
 		
-		knownAddresses = new HashMap<String, Long>();
-		knownPointers = new HashMap<Long, String>();
-		
 		daeinMinionsByJID = new HashMap<String, List<FE9Character>>();
 		pid14MinionsByJID = new HashMap<String, List<FE9Character>>();
 		
 		idLookup = new HashMap<String, FE9Character>();
 		
 		GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.CharacterDataFilename);
-		assert (handler instanceof GCNDataFileHandler);
-		if (handler instanceof GCNDataFileHandler) {
-			fe8databin = (GCNDataFileHandler)handler;
+		assert (handler instanceof GCNDataFileHandlerV2);
+		if (handler instanceof GCNDataFileHandlerV2) {
+			fe8databin = (GCNDataFileHandlerV2)handler;
 		}
 		
 		textData = commonTextLoader;
 		
-		long offset = FE9Data.CharacterDataStartOffset;
-		for (int i = 0; i < FE9Data.CharacterCount; i++) {
+		characterDataSection = fe8databin.getSectionWithName(FE9Data.CharacterDataSectionName);
+		int count = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(characterDataSection.getRawData(0, 4), false);
+		
+		long offset = 4;
+		for (int i = 0; i < count; i++) {
 			long dataOffset = offset + i * FE9Data.CharacterDataSize;
-			byte[] data = handler.readBytesAtOffset(dataOffset, FE9Data.CharacterDataSize);
+			byte[] data = characterDataSection.getRawData(dataOffset, FE9Data.CharacterDataSize);
 			FE9Character character = new FE9Character(data, dataOffset);
 			allCharacters.add(character);
 			
 			debugPrintCharacter(character, handler, commonTextLoader);
 			
-			String pid = stringForPointer(character.getCharacterIDPointer(), handler, null);
-			String mpid = stringForPointer(character.getCharacterNamePointer(), handler, null);
-			String fid = stringForPointer(character.getPortraitPointer(), handler, null);
-			String jid = stringForPointer(character.getClassPointer(), handler, null);
-			String affiliation = stringForPointer(character.getAffinityPointer(), handler, null);
-			String weaponLevels = stringForPointer(character.getWeaponLevelsPointer(), handler, null);
-			String sid1 = stringForPointer(character.getSkill1Pointer(), handler, null);
-			String sid2 = stringForPointer(character.getSkill2Pointer(), handler, null);
-			String sid3 = stringForPointer(character.getSkill3Pointer(), handler, null);
-			String aid1 = stringForPointer(character.getUnpromotedAnimationPointer(), handler, null);
-			String aid2 = stringForPointer(character.getPromotedAnimationPointer(), handler, null);
-			
-			knownAddresses.put(pid, character.getCharacterIDPointer());
-			knownAddresses.put(mpid, character.getCharacterNamePointer());
-			knownAddresses.put(fid, character.getPortraitPointer());
-			knownAddresses.put(jid, character.getClassPointer());
-			knownAddresses.put(affiliation, character.getAffinityPointer());
-			knownAddresses.put(weaponLevels, character.getWeaponLevelsPointer());
-			knownAddresses.put(sid1, character.getSkill1Pointer());
-			knownAddresses.put(sid2, character.getSkill2Pointer());
-			knownAddresses.put(sid3, character.getSkill3Pointer());
-			knownAddresses.put(aid1, character.getUnpromotedAnimationPointer());
-			knownAddresses.put(aid2, character.getPromotedAnimationPointer());
-			
-			knownPointers.put(character.getCharacterIDPointer(), pid);
-			knownPointers.put(character.getCharacterNamePointer(), mpid);
-			knownPointers.put(character.getPortraitPointer(), fid);
-			knownPointers.put(character.getClassPointer(), jid);
-			knownPointers.put(character.getAffinityPointer(), affiliation);
-			knownPointers.put(character.getWeaponLevelsPointer(), weaponLevels);
-			knownPointers.put(character.getSkill1Pointer(), sid1);
-			knownPointers.put(character.getSkill2Pointer(), sid2);
-			knownPointers.put(character.getSkill3Pointer(), sid3);
-			knownPointers.put(character.getUnpromotedAnimationPointer(), aid1);
-			knownPointers.put(character.getPromotedAnimationPointer(), aid2);
+			String pid = fe8databin.stringForPointer(character.getCharacterIDPointer());
 			
 			FE9Data.Character fe9Char = FE9Data.Character.withPID(pid);
 			if (fe9Char != null && fe9Char.isPlayable()) { playableCharacters.add(character); }
 			
 			idLookup.put(pid, character);
 			
-			if (sid1.equals(FE9Data.Skill.BOSS.getSID()) || sid2.equals(FE9Data.Skill.BOSS.getSID()) || sid3.equals(FE9Data.Skill.BOSS.getSID())) {
+			String sid1 = fe8databin.stringForPointer(character.getSkill1Pointer());
+			String sid2 = fe8databin.stringForPointer(character.getSkill2Pointer());
+			String sid3 = fe8databin.stringForPointer(character.getSkill3Pointer());
+			
+			if (FE9Data.Skill.BOSS.getSID().equals(sid1) || FE9Data.Skill.BOSS.getSID().equals(sid2) || FE9Data.Skill.BOSS.getSID().equals(sid3)) {
 				bossCharacters.add(character);
 			}
+			
+			String jid = fe8databin.stringForPointer(character.getClassPointer());
 			
 			if (isMinionCharacter(character)) {
 				minionCharacters.add(character);
@@ -227,20 +199,6 @@ public class FE9CharacterDataLoader {
 		return idLookup.get(pid);
 	}
 	
-	public String pointerLookup(long pointer) {
-		if (fe8databin != null) {
-			return fe8databin.stringForPointer(pointer);
-		}
-		return knownPointers.get(pointer);
-	}
-	
-	public Long addressLookup(String value) {
-		if (fe8databin != null) {
-			return fe8databin.pointerForString(value);
-		}
-		return knownAddresses.get(value);
-	}
-	
 	public boolean isDaeinCharacter(FE9Character character) {
 		String pid = getPIDForCharacter(character);
 		if (pid == null) { return false; }
@@ -291,10 +249,7 @@ public class FE9CharacterDataLoader {
 		if (character == null) { return null; }
 		if (character.getCharacterIDPointer() == 0) { return null; }
 		
-		if (fe8databin != null) {
-			return fe8databin.stringForPointer(character.getCharacterIDPointer());
-		}
-		return pointerLookup(character.getCharacterIDPointer());
+		return fe8databin.stringForPointer(character.getCharacterIDPointer());
 	}
 	
 	public String getMPIDForCharacter(FE9Character character) {
@@ -315,28 +270,13 @@ public class FE9CharacterDataLoader {
 		if (character == null) { return null; }
 		if (character.getClassPointer() == 0) { return null; }
 		
-		if (fe8databin != null) {
-			return fe8databin.stringForPointer(character.getClassPointer());
-		}
-		return pointerLookup(character.getClassPointer());
+		return fe8databin.stringForPointer(character.getClassPointer());
 	}
 	
 	public void setJIDForCharacter(FE9Character character, String jid) {
-		if (fe8databin != null) {
-			Long jidAddress = fe8databin.pointerForString(jid);
-			if (jidAddress == null) {
-				fe8databin.addString(jid);
-				fe8databin.commitAdditions();
-				jidAddress = fe8databin.pointerForString(jid);
-			}
-			character.setClassPointer(jidAddress);
-		} else {
-			Long jidAddress = addressLookup(jid);
-			assert(jidAddress != null);
-			if (jidAddress != null) {
-				character.setClassPointer(jidAddress);
-			}
-		}
+		fe8databin.addString(jid);
+		Long jidAddress = fe8databin.pointerForString(jid);
+		character.setClassPointer(jidAddress);
 	}
 	
 	public String getUnpromotedAIDForCharacter(FE9Character character) {
@@ -358,12 +298,8 @@ public class FE9CharacterDataLoader {
 		if (getPIDForCharacter(character).equals(FE9Data.Character.MIST.getPID()) ||
 				getPIDForCharacter(character).equals(FE9Data.Character.NEPHENEE.getPID())) { return; }
 		
+		fe8databin.addString(aid);
 		Long aidAddress = fe8databin.pointerForString(aid);
-		if (aidAddress == null) {
-			fe8databin.addString(aid);
-			fe8databin.commitAdditions();
-			aidAddress = fe8databin.pointerForString(aid);
-		}
 		character.setUnpromotedAnimationPointer(aidAddress);
 	}
 	
@@ -384,12 +320,8 @@ public class FE9CharacterDataLoader {
 		if (getPIDForCharacter(character).equals(FE9Data.Character.MIST.getPID()) ||
 				getPIDForCharacter(character).equals(FE9Data.Character.NEPHENEE.getPID())) { return; }
 		
+		fe8databin.addString(aid);
 		Long aidAddress = fe8databin.pointerForString(aid);
-		if (aidAddress == null) {
-			fe8databin.addString(aid);
-			fe8databin.commitAdditions();
-			aidAddress = fe8databin.pointerForString(aid);
-		}
 		character.setPromotedAnimationPointer(aidAddress);
 	}
 	
@@ -417,7 +349,6 @@ public class FE9CharacterDataLoader {
 		}
 		
 		fe8databin.addString(weaponLevelString);
-		fe8databin.commitAdditions();
 		character.setWeaponLevelsPointer(fe8databin.pointerForString(weaponLevelString));
 	}
 	
@@ -425,10 +356,7 @@ public class FE9CharacterDataLoader {
 		if (character == null) { return null; }
 		if (character.getSkill1Pointer() == 0) { return null; }
 		
-		if (fe8databin != null) {
-			return fe8databin.stringForPointer(character.getSkill1Pointer());
-		}
-		return pointerLookup(character.getSkill1Pointer());
+		return fe8databin.stringForPointer(character.getSkill1Pointer());
 	}
 	
 	public void setSID1ForCharacter(FE9Character character, String sid) {
@@ -438,33 +366,16 @@ public class FE9CharacterDataLoader {
 			return;
 		}
 		
-		if (fe8databin != null) {
-			Long sidAddress = fe8databin.pointerForString(sid);
-			fe8databin.addPointerOffset(character.getAddressOffset() + FE9Character.CharacterSkill1Offset - 0x20);
-			fe8databin.commitAdditions();
-			if (sidAddress == null) {
-				fe8databin.addString(sid);
-				fe8databin.commitAdditions();
-				sidAddress = fe8databin.pointerForString(sid);
-			}
-			character.setSkill1Pointer(sidAddress);
-		} else {
-			Long sidAddress = addressLookup(sid);
-			assert(sidAddress != null);
-			if (sidAddress != null) {
-				character.setSkill1Pointer(sidAddress);
-			}
-		}
+		fe8databin.addString(sid);
+		fe8databin.addPointerOffset(characterDataSection, character.getAddressOffset() + FE9Character.CharacterSkill1Offset);
+		character.setSkill1Pointer(fe8databin.pointerForString(sid));
 	}
 	
 	public String getSID2ForCharacter(FE9Character character) {
 		if (character == null) { return null; }
 		if (character.getSkill2Pointer() == 0) { return null; }
 		
-		if (fe8databin != null) {
-			return fe8databin.stringForPointer(character.getSkill2Pointer());
-		}
-		return pointerLookup(character.getSkill2Pointer());
+		return fe8databin.stringForPointer(character.getSkill2Pointer());
 	}
 	
 	public void setSID2ForCharacter(FE9Character character, String sid) {
@@ -474,33 +385,16 @@ public class FE9CharacterDataLoader {
 			return;
 		}
 		
-		if (fe8databin != null) {
-			Long sidAddress = fe8databin.pointerForString(sid);
-			fe8databin.addPointerOffset(character.getAddressOffset() + FE9Character.CharacterSkill2Offset - 0x20);
-			fe8databin.commitAdditions();
-			if (sidAddress == null) {
-				fe8databin.addString(sid);
-				fe8databin.commitAdditions();
-				sidAddress = fe8databin.pointerForString(sid);
-			}
-			character.setSkill2Pointer(sidAddress);
-		} else {
-			Long sidAddress = addressLookup(sid);
-			assert(sidAddress != null);
-			if (sidAddress != null) {
-				character.setSkill2Pointer(sidAddress);
-			}
-		}
+		fe8databin.addString(sid);
+		fe8databin.addPointerOffset(characterDataSection, character.getAddressOffset() + FE9Character.CharacterSkill2Offset);
+		character.setSkill2Pointer(fe8databin.pointerForString(sid));
 	}
 	
 	public String getSID3ForCharacter(FE9Character character) {
 		if (character == null) { return null; }
 		if (character.getSkill3Pointer() == 0) { return null; }
 		
-		if (fe8databin != null) {
-			return fe8databin.stringForPointer(character.getSkill3Pointer());
-		}
-		return pointerLookup(character.getSkill3Pointer());
+		return fe8databin.stringForPointer(character.getSkill3Pointer());
 	}
 	
 	public void setSID3ForCharacter(FE9Character character, String sid) {
@@ -510,23 +404,9 @@ public class FE9CharacterDataLoader {
 			return;
 		}
 		
-		if (fe8databin != null) {
-			Long sidAddress = fe8databin.pointerForString(sid);
-			fe8databin.addPointerOffset(character.getAddressOffset() + FE9Character.CharacterSkill3Offset - 0x20);
-			fe8databin.commitAdditions();
-			if (sidAddress == null) {
-				fe8databin.addString(sid);
-				fe8databin.commitAdditions();
-				sidAddress = fe8databin.pointerForString(sid);
-			}
-			character.setSkill3Pointer(sidAddress);
-		} else {
-			Long sidAddress = addressLookup(sid);
-			assert(sidAddress != null);
-			if (sidAddress != null) {
-				character.setSkill3Pointer(sidAddress);
-			}
-		}
+		fe8databin.addString(sid);
+		fe8databin.addPointerOffset(characterDataSection, character.getAddressOffset() + FE9Character.CharacterSkill3Offset);
+		character.setSkill3Pointer(fe8databin.pointerForString(sid));
 	}
 	
 	public int getLevelForCharacter(FE9Character character) {
@@ -559,20 +439,12 @@ public class FE9CharacterDataLoader {
 	}
 	
 	public void compileDiffs(GCNISOHandler isoHandler) {
-		try {
-			GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.CharacterDataFilename);
-			for (FE9Character character : allCharacters) {
-				DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Writing character: " + getDisplayName(character));
-				character.commitChanges();
-				if (character.hasCommittedChanges()) {
-					Diff charDiff = new Diff(character.getAddressOffset(), character.getData().length, character.getData(), null);
-					DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Adding change for " + getDisplayName(character) + " at address 0x" + Long.toHexString(character.getAddressOffset()));
-					handler.addChange(charDiff);
-				}
+		for (FE9Character character : allCharacters) {
+			DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Writing character: " + getDisplayName(character));
+			character.commitChanges();
+			if (character.hasCommittedChanges()) {
+				fe8databin.writeDataToSection(characterDataSection, character.getAddressOffset(), character.getData());
 			}
-		} catch (GCNISOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 	
@@ -645,7 +517,7 @@ public class FE9CharacterDataLoader {
 	}
 	
 	private FE9Data.Character fe9CharacterForCharacter(FE9Character character) {
-		String characterID = pointerLookup(character.getCharacterIDPointer());
+		String characterID = fe8databin.stringForPointer(character.getCharacterIDPointer());
 		if (characterID == null) { return null; }
 		return FE9Data.Character.withPID(characterID);
 	}

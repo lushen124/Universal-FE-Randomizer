@@ -18,7 +18,9 @@ import fedata.gcnwii.fe9.FE9Skill;
 import fedata.gcnwii.fe9.FE9ScriptScene;
 import fedata.gcnwii.fe9.scripting.CallSceneByNameInstruction;
 import fedata.gcnwii.fe9.scripting.NOPInstruction;
+import fedata.gcnwii.fe9.scripting.PushLiteralNum8Instruction;
 import fedata.gcnwii.fe9.scripting.PushLiteralString16Instruction;
+import fedata.gcnwii.fe9.scripting.PushVar8Instruction;
 import fedata.gcnwii.fe9.scripting.ScriptInstruction;
 import io.FileHandler;
 import io.gcn.GCNByteArrayHandler;
@@ -340,6 +342,10 @@ public class FE9Randomizer extends Randomizer {
 		
 		// Daunt scroll also doesn't have the correct name.
 		textData.setStringForIdentifier("MIID_HORROR", "Daunt");
+		
+		// Balmer is incorrectly set as a Mage instead of a Sage in the character data. Adjust for this.
+		FE9Character balmer = charData.characterWithID(FE9Data.Character.BALMER.getPID());
+		charData.setJIDForCharacter(balmer, FE9Data.CharacterClass.SAGE_STAFF.getJID());
 	}
 	
 	private void makePostRandomizationAdjustments(String seed) {
@@ -425,6 +431,85 @@ public class FE9Randomizer extends Randomizer {
 			}
 		}
 		
+		// Only two classes in the game can "walk slowly" or at least have the animation for doing so: Ranger and Priest.
+		// Telling these characters to walk slowly can mess up animations and may be the reason why
+		// this doesn't work on real hardware. Disable this slow walk whenever it shows up.
+		for (FE9Data.Chapter chapter : FE9Data.Chapter.values()) {
+			GCNCMBFileHandler chapterScript = chapterData.getHandlerForScripts(chapter);
+			if (chapterScript == null) { continue; }
+			for (FE9ScriptScene scene : chapterScript.getScenes()) {
+				List<ScriptInstruction> instructions = scene.getInstructions();
+				boolean didChange = false;
+				for (int i = 0; i < instructions.size(); i++) {
+					ScriptInstruction instruction = instructions.get(i);
+					if (instruction instanceof CallSceneByNameInstruction && ((CallSceneByNameInstruction)instruction).getSceneName().equals("UnitWalkSlow")) {
+						// Get the previous instruction, which should be a PUSH_NUM_LITERAL_8 that pushes either 0 (to disable) or 1 (to enable).
+						// Make sure it's always 0.
+						ScriptInstruction previousInstruction = instructions.get(i - 1);
+						if (previousInstruction instanceof PushLiteralNum8Instruction) {
+							// Replace these instructions with NO-OPs.
+							instructions.remove(i - 1); // Push Literal
+							instructions.remove(i - 1); // Call UnitWalkSlow
+							instructions.remove(i - 1); // Discard Top
+							
+							instructions.add(i - 1, new NOPInstruction());
+							instructions.add(i - 1, new NOPInstruction());
+							instructions.add(i - 1, new NOPInstruction());
+							
+							didChange = true;
+						}
+					}
+				}
+				if (didChange) {
+					scene.setInstructions(instructions);
+					//scene.commit();
+				}
+			}
+		}
+		
+		// There are a few cases where characters are assumed to be Laguz and are asked to transform.
+		// Doing so as a Beorc will result in a Shadow Ike, so check the classes of the characters when this happens
+		// to remove the transform as necessary.
+		
+		// Ranulf shows up in Ch. 7 post-battle to bail out the Greil Mercs and again in Ch. 11 post-battle to
+		// fight the Black Knight. In the second case, he also tries to play a unique animation that will crash on
+		// any other class, so that should also be NOP-ed out.
+		
+		FE9Character ranulf = charData.characterWithID(FE9Data.Character.RANULF.getPID());
+		String ranulfJID = charData.getJIDForCharacter(ranulf);
+		FE9Class ranulfClass = classData.classWithID(ranulfJID);
+		
+		if (!classData.isLaguzClass(ranulfClass)) {
+			GCNCMBFileHandler ch7Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_7);
+			for (FE9ScriptScene scene : ch7Script.getScenes()) {
+				List<ScriptInstruction> instructions = scene.getInstructions();
+				boolean didChange = false;
+				for (int i = 0; i < instructions.size(); i++) {
+					ScriptInstruction instruction = instructions.get(i);
+					if (instruction instanceof CallSceneByNameInstruction && ((CallSceneByNameInstruction)instruction).getSceneName().equals("UnitTransform")) {
+						instructions.remove(i - 2);
+						instructions.remove(i - 2);
+						instructions.remove(i - 2);
+						instructions.remove(i - 2);
+						
+						instructions.add(i - 2, new NOPInstruction());
+						instructions.add(i - 2, new NOPInstruction());
+						instructions.add(i - 2, new NOPInstruction());
+						instructions.add(i - 2, new NOPInstruction());
+						
+						didChange = true;
+					}
+				}
+				
+				if (didChange) {
+					scene.setInstructions(instructions);
+					//scene.commit();
+				}
+			}
+			
+			// He shows up again in Ch. 11, both in the opening and the ending.
+		}
+		
 		// Update Ike's starting inventory based on class (if necessary).
 		FE9Class ikeClass = classData.classWithID(charData.getJIDForCharacter(ike));
 		List<WeaponType> ikeWeaponTypes = classData.getUsableWeaponTypesForClass(ikeClass);
@@ -451,7 +536,7 @@ public class FE9Randomizer extends Randomizer {
 				}
 			}
 			scene.setInstructions(instructions);
-			scene.commit();
+			//scene.commit();
 			
 			GCNCMBFileHandler chapter1 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_1);
 			scene = chapter1.getSceneWithIndex(0x1C);
@@ -465,7 +550,7 @@ public class FE9Randomizer extends Randomizer {
 				}	
 			}
 			scene.setInstructions(instructions);
-			scene.commit();
+			//scene.commit();
 		}
 		
 		// Just to be doubly sure, give Ike a Vulnerary in Prologue.
@@ -514,7 +599,7 @@ public class FE9Randomizer extends Randomizer {
 				}
 			}
 			scene.setInstructions(instructions);
-			scene.commit();
+			//scene.commit();
 		}
 		
 		// Update Shinon's rejoin weapon.
@@ -577,7 +662,7 @@ public class FE9Randomizer extends Randomizer {
 				}
 			}
 			scene.setInstructions(instructions);
-			scene.commit();
+			//scene.commit();
 		}
 	}
 	

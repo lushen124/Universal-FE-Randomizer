@@ -187,7 +187,7 @@ public class SeedGenerator {
 			sb.append(seedString);
 		}
 		
-		long counter = sb.toString().hashCode() + seedSalt;
+		long counter = sb.toString().hashCode() + seedString.length() + seedSalt;
 		
 		DebugPrinter.log(DebugPrinter.Key.RANDOM, "Previewing Seed \"" + seedString + "\" with salt " + seedSalt);
 		Random rng = new Random(counter);
