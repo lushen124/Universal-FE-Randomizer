@@ -105,21 +105,23 @@ public class FE9ClassRandomizer {
 			
 			int strBase = 0;
 			int magBase = 0;
+			int strGrowth = character.getSTRGrowth();
+			int magGrowth = character.getMAGGrowth();
 			StatBias classStatBias = classData.statBiasForClass(newClass);
 			if (classStatBias == StatBias.LEAN_PHYSICAL || classStatBias == StatBias.PHYSICAL_ONLY) {
 				int effectiveSTR = character.getBaseSTR() + originalClass.getBaseSTR();
 				int effectiveMAG = character.getBaseMAG() + originalClass.getBaseMAG();
 				strBase = Math.max(effectiveSTR, effectiveMAG) - newClass.getBaseSTR();
 				magBase = Math.min(effectiveSTR, effectiveMAG) - newClass.getBaseMAG();
-				character.setSTRGrowth(Math.max(character.getSTRGrowth(), character.getMAGGrowth()));
-				character.setMAGGrowth(Math.min(character.getSTRGrowth(), character.getMAGGrowth()));
+				character.setSTRGrowth(Math.max(strGrowth, magGrowth));
+				character.setMAGGrowth(Math.min(strGrowth, magGrowth));
 			} else if (classStatBias == StatBias.LEAN_MAGICAL || classStatBias == StatBias.MAGICAL_ONLY) {
 				int effectiveSTR = character.getBaseSTR() + originalClass.getBaseSTR();
 				int effectiveMAG = character.getBaseMAG() + originalClass.getBaseMAG();
 				strBase = Math.min(effectiveSTR, effectiveMAG) - newClass.getBaseSTR();
 				magBase = Math.max(effectiveSTR, effectiveMAG) - newClass.getBaseMAG();
-				character.setSTRGrowth(Math.min(character.getSTRGrowth(), character.getMAGGrowth()));
-				character.setMAGGrowth(Math.max(character.getSTRGrowth(), character.getMAGGrowth()));
+				character.setSTRGrowth(Math.min(strGrowth, magGrowth));
+				character.setMAGGrowth(Math.max(strGrowth, magGrowth));
 			} else {
 				strBase = character.getBaseSTR() + originalClass.getBaseSTR() - newClass.getBaseSTR();
 				magBase = character.getBaseMAG() + originalClass.getBaseMAG() - newClass.getBaseMAG();	
