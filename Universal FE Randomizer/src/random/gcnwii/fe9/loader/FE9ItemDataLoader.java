@@ -1135,6 +1135,11 @@ public class FE9ItemDataLoader {
 		return equipment;
 	}
 	
+	// These shouldn't be removed when possible.
+	public List<FE9Item> getImportantEquipment() {
+		return fe9ItemListFromSet(FE9Data.Item.allBands);
+	}
+	
 	public List<FE9Item> possibleUpgradesToWeapon(FE9Item item, boolean isWielderPromoted) {
 		if (item == null) { return null; }
 		FE9Data.Item original = FE9Data.Item.withIID(iidOfItem(item));

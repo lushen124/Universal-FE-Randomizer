@@ -362,13 +362,53 @@ public class FE9Item implements FEModifiableData {
 		data[0x52] = (byte)(bonus & 0xFF);
 		wasModified = true;
 	}
+	
+	public int getMOVBonus() {
+		return (data[0x53] & 0xFF);
+	}
+	
+	public int getCONBonus() {
+		return (data[0x54] & 0xFF);
+	}
+	
+	public int getHPGrowthBonus() {
+		return data[0x55];
+	}
+	
+	public int getSTRGrowthBonus() {
+		return data[0x56];
+	}
+	
+	public int getMAGGrowthBonus() {
+		return data[0x57];
+	}
+	
+	public int getSKLGrowthBonus() {
+		return data[0x58];
+	}
+	
+	public int getSPDGrowthBonus() {
+		return data[0x59];
+	}
+	
+	public int getLCKGrowthBonus() {
+		return data[0x5A];
+	}
+	
+	public int getDEFGrowthBonus() {
+		return data[0x5B];
+	}
+	
+	public int getRESGrowthBonus() {
+		return data[0x5C];
+	}
 		
 	public byte[] getRemainingBytes() {
-		return Arrays.copyOfRange(data, 0x53, 0x60);
+		return Arrays.copyOfRange(data, 0x5D, 0x60);
 	}
 	
 	public void setByteInRemainingBytes(byte value, int offset) {
-		if (offset >= 0x54 && offset < 0x60) {
+		if (offset >= 0x5D && offset < 0x60) {
 			data[offset] = value;
 			wasModified = true;
 		}

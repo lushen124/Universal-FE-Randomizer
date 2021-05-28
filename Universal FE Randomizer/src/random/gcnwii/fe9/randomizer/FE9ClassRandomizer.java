@@ -448,6 +448,16 @@ public class FE9ClassRandomizer {
 							if (isFormerThief) {
 								equipment.addAll(itemData.formerThiefKit());
 							}
+							
+							FE9Item item1 = itemData.itemWithIID(army.getItem1ForUnit(unit));
+							FE9Item item2 = itemData.itemWithIID(army.getItem2ForUnit(unit));
+							FE9Item item3 = itemData.itemWithIID(army.getItem3ForUnit(unit));
+							FE9Item item4 = itemData.itemWithIID(army.getItem4ForUnit(unit));
+							if (item1 != null && itemData.getImportantEquipment().contains(item1)) { equipment.add(item1); }
+							if (item2 != null && itemData.getImportantEquipment().contains(item2)) { equipment.add(item2); }
+							if (item3 != null && itemData.getImportantEquipment().contains(item3)) { equipment.add(item3); }
+							if (item4 != null && itemData.getImportantEquipment().contains(item4)) { equipment.add(item4); }
+							
 							if (rng.nextInt(5) != 0) {
 								List<FE9Item> items = itemData.potentialEquipmentListForJID(targetJID);
 								equipment.add(items.get(rng.nextInt(items.size())));
@@ -951,6 +961,7 @@ public class FE9ClassRandomizer {
 							if (!itemData.equipmentListForJID(targetJID).isEmpty()) {
 								equipment.addAll(itemData.equipmentListForJID(targetJID));
 							}
+							
 							if (rng.nextInt(5) != 0) {
 								List<FE9Item> items = itemData.potentialEquipmentListForJID(targetJID);
 								equipment.add(items.get(rng.nextInt(items.size())));
@@ -969,10 +980,29 @@ public class FE9ClassRandomizer {
 								DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, itemData.iidOfItem(equip));
 							});
 							
+							List<FE9Item> existingDrops = new ArrayList<FE9Item>();
+							if (unit.willDropItem1()) { existingDrops.add(itemData.itemWithIID(army.getItem1ForUnit(unit))); }
+							if (unit.willDropItem2()) { existingDrops.add(itemData.itemWithIID(army.getItem2ForUnit(unit))); }
+							if (unit.willDropItem3()) { existingDrops.add(itemData.itemWithIID(army.getItem3ForUnit(unit))); }
+							if (unit.willDropItem4()) { existingDrops.add(itemData.itemWithIID(army.getItem4ForUnit(unit))); }
+							existingDrops.retainAll(itemData.getImportantEquipment());
+							
+							equipment.addAll(0, existingDrops);
+							
+							unit.setWillDropItem1(false);
+							unit.setWillDropItem2(false);
+							unit.setWillDropItem3(false);
+							unit.setWillDropItem4(false);
+							
 							army.setItem1ForUnit(unit, equipment.size() > 0 ? itemData.iidOfItem(equipment.get(0)) : null);
 							army.setItem2ForUnit(unit, equipment.size() > 1 ? itemData.iidOfItem(equipment.get(1)) : null);
 							army.setItem3ForUnit(unit, equipment.size() > 2 ? itemData.iidOfItem(equipment.get(2)) : null);
 							army.setItem4ForUnit(unit, equipment.size() > 3 ? itemData.iidOfItem(equipment.get(3)) : null);
+							
+							if (equipment.size() > 0 && existingDrops.contains(equipment.get(0))) { unit.setWillDropItem1(true); }
+							if (equipment.size() > 1 && existingDrops.contains(equipment.get(1))) { unit.setWillDropItem2(true); }
+							if (equipment.size() > 2 && existingDrops.contains(equipment.get(2))) { unit.setWillDropItem3(true); }
+							if (equipment.size() > 3 && existingDrops.contains(equipment.get(3))) { unit.setWillDropItem4(true); }
 						}
 					}
 				}
