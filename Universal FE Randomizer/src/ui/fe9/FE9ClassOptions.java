@@ -8,6 +8,7 @@ public class FE9ClassOptions {
 	public final boolean includeSpecial;
 	public final boolean allowCrossgender;
 	public final boolean mixPCRaces;
+	public final boolean assignClassesEvenly;
 	
 	public final boolean randomizeBosses;
 	public final boolean mixBossRaces;
@@ -18,7 +19,7 @@ public class FE9ClassOptions {
 	
 	public boolean forceDifferent;
 
-	public FE9ClassOptions(boolean playableCharacters, boolean lords, boolean thieves, boolean special, boolean crossgender, boolean mixPCRaces,
+	public FE9ClassOptions(boolean playableCharacters, boolean lords, boolean thieves, boolean special, boolean crossgender, boolean mixPCRaces, boolean assignEvenly,
 			boolean bosses, boolean mixBossRaces,
 			boolean minions, boolean mixMinionRaces, int minionRandomChance, 
 			boolean forceDifferent) {
@@ -28,6 +29,7 @@ public class FE9ClassOptions {
 		includeSpecial = special;
 		allowCrossgender = crossgender;
 		this.mixPCRaces = mixPCRaces;
+		assignClassesEvenly = assignEvenly;
 		
 		randomizeBosses = bosses;
 		this.mixBossRaces = mixBossRaces;

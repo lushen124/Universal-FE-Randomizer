@@ -1,6 +1,8 @@
 package random.gcnwii.fe9.randomizer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +12,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import fedata.gba.GBAFEClassData;
 import fedata.gcnwii.fe9.FE9ChapterArmy;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
@@ -26,6 +29,7 @@ import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponRank;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponType;
+import random.general.PoolDistributor;
 import util.DebugPrinter;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader.StatBias;
@@ -35,12 +39,15 @@ public class FE9ClassRandomizer {
 	public static final int rngSalt = 2744;
 
 	public static void randomizePlayableCharacters(boolean includeLords, boolean includeThieves, boolean includeSpecial, boolean forceDifferent,
-			boolean mixRaces, boolean crossGenders, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, FE9ChapterDataLoader chapterData, 
+			boolean mixRaces, boolean crossGenders, boolean assignEvenly, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, FE9ChapterDataLoader chapterData, 
 			FE9SkillDataLoader skillData, FE9ItemDataLoader itemData, Random rng) {
 		
 		Map<String, String> pidToJid = new HashMap<String, String>();
 		
 		boolean heronAssigned = false;
+		
+		PoolDistributor<FE9Class> classPool = new PoolDistributor<FE9Class>();
+		classData.allValidClasses().stream().forEach(fe9Class -> classPool.addItem(fe9Class));
 		
 		for (FE9Character character : charData.allPlayableCharacters()) {
 			if (!charData.isModifiableCharacter(character)) { continue; }
@@ -67,12 +74,41 @@ public class FE9ClassRandomizer {
 						return classData.getJIDForClass(fe9class).equals(FE9Data.CharacterClass.W_HERON.getJID());
 					});
 				}
+				
+				if (pid.equals(FE9Data.Character.KIERAN.getPID()) || pid.equals(FE9Data.Character.BROM.getPID()) || pid.equals(FE9Data.Character.NEPHENEE.getPID())) {
+					// Kieran, Brom, and Nephenee start out in locked cells. Them being a thief will make their AI open doors automatically as Green units.
+					possibleReplacements.removeIf(fe9Class -> {
+						return classData.isThiefClass(fe9Class);
+					});
+				}
+				
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Possible Classes: ");
 				for (FE9Class charClass : possibleReplacements) {
 					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + classData.getJIDForClass(charClass));
 				}
 				if (possibleReplacements.isEmpty()) { continue; }
-				newClass = possibleReplacements.get(rng.nextInt(possibleReplacements.size()));
+				
+				if (assignEvenly) {
+					Set<FE9Class> replacementSet = new HashSet<FE9Class>(possibleReplacements);
+					if (Collections.disjoint(replacementSet, classPool.possibleResults())) {
+						classData.allValidClasses().stream().forEach(fe9Class -> classPool.addItem(fe9Class));
+					}
+					replacementSet.retainAll(classPool.possibleResults());
+					List<FE9Class> classList = replacementSet.stream().sorted(new Comparator<FE9Class>() {
+						@Override
+						public int compare(FE9Class o1, FE9Class o2) {
+							return classData.getJIDForClass(o1).compareTo(classData.getJIDForClass(o2));
+						}
+					}).collect(Collectors.toList());
+					PoolDistributor<FE9Class> pool = new PoolDistributor<FE9Class>();
+					for (FE9Class charClass : classList) {
+						pool.addItem(charClass, classPool.itemCount(charClass));
+					}
+					newClass = pool.getRandomItem(rng, true);
+					classPool.removeItem(newClass, false);
+				} else {
+					newClass = possibleReplacements.get(rng.nextInt(possibleReplacements.size()));
+				}
 				targetJID = classData.getJIDForClass(newClass);
 				if (targetJID.equals(FE9Data.CharacterClass.W_HERON.getJID())) { 
 					heronAssigned = true;
@@ -797,6 +833,9 @@ public class FE9ClassRandomizer {
 									WeaponType randomUsableType = types.get(rng.nextInt(types.size()));
 									DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Selected type: " + randomUsableType.toString());
 									WeaponRank usableRank = equippedRanks.size() > i ? equippedRanks.get(i) : weaponLevelsMap.get(randomUsableType);
+									if (usableRank.isHigherThan(weaponLevelsMap.get(randomUsableType))) {
+										usableRank = weaponLevelsMap.get(randomUsableType);
+									}
 									List<FE9Item> replacements = itemData.weaponsOfRankAndType(usableRank, randomUsableType);
 									if (replacements.isEmpty()) {
 										WeaponRank adjacentRank = usableRank.lowerRank();
@@ -1209,6 +1248,10 @@ public class FE9ClassRandomizer {
 		if (forceDifferent) {
 			classChoices.removeIf(classChoice -> {
 				return classData.getJIDForClass(classChoice).equals(classData.getJIDForClass(originalClass));
+			});
+			
+			classChoices.removeIf(classChoice -> {
+				return classData.areClassesSimilar(classChoice, originalClass);
 			});
 		}
 		

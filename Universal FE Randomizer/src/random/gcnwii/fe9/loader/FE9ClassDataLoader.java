@@ -141,6 +141,13 @@ public class FE9ClassDataLoader {
 		}).collect(Collectors.toList());
 	}
 	
+	public boolean areClassesSimilar(FE9Class class1, FE9Class class2) {
+		if (class1 == null || class2 == null) { return false; }
+		FE9Data.CharacterClass charClass1 = fe9ClassForClass(class1);
+		FE9Data.CharacterClass charClass2 = fe9ClassForClass(class2);
+		return charClass1.similarClasses().contains(charClass2);
+	}
+	
 	public List<FE9Class> allLaguzClasses() {
 		return allLaguzClasses;
 	}

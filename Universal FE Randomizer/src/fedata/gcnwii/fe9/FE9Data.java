@@ -407,6 +407,75 @@ public class FE9Data {
 		public boolean isPacifist() { return allPacifistClasses.contains(this); }
 		public boolean isAdvanced() { return advancedClasses.contains(this); }
 		
+		public Set<CharacterClass> similarClasses() {
+			switch (this) {
+			case SWORD_KNIGHT:
+			case LANCE_KNIGHT:
+			case AXE_KNIGHT:
+			case BOW_KNIGHT:
+			case SWORD_KNIGHT_F:
+			case LANCE_KNIGHT_F:
+			case AXE_KNIGHT_F:
+			case BOW_KNIGHT_F:
+				return new HashSet<CharacterClass>(Arrays.asList(SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT, SWORD_KNIGHT_F, AXE_KNIGHT_F, LANCE_KNIGHT_F, BOW_KNIGHT_F));
+			case SWORD_PALADIN:
+			case LANCE_PALADIN:
+			case AXE_PALADIN:
+			case BOW_PALADIN:
+			case SWORD_PALADIN_F:
+			case LANCE_PALADIN_F:
+			case AXE_PALADIN_F:
+			case BOW_PALADIN_F:
+			case TITANIA_PALADIN:
+				return new HashSet<CharacterClass>(Arrays.asList(SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN));
+			case MAGE:
+			case MAGE_F:
+				return new HashSet<CharacterClass>(Arrays.asList(MAGE, MAGE_F));
+			case SAGE:
+			case SAGE_F:
+			case SAGE_KNIFE:
+			case SAGE_KNIFE_F:
+			case SAGE_STAFF:
+			case SAGE_STAFF_F:
+				return new HashSet<CharacterClass>(Arrays.asList(SAGE, SAGE_F, SAGE_KNIFE, SAGE_KNIFE_F, SAGE_STAFF, SAGE_STAFF_F));
+			case SOLDIER:
+			case SOLDIER_F:
+				return new HashSet<CharacterClass>(Arrays.asList(SOLDIER, SOLDIER_F));
+			case HALBERDIER:
+			case HALBERDIER_F:
+				return new HashSet<CharacterClass>(Arrays.asList(HALBERDIER, HALBERDIER_F));
+			case MYRMIDON:
+			case MYRMIDON_F:
+				return new HashSet<CharacterClass>(Arrays.asList(MYRMIDON, MYRMIDON_F));
+			case SWORDMASTER:
+			case SWORDMASTER_F:
+				return new HashSet<CharacterClass>(Arrays.asList(SWORDMASTER, SWORDMASTER_F));
+			case FALCON_KNIGHT:
+			case ELINCIA_FALCON_KNIGHT:
+				return new HashSet<CharacterClass>(Arrays.asList(FALCON_KNIGHT, ELINCIA_FALCON_KNIGHT));
+			case CAT:
+			case CAT_F:
+				return new HashSet<CharacterClass>(Arrays.asList(CAT, CAT_F));
+			default:
+				return new HashSet<CharacterClass>();
+			}
+		}
+		
+		public CharacterClass getTransformedClass() {
+			switch (this) {
+			case CAT: return FERAL_CAT;
+			case CAT_F: return FERAL_CAT_F;
+			case TIGER: return FERAL_TIGER;
+			case CROW: return FERAL_CROW;
+			case HAWK: return FERAL_HAWK;
+			case RED_DRAGON: return FERAL_RED_DRAGON;
+			case RED_DRAGON_F: return FERAL_RED_DRAGON_F;
+			case WHITE_DRAGON: return FERAL_WHITE_DRAGON;
+			case W_HERON: return FERAL_W_HERON;
+			default: return null;
+			}
+		}
+		
 		public CharacterClass getPromoted() {
 			switch(this) {
 			case RANGER: return LORD;
@@ -1130,8 +1199,8 @@ public class FE9Data {
 				WYVERN_BAND, MAGE_BAND, PRIEST_BAND, THIEF_BAND, LONGBOW));
 		
 		public static Set<Item> allERankWeapons = new HashSet<Item>(Arrays.asList(SLIM_SWORD, IRON_SWORD, PRACTICE_SWORD, IRON_LANCE, SLIM_LANCE,
-				JAVELIN, VENIN_LANCE, IRON_AXE, PRACTICE_AXE, HAND_AXE, STEEL_AXE, DEVIL_AXE, IRON_BOW, FIRE, THUNDER, WIND, HEAL, KNIFE));
-		public static Set<Item> allDRankWeapons = new HashSet<Item>(Arrays.asList(VENIN_EDGE, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, STEEL_LANCE,
+				JAVELIN, IRON_AXE, PRACTICE_AXE, HAND_AXE, STEEL_AXE, DEVIL_AXE, IRON_BOW, FIRE, THUNDER, WIND, HEAL, KNIFE));
+		public static Set<Item> allDRankWeapons = new HashSet<Item>(Arrays.asList(VENIN_EDGE, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, VENIN_LANCE, STEEL_LANCE,
 				KNIGHT_KILLER, HEAVY_SPEAR, VENIN_AXE, HAMMER, POLEAX, VENIN_BOW, LONGBOW, STEEL_BOW, ELFIRE, ELWIND, ELTHUNDER, LIGHT, MEND, TORCH_STAFF));
 		public static Set<Item> allCRankWeapons = new HashSet<Item>(Arrays.asList(KILLING_EDGE, LAGUZSLAYER, STEEL_BLADE, SHORT_SPEAR, KILLER_LANCE,
 				LAGUZ_LANCE, SHORT_AXE, KILLER_AXE, LAGUZ_AXE, LAGUZ_BOW, KILLER_BOW, METEOR, BOLTING, BLIZZARD, SHINE, WARD, RESTORE, PHYSIC, HAMMERNE,

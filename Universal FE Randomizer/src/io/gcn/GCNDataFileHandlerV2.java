@@ -385,10 +385,10 @@ public class GCNDataFileHandlerV2 extends GCNByteArrayHandler {
 			
 			int pointersWritten = 0;
 			for (long pointer : validPointers) {
-//				if (WhyDoesJavaNotHaveThese.longValueFromByteArray(WhyDoesJavaNotHaveThese.subArray(writtenBytes, (int)pointer, 4), false) == 0) {
-//					DebugPrinter.log(DebugPrinter.Key.FE9_DATA_FILE_HANDLER_V2, "Skipping 0 pointer at offset 0x" + Long.toHexString(pointer));
-//					continue;
-//				}
+				if (WhyDoesJavaNotHaveThese.longValueFromByteArray(WhyDoesJavaNotHaveThese.subArray(writtenBytes, (int)pointer, 4), false) == 0) {
+					DebugPrinter.log(DebugPrinter.Key.FE9_DATA_FILE_HANDLER_V2, "Skipping 0 pointer at offset 0x" + Long.toHexString(pointer));
+					continue;
+				}
 				DebugPrinter.log(DebugPrinter.Key.FE9_DATA_FILE_HANDLER_V2, "Writing pointer 0x" + Long.toHexString(pointer - 0x20) + " at offset 0x" + Long.toHexString(builder.getBytesWritten()));
 				builder.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(pointer - 0x20, false, 4));
 				pointersWritten++;
