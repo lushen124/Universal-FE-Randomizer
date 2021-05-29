@@ -785,6 +785,12 @@ public class FE9Randomizer extends Randomizer {
 			scene.setInstructions(instructions);
 			//scene.commit();
 		}
+		
+		// PID_B_ZAKO is for Bengion generic soldiers. They, for some reason, have a hard-coded AID of a soldier, which can mess with their map models.
+		// Remove this AID and let the game handle it.
+		FE9Character bZako = charData.characterWithID("PID_B_ZAKO");
+		charData.setUnpromotedAIDForCharacter(bZako, null);
+		
 	}
 	
 	// If called more than once on the same script index, should be done in reverse order to make sure the index of occurence remains consistent.
