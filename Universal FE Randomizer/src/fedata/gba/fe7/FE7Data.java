@@ -26,6 +26,7 @@ import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
+import random.gba.loader.ItemDataLoader.AdditionalData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -3131,7 +3132,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.TROUBADOUR,
 				CharacterClass.VALKYRIE,
 				CharacterClass.LORD_KNIGHT,
-				CharacterClass.GREAT_LORD
+				CharacterClass.GREAT_LORD,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE // Since there are three potential Lords that can fall under the same effectiveness, we leave space for 3 class IDs and a terminator.
 				));
 	}
 
@@ -3141,7 +3146,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.KNIGHT_F,
 				CharacterClass.GENERAL,
 				CharacterClass.GENERAL_F,
-				CharacterClass.GREAT_LORD
+				CharacterClass.GREAT_LORD,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -3157,7 +3166,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.NOMADTROOPER_F,
 				CharacterClass.TROUBADOUR,
 				CharacterClass.VALKYRIE,
-				CharacterClass.LORD_KNIGHT
+				CharacterClass.LORD_KNIGHT,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -3167,7 +3180,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.WYVERNKNIGHT,
 				CharacterClass.WYVERNKNIGHT_F,
 				CharacterClass.WYVERNLORD,
-				CharacterClass.WYVERNLORD_F
+				CharacterClass.WYVERNLORD_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -3178,7 +3195,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.WYVERNKNIGHT,
 				CharacterClass.WYVERNKNIGHT_F,
 				CharacterClass.WYVERNLORD,
-				CharacterClass.WYVERNLORD_F
+				CharacterClass.WYVERNLORD_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -3192,13 +3213,28 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.MERCENARY_F,
 				CharacterClass.HERO,
 				CharacterClass.HERO_F,
-				CharacterClass.BLADE_LORD
+				CharacterClass.BLADE_LORD,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
 	public List<GBAFEClass> monsterEffectivenessClasses() {
 		// Doesn't exist in FE7.
 		return new ArrayList<GBAFEClass>();
+	}
+	
+	public AdditionalData effectivenessPointerType(long effectivenessPtr) {
+		if (effectivenessPtr == 0xC97E9CL) { return AdditionalData.KNIGHTCAV_EFFECT; }
+		if (effectivenessPtr == 0xC97E96L) { return AdditionalData.KNIGHT_EFFECT; }
+		if (effectivenessPtr == 0xC97EC5L) { return AdditionalData.DRAGON_EFFECT; }
+		if (effectivenessPtr == 0xC97EB7L) { return AdditionalData.CAVALRY_EFFECT; }
+		if (effectivenessPtr == 0xC97EADL) { return AdditionalData.MYRMIDON_EFFECT; }
+		if (effectivenessPtr == 0xC97ED2L) { return AdditionalData.FLIERS_EFFECT; }
+//		if (effectivenessPtr == 0xC97ECBL) { return AdditionalData.DRAGON_EFFECT; } // Used for Aureola. It's Dragon + Dark Druid.
+		return null;
 	}
 
 	public GBAFEPromotionItem[] allPromotionItems() {

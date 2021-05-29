@@ -27,6 +27,7 @@ import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
+import random.gba.loader.ItemDataLoader.AdditionalData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -3396,7 +3397,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.EIRIKA_MASTER_LORD,
 				CharacterClass.EPHRAIM_MASTER_LORD,
 				CharacterClass.TARVOS,
-				CharacterClass.MAELDUIN
+				CharacterClass.MAELDUIN,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE // One placeholder for Eirika, one placeholder for Ephraim, and one terminator.
 				));
 	}
 
@@ -3407,7 +3411,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.KNIGHT,
 				CharacterClass.KNIGHT_F,
 				CharacterClass.GENERAL,
-				CharacterClass.GENERAL_F
+				CharacterClass.GENERAL_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -3428,7 +3435,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.EIRIKA_MASTER_LORD,
 				CharacterClass.EPHRAIM_MASTER_LORD,
 				CharacterClass.TARVOS,
-				CharacterClass.MAELDUIN
+				CharacterClass.MAELDUIN,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -3442,7 +3452,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.WYVERN_KNIGHT,
 				CharacterClass.WYVERN_KNIGHT_F,
 				CharacterClass.WYVERN_LORD,
-				CharacterClass.WYVERN_LORD_F
+				CharacterClass.WYVERN_LORD_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -3460,7 +3473,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.DEATHGOYLE,
 				CharacterClass.MANAKETE_2,
 				CharacterClass.MANAKETE_F,
-				CharacterClass.DRACOZOMBIE
+				CharacterClass.DRACOZOMBIE,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -3473,7 +3489,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.MERCENARY,
 				CharacterClass.MERCENARY_F,
 				CharacterClass.HERO,
-				CharacterClass.HERO_F
+				CharacterClass.HERO_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -3503,8 +3522,23 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.DEATHGOYLE,
 				CharacterClass.DRACOZOMBIE,
 				CharacterClass.DEMON_KING,
-				CharacterClass.GHOST_FIGHTER
+				CharacterClass.GHOST_FIGHTER,
+				CharacterClass.NONE,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
+	}
+	
+	public AdditionalData effectivenessPointerType(long effectivenessPtr) {
+		if (effectivenessPtr == 0x8ADEC2L) { return AdditionalData.KNIGHTCAV_EFFECT; }
+		if (effectivenessPtr == 0x8ADEBBL) { return AdditionalData.KNIGHT_EFFECT; }
+		if (effectivenessPtr == 0x8ADF13L) { return AdditionalData.DRAGON_EFFECT; }
+		if (effectivenessPtr == 0x8ADEE0L) { return AdditionalData.CAVALRY_EFFECT; }
+		if (effectivenessPtr == 0x8ADED7L) { return AdditionalData.MYRMIDON_EFFECT; }
+		if (effectivenessPtr == 0x8ADF2AL) { return AdditionalData.FLIERS_EFFECT; }
+		if (effectivenessPtr == 0x8ADF39L) { return AdditionalData.MONSTER_EFFECT; }
+//		if (effectivenessPtr == 0x8ADEF1L) { return AdditionalData.MONSTER_EFFECT; } // Monsters + Fliers
+		return null;
 	}
 
 	public GBAFEPromotionItem[] allPromotionItems() {

@@ -9,6 +9,7 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import random.gba.loader.ItemDataLoader.AdditionalData;
 
 public interface GBAFEItemProvider {
 	
@@ -126,6 +127,8 @@ public interface GBAFEItemProvider {
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon);
 	public String effectivenessStringForWeapon(GBAFEItem weapon, Boolean shortString);
+	
+	public AdditionalData effectivenessPointerType(long effectivenessPtr);
 	
 	public GBAFEItemData itemDataWithData(byte[] data, long offset, int itemID); // itemID is required for FE8
 	
