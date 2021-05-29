@@ -23,6 +23,7 @@ public class FE9ClassesView extends Composite {
 	private Button randomizeSpecial;
 	private Button allowCrossgender;
 	private Button mixPCRaces;
+	private Button assignEvenly;
 	
 	private Button randomizeBosses;
 	private Button mixBossRaces;
@@ -64,6 +65,7 @@ public class FE9ClassesView extends Composite {
 				randomizeSpecial.setEnabled(randomizePCs.getSelection());
 				allowCrossgender.setEnabled(randomizePCs.getSelection());
 				mixPCRaces.setEnabled(randomizePCs.getSelection());
+				assignEvenly.setEnabled(randomizePCs.getSelection());
 				
 				forceDifferent.setEnabled(randomizePCs.getSelection() || randomizeBosses.getSelection() || randomizeMinions.getSelection());
 			}
@@ -129,6 +131,17 @@ public class FE9ClassesView extends Composite {
 		pcRaceData.top = new FormAttachment(allowCrossgender, 5);
 		mixPCRaces.setLayoutData(pcRaceData);
 		
+		assignEvenly = new Button(container, SWT.CHECK);
+		assignEvenly.setText("Assign Classes Evenly");
+		assignEvenly.setToolTipText("Attempts to evenly distribute all of the classes available, minimizing repeats.");
+		assignEvenly.setEnabled(false);
+		assignEvenly.setSelection(false);
+		
+		FormData evenData = new FormData();
+		evenData.left = new FormAttachment(mixPCRaces, 0, SWT.LEFT);
+		evenData.top = new FormAttachment(mixPCRaces, 5);
+		assignEvenly.setLayoutData(evenData);
+		
 		randomizeBosses = new Button(container, SWT.CHECK);
 		randomizeBosses.setText("Randomize Bosses");
 		randomizeBosses.setToolTipText("Randomizes all boss characters. Playable characters that are also bosses are not included.");
@@ -144,7 +157,7 @@ public class FE9ClassesView extends Composite {
 		
 		FormData bossData = new FormData();
 		bossData.left = new FormAttachment(0, 5);
-		bossData.top = new FormAttachment(mixPCRaces, 10);
+		bossData.top = new FormAttachment(assignEvenly, 10);
 		randomizeBosses.setLayoutData(bossData);
 		
 		mixBossRaces = new Button(container, SWT.CHECK);
@@ -226,6 +239,7 @@ public class FE9ClassesView extends Composite {
 				randomizeSpecial.getSelection(), 
 				allowCrossgender.getSelection(), 
 				mixPCRaces.getSelection(), 
+				assignEvenly.getSelection(),
 				
 				randomizeBosses.getSelection(), 
 				mixBossRaces.getSelection(), 
@@ -245,12 +259,14 @@ public class FE9ClassesView extends Composite {
 		randomizeSpecial.setEnabled(options.randomizePCs);
 		allowCrossgender.setEnabled(options.randomizePCs);
 		mixPCRaces.setEnabled(options.randomizePCs);
+		assignEvenly.setEnabled(options.randomizePCs);
 		
 		randomizeLords.setSelection(options.includeLords);
 		randomizeThieves.setSelection(options.includeThieves);
 		randomizeSpecial.setSelection(options.includeSpecial);
 		allowCrossgender.setSelection(options.allowCrossgender);
 		mixPCRaces.setSelection(options.mixPCRaces);
+		assignEvenly.setSelection(options.assignClassesEvenly);
 		
 		randomizeBosses.setSelection(options.randomizeBosses);
 		mixBossRaces.setEnabled(options.randomizeBosses);

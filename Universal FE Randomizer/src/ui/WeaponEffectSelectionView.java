@@ -295,7 +295,7 @@ public class WeaponEffectSelectionView extends Composite {
 		allOptions.add(poisonOption);
 		
 		if (type == GameType.FE9) {
-			stealHPOption = new NumericWeightView(this, "Steal HP", "Allows random weapons to drain target's HP on hit.", 1, 1, new NumericWeightViewListener() {
+			stealHPOption = new NumericWeightView(this, "Steal HP", "Allows random weapons to drain target's HP on hit.\n\nCannot apply to magic tomes.", 1, 1, new NumericWeightViewListener() {
 				@Override
 				public void onEnableChanged(boolean enabled) {
 					notifySelectionChange();

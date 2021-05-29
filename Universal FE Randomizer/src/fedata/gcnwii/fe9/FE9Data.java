@@ -21,27 +21,24 @@ public class FE9Data {
 	// GCN and above start to use different files in file systems, so these
 	// offsets are going to be read from files.
 	
-	public static final long CharacterDataStartOffset = 0x30;
 	public static final String CharacterDataFilename = "system.cmp/FE8Data.bin";
-	public static final int CharacterCount = 0x154; // Maybe?
+	public static final String CharacterDataSectionName = "PersonData";
 	public static final int CharacterDataSize = 0x54;
 	
-	public static final long ClassDataStartOffset = 0x6FC4;
 	public static final String ClassDataFilename = "system.cmp/FE8Data.bin";
-	public static final int ClassCount = 0x73;
+	public static final String ClassDataSectionName = "JobData";
 	public static final int ClassDataSize = 0x64;
 	
-	public static final long ItemDataStartOffset = 0x9CB4;
 	public static final String ItemDataFilename = "system.cmp/FE8Data.bin";
-	public static final int ItemCount = 0xBD;
+	public static final String ItemDataSectionName = "ItemData";
 	public static final int ItemDataSize = 0x60;
 	
 	public static final String ItemDBXFilePath = "zdbx.cmp/xwp/";
 	
-	public static final long SkillDataStartOffset = 0xE398;
 	public static final String SkillDataFilename = "system.cmp/FE8Data.bin";
-	public static final int SkillCount = 0x62;
-	public static final int SkillDataSize = 0x28;
+	// Skills are stored kind of weirdly, since they all seem to have their own dedicated "file" inside the data file.
+	// Look for all of the files with the "SID_" prefix.
+	public static final String SkillDataSectionPrefix = "SID_";
 	
 	public static final String CommonTextFilename = "system.cmp/mess/common.m";
 	public static final int CommonTextEntrySize = 0x8;
@@ -409,6 +406,75 @@ public class FE9Data {
 		
 		public boolean isPacifist() { return allPacifistClasses.contains(this); }
 		public boolean isAdvanced() { return advancedClasses.contains(this); }
+		
+		public Set<CharacterClass> similarClasses() {
+			switch (this) {
+			case SWORD_KNIGHT:
+			case LANCE_KNIGHT:
+			case AXE_KNIGHT:
+			case BOW_KNIGHT:
+			case SWORD_KNIGHT_F:
+			case LANCE_KNIGHT_F:
+			case AXE_KNIGHT_F:
+			case BOW_KNIGHT_F:
+				return new HashSet<CharacterClass>(Arrays.asList(SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT, SWORD_KNIGHT_F, AXE_KNIGHT_F, LANCE_KNIGHT_F, BOW_KNIGHT_F));
+			case SWORD_PALADIN:
+			case LANCE_PALADIN:
+			case AXE_PALADIN:
+			case BOW_PALADIN:
+			case SWORD_PALADIN_F:
+			case LANCE_PALADIN_F:
+			case AXE_PALADIN_F:
+			case BOW_PALADIN_F:
+			case TITANIA_PALADIN:
+				return new HashSet<CharacterClass>(Arrays.asList(SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, TITANIA_PALADIN));
+			case MAGE:
+			case MAGE_F:
+				return new HashSet<CharacterClass>(Arrays.asList(MAGE, MAGE_F));
+			case SAGE:
+			case SAGE_F:
+			case SAGE_KNIFE:
+			case SAGE_KNIFE_F:
+			case SAGE_STAFF:
+			case SAGE_STAFF_F:
+				return new HashSet<CharacterClass>(Arrays.asList(SAGE, SAGE_F, SAGE_KNIFE, SAGE_KNIFE_F, SAGE_STAFF, SAGE_STAFF_F));
+			case SOLDIER:
+			case SOLDIER_F:
+				return new HashSet<CharacterClass>(Arrays.asList(SOLDIER, SOLDIER_F));
+			case HALBERDIER:
+			case HALBERDIER_F:
+				return new HashSet<CharacterClass>(Arrays.asList(HALBERDIER, HALBERDIER_F));
+			case MYRMIDON:
+			case MYRMIDON_F:
+				return new HashSet<CharacterClass>(Arrays.asList(MYRMIDON, MYRMIDON_F));
+			case SWORDMASTER:
+			case SWORDMASTER_F:
+				return new HashSet<CharacterClass>(Arrays.asList(SWORDMASTER, SWORDMASTER_F));
+			case FALCON_KNIGHT:
+			case ELINCIA_FALCON_KNIGHT:
+				return new HashSet<CharacterClass>(Arrays.asList(FALCON_KNIGHT, ELINCIA_FALCON_KNIGHT));
+			case CAT:
+			case CAT_F:
+				return new HashSet<CharacterClass>(Arrays.asList(CAT, CAT_F));
+			default:
+				return new HashSet<CharacterClass>();
+			}
+		}
+		
+		public CharacterClass getTransformedClass() {
+			switch (this) {
+			case CAT: return FERAL_CAT;
+			case CAT_F: return FERAL_CAT_F;
+			case TIGER: return FERAL_TIGER;
+			case CROW: return FERAL_CROW;
+			case HAWK: return FERAL_HAWK;
+			case RED_DRAGON: return FERAL_RED_DRAGON;
+			case RED_DRAGON_F: return FERAL_RED_DRAGON_F;
+			case WHITE_DRAGON: return FERAL_WHITE_DRAGON;
+			case W_HERON: return FERAL_W_HERON;
+			default: return null;
+			}
+		}
 		
 		public CharacterClass getPromoted() {
 			switch(this) {
@@ -1127,14 +1193,16 @@ public class FE9Data {
 				VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH, COIN));
 		public static Set<Item> allGems = new HashSet<Item>(Arrays.asList(WHITE_GEM, BLUE_GEM, RED_GEM));
 		
+		public static Set<Item> allBands = new HashSet<Item>(Arrays.asList(SOLDIER_BAND, ARCHER_BAND, MAGE_BAND, FIGHTERS_BAND, KNIGHT_BAND, PALADIN_BAND,
+				PEGASUS_BAND, WYVERN_BAND, THIEF_BAND, PRIEST_BAND, SWORD_BAND));
+		
 		// These shouldn't be changed or given out.
 		public static Set<Item> allRestrictedItems = new HashSet<Item>(Arrays.asList(PRACTICE_SWORD, REGAL_SWORD, ALONDITE, RAGNELL, GURGURANT, AMITI, ROLF_BOW,
-				LION_CLAW, HAWK_KING_BEAK, CROW_KING_BEAK, SWORD_BAND, SOLDIER_BAND, FIGHTERS_BAND, ARCHER_BAND, KNIGHT_BAND, PALADIN_BAND, PEGASUS_BAND,
-				WYVERN_BAND, MAGE_BAND, PRIEST_BAND, THIEF_BAND, LONGBOW));
+				LION_CLAW, HAWK_KING_BEAK, CROW_KING_BEAK, LONGBOW));
 		
 		public static Set<Item> allERankWeapons = new HashSet<Item>(Arrays.asList(SLIM_SWORD, IRON_SWORD, PRACTICE_SWORD, IRON_LANCE, SLIM_LANCE,
-				JAVELIN, VENIN_LANCE, IRON_AXE, PRACTICE_AXE, HAND_AXE, STEEL_AXE, DEVIL_AXE, IRON_BOW, FIRE, THUNDER, WIND, HEAL, KNIFE));
-		public static Set<Item> allDRankWeapons = new HashSet<Item>(Arrays.asList(VENIN_EDGE, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, STEEL_LANCE,
+				JAVELIN, IRON_AXE, PRACTICE_AXE, HAND_AXE, STEEL_AXE, DEVIL_AXE, IRON_BOW, FIRE, THUNDER, WIND, HEAL, KNIFE));
+		public static Set<Item> allDRankWeapons = new HashSet<Item>(Arrays.asList(VENIN_EDGE, STEEL_SWORD, IRON_BLADE, ARMORSLAYER, LONGSWORD, VENIN_LANCE, STEEL_LANCE,
 				KNIGHT_KILLER, HEAVY_SPEAR, VENIN_AXE, HAMMER, POLEAX, VENIN_BOW, LONGBOW, STEEL_BOW, ELFIRE, ELWIND, ELTHUNDER, LIGHT, MEND, TORCH_STAFF));
 		public static Set<Item> allCRankWeapons = new HashSet<Item>(Arrays.asList(KILLING_EDGE, LAGUZSLAYER, STEEL_BLADE, SHORT_SPEAR, KILLER_LANCE,
 				LAGUZ_LANCE, SHORT_AXE, KILLER_AXE, LAGUZ_AXE, LAGUZ_BOW, KILLER_BOW, METEOR, BOLTING, BLIZZARD, SHINE, WARD, RESTORE, PHYSIC, HAMMERNE,
@@ -1305,6 +1373,43 @@ public class FE9Data {
 		
 		public String getDisplayString() {
 			return WhyDoesJavaNotHaveThese.inCamelCase(toString()).replace("_", " ");
+		}
+		
+		public String getDisplayNameID() {
+			switch (this) {
+			case PROLOGUE: return "MCT01";
+			case CHAPTER_1: return "MCT02";
+			case CHAPTER_2: return "MCT03";
+			case CHAPTER_3: return "MCT04";
+			case CHAPTER_4: return "MCT05";
+			case CHAPTER_5: return "MCT06";
+			case CHAPTER_6: return "MCT07";
+			case CHAPTER_7: return "MCT08";
+			case CHAPTER_8: return "MCT09";
+			case CHAPTER_9: return "MCT10";
+			case CHAPTER_10: return "MCT11";
+			case CHAPTER_11: return "MCT12";
+			case CHAPTER_12: return "MCT13";
+			case CHAPTER_13: return "MCT14";
+			case CHAPTER_14: return "MCT15";
+			case CHAPTER_15: return "MCT16";
+			case CHAPTER_16: return "MCT17";
+			case CHAPTER_17: return "MCT18";
+			case CHAPTER_18: return "MCT19";
+			case CHAPTER_19: return "MCT20";
+			case CHAPTER_20: return "MCT21";
+			case CHAPTER_21: return "MCT22";
+			case CHAPTER_22: return "MCT23";
+			case CHAPTER_23: return "MCT24";
+			case CHAPTER_24: return "MCT25";
+			case CHAPTER_25: return "MCT26";
+			case CHAPTER_26: return "MCT27";
+			case CHAPTER_27: return "MCT28";
+			case CHAPTER_27_BK_FIGHT: return "MCT29";
+			case CHAPTER_28: return "MCT30";
+			case ENDGAME: return "MCT31";
+			default: return null;
+			}
 		}
 		
 		public static Set<Chapter> chaptersWithAllDifficulties = new HashSet<Chapter>(Arrays.asList(PROLOGUE, CHAPTER_1, CHAPTER_2, CHAPTER_3, CHAPTER_4,

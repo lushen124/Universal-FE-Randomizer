@@ -23,6 +23,14 @@ public class PushLiteralNum8Instruction extends ScriptInstruction {
 	public byte[] rawBytes() {
 		return new byte[] {0x19, (byte)(literal & 0xFF)};
 	}
+	
+	public int getNum() {
+		return literal;
+	}
+	
+	public void setNum(int newNum) {
+		literal = (byte)(newNum & 0xFF);
+	}
 
 	@Override
 	public byte opcode() {

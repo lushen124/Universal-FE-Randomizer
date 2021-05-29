@@ -65,9 +65,9 @@ public class FE9ChapterRewards {
 	}
 	
 	public void commitChanges() {
-		for (FE9ScriptScene scene : cmbHandler.getScenes()) {
-			scene.commit();
-		}
+//		for (FE9ScriptScene scene : cmbHandler.getScenes()) {
+//			scene.commit();
+//		}
 	}
 	
 	private void loadRewards() {

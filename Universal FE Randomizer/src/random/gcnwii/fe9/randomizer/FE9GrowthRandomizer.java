@@ -42,7 +42,7 @@ public class FE9GrowthRandomizer {
 			
 			growthTotal -= 8 * min;
 			
-			String classID = charData.pointerLookup(character.getClassPointer());
+			String classID = charData.getJIDForCharacter(character);
 			FE9Class charClass = classData.classWithID(classID);
 			StatBias bias = classData.statBiasForClass(charClass);
 			if (!adjustSTRMAG) {
@@ -285,7 +285,7 @@ public class FE9GrowthRandomizer {
 			int powGrowth2 = minimum + rng.nextInt(range);
 			
 			if (adjustSTRMAGSplit) {
-				String classID = charData.pointerLookup(character.getClassPointer());
+				String classID = charData.getJIDForCharacter(character);
 				FE9Class charClass = classData.classWithID(classID);
 				StatBias bias = classData.statBiasForClass(charClass);
 				switch (bias) {

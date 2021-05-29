@@ -19,6 +19,8 @@ import fedata.gcnwii.fe9.FE9Data.Item.WeaponTraits;
 import fedata.gcnwii.fe9.FE9Item;
 import io.gcn.GCNDBXFileHandler;
 import io.gcn.GCNDataFileHandler;
+import io.gcn.GCNDataFileHandlerV2;
+import io.gcn.GCNDataFileHandlerV2.GCNDataFileDataSection;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
@@ -123,7 +125,8 @@ public class FE9ItemDataLoader {
 	
 	Map<String, FE9Item> idLookup;
 	
-	GCNDataFileHandler fe8databin;
+	GCNDataFileHandlerV2 fe8databin;
+	GCNDataFileDataSection itemDataSection;
 	FE9CommonTextLoader textLoader;
 	
 	public FE9ItemDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
@@ -134,16 +137,18 @@ public class FE9ItemDataLoader {
 		idLookup = new HashMap<String, FE9Item>();
 		
 		GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.ItemDataFilename);
-		assert (handler instanceof GCNDataFileHandler);
-		if (handler instanceof GCNDataFileHandler) {
-			fe8databin = (GCNDataFileHandler)handler;
+		assert (handler instanceof GCNDataFileHandlerV2);
+		if (handler instanceof GCNDataFileHandlerV2) {
+			fe8databin = (GCNDataFileHandlerV2)handler;
 		}
 		
-		long offset = FE9Data.ItemDataStartOffset;
-		for (int i = 0; i < FE9Data.ItemCount; i++) {
+		itemDataSection = fe8databin.getSectionWithName(FE9Data.ItemDataSectionName);
+		int count = (int)WhyDoesJavaNotHaveThese.longValueFromByteArray(itemDataSection.getRawData(0, 4), false);
+		
+		long offset = 4;
+		for (int i = 0; i < count; i++) {
 			long dataOffset = offset + i * FE9Data.ItemDataSize;
-			byte[] data = handler.readBytesAtOffset(dataOffset, FE9Data.ItemDataSize);
-			FE9Item item = new FE9Item(data, dataOffset);
+			FE9Item item = new FE9Item(itemDataSection.getRawData(dataOffset, FE9Data.ItemDataSize), dataOffset);
 			allItems.add(item);
 			
 			//debugPrintItem(item, handler, commonTextLoader);
@@ -186,12 +191,8 @@ public class FE9ItemDataLoader {
 		if (item == null) { return; }
 		if (typeString == null) { return; }
 		
+		fe8databin.addString(typeString);
 		Long ptr = fe8databin.pointerForString(typeString);
-		if (ptr == null) {
-			fe8databin.addString(typeString);
-			fe8databin.commitAdditions();
-			ptr = fe8databin.pointerForString(typeString);
-		}
 		item.setItemSubtypePointer(ptr);
 	}
 	
@@ -219,24 +220,17 @@ public class FE9ItemDataLoader {
 			if (traitsArray[i] == null || traitsArray[i].length() == 0) {
 				pointers[i] = 0;
 			} else {
-				Long pointer = fe8databin.pointerForString(traitsArray[i]);
-				if (pointer == null) {
-					fe8databin.addString(traitsArray[i]);
-					fe8databin.commitAdditions();
-					pointer = fe8databin.pointerForString(traitsArray[i]);
-				}
-				pointers[i] = pointer;
+				fe8databin.addString(traitsArray[i]);
+				pointers[i] = fe8databin.pointerForString(traitsArray[i]);
 			}
 		}
 		
-		if (pointers[0] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait1Offset - 0x20); }
-		if (pointers[1] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait2Offset - 0x20); }
-		if (pointers[2] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait3Offset - 0x20); }
-		if (pointers[3] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait4Offset - 0x20); }
-		if (pointers[4] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait5Offset - 0x20); }
-		if (pointers[5] != 0) { fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait6Offset - 0x20); }
-		
-		fe8databin.commitAdditions();
+		if (pointers[0] != 0) { fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait1Offset); }
+		if (pointers[1] != 0) { fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait2Offset); }
+		if (pointers[2] != 0) { fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait3Offset); }
+		if (pointers[3] != 0) { fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait4Offset); }
+		if (pointers[4] != 0) { fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait5Offset); }
+		if (pointers[5] != 0) { fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait6Offset); }
 		
 		item.setItemTrait1Pointer(pointers[0]);
 		item.setItemTrait2Pointer(pointers[1]);
@@ -257,31 +251,27 @@ public class FE9ItemDataLoader {
 		
 		if (hasTrait(item, traitString)) { return false; }
 		
+		fe8databin.addString(traitString);
 		Long pointer = fe8databin.pointerForString(traitString);
-		if (pointer == null) {
-			fe8databin.addString(traitString);
-			fe8databin.commitAdditions();
-			pointer = fe8databin.pointerForString(traitString);
-		}
 		
 		if (fe8databin.stringForPointer(item.getItemTrait1Pointer()) == null) { 
 			item.setItemTrait1Pointer(pointer);
-			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait1Offset - 0x20);
+			fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait1Offset);
 		} else if (fe8databin.stringForPointer(item.getItemTrait2Pointer()) == null) {
 			item.setItemTrait2Pointer(pointer);
-			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait2Offset - 0x20);
+			fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait2Offset);
 		} else if (fe8databin.stringForPointer(item.getItemTrait3Pointer()) == null) { 
 			item.setItemTrait3Pointer(pointer);
-			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait3Offset - 0x20);
+			fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait3Offset);
 		} else if (fe8databin.stringForPointer(item.getItemTrait4Pointer()) == null) {
 			item.setItemTrait4Pointer(pointer);
-			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait4Offset - 0x20);
+			fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait4Offset);
 		} else if (fe8databin.stringForPointer(item.getItemTrait5Pointer()) == null) { 
 			item.setItemTrait5Pointer(pointer);
-			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait5Offset - 0x20);
+			fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait5Offset);
 		} else if (fe8databin.stringForPointer(item.getItemTrait6Pointer()) == null || force) { 
 			item.setItemTrait6Pointer(pointer);
-			fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemTrait6Offset - 0x20);
+			fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemTrait6Offset);
 		} else {
 			return false;
 		}
@@ -300,16 +290,11 @@ public class FE9ItemDataLoader {
 			return;
 		}
 		
+		fe8databin.addString(effective);
 		Long ptr = fe8databin.pointerForString(effective);
-		if (ptr == null) {
-			fe8databin.addString(effective);
-			fe8databin.commitAdditions();
-			ptr = fe8databin.pointerForString(effective);
-		}
 		item.setItemEffectiveness1Pointer(ptr);
 		
-		fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemEffectiveness1Offset - 0x20);
-		fe8databin.commitAdditions();
+		fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemEffectiveness1Offset);
 	}
 	
 	public String getEffectiveness2ForItem(FE9Item item) {
@@ -323,16 +308,11 @@ public class FE9ItemDataLoader {
 			return;
 		}
 		
+		fe8databin.addString(effective);
 		Long ptr = fe8databin.pointerForString(effective);
-		if (ptr == null) {
-			fe8databin.addString(effective);
-			fe8databin.commitAdditions();
-			ptr = fe8databin.pointerForString(effective);
-		}
 		item.setItemEffectiveness2Pointer(ptr);
 		
-		fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemEffectiveness2Offset - 0x20);
-		fe8databin.commitAdditions();
+		fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemEffectiveness2Offset);
 	}
 	
 	public String getAnimation1ForItem(FE9Item item) {
@@ -346,16 +326,11 @@ public class FE9ItemDataLoader {
 			return;
 		}
 		
+		fe8databin.addString(animation);
 		Long ptr = fe8databin.pointerForString(animation);
-		if (ptr == null) {
-			fe8databin.addString(animation);
-			fe8databin.commitAdditions();
-			ptr = fe8databin.pointerForString(animation);
-		}
 		item.setItemEffectAnimation1Pointer(ptr);
 		
-		fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemAnimation1Offset - 0x20);
-		fe8databin.commitAdditions();
+		fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemAnimation1Offset);
 	}
 	
 	public String getAnimation2ForItem(FE9Item item) {
@@ -369,16 +344,11 @@ public class FE9ItemDataLoader {
 			return;
 		}
 		
+		fe8databin.addString(animation);
 		Long ptr = fe8databin.pointerForString(animation);
-		if (ptr == null) {
-			fe8databin.addString(animation);
-			fe8databin.commitAdditions();
-			ptr = fe8databin.pointerForString(animation);
-		}
 		item.setItemEffectAnimation2Pointer(ptr);
 		
-		fe8databin.addPointerOffset(item.getAddressOffset() + FE9Item.ItemAnimation2Offset - 0x20);
-		fe8databin.commitAdditions();
+		fe8databin.addPointerOffset(itemDataSection, item.getAddressOffset() + FE9Item.ItemAnimation2Offset);
 	}
 	
 	public boolean isWeapon(FE9Item item) {
@@ -1165,6 +1135,11 @@ public class FE9ItemDataLoader {
 		return equipment;
 	}
 	
+	// These shouldn't be removed when possible.
+	public List<FE9Item> getImportantEquipment() {
+		return fe9ItemListFromSet(FE9Data.Item.allBands);
+	}
+	
 	public List<FE9Item> possibleUpgradesToWeapon(FE9Item item, boolean isWielderPromoted) {
 		if (item == null) { return null; }
 		FE9Data.Item original = FE9Data.Item.withIID(iidOfItem(item));
@@ -1271,26 +1246,18 @@ public class FE9ItemDataLoader {
 	}
 	
 	public void compileDiffs(GCNISOHandler isoHandler) {
-		try {
-			GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.ItemDataFilename);
-			for (FE9Item item : allItems) {
-				item.commitChanges();
-				if (item.hasCommittedChanges()) {
-					Diff itemDiff = new Diff(item.getAddressOffset(), item.getData().length, item.getData(), null);
-					handler.addChange(itemDiff);
-				}
+		for (FE9Item item : allItems) {
+			item.commitChanges();
+			if (item.hasCommittedChanges()) {
+				fe8databin.writeDataToSection(itemDataSection, item.getAddressOffset(), item.getData());
 			}
-		} catch (GCNISOException e) {
-			e.printStackTrace();
 		}
 	}
 	
 	public String getDisplayName(FE9Item item) {
 		long pointer = item.getItemNamePointer();
 		if (pointer == 0) { return "(null)"; }
-		fe8databin.setNextReadOffset(pointer);
-		byte[] bytes = fe8databin.continueReadingBytesUpToNextTerminator(pointer + 0xFF);
-		String identifier = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(bytes);
+		String identifier = fe8databin.stringForPointer(pointer);
 		if (textLoader == null) { return identifier; }
 		
 		String resolvedValue = textLoader.textStringForIdentifier(identifier);

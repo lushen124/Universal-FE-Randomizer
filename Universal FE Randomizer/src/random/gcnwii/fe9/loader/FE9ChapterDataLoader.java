@@ -18,6 +18,7 @@ import fedata.gcnwii.fe9.FE9Item;
 import fedata.gcnwii.fe9.FE9Skill;
 import io.gcn.GCNCMBFileHandler;
 import io.gcn.GCNDataFileHandler;
+import io.gcn.GCNDataFileHandlerV2;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
@@ -67,9 +68,9 @@ public class FE9ChapterDataLoader {
 			List<FE9ChapterArmy> armyList = new ArrayList<FE9ChapterArmy>();
 			for (String difficultyPath : chapter.getAllDifficulties()) {
 				GCNFileHandler handler = isoHandler.handlerForFileWithName(difficultyPath);
-				assert(handler instanceof GCNDataFileHandler);
-				if (!(handler instanceof GCNDataFileHandler)) { continue; }
-				GCNDataFileHandler dataFileHandler = (GCNDataFileHandler)handler;
+				assert(handler instanceof GCNDataFileHandlerV2);
+				if (!(handler instanceof GCNDataFileHandlerV2)) { continue; }
+				GCNDataFileHandlerV2 dataFileHandler = (GCNDataFileHandlerV2)handler;
 				FE9ChapterArmy army = new FE9ChapterArmy(dataFileHandler, chapter, difficultyPath);
 				allChapterArmies.add(army);
 				armyList.add(army);
@@ -362,33 +363,33 @@ public class FE9ChapterDataLoader {
 		if (iid1 != null) {
 			FE9Item weapon = itemData.itemWithIID(iid1);
 			if (weapon != null) {
-				section.addElement(new ChangelogText(identifier + "-iid1", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(weapon))));
+				section.addElement(new ChangelogText(identifier + "-iid1", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(weapon)) + (unit.willDropWeapon1() ? "*" : "")));
 			} else {
-				section.addElement(new ChangelogText(identifier + "-iid1", Style.NONE, iid1));
+				section.addElement(new ChangelogText(identifier + "-iid1", Style.NONE, iid1 + (unit.willDropWeapon1() ? "*" : "")));
 			}
 		}
 		if (iid2 != null) {
 			FE9Item weapon = itemData.itemWithIID(iid2);
 			if (weapon != null) {
-				section.addElement(new ChangelogText(identifier + "-iid2", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(weapon))));
+				section.addElement(new ChangelogText(identifier + "-iid2", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(weapon)) + (unit.willDropWeapon2() ? "*" : "")));
 			} else {
-				section.addElement(new ChangelogText(identifier + "-iid2", Style.NONE, iid2));
+				section.addElement(new ChangelogText(identifier + "-iid2", Style.NONE, iid2 + (unit.willDropWeapon2() ? "*" : "")));
 			}
 		}
 		if (iid3 != null) {
 			FE9Item weapon = itemData.itemWithIID(iid3);
 			if (weapon != null) {
-				section.addElement(new ChangelogText(identifier + "-iid3", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(weapon))));
+				section.addElement(new ChangelogText(identifier + "-iid3", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(weapon)) + (unit.willDropWeapon3() ? "*" : "")));
 			} else {
-				section.addElement(new ChangelogText(identifier + "-iid3", Style.NONE, iid3));
+				section.addElement(new ChangelogText(identifier + "-iid3", Style.NONE, iid3 + (unit.willDropWeapon3() ? "*" : "")));
 			}
 		}
 		if (iid4 != null) {
 			FE9Item weapon = itemData.itemWithIID(iid4);
 			if (weapon != null) {
-				section.addElement(new ChangelogText(identifier + "-iid4", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(weapon))));
+				section.addElement(new ChangelogText(identifier + "-iid4", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(weapon)) + (unit.willDropWeapon4() ? "*" : "")));
 			} else {
-				section.addElement(new ChangelogText(identifier + "-iid4", Style.NONE, iid4));
+				section.addElement(new ChangelogText(identifier + "-iid4", Style.NONE, iid4 + (unit.willDropWeapon4() ? "*" : "")));
 			}
 		}
 		
@@ -400,33 +401,33 @@ public class FE9ChapterDataLoader {
 		if (iid1 != null) {
 			FE9Item equipment = itemData.itemWithIID(iid1);
 			if (equipment != null) {
-				section.addElement(new ChangelogText(identifier + "-iid1e", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(equipment))));
+				section.addElement(new ChangelogText(identifier + "-iid1e", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(equipment)) + (unit.willDropItem1() ? "*" : "")));
 			} else {
-				section.addElement(new ChangelogText(identifier + "-iid1e", Style.NONE, iid1));
+				section.addElement(new ChangelogText(identifier + "-iid1e", Style.NONE, iid1 + (unit.willDropItem1() ? "*" : "")));
 			}
 		}
 		if (iid2 != null) {
 			FE9Item equipment = itemData.itemWithIID(iid2);
 			if (equipment != null) {
-				section.addElement(new ChangelogText(identifier + "-iid2e", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(equipment))));
+				section.addElement(new ChangelogText(identifier + "-iid2e", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(equipment)) + (unit.willDropItem2() ? "*" : "")));
 			} else {
-				section.addElement(new ChangelogText(identifier + "-iid2e", Style.NONE, iid2));
+				section.addElement(new ChangelogText(identifier + "-iid2e", Style.NONE, iid2 + (unit.willDropItem2() ? "*" : "")));
 			}
 		}
 		if (iid3 != null) {
 			FE9Item equipment = itemData.itemWithIID(iid3);
 			if (equipment != null) {
-				section.addElement(new ChangelogText(identifier + "-iid3e", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(equipment))));
+				section.addElement(new ChangelogText(identifier + "-iid3e", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(equipment)) + (unit.willDropItem3() ? "*" : "")));
 			} else {
-				section.addElement(new ChangelogText(identifier + "-iid3e", Style.NONE, iid3));
+				section.addElement(new ChangelogText(identifier + "-iid3e", Style.NONE, iid3 + (unit.willDropItem3() ? "*" : "")));
 			}
 		}
 		if (iid4 != null) {
 			FE9Item equipment = itemData.itemWithIID(iid4);
 			if (equipment != null) {
-				section.addElement(new ChangelogText(identifier + "-iid4e", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(equipment))));
+				section.addElement(new ChangelogText(identifier + "-iid4e", Style.NONE, textData.textStringForIdentifier(itemData.getMIIDOfItem(equipment)) + (unit.willDropItem4() ? "*" : "")));
 			} else {
-				section.addElement(new ChangelogText(identifier + "-iid4e", Style.NONE, iid4));
+				section.addElement(new ChangelogText(identifier + "-iid4e", Style.NONE, iid4 + (unit.willDropItem4() ? "*" : "")));
 			}
 		}
 		

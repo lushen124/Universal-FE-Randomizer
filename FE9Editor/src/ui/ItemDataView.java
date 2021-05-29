@@ -59,10 +59,12 @@ public class ItemDataView extends Composite {
 	private LabelFieldView range;
 	private LabelFieldView weaponXP;
 	private LabelFieldView statBoosts;
+	private LabelFieldView growthBoosts;
+	private LabelFieldView growthPenalties;
 	
 	private Group miscGroup;
 	private LabelFieldView iconNumber;
-	private LabelFieldView x53x5F;
+	private LabelFieldView x5Dx5F;
 	
 	public ItemDataView(Composite parent, int style, GCNISOHandler isoHandler) throws GCNISOException {
 		super(parent, style);
@@ -300,7 +302,7 @@ public class ItemDataView extends Composite {
 		FormData statData = new FormData();
 		statData.left = new FormAttachment(traitsGroup, 10);
 		statData.top = new FormAttachment(itemDropdown, 10);
-		statData.width = 200;
+		statData.width = 250;
 		statGroup.setLayoutData(statData);
 		
 		costPerUse = new LabelFieldView(statGroup, SWT.NONE);
@@ -390,9 +392,29 @@ public class ItemDataView extends Composite {
 		viewData = new FormData();
 		viewData.left = new FormAttachment(0, 0);
 		viewData.top = new FormAttachment(weaponXP, 10);
-		viewData.bottom = new FormAttachment(100, 0);
 		viewData.right = new FormAttachment(100, 0);
 		statBoosts.setLayoutData(viewData);
+		
+		growthBoosts = new LabelFieldView(statGroup, SWT.NONE);
+		growthBoosts.setLabel("Growth Boost: ");
+		growthBoosts.setField("(null)");
+		
+		viewData = new FormData();
+		viewData.left = new FormAttachment(0, 0);
+		viewData.top = new FormAttachment(statBoosts, 10);
+		viewData.right = new FormAttachment(100, 0);
+		growthBoosts.setLayoutData(viewData);
+		
+		growthPenalties = new LabelFieldView(statGroup, SWT.NONE);
+		growthPenalties.setLabel("Growth Penalties: ");
+		growthPenalties.setField("(null)");
+		
+		viewData = new FormData();
+		viewData.left = new FormAttachment(0, 0);
+		viewData.top = new FormAttachment(growthBoosts, 10);
+		viewData.right = new FormAttachment(100, 0);
+		viewData.bottom = new FormAttachment(100, 0);
+		growthPenalties.setLayoutData(viewData);
 		
 		miscGroup = new Group(this, SWT.NONE);
 		miscGroup.setText("Miscellaneous");
@@ -419,16 +441,16 @@ public class ItemDataView extends Composite {
 		viewData.right = new FormAttachment(100, 0);
 		iconNumber.setLayoutData(viewData);
 		
-		x53x5F = new LabelFieldView(miscGroup, SWT.NONE);
-		x53x5F.setLabel("0x53 ~ 0x5F: ");
-		x53x5F.setField("(null)");
+		x5Dx5F = new LabelFieldView(miscGroup, SWT.NONE);
+		x5Dx5F.setLabel("0x5D ~ 0x5F: ");
+		x5Dx5F.setField("(null)");
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(0, 0);
 		viewData.top = new FormAttachment(iconNumber, 10);
 		viewData.bottom = new FormAttachment(100, 0);
 		viewData.right = new FormAttachment(100, 0);
-		x53x5F.setLayoutData(viewData);
+		x5Dx5F.setLayoutData(viewData);
 		
 		for (FE9Item item : itemData.allItems()) {
 			itemDropdown.add(itemData.iidOfItem(item) + " (" + itemData.getDisplayName(item) + ")");
@@ -478,8 +500,30 @@ public class ItemDataView extends Composite {
 				(item.getRESBonus() > 0 ? "+" + item.getRESBonus() + " RES " : "")
 				);
 		
+		growthBoosts.setField(
+				(item.getHPGrowthBonus() > 0 ? "+" + item.getHPGrowthBonus() + "% HP" : "") +
+				(item.getSTRGrowthBonus() > 0 ? "+" + item.getSTRGrowthBonus() + "% STR" : "") +
+				(item.getMAGGrowthBonus() > 0 ? "+" + item.getMAGGrowthBonus() + "% MAG" : "") +
+				(item.getSKLGrowthBonus() > 0 ? "+" + item.getSKLGrowthBonus() + "% SKL" : "") +
+				(item.getSPDGrowthBonus() > 0 ? "+" + item.getSPDGrowthBonus() + "% SPD" : "") +
+				(item.getLCKGrowthBonus() > 0 ? "+" + item.getLCKGrowthBonus() + "% LCK" : "") +
+				(item.getDEFGrowthBonus() > 0 ? "+" + item.getDEFGrowthBonus() + "% DEF" : "") +
+				(item.getRESGrowthBonus() > 0 ? "+" + item.getRESGrowthBonus() + "% RES" : "")
+				);
+		
+		growthPenalties.setField(
+				(item.getHPGrowthBonus() >= 0 ? "" : item.getHPGrowthBonus() + "% HP ") +
+				(item.getSTRGrowthBonus() >= 0 ? "" : item.getSTRGrowthBonus() + "% STR ") +
+				(item.getMAGGrowthBonus() >= 0 ? "" : item.getMAGGrowthBonus() + "% MAG ") +
+				(item.getSKLGrowthBonus() >= 0 ? "" : item.getSKLGrowthBonus() + "% SKL ") +
+				(item.getSPDGrowthBonus() >= 0 ? "" : item.getSPDGrowthBonus() + "% SPD ") +
+				(item.getLCKGrowthBonus() >= 0 ? "" : item.getLCKGrowthBonus() + "% LCK ") +
+				(item.getDEFGrowthBonus() >= 0 ? "" : item.getDEFGrowthBonus() + "% DEF ") +
+				(item.getRESGrowthBonus() >= 0 ? "" : item.getRESGrowthBonus() + "% RES ")
+				);
+		
 		iconNumber.setField(Integer.toString(item.getIconNumber()));
-		x53x5F.setField(WhyDoesJavaNotHaveThese.displayStringForBytes(item.getRemainingBytes()));
+		x5Dx5F.setField(WhyDoesJavaNotHaveThese.displayStringForBytes(item.getRemainingBytes()));
 		
 		layout();
 	}

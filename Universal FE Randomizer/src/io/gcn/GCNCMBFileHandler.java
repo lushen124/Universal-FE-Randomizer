@@ -153,9 +153,11 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 		
 		long targetAddress = scriptTableOffset + newStringData.getBytesWritten();
 		
-		byte[] stringData = WhyDoesJavaNotHaveThese.asciiBytesFromString(string);
+		byte[] stringData = WhyDoesJavaNotHaveThese.shiftJISBytesFromString(string);
 		newStringData.appendBytes(stringData);
-		newStringData.appendByte((byte)0);
+		if (newStringData.getLastByteWritten() != 0) {
+			newStringData.appendByte((byte)0);
+		}
 		
 		addressesByString.put(string, targetAddress);
 		stringsByAddress.put(targetAddress, string);
@@ -164,8 +166,10 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 	}
 	
 	public byte[] newBuild() {
-		boolean hasChanged = scenes.stream().anyMatch(scene -> { return scene.hasChanges(); });
+		boolean hasChanged = scenes.stream().anyMatch(scene -> { return scene.wasModified(); });
 		if (!hasChanged) { return fullData; }
+		
+		scenes.forEach(scene -> {scene.commit();});
 		
 		ByteArrayBuilder builder = new ByteArrayBuilder();
 		
@@ -213,6 +217,7 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 		// Scripts are stored header+identifier, then script bytes.
 		// These will be more complex, because the script length can change, and that can throw off future scripts.
 		for (FE9ScriptScene scene: scenes) {
+			assert builder.getBytesWritten() <= scene.getSceneHeaderOffset();
 			while(builder.getBytesWritten() != scene.getSceneHeaderOffset()) {
 				builder.appendByte((byte)0);
 			}
@@ -227,7 +232,6 @@ public class GCNCMBFileHandler extends GCNFileHandler {
 		}
 		
 		fullData = builder.toByteArray();
-		scenes.forEach(scene -> {scene.commit();});
 		newStringData.clear();
 		scriptTableOffset = newScriptTableOffset;
 		

@@ -8,6 +8,7 @@ import io.gcn.GCNISOHandler;
 import random.gcnwii.fe9.loader.FE9CommonTextLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponEffect;
+import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponType;
 import random.general.WeightedDistributor;
 import ui.model.WeaponEffectOptions;
 import util.WhyDoesJavaNotHaveThese;
@@ -97,6 +98,11 @@ public class FE9WeaponRandomizer {
 			if (rng.nextInt(100) >= effectChance) { continue; }
 			
 			WeightedDistributor<WeaponEffect> possibleEffects = new WeightedDistributor<WeaponEffect>(effects);
+			WeaponType weaponType = itemData.weaponTypeForItem(item);
+			if (weaponType == WeaponType.FIRE || weaponType == WeaponType.WIND || weaponType == WeaponType.THUNDER || weaponType == WeaponType.LIGHT) {
+				// Magic doesn't seem to work with the steal hp trait properly (doesn't show it until battle is resolved).
+				possibleEffects.removeItem(WeaponEffect.STEAL_HP);
+			}
 			boolean success = false;
 			do {
 				WeaponEffect selectedEffect = possibleEffects.getRandomItem(rng);

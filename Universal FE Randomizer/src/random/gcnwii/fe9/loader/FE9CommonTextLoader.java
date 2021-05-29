@@ -23,6 +23,7 @@ public class FE9CommonTextLoader {
 		
 		for (String id : identifiers) {
 			DebugPrinter.log(DebugPrinter.Key.FE9_TEXT_LOADER, "Loaded text entry: " + id);
+			DebugPrinter.log(DebugPrinter.Key.FE9_TEXT_LOADER, messageFile.getStringWithIdentifier(id));
 		}
 	}
 	

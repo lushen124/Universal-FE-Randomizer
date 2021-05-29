@@ -73,6 +73,7 @@ import fedata.gcnwii.fe9.scripting.StoreValInRefInstruction;
 import fedata.gcnwii.fe9.scripting.SubtractInstruction;
 import fedata.gcnwii.fe9.scripting.YieldInstruction;
 import io.gcn.GCNCMBFileHandler;
+import util.WhyDoesJavaNotHaveThese;
 
 public class FE9ScriptInterpreter {
 	
@@ -243,7 +244,9 @@ public class FE9ScriptInterpreter {
 				if (instruction instanceof ReturnInstruction) {
 					// Most scripts have some junk at the end. I'm not sure if these are important or not,
 					// but they can occasionally be a real opcode with inappropriate args.
-					// We'll drop them, but I'm not sure if they will be necessary for something else.
+					// Store the remaining bytes in the return instruction so we can restore it later, in case we need it.
+					byte[] remainder = WhyDoesJavaNotHaveThese.subArray(scriptBytes, currentIndex, scriptBytes.length - currentIndex);
+					((ReturnInstruction)instruction).setRemainder(remainder);
 					break; 
 				}
 			}

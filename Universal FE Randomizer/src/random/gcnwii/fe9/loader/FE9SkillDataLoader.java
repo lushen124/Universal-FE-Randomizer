@@ -14,6 +14,8 @@ import fedata.gcnwii.fe9.FE9Data.CharacterClass;
 import fedata.gcnwii.fe9.FE9Data.Skill;
 import fedata.gcnwii.fe9.FE9Skill;
 import io.gcn.GCNDataFileHandler;
+import io.gcn.GCNDataFileHandlerV2;
+import io.gcn.GCNDataFileHandlerV2.GCNDataFileDataSection;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
@@ -27,7 +29,7 @@ public class FE9SkillDataLoader {
 	
 	Map<String, FE9Skill> skillBySID;
 	
-	GCNDataFileHandler fe8databin;
+	GCNDataFileHandlerV2 fe8databin;
 	FE9CommonTextLoader commonTextLoader;
 	
 	public FE9SkillDataLoader(GCNISOHandler isoHandler, FE9CommonTextLoader commonTextLoader) throws GCNISOException {
@@ -35,23 +37,22 @@ public class FE9SkillDataLoader {
 		skillBySID = new HashMap<String, FE9Skill>();
 		
 		GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.SkillDataFilename);
-		assert (handler instanceof GCNDataFileHandler);
-		if (handler instanceof GCNDataFileHandler) {
-			fe8databin = (GCNDataFileHandler)handler;
+		assert (handler instanceof GCNDataFileHandlerV2);
+		if (handler instanceof GCNDataFileHandlerV2) {
+			fe8databin = (GCNDataFileHandlerV2)handler;
 		}
 		
 		this.commonTextLoader = commonTextLoader;
 		
-		long offset = FE9Data.SkillDataStartOffset;
-		for (int i = 0; i < FE9Data.SkillCount; i++) {
-			long dataOffset = offset + i * FE9Data.SkillDataSize;
-			byte[] data = handler.readBytesAtOffset(dataOffset, FE9Data.SkillDataSize);
-			FE9Skill skill = new FE9Skill(data, dataOffset);
+		List<String> allDataSections = fe8databin.getSectionNames().stream().filter(name -> name.startsWith(FE9Data.SkillDataSectionPrefix)).collect(Collectors.toList());
+		for (String sectionName : allDataSections) {
+			GCNDataFileDataSection section = fe8databin.getSectionWithName(sectionName);
+			FE9Skill skill = new FE9Skill(section.getRawData(0, (int)section.getLength()), 0);
 			allSkills.add(skill);
 			
 			debugPrintSkill(skill, handler);
 			
-			String sid = stringForPointer(skill.getSkillIDPointer(), handler);
+			String sid = fe8databin.stringForPointer(skill.getSkillIDPointer());
 			skillBySID.put(sid, skill);
 		}
 	}
@@ -114,10 +115,7 @@ public class FE9SkillDataLoader {
 	
 	public String displayNameForSkill(FE9Skill skill) {
 		if (skill == null || skill.getSkillNamePointer() == 0) { return "(null)"; }
-		fe8databin.setNextReadOffset(skill.getSkillNamePointer());
-		byte[] bytes = fe8databin.continueReadingBytesUpToNextTerminator(skill.getSkillNamePointer() + 0xFF);
-		String identifier = WhyDoesJavaNotHaveThese.stringFromShiftJIS(bytes);
-		String resolvedValue = commonTextLoader.textStringForIdentifier(identifier);
+		String resolvedValue = commonTextLoader.textStringForIdentifier(fe8databin.stringForPointer(skill.getSkillNamePointer()));
 		if (resolvedValue != null) {
 			return resolvedValue;
 		} else {
@@ -219,20 +217,13 @@ public class FE9SkillDataLoader {
 	}
 	
 	public void compileDiffs(GCNISOHandler isoHandler) {
-		try {
-			GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.SkillDataFilename);
-			for (FE9Skill skill : allSkills) {
-				DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Writing skill: " + getSID(skill));
-				skill.commitChanges();
-				if (skill.hasCommittedChanges()) {
-					Diff skillDiff = new Diff(skill.getAddressOffset(), skill.getData().length, skill.getData(), null);
-					DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Adding change for " + getSID(skill) + " at address 0x" + Long.toHexString(skill.getAddressOffset()));
-					handler.addChange(skillDiff);
-				}
+		for (FE9Skill skill : allSkills) {
+			DebugPrinter.log(DebugPrinter.Key.FE9_CHARACTER_LOADER, "Writing skill: " + getSID(skill));
+			skill.commitChanges();
+			if (skill.hasCommittedChanges()) {
+				GCNDataFileDataSection section = fe8databin.getSectionWithName(getSID(skill));
+				fe8databin.writeDataToSection(section, 0, skill.getData());
 			}
-		} catch (GCNISOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 }

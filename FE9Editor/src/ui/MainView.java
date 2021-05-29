@@ -21,7 +21,11 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
 import application.Main;
+import fedata.gcnwii.fe9.FE9Data;
 import io.FileHandler;
+import io.gcn.GCNDataFileHandler;
+import io.gcn.GCNDataFileHandlerV2;
+import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 
@@ -38,11 +42,11 @@ public class MainView {
 	private TabItem characterTabItem;
 	private TabItem classTabItem;
 	private TabItem itemTabItem;
+	private TabItem chapterTabItem;
 	
 	private Composite characterComposite;
 	private Composite classComposite;
 	private Composite itemComposite;
-	
 	private Composite chapterComposite;
 	
 	private GCNISOHandler isoHandler;
@@ -110,6 +114,13 @@ public class MainView {
 	}
 	
 	private void addTabFolder() throws GCNISOException {
+		GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.CharacterDataFilename);
+		GCNDataFileHandlerV2 fe8databin;
+		assert (handler instanceof GCNDataFileHandler);
+		if (handler instanceof GCNDataFileHandlerV2) {
+			fe8databin = (GCNDataFileHandlerV2)handler;
+		}
+		
 		FormData buttonData = new FormData();
 		buttonData.top = new FormAttachment(0, 0);
 		buttonData.left = new FormAttachment(filePathField, 10);
@@ -149,6 +160,12 @@ public class MainView {
 		
 		itemComposite = new ItemDataView(folder, SWT.NONE, isoHandler);
 		itemTabItem.setControl(itemComposite);
+		
+		chapterTabItem = new TabItem(folder, SWT.NONE);
+		chapterTabItem.setText("Army Data");
+		
+		chapterComposite = new ArmyDataView(folder, SWT.NONE, isoHandler);
+		chapterTabItem.setControl(chapterComposite);
 	}
 	
 	private void onSelectedFile(String path) {

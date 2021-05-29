@@ -109,7 +109,7 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 //				gcnFileHandler = isoHandler.handlerForFileWithName(name);
 //			} catch (GCNISOException e) {
 			if (name.endsWith(".bin")) {
-				gcnFileHandler = new GCNDataFileHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
+				gcnFileHandler = new GCNDataFileHandlerV2(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
 			} else if (name.endsWith(".m")) {
 				gcnFileHandler = new GCNMessageFileHandler(entry, handler, Arrays.copyOfRange(decompressed, (int)cmpFileEntry.filePointer, (int)cmpFileEntry.filePointer + (int)cmpFileEntry.fileLength));
 			} else if (name.endsWith(".dbx")) {
@@ -155,6 +155,9 @@ public class GCNCMPFileHandler extends GCNFileHandler {
 			GCNFileHandler fileHandler = cachedHandlers.get(name);
 			if (fileHandler instanceof GCNMessageFileHandler) {
 				((GCNMessageFileHandler) fileHandler).orderedBuild();
+			}
+			if (fileHandler instanceof GCNDataFileHandlerV2) {
+				((GCNDataFileHandlerV2) fileHandler).commitAdditions();
 			}
 			fileEntry.fileLength = fileHandler.getFileLength();
 			if (offset != -1) {

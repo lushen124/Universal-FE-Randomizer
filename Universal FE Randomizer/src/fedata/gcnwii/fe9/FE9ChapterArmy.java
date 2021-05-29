@@ -10,43 +10,83 @@ import java.util.Set;
 
 import io.FileWriter;
 import io.gcn.GCNDataFileHandler;
+import io.gcn.GCNDataFileHandlerV2;
+import io.gcn.GCNDataFileHandlerV2.GCNDataFileDataSection;
 import util.DebugPrinter;
 import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE9ChapterArmy {
 	
-	private GCNDataFileHandler disposHandler;
+	private GCNDataFileHandlerV2 disposHandler;
+	public static class FE9ChapterArmySection {
+		public final byte[] prefixBytes;
+		private final GCNDataFileDataSection dataSection;
+		
+		private List<FE9ChapterUnit> units;
+		
+		private FE9ChapterArmySection(byte[] prefixBytes, GCNDataFileDataSection dataSection) {
+			this.prefixBytes = prefixBytes;
+			this.dataSection = dataSection;
+			
+			units = new ArrayList<FE9ChapterUnit>();
+		}
+		
+		private void addUnit(FE9ChapterUnit unit) {
+			units.add(unit);
+		}
+		
+		public List<FE9ChapterUnit> allUnitsInSection() {
+			return WhyDoesJavaNotHaveThese.createMutableCopy(units);
+		}
+		
+		public String getName() {
+			return dataSection.identifier;
+		}
+	}
 	
+	
+	private List<FE9ChapterArmySection> allSections;
+	private Map<String, FE9ChapterArmySection> armySectionsByName;
 	private List<FE9ChapterUnit> allUnits;
 	
 	private Map<String, FE9ChapterUnit> unitsByUniqueID;
 	private List<String> uniqueIDList;
 	
+	private Map<FE9ChapterUnit, String> armySectionNameByUnits;
+	
 	String chapterID;
 	
-	public FE9ChapterArmy(GCNDataFileHandler handler, FE9Data.Chapter chapter, String identifier) {
+	public FE9ChapterArmy(GCNDataFileHandlerV2 handler, FE9Data.Chapter chapter, String identifier) {
 		disposHandler = handler;
 		
 		chapterID = identifier;
 		
+		allSections = new ArrayList<FE9ChapterArmySection>();
 		allUnits = new ArrayList<FE9ChapterUnit>();
 		unitsByUniqueID = new HashMap<String, FE9ChapterUnit>();
 		uniqueIDList = new ArrayList<String>();
 		
-		long offset = chapter.getStartingOffset();
-		handler.setNextReadOffset(offset);
-		long endingOffset = WhyDoesJavaNotHaveThese.longValueFromByteArray(handler.continueReadingBytes(4), false);
-		DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "===Starting Army Data for " + chapterID + "===");
+		armySectionsByName = new HashMap<String, FE9ChapterArmySection>();
+		armySectionNameByUnits = new HashMap<FE9ChapterUnit, String>();
+		
 		int counter = 0;
-		while (handler.getNextReadOffset() < endingOffset) {
-			byte[] sectionHeader = handler.continueReadingBytes(4);
-			DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "New Section: " + WhyDoesJavaNotHaveThese.displayStringForBytes(sectionHeader));
-			int unitCount = sectionHeader[0]; // The first byte of this header determines the count. The other 3 somehow determine the type?
-			for (int i = 0; i < unitCount; i++) {
-				long originalOffset = handler.getNextReadOffset();
-				FE9ChapterUnit unit = new FE9ChapterUnit(handler.continueReadingBytes(FE9Data.ChapterUnitEntrySize), originalOffset);
+		DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "===Starting Army Data for " + chapterID + "===");
+		for (GCNDataFileDataSection section : handler.getSections()) {
+			if (section.identifier.contains("_date_")) { continue; }
+			byte[] sectionHeader = section.getRawData(0, 4);
+			int count = (int)sectionHeader[0];
+			FE9ChapterArmySection armySection = new FE9ChapterArmySection(sectionHeader, section);
+			allSections.add(armySection);
+			armySectionsByName.put(section.identifier, armySection);
+			int offset = 4;
+			for (int i = 0; i < count; i++) {
+				long dataOffset = offset + i * FE9Data.ChapterUnitEntrySize;
+				FE9ChapterUnit unit = new FE9ChapterUnit(section.getRawData(dataOffset, FE9Data.ChapterUnitEntrySize), dataOffset);
 				allUnits.add(unit);
+				armySection.addUnit(unit);
+				
+				armySectionNameByUnits.put(unit, armySection.getName());
 				
 				// PID is not unique here. Many minions can share the same PID.
 				// We need to generate a unique string to append to PIDs when storing them.
@@ -60,11 +100,16 @@ public class FE9ChapterArmy {
 				DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "Loaded " + pid + " (" + jid + ") in chapter " + chapterID);
 			}
 		}
+
 		DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "===End Army Data===");
 	}
 	
 	public String getID() {
 		return chapterID;
+	}
+	
+	public List<FE9ChapterArmySection> getArmySections() {
+		return allSections;
 	}
 	
 	public List<String> getAllUnitIDs() {
@@ -91,7 +136,6 @@ public class FE9ChapterArmy {
 	public void setPIDForUnit(FE9ChapterUnit unit, String pid) {
 		if (unit == null || pid == null) { return; }
 		disposHandler.addString(pid);
-		disposHandler.commitAdditions();
 		unit.setCharacterIDPointer(disposHandler.pointerForString(pid));
 	}
 	
@@ -102,7 +146,6 @@ public class FE9ChapterArmy {
 	public void setJIDForUnit(FE9ChapterUnit unit, String jid) {
 		if (unit == null || jid == null) { return; }
 		disposHandler.addString(jid);
-		disposHandler.commitAdditions();
 		unit.setClassIDPointer(disposHandler.pointerForString(jid));
 	}
 	
@@ -124,9 +167,10 @@ public class FE9ChapterArmy {
 			unit.setWeapon1Pointer(0);
 			return;
 		}
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(iid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon1Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Weapon1Offset);
 		unit.setWeapon1Pointer(disposHandler.pointerForString(iid));
 	}
 	
@@ -140,9 +184,10 @@ public class FE9ChapterArmy {
 			unit.setWeapon2Pointer(0);
 			return;
 		}
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(iid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon2Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Weapon2Offset);
 		unit.setWeapon2Pointer(disposHandler.pointerForString(iid));
 	}
 	
@@ -156,9 +201,10 @@ public class FE9ChapterArmy {
 			unit.setWeapon3Pointer(0);
 			return;
 		}
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(iid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon3Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Weapon3Offset);
 		unit.setWeapon3Pointer(disposHandler.pointerForString(iid));
 	}
 	
@@ -172,9 +218,10 @@ public class FE9ChapterArmy {
 			unit.setWeapon4Pointer(0);
 			return;
 		}
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(iid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Weapon4Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Weapon4Offset);
 		unit.setWeapon4Pointer(disposHandler.pointerForString(iid));
 	}
 	
@@ -188,9 +235,10 @@ public class FE9ChapterArmy {
 			unit.setItem1Pointer(0);
 			return;
 		}
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(iid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Item1Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Item1Offset);
 		unit.setItem1Pointer(disposHandler.pointerForString(iid));
 	}
 	
@@ -204,9 +252,10 @@ public class FE9ChapterArmy {
 			unit.setItem2Pointer(0);
 			return;
 		}
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(iid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Item2Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Item2Offset);
 		unit.setItem2Pointer(disposHandler.pointerForString(iid));
 	}
 	
@@ -220,9 +269,10 @@ public class FE9ChapterArmy {
 			unit.setItem3Pointer(0);
 			return;
 		}
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(iid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Item3Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Item3Offset);
 		unit.setItem3Pointer(disposHandler.pointerForString(iid));
 	}
 	
@@ -236,9 +286,10 @@ public class FE9ChapterArmy {
 			unit.setItem4Pointer(0);
 			return;
 		}
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(iid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Item4Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Item4Offset);
 		unit.setItem4Pointer(disposHandler.pointerForString(iid));
 	}
 	
@@ -248,9 +299,10 @@ public class FE9ChapterArmy {
 	
 	public void setSkill1ForUnit(FE9ChapterUnit unit, String sid) {
 		if (unit == null || sid == null) { return; }
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(sid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Skill1Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Skill1Offset);
 		unit.setSkill1Pointer(disposHandler.pointerForString(sid));
 	}
 	
@@ -260,9 +312,10 @@ public class FE9ChapterArmy {
 	
 	public void setSkill2ForUnit(FE9ChapterUnit unit, String sid) {
 		if (unit == null || sid == null) { return; }
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(sid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Skill2Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Skill2Offset);
 		unit.setSkill2Pointer(disposHandler.pointerForString(sid));
 	}
 	
@@ -272,9 +325,10 @@ public class FE9ChapterArmy {
 	
 	public void setSkill3ForUnit(FE9ChapterUnit unit, String sid) {
 		if (unit == null || sid == null) { return; }
+		
+		GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
 		disposHandler.addString(sid);
-		disposHandler.addPointerOffset(unit.getAddressOffset() + FE9ChapterUnit.Skill3Offset - 0x20);
-		disposHandler.commitAdditions();
+		disposHandler.addPointerOffset(section, unit.getAddressOffset() + FE9ChapterUnit.Skill3Offset);
 		unit.setSkill3Pointer(disposHandler.pointerForString(sid));
 	}
 	
@@ -294,13 +348,33 @@ public class FE9ChapterArmy {
 		return unit.getEndingY();
 	}
 	
+	public String getSEQ1ForUnit(FE9ChapterUnit unit) {
+		if (unit == null) { return null; }
+		return disposHandler.stringForPointer(unit.getSEQ1Pointer());
+	}
+	
+	public String getSEQ2ForUnit(FE9ChapterUnit unit) {
+		if (unit == null) { return null; }
+		return disposHandler.stringForPointer(unit.getSEQ2Pointer());
+	}
+	
+	public String getSEQ3ForUnit(FE9ChapterUnit unit) {
+		if (unit == null) { return null; }
+		return disposHandler.stringForPointer(unit.getSEQ3Pointer());
+	}
+	
+	public String getMTYPEForUnit(FE9ChapterUnit unit) {
+		if (unit == null) { return null; }
+		return disposHandler.stringForPointer(unit.getMTYPEPointer());
+	}
+	
 	public void commitChanges() {
 		for (FE9ChapterUnit unit : allUnits) {
 			unit.commitChanges();
 			
 			if (unit.hasCommittedChanges()) {
-				byte[] unitData = unit.getData();
-				disposHandler.addChange(new Diff(unit.getAddressOffset(), unitData.length, unitData, null));
+				GCNDataFileDataSection section = armySectionsByName.get(armySectionNameByUnits.get(unit)).dataSection;
+				disposHandler.writeDataToSection(section, unit.getAddressOffset(), unit.getData());
 			}
 		}
 	}
