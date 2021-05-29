@@ -73,7 +73,16 @@ public class MiscellaneousView extends Composite {
 		if (gameType.hasEnglishPatch()) {
 			applyEnglishPatch = new Button(container, SWT.CHECK);
 			applyEnglishPatch.setText("Apply English Patch");
-			applyEnglishPatch.setToolTipText("Given a raw Japanese version of the game, apply the localization patch from Serenes Forest on it. The result is an English version of the game.");
+			switch (gameType) {
+			case FE4:
+				applyEnglishPatch.setToolTipText("Applies the Project Naga localization patch.");
+				break;
+			case FE6:
+				applyEnglishPatch.setToolTipText("Applies the FE6 Localization Patch v1.1.1.");
+				break;
+			default:
+				break;
+			}
 			
 			FormData patchData = new FormData();
 			patchData.left = new FormAttachment(0, 5);
@@ -107,7 +116,7 @@ public class MiscellaneousView extends Composite {
 		randomizeChestVillageRewards = new Button(container, SWT.CHECK);
 		if (gameType == GameType.FE4) {
 			randomizeChestVillageRewards.setText("Randomize Rings");
-			randomizeChestVillageRewards.setToolTipText("Every instance of obtainable ring is randomized to a different kind of ring.");
+			randomizeChestVillageRewards.setToolTipText("Every instance of an obtainable ring is randomized to a different kind of ring.");
 		} else {
 			randomizeChestVillageRewards.setText("Randomize Rewards");
 			randomizeChestVillageRewards.setToolTipText("Rewards from chests, villages, and story events will now give out random rewards. Plot-important promotion items are excluded.");

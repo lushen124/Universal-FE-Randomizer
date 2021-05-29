@@ -99,6 +99,14 @@ public class FE4ClassRandomizer {
 			blacklistedCharacters.add(FE4Data.Character.JULIA);
 		}
 		
+		PoolDistributor<FE4Data.CharacterClass> classDistributor = new PoolDistributor<FE4Data.CharacterClass>();
+		for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+			classDistributor.addItem(charClass);
+		}
+		for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+			classDistributor.addItem(charClass);
+		}
+		
 		// Gen 1
 		boolean hasDancer = false;
 		if (!options.includeDancers) {
@@ -289,6 +297,20 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			if (options.assignEvenly) {
+				if (Collections.disjoint(classDistributor.possibleResults(), potentialClasses)) {
+					// Reload the class pool if we have a completely disjoint set.
+					for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+						classDistributor.addItem(charClass);
+					}
+					for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+						classDistributor.addItem(charClass);
+					}
+				}
+				
+				potentialClasses.retainAll(classDistributor.possibleResults());
+			}
+			
 			if (options.playerBloodOption == BloodOptions.RANDOMIZE && hasMajorBlood) {
 				// If we do randomize blood, make sure nobody is stuck with the same major blood as Sigurd or at least stuck in a class
 				// that MUST have the same major blood as Sigurd (blood like Fjalar, Neir, and Ulir have classes
@@ -350,6 +372,9 @@ public class FE4ClassRandomizer {
 			}
 			
 			if (potentialClasses.isEmpty()) {
+				// The character is going to keep his class.
+				classDistributor.removeItem(originalClass, false);
+				
 				// Update blood if necessary.
 				if (options.playerBloodOption == BloodOptions.SHUFFLE && predeterminedBloodMap != null) {
 					if (hasMajorBlood) {
@@ -434,9 +459,21 @@ public class FE4ClassRandomizer {
 			// Set ourselves as predetermined, in the odd case that we run across ourself again.
 			// Also useful for children in this case.
 			predeterminedClasses.put(fe4Char, targetClass);
+			
+			// Remove this class from the pool so that we avoid assigning it again.
+			classDistributor.removeItem(targetClass, false);
 		}
 		
 		// Gen 2 - Common
+		// Reset the class distributor.
+		classDistributor = new PoolDistributor<FE4Data.CharacterClass>();
+		for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+			classDistributor.addItem(charClass);
+		}
+		for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+			classDistributor.addItem(charClass);
+		}
+		
 		List<FE4StaticCharacter> gen2CommonCharacters = charData.getGen2CommonCharacters();
 		for  (FE4StaticCharacter staticChar : gen2CommonCharacters) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(staticChar.getCharacterID());
@@ -549,12 +586,29 @@ public class FE4ClassRandomizer {
 				}
 			}
 			
+			if (options.assignEvenly) {
+				if (Collections.disjoint(classDistributor.possibleResults(), potentialClasses)) {
+					// Reload the class pool.
+					for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+						classDistributor.addItem(charClass);
+					}
+					for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+						classDistributor.addItem(charClass);
+					}
+				}
+				
+				potentialClasses.retainAll(classDistributor.possibleResults());
+			}
+			
 			potentialClasses.removeAll(new HashSet<FE4Data.CharacterClass>(Arrays.asList(fe4Char.blacklistedClasses())));
 			potentialClasses.removeAll(blacklistedClasses);
 			// No real candidates for Dancer here, so don't worry about it.
 			potentialClasses.remove(FE4Data.CharacterClass.DANCER);
 			
-			if (potentialClasses.isEmpty()) { continue; }
+			if (potentialClasses.isEmpty()) { 
+				classDistributor.removeItem(originalClass, false);
+				continue;
+			}
 			
 			List<FE4Data.CharacterClass> classList = new ArrayList<FE4Data.CharacterClass>(potentialClasses);
 			Collections.sort(classList, FE4Data.CharacterClass.defaultComparator);
@@ -599,6 +653,9 @@ public class FE4ClassRandomizer {
 			}
 			
 			predeterminedClasses.put(fe4Char, targetClass);
+			
+			// Remove the selected class from the pool.
+			classDistributor.removeItem(targetClass, false);
 		}
 		
 		
@@ -606,6 +663,24 @@ public class FE4ClassRandomizer {
 			hasDancer = false;
 		}
 		// Gen 2 - Children/Substitutes
+		// Reset the class Distributor
+		classDistributor = new PoolDistributor<FE4Data.CharacterClass>();
+		for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+			classDistributor.addItem(charClass);
+		}
+		for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+			classDistributor.addItem(charClass);
+		}
+		
+		// Subs get their own pool.
+		PoolDistributor<FE4Data.CharacterClass> subsPool = new PoolDistributor<FE4Data.CharacterClass>();
+		for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+			subsPool.addItem(charClass);
+		}
+		for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+			subsPool.addItem(charClass);
+		}
+		
 		List<FE4ChildCharacter> gen2Children = charData.getAllChildren();
 		for (FE4ChildCharacter child : gen2Children) {
 			FE4Data.Character fe4Char = FE4Data.Character.valueOf(child.getCharacterID());
@@ -642,12 +717,32 @@ public class FE4ClassRandomizer {
 				if (targetClass != null) {
 					if (targetClass.isPromoted() && !currentClass.isPromoted()) {
 						List<FE4Data.CharacterClass> demotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(targetClass.demotedClasses(child.isFemale())));
+						if (options.assignEvenly) {
+							if (Collections.disjoint(demotedClasses, classDistributor.possibleResults())) {
+								// Reload the class pool. Only unpromoted classes should be necessary here.
+								for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+									classDistributor.addItem(charClass);
+								}
+								
+								demotedClasses.retainAll(classDistributor.possibleResults());
+							}
+						}
 						Collections.sort(demotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (demotedClasses.size() > 0) {
 							targetClass = demotedClasses.get(rng.nextInt(demotedClasses.size()));
 						}
 					} else if (!targetClass.isPromoted() && currentClass.isPromoted()) {
 						List<FE4Data.CharacterClass> promotedClasses = new ArrayList<FE4Data.CharacterClass>(Arrays.asList(targetClass.promotionClasses(child.isFemale())));
+						if (options.assignEvenly) {
+							if (Collections.disjoint(promotedClasses, classDistributor.possibleResults())) {
+								// Reload the class pool. Only promoted classes should be necessary here.
+								for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+									classDistributor.addItem(charClass);
+								}
+							}
+							
+							promotedClasses.retainAll(classDistributor.possibleResults());
+						}
 						Collections.sort(promotedClasses, FE4Data.CharacterClass.defaultComparator);
 						if (promotedClasses.size() > 0) {
 							targetClass = promotedClasses.get(rng.nextInt(promotedClasses.size()));
@@ -693,6 +788,21 @@ public class FE4ClassRandomizer {
 				if (whitelistedClasses.length > 0) {
 					poolSet.retainAll(Arrays.asList(whitelistedClasses));
 				}
+				
+				if (options.assignEvenly) {
+					if (Collections.disjoint(poolSet, classDistributor.possibleResults())) {
+						// Reload the class pool.
+						for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+							classDistributor.addItem(charClass);
+						}
+						for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+							classDistributor.addItem(charClass);
+						}
+					}
+					
+					poolSet.retainAll(classDistributor.possibleResults());
+				}
+				
 				List<FE4Data.CharacterClass> poolList;
 				if (majorHolyBlood != null) {			
 					poolList = poolSet.stream().filter(charClass -> {
@@ -721,6 +831,19 @@ public class FE4ClassRandomizer {
 				if (whitelistedClasses.length > 0) {
 					poolSet.retainAll(Arrays.asList(whitelistedClasses));
 				}
+				if (options.assignEvenly) {
+					if (Collections.disjoint(poolSet, classDistributor.possibleResults())) {
+						// Reload the class pool.
+						for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+							classDistributor.addItem(charClass);
+						}
+						for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+							classDistributor.addItem(charClass);
+						}
+					}
+					
+					poolSet.retainAll(classDistributor.possibleResults());
+				}
 				List<FE4Data.CharacterClass> poolList = new ArrayList<FE4Data.CharacterClass>(poolSet);
 				Collections.sort(poolList, FE4Data.CharacterClass.defaultComparator);
 				if (!poolList.isEmpty()) {
@@ -739,16 +862,33 @@ public class FE4ClassRandomizer {
 				}
 				predeterminedClasses.put(fe4Char, targetClass);
 				
+				classDistributor.removeItem(targetClass, false);
+				
 				FE4Data.CharacterClass referenceClass = targetClass;
 				
 				FE4Data.Character sub = fe4Char.substituteForChild();
 				if (sub != null) {
 					FE4StaticCharacter subChar = charData.getStaticCharacter(sub);
 					if (subChar != null) {
-						FE4Data.CharacterClass[] pool = referenceClass.getClassPool(true, false, true, subChar.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && currentClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : sub.requiresWeapon(), null);
+						Set<FE4Data.CharacterClass> pool  = new HashSet<FE4Data.CharacterClass>(Arrays.asList(referenceClass.getClassPool(true, false, true, subChar.isFemale(), requiresWeakness, fe4Char.requiresAttack(), options.retainHorses && currentClass.isHorseback(), fe4Char.requiresMelee(), restrictedHealer ? Item.HEAL : sub.requiresWeapon(), null)));
 						FE4Data.CharacterClass subClass = referenceClass; // Use this as a fallback.
-						if (pool.length > 0) {
-							 subClass = pool[rng.nextInt(pool.length)];
+						if (options.assignEvenly) {
+							if (Collections.disjoint(pool, subsPool.possibleResults())) {
+								// Reload the substitutes class pool.
+								for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.promotedClasses) {
+									subsPool.addItem(charClass);
+								}
+								for (FE4Data.CharacterClass charClass : FE4Data.CharacterClass.unpromotedClasses) {
+									subsPool.addItem(charClass);
+								}
+							}
+							
+							pool.retainAll(subsPool.possibleResults());
+						}
+						List<FE4Data.CharacterClass> subsList = pool.stream().sorted(FE4Data.CharacterClass.defaultComparator).collect(Collectors.toList());
+						if (subsList.size() > 0) {
+							 subClass = subsList.get(rng.nextInt(subsList.size()));
+							 subsPool.removeItem(subClass, false);
 						}
 						
 						setStaticCharacterToClass(options, subChar, subClass, !useFreeInventoryForStaves, charData, bloodData, itemMap, predeterminedClasses, predeterminedBloodMap, requiredItems, targetClass, rng);
