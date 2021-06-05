@@ -2270,6 +2270,13 @@ public class GBARandomizer extends Randomizer {
 			rk.addHeaderItem("Randomize Rewards", "NO");
 		}
 		
+		if (miscOptions.randomizeFogOfWar) {
+			rk.addHeaderItem("Randomize Fog of War", "YES - " + Integer.toString(miscOptions.fogOfWarChance) + "%");
+			rk.addHeaderItem("Fog of War Vision Range", Integer.toString(miscOptions.fogOfWarVisionRange.minValue) + " ~ " + Integer.toString(miscOptions.fogOfWarVisionRange.maxValue));
+		} else {
+			rk.addHeaderItem("Randomize Fog of War", "NO");
+		}
+		
 		if (recruitOptions != null) {
 			StringBuilder sb = new StringBuilder();
 			
