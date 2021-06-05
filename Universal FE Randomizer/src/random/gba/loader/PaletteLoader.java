@@ -246,6 +246,11 @@ public class PaletteLoader {
 		return allPalettes.toArray(new PaletteV2[allPalettes.size()]);
 	}
 	
+	public PaletteV2 getV2ReferencePalettesForCharacter(int characterID, int classID) {
+		PaletteV2 specificPalette = referencePalettesV2.get(canonicalCharacterID(characterID)).get(classID);
+		return specificPalette;
+	}
+	
 	public int canonicalCharacterID(int characterID) {
 		switch (gameType) {
 		case FE6:

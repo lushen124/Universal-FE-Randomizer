@@ -671,7 +671,7 @@ public class ClassRandomizer {
 			if (!hasItems) { hasItems = item1 != null; }
 			if (item1 != null && (itemData.isWeapon(item1) || item1.getType() == WeaponType.STAFF)) {
 				if (!unitClass.canUseWeapon(item1)) {
-					replacementItem = itemData.getSidegradeWeapon(unitClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					replacementItem = itemData.getSidegradeWeapon(unitClass, item1, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, inventoryOptions.assignPromoWeapons, true, rng);
 					if (replacementItem != null && (isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
 						replacementItem = null; // We'll handle this later.
 					}
@@ -694,7 +694,7 @@ public class ClassRandomizer {
 			if (!hasItems) { hasItems = item2 != null; }
 			if (item2 != null && (itemData.isWeapon(item2) || item2.getType() == WeaponType.STAFF)) {
 				if (!unitClass.canUseWeapon(item2)) {
-					replacementItem = itemData.getSidegradeWeapon(unitClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					replacementItem = itemData.getSidegradeWeapon(unitClass, item2, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, inventoryOptions.assignPromoWeapons, true, rng);
 					if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
 						replacementItem = null; // We'll handle this later.
 					}
@@ -717,7 +717,7 @@ public class ClassRandomizer {
 			if (!hasItems) { hasItems = item3 != null; }
 			if (item3 != null && (itemData.isWeapon(item3) || item3.getType() == WeaponType.STAFF)) {
 				if (!unitClass.canUseWeapon(item3)) {
-					replacementItem = itemData.getSidegradeWeapon(unitClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					replacementItem = itemData.getSidegradeWeapon(unitClass, item3, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, inventoryOptions.assignPromoWeapons, true, rng);
 					if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
 						replacementItem = null; // We'll handle this later.
 					}
@@ -740,7 +740,7 @@ public class ClassRandomizer {
 			if (!hasItems) { hasItems = item4 != null; }
 			if (item4 != null && (itemData.isWeapon(item4) || item4.getType() == WeaponType.STAFF)) {
 				if (!unitClass.canUseWeapon(item4)) {
-					replacementItem = itemData.getSidegradeWeapon(unitClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, rng);
+					replacementItem = itemData.getSidegradeWeapon(unitClass, item4, inventoryOptions.weaponPolicy == WeaponReplacementPolicy.STRICT, inventoryOptions.assignPromoWeapons, true, rng);
 					if ((isHealer && limitStaves && hasStaff) && replacementItem.getType() == WeaponType.STAFF) {
 						replacementItem = null; // We'll handle this later.
 					}

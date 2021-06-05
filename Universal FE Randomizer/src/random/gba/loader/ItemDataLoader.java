@@ -485,12 +485,19 @@ public class ItemDataLoader {
 		return itemMap.get(weaponArray[rng.nextInt(weapons.size())].getID());
 	}
 	
-	public GBAFEItemData getSidegradeWeapon(GBAFEClassData targetClass, GBAFEItemData originalWeapon, boolean strict, Random rng) {
+	public GBAFEItemData getSidegradeWeapon(GBAFEClassData targetClass, GBAFEItemData originalWeapon, boolean strict, boolean includePromo, boolean includePoison, Random rng) {
 		if (!isWeapon(originalWeapon) && originalWeapon.getType() != WeaponType.STAFF) {
 			return null;
 		}
 		
 		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), new WeaponRanks(targetClass, provider), originalWeapon, strict);
+		if (!includePromo) {
+			potentialItems.removeAll(provider.promoWeapons());
+		}
+		
+		if (!includePoison) {
+			potentialItems.removeAll(provider.poisonWeapons());
+		}
 		if (potentialItems.isEmpty()) { 
 			potentialItems = provider.basicWeaponsForClass(targetClass.getID());
 			
@@ -517,6 +524,12 @@ public class ItemDataLoader {
 		}
 		
 		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(character.getClassID(), new WeaponRanks(character, charClass, provider), originalWeapon, strict);
+		if (!includePromo) {
+			potentialItems.removeAll(provider.promoWeapons());
+		}
+		if (!includePoison) {
+			potentialItems.removeAll(provider.poisonWeapons());
+		}
 		if (potentialItems.isEmpty()) { 
 			potentialItems = provider.basicWeaponsForClass(character.getClassID());
 			
@@ -527,13 +540,6 @@ public class ItemDataLoader {
 		
 		if (isEnemy) {
 			potentialItems.removeAll(provider.playerOnlyWeapons());
-		}
-		
-		if (!includePromo) {
-			potentialItems.removeAll(provider.promoWeapons());
-		}
-		if (!includePoison) {
-			potentialItems.removeAll(provider.poisonWeapons());
 		}
 	
 		if (potentialItems.isEmpty()) {

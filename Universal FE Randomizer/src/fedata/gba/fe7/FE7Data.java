@@ -15,6 +15,7 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
 import fedata.gba.general.GBAFEClass;
@@ -72,6 +73,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long ChapterTablePointer = 0x191C8;
 	//public static final long DefaultChapterArrayOffset = 0xC9C9C8;
 	public static final int BytesPerChapterUnit = 16;
+	
+	public static final long ChapterMetadataTablePointer = 0x31580;
+	//public static final long DefaultChapterMetadataArrayOffset = 0xC9A200;
+	public static final int BytesPerChapterMetadata = 152;
 	
 	// This is more than just promotion items, but they're all clustered together around here.
 	// I actually suspect this is the table for the class restrictions for item usage. 
@@ -1521,6 +1526,182 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 	}
 	
+	public enum ChapterMetadata implements GBAFEChapterMetadataChapter {
+		
+		PROLOGUE_A_GIRL_FROM_THE_PLAINS(0x0),
+		CHAPTER_1_FOOTSTEPS_OF_FATE(0x1),
+		CHAPTER_2_SWORD_OF_SPIRITS(0x2),
+		CHAPTER_3_BAND_OF_MERCENARIES(0x3),
+		CHAPTER_4_IN_OCCUPATIONS_SHADOW(0x4),
+		CHAPTER_5_BEYOND_THE_BORDERS(0x5),
+		CHAPTER_6_BLOOD_OF_PRIDE(0x6),
+		CHAPTER_7_SIBLINGS_ABROAD(0x7),
+		CHAPTER_7X_THE_BLACK_SHADOW(0x8),
+		CHAPTER_8_VORTEX_OF_STRATEGY(0x9),
+		CHAPTER_9_A_GRIM_REUNION(0xA),
+		CHAPTER_10_THE_DISTANT_PLAINS(0xB),
+		CHAPTER_11E_TAKING_LEAVE(0xC),
+		CHAPTER_11H_ANOTHER_JOURNEY(0xD),
+		CHAPTER_12_BIRDS_OF_A_FEATHER(0xE),
+		CHAPTER_13_IN_SEARCH_OF_TRUTH(0xF),
+		CHAPTER_13X_THE_PEDDLER_MERLINUS(0x10),
+		CHAPTER_14_FALSE_FRIENDS(0x11),
+		CHAPTER_15_TALONS_ALIGHT(0x12),
+		CHAPTER_16_NOBLE_LADY_OF_CAELIN(0x13),
+		CHAPTER_17_WHEREABOUTS_UNKNOWN(0x14),
+		CHAPTER_17X_THE_PORT_OF_BADON(0x15), 
+		CHAPTER_18_PIRATE_SHIP(0x16),
+		CHAPTER_19_THE_DREAD_ISLE(0x17),
+		CHAPTER_19X_IMPRISONER_OF_MAGIC(0x18),
+		CHAPTER_19XX_A_GLIMPSE_IN_TIME(0x19),
+		CHAPTER_20_DRAGONS_GATE(0x1A),
+		CHAPTER_21_NEW_RESOLVE(0x1B),
+		CHAPTER_22_KINSHIPS_BOND(0x1C),
+		CHAPTER_23_LIVING_LEGEND(0x1D),
+		CHAPTER_23X_GENESIS(0x1E),
+		CHAPTER_24_FOUR_FANGED_OFFENSE_LLOYD(0x1F),
+		CHAPTER_24_FOUR_FANGED_OFFENSE_LINUS(0x20),
+		CHAPTER_25_CRAZED_BEAST(0x21),
+		CHAPTER_26_UNFULFILLED_HEART(0x22),
+		CHAPTER_27_PALE_FLOWER_OF_DARKNESS_KENNETH(0x23),
+		CHAPTER_27_PALE_FLOWER_OF_DARKNESS_JERME(0x24),
+		CHAPTER_28_BATTLE_BEFORE_DAWN(0x25),
+		CHAPTER_28X_NIGHT_OF_FAREWELLS(0x26),
+		CHAPTER_29_COG_OF_DESTINY(0x27),
+		CHAPTER_28E_VALOROUS_ROLAND(0x28),
+		CHAPTER_30H_THE_BERSERKER(0x29),
+		CHAPTER_31_SANDS_OF_TIME(0x2A),
+		CHAPTER_31X_BATTLE_PREPARATIONS(0x2B),
+		CHAPTER_32_VICTORY_OR_DEATH(0x2C),
+		CHAPTER_32X_THE_VALUE_OF_LIFE(0x2D),
+		FINAL_CHAPTER_LIGHT_1(0x2E),
+		FINAL_CHAPTER_LIGHT_2(0x2F);
+		
+		public int index;
+		
+		private ChapterMetadata(int index) {
+			this.index = index;
+		}
+		
+		public boolean fogOfWarAllowed() {
+			switch (this) {
+			case CHAPTER_19X_IMPRISONER_OF_MAGIC:
+			case CHAPTER_23X_GENESIS:
+			case CHAPTER_32X_THE_VALUE_OF_LIFE:
+				return false;
+			default:
+				return true;
+			}
+		}
+		
+		public static ChapterMetadata[] orderedChapters() {
+			return new ChapterMetadata[] {
+					PROLOGUE_A_GIRL_FROM_THE_PLAINS,
+					CHAPTER_1_FOOTSTEPS_OF_FATE,
+					CHAPTER_2_SWORD_OF_SPIRITS,
+					CHAPTER_3_BAND_OF_MERCENARIES,
+					CHAPTER_4_IN_OCCUPATIONS_SHADOW,
+					CHAPTER_5_BEYOND_THE_BORDERS,
+					CHAPTER_6_BLOOD_OF_PRIDE,
+					CHAPTER_7_SIBLINGS_ABROAD,
+					CHAPTER_7X_THE_BLACK_SHADOW,
+					CHAPTER_8_VORTEX_OF_STRATEGY,
+					CHAPTER_9_A_GRIM_REUNION,
+					CHAPTER_10_THE_DISTANT_PLAINS,
+					CHAPTER_11E_TAKING_LEAVE,
+					CHAPTER_11H_ANOTHER_JOURNEY,
+					CHAPTER_12_BIRDS_OF_A_FEATHER,
+					CHAPTER_13_IN_SEARCH_OF_TRUTH,
+					CHAPTER_13X_THE_PEDDLER_MERLINUS,
+					CHAPTER_14_FALSE_FRIENDS,
+					CHAPTER_15_TALONS_ALIGHT,
+					CHAPTER_16_NOBLE_LADY_OF_CAELIN,
+					CHAPTER_17_WHEREABOUTS_UNKNOWN,
+					CHAPTER_17X_THE_PORT_OF_BADON, 
+					CHAPTER_18_PIRATE_SHIP,
+					CHAPTER_19_THE_DREAD_ISLE,
+					CHAPTER_19X_IMPRISONER_OF_MAGIC,
+					CHAPTER_19XX_A_GLIMPSE_IN_TIME,
+					CHAPTER_20_DRAGONS_GATE,
+					CHAPTER_21_NEW_RESOLVE,
+					CHAPTER_22_KINSHIPS_BOND,
+					CHAPTER_23_LIVING_LEGEND,
+					CHAPTER_23X_GENESIS,
+					CHAPTER_24_FOUR_FANGED_OFFENSE_LLOYD,
+					CHAPTER_24_FOUR_FANGED_OFFENSE_LINUS,
+					CHAPTER_25_CRAZED_BEAST,
+					CHAPTER_26_UNFULFILLED_HEART,
+					CHAPTER_27_PALE_FLOWER_OF_DARKNESS_KENNETH,
+					CHAPTER_27_PALE_FLOWER_OF_DARKNESS_JERME,
+					CHAPTER_28_BATTLE_BEFORE_DAWN,
+					CHAPTER_28X_NIGHT_OF_FAREWELLS,
+					CHAPTER_29_COG_OF_DESTINY,
+					CHAPTER_28E_VALOROUS_ROLAND,
+					CHAPTER_30H_THE_BERSERKER,
+					CHAPTER_31_SANDS_OF_TIME,
+					CHAPTER_31X_BATTLE_PREPARATIONS,
+					CHAPTER_32_VICTORY_OR_DEATH,
+					CHAPTER_32X_THE_VALUE_OF_LIFE,
+					FINAL_CHAPTER_LIGHT_1,
+					FINAL_CHAPTER_LIGHT_2
+			};
+		}
+		
+		public String getFriendlyName() {
+			switch (this) {
+			case PROLOGUE_A_GIRL_FROM_THE_PLAINS: return "Prologue: A Girl From the Plains";
+			case CHAPTER_1_FOOTSTEPS_OF_FATE: return "Chapter 1: Footsteps of Fate";
+			case CHAPTER_2_SWORD_OF_SPIRITS: return "Chapter 2: Sword of Spirits";
+			case CHAPTER_3_BAND_OF_MERCENARIES: return "Chapter 3: Band of Mercenaries";
+			case CHAPTER_4_IN_OCCUPATIONS_SHADOW: return "Chapter 4: In Occupation's Shadow";
+			case CHAPTER_5_BEYOND_THE_BORDERS: return "Chapter 5: Beyond the Borders";
+			case CHAPTER_6_BLOOD_OF_PRIDE: return "Chapter 6: Blood of Pride";
+			case CHAPTER_7_SIBLINGS_ABROAD: return "Chapter 7: Siblings Abroad";
+			case CHAPTER_7X_THE_BLACK_SHADOW: return "Chapter 7x: The Black Shadow";
+			case CHAPTER_8_VORTEX_OF_STRATEGY: return "Chapter 8: Vortex of Strategy";
+			case CHAPTER_9_A_GRIM_REUNION: return "Chapter 9: A Grim Reunion";
+			case CHAPTER_10_THE_DISTANT_PLAINS: return "Chapter 10: The Distant Plains";
+			case CHAPTER_11E_TAKING_LEAVE: return "Chapter 11 (Eliwood): Taking Leave";
+			case CHAPTER_11H_ANOTHER_JOURNEY: return "Chapter 11 (Hector): Another Journey";
+			case CHAPTER_12_BIRDS_OF_A_FEATHER: return "Chapter 12: Birds of a Feather";
+			case CHAPTER_13_IN_SEARCH_OF_TRUTH: return "Chapter 13: In Search of Truth";
+			case CHAPTER_13X_THE_PEDDLER_MERLINUS: return "Chapter 13x: The Peddler Merlinus";
+			case CHAPTER_14_FALSE_FRIENDS: return "Chapter 14: False Friends";
+			case CHAPTER_15_TALONS_ALIGHT: return "Chapter 15: Talons Alight";
+			case CHAPTER_16_NOBLE_LADY_OF_CAELIN: return "Chapter 16: Noble Lady of Caelin";
+			case CHAPTER_17_WHEREABOUTS_UNKNOWN: return "Chapter 17: Whereabouts Unknown";
+			case CHAPTER_17X_THE_PORT_OF_BADON: return "Chapter 17x: The Port of Badon";
+			case CHAPTER_18_PIRATE_SHIP: return "Chapter 18: Pirate Ship";
+			case CHAPTER_19_THE_DREAD_ISLE: return "Chapter 19: The Dread Isle";
+			case CHAPTER_19X_IMPRISONER_OF_MAGIC: return "Chapter 19x: Imprisoner of Magic";
+			case CHAPTER_19XX_A_GLIMPSE_IN_TIME: return "Chapter 19xx: A Glimpse in Time";
+			case CHAPTER_20_DRAGONS_GATE: return "Chapter 20: Dragon's Gate";
+			case CHAPTER_21_NEW_RESOLVE: return "Chapter 21: New Resolve";
+			case CHAPTER_22_KINSHIPS_BOND: return "Chapter 22: Kinship's Bond";
+			case CHAPTER_23_LIVING_LEGEND: return "Chapter 23: Living Legend";
+			case CHAPTER_23X_GENESIS: return "Chapter 23x: Genesis";
+			case CHAPTER_24_FOUR_FANGED_OFFENSE_LLOYD: return "Chapter 24: Four Fanged Offense (Lloyd)";
+			case CHAPTER_24_FOUR_FANGED_OFFENSE_LINUS: return "Chapter 24: Four Fanged Offense (Linus)";
+			case CHAPTER_25_CRAZED_BEAST: return "Chapter 25: Crazed Beast";
+			case CHAPTER_26_UNFULFILLED_HEART: return "Chapter 26: Unfulfilled Heart";
+			case CHAPTER_27_PALE_FLOWER_OF_DARKNESS_KENNETH: return "Chapter 27: Pale Flower of Darkness (Kenneth)";
+			case CHAPTER_27_PALE_FLOWER_OF_DARKNESS_JERME: return "Chapter 27: Pale Flower of Darkness (Jerme)";
+			case CHAPTER_28_BATTLE_BEFORE_DAWN: return "Chapter 28: Battle Before Dawn";
+			case CHAPTER_28X_NIGHT_OF_FAREWELLS: return "Chapter 28x: Night of Farewells";
+			case CHAPTER_29_COG_OF_DESTINY: return "Chapter 29: Cog of Destiny";
+			case CHAPTER_28E_VALOROUS_ROLAND: return "Chapter 28 (Eliwood): Valorous Roland";
+			case CHAPTER_30H_THE_BERSERKER: return "Chapter 30 (Hector): The Berserker";
+			case CHAPTER_31_SANDS_OF_TIME: return "Chapter 31: Sands of Time";
+			case CHAPTER_31X_BATTLE_PREPARATIONS: return "Chapter 31x: Battle Preparations";
+			case CHAPTER_32_VICTORY_OR_DEATH: return "Chapter 32: Victory or Death";
+			case CHAPTER_32X_THE_VALUE_OF_LIFE: return "Chapter 32x: The Value of Life";
+			case FINAL_CHAPTER_LIGHT_1: return "Final: Light (Part 1)";
+			case FINAL_CHAPTER_LIGHT_2: return "Final: Light (Part 2)";
+			default: return "?";
+			}
+		}
+	}
+	
 	public enum ChapterPointer {
 		PROLOGUE(0x06), CHAPTER_1(0x09), CHAPTER_2(0x0F), CHAPTER_3(0x15), CHAPTER_4(0x1B), CHAPTER_5(0x21), CHAPTER_6(0x25), CHAPTER_7(0x28),
 		CHAPTER_7X(0x2C), CHAPTER_8(0x2F), CHAPTER_9(0x32), CHAPTER_10(0x36),
@@ -1547,6 +1728,60 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					CHAPTER_25, CHAPTER_26, CHAPTER_27_KENNETH, CHAPTER_27_JERME, CHAPTER_28, CHAPTER_28X,
 					CHAPTER_28_E, CHAPTER_29, CHAPTER_30_H, CHAPTER_31, CHAPTER_31X, CHAPTER_32, CHAPTER_32X,
 					CHAPTER_FINAL, CHAPTER_FINAL_2));
+		}
+		
+		public ChapterMetadata getMetadata() {
+			switch (this) {
+			case PROLOGUE: return ChapterMetadata.PROLOGUE_A_GIRL_FROM_THE_PLAINS;
+			case CHAPTER_1: return ChapterMetadata.CHAPTER_1_FOOTSTEPS_OF_FATE;
+			case CHAPTER_2: return ChapterMetadata.CHAPTER_2_SWORD_OF_SPIRITS;
+			case CHAPTER_3: return ChapterMetadata.CHAPTER_3_BAND_OF_MERCENARIES;
+			case CHAPTER_4: return ChapterMetadata.CHAPTER_4_IN_OCCUPATIONS_SHADOW;
+			case CHAPTER_5: return ChapterMetadata.CHAPTER_5_BEYOND_THE_BORDERS;
+			case CHAPTER_6: return ChapterMetadata.CHAPTER_6_BLOOD_OF_PRIDE;
+			case CHAPTER_7: return ChapterMetadata.CHAPTER_7_SIBLINGS_ABROAD;
+			case CHAPTER_7X: return ChapterMetadata.CHAPTER_7X_THE_BLACK_SHADOW;
+			case CHAPTER_8: return ChapterMetadata.CHAPTER_8_VORTEX_OF_STRATEGY;
+			case CHAPTER_9: return ChapterMetadata.CHAPTER_9_A_GRIM_REUNION;
+			case CHAPTER_10: return ChapterMetadata.CHAPTER_10_THE_DISTANT_PLAINS;
+			case CHAPTER_11_E: return ChapterMetadata.CHAPTER_11E_TAKING_LEAVE;
+			case CHAPTER_11_H: return ChapterMetadata.CHAPTER_11H_ANOTHER_JOURNEY;
+			case CHAPTER_12: return ChapterMetadata.CHAPTER_12_BIRDS_OF_A_FEATHER;
+			case CHAPTER_13: return ChapterMetadata.CHAPTER_13_IN_SEARCH_OF_TRUTH;
+			case CHAPTER_13X: return ChapterMetadata.CHAPTER_13X_THE_PEDDLER_MERLINUS;
+			case CHAPTER_14: return ChapterMetadata.CHAPTER_14_FALSE_FRIENDS;
+			case CHAPTER_15: return ChapterMetadata.CHAPTER_15_TALONS_ALIGHT;
+			case CHAPTER_16: return ChapterMetadata.CHAPTER_16_NOBLE_LADY_OF_CAELIN;
+			case CHAPTER_17: return ChapterMetadata.CHAPTER_17_WHEREABOUTS_UNKNOWN;
+			case CHAPTER_17X: return ChapterMetadata.CHAPTER_17X_THE_PORT_OF_BADON;
+			case CHAPTER_18: return ChapterMetadata.CHAPTER_18_PIRATE_SHIP;
+			case CHAPTER_19: return ChapterMetadata.CHAPTER_19_THE_DREAD_ISLE;
+			case CHAPTER_19X: return ChapterMetadata.CHAPTER_19X_IMPRISONER_OF_MAGIC;
+			case CHAPTER_19XX: return ChapterMetadata.CHAPTER_19XX_A_GLIMPSE_IN_TIME;
+			case CHAPTER_20: return ChapterMetadata.CHAPTER_20_DRAGONS_GATE;
+			case CHAPTER_21: return ChapterMetadata.CHAPTER_21_NEW_RESOLVE;
+			case CHAPTER_22: return ChapterMetadata.CHAPTER_22_KINSHIPS_BOND;
+			case CHAPTER_23: return ChapterMetadata.CHAPTER_23_LIVING_LEGEND;
+			case CHAPTER_23X: return ChapterMetadata.CHAPTER_23X_GENESIS;
+			case CHAPTER_24_LLOYD: return ChapterMetadata.CHAPTER_24_FOUR_FANGED_OFFENSE_LLOYD;
+			case CHAPTER_24_LINUS: return ChapterMetadata.CHAPTER_24_FOUR_FANGED_OFFENSE_LINUS;
+			case CHAPTER_25: return ChapterMetadata.CHAPTER_25_CRAZED_BEAST;
+			case CHAPTER_26: return ChapterMetadata.CHAPTER_26_UNFULFILLED_HEART;
+			case CHAPTER_27_KENNETH: return ChapterMetadata.CHAPTER_27_PALE_FLOWER_OF_DARKNESS_KENNETH;
+			case CHAPTER_27_JERME: return ChapterMetadata.CHAPTER_27_PALE_FLOWER_OF_DARKNESS_JERME;
+			case CHAPTER_28: return ChapterMetadata.CHAPTER_28_BATTLE_BEFORE_DAWN;
+			case CHAPTER_28X: return ChapterMetadata.CHAPTER_28X_NIGHT_OF_FAREWELLS;
+			case CHAPTER_28_E: return ChapterMetadata.CHAPTER_28E_VALOROUS_ROLAND;
+			case CHAPTER_29: return ChapterMetadata.CHAPTER_29_COG_OF_DESTINY;
+			case CHAPTER_30_H: return ChapterMetadata.CHAPTER_30H_THE_BERSERKER;
+			case CHAPTER_31: return ChapterMetadata.CHAPTER_31_SANDS_OF_TIME;
+			case CHAPTER_31X: return ChapterMetadata.CHAPTER_31X_BATTLE_PREPARATIONS;
+			case CHAPTER_32: return ChapterMetadata.CHAPTER_32_VICTORY_OR_DEATH;
+			case CHAPTER_32X: return ChapterMetadata.CHAPTER_32X_THE_VALUE_OF_LIFE;
+			case CHAPTER_FINAL: return ChapterMetadata.FINAL_CHAPTER_LIGHT_1;
+			case CHAPTER_FINAL_2: return ChapterMetadata.FINAL_CHAPTER_LIGHT_2;
+			default: return null;
+			}
 		}
 		
 		public FE7Data.CharacterClass[] blacklistedClasses() {

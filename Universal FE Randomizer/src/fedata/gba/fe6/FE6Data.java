@@ -16,6 +16,7 @@ import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.general.CharacterNudge;
+import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
 import fedata.gba.general.GBAFEClass;
@@ -73,6 +74,11 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long ChapterTablePointer = 0x18A7C;
 	//public static final long DefaultChapterArrayOffset = 0x664398;
 	public static final int BytesPerChapterUnit = 16;
+	
+    public static final long ChapterMetadataTablePointer = 0x2BB20;
+    //public static final long DefaultChapterMetadataArrayOffset = 0x6637A4;
+    public static final int BytesPerChapterMetadata = 68;
+
 	
 	public static final long PromotionItemTablePointer = 0x237AC; // Hero's Crest (0), Knights Crest (1), Orion Bolt (2), Elysian Whip (3), Guiding Ring (8)
 	
@@ -1258,6 +1264,148 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 	}
 	
+	public enum ChapterMetadata implements GBAFEChapterMetadataChapter {
+		
+		CHAPTER_1_DAWN_OF_DESTINY(0x1),
+		CHAPTER_2_THE_PRINCESS_OF_BERN(0x2),
+		CHAPTER_3_LATE_ARRIVAL(0x3),
+		CHAPTER_4_COLLAPSE_OF_THE_ALLIANCE(0x4),
+		CHAPTER_5_THE_EMBLEM_OF_FIRE(0x5),
+		CHAPTER_6_THE_TRAP(0x6),
+		CHAPTER_7_THE_REBELLION_OF_OSTIA(0x7),
+		CHAPTER_8_THE_REUNION(0x8),
+		CHAPTER_9_THE_MISTY_ISLES(0x9),
+		CHAPTER_10A_THE_RESISTANCE_FORCES(0xA),
+		CHAPTER_11A_THE_HERO_OF_THE_WESTERN_ISLES(0xB),
+		CHAPTER_12_THE_TRUE_ENEMY(0xC),
+		CHAPTER_13_THE_RESCUE_PLAN(0xD),
+		CHAPTER_14_ARCADIA(0xE),
+		CHAPTER_15_THE_DRAGON_GIRL(0xF),
+		CHAPTER_16_RETAKING_THE_CAPITAL(0x10),
+		CHAPTER_17A_THE_PATH_THROUGH_THE_OCEAN(0x11),
+		CHAPTER_18A_THE_FROZEN_RIVER(0x12),
+		CHAPTER_19A_BITTER_COLD(0x13),
+		CHAPTER_20A_THE_LIBERATION_OF_ILIA(0x14),
+		CHAPTER_21_THE_BINDING_BLADE(0x15),
+		CHAPTER_22_THE_NEVERENDING_DREAM(0x16),
+		CHAPTER_23_THE_GHOST_OF_BERN(0x17),
+		CHAPTER_24_THE_TRUTH_OF_THE_LEGEND(0x18),
+		FINAL_BEYOND_DARKNESS(0x19),
+		
+		CHAPTER_10B_CAUGHT_IN_THE_MIDDLE(0x1A),
+		CHAPTER_11B_ESCAPE_TO_FREEDOM(0x1B),
+		
+		CHAPTER_17B_THE_BISHOPS_TEACHING(0x1C),
+		CHAPTER_18B_THE_LAWS_OF_SACAE(0x1D),
+		CHAPTER_19B_BATTLE_IN_BULGAR(0x1E),
+		CHAPTER_20B_THE_SILVER_WOLF(0x1F),
+		
+		CHAPTER_8X_THE_BLAZING_SWORD(0x20),
+		CHAPTER_12X_THE_AXE_OF_THUNDER(0x21),
+		CHAPTER_14X_THE_INFERNAL_ELEMENT(0x22),
+		CHAPTER_16X_THE_PINNACLE_OF_LIGHT(0x23),
+		CHAPTER_20AX_THE_SPEAR_OF_ICE(0x24),
+		CHAPTER_20BX_THE_BOW_OF_THE_WINDS(0x25),
+		CHAPTER_21X_THE_SILENCING_DARKNESS(0x26);
+		
+		public int index;
+		
+		private ChapterMetadata(int index) {
+			this.index = index;
+		}
+		
+		public boolean fogOfWarAllowed() {
+			return true;
+		}
+		
+		public static ChapterMetadata[] orderedChapters() {
+			return new ChapterMetadata[] {
+					CHAPTER_1_DAWN_OF_DESTINY,
+					CHAPTER_2_THE_PRINCESS_OF_BERN,
+					CHAPTER_3_LATE_ARRIVAL,
+					CHAPTER_4_COLLAPSE_OF_THE_ALLIANCE,
+					CHAPTER_5_THE_EMBLEM_OF_FIRE,
+					CHAPTER_6_THE_TRAP,
+					CHAPTER_7_THE_REBELLION_OF_OSTIA,
+					CHAPTER_8_THE_REUNION,
+					CHAPTER_8X_THE_BLAZING_SWORD,
+					CHAPTER_9_THE_MISTY_ISLES,
+					CHAPTER_10A_THE_RESISTANCE_FORCES,
+					CHAPTER_10B_CAUGHT_IN_THE_MIDDLE,
+					CHAPTER_11A_THE_HERO_OF_THE_WESTERN_ISLES,
+					CHAPTER_11B_ESCAPE_TO_FREEDOM,
+					CHAPTER_12_THE_TRUE_ENEMY,
+					CHAPTER_12X_THE_AXE_OF_THUNDER,
+					CHAPTER_13_THE_RESCUE_PLAN,
+					CHAPTER_14_ARCADIA,
+					CHAPTER_14X_THE_INFERNAL_ELEMENT,
+					CHAPTER_15_THE_DRAGON_GIRL,
+					CHAPTER_16_RETAKING_THE_CAPITAL,
+					CHAPTER_16X_THE_PINNACLE_OF_LIGHT,
+					CHAPTER_17A_THE_PATH_THROUGH_THE_OCEAN,
+					CHAPTER_17B_THE_BISHOPS_TEACHING,
+					CHAPTER_18A_THE_FROZEN_RIVER,
+					CHAPTER_18B_THE_LAWS_OF_SACAE,
+					CHAPTER_19A_BITTER_COLD,
+					CHAPTER_19B_BATTLE_IN_BULGAR,
+					CHAPTER_20A_THE_LIBERATION_OF_ILIA,
+					CHAPTER_20AX_THE_SPEAR_OF_ICE,
+					CHAPTER_20B_THE_SILVER_WOLF,
+					CHAPTER_20BX_THE_BOW_OF_THE_WINDS,
+					CHAPTER_21_THE_BINDING_BLADE,
+					CHAPTER_21X_THE_SILENCING_DARKNESS,
+					CHAPTER_22_THE_NEVERENDING_DREAM,
+					CHAPTER_23_THE_GHOST_OF_BERN,
+					CHAPTER_24_THE_TRUTH_OF_THE_LEGEND,
+					FINAL_BEYOND_DARKNESS,
+			};
+		}
+		
+		public String getFriendlyName() {
+			switch (this) {
+			case CHAPTER_1_DAWN_OF_DESTINY: return "Chapter 1: Dawn of Destiny";
+			case CHAPTER_2_THE_PRINCESS_OF_BERN: return "Chapter 2: The Princess of Bern";
+			case CHAPTER_3_LATE_ARRIVAL: return "Chapter 3: Late Arrival";
+			case CHAPTER_4_COLLAPSE_OF_THE_ALLIANCE: return "Chapter 4: Collapse of the Alliance";
+			case CHAPTER_5_THE_EMBLEM_OF_FIRE: return "Chapter 5: The Emblem of Fire";
+			case CHAPTER_6_THE_TRAP: return "Chapter 6: The Trap";
+			case CHAPTER_7_THE_REBELLION_OF_OSTIA: return "Chapter 7: The Rebellion of Ostia";
+			case CHAPTER_8_THE_REUNION: return "Chapter 8: The Reunion";
+			case CHAPTER_8X_THE_BLAZING_SWORD: return "Chapter 8x: The Blazing Sword";
+			case CHAPTER_9_THE_MISTY_ISLES: return "Chapter 9: The Misty Isles";
+			case CHAPTER_10A_THE_RESISTANCE_FORCES: return "Chapter 10A: The Resistance Forces";
+			case CHAPTER_10B_CAUGHT_IN_THE_MIDDLE: return "Chapter 10B: Caught in the Middle";
+			case CHAPTER_11A_THE_HERO_OF_THE_WESTERN_ISLES: return "Chapter 11A: The Hero of the Western Isles";
+			case CHAPTER_11B_ESCAPE_TO_FREEDOM: return "Chapter 11B: Escape to Freedom";
+			case CHAPTER_12_THE_TRUE_ENEMY: return "Chapter 12: The True Enemy";
+			case CHAPTER_12X_THE_AXE_OF_THUNDER: return "Chapter 12x: The Axe of Thunder";
+			case CHAPTER_13_THE_RESCUE_PLAN: return "Chapter 13: The Rescue Plan";
+			case CHAPTER_14_ARCADIA: return "Chapter 14: Arcadia";
+			case CHAPTER_14X_THE_INFERNAL_ELEMENT: return "Chapter 14x: The Infernal Element";
+			case CHAPTER_15_THE_DRAGON_GIRL: return "Chapter 15: The Dragon Girl";
+			case CHAPTER_16_RETAKING_THE_CAPITAL: return "Chapter 16: Retaking the Capital";
+			case CHAPTER_16X_THE_PINNACLE_OF_LIGHT: return "Chapter 16x: The Pinnacle of Light";
+			case CHAPTER_17A_THE_PATH_THROUGH_THE_OCEAN: return "Chapter 17A: The Path Through the Ocean";
+			case CHAPTER_17B_THE_BISHOPS_TEACHING: return "Chapter 17B: The Bishop's Teaching";
+			case CHAPTER_18A_THE_FROZEN_RIVER: return "Chapter 18A: The Frozen River";
+			case CHAPTER_18B_THE_LAWS_OF_SACAE: return "Chapter 18B: The Laws of Sacae";
+			case CHAPTER_19A_BITTER_COLD: return "Chapter 19A: Bitter Cold";
+			case CHAPTER_19B_BATTLE_IN_BULGAR: return "Chapter 19B: Battle in Bulgar";
+			case CHAPTER_20A_THE_LIBERATION_OF_ILIA: return "Chapter 20A: The Liberation of Ilia";
+			case CHAPTER_20AX_THE_SPEAR_OF_ICE: return "Chapter 20Ax: The Spear of Ice";
+			case CHAPTER_20B_THE_SILVER_WOLF: return "Chapter 20B: The Silver Wolf";
+			case CHAPTER_20BX_THE_BOW_OF_THE_WINDS: return "Chapter 20Bx: The Bow of the Winds";
+			case CHAPTER_21_THE_BINDING_BLADE: return "Chapter 21: The Binding Blade";
+			case CHAPTER_21X_THE_SILENCING_DARKNESS: return "Chapter 21x: The Silencing Darkness";
+			case CHAPTER_22_THE_NEVERENDING_DREAM: return "Chapter 22: The Neverending Dream";
+			case CHAPTER_23_THE_GHOST_OF_BERN: return "Chapter 23: The Ghost of Bern";
+			case CHAPTER_24_THE_TRUTH_OF_THE_LEGEND: return "Chapter 24: The Truth of the Legend";
+			case FINAL_BEYOND_DARKNESS: return "Final: Beyond Darkness";
+			default: return "?";
+			}
+		}
+	}
+	
 	public enum ChapterPointer {
 		CHAPTER_1(0x0C), CHAPTER_2(0x10), CHAPTER_3(0x17), CHAPTER_4(0x1B), CHAPTER_5(0x1F), CHAPTER_6(0x26), CHAPTER_7(0x2A),
 		CHAPTER_8(0x31), CHAPTER_9(0x38), 
@@ -1335,6 +1483,50 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				return new CharacterNudge[] {new CharacterNudge(Character.CASS.ID, 17, 23, 16, 23) }; // Cath spwans in a wall for some reason in vanilla. Move her out of the wall so she doesn't softlock the game.
 			default:
 				return new CharacterNudge[] {};
+			}
+		}
+		
+		public ChapterMetadata getMetadata() {
+			switch (this) {
+			case CHAPTER_1: return ChapterMetadata.CHAPTER_1_DAWN_OF_DESTINY;
+			case CHAPTER_2: return ChapterMetadata.CHAPTER_2_THE_PRINCESS_OF_BERN;
+			case CHAPTER_3: return ChapterMetadata.CHAPTER_3_LATE_ARRIVAL;
+			case CHAPTER_4: return ChapterMetadata.CHAPTER_4_COLLAPSE_OF_THE_ALLIANCE;
+			case CHAPTER_5: return ChapterMetadata.CHAPTER_5_THE_EMBLEM_OF_FIRE;
+			case CHAPTER_6: return ChapterMetadata.CHAPTER_6_THE_TRAP;
+			case CHAPTER_7: return ChapterMetadata.CHAPTER_7_THE_REBELLION_OF_OSTIA;
+			case CHAPTER_8: return ChapterMetadata.CHAPTER_8_THE_REUNION;
+			case CHAPTER_8X: return ChapterMetadata.CHAPTER_8X_THE_BLAZING_SWORD;
+			case CHAPTER_9: return ChapterMetadata.CHAPTER_9_THE_MISTY_ISLES;
+			case CHAPTER_10A: return ChapterMetadata.CHAPTER_10A_THE_RESISTANCE_FORCES;
+			case CHAPTER_10B: return ChapterMetadata.CHAPTER_10B_CAUGHT_IN_THE_MIDDLE;
+			case CHAPTER_11A: return ChapterMetadata.CHAPTER_11A_THE_HERO_OF_THE_WESTERN_ISLES;
+			case CHAPTER_11B: return ChapterMetadata.CHAPTER_11B_ESCAPE_TO_FREEDOM;
+			case CHAPTER_12: return ChapterMetadata.CHAPTER_12_THE_TRUE_ENEMY;
+			case CHAPTER_12X: return ChapterMetadata.CHAPTER_12X_THE_AXE_OF_THUNDER;
+			case CHAPTER_13: return ChapterMetadata.CHAPTER_13_THE_RESCUE_PLAN;
+			case CHAPTER_14: return ChapterMetadata.CHAPTER_14_ARCADIA;
+			case CHAPTER_14X: return ChapterMetadata.CHAPTER_14X_THE_INFERNAL_ELEMENT;
+			case CHAPTER_15: return ChapterMetadata.CHAPTER_15_THE_DRAGON_GIRL;
+			case CHAPTER_16: return ChapterMetadata.CHAPTER_16_RETAKING_THE_CAPITAL;
+			case CHAPTER_16X: return ChapterMetadata.CHAPTER_16X_THE_PINNACLE_OF_LIGHT;
+			case CHAPTER_17A: return ChapterMetadata.CHAPTER_17A_THE_PATH_THROUGH_THE_OCEAN;
+			case CHAPTER_17B: return ChapterMetadata.CHAPTER_17B_THE_BISHOPS_TEACHING;
+			case CHAPTER_18A: return ChapterMetadata.CHAPTER_18A_THE_FROZEN_RIVER;
+			case CHAPTER_18B: return ChapterMetadata.CHAPTER_18B_THE_LAWS_OF_SACAE;
+			case CHAPTER_19A: return ChapterMetadata.CHAPTER_19A_BITTER_COLD;
+			case CHAPTER_19B: return ChapterMetadata.CHAPTER_19B_BATTLE_IN_BULGAR;
+			case CHAPTER_20A: return ChapterMetadata.CHAPTER_20A_THE_LIBERATION_OF_ILIA;
+			case CHAPTER_20B: return ChapterMetadata.CHAPTER_20B_THE_SILVER_WOLF;
+			case CHAPTER_20AX: return ChapterMetadata.CHAPTER_20AX_THE_SPEAR_OF_ICE;
+			case CHAPTER_20BX: return ChapterMetadata.CHAPTER_20BX_THE_BOW_OF_THE_WINDS;
+			case CHAPTER_21: return ChapterMetadata.CHAPTER_21_THE_BINDING_BLADE;
+			case CHAPTER_21X: return ChapterMetadata.CHAPTER_21X_THE_SILENCING_DARKNESS;
+			case CHAPTER_22: return ChapterMetadata.CHAPTER_22_THE_NEVERENDING_DREAM;
+			case CHAPTER_23: return ChapterMetadata.CHAPTER_23_THE_GHOST_OF_BERN;
+			case CHAPTER_24: return ChapterMetadata.CHAPTER_24_THE_TRUTH_OF_THE_LEGEND;
+			case CHAPTER_FINAL: return ChapterMetadata.FINAL_BEYOND_DARKNESS;
+			default: return null;
 			}
 		}
 	}
@@ -1710,7 +1902,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {2, 5}, new int[] {8, 9, 10, 11});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10}, new int[] {5, 3, 4}, new int[] {6, 7}); // No hair. Armor primary, mane/insignia secondary, shield tertiary.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10}, new int[] {}, new int[] {6, 7}); // No hair. Armor primary, shield tertiary.
 					break;
 				case PEGASUS_KNIGHT:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10, 14}, new int[] {11, 12, 13}, new int[] {5, 3}); // Armor Primary, Wing Secondary, Mane tertiary
