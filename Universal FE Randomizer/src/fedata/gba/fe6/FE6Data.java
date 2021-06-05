@@ -27,6 +27,7 @@ import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
+import random.gba.loader.ItemDataLoader.AdditionalData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -2600,7 +2601,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.KNIGHT,
 				CharacterClass.KNIGHT_F,
 				CharacterClass.GENERAL,
-				CharacterClass.GENERAL_F));
+				CharacterClass.GENERAL_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE)); // The first NONE gives us space to add in the custom lord class later if needed. The second NONE is a terminator.
 	}
 
 	public List<GBAFEClass> knightEffectivenessClasses() {
@@ -2608,7 +2611,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.KNIGHT,
 				CharacterClass.KNIGHT_F,
 				CharacterClass.GENERAL,
-				CharacterClass.GENERAL_F));
+				CharacterClass.GENERAL_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE));
 	}
 
 	public List<GBAFEClass> cavalryEffectivenessClasses() {
@@ -2617,7 +2622,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.CAVALIER,
 				CharacterClass.CAVALIER_F,
 				CharacterClass.PALADIN,
-				CharacterClass.PALADIN_F));
+				CharacterClass.PALADIN_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE));
 	}
 
 	public List<GBAFEClass> dragonEffectivenessClasses() {
@@ -2628,7 +2635,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.WYVERN_RIDER,
 				CharacterClass.WYVERN_RIDER_F,
 				CharacterClass.WYVERN_KNIGHT,
-				CharacterClass.WYVERN_KNIGHT_F
+				CharacterClass.WYVERN_KNIGHT_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -2639,7 +2648,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.WYVERN_KNIGHT,
 				CharacterClass.WYVERN_KNIGHT_F,
 				CharacterClass.WYVERN_RIDER,
-				CharacterClass.WYVERN_RIDER_F
+				CharacterClass.WYVERN_RIDER_F,
+				CharacterClass.NONE,
+				CharacterClass.NONE
 				));
 	}
 
@@ -2651,6 +2662,16 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public List<GBAFEClass> monsterEffectivenessClasses() {
 		// Doesn't exist in FE6.
 		return new ArrayList<GBAFEClass>();
+	}
+	
+	public AdditionalData effectivenessPointerType(long effectivenessPtr) {
+		if (effectivenessPtr == 0x6615D4L) { return AdditionalData.DRAGON_EFFECT; }
+		if (effectivenessPtr == 0x6615C1L) { return AdditionalData.KNIGHT_EFFECT; }
+		if (effectivenessPtr == 0x6615C6L) { return AdditionalData.KNIGHTCAV_EFFECT; }
+//		if (effectivenessPtr == 0x6615CFL) { return AdditionalData.DRAGON_EFFECT; } // Technically, this is for the Binding Blade and the Divinestone, which aren't effective against Wyverns.
+		if (effectivenessPtr == 0x6615BCL) { return AdditionalData.CAVALRY_EFFECT; }
+		if (effectivenessPtr == 0x6615DBL) { return AdditionalData.FLIERS_EFFECT; }
+		return null;
 	}
 
 	public GBAFEPromotionItem[] allPromotionItems() {

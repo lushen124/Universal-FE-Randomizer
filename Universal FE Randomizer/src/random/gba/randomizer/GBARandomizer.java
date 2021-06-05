@@ -43,6 +43,7 @@ import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.PaletteLoader;
 import random.gba.loader.TextLoader;
+import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.general.Randomizer;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
@@ -638,6 +639,8 @@ public class GBARandomizer extends Randomizer {
 		
 		// Some characters have discrepancies between character data and chapter data. We'll try to address that before we get to any modifications.
 		charData.applyLevelCorrectionsIfNecessary();
+		
+		itemData.prepareForRandomization();
 	}
 	
 	private void makeFinalAdjustments(String seed) {
@@ -1095,6 +1098,12 @@ public class GBARandomizer extends Randomizer {
 			
 			roy.setClassID(newRoyClass.getID());
 			
+			// Add his new class to any effectiveness tables.
+			List<AdditionalData> effectivenesses = itemData.effectivenessArraysForClassID(oldRoyClassID);
+			for (AdditionalData effectiveness : effectivenesses) {
+				itemData.addClassIDToEffectiveness(effectiveness, newRoyClass.getID());
+			}
+			
 			// Incidentally, Roy doesn't need a promotion item, because his promotion is entirely scripted without any items.
 			
 			for (GBAFEChapterData chapter : chapterData.allChapters()) {
@@ -1128,6 +1137,20 @@ public class GBARandomizer extends Randomizer {
 			tutorialLyn.setClassID(newLynClass.getID());
 			eliwood.setClassID(newEliwoodClass.getID());
 			hector.setClassID(newHectorClass.getID());
+			
+			// Add new classes to any effectiveness tables.
+			List<AdditionalData> effectivenesses = itemData.effectivenessArraysForClassID(oldLynClassID);
+			for (AdditionalData effectiveness : effectivenesses) {
+				itemData.addClassIDToEffectiveness(effectiveness, newLynClass.getID());
+			}
+			effectivenesses = itemData.effectivenessArraysForClassID(oldEliwoodClassID);
+			for (AdditionalData effectiveness : effectivenesses) {
+				itemData.addClassIDToEffectiveness(effectiveness, newEliwoodClass.getID());
+			}
+			effectivenesses = itemData.effectivenessArraysForClassID(oldHectorClassID);
+			for (AdditionalData effectiveness : effectivenesses) {
+				itemData.addClassIDToEffectiveness(effectiveness, newHectorClass.getID());
+			}
 			
 			itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.ELIWOOD_LYN_HEAVEN_SEAL, new ArrayList<Integer>(Arrays.asList(newLynClass.getID(), newEliwoodClass.getID())));
 			itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.HECTOR_LYN_HEAVEN_SEAL, new ArrayList<Integer>(Arrays.asList(newHectorClass.getID(), newLynClass.getID())));
@@ -1165,6 +1188,16 @@ public class GBARandomizer extends Randomizer {
 			
 			eirika.setClassID(newEirikaClass.getID());
 			ephraim.setClassID(newEphraimClass.getID());
+			
+			// Add new classes to any effectiveness tables.
+			List<AdditionalData> effectivenesses = itemData.effectivenessArraysForClassID(oldEirikaClass);
+			for (AdditionalData effectiveness : effectivenesses) {
+				itemData.addClassIDToEffectiveness(effectiveness, newEirikaClass.getID());
+			}
+			effectivenesses = itemData.effectivenessArraysForClassID(oldEphraimClass);
+			for (AdditionalData effectiveness : effectivenesses) {
+				itemData.addClassIDToEffectiveness(effectiveness, newEphraimClass.getID());
+			}
 			
 			itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.LUNAR_BRACE, new ArrayList<Integer>(Arrays.asList(newEirikaClass.getID())));
 			itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.SOLAR_BRACE, new ArrayList<Integer>(Arrays.asList(newEphraimClass.getID())));
