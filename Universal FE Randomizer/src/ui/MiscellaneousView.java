@@ -413,6 +413,11 @@ public class MiscellaneousView extends Composite {
 			
 			if (addFogOfWarButton != null) {
 				addFogOfWarButton.setSelection(options.randomizeFogOfWar);
+				
+				fogOfWarChanceSpinner.setEnabled(true);
+				fogOfWarChanceLabel.setEnabled(true);
+				fogOfWarVisionRangeControl.setEnabled(true);
+				
 				fogOfWarChanceSpinner.setSelection(options.fogOfWarChance);
 				fogOfWarVisionRangeControl.setMin(options.fogOfWarVisionRange.minValue);
 				fogOfWarVisionRangeControl.setMax(options.fogOfWarVisionRange.maxValue);
