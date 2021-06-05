@@ -12,6 +12,7 @@ public class MiscellaneousOptions {
 	
 	public final Boolean randomizeRewards;
 	public final Integer enemyDropChance;
+	public final Boolean singleRNMode;
 	
 	public final RewardMode rewardMode;
 	
@@ -30,7 +31,7 @@ public class MiscellaneousOptions {
 	public final FollowupRequirement followupRequirement;
 	
 	// FE7, FE8
-	public MiscellaneousOptions(Boolean randomRewards, int enemyDropChance, Boolean tripleEffectiveness) {
+	public MiscellaneousOptions(Boolean randomRewards, int enemyDropChance, Boolean tripleEffectiveness, Boolean singleRN) {
 		super();
 		this.applyEnglishPatch = false;
 		this.tripleEffectiveness = tripleEffectiveness;
@@ -38,6 +39,7 @@ public class MiscellaneousOptions {
 		this.randomizeRewards = randomRewards;
 		this.enemyDropChance = enemyDropChance;
 		followupRequirement = null;
+		singleRNMode = singleRN;
 	}
 
 	// FE4
@@ -49,10 +51,11 @@ public class MiscellaneousOptions {
 		this.followupRequirement = followupRequirement;
 		this.tripleEffectiveness = false;
 		this.enemyDropChance = 0;
+		singleRNMode = false;
 	}
 	
 	// FE6
-	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, Boolean tripleEffectiveness) {
+	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, Boolean tripleEffectiveness, Boolean singleRN) {
 		super();
 		this.applyEnglishPatch = applyEnglishPatch;
 		this.tripleEffectiveness = tripleEffectiveness;
@@ -60,6 +63,7 @@ public class MiscellaneousOptions {
 		this.randomizeRewards = randomRewards;
 		enemyDropChance = 0;
 		followupRequirement = null;
+		singleRNMode = singleRN;
 	}
 	
 	// FE9
@@ -71,5 +75,6 @@ public class MiscellaneousOptions {
 		this.randomizeRewards = randomRewards;
 		this.enemyDropChance = enemyDropChance;
 		followupRequirement = null;
+		singleRNMode = false;
 	}
 }

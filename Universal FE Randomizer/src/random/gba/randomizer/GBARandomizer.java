@@ -2009,6 +2009,22 @@ public class GBARandomizer extends Randomizer {
 				}
 			}
 		}
+		
+		if (miscOptions.singleRNMode) {
+			switch (gameType) {
+			case FE6:
+				diffCompiler.addDiff(new Diff(0xE6A, 4, new byte[] {(byte)0xC0, (byte)0x46, (byte)0xC0, (byte)0x46}, new byte[] {(byte)0xFF, (byte)0xF7, (byte)0xBB, (byte)0xFF}));
+				break;
+			case FE7:
+				diffCompiler.addDiff(new Diff(0xE92, 4, new byte[] {(byte)0xC0, (byte)0x46, (byte)0xC0, (byte)0x46}, new byte[] {(byte)0xFF, (byte)0xF7, (byte)0xB7, (byte)0xFF}));
+				break;
+			case FE8:
+				diffCompiler.addDiff(new Diff(0xCC2, 4, new byte[] {(byte)0xC0, (byte)0x46, (byte)0xC0, (byte)0x46}, new byte[] {(byte)0xFF, (byte)0xF7, (byte)0xCF, (byte)0xFF}));
+				break;
+			default:
+				break;
+			}
+		}
 	}
 	
 	private void syncWorldMapSpriteToCharacter(GBAFEWorldMapSpriteData sprite, int characterID) {
@@ -2286,6 +2302,12 @@ public class GBARandomizer extends Randomizer {
 			rk.addHeaderItem("Randomize Rewards", "YES");
 		} else {
 			rk.addHeaderItem("Randomize Rewards", "NO");
+		}
+		
+		if (miscOptions.singleRNMode) {
+			rk.addHeaderItem("Enable Single RN", "YES");
+		} else {
+			rk.addHeaderItem("Enable Single RN", "NO");
 		}
 		
 		if (recruitOptions != null) {

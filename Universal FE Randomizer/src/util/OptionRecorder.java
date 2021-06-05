@@ -26,7 +26,7 @@ import ui.model.WeaponOptions;
 
 public class OptionRecorder {
 	private static final Integer FE4OptionBundleVersion = 5;
-	private static final Integer GBAOptionBundleVersion = 11;
+	private static final Integer GBAOptionBundleVersion = 13;
 	private static final Integer FE9OptionBundleVersion = 12;
 	
 	public static class AllOptions {
