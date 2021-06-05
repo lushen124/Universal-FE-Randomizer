@@ -26,6 +26,7 @@ public class FE4ClassesView extends Composite {
 	private Button includeThieves;
 	private Button includeDancers;
 	private Button includeJulia;
+	private Button assignEvenly;
 	
 	private Button adjustChildrenStrict;
 	private Button adjustChildrenLoose;
@@ -87,6 +88,7 @@ public class FE4ClassesView extends Composite {
 				includeThieves.setEnabled(enabled);
 				includeDancers.setEnabled(enabled);
 				includeJulia.setEnabled(enabled);
+				assignEvenly.setEnabled(enabled);
 				
 				adjustChildrenStrict.setEnabled(enabled);
 				adjustChildrenLoose.setEnabled(enabled);
@@ -194,6 +196,17 @@ public class FE4ClassesView extends Composite {
 		optionData.top = new FormAttachment(retainHealers, 5);
 		retainHorses.setLayoutData(optionData);
 		
+		assignEvenly = new Button(container, SWT.CHECK);
+		assignEvenly.setText("Assign Classes Evenly");
+		assignEvenly.setToolTipText("Attempts to avoid duplicate class assignments where possible.\n\nEach generation will have its own class pool.");
+		assignEvenly.setEnabled(false);
+		assignEvenly.setSelection(false);
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(retainHorses, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(retainHorses, 5);
+		assignEvenly.setLayoutData(optionData);
+		
 		Group childGroup = new Group(container, SWT.NONE);
 		childGroup.setText("Children Options");
 		
@@ -205,8 +218,8 @@ public class FE4ClassesView extends Composite {
 		childGroup.setLayout(groupLayout);
 		
 		FormData groupData = new FormData();
-		groupData.left = new FormAttachment(retainHorses, 0, SWT.LEFT);
-		groupData.top = new FormAttachment(retainHorses, 5);
+		groupData.left = new FormAttachment(assignEvenly, 0, SWT.LEFT);
+		groupData.top = new FormAttachment(assignEvenly, 5);
 		groupData.right = new FormAttachment(100, -5);
 		childGroup.setLayoutData(groupData);
 		
@@ -615,7 +628,7 @@ public class FE4ClassesView extends Composite {
 		if (bossBloodShuffle.getSelection()) { bossBloodOptions = BloodOptions.SHUFFLE; }
 		if (bossBloodRandomize.getSelection()) { bossBloodOptions = BloodOptions.RANDOMIZE; }
 		
-		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), retainHorses.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), includeJulia.getSelection(), childOptions, playerBloodOptions, shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(), itemOptions,
+		return new FE4ClassOptions(randomizePCs.getSelection(), includeLords.getSelection(), retainHealers.getSelection(), retainHorses.getSelection(), includeThieves.getSelection(), includeDancers.getSelection(), includeJulia.getSelection(), assignEvenly.getSelection(), childOptions, playerBloodOptions, shopOptions, adjustConvoItems.getSelection(), adjustSTRMAG.getSelection(), itemOptions,
 				randomizeMinions.getSelection(), randomizeArenas.getSelection(), randomizeBosses.getSelection(), bossBloodOptions);
 	}
 	
@@ -632,6 +645,7 @@ public class FE4ClassesView extends Composite {
 				includeThieves.setEnabled(true);
 				includeDancers.setEnabled(true);
 				includeJulia.setEnabled(true);
+				assignEvenly.setEnabled(true);
 				
 				adjustChildrenStrict.setEnabled(true);
 				adjustChildrenLoose.setEnabled(true);
@@ -658,6 +672,7 @@ public class FE4ClassesView extends Composite {
 				includeThieves.setSelection(options.includeThieves);
 				includeDancers.setSelection(options.includeDancers);
 				includeJulia.setSelection(options.includeJulia);
+				assignEvenly.setSelection(options.assignEvenly);
 				
 				adjustChildrenStrict.setSelection(options.childOption == ChildOptions.MATCH_STRICT);
 				adjustChildrenLoose.setSelection(options.childOption == ChildOptions.MATCH_LOOSE);

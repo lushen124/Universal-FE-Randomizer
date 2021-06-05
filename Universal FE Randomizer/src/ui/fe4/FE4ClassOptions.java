@@ -33,6 +33,7 @@ public class FE4ClassOptions {
 	public final boolean includeThieves;
 	public final boolean includeDancers;
 	public final boolean includeJulia;
+	public final boolean assignEvenly;
 	public final ChildOptions childOption;
 	public final BloodOptions playerBloodOption;
 	public final ShopOptions shopOption;
@@ -47,7 +48,7 @@ public class FE4ClassOptions {
 	public final boolean randomizeBosses;
 	public final BloodOptions bossBloodOption;
 	
-	public FE4ClassOptions(boolean pcs, boolean lords, boolean healers, boolean horses, boolean thieves, boolean dancers, boolean julia, ChildOptions children, BloodOptions playerBlood, ShopOptions shops, boolean adjustConvoWeapons, boolean adjustSTRMAG, ItemAssignmentOptions itemOptions, boolean minions, boolean arena, boolean bosses, BloodOptions bossBlood) {
+	public FE4ClassOptions(boolean pcs, boolean lords, boolean healers, boolean horses, boolean thieves, boolean dancers, boolean julia, boolean assignEvenly, ChildOptions children, BloodOptions playerBlood, ShopOptions shops, boolean adjustConvoWeapons, boolean adjustSTRMAG, ItemAssignmentOptions itemOptions, boolean minions, boolean arena, boolean bosses, BloodOptions bossBlood) {
 		super();
 		this.randomizePlayableCharacters = pcs;
 		this.includeLords = lords;
@@ -56,6 +57,7 @@ public class FE4ClassOptions {
 		this.includeThieves = thieves;
 		this.includeDancers = dancers;
 		this.includeJulia = julia;
+		this.assignEvenly = assignEvenly;
 		this.childOption = children;
 		this.playerBloodOption = playerBlood;
 		this.shopOption = shops;

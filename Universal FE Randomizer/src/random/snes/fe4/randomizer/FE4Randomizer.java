@@ -928,6 +928,7 @@ public class FE4Randomizer extends Randomizer {
 				rk.addHeaderItem("Include Julia", classOptions.includeJulia ? "YES" : "NO");
 				rk.addHeaderItem("Retain Healers", classOptions.retainHealers ? "YES" : "NO");
 				rk.addHeaderItem("Retain Horesback Units", classOptions.retainHorses ? "YES" : "NO");
+				rk.addHeaderItem("Assign Classes Evenly", classOptions.assignEvenly ? "YES" : "NO");
 				
 				switch (classOptions.childOption) {
 				case MATCH_STRICT:
