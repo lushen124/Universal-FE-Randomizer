@@ -18,21 +18,20 @@ public class MinMaxControl extends Composite {
 	
 	private Spinner minSpinner;
 	private Spinner maxSpinner;
+	
+	private Label minLabel;
+	private Label maxLabel;
 
 	public MinMaxControl(Composite parent, int style, String minString, String maxString) {
 		super(parent, style);
 		
 		FormLayout layout = new FormLayout();
-		layout.marginLeft = 5;
-		layout.marginRight = 5;
-		layout.marginTop = 5;
-		layout.marginBottom = 5;
 		setLayout(layout);
 		
-		Label minLabel = new Label(this, SWT.RIGHT);
+		minLabel = new Label(this, SWT.RIGHT);
 		minLabel.setText(minString);
 		
-		Label maxLabel = new Label(this, SWT.RIGHT);
+		maxLabel = new Label(this, SWT.RIGHT);
 		maxLabel.setText(maxString);
 		
 		minSpinner = new Spinner(this, SWT.NONE);
@@ -96,8 +95,9 @@ public class MinMaxControl extends Composite {
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		// TODO Auto-generated method stub
 		super.setEnabled(enabled);
+		minLabel.setEnabled(enabled);
+		maxLabel.setEnabled(enabled);
 		minSpinner.setEnabled(enabled);
 		maxSpinner.setEnabled(enabled);
 	}

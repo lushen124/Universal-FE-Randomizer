@@ -28,6 +28,8 @@ import fedata.gba.fe8.FE8PaletteMapper;
 import fedata.gba.fe8.FE8PromotionManager;
 import fedata.gba.fe8.FE8SpellAnimationCollection;
 import fedata.gba.fe8.FE8SummonerModule;
+import fedata.gba.general.GBAFEChapterMetadataChapter;
+import fedata.gba.general.GBAFEChapterMetadataData;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
@@ -606,6 +608,19 @@ public class GBARandomizer extends Randomizer {
 				updateStatusString("Adding drops...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt + 1));
 				RandomRandomizer.addRandomEnemyDrops(miscOptions.enemyDropChance, charData, itemData, chapterData, rng);
+			}
+			
+			if (miscOptions.randomizeFogOfWar) {
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt + 2));
+				for (GBAFEChapterMetadataChapter chapter : chapterData.getMetadataChapters()) {
+					GBAFEChapterMetadataData chapterMetadata = chapterData.getMetadataForChapter(chapter);
+					if (chapterMetadata.getVisionRange() > 0) { continue; }
+					if (rng.nextInt(100) < miscOptions.fogOfWarChance) {
+						int visionRange = rng.nextInt(miscOptions.fogOfWarVisionRange.maxValue - miscOptions.fogOfWarVisionRange.minValue + 1) + miscOptions.fogOfWarVisionRange.minValue;
+						chapterMetadata.setVisionRange(visionRange);
+						chapterMetadata.commitChanges();
+					}
+				}
 			}
 		}
 	}
@@ -2308,6 +2323,13 @@ public class GBARandomizer extends Randomizer {
 			rk.addHeaderItem("Enable Single RN", "YES");
 		} else {
 			rk.addHeaderItem("Enable Single RN", "NO");
+		}
+		
+		if (miscOptions.randomizeFogOfWar) {
+			rk.addHeaderItem("Randomize Fog of War", "YES - " + Integer.toString(miscOptions.fogOfWarChance) + "%");
+			rk.addHeaderItem("Fog of War Vision Range", Integer.toString(miscOptions.fogOfWarVisionRange.minValue) + " ~ " + Integer.toString(miscOptions.fogOfWarVisionRange.maxValue));
+		} else {
+			rk.addHeaderItem("Randomize Fog of War", "NO");
 		}
 		
 		if (recruitOptions != null) {
