@@ -166,6 +166,21 @@ public class ItemDataLoader {
 		}
 	}
 	
+	public void prepareForRandomization() {
+		// Translate existing effectiveness pointers to our new ones.
+		for (GBAFEItemData itemData : itemMap.values()) {
+			long ptr = itemData.getEffectivenessPointer();
+			if (ptr == 0) { continue; }
+			ptr -= 0x8000000L;
+			AdditionalData effectivenessType = provider.effectivenessPointerType(ptr);
+			if (effectivenessType != null) {
+				long newPtr = offsetsForAdditionalData.get(effectivenessType);
+				newPtr += 0x8000000L;
+				itemData.setEffectivenessPointer(newPtr);
+			}
+		}
+	}
+	
 	public void addClassToPromotionItem(GBAFEPromotionItem promotionItem, int classID) {
 		if (promotionItem == null) { return; }
 		List<Byte> idList = promotionClassLists.get(promotionItem.itemName());
@@ -217,6 +232,58 @@ public class ItemDataLoader {
 		}
 		
 		return items;
+	}
+	
+	public List<AdditionalData> effectivenessArraysForClassID(int classID) {
+		List<AdditionalData> datanames = new ArrayList<AdditionalData>();
+		
+		List<Byte> registeredByteArray = additionalDataMap.get(AdditionalData.CAVALRY_EFFECT);
+		if (registeredByteArray != null && registeredByteArray.contains((byte)classID)) { datanames.add(AdditionalData.CAVALRY_EFFECT); }
+		registeredByteArray = additionalDataMap.get(AdditionalData.DRAGON_EFFECT);
+		if (registeredByteArray != null && registeredByteArray.contains((byte)classID)) { datanames.add(AdditionalData.DRAGON_EFFECT); }
+		registeredByteArray = additionalDataMap.get(AdditionalData.FLIERS_EFFECT);
+		if (registeredByteArray != null && registeredByteArray.contains((byte)classID)) { datanames.add(AdditionalData.FLIERS_EFFECT); }
+		registeredByteArray = additionalDataMap.get(AdditionalData.KNIGHT_EFFECT);
+		if (registeredByteArray != null && registeredByteArray.contains((byte)classID)) { datanames.add(AdditionalData.KNIGHT_EFFECT); }
+		registeredByteArray = additionalDataMap.get(AdditionalData.KNIGHTCAV_EFFECT);
+		if (registeredByteArray != null && registeredByteArray.contains((byte)classID)) { datanames.add(AdditionalData.KNIGHTCAV_EFFECT); }
+		registeredByteArray = additionalDataMap.get(AdditionalData.MONSTER_EFFECT);
+		if (registeredByteArray != null && registeredByteArray.contains((byte)classID)) { datanames.add(AdditionalData.MONSTER_EFFECT); }
+		registeredByteArray = additionalDataMap.get(AdditionalData.MYRMIDON_EFFECT);
+		if (registeredByteArray != null && registeredByteArray.contains((byte)classID)) { datanames.add(AdditionalData.MYRMIDON_EFFECT); }
+		
+		return datanames;
+	}
+	
+	public void addClassIDToEffectiveness(AdditionalData dataName, int classID) {
+		List<Byte> registeredByteArray = null;
+		switch (dataName) {
+		case CAVALRY_EFFECT:
+		case DRAGON_EFFECT:
+		case FLIERS_EFFECT:
+		case KNIGHT_EFFECT:
+		case KNIGHTCAV_EFFECT:
+		case MONSTER_EFFECT:
+		case MYRMIDON_EFFECT:
+			registeredByteArray = additionalDataMap.get(dataName);
+			break;
+		default:
+			break;
+		}
+		
+		if (registeredByteArray != null && registeredByteArray.size() > 0) {
+			int firstEmptySpot = registeredByteArray.indexOf((byte)0x0);
+			if (firstEmptySpot == -1 || firstEmptySpot >= registeredByteArray.size() - 1) {
+				// We're out of space (somehow?).
+				return;
+			}
+			
+			registeredByteArray.remove(firstEmptySpot);
+			registeredByteArray.add(firstEmptySpot, (byte)(classID & 0xFF));
+			byte[] updated = WhyDoesJavaNotHaveThese.byteArrayFromByteList(registeredByteArray);
+			
+			freeSpace.setValue(updated, dataName.key);
+		}
 	}
 	
 	public byte[] bytesForAdditionalData(AdditionalData dataName) {

@@ -41,11 +41,30 @@ public class ClassRandomizer {
 	
 	public static void randomizeClassMovement(int minMOV, int maxMOV, ClassDataLoader classData, Random rng) {
 		GBAFEClassData[] allClasses = classData.allClasses();
-		for (GBAFEClassData currentClass : allClasses) {
+		List<GBAFEClassData> unpromotedClasses = Arrays.asList(allClasses).stream()
+				.filter(currentClass -> classData.isPromotedClass(currentClass.getID()) == false)
+				.sorted(GBAFEClassData.defaultComparator)
+				.collect(Collectors.toList());
+		for (GBAFEClassData currentClass : unpromotedClasses) {
 			if (currentClass.getMOV() > 0) {
 				// #259: Allow for maximum provided in UI
 				// Fringe benefit of allowing (min == max), i.e. every class has the same MOV
 				int randomMOV = rng.nextInt(maxMOV - minMOV + 1) + minMOV;
+				currentClass.setMOV(randomMOV);
+			}
+		}
+		
+		// Make sure all promoted classes have at least their base class's MOV so you can never lose MOV from promotion.
+		List<GBAFEClassData> promotedClasses = Arrays.asList(allClasses).stream()
+				.filter(currentClass -> classData.isPromotedClass(currentClass.getID()))
+				.sorted(GBAFEClassData.defaultComparator)
+				.collect(Collectors.toList());
+		for (GBAFEClassData currentClass : promotedClasses) {
+			List<GBAFEClassData> unpromoted = classData.demotionOptions(currentClass.getID());
+			int highestUnpromotedMOV = 0;
+			for (GBAFEClassData charClass : unpromoted) { highestUnpromotedMOV = Math.max(highestUnpromotedMOV, charClass.getMOV()); }
+			if (highestUnpromotedMOV > 0) {
+				int randomMOV = rng.nextInt(maxMOV - highestUnpromotedMOV + 1) + highestUnpromotedMOV;
 				currentClass.setMOV(randomMOV);
 			}
 		}

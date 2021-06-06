@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -121,6 +122,14 @@ public class FreeSpaceManager {
 	public long setValue(byte[] value, String key, boolean byteAligned) {
 		AssignedSpace assignment = changes.get(key);
 		if (assignment != null) {
+			// We can reuse the slot if the new value isn't longer than the previous value.
+			if (assignment.value.length >= value.length) {
+				// Use the old length, so that we can carry forward all of the available space. Additional space will be padded with 0s.
+				assignment.value = Arrays.copyOf(value, assignment.value.length);
+				return assignment.offset;
+			}
+			
+			// Otherwise, we'll need a new address.
 			changes.remove(key);
 		}
 		
