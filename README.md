@@ -1,6 +1,6 @@
 # Yune: A Universal Fire Emblem Randomizer
 
-# Latest Version: [0.9.2](https://github.com/lushen124/Universal-FE-Randomizer/releases/tag/0.9.2)
+# Latest Version: [0.9.3](https://github.com/lushen124/Universal-FE-Randomizer/releases/tag/0.9.3)
 
 ## Introduction
 
@@ -398,9 +398,7 @@ These determine how items are assigned when they need to be assigned (affects ra
 This isn't anything too novel if you've read the above randomization options. I even reused the same data model when reading these options for FE9, so the options do exactly as they do above. The only difference is that, like FE4, there is an option to ensure that the growth rate for STR is higher than the growth rate for MAG for physical units and vice versa for magical units. Hybrid units (like Cleric/Valkyrie and Elincia Falcon Knight) have no preference for either.
 
 ### Bases
-Also similar to all of the other titles. And again, STR/MAG options are available to try to make sure a physical unit doesn't end up with MAG bases at the expense of their STR base (and vice versa for magical units). One side effect is that, if this option is enabled, Prologue Boyd is nerfed to make sure that even a base-screwed Ike can beat him, since he doesn't start with a Vulnerary (I could just give him a vulnerary, alternatively.)
-
-*Note: This doesn't seem to work with Lethe, for some reason. Need to figure this out.*
+Also similar to all of the other titles. And again, STR/MAG options are available to try to make sure a physical unit doesn't end up with MAG bases at the expense of their STR base (and vice versa for magical units).
 
 ### CON and Affinity
 CON randomization does the same thing, but CON has a very different role in FE9 than in GBAFE. CON (or Build if you prefer) only really affects shoving and rescuing (and I think maybe the Colossus skill?), so it has much less of an effect. Affinity also works the same way, though support building is much easier in FE9 than in GBAFE, so maybe it's a bit more interesting here.
@@ -421,8 +419,6 @@ You'll also realize that, if you're familiar with FE4, that there is no option f
 
 ### Classes
 This is probably the buggiest option. I think I've managed to get most battle animations to work appropriately, but there's always the chance that a character later in the game causes issues, because I haven't been able to test that far. The options should look familiar, but I'll go over them briefly. **Include Lords** will randomizes Ike's class and add Ranger to the class pool. I'm not sure about how this breaks endgame, so I may need more modifications to make things possible with a non-Lord Ike. **Include Thieves** basically affect Volke and Sothe and allow them to change class and adds thieves to the randomization pool (I'm not sure if this works properly either). **Include Special Classes** basically just means Reyson, and there should be logic to make sure you only get at most one heron if this is included (as two herons is basically a free win). **Allow Crossgender Assignments** does as you expect, attempting to keep gender lines consistent. **Allow Cross-race Assignments** is new, but you can guess that this means crossing Beorc and Laguz classes. This applies for bosses and minions as well. 
-
-*Note: There are some characters that are excluded from this because they seem to work differently: Rolf and Lethe don't seem to load the same way as other characters, so they are currently disabled. Additionally, Boyd remains a fighter in the Prologue (also partially to make sure a hypothetical Wyvern Rider Boyd doesn't immediately roadblock Ike in the prologue).*
 
 Bosses work as you expect, though there might be additional logic for bosses that I haven't added yet, and I haven't tested cross-race assignments yet. Minions are also in the same boat, but in addition to not knowing if cross-race assignments work, some minions are directly referenced by their ID in chapter scripts, and those IDs need to be a specific class, so even if you force 100% of minions to change class, some will be immune to change to make sure the game is still functional.
 
@@ -457,7 +453,7 @@ Buffing bosses, on the other hand, looks to be borked, currently, because for wh
 * ~~Fixing world map sequences to be somewhat more accurate to a unit's class.~~ Done!
 * Allowing melee axes to gain range.
 * ~~Remove limitations on class randomization.~~ This is mostly resolved using a blacklist of characters and chapters which continue to limit class choices. All other characters and chapters are allowed to fully randomize classes.
-* Add random fun ASM changes (Ranging from streamlining changes like removing the need to stand adjacent to a unit for support, to infurating, like 1RN, or Thracia-style 1-99 HIT.)
+* Add random fun ASM changes (Ranging from streamlining changes like removing the need to stand adjacent to a unit for support, to infurating, ~~like 1RN~~, or Thracia-style 1-99 HIT.)
 
 ## Next Steps (Kind of in order)
 * ~~Add in FE6 support.~~ Done!
