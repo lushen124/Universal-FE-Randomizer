@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Widget;
 
 import fedata.general.FEBase.GameType;
+import ui.general.MinMaxControl;
 import ui.model.MiscellaneousOptions;
 import ui.model.MiscellaneousOptions.RewardMode;
 
@@ -39,6 +40,11 @@ public class MiscellaneousView extends Composite {
 	private Button enemyDropsButton;
 	private Label enemyDropChanceLabel;
 	private Spinner enemyDropChanceSpinner;
+	
+	private Button addFogOfWarButton;
+	private Label fogOfWarChanceLabel;
+	private Spinner fogOfWarChanceSpinner;
+	private MinMaxControl fogOfWarVisionRangeControl;
 	
 	// FE4 only.
 	private Button followupRequirement;
@@ -227,6 +233,65 @@ public class MiscellaneousView extends Composite {
 			previousControl = enemyDropChanceSpinner;
 		}
 		
+		// Fog of War
+		if (gameType.isGBA()) {
+			addFogOfWarButton = new Button(container, SWT.CHECK);
+			addFogOfWarButton.setText("Add Fog of War (Beta)");
+			if (gameType == GameType.FE7) {
+				addFogOfWarButton.setToolTipText("Adds a chance for maps to feature fog of war.\n\nMaps featuring Kishuna are exempt.");
+			} else {
+				addFogOfWarButton.setToolTipText("Adds a chance for maps to have fog of war.");
+			}
+			addFogOfWarButton.setSelection(false);
+			addFogOfWarButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					// TODO Auto-generated method stub
+					fogOfWarChanceSpinner.setEnabled(addFogOfWarButton.getSelection());
+					fogOfWarChanceLabel.setEnabled(addFogOfWarButton.getSelection());
+					fogOfWarVisionRangeControl.setEnabled(addFogOfWarButton.getSelection());
+				}	
+			});
+			
+			FormData formData = new FormData();
+			formData.left = new FormAttachment(0, 5);
+			formData.top = new FormAttachment(previousControl, 10);
+			addFogOfWarButton.setLayoutData(formData);
+			
+			fogOfWarChanceSpinner = new Spinner(container, SWT.CHECK);
+			fogOfWarChanceSpinner.setValues(10, 1, 100, 0, 1, 1);
+			fogOfWarChanceSpinner.setEnabled(false);
+			
+			formData = new FormData();
+			formData.right = new FormAttachment(100, -5);
+			formData.top = new FormAttachment(addFogOfWarButton, 5);
+			fogOfWarChanceSpinner.setLayoutData(formData);
+			
+			fogOfWarChanceLabel = new Label(container, SWT.NONE);
+			fogOfWarChanceLabel.setText("Fog of War Chance:");
+			fogOfWarChanceLabel.setEnabled(false);
+			
+			formData = new FormData();
+			formData.right = new FormAttachment(fogOfWarChanceSpinner, -5);
+			formData.top = new FormAttachment(fogOfWarChanceSpinner, 0, SWT.CENTER);
+			fogOfWarChanceLabel.setLayoutData(formData);
+			
+			fogOfWarVisionRangeControl = new MinMaxControl(container, SWT.NONE, "Vision Range", "~");
+			fogOfWarVisionRangeControl.setMin(3);
+			fogOfWarVisionRangeControl.getMinSpinner().setValues(3, 1, 6, 0, 1, 1);
+			fogOfWarVisionRangeControl.setMax(6);
+			fogOfWarVisionRangeControl.getMaxSpinner().setValues(6, 3, 15, 0, 1, 1);
+			fogOfWarVisionRangeControl.setEnabled(false);
+			
+			formData = new FormData();
+			formData.right = new FormAttachment(100, 0);
+			formData.top = new FormAttachment(fogOfWarChanceSpinner, 5);
+			formData.left = new FormAttachment(addFogOfWarButton, 5, SWT.LEFT);
+			fogOfWarVisionRangeControl.setLayoutData(formData);
+			
+			previousControl = fogOfWarVisionRangeControl;
+		}
+		
 		if (gameType == GameType.FE4) {
 			followupRequirement = new Button(container, SWT.CHECK);
 			followupRequirement.setText("Remove Pursuit Follow-up Requirement");
@@ -305,23 +370,23 @@ public class MiscellaneousView extends Composite {
 		if (type.isGBA()) {
 			switch (type) {
 			case FE6:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false);
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false, addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption());
 			case FE7:
 			default:
-				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0, tripleEffectiveness != null ? tripleEffectiveness.getSelection() : false);
+				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0, tripleEffectiveness != null ? tripleEffectiveness.getSelection() : false, addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption());
 			}
 		} else if (type.isSFC()) {
 			switch (type) {
 			case FE4:
 				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), new MiscellaneousOptions.FollowupRequirement(!followupRequirement.getSelection(), withPursuitSpinner.getSelection(), withoutPursuitSpinner.getSelection()));
 			default:
-				return new MiscellaneousOptions(false, 0, false);
+				return new MiscellaneousOptions(false, 0, false, false, 0, null);
 			}
 		} else if (type.isGCN()) {
 			return new MiscellaneousOptions(false, randomizeChestVillageRewards.getSelection(), rewardMode, enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0);
 		}
 		
-		return new MiscellaneousOptions(false, 0, false);
+		return new MiscellaneousOptions(false, 0, false, false, 0, null);
 	}
 	
 	public void setMiscellaneousOptions(MiscellaneousOptions options) {
@@ -353,6 +418,18 @@ public class MiscellaneousView extends Composite {
 				if (options.enemyDropChance > 0) {
 					enemyDropChanceSpinner.setSelection(options.enemyDropChance);
 				}
+			}
+			
+			if (addFogOfWarButton != null) {
+				addFogOfWarButton.setSelection(options.randomizeFogOfWar);
+				
+				fogOfWarChanceSpinner.setEnabled(true);
+				fogOfWarChanceLabel.setEnabled(true);
+				fogOfWarVisionRangeControl.setEnabled(true);
+				
+				fogOfWarChanceSpinner.setSelection(options.fogOfWarChance);
+				fogOfWarVisionRangeControl.setMin(options.fogOfWarVisionRange.minValue);
+				fogOfWarVisionRangeControl.setMax(options.fogOfWarVisionRange.maxValue);
 			}
 		}
 	}

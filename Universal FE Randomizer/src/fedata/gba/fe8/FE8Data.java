@@ -16,6 +16,7 @@ import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.general.CharacterNudge;
+import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
 import fedata.gba.general.GBAFEClass;
@@ -71,6 +72,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long ChapterTablePointer = 0x19900;
 	//public static final long DefaultChapterArrayOffset = 0x8B363C;
 	public static final int BytesPerChapterUnit = 20;
+	
+	public static final long ChapterMetadataTablePointer = 0x3462C;
+    //public static final long DefaultChapterMetadataArrayOffset = 0x8B0890;
+    public static final int BytesPerChapterMetadata = 148;
 	
 	public static final long PromotionItemTablePointer = 0x29218; // These work the same way as FE7.
 	
@@ -1665,6 +1670,199 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return poisonSet.contains(this);
 		}
 	}
+	
+	public enum ChapterMetadata implements GBAFEChapterMetadataChapter {
+		
+		PROLOGUE_THE_FALL_OF_RENAIS(0x0),
+		CHAPTER_1_ESCAPE(0x1),
+		CHAPTER_2_THE_PROTECTED(0x2),
+		CHAPTER_3_THE_BANDITS_OF_BORGO(0x3),
+		CHAPTER_4_ANCIENT_HORRORS(0x4),
+		CHAPTER_5X_UNBROKEN_HEART(0x5),
+		CHAPTER_5_THE_EMPIRES_REACH(0x6),
+		CHAPTER_6_VICTIMS_OF_WAR(0x7),
+		CHAPTER_7_WATERSIDE_RENVALL(0x8),
+		CHAPTER_8_ITS_A_TRAP(0x9),
+		CHAPTER_9_EIRIKA_DISTANT_BLADE(0xA),
+		CHAPTER_10_EIRIKA_REVOLT_AT_CARCINO(0xB),
+		CHAPTER_12_EIRIKA_VILLAGE_OF_SILENCE(0xC),
+		CHAPTER_13_EIRIKA_HAMILL_CANYON(0xD),
+		CHAPTER_14_EIRIKA_QUEEN_OF_WHITE_DUNES(0xE),
+		CHAPTER_15_EIRIKA_SCORCHED_SAND(0xF),
+		CHAPTER_16_EIRIKA_RULED_BY_MADNESS(0x10),
+		CHAPTER_17_EIRIKA_RIVER_OF_REGRETS(0x11),
+		CHAPTER_18_EIRIKA_TWO_FACES_OF_EVIL(0x12),
+		CHAPTER_19_EIRIKA_LAST_HOPE(0x13),
+		CHAPTER_20_EIRIKA_DARKLING_WOODS(0x14),
+		FINAL_EIRIKA_SACRED_STONE_1(0x15),
+		FINAL_EIRIKA_SACRED_STONE_2(0x16),
+		
+		CHAPTER_9_EPHRAIM_FORT_RIGWALD(0x17),
+		CHAPTER_10_EPHRAIM_TURNING_TRAITOR(0x18),
+		CHAPTER_12_EPHRAIM_LANDING_AT_TAIZEL(0x19),
+		CHAPTER_13_EPHRAIM_FLUORSPARS_OATH(0x1A),
+		CHAPTER_14_EPHRAIM_FATHER_AND_SON(0x1B),
+		CHAPTER_15_EPHRAIM_SCORCHED_SAND(0x1C),
+		CHAPTER_16_EPHRAIM_RULED_BY_MADNESS(0x1D),
+		CHAPTER_17_EPHRAIM_RIVER_OF_REGRETS(0x1E),
+		CHAPTER_18_EPHRAIM_TWO_FACES_OF_EVIL(0x1F),
+		CHAPTER_19_EPHRAIM_LAST_HOPE(0x20),
+		CHAPTER_20_EPHRAIM_DARKLING_WOODS(0x21),
+		FINAL_EPHRAIM_SACRED_STONE_1(0x22),
+		FINAL_EPHRAIM_SACRED_STONE_2(0x23),
+		
+		TOWER_OF_VALNI_1(0x24),
+		TOWER_OF_VALNI_2(0x25),
+		TOWER_OF_VALNI_3(0x26),
+		TOWER_OF_VALNI_4(0x27),
+		TOWER_OF_VALNI_5(0x28),
+		TOWER_OF_VALNI_6(0x29),
+		TOWER_OF_VALNI_7(0x2A),
+		TOWER_OF_VALNI_8(0x2B),
+		TOWER_OF_VALNI_9(0x2C), // I think?
+		TOWER_OF_VALNI_10(0x2D), // I think?
+		
+		LAGDOU_RUINS_1(0x2E),
+		LAGDOU_RUINS_2(0x2F),
+		LAGDOU_RUINS_3(0x30),
+		LAGDOU_RUINS_4(0x31),
+		LAGDOU_RUINS_5(0x32),
+		LAGDOU_RUINS_6(0x33),
+		LAGDOU_RUINS_7(0x34),
+		LAGDOU_RUINS_8(0x35),
+		LAGDOU_RUINS_9(0x36),
+		LAGDOU_RUINS_10(0x37),
+		
+		MELKAEN_COAST(0x39),
+		
+		CHAPTER_11_EIRIKA_CREEPING_DARKNESS(0x3D),
+		CHAPTER_11_EPHRAIM_PHANTOM_SHIP(0x3E);
+		
+		public int index;
+		
+		private ChapterMetadata(int index) {
+			this.index = index;
+		}
+		
+		public boolean fogOfWarAllowed() {
+			return true;
+		}
+		
+		public static ChapterMetadata[] orderedChapters() {
+			return new ChapterMetadata[] {
+					PROLOGUE_THE_FALL_OF_RENAIS,
+					CHAPTER_1_ESCAPE,
+					CHAPTER_2_THE_PROTECTED,
+					CHAPTER_3_THE_BANDITS_OF_BORGO,
+					CHAPTER_4_ANCIENT_HORRORS,
+					CHAPTER_5_THE_EMPIRES_REACH,
+					CHAPTER_5X_UNBROKEN_HEART,
+					CHAPTER_6_VICTIMS_OF_WAR,
+					CHAPTER_7_WATERSIDE_RENVALL,
+					CHAPTER_8_ITS_A_TRAP,
+					CHAPTER_9_EIRIKA_DISTANT_BLADE,
+					CHAPTER_9_EPHRAIM_FORT_RIGWALD,
+					CHAPTER_10_EIRIKA_REVOLT_AT_CARCINO,
+					CHAPTER_10_EPHRAIM_TURNING_TRAITOR,
+					CHAPTER_11_EIRIKA_CREEPING_DARKNESS,
+					CHAPTER_11_EPHRAIM_PHANTOM_SHIP,
+					CHAPTER_12_EIRIKA_VILLAGE_OF_SILENCE,
+					CHAPTER_12_EPHRAIM_LANDING_AT_TAIZEL,
+					CHAPTER_13_EIRIKA_HAMILL_CANYON,
+					CHAPTER_13_EPHRAIM_FLUORSPARS_OATH,
+					CHAPTER_14_EIRIKA_QUEEN_OF_WHITE_DUNES,
+					CHAPTER_14_EPHRAIM_FATHER_AND_SON,
+					CHAPTER_15_EIRIKA_SCORCHED_SAND,
+					CHAPTER_15_EPHRAIM_SCORCHED_SAND,
+					CHAPTER_16_EIRIKA_RULED_BY_MADNESS,
+					CHAPTER_16_EPHRAIM_RULED_BY_MADNESS,
+					CHAPTER_17_EIRIKA_RIVER_OF_REGRETS,
+					CHAPTER_17_EPHRAIM_RIVER_OF_REGRETS,
+					CHAPTER_18_EIRIKA_TWO_FACES_OF_EVIL,
+					CHAPTER_18_EPHRAIM_TWO_FACES_OF_EVIL,
+					CHAPTER_19_EIRIKA_LAST_HOPE,
+					CHAPTER_19_EPHRAIM_LAST_HOPE,
+					CHAPTER_20_EIRIKA_DARKLING_WOODS,
+					CHAPTER_20_EPHRAIM_DARKLING_WOODS,
+					FINAL_EIRIKA_SACRED_STONE_1,
+					FINAL_EPHRAIM_SACRED_STONE_1,
+					FINAL_EIRIKA_SACRED_STONE_2,
+					FINAL_EPHRAIM_SACRED_STONE_2
+			};
+		}
+		
+		public static ChapterMetadata[] additionalChapters() {
+			return new ChapterMetadata[] {
+					TOWER_OF_VALNI_1,
+					TOWER_OF_VALNI_2,
+					TOWER_OF_VALNI_3,
+					TOWER_OF_VALNI_4,
+					TOWER_OF_VALNI_5,
+					TOWER_OF_VALNI_6,
+					TOWER_OF_VALNI_7,
+					TOWER_OF_VALNI_8,
+					TOWER_OF_VALNI_9,
+					TOWER_OF_VALNI_10,
+					
+					LAGDOU_RUINS_1,
+					LAGDOU_RUINS_2,
+					LAGDOU_RUINS_3,
+					LAGDOU_RUINS_4,
+					LAGDOU_RUINS_5,
+					LAGDOU_RUINS_6,
+					LAGDOU_RUINS_7,
+					LAGDOU_RUINS_8,
+					LAGDOU_RUINS_9,
+					LAGDOU_RUINS_10,
+					
+					MELKAEN_COAST
+			};
+		}
+		
+		public String getFriendlyName() {
+			switch (this) {
+			case PROLOGUE_THE_FALL_OF_RENAIS: return "Prologue: The Fall of Renais";
+			case CHAPTER_1_ESCAPE: return "Chapter 1: Escape!";
+			case CHAPTER_2_THE_PROTECTED: return "Chapter 2: The Protected";
+			case CHAPTER_3_THE_BANDITS_OF_BORGO: return "Chapter 3: The Bandits of Borgo";
+			case CHAPTER_4_ANCIENT_HORRORS: return "Chapter 4: Ancient Horrors";
+			case CHAPTER_5_THE_EMPIRES_REACH: return "Chapter 5: The Empire's Reach";
+			case CHAPTER_5X_UNBROKEN_HEART: return "Chatper 5x: Unbroken Heart";
+			case CHAPTER_6_VICTIMS_OF_WAR: return "Chapter 6: Victims of War";
+			case CHAPTER_7_WATERSIDE_RENVALL: return "Chapter 7: Waterside Renvall";
+			case CHAPTER_8_ITS_A_TRAP: return "Chapter 8: It's a Trap!";
+			case CHAPTER_9_EIRIKA_DISTANT_BLADE: return "Chapter 9 (Eirika): Distant Blade";
+			case CHAPTER_9_EPHRAIM_FORT_RIGWALD: return "Chapter 9 (Ephraim): Fort Rigwald";
+			case CHAPTER_10_EIRIKA_REVOLT_AT_CARCINO: return "Chapter 10 (Eirika): Revolt at Carcino";
+			case CHAPTER_10_EPHRAIM_TURNING_TRAITOR: return "Chapter 10 (Ephraim): Turning Traitor";
+			case CHAPTER_11_EIRIKA_CREEPING_DARKNESS: return "Chapter 11 (Eirika): Creeping Darkness";
+			case CHAPTER_11_EPHRAIM_PHANTOM_SHIP: return "Chapter 11 (Ephraim): Phantom Ship";
+			case CHAPTER_12_EIRIKA_VILLAGE_OF_SILENCE: return "Chapter 12 (Eirika): Village of Silence";
+			case CHAPTER_12_EPHRAIM_LANDING_AT_TAIZEL: return "Chapter 12 (Ephraim): Landing at Taizel";
+			case CHAPTER_13_EIRIKA_HAMILL_CANYON: return "Chapter 13 (Eirika): Hamill Canyon";
+			case CHAPTER_13_EPHRAIM_FLUORSPARS_OATH: return "Chapter 13 (Ephraim): Fluorspar's Oath";
+			case CHAPTER_14_EIRIKA_QUEEN_OF_WHITE_DUNES: return "Chapter 14 (Eirika): Queen of White Dunes";
+			case CHAPTER_14_EPHRAIM_FATHER_AND_SON: return "Chapter 14 (Ephraim): Father and Son";
+			case CHAPTER_15_EIRIKA_SCORCHED_SAND: return "Chapter 15 (Eirika): Scorched Sand";
+			case CHAPTER_15_EPHRAIM_SCORCHED_SAND: return "Chapter 15 (Ephraim): Scorched Sand";
+			case CHAPTER_16_EIRIKA_RULED_BY_MADNESS: return "Chapter 16 (Eirika): Ruled by Madness";
+			case CHAPTER_16_EPHRAIM_RULED_BY_MADNESS: return "Chapter 16 (Ephraim): Ruled by Madness";
+			case CHAPTER_17_EIRIKA_RIVER_OF_REGRETS: return "Chapter 17 (Eirika): River of Regrets";
+			case CHAPTER_17_EPHRAIM_RIVER_OF_REGRETS: return "Chapter 17 (Ephraim): River of Regrets";
+			case CHAPTER_18_EIRIKA_TWO_FACES_OF_EVIL: return "Chapter 18 (Eirika): Two Faces of Evil";
+			case CHAPTER_18_EPHRAIM_TWO_FACES_OF_EVIL: return "Chapter 18 (Ephraim): Two Faces of Evil";
+			case CHAPTER_19_EIRIKA_LAST_HOPE: return "Chapter 19 (Eirika): Last Hope";
+			case CHAPTER_19_EPHRAIM_LAST_HOPE: return "Chapter 19 (Ephraim): Last Hope";
+			case CHAPTER_20_EIRIKA_DARKLING_WOODS: return "Chapter 20 (Eirika): Darkling Woods";
+			case CHAPTER_20_EPHRAIM_DARKLING_WOODS: return "Chapter 20 (Ephraim): Darkling Woods";
+			case FINAL_EIRIKA_SACRED_STONE_1: return "Final (Eirika): Sacred Stone (Part 1)";
+			case FINAL_EPHRAIM_SACRED_STONE_1: return "Final (Ephraim): Sacred Stone (Part 1)";
+			case FINAL_EIRIKA_SACRED_STONE_2: return "Final (Eirika): Sacred Stone (Part 2)";
+			case FINAL_EPHRAIM_SACRED_STONE_2: return "Final (Ephraim): Sacred Stone (Part 2)";
+			default: return "?";
+			}
+		}
+	}
 
 	public enum ChapterPointer {
 		PROLOGUE(0x07), CHAPTER_1(0x0A), CHAPTER_2(0x0D), CHAPTER_3(0x14), CHAPTER_4(0x17), CHAPTER_5(0x21), CHAPTER_5X(0x1E), CHAPTER_6(0x24),
@@ -1697,6 +1895,50 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		private ChapterPointer(int chapterID) {
 			this.chapterID = chapterID;
+		}
+		
+		public ChapterMetadata getMetadata() {
+			switch (this) {
+			case PROLOGUE: return ChapterMetadata.PROLOGUE_THE_FALL_OF_RENAIS;
+			case CHAPTER_1: return ChapterMetadata.CHAPTER_1_ESCAPE;
+			case CHAPTER_2: return ChapterMetadata.CHAPTER_2_THE_PROTECTED;
+			case CHAPTER_3: return ChapterMetadata.CHAPTER_3_THE_BANDITS_OF_BORGO;
+			case CHAPTER_4: return ChapterMetadata.CHAPTER_4_ANCIENT_HORRORS;
+			case CHAPTER_5: return ChapterMetadata.CHAPTER_5_THE_EMPIRES_REACH;
+			case CHAPTER_5X: return ChapterMetadata.CHAPTER_5X_UNBROKEN_HEART;
+			case CHAPTER_6: return ChapterMetadata.CHAPTER_6_VICTIMS_OF_WAR;
+			case CHAPTER_7: return ChapterMetadata.CHAPTER_7_WATERSIDE_RENVALL;
+			case CHAPTER_8: return ChapterMetadata.CHAPTER_8_ITS_A_TRAP;
+			case CHAPTER_9_EIRIKA: return ChapterMetadata.CHAPTER_9_EIRIKA_DISTANT_BLADE;
+			case CHAPTER_9_EPHRAIM: return ChapterMetadata.CHAPTER_9_EPHRAIM_FORT_RIGWALD;
+			case CHAPTER_10_EIRIKA: return ChapterMetadata.CHAPTER_10_EIRIKA_REVOLT_AT_CARCINO;
+			case CHAPTER_10_EPHRAIM: return ChapterMetadata.CHAPTER_10_EPHRAIM_TURNING_TRAITOR;
+			case CHAPTER_11_EIRIKA: return ChapterMetadata.CHAPTER_11_EIRIKA_CREEPING_DARKNESS;
+			case CHAPTER_11_EPHRAIM: return ChapterMetadata.CHAPTER_11_EPHRAIM_PHANTOM_SHIP;
+			case CHAPTER_12_EIRIKA: return ChapterMetadata.CHAPTER_12_EIRIKA_VILLAGE_OF_SILENCE;
+			case CHAPTER_12_EPHRAIM: return ChapterMetadata.CHAPTER_12_EPHRAIM_LANDING_AT_TAIZEL;
+			case CHAPTER_13_EIRIKA: return ChapterMetadata.CHAPTER_13_EIRIKA_HAMILL_CANYON;
+			case CHAPTER_13_EPHRAIM: return ChapterMetadata.CHAPTER_13_EPHRAIM_FLUORSPARS_OATH;
+			case CHAPTER_14_EIRIKA: return ChapterMetadata.CHAPTER_14_EIRIKA_QUEEN_OF_WHITE_DUNES;
+			case CHAPTER_14_EPHRAIM: return ChapterMetadata.CHAPTER_14_EPHRAIM_FATHER_AND_SON;
+			case CHAPTER_15_EIRIKA: return ChapterMetadata.CHAPTER_15_EIRIKA_SCORCHED_SAND;
+			case CHAPTER_15_EPHRAIM: return ChapterMetadata.CHAPTER_15_EPHRAIM_SCORCHED_SAND;
+			case CHAPTER_16_EIRIKA: return ChapterMetadata.CHAPTER_16_EIRIKA_RULED_BY_MADNESS;
+			case CHAPTER_16_EPHRAIM: return ChapterMetadata.CHAPTER_16_EPHRAIM_RULED_BY_MADNESS;
+			case CHAPTER_17_EIRIKA: return ChapterMetadata.CHAPTER_17_EIRIKA_RIVER_OF_REGRETS;
+			case CHAPTER_17_EPHRAIM: return ChapterMetadata.CHAPTER_17_EPHRAIM_RIVER_OF_REGRETS;
+			case CHAPTER_18_EIRIKA: return ChapterMetadata.CHAPTER_18_EIRIKA_TWO_FACES_OF_EVIL;
+			case CHAPTER_18_EPHRAIM: return ChapterMetadata.CHAPTER_18_EPHRAIM_TWO_FACES_OF_EVIL;
+			case CHAPTER_19_EIRIKA: return ChapterMetadata.CHAPTER_19_EIRIKA_LAST_HOPE;
+			case CHAPTER_19_EPHRAIM: return ChapterMetadata.CHAPTER_19_EPHRAIM_LAST_HOPE;
+			case CHAPTER_20_EIRIKA: return ChapterMetadata.CHAPTER_20_EIRIKA_DARKLING_WOODS;
+			case CHAPTER_20_EPHRAIM: return ChapterMetadata.CHAPTER_20_EPHRAIM_DARKLING_WOODS;
+			case FINAL_1_EIRIKA: return ChapterMetadata.FINAL_EIRIKA_SACRED_STONE_1;
+			case FINAL_1_EPHRAIM: return ChapterMetadata.FINAL_EPHRAIM_SACRED_STONE_1;
+			case FINAL_2_EIRIKA: return ChapterMetadata.FINAL_EIRIKA_SACRED_STONE_2;
+			case FINAL_2_EPHRAIM: return ChapterMetadata.FINAL_EPHRAIM_SACRED_STONE_2;
+			default: return null;
+			}
 		}
 		
 		public CharacterClass[] blacklistedClasses() {
