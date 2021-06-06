@@ -1,5 +1,6 @@
 package fedata.gcnwii.fe9;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,7 +101,7 @@ public class FE9ScriptScene {
 		originalBytes = scriptBytes;
 		
 		instructions = FE9ScriptInterpreter.instructionsFromScript(this);
-		originalInstructions = List.copyOf(instructions);
+		originalInstructions = new ArrayList<ScriptInstruction>(instructions);
 	}
 	
 	public int getPointerOffset() { return updatedPointerOffset != null ? updatedPointerOffset : pointerOffset; }
