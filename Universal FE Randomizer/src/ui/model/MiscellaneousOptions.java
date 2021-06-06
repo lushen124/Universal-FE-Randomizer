@@ -12,6 +12,7 @@ public class MiscellaneousOptions {
 	
 	public final Boolean randomizeRewards;
 	public final Integer enemyDropChance;
+	public final Boolean singleRNMode;
 	
 	public final Boolean randomizeFogOfWar;
 	public final Integer fogOfWarChance;
@@ -34,7 +35,7 @@ public class MiscellaneousOptions {
 	public final FollowupRequirement followupRequirement;
 	
 	// FE7, FE8
-	public MiscellaneousOptions(Boolean randomRewards, int enemyDropChance, Boolean tripleEffectiveness, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange) {
+	public MiscellaneousOptions(Boolean randomRewards, int enemyDropChance, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange) {
 		super();
 		this.applyEnglishPatch = false;
 		this.tripleEffectiveness = tripleEffectiveness;
@@ -42,6 +43,7 @@ public class MiscellaneousOptions {
 		this.randomizeRewards = randomRewards;
 		this.enemyDropChance = enemyDropChance;
 		followupRequirement = null;
+		singleRNMode = singleRN;
 		randomizeFogOfWar = fogOfWar;
 		this.fogOfWarChance = fogOfWarChance;
 		fogOfWarVisionRange = visionRange;
@@ -56,13 +58,14 @@ public class MiscellaneousOptions {
 		this.followupRequirement = followupRequirement;
 		this.tripleEffectiveness = false;
 		this.enemyDropChance = 0;
+		singleRNMode = false;
 		randomizeFogOfWar = false;
 		fogOfWarVisionRange = null;
 		fogOfWarChance = 0;
 	}
 	
 	// FE6
-	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, Boolean tripleEffectiveness, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange) {
+	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange) {
 		super();
 		this.applyEnglishPatch = applyEnglishPatch;
 		this.tripleEffectiveness = tripleEffectiveness;
@@ -70,6 +73,7 @@ public class MiscellaneousOptions {
 		this.randomizeRewards = randomRewards;
 		enemyDropChance = 0;
 		followupRequirement = null;
+		singleRNMode = singleRN;
 		randomizeFogOfWar = fogOfWar;
 		fogOfWarVisionRange = visionRange;
 		this.fogOfWarChance = fogOfWarChance;
@@ -84,6 +88,7 @@ public class MiscellaneousOptions {
 		this.randomizeRewards = randomRewards;
 		this.enemyDropChance = enemyDropChance;
 		followupRequirement = null;
+		singleRNMode = false;
 		randomizeFogOfWar = false;
 		fogOfWarVisionRange = null;
 		fogOfWarChance = 0;

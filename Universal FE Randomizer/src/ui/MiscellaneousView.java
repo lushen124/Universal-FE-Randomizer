@@ -13,7 +13,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.Widget;
 
 import fedata.general.FEBase.GameType;
 import ui.general.MinMaxControl;
@@ -36,6 +35,8 @@ public class MiscellaneousView extends Composite {
 	private Composite rewardModeContainer;
 	private Button similarRewardsButton;
 	private Button randomRewardsButton;
+	
+	public Button singleRNButton;
 	
 	private Button enemyDropsButton;
 	private Label enemyDropChanceLabel;
@@ -190,6 +191,20 @@ public class MiscellaneousView extends Composite {
 			});
 			
 			previousControl = rewardModeContainer;
+		}
+		
+		if (gameType.isGBA()) {
+			singleRNButton = new Button(container, SWT.CHECK);
+			singleRNButton.setText("Enable Single RN for Hit");
+			singleRNButton.setToolTipText("Makes accuracy rolls based on a single random number instead of the average of two random numbers.\n\nGood for those that don't like being lied to about hit rates.");
+			singleRNButton.setSelection(false);
+			
+			FormData rnData = new FormData();
+			rnData.left = new FormAttachment(0, 5);
+			rnData.top = new FormAttachment(previousControl, 10);
+			singleRNButton.setLayoutData(rnData);
+			
+			previousControl = singleRNButton;
 		}
 		
 		// Random enemy drops
@@ -370,23 +385,22 @@ public class MiscellaneousView extends Composite {
 		if (type.isGBA()) {
 			switch (type) {
 			case FE6:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false, addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption());
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false, singleRNButton.getSelection(), addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption());
 			case FE7:
 			default:
-				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0, tripleEffectiveness != null ? tripleEffectiveness.getSelection() : false, addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption());
+				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0, tripleEffectiveness != null ? tripleEffectiveness.getSelection() : false, singleRNButton.getSelection(), addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption());
 			}
 		} else if (type.isSFC()) {
 			switch (type) {
 			case FE4:
 				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), new MiscellaneousOptions.FollowupRequirement(!followupRequirement.getSelection(), withPursuitSpinner.getSelection(), withoutPursuitSpinner.getSelection()));
 			default:
-				return new MiscellaneousOptions(false, 0, false, false, 0, null);
+				return new MiscellaneousOptions(false, 0, false, false, false, 0, null);
 			}
 		} else if (type.isGCN()) {
 			return new MiscellaneousOptions(false, randomizeChestVillageRewards.getSelection(), rewardMode, enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0);
 		}
-		
-		return new MiscellaneousOptions(false, 0, false, false, 0, null);
+		return new MiscellaneousOptions(false, 0, false, false, false, 0, null);
 	}
 	
 	public void setMiscellaneousOptions(MiscellaneousOptions options) {
@@ -411,6 +425,11 @@ public class MiscellaneousView extends Composite {
 				randomRewardsButton.setSelection(options.rewardMode == RewardMode.RANDOM);
 				randomRewardsButton.setEnabled(options.randomizeRewards);
 			}
+			
+			if (singleRNButton != null) {
+				singleRNButton.setSelection(options.singleRNMode);
+			}
+			
 			if (enemyDropsButton != null && enemyDropChanceSpinner != null) {
 				enemyDropsButton.setSelection(options.enemyDropChance > 0);
 				enemyDropChanceSpinner.setEnabled(options.enemyDropChance > 0);
