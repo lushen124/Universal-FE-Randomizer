@@ -498,7 +498,6 @@ public class FE9Randomizer extends Randomizer {
 		// Ch. 28 features Tibarn again who is auto-transformed (Script 14). Like in Ch. 17, he is given a Laguz band and forced to equip it. 
 		// 		He also transforms normally in Script 19 (but is still given the Laguz Band).
 		
-		
 		FE9Character ranulf = charData.characterWithID(FE9Data.Character.RANULF.getPID());
 		String ranulfJID = charData.getJIDForCharacter(ranulf);
 		FE9Class ranulfClass = classData.classWithID(ranulfJID);
@@ -531,105 +530,111 @@ public class FE9Randomizer extends Randomizer {
 		String reysonJID = charData.getJIDForCharacter(reyson);
 		FE9Class reysonClass = classData.classWithID(reysonJID);
 		
-		if (!classData.isLaguzClass(ranulfClass)) { // Ch. 7 and Ch. 11
-			GCNCMBFileHandler ch7Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_7);
-			FE9ScriptScene scene = ch7Script.getSceneWithIndex(35);
-			removeTransformFromScript(scene, 1, false);
-			
-			GCNCMBFileHandler ch11Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_11);
-			scene = ch11Script.getSceneWithIndex(24);
-			removeTransformFromScript(scene, 1, false);
-			
-			scene = ch11Script.getSceneWithIndex(53);
-			removeTransformFromScript(scene, 1, false);
-		} else {
-			// That said, if they are Laguz characters, we've replaced their class with the untransformed version.
-			// In some cases, this is fine, but some cutscenes start them off transformed. Ch. 7 does this with Ranulf.
-			// Make sure his class is set as the transformed version so that he can untransform properly.
-			for (FE9ChapterArmy army : chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_7)) {
-				for (String unitID : army.getAllUnitIDs()) {
-					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
-					if (army.getPIDForUnit(unit).equals(FE9Data.Character.RANULF.getPID())) {
-						army.setJIDForUnit(unit, FE9Data.CharacterClass.withJID(army.getJIDForUnit(unit)).getTransformedClass().getJID());
-						army.commitChanges();
+		if (classOptions.randomizePCs && classOptions.mixPCRaces) {
+			if (!classData.isLaguzClass(ranulfClass)) { // Ch. 7 and Ch. 11
+				GCNCMBFileHandler ch7Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_7);
+				FE9ScriptScene scene = ch7Script.getSceneWithIndex(35);
+				removeTransformFromScript(scene, 1, false);
+				
+				GCNCMBFileHandler ch11Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_11);
+				scene = ch11Script.getSceneWithIndex(24);
+				removeTransformFromScript(scene, 1, false);
+				
+				scene = ch11Script.getSceneWithIndex(53);
+				removeTransformFromScript(scene, 1, false);
+			} else {
+				// That said, if they are Laguz characters, we've replaced their class with the untransformed version.
+				// In some cases, this is fine, but some cutscenes start them off transformed. Ch. 7 does this with Ranulf.
+				// Make sure his class is set as the transformed version so that he can untransform properly.
+				for (FE9ChapterArmy army : chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_7)) {
+					for (String unitID : army.getAllUnitIDs()) {
+						FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+						if (army.getPIDForUnit(unit).equals(FE9Data.Character.RANULF.getPID())) {
+							army.setJIDForUnit(unit, FE9Data.CharacterClass.withJID(army.getJIDForUnit(unit)).getTransformedClass().getJID());
+							army.commitChanges();
+						}
 					}
 				}
 			}
-		}
-		
-		if (!classData.isLaguzClass(letheClass)) { // Ch. 8 (Must come before Mordecai.)
-			GCNCMBFileHandler ch8Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_8);
-			FE9ScriptScene scene = ch8Script.getSceneWithIndex(31);
-			removeTransformFromScript(scene, 2, false);
-		} else {
-			for (FE9ChapterArmy army : chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_8)) {
-				for (String unitID : army.getAllUnitIDs()) {
-					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
-					if (army.getPIDForUnit(unit).equals(FE9Data.Character.LETHE.getPID())) {
-						army.setJIDForUnit(unit, FE9Data.CharacterClass.withJID(army.getJIDForUnit(unit)).getTransformedClass().getJID());
-						army.commitChanges();
+
+			if (!classData.isLaguzClass(letheClass)) { // Ch. 8 (Must come before Mordecai.)
+				GCNCMBFileHandler ch8Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_8);
+				FE9ScriptScene scene = ch8Script.getSceneWithIndex(31);
+				removeTransformFromScript(scene, 2, false);
+			} else {
+				for (FE9ChapterArmy army : chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_8)) {
+					for (String unitID : army.getAllUnitIDs()) {
+						FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+						if (army.getPIDForUnit(unit).equals(FE9Data.Character.LETHE.getPID())) {
+							army.setJIDForUnit(unit, FE9Data.CharacterClass.withJID(army.getJIDForUnit(unit)).getTransformedClass().getJID());
+							army.commitChanges();
+						}
 					}
 				}
 			}
-		}
-		
-		if (!classData.isLaguzClass(mordecaiClass)) { // Ch. 8 (Must come after Lethe.)
-			GCNCMBFileHandler ch8Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_8);
-			FE9ScriptScene scene = ch8Script.getSceneWithIndex(31);
-			removeTransformFromScript(scene, 1, false);
 			
-			scene = ch8Script.getSceneWithIndex(32);
-			removeTransformFromScript(scene, 2, false);
-			removeTransformFromScript(scene, 1, false);
-		} else {
-			for (FE9ChapterArmy army : chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_8)) {
-				for (String unitID : army.getAllUnitIDs()) {
-					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
-					if (army.getPIDForUnit(unit).equals(FE9Data.Character.MORDECAI.getPID())) {
-						army.setJIDForUnit(unit, FE9Data.CharacterClass.withJID(army.getJIDForUnit(unit)).getTransformedClass().getJID());
-						army.commitChanges();
+			if (!classData.isLaguzClass(mordecaiClass)) { // Ch. 8 (Must come after Lethe.)
+				GCNCMBFileHandler ch8Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_8);
+				FE9ScriptScene scene = ch8Script.getSceneWithIndex(31);
+				removeTransformFromScript(scene, 1, false);
+				
+				scene = ch8Script.getSceneWithIndex(32);
+				removeTransformFromScript(scene, 2, false);
+				removeTransformFromScript(scene, 1, false);
+			} else {
+				for (FE9ChapterArmy army : chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_8)) {
+					for (String unitID : army.getAllUnitIDs()) {
+						FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+						if (army.getPIDForUnit(unit).equals(FE9Data.Character.MORDECAI.getPID())) {
+							army.setJIDForUnit(unit, FE9Data.CharacterClass.withJID(army.getJIDForUnit(unit)).getTransformedClass().getJID());
+							army.commitChanges();
+						}
 					}
 				}
 			}
-		}
-		
-		if (!classData.isLaguzClass(seekerClass)) {
-			GCNCMBFileHandler ch12Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_12);
-			FE9ScriptScene scene = ch12Script.getSceneWithIndex(6);
-			removeTransformFromScript(scene, 1, true);
 			
-			scene = ch12Script.getSceneWithIndex(11);
-			removeTransformFromScript(scene, 1, false);
-		}
-		
-		if (!classData.isLaguzClass(muarimClass)) {
-			GCNCMBFileHandler ch15Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_15);
-			FE9ScriptScene scene = ch15Script.getSceneWithIndex(18);
-			removeTransformFromScript(scene, 1, true);
+			if (!classData.isLaguzClass(muarimClass)) {
+				GCNCMBFileHandler ch15Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_15);
+				FE9ScriptScene scene = ch15Script.getSceneWithIndex(18);
+				removeTransformFromScript(scene, 1, true);
+				
+				scene = ch15Script.getSceneWithIndex(21);
+				removeTransformFromScript(scene, 1, false);
+			}
 			
-			scene = ch15Script.getSceneWithIndex(21);
-			removeTransformFromScript(scene, 1, false);
+			// TODO: If we decide to randomize Tibarn or Naesala, we have to take care of their transformations. Tibarn's is a bit more complex as it involves getting rid of the Laguz band given to him by the script.
+			
+			if (!classData.isLaguzClass(janaffClass)) {
+				GCNCMBFileHandler ch17Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_17);
+				FE9ScriptScene scene = ch17Script.getSceneWithIndex(94);
+				removeTransformFromScript(scene, 4, true);
+			}
+			
+			if (!classData.isLaguzClass(ulkiClass)) {
+				GCNCMBFileHandler ch17Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_17);
+				FE9ScriptScene scene = ch17Script.getSceneWithIndex(94);
+				removeTransformFromScript(scene, 3, true);
+			}
+			
+			if (!classData.isLaguzClass(reysonClass)) {
+				GCNCMBFileHandler ch17Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_17);
+				FE9ScriptScene scene = ch17Script.getSceneWithIndex(94);
+				removeTransformFromScript(scene, 1, true);
+			}
 		}
 		
-		// TODO: If we decide to randomize Tibarn or Naesala, we have to take care of their transformations. Tibarn's is a bit more complex as it involves getting rid of the Laguz band given to him by the script.
-		
-		if (!classData.isLaguzClass(janaffClass)) {
-			GCNCMBFileHandler ch17Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_17);
-			FE9ScriptScene scene = ch17Script.getSceneWithIndex(94);
-			removeTransformFromScript(scene, 4, true);
+		if (classOptions.randomizeBosses && classOptions.mixBossRaces) {
+			if (!classData.isLaguzClass(seekerClass)) {
+				GCNCMBFileHandler ch12Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_12);
+				FE9ScriptScene scene = ch12Script.getSceneWithIndex(6);
+				removeTransformFromScript(scene, 1, true);
+				
+				scene = ch12Script.getSceneWithIndex(11);
+				removeTransformFromScript(scene, 1, false);
+			}
 		}
 		
-		if (!classData.isLaguzClass(ulkiClass)) {
-			GCNCMBFileHandler ch17Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_17);
-			FE9ScriptScene scene = ch17Script.getSceneWithIndex(94);
-			removeTransformFromScript(scene, 3, true);
-		}
 		
-		if (!classData.isLaguzClass(reysonClass)) {
-			GCNCMBFileHandler ch17Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_17);
-			FE9ScriptScene scene = ch17Script.getSceneWithIndex(94);
-			removeTransformFromScript(scene, 1, true);
-		}
 		
 		// Update Ike's starting inventory based on class (if necessary).
 		FE9Class ikeClass = classData.classWithID(charData.getJIDForCharacter(ike));
