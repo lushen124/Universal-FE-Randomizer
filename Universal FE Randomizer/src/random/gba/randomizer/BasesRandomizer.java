@@ -36,7 +36,7 @@ public class BasesRandomizer {
 			int newDEFBase = 0;
 			int newRESBase = 0;
 			
-			int initialLuck = rng.nextInt(Math.max(1, baseTotal / 7)) + 2;
+			int initialLuck = rng.nextInt(4) + rng.nextInt(4);
 			newLCKBase += initialLuck;
 			baseTotal -= initialLuck;
 			if (baseTotal < 0) {
@@ -45,7 +45,7 @@ public class BasesRandomizer {
 			
 			if (baseTotal > 0) {	
 				do {
-					randomNum = rng.nextInt(10);
+					randomNum = rng.nextInt(9);
 					int amount = rng.nextInt(3) + 1;
 					
 					switch (randomNum) {
@@ -76,7 +76,6 @@ public class BasesRandomizer {
 						newSPDBase += amount;
 						break;
 					case 8:
-					case 9:
 						if (!WhyDoesJavaNotHaveThese.isValueBetween(newLCKBase + amount, -1 * charClass.getBaseLCK(), charClass.getMaxLCK() - charClass.getBaseLCK())) {
 							continue;
 						}
