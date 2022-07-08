@@ -1,8 +1,10 @@
 package fedata.gba.fe6;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import fedata.gba.GBAFEChapterData;
@@ -35,6 +37,9 @@ public class FE6Chapter implements GBAFEChapterData {
 	private List<FE6ChapterUnit> allChapterUnits;
 	private List<FE6ChapterItem> allChapterRewards;
 	
+	private Set<FE6ChapterTargetedItem> targetedChapterRewards;
+	private Set<Integer> targetedRewardRecipients;
+	
 	private Set<Integer> blacklistedClassIDs;
 	private Set<Long> fightEventOffsets;
 	
@@ -47,7 +52,7 @@ public class FE6Chapter implements GBAFEChapterData {
 	
 	private int maxEnemyClassLimit = 0;
 	
-	public FE6Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, CharacterNudge[] nudgesRequired) {
+	public FE6Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] targetedRecipientsToTrack, int[] blacklistedClassIDs, String friendlyName, Boolean simple, CharacterNudge[] nudgesRequired) {
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
 		for (int classID : blacklistedClassIDs) {
@@ -55,6 +60,9 @@ public class FE6Chapter implements GBAFEChapterData {
 		}
 		this.removeFightScenes = removeFightScenes;
 		this.shouldBeSimplified = simple;
+		
+		targetedRewardRecipients = new HashSet<Integer>();
+		for (int recipient : targetedRecipientsToTrack) { targetedRewardRecipients.add(recipient); }
 				
 		// We need one jump.
 		long pointerTableOffset = FileReadHelper.readAddress(handler, pointer);
@@ -83,6 +91,8 @@ public class FE6Chapter implements GBAFEChapterData {
 		
 		knownAllyIDs = new HashSet<Integer>();
 		knownEnemyIDs = new HashSet<Integer>();
+		
+		targetedChapterRewards = new HashSet<FE6ChapterTargetedItem>();
 		
 		nudges = nudgesRequired;
 		
@@ -116,7 +126,7 @@ public class FE6Chapter implements GBAFEChapterData {
 	}
 	
 	public GBAFEChapterItemData[] allTargetedRewards() {
-		return new GBAFEChapterItemData[] {};
+		return targetedChapterRewards.toArray(new GBAFEChapterItemData[targetedChapterRewards.size()]);
 	}
 
 	@Override
@@ -452,6 +462,15 @@ public class FE6Chapter implements GBAFEChapterData {
 				allChapterRewards.add(chapterItem);
 				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found reward at offset 0x" + Long.toHexString(currentAddress) + " Item ID: 0x" + Integer.toHexString(chapterItem.getItemID()));
 				currentAddress += 4;
+			}
+			// ITGC is also used for targeted items.
+			if (commandWord[0] == 0x27) {
+				FE6ChapterTargetedItem chapterItem = new FE6ChapterTargetedItem(handler.readBytesAtOffset(currentAddress, 12), currentAddress);
+				if (targetedRewardRecipients.contains(chapterItem.getTargetID())) {
+					targetedChapterRewards.add(chapterItem);
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found targeted reward at offset 0x" + Long.toHexString(currentAddress) + " Target ID: 0x" + Integer.toHexString(chapterItem.getTargetID()) + " Item ID: 0x" + Integer.toHexString(chapterItem.getItemID()));
+				}
+				currentAddress += 8;
 			}
 			
 			if (commandWord[1] == 0 && commandWord[2] == 0 && commandWord[3] == 0) {
