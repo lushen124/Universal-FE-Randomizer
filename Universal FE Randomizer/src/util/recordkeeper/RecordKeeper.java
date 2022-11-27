@@ -137,31 +137,26 @@ public class RecordKeeper {
 	
 	public Boolean exportRecordsToHTML(String outputPath) {
 		RecordBuilder builder = new RecordBuilder(outputPath);
-		builder.buildHeader(header.title);
-		builder.appendBasicTable(header.randomizationOptions.entrySet());
-		builder.appendHorizontalSpacer();
-		builder.appendLiteral("<h2>Notes</h2><br>\n</center>\n");
-		builder.appendLiteral("<div class=\"notes\"><ul>");
-		builder.appendUnorderedList(notes);
-		builder.appendLiteral("</ul></div>\n<center>\n<br><hr><br>\n");
-		builder.appendHorizontalSpacer();
+		builder.buildHeader(header.title)
+			.appendBasicTable(header.randomizationOptions.entrySet()).appendHorizontalSpacer()
+			.appendLiteral("<h2>Notes</h2><br>\n</center>\n")
+			.appendLiteral("<div class=\"notes\"><ul>")
+			.appendUnorderedList(notes)
+			.appendLiteral("</ul></div>\n<center>\n<br><hr><br>\n").appendHorizontalSpacer();
 		for (String category : allCategories) {
-			builder.appendSectionHeader(category, 2);
-			builder.appendTOC(entriesByCategory.get(category).getKeyList(), 4);
-			builder.appendHorizontalSpacer();
+			builder.appendSectionHeader(category, 2)
+				.appendTOC(entriesByCategory.get(category).getKeyList(), 4).appendHorizontalSpacer();
 		}
 		for (String category : allCategories) {
 			RecordCategoryMap categoryMap = entriesByCategory.get(category);
 			for (String entryKey : categoryMap.getKeyList()) {
 				RecordEntry entry = categoryMap.getEntry(entryKey);
-				builder.appendSectionHeader(entryKey, 3);
-				builder.appendEntryComparison(entry);
-				builder.appendLinkToTOC(category);
+				builder.appendSectionHeader(entryKey, 3)
+				.appendEntryComparison(entry)
+				.appendLinkToTOC(category).appendHorizontalSpacer();
 			}
-			builder.appendHorizontalSpacer();
 		}
-		builder.appendLiteral("</body></html>\n");
-		builder.write();
+		builder.appendLiteral("</body></html>\n").write();
 		
 		return true;
 	}
