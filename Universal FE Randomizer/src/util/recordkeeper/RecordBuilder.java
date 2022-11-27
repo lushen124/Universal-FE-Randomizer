@@ -16,15 +16,16 @@ public class RecordBuilder {
         this.outputPath = path;
     }
 
-    public void appendBasicTable(Set<Map.Entry<String, String>> entrySet) {
+    public RecordBuilder appendBasicTable(Set<Map.Entry<String, String>> entrySet) {
         output.append("<table>\n");
         entrySet.forEach(e -> {
             output.append("<tr><td>").append(e.getKey()).append("</td><td>").append(e.getValue()).append("</td></tr>\n");
         });
         output.append("</table>\n");
+        return this;
     }
 
-    public void appendTOC(List<String> entries, int columns) {
+    public RecordBuilder appendTOC(List<String> entries, int columns) {
         output.append("<table>\n");
         int currentColumn = 0;
         for (String entry : entries) {
@@ -39,13 +40,15 @@ public class RecordBuilder {
             }
         }
         output.append("</table>\n");
+        return this;
     }
 
-    public void appendLinkToTOC(String category) {
+    public RecordBuilder appendLinkToTOC(String category) {
         output.append(String.format("<a href=\"#%s\">Back to %s</a>\n", keyFromString(category), category));
+        return this;
     }
 
-    public void appendEntryComparison(RecordEntry recordCategory) {
+    public RecordBuilder appendEntryComparison(RecordEntry recordCategory) {
         output.append("<table>\n");
         for (String key : recordCategory.getInfoKeys()) {
             RecordInformation entry = recordCategory.getInfo(key);
@@ -58,36 +61,42 @@ public class RecordBuilder {
                     .append("</tr>");
         }
         output.append("</table>\n");
+        return this;
     }
 
-    public void appendHorizontalSpacer() {
+    public RecordBuilder appendHorizontalSpacer() {
         output.append("<br><hr><br>\n");
+        return this;
     }
 
-    public void appendUnorderedList(List<String> values) {
+    public RecordBuilder appendUnorderedList(List<String> values) {
         output.append("<ul>");
         values.forEach(v -> output.append("<li>").append(v).append("</li>\n"));
         output.append("</ul>");
+        return this;
     }
 
-    public void appendLiteral(String literal) {
+    public RecordBuilder appendLiteral(String literal) {
         output.append(literal);
+        return this;
     }
 
-    public void appendSectionHeader(String title, int size) {
+    public RecordBuilder appendSectionHeader(String title, int size) {
         assert (size > 0 && size < 7);
         String startTag = String.format("<h%d ", size);
         String endTag = String.format("<h%d/>", size);
         output.append(startTag).append("id=\"").append(keyFromString(title)).append("\">").append(title).append(endTag).append("<br>\n");
+        return this;
     }
 
-    public void buildHeader(String title) {
+    public RecordBuilder buildHeader(String title) {
         output.append("<html><meta http-equiv=\"Content-Type\" content = \"text/html; charset=utf-8\" /><head><style>\n")
                 .append("table, th, td {\n\tborder: 1px solid black;\n}\n")
                 .append(".notes {\n\twidth: 66%;\n\tmargin: auto;\n}\n")
                 .append("</style></head><body>\n")
                 .append("<center><h1><p>Changelog for ").append(title).append("</p></h1><br>\n")
                 .append("<hr>\n");
+        return this;
     }
 
     public void write() {
