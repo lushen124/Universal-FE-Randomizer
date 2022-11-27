@@ -82,12 +82,12 @@ import util.WhyDoesJavaNotHaveThese;
 import util.OptionRecorder.FE4OptionBundle;
 import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
-import util.recordkeeper.ChangelogBuilder;
-import util.recordkeeper.ChangelogHeader;
-import util.recordkeeper.ChangelogHeader.HeaderLevel;
-import util.recordkeeper.ChangelogSection;
-import util.recordkeeper.ChangelogTable;
 import util.recordkeeper.RecordKeeper;
+import util.recordkeeper.fe9.ChangelogBuilder;
+import util.recordkeeper.fe9.ChangelogHeader;
+import util.recordkeeper.fe9.ChangelogSection;
+import util.recordkeeper.fe9.ChangelogTable;
+import util.recordkeeper.fe9.ChangelogHeader.HeaderLevel;
 
 public class MainView implements FileFlowDelegate {
 	

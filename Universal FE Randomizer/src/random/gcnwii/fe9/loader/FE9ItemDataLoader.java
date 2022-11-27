@@ -28,13 +28,13 @@ import ui.model.MinMaxOption;
 import util.DebugPrinter;
 import util.Diff;
 import util.WhyDoesJavaNotHaveThese;
-import util.recordkeeper.ChangelogBuilder;
-import util.recordkeeper.ChangelogHeader;
-import util.recordkeeper.ChangelogSection;
-import util.recordkeeper.ChangelogStyleRule;
-import util.recordkeeper.ChangelogTOC;
-import util.recordkeeper.ChangelogTable;
-import util.recordkeeper.ChangelogHeader.HeaderLevel;
+import util.recordkeeper.fe9.ChangelogBuilder;
+import util.recordkeeper.fe9.ChangelogHeader;
+import util.recordkeeper.fe9.ChangelogSection;
+import util.recordkeeper.fe9.ChangelogStyleRule;
+import util.recordkeeper.fe9.ChangelogTOC;
+import util.recordkeeper.fe9.ChangelogTable;
+import util.recordkeeper.fe9.ChangelogHeader.HeaderLevel;
 
 public class FE9ItemDataLoader {
 	

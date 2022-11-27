@@ -50,15 +50,15 @@ import ui.model.WeaponOptions;
 import util.DebugPrinter;
 import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
-import util.recordkeeper.ChangelogAsset;
-import util.recordkeeper.ChangelogBuilder;
-import util.recordkeeper.ChangelogDivider;
-import util.recordkeeper.ChangelogHeader;
-import util.recordkeeper.ChangelogSection;
-import util.recordkeeper.ChangelogStyleRule;
-import util.recordkeeper.ChangelogTOC;
-import util.recordkeeper.ChangelogTable;
-import util.recordkeeper.ChangelogHeader.HeaderLevel;
+import util.recordkeeper.fe9.ChangelogAsset;
+import util.recordkeeper.fe9.ChangelogBuilder;
+import util.recordkeeper.fe9.ChangelogDivider;
+import util.recordkeeper.fe9.ChangelogHeader;
+import util.recordkeeper.fe9.ChangelogSection;
+import util.recordkeeper.fe9.ChangelogStyleRule;
+import util.recordkeeper.fe9.ChangelogTOC;
+import util.recordkeeper.fe9.ChangelogTable;
+import util.recordkeeper.fe9.ChangelogHeader.HeaderLevel;
 
 public class FE9Randomizer extends Randomizer {
 	private String sourcePath;
