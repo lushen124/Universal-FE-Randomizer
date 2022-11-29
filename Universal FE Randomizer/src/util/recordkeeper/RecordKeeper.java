@@ -139,10 +139,12 @@ public class RecordKeeper {
 		RecordBuilder builder = new RecordBuilder(outputPath);
 		builder.buildHeader(header.title)
 			.appendBasicTable(header.randomizationOptions.entrySet()).appendHorizontalSpacer()
-			.appendLiteral("<h2>Notes</h2><br>\n</center>\n")
-			.appendLiteral("<div class=\"notes\"><ul>")
+			.appendSectionHeader("Notes", 2)
+		    .appendLiteral("</center>\n")
+			.appendLiteral("<div class=\"notes\">")
 			.appendUnorderedList(notes)
-			.appendLiteral("</ul></div>\n<center>\n<br><hr><br>\n").appendHorizontalSpacer();
+			.appendLiteral("</div>\n")
+			.appendLiteral("<center>\n").appendHorizontalSpacer();
 		for (String category : allCategories) {
 			builder.appendSectionHeader(category, 2)
 				.appendTOC(entriesByCategory.get(category).getKeyList(), 4).appendHorizontalSpacer();
