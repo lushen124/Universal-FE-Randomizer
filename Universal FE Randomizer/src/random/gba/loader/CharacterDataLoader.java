@@ -250,16 +250,16 @@ public class CharacterDataLoader {
 
 	public void recordCharacters(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
 		for (GBAFECharacterData character : playableCharacters()) {
-			recordCharacter(rk, character, isInitial, classData, itemData, textData, RecordKeeperCategoryKey, false);
+			recordCharacter(rk, character, isInitial, classData, itemData, textData, RecordKeeperCategoryKey);
 		}
 		rk.registerCategory(RecordKeeperCategoryKeyBosses);
 		for (GBAFECharacterData boss : bossCharacters()) {
-			recordCharacter(rk, boss, isInitial, classData, itemData, textData, RecordKeeperCategoryKeyBosses,true);
+			recordCharacter(rk, boss, isInitial, classData, itemData, textData, RecordKeeperCategoryKeyBosses);
 		}
 		rk.sortKeysInCategory(RecordKeeperCategoryKeyBosses);
 	}
 
-	private void recordCharacter(RecordKeeper rk, GBAFECharacterData character, Boolean isInitial, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, String category, boolean enemy) {
+	private void recordCharacter(RecordKeeper rk, GBAFECharacterData character, Boolean isInitial, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, String category) {
 		int nameIndex = character.getNameIndex();
 		int classID = character.getClassID();
 		GBAFEClassData charClass = classData.classForID(classID);
