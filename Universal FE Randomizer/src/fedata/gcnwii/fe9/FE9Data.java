@@ -322,6 +322,10 @@ public class FE9Data {
 				TITANIA_PALADIN, PEGASUS_KNIGHT, FALCON_KNIGHT, ELINCIA_FALCON_KNIGHT, WYVERN_RIDER_F, WYVERN_LORD_F, FIRE_MAGE_F, WIND_MAGE_F, THUNDER_MAGE_F, 
 				MAGE_F, FIRE_SAGE_F, WIND_SAGE_F, THUNDER_SAGE_F, SAGE_F, BISHOP_F, CLERIC, VALKYRIE, ASSASSIN_F, SAGE_STAFF, SAGE_KNIFE, SAGE_STAFF_F, 
 				SAGE_KNIFE_F));
+		public static Set<CharacterClass> allHorseClasses = new HashSet<CharacterClass>(Arrays.asList(SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT,
+				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F, BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, 
+				TITANIA_PALADIN));
+		
 		public static Set<CharacterClass> allLaguzClasses = new HashSet<CharacterClass>(Arrays.asList(LION, TIGER, CAT, BLACK_DRAGON, WHITE_DRAGON, RED_DRAGON,
 				HAWK, CROW, HERON, W_HERON, FERAL_LION, FERAL_TIGER, FERAL_CAT, FERAL_BLACK_DRAGON, FERAL_WHITE_DRAGON,
 				FERAL_RED_DRAGON, FERAL_HAWK, FERAL_CROW, FERAL_HERON, FERAL_W_HERON, TIBARN_HAWK, EVENT_TIBARN, 
@@ -402,6 +406,7 @@ public class FE9Data {
 		public boolean isPromotedClass() { return allPromotedClasses.contains(this); }
 		
 		public boolean isFemale() { return allFemaleClasses.contains(this); }
+		public boolean isMounted() {return allHorseClasses.contains(this); }//Valkyrie excepted; his is more a "isCavalier" bool
 		public boolean isFlier() { return allFlyingClasses.contains(this); }
 		
 		public boolean isPacifist() { return allPacifistClasses.contains(this); }
@@ -1445,6 +1450,7 @@ public class FE9Data {
 		public boolean hasWaterSpawningBandits() {
 			switch (this) {
 			case CHAPTER_9: // Bandits spawn over water here.
+			case CHAPTER_14: // A bandit spawns over water here.
 			case CHAPTER_24: // Bandits and berserkers over water here.
 				return true; 
 			default: return false;
