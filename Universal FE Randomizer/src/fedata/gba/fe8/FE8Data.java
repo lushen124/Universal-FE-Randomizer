@@ -29,10 +29,12 @@ import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader.AdditionalData;
+import random.gba.randomizer.shuffling.GBAFEPortraitProvider;
+import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
+public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEPortraitProvider {
 	public static final String FriendlyName = "Fire Emblem: The Sacred Stones";
 	public static final String GameCode = "BE8E";
 
@@ -131,6 +133,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	public static final GBAFEPortraitProvider portraitProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -3848,4 +3851,49 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public GBAFESpellAnimationCollection spellAnimationCollectionAtAddress(byte[] data, long offset) {
 		return new FE8SpellAnimationCollection(data, offset);
 	}
+
+	@Override
+	public long portraitDataTablePointer() {
+		return 0x8ACBC4;
+	}
+
+	@Override
+	public int numberOfPortraits() {
+		return 171;
+	}
+
+	@Override
+	public int bytesPerPortraitEntry() {
+		return 28;
+	}
+	
+	@Override
+	public GBAFEPortraitData portraitDataWithData(byte[] data, long offset, int faceId) {
+		return new GBAFEPortraitData(data, offset, faceId, true);
+	}
+	
+	public static Map<Integer, List<Integer>> faceIdRelationMap = createFaceIdRelationMap();
+	private static Map<Integer, List<Integer>> createFaceIdRelationMap(){
+		Map<Integer, List<Integer>> relationMap = new HashMap<>();
+		relationMap.put(0x2, Arrays.asList(0x3, 0x2D)); // Eirika
+		relationMap.put(0xA, Arrays.asList(0xB)); // Neimi
+		relationMap.put(0xC, Arrays.asList(0xD)); // Colm
+		relationMap.put(0x11, Arrays.asList(0x12)); // Natasha
+		relationMap.put(0x14, Arrays.asList(0x15, 0x2E)); // Ephraim
+		relationMap.put(0x16, Arrays.asList(0x17)); // Forde
+		relationMap.put(0x1C, Arrays.asList(0x1D)); // Tethys
+		relationMap.put(0x1E, Arrays.asList(0x1F)); // Marisa
+		relationMap.put(0x26, Arrays.asList(0x27, 0x28)); // Myrrh
+		relationMap.put(0x29, Arrays.asList(0x2F)); // Knoll
+		relationMap.put(0x44, Arrays.asList(0x45)); // Orson
+		relationMap.put(0x46, Arrays.asList(0x47, 0x4A, 0x50)); // Lyon
+		relationMap.put(0x56, Arrays.asList(0x57)); // Ismaire
+		return relationMap;
+	}
+
+	@Override
+	public List<Integer> getRelatedPortraits(Integer faceId) {
+		return faceIdRelationMap.get(faceId);
+	}
+
 }

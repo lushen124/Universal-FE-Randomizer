@@ -28,10 +28,12 @@ import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader.AdditionalData;
+import random.gba.randomizer.shuffling.GBAFEPortraitProvider;
+import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
+public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEPortraitProvider {
 
 	public static final String FriendlyName = "Fire Emblem: Blazing Sword";
 	public static final String GameCode = "AE7E";
@@ -154,6 +156,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	public static final GBAFEPortraitProvider portraitProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -3523,6 +3526,44 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public GBAFESpellAnimationCollection spellAnimationCollectionAtAddress(byte[] data, long offset) {
 		return new FE7SpellAnimationCollection(data, offset);
+	}
+
+	@Override
+	public long portraitDataTablePointer() {
+		return 0xC96584;
+	}
+
+	@Override
+	public int numberOfPortraits() {
+		return 229;
+	}
+
+	@Override
+	public int bytesPerPortraitEntry() {
+		return 28;
+	}
+
+	@Override
+	public GBAFEPortraitData portraitDataWithData(byte[] data, long offset, int faceId) {
+		return new GBAFEPortraitData(data, offset, faceId, true);
+	}
+	
+	public static Map<Integer, List<Integer>> faceIdRelationMap = createFaceIdRelationMap();
+	private static Map<Integer, List<Integer>> createFaceIdRelationMap(){
+		Map<Integer, List<Integer>> relationMap = new HashMap<>();
+		relationMap.put(0x2, Arrays.asList(0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB)); // Eliwood
+		relationMap.put(0xC, Arrays.asList(0xD, 0xE, 0xF, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15)); // Hector
+		relationMap.put(0x16, Arrays.asList(0x17, 0x18, 0x19, 0x1A)); // Lyn
+		relationMap.put(0x1C, Arrays.asList(0x1D, 0x1E)); // Ninian
+		relationMap.put(0x21, Arrays.asList(0x22)); // Jaffar
+		relationMap.put(0x33, Arrays.asList(0x34)); // Florina
+		relationMap.put(0x41, Arrays.asList(0x42, 0x43, 0x44)); // Nils
+		return relationMap;
+	}
+
+	@Override
+	public List<Integer> getRelatedPortraits(Integer faceId) {
+		return faceIdRelationMap.get(faceId);
 	}
 	
 }

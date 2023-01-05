@@ -61,7 +61,7 @@ public class FileReadHelper {
 		}
 	}
 	
-	private static long wordValue(byte[] word, Boolean isPointer) {
+	public static long wordValue(byte[] word, Boolean isPointer) {
 		long result = 0;
 		result |= (word[0] & 0xFF);
 		result |= ((word[1] << 8) & 0xFF00);

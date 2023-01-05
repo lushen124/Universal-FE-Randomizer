@@ -29,10 +29,13 @@ import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader.AdditionalData;
+import random.gba.randomizer.shuffling.GBAFEPortraitProvider;
+import random.gba.randomizer.shuffling.data.FE6PortraitData;
+import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
+public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEPortraitProvider {
 	public static final String FriendlyName = "ファイアーエムブレム　封印の剣";
 	public static final String GameCode = "AFEJ";
 
@@ -103,6 +106,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	public static final GBAFEPortraitProvider portraitProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -2896,5 +2900,38 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public GBAFESpellAnimationCollection spellAnimationCollectionAtAddress(byte[] data, long offset) {
 		return new FE6SpellAnimationCollection(data, offset);
+	}
+
+	@Override
+	public long portraitDataTablePointer() {
+		return 0x66076C;
+	}
+
+	@Override
+	public int numberOfPortraits() {
+		return 231 - 2;
+	}
+
+	@Override
+	public int bytesPerPortraitEntry() {
+		return 16;
+	}
+
+	@Override
+	public GBAFEPortraitData portraitDataWithData(byte[] data, long offset, int faceId) {
+		return new FE6PortraitData(data, offset, faceId, false);
+	}
+	
+	
+	public static Map<Integer, List<Integer>> faceIdRelationMap = createFaceIdRelationMap();
+	private static Map<Integer, List<Integer>> createFaceIdRelationMap(){
+		Map<Integer, List<Integer>> relationMap = new HashMap<>();
+		// FE6 doesn't have any
+		return relationMap;
+	}
+
+	@Override
+	public List<Integer> getRelatedPortraits(Integer faceId) {
+		return faceIdRelationMap.get(faceId);
 	}
 }
