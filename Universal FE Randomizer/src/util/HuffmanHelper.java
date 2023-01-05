@@ -1,6 +1,5 @@
 package util;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,9 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import fedata.general.FEBase;
-import fedata.general.FEBase.GameType;
 import io.FileHandler;
-import random.gba.loader.TextLoader;
 
 public class HuffmanHelper {
 	
@@ -783,7 +780,7 @@ public class HuffmanHelper {
 			
 			Integer encoderIndex = null;
 			
-			if (character == '\n') {
+			/*if (character == '\n') {
 				encoderIndex = 1;
 				if (i + 1 < string.length() && string.charAt(i + 1) == '\n') {
 					encoderIndex = 2;
@@ -808,7 +805,7 @@ public class HuffmanHelper {
 			if (encoderIndex != null) {
 				byteList.add((byte)(encoderIndex & 0xFF));
 				continue;
-			}
+			}*/
 			
 			// Read the next character literally.
 			if (character == '\\') {
@@ -837,7 +834,6 @@ public class HuffmanHelper {
 				i = j;
 				String controlCode = sb.toString();
 				if (controlCode.equals("X")) { encoderIndex = 0; } 
-				else if (controlCode.equals("\n")) {encoderIndex = 1;}
 				else if (controlCode.equals("A")) { encoderIndex = 3; } 
 				else if (controlCode.equals("....")) { encoderIndex = 4; } 
 				else if (controlCode.equals(".....")) { encoderIndex = 5; } 
@@ -853,7 +849,6 @@ public class HuffmanHelper {
 				else if (controlCode.equals("OpenFarFarRight")) { encoderIndex = 0xF; }
 				else if (controlCode.equals("LoadFace")) { encoderIndex = 0x10; }
 				else if (controlCode.equals("ClearFace")) { encoderIndex = 0x11; }
-				else if (controlCode.equals("[.]")) {encoderIndex = 0x1F;}
 				else if (controlCode.startsWith("0x")) {
 					String hexString = controlCode.substring(2);
 					encoderIndex = Integer.parseUnsignedInt(hexString, 16);
@@ -889,7 +884,6 @@ public class HuffmanHelper {
 		
 		return WhyDoesJavaNotHaveThese.byteArrayFromByteList(encoded);
 	}
-	
 	
 	private char fe6CharacterFrom83Byte(byte charByte) {
 		switch (charByte) {
