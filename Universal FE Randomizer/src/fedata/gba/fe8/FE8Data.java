@@ -29,12 +29,12 @@ import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader.AdditionalData;
-import random.gba.randomizer.shuffling.GBAFEPortraitProvider;
+import random.gba.randomizer.shuffling.GBAFEShufflingDataProvider;
 import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEPortraitProvider {
+public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider {
 	public static final String FriendlyName = "Fire Emblem: The Sacred Stones";
 	public static final String GameCode = "BE8E";
 
@@ -133,7 +133,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
-	public static final GBAFEPortraitProvider portraitProvider = sharedInstance;
+	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -3853,7 +3853,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 
 	@Override
-	public long portraitDataTablePointer() {
+	public long portraitDataTableAddress() {
 		return 0x8ACBC4;
 	}
 
@@ -3893,7 +3893,12 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	@Override
 	public List<Integer> getRelatedPortraits(Integer faceId) {
-		return faceIdRelationMap.get(faceId);
+		List<Integer> result = faceIdRelationMap.get(faceId);
+		return result == null ? new ArrayList<>() : new ArrayList<>(result);	
 	}
-
+	
+	@Override
+	public List<Integer> getRelatedNames(Integer nameIndex) {
+		return new ArrayList<>();
+	}
 }

@@ -17,7 +17,7 @@ import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
-import fedata.gba.GBAFEStatDAO;
+import fedata.gba.GBAFEStatDto;
 import fedata.gba.GBAFEWorldMapData;
 import fedata.gba.GBAFEWorldMapPortraitData;
 import fedata.gba.general.WeaponRank;
@@ -28,8 +28,8 @@ import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
-import random.gba.randomizer.service.ClassAdjustmentDAO;
-import random.gba.randomizer.service.GBAClassAdjustmentService;
+import random.gba.randomizer.service.ClassAdjustmentDto;
+import random.gba.randomizer.service.GBASlotAdjustmentService;
 import random.gba.randomizer.service.ItemAssignmentService;
 import random.general.RelativeValueMapper;
 import ui.model.ItemAssignmentOptions;
@@ -474,18 +474,18 @@ public class RecruitmentRandomizer {
 			
 			DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "Slot level: " + Integer.toString(targetLevel) + "\tFill Level: " + Integer.toString(sourceLevel));
 			
-			List<GBAFEStatDAO> promoBonuses = new ArrayList<>();
+			List<GBAFEStatDto> promoBonuses = new ArrayList<>();
 
 			
 			
-			ClassAdjustmentDAO adjustmentDAO = GBAClassAdjustmentService.handleClassAdjustment(targetLevel, sourceLevel, shouldBePromoted, isPromoted, rng, classData, targetClass, fillSourceClass, fill, slotSourceClass, options, textData);
+			ClassAdjustmentDto adjustmentDAO = GBASlotAdjustmentService.handleClassAdjustment(targetLevel, sourceLevel, shouldBePromoted, isPromoted, rng, classData, targetClass, fillSourceClass, fill, slotSourceClass, options, textData, DebugPrinter.Key.GBA_RANDOM_RECRUITMENT);
 			targetClass = adjustmentDAO.targetClass;
 			int levelsToAdd = adjustmentDAO.levelAdjustment;
 			promoBonuses =  adjustmentDAO.promoBonuses;
 			
 			setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
 			
-			GBAFEStatDAO targetGrowths;
+			GBAFEStatDto targetGrowths;
 			switch(options.growthMode) {
 				case USE_SLOT:
 					targetGrowths = fill.getGrowths();
@@ -493,7 +493,7 @@ public class RecruitmentRandomizer {
 				case RELATIVE_TO_SLOT:
 					List<Integer> mappedStats = RelativeValueMapper.mappedValues(Arrays.asList(slot.getHPGrowth(), slot.getSTRGrowth(), slot.getSKLGrowth(), slot.getSPDGrowth(), slot.getDEFGrowth(), slot.getRESGrowth(), slot.getLCKGrowth()), 
 							Arrays.asList(fill.getHPGrowth(), fill.getSTRGrowth(), fill.getSKLGrowth(), fill.getSPDGrowth(), fill.getDEFGrowth(), fill.getRESGrowth(), fill.getLCKGrowth()));
-					targetGrowths = new GBAFEStatDAO(mappedStats.get(0), mappedStats.get(1), mappedStats.get(2), mappedStats.get(3), mappedStats.get(4), mappedStats.get(5), mappedStats.get(6));
+					targetGrowths = new GBAFEStatDto(mappedStats.get(0), mappedStats.get(1), mappedStats.get(2), mappedStats.get(3), mappedStats.get(4), mappedStats.get(5), mappedStats.get(6));
 					break;
 				case USE_FILL:
 				default:
@@ -501,31 +501,29 @@ public class RecruitmentRandomizer {
 			
 			}
 			
-			GBAFEStatDAO newStats = new GBAFEStatDAO();
+			GBAFEStatDto newStats = new GBAFEStatDto();
 			
 			if (options.baseMode == StatAdjustmentMode.AUTOLEVEL) {
-				GBAFEStatDAO growthsToUse = options.autolevelMode == BaseStatAutolevelType.USE_NEW ? targetGrowths : fill.getGrowths();
+				GBAFEStatDto growthsToUse = options.autolevelMode == BaseStatAutolevelType.USE_NEW ? targetGrowths : fill.getGrowths();
 				boolean promotionRequired = shouldBePromoted && !isPromoted;
 				boolean demotionRequired = !shouldBePromoted && isPromoted;
 				
 				// Calculate the auto leveled personal bases
-				newStats = GBAClassAdjustmentService.autolevel(fill.getBases().add(fillSourceClass.getBases()), growthsToUse, 
-						promoBonuses, promotionRequired, demotionRequired, levelsToAdd)
-						// Clamp to prevent over or underflow
-						.clamp(GBAFEStatDAO.MINIMUM_STATS, targetClass.getCaps())
-						// subtract target class bases to get the personal bases
-						.subtract(targetClass.getBases());
-				
+				newStats = GBASlotAdjustmentService.autolevel(fill.getBases().add(fillSourceClass.getBases()), growthsToUse, 
+						promoBonuses, promotionRequired, demotionRequired, levelsToAdd, targetClass, DebugPrinter.Key.GBA_RANDOM_RECRUITMENT)				
+						.subtract(targetClass.getBases()); // subtract target class bases to get the personal bases
 				
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== New Bases ==");
 				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, newStats.toString());
 			} else if (options.baseMode == StatAdjustmentMode.MATCH_SLOT) {
-				newStats.add(linkedSlot.getBases()).add(slotSourceClass.getBases()).subtract(targetClass.getBases());
+				newStats.add(linkedSlot.getBases()) // Add the original Bases of the slot
+					    .add(targetClass.getBases()) // Add the stats from the new class
+					    .subtract(slotSourceClass.getBases()); // remove the stats from the original class
 			} else if (options.baseMode == StatAdjustmentMode.RELATIVE_TO_SLOT) {
-				newStats = new GBAFEStatDAO();
+				newStats = new GBAFEStatDto();
 				newStats.hp = linkedSlot.getBaseHP() + slotSourceClass.getBaseHP() - targetClass.getBaseHP(); // Keep HP the same logic as above.
-				GBAFEStatDAO slotStats = linkedSlot.getBases().add(slotSourceClass.getBases());
-				GBAFEStatDAO fillStats = fill.getBases().add(fillSourceClass.getBases());
+				GBAFEStatDto slotStats = linkedSlot.getBases().add(slotSourceClass.getBases());
+				GBAFEStatDto fillStats = fill.getBases().add(fillSourceClass.getBases());
 
 				// Set HP to an absurdly high value so that the HP values will be mapped to one another and we can ignore them
 				slotStats.hp = Integer.MAX_VALUE; 

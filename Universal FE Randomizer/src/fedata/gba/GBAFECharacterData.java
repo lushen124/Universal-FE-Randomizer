@@ -201,7 +201,7 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		wasModified = true;
 	}
 	
-	public void setGrowths(GBAFEStatDAO newGrowths) {
+	public void setGrowths(GBAFEStatDto newGrowths) {
 		setHPGrowth(newGrowths.hp);
 		setSTRGrowth(newGrowths.str);
 		setSKLGrowth(newGrowths.skl);
@@ -211,8 +211,8 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		setLCKGrowth(newGrowths.lck);
 	}
 	
-	public GBAFEStatDAO getGrowths() {
-		return new GBAFEStatDAO(getHPGrowth(), getSTRGrowth(), getSKLGrowth(), getSPDGrowth(), getDEFGrowth(), getRESGrowth(), getLCKGrowth());
+	public GBAFEStatDto getGrowths() {
+		return new GBAFEStatDto(getHPGrowth(), getSTRGrowth(), getSKLGrowth(), getSPDGrowth(), getDEFGrowth(), getRESGrowth(), getLCKGrowth());
 	}
 	
 
@@ -321,7 +321,7 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		wasModified = true;
 	}
 	
-	public void setBases(GBAFEStatDAO newBases) {
+	public void setBases(GBAFEStatDto newBases) {
 		setBaseHP(newBases.hp);
 		setBaseSTR(newBases.str);
 		setBaseSKL(newBases.skl);
@@ -331,8 +331,8 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		setBaseLCK(newBases.lck);
 	}
 	
-	public GBAFEStatDAO getBases() {
-		return new GBAFEStatDAO(getBaseHP(), getBaseSTR(), getBaseSKL(), getBaseSPD(), getBaseDEF(), getBaseRES(), getBaseLCK());
+	public GBAFEStatDto getBases() {
+		return new GBAFEStatDto(getBaseHP(), getBaseSTR(), getBaseSKL(), getBaseSPD(), getBaseDEF(), getBaseRES(), getBaseLCK());
 	}
 	
 	public int getSwordRank() {

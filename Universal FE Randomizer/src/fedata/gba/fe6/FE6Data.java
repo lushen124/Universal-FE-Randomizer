@@ -29,13 +29,13 @@ import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader.AdditionalData;
-import random.gba.randomizer.shuffling.GBAFEPortraitProvider;
+import random.gba.randomizer.shuffling.GBAFEShufflingDataProvider;
 import random.gba.randomizer.shuffling.data.FE6PortraitData;
 import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEPortraitProvider {
+public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider {
 	public static final String FriendlyName = "ファイアーエムブレム　封印の剣";
 	public static final String GameCode = "AFEJ";
 
@@ -106,7 +106,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
-	public static final GBAFEPortraitProvider portraitProvider = sharedInstance;
+	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -2903,8 +2903,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 
 	@Override
-	public long portraitDataTablePointer() {
-		return 0x66076C;
+	public long portraitDataTableAddress() {
+		return 0x66074C;
 	}
 
 	@Override
@@ -2932,6 +2932,29 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	@Override
 	public List<Integer> getRelatedPortraits(Integer faceId) {
-		return faceIdRelationMap.get(faceId);
+		List<Integer> result = faceIdRelationMap.get(faceId);
+		return result == null ? new ArrayList<>() : new ArrayList<>(result);
+	}
+	
+	public static Map<Integer, List<Integer>> nameIndexRelationMap = createNameIndexRelationMap();
+	private static Map<Integer, List<Integer>> createNameIndexRelationMap(){
+		Map<Integer, List<Integer>> relationMap = new HashMap<>();
+		relationMap.put(0x7F1, Arrays.asList(0x7F2)); // Dayan
+		relationMap.put(0x7F6, Arrays.asList(0x7F7)); // Douglas
+		relationMap.put(0x7FD, Arrays.asList(0x7FE)); // Yoder
+		relationMap.put(0x813, Arrays.asList(0x814)); // Niime
+		relationMap.put(0x817, Arrays.asList(0x818)); // Juno
+		relationMap.put(0x819, Arrays.asList(0x81A, 0x81B)); // Thea
+		relationMap.put(0x823, Arrays.asList(0x824)); // Gonzalez
+		relationMap.put(0x828, Arrays.asList(0x829)); // Echidna
+		relationMap.put(0x82B, Arrays.asList(0x82C)); // Geese
+		
+		return relationMap;
+	}
+	
+	@Override
+	public List<Integer> getRelatedNames(Integer nameIndex) {
+		List<Integer> result = nameIndexRelationMap.get(nameIndex);
+		return result == null ? new ArrayList<>(): new ArrayList<>(result);
 	}
 }

@@ -101,7 +101,7 @@ public class GBAImageCodec {
 	 * Debug Statics
 	 */
 	private static int DEBUG_COUNTER = 0;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	/**
 	 * Convenience overload of

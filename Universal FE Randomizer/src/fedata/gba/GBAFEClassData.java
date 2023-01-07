@@ -133,8 +133,8 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		wasModified = true;
 	}
 	
-	public GBAFEStatDAO getGrowths() {
-		return new GBAFEStatDAO(getHPGrowth(), getSTRGrowth(), getSKLGrowth(), getSPDGrowth(), getDEFGrowth(), getRESGrowth(), getLCKGrowth());
+	public GBAFEStatDto getGrowths() {
+		return new GBAFEStatDto(getHPGrowth(), getSTRGrowth(), getSKLGrowth(), getSPDGrowth(), getDEFGrowth(), getRESGrowth(), getLCKGrowth());
 	}
 	
 	public int getBaseHP() {
@@ -196,8 +196,8 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 	}
 	
 	
-	public GBAFEStatDAO getBases() {
-		return new GBAFEStatDAO(getBaseHP(), getBaseSTR(), getBaseSKL(), getBaseSPD(), getBaseDEF(), getBaseRES(), getBaseLCK());
+	public GBAFEStatDto getBases() {
+		return new GBAFEStatDto(getBaseHP(), getBaseSTR(), getBaseSKL(), getBaseSPD(), getBaseDEF(), getBaseRES(), getBaseLCK());
 	}
 
 	public int getMaxHP() {
@@ -259,8 +259,8 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		return 30;
 	}
 	
-	public GBAFEStatDAO getCaps() {
-		return new GBAFEStatDAO(getMaxHP(), getMaxSTR(), getMaxSKL(), getMaxSPD(), getMaxDEF(), getMaxRES(), getMaxLCK());
+	public GBAFEStatDto getCaps() {
+		return new GBAFEStatDto(getMaxHP(), getMaxSTR(), getMaxSKL(), getMaxSPD(), getMaxDEF(), getMaxRES(), getMaxLCK());
 	}
 	
 	public int getPromoHP() {
@@ -291,8 +291,8 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		return data[44] & 0xFF;
 	}
 	
-	public GBAFEStatDAO getPromoBonuses() {
-		return new GBAFEStatDAO(getPromoHP(), getPromoSTR(), getPromoSKL(), getPromoSPD(), getPromoDEF(), getPromoRES(), 0);
+	public GBAFEStatDto getPromoBonuses() {
+		return new GBAFEStatDto(getPromoHP(), getPromoSTR(), getPromoSKL(), getPromoSPD(), getPromoDEF(), getPromoRES(), 0);
 	}
 
 	public void setSwordRank(WeaponRank rank) {

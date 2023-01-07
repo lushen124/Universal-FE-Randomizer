@@ -15,8 +15,11 @@ import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
 import random.gba.randomizer.ClassRandomizer;
 import ui.model.ItemAssignmentOptions;
-
+/**
+ * Service responsible for giving new usable items to a character who had their class changed
+ */
 public class ItemAssignmentService {
+	
 	public static void assignNewItems(CharacterDataLoader characterData, GBAFECharacterData slot,
 			GBAFEClassData targetClass, ChapterLoader chapterData, ItemAssignmentOptions inventoryOptions, Random rng,
 			TextLoader textData, ClassDataLoader classData, ItemDataLoader itemData) {

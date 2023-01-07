@@ -13,13 +13,14 @@ import java.util.Optional;
 
 import com.google.gson.Gson;
 
-import fedata.gba.GBAFEStatDAO;
+import fedata.gba.GBAFEStatDto;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
 import fedata.general.FEBase.GameType;
+import util.DebugPrinter;
 
 /**
  * Class that Represents the necessary data and offers useful functions for importing a character into another
@@ -33,8 +34,8 @@ public class GBACrossGameData {
 	public String description2;
 	public String characterClass;
 	public int level;
-	public GBAFEStatDAO bases;
-	public GBAFEStatDAO growths;
+	public GBAFEStatDto bases;
+	public GBAFEStatDto growths;
 	public int[] weaponRanks;
 	public int constitution;
 	public String originGame;
@@ -44,7 +45,7 @@ public class GBACrossGameData {
 	public int mouthY;
 
 	public GBACrossGameData(String name, String portraitPath, String description1, String description2,
-			String paletteString, GBAFEClass characterClass, int level, GBAFEStatDAO bases, GBAFEStatDAO growths,
+			String paletteString, GBAFEClass characterClass, int level, GBAFEStatDto bases, GBAFEStatDto growths,
 			int[] weaponRanks, int constitution, byte[] facialFeatureCoordinates) {
 		this.name = name;
 		this.portraitPath = portraitPath;
@@ -80,17 +81,17 @@ public class GBACrossGameData {
 		// If the targetGame is the same as the source game (shouldn't really happen?)
 		// then just return the class
 		if (targetData.originGame.toUpperCase().equals(targetGame.name())) {
-			System.out.println("The Charcter originates from the Target game, can just find the class by name.");
+			DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "The Charcter originates from the Target game, can just find the class by name.");
 			classOpt = getClassFromProviderByName(targetGameProvider, classToSubstitute);
 			if (classOpt.isPresent()) {
-				System.out.println("The Charcters target class was found.");
+				DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "The Charcters target class was found.");
 				return classOpt.get();
 			}
 		}
 		// Try to find the class in the targetGame by name
 		classOpt = getClassFromProviderByName(targetGameProvider, classToSubstitute);
 		if (classOpt.isPresent() && !isExceptionCase(targetGameProvider, classOpt)) {
-			System.out.println("Could find the class from a naive search of the name in the target game.");
+			DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "Could find the class from a naive search of the name in the target game.");
 			return classOpt.get();
 		}
 
@@ -175,6 +176,8 @@ public class GBACrossGameData {
 			return isFE6 ? FE6Data.CharacterClass.MANAKETE_F : FE7Data.CharacterClass.DANCER;
 		} else if (asList(FE8Data.CharacterClass.CAVALIER).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.CAVALIER : FE7Data.CharacterClass.CAVALIER;
+		} else if (asList(FE8Data.CharacterClass.GREAT_KNIGHT).contains(castedClass)) {
+			return isFE6 ? FE6Data.CharacterClass.GENERAL : FE7Data.CharacterClass.GENERAL;
 		} else if (asList(FE8Data.CharacterClass.KNIGHT).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.KNIGHT : FE7Data.CharacterClass.KNIGHT;
 		} else if (asList(FE8Data.CharacterClass.MERCENARY).contains(castedClass)) {
@@ -278,6 +281,8 @@ public class GBACrossGameData {
 			return isFE6 ? FE6Data.CharacterClass.BARD : FE8Data.CharacterClass.DANCER;
 		} else if (asList(FE7Data.CharacterClass.SWORDMASTER_F).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.SWORDMASTER_F : FE8Data.CharacterClass.SWORDMASTER_F;
+		} else if (asList(FE7Data.CharacterClass.ASSASSIN).contains(castedClass)) {
+			return isFE6 ? FE6Data.CharacterClass.SWORDMASTER : FE8Data.CharacterClass.ASSASSIN;
 		} else if (asList(FE7Data.CharacterClass.PIRATE).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.PIRATE : FE8Data.CharacterClass.PIRATE;
 		} else if (asList(FE7Data.CharacterClass.WARRIOR).contains(castedClass)) {

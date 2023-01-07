@@ -243,6 +243,7 @@ public class GBARandomizer extends Randomizer {
 		itemData.compileDiffs(diffCompiler, handler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
+		portraitData.compileDiffs(diffCompiler);
 		
 		if (gameType == GameType.FE8) {
 			fe8_paletteMapper.commitChanges(diffCompiler);
@@ -414,7 +415,7 @@ public class GBARandomizer extends Randomizer {
 
 		updateStatusString("Loading Portrait Data...");
 		updateProgress(0.07);
-		portraitData = new PortraitDataLoader(FE8Data.portraitProvider, handler);
+		portraitData = new PortraitDataLoader(FE8Data.shufflingDataProvider, handler);
 		
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
@@ -445,6 +446,9 @@ public class GBARandomizer extends Randomizer {
 	}
 	
 	public void shuffleCharactersIfNecessary(String seed) {
+		shufflingOptions = new CharacterShufflingOptions(
+				CharacterShufflingOptions.ShuffleLevelingMode.AUTOLEVEL, true, 100,
+				Arrays.asList("fe6chars.json", "fe7chars.json"));
 		if(shufflingOptions != null && shufflingOptions.isShuffleEnabled()) {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));
 			CharacterShuffler.shuffleCharacters(gameType, charData, textData, rng, handler, portraitData, freeSpace, chapterData, classData, shufflingOptions, itemAssignmentOptions, itemData);

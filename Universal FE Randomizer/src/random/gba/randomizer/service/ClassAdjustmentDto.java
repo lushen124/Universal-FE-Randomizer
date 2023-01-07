@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fedata.gba.GBAFEClassData;
-import fedata.gba.GBAFEStatDAO;
+import fedata.gba.GBAFEStatDto;
 
-public class ClassAdjustmentDAO {
+/**
+ * Dto containing info for auto leveling
+ */
+public class ClassAdjustmentDto {
 	public int levelAdjustment;
 	public GBAFEClassData targetClass;
-	public List<GBAFEStatDAO> promoBonuses = new ArrayList<>();
+	public List<GBAFEStatDto> promoBonuses = new ArrayList<>();
 }

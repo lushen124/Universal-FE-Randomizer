@@ -6,22 +6,22 @@ import java.util.List;
 import java.util.Map;
 
 import io.FileHandler;
-import random.gba.randomizer.shuffling.GBAFEPortraitProvider;
+import random.gba.randomizer.shuffling.GBAFEShufflingDataProvider;
 import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.Diff;
 import util.DiffCompiler;
 
 public class PortraitDataLoader {
-	private GBAFEPortraitProvider provider;
+	private GBAFEShufflingDataProvider provider;
 
 	/**
 	 * The Main Unit portaits
 	 */
 	private Map<Integer, GBAFEPortraitData> portraitData = new HashMap<>();
 
-	public PortraitDataLoader(GBAFEPortraitProvider provider, FileHandler handler) {
+	public PortraitDataLoader(GBAFEShufflingDataProvider provider, FileHandler handler) {
 		this.provider = provider;
-		long baseAddress = provider.portraitDataTablePointer();
+		long baseAddress = provider.portraitDataTableAddress();
 		// Skip the first two entries in the portrait table, they are junk
 		for (int i = 2; i < provider.numberOfPortraits(); i++) {
 			long offset = baseAddress + (provider.bytesPerPortraitEntry() * i);
@@ -66,6 +66,13 @@ public class PortraitDataLoader {
 	private Diff createPortraitDiff(GBAFEPortraitData portrait) {
 		return new Diff(portrait.getAddressOffset(), portrait.getData().length, portrait.getData(), null);
 	}
+	
+	/**
+	 * Doesn't really belong here, but it's the most convienent place to have it..
+	 */
+	public List<Integer> getRelatedNameIndicies(int nameIndex){
+		return provider.getRelatedNames(nameIndex);
+	}
 
 	/**
 	 * Some characters have multiple different Portraits, usually this is because in
@@ -73,11 +80,12 @@ public class PortraitDataLoader {
 	 * should ensure that these are all changed.
 	 * 
 	 * FE7 has a lot of different variations for the lords... I'm not about to make
-	 * that kinda variation for every character in the games, so just override it...
+	 * that kinda variation for every character in the games, so just override it 
+	 * with the default Portrait of the character being randomized in that slot...
 	 * 
 	 * Similarly for FE8, Lyon, Eirika, and Ephraim have flashback variations,
 	 * unless there is a smart way to convert the pallet to the muted variant, it
-	 * makes more sense to just override them
+	 * makes more sense to just override them (though it will still look silly)
 	 */
 	private List<Integer> synchronizeRelatedPortraits(Integer faceId, GBAFEPortraitData mainPortraitData,
 			DiffCompiler compiler) {
