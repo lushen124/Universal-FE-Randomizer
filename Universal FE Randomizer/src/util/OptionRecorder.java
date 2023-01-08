@@ -13,6 +13,7 @@ import ui.fe4.SkillsOptions;
 import ui.fe9.FE9ClassOptions;
 import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
+import ui.model.CharacterShufflingOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
 import ui.model.FE9EnemyBuffOptions;
@@ -47,6 +48,7 @@ public class OptionRecorder {
 		public MiscellaneousOptions otherOptions;
 		public RecruitmentOptions recruitmentOptions;
 		public ItemAssignmentOptions itemAssignmentOptions;
+		public CharacterShufflingOptions characterShufflingOptions;
 		public String seed;
 		public Integer version;
 	}
@@ -269,7 +271,7 @@ public class OptionRecorder {
 	}
 	
 	public static void recordGBAFEOptions(FEBase.GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, String seed) {
+			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, String seed) {
 		GBAOptionBundle bundle = new GBAOptionBundle();
 		bundle.growths = growths;
 		bundle.bases = bases;
@@ -282,6 +284,7 @@ public class OptionRecorder {
 		bundle.itemAssignmentOptions = itemAssignment;
 		bundle.seed = seed;
 		bundle.version = GBAOptionBundleVersion;
+		bundle.characterShufflingOptions = shufflingOptions;
 		
 		switch (gameType) {
 		case FE6:

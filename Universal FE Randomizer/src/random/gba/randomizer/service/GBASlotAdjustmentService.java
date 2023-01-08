@@ -112,7 +112,7 @@ public class GBASlotAdjustmentService {
 		dto.targetClass = targetClass;
 		
 		DebugPrinter.log(key, String.format("Finished Adjusting class for character %s, fill sourceClass %s, slot source class %s, new class %s, should receive %d auto levels, and Promotion bonuses: %s",
-				fill.displayString(), fillSourceClass.displayString(), slotSourceClass.displayString(), dto.targetClass, dto.levelAdjustment, dto.promoBonuses));
+				fill.displayString(), fillSourceClass.displayString(), slotSourceClass.displayString(), dto.targetClass.displayString(), dto.levelAdjustment, dto.promoBonuses));
 		return dto;
 	}
 	

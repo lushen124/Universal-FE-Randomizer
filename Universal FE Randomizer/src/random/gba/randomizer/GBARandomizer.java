@@ -120,7 +120,7 @@ public class GBARandomizer extends Randomizer {
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed) {
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -137,6 +137,7 @@ public class GBARandomizer extends Randomizer {
 		miscOptions = otherOptions;
 		recruitOptions = recruit;
 		itemAssignmentOptions = itemAssign;
+		this.shufflingOptions = shufflingOptions;
 		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE, false, false); }
 		
 		this.gameType = gameType;
@@ -217,7 +218,8 @@ public class GBARandomizer extends Randomizer {
 		makePreliminaryAdjustments();
 		
 		updateStatusString("Randomizing...");
-		try { shuffleCharactersIfNecessary(seed);} catch(Exception e) {notifyError("lol XD");}
+		try { shuffleCharactersIfNecessary(seed);} catch(Exception e) {notifyError("Encountered error while shuffling in Characters.\n\n" + e.getClass().getSimpleName() + "\n\nStackTrace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.40);
 		try { randomizeRecruitmentIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing recruitment.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.45);
 		try { randomizeClassesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing classes.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; } 
@@ -346,7 +348,10 @@ public class GBARandomizer extends Randomizer {
 		updateProgress(0.05);
 		textData = new TextLoader(FEBase.GameType.FE7, handler);
 		textData.allowTextChanges = true;
-		
+
+		updateStatusString("Loading Portrait Data...");
+		updateProgress(0.07);
+		portraitData = new PortraitDataLoader(FE7Data.shufflingDataProvider, handler);
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE7Data.characterProvider, handler);
@@ -378,7 +383,10 @@ public class GBARandomizer extends Randomizer {
 		if (miscOptions.applyEnglishPatch) {
 			textData.allowTextChanges = true;
 		}
-		
+
+		updateStatusString("Loading Portrait Data...");
+		updateProgress(0.07);
+		portraitData = new PortraitDataLoader(FE6Data.shufflingDataProvider, handler);
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE6Data.characterProvider, handler);
@@ -446,9 +454,6 @@ public class GBARandomizer extends Randomizer {
 	}
 	
 	public void shuffleCharactersIfNecessary(String seed) {
-		shufflingOptions = new CharacterShufflingOptions(
-				CharacterShufflingOptions.ShuffleLevelingMode.AUTOLEVEL, true, 100,
-				Arrays.asList("fe6chars.json", "fe7chars.json"));
 		if(shufflingOptions != null && shufflingOptions.isShuffleEnabled()) {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));
 			CharacterShuffler.shuffleCharacters(gameType, charData, textData, rng, handler, portraitData, freeSpace, chapterData, classData, shufflingOptions, itemAssignmentOptions, itemData);
@@ -766,10 +771,9 @@ public class GBARandomizer extends Randomizer {
 						new byte[] {lynReplacementAnimationID, 0, 0, 0, eliwoodReplacementAnimationID, 0, 0, 0, hectorReplacementAnimationID, 0, 0, 0}, null));
 				
 				// See if we can apply their palettes to the class default.
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace, diffCompiler);
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(hector) : hector, hector.getClassID(), paletteData, freeSpace, diffCompiler);
-				
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null && characterMap.containsKey(lyn) ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null && characterMap.containsKey(eliwood) ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null && characterMap.containsKey(hector) ? characterMap.get(hector) : hector, hector.getClassID(), paletteData, freeSpace, diffCompiler);
 				// Finally, fix the weapon text.
 				textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType() + "[X]");
 				textData.setStringAtIndex(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex, eliwoodClass.primaryWeaponType() + "[X]");

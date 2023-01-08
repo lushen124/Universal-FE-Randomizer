@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -87,14 +88,14 @@ public class GBAImageCodec {
 	}
 
 	/*
-	 * For the Portrait Section see the following link for reference:
+	 * For the Portrait Section see the following links for reference:
 	 * https://www.dropbox.com/sh/3m004vettv9g3og/AADFmL4DZVbE-nEHLS68rvF1a/
 	 * Nintenlord/Hacking/PortraitInserter/Portraits?dl=0&preview=PortraitFormat.cs&
 	 * subfolder_nav_tracking=1
 	 * https://www.dropbox.com/sh/3m004vettv9g3og/AAAVAAJR2eg_2RffuiuQDI24a/
 	 * Nintenlord/Hacking/GBA/GBA/Graphics?dl=0&preview=GBAGraphics.cs&
 	 * subfolder_nav_tracking=1
-	 *
+	 * https://github.com/FEBuilderGBA/FEBuilderGBA/blob/dc89b6e2fa777f224de4739bb61bed38b70495fa/FEBuilderGBA/ImageUtil.cs#L1648
 	 */
 
 	/**
@@ -130,7 +131,6 @@ public class GBAImageCodec {
 	public static byte[] getGBAPortraitGraphicsDataForImage(String name, PaletteColor[] palette,
 			List<PortraitChunkInfo> chunks, SIZE size, Optional<byte[]> prefix) throws IOException {
 		if (palette == null || name == null || chunks == null || chunks.isEmpty()) {
-			System.out.printf("getGBAPortraitGraphicsDataForImage:  ");
 			throw new IllegalArgumentException(
 					String.format("One of the arguments is invalid: palette %s, name %s, chunks %s, add %s, size %s",
 							palette, name, chunks, prefix, size));
@@ -138,11 +138,14 @@ public class GBAImageCodec {
 
 		InputStream stream = Main.class.getClassLoader().getResourceAsStream(name);
 
-		// Big Console output incase the image can't be found
 		if (stream == null) {
-			System.out.printf("------------------------------------------------------\n" + "Portrait missing: %s\n"
-					+ "------------------------------------------------------\n", name);
-			return null;
+			DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "Couldn't find the Image %s in the resources, trying to find it in the same folder next");
+			try {
+				stream = new FileInputStream(new File("./"+name));
+			} catch (Exception e) {
+				DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "Couldn't find the Image %s in the resources, trying to find it in the same folder next");
+				return null;
+			}
 		}
 
 		BufferedImage image = ImageIO.read(stream);

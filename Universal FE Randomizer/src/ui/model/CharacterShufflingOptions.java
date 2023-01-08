@@ -13,13 +13,15 @@ public class CharacterShufflingOptions {
 	protected final ShuffleLevelingMode levelingMode;
 	protected final boolean shuffleEnabled;
 	protected final int chance;
-	private final List<String> includedShuffles;
+	protected final List<String> includedShuffles;
+	protected final boolean changeDescription;
 	
-	public CharacterShufflingOptions(ShuffleLevelingMode mode, boolean shuffleEnabled, int chance, List<String> selectedFiles) {
+	public CharacterShufflingOptions(ShuffleLevelingMode mode, boolean shuffleEnabled, int chance, List<String> selectedFiles, boolean changeDescription) {
 		this.levelingMode = mode;
 		this.shuffleEnabled = shuffleEnabled;
 		this.chance = chance;
 		this.includedShuffles = selectedFiles;
+		this.changeDescription = changeDescription;
 	}
 	
 	public ShuffleLevelingMode getLevelingMode() {
@@ -36,6 +38,10 @@ public class CharacterShufflingOptions {
 
 	public List<String> getIncludedShuffles() {
 		return includedShuffles;
+	}
+
+	public boolean shouldChangeDescription() {
+		return changeDescription;
 	}
 	
 }

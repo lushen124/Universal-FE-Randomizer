@@ -101,7 +101,13 @@ public class CharacterShuffler {
 				
 				// (d) Update name and Description
 				updateName(textData, portraitData, slot, crossGameData);
-				textData.setStringAtIndex(slot.getDescriptionIndex(), crossGameData.description1+"[0x1]"+crossGameData.description2+"[X]");
+				
+				// Give an option to not change the description to help with keeping track of which character is which
+				if (options.shouldChangeDescription()) {
+					// [0x1] = new line 
+					// [X] = end of text segment?
+					textData.setStringAtIndex(slot.getDescriptionIndex(),String.format("%s[0x1]%s[X]", crossGameData.description1, crossGameData.description2));
+				}
 				
 				for (GBAFECharacterData linkedSlot : characterData.linkedCharactersForCharacter(slot)) {
 					linkedSlot.setGrowths(crossGameData.growths);
@@ -125,6 +131,7 @@ public class CharacterShuffler {
 		}
 	}
 
+	
 	private static void updateName(TextLoader textData, PortraitDataLoader portraitData,
 			GBAFECharacterData slot, GBACrossGameData crossGameData) {
 		List<Integer> nameIndicies = new ArrayList<>();
@@ -150,7 +157,7 @@ public class CharacterShuffler {
 	}
 
 	/**
-	 * Sets the updated bases from the 
+	 * Update the class and stats for the slot based on the configured personal bases and potentially autolevels and promotion bonuses
 	 */
 	private static GBAFEClassData updateBases(TextLoader textData, Random rng, ClassDataLoader classData,
 			CharacterShufflingOptions options, GBAFECharacterData slot, GBACrossGameData chara, int targetClassId,
@@ -165,6 +172,7 @@ public class CharacterShuffler {
 
 			boolean isPromoted = classData.isPromotedClass(targetClassId);
 
+			// Decide Target Class / Promotions or Demotions / Number of Autolevels 
 			ClassAdjustmentDto adjustmentDAO = GBASlotAdjustmentService.handleClassAdjustment(slotLevel,
 					chara.level, shouldBePromoted, isPromoted, rng, classData, null, targetClass, slot,
 					sourceClass, null, textData, DebugPrinter.Key.GBA_CHARACTER_SHUFFLING );

@@ -51,9 +51,9 @@ public class MainCharcterShufflingTesting {
 			}
 		}, "sysout");
 		
-		mainFE6(false);
+//		mainFE6(true);
 		// mainFE7();
-		// mainFE8();
+		 mainFE8();
 //		fe6JsonGenerator(strings);
 //		fe7JsonGenerator(strings);
 //		fe8JsonGenerator(strings);
@@ -69,8 +69,8 @@ public class MainCharcterShufflingTesting {
 		Random rng = new Random(SeedGenerator.generateSeedValue(SeedGenerator.generateRandomSeed(), 45648997));
 		ChapterLoader chapterData = new ChapterLoader(GameType.FE8, sourceFile);
 		CharacterShufflingOptions shufflingOptions = new CharacterShufflingOptions(
-				CharacterShufflingOptions.ShuffleLevelingMode.AUTOLEVEL, true, 100,
-				Arrays.asList("fe6chars.json", "fe7chars.json"));
+				CharacterShufflingOptions.ShuffleLevelingMode.AUTOLEVEL, true, 50,
+				Arrays.asList("fe6chars.json", "fe7chars.json","custom.json"), true);
 		ClassDataLoader classData = new ClassDataLoader(FE8Data.classProvider, sourceFile);
 		ItemDataLoader itemData = new ItemDataLoader(FE8Data.itemProvider, sourceFile, freeSpace);
 		ItemAssignmentOptions inventoryOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE,
@@ -102,7 +102,7 @@ public class MainCharcterShufflingTesting {
 		ChapterLoader chapterData = new ChapterLoader(GameType.FE7, sourceFile);
 		CharacterShufflingOptions shufflingOptions = new CharacterShufflingOptions(
 				CharacterShufflingOptions.ShuffleLevelingMode.AUTOLEVEL, true, 50,
-				Arrays.asList("fe8chars.json", "fe6chars.json"));
+				Arrays.asList("fe8chars.json", "fe6chars.json"), true);
 		ClassDataLoader classData = new ClassDataLoader(FE7Data.classProvider, sourceFile);
 		ItemDataLoader itemData = new ItemDataLoader(FE7Data.itemProvider, sourceFile, freeSpace);
 		ItemAssignmentOptions inventoryOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE,
@@ -141,8 +141,8 @@ public class MainCharcterShufflingTesting {
 		Random rng = new Random(SeedGenerator.generateSeedValue(SeedGenerator.generateRandomSeed(), 45648997));
 		ChapterLoader chapterData = new ChapterLoader(GameType.FE6, sourceFile);
 		CharacterShufflingOptions shufflingOptions = new CharacterShufflingOptions(
-				CharacterShufflingOptions.ShuffleLevelingMode.AUTOLEVEL, true, 50,
-				Arrays.asList("fe8chars.json", "fe7chars.json"));
+				CharacterShufflingOptions.ShuffleLevelingMode.AUTOLEVEL, true, 100,
+				Arrays.asList("fe8chars.json", "fe7chars.json"), true);
 		ClassDataLoader classData = new ClassDataLoader(FE6Data.classProvider, sourceFile);
 		ItemDataLoader itemData = new ItemDataLoader(FE6Data.itemProvider, sourceFile, freeSpace);
 		ItemAssignmentOptions inventoryOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.EQUAL_RANK,
