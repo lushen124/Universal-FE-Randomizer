@@ -22,7 +22,7 @@ public class GBASlotAdjustmentService {
 	 * 
 	 * A) Should the character, be demoted, promoted or are they already in the right tier of class.
 	 * B) How many auto levels should they receive
-	 * C)  
+	 * C) Which promotion bonuses will they receive
 	 */
 	public static ClassAdjustmentDto handleClassAdjustment(int targetLevel, int sourceLevel,
 			boolean shouldBePromoted, boolean isPromoted, Random rng, ClassDataLoader classData, 

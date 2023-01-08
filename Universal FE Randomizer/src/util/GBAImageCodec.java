@@ -120,7 +120,7 @@ public class GBAImageCodec {
 	 * 
 	 * 
 	 * @param name    relative path to the portrait that should be converted
-	 * @param palette array containing the pallete which should be used to convert
+	 * @param palette array containing the palette which should be used to convert
 	 *                the image
 	 * @param chunks  the chunks of the bigger image that should be considered (Main
 	 *                portrait, Mini Portrait, or Mouth Frames)
@@ -141,9 +141,9 @@ public class GBAImageCodec {
 		if (stream == null) {
 			DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "Couldn't find the Image %s in the resources, trying to find it in the same folder next");
 			try {
-				stream = new FileInputStream(new File("./"+name));
+				stream = new FileInputStream(new File(name));
 			} catch (Exception e) {
-				DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "Couldn't find the Image %s in the resources, trying to find it in the same folder next");
+				DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "Couldn't find the Image %s in the same folder. Skipping the character.");
 				return null;
 			}
 		}
@@ -152,7 +152,7 @@ public class GBAImageCodec {
 		int width = image.getWidth();
 		int height = image.getHeight();
 
-		// Verify that the image is the corret size
+		// Verify that the image is the correct size
 		if (width % 8 != 0 || height % 8 != 0)
 			return null;
 
@@ -237,10 +237,13 @@ public class GBAImageCodec {
 						// the byte that encodes both pixels has the red index in the least significant
 						// bits
 						// and the blue index in the most significant bits, or 0xA5.
-						byte a = (byte) indexOfColorInPalette(colorForInteger(image.getRGB(trueX, trueY)), palette);
-						byte b = (byte) indexOfColorInPalette(colorForInteger(image.getRGB(trueX + 1, trueY)), palette);
+						PaletteColor pixel1 = colorForInteger(image.getRGB(trueX, trueY));
+						PaletteColor pixel2 = colorForInteger(image.getRGB(trueX + 1, trueY));
+						
+						byte a = (byte) indexOfColorInPalette(pixel1, palette);
+						byte b = (byte) indexOfColorInPalette(pixel2, palette);
 						if (a == -1 || b == -1) {
-							return result;
+							return (pixel1.isNoColor() && pixel2.isNoColor()) ? shrinkArray(result,nn) : null;
 						}
 
 						result[nn] = (byte) ((a & 0xF) + ((b & 0xF) << 4));
@@ -251,7 +254,17 @@ public class GBAImageCodec {
 		}
 
 		return result;
-
+	}
+	
+	/**
+	 * Only relevant for FE6.
+	 * Here the portrait format has a lot of empty space at the end, since it's not a perfect rectangle, 
+	 * so make sure that we don't include all that empty space at the end.
+	 */
+	public static byte[] shrinkArray(byte[] original, int newSize) {
+		byte[] newArray = new byte[newSize];
+		WhyDoesJavaNotHaveThese.copyBytesFromByteArray(original, newArray, 0, newSize);
+		return newArray;
 	}
 
 	/**

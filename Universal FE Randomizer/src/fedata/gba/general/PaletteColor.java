@@ -103,6 +103,10 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		return toHexString().equals(otherColor.toHexString());
 	}
 	
+	public boolean isNoColor() {
+		return this.red == 0 && this.blue == 0 && this.green == 0 && this.brightness == 0 && this.hue == 0 && this.saturation == 0;
+	}
+	
 	public String toHexString() {
 		return String.format("#%s%s%s", 
 				getRedValue() < 16 ? "0" + Integer.toHexString(getRedValue()) : Integer.toHexString(getRedValue()),
