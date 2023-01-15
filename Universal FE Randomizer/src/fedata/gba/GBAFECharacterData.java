@@ -1,6 +1,8 @@
 package fedata.gba;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import fedata.gba.fe7.FE7Data;
@@ -413,6 +415,10 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		assert !isReadOnly : "Attempted to modify a locked character.";
 		data[24] = (byte)(rank & 0xFF);
 		wasModified = true;
+	}
+	
+	public List<Integer> getAllWeaponRanks(){
+		return Arrays.asList(getSwordRank(), getLanceRank(), getAxeRank(), getBowRank(), getStaffRank(), getAnimaRank(), getLightRank(), getDarkRank());
 	}
 
 	public int getConstitution() {

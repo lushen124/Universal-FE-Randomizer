@@ -15,6 +15,8 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.gba.fe8.FE8Data.Character;
+import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
@@ -23,6 +25,7 @@ import fedata.gba.general.GBAFEClassProvider;
 import fedata.gba.general.GBAFEItem;
 import fedata.gba.general.GBAFEItemProvider;
 import fedata.gba.general.GBAFEPromotionItem;
+import fedata.gba.general.GBAFETextProvider;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
@@ -33,7 +36,7 @@ import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider {
+public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider {
 
 	public static final String FriendlyName = "Fire Emblem: Blazing Sword";
 	public static final String GameCode = "AE7E";
@@ -66,12 +69,6 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int BytesPerSpellAnimation = 16;
 	public static final long SpellAnimationTablePointer = 0x52B24;
 	//public static final long DefaultSpellAnimationTableOffset = 0xC999C0;
-	
-	public static final int HuffmanTreeStart = 0x6BC; // Resolved once
-	public static final int HuffmanTreeEnd = 0x6B8; // Resolved twice
-	public static final long TextTablePointer = 0x12CB8;
-	//public static final long DefaultTextArrayOffset = 0xB808AC;
-	public static final int NumberOfTextStrings = 0x133E;
 	
 	public static final long ChapterTablePointer = 0x191C8;
 	//public static final long DefaultChapterArrayOffset = 0xC9C9C8;
@@ -157,6 +154,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
 	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
+	public static final GBAFETextProvider textProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -1794,6 +1792,16 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				return new FE7Data.CharacterClass[] {CharacterClass.ARCHER};
 			default:
 				return new FE7Data.CharacterClass[] {};
+			}
+		}
+		
+		public CharacterNudge[] nudgesRequired() {
+			switch(this) {
+			case CHAPTER_25:
+				return new CharacterNudge[] {new CharacterNudge(Character.FARINA.ID, 20, 19, 18, 19) }; // Farina flies onscreen and stays on a mountain.
+			
+			default:
+				return new CharacterNudge[] {};
 			}
 		}
 		
@@ -3571,4 +3579,46 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public List<Integer> getRelatedNames(Integer nameIndex) {
 		return new ArrayList<>();
 	}
+	
+	@Override
+	public int getHuffmanTreeStart() {
+		return 0x6BC;
+	}
+
+	@Override
+	public int getHuffmanTreeEnd() {
+		return  0x6B8;
+	}
+
+	@Override
+	public int getTextTablePointer() {
+		return  0x12CB8;
+	}
+
+	@Override
+	public int getNumberOfTextStrings() {
+		return 0x133E;
+	}
+
+	private final Set<Integer> excludedIndicies = generateExcludedIndiciesSet();
+	
+	@Override
+	public Set<Integer> getExcludedIndiciesFromNameUpdate() {
+		return excludedIndicies;
+	}
+
+	private Set<Integer> generateExcludedIndiciesSet() {
+		Set<Integer> indicies = new HashSet<>();
+		indicies.add(0x405); // Lancereaver
+		indicies.add(0x408); // Iron Lance
+		indicies.add(0x409); // Slim Lance
+		indicies.add(0x40A); // Steel Lance
+		indicies.add(0x40B); // Silver Lance
+		indicies.add(0x40C); // Toxin Lance
+		indicies.add(0x40D); // Brave Lance
+		indicies.add(0x40E); // Killer Lance
+		
+		return indicies;
+	}
+
 }

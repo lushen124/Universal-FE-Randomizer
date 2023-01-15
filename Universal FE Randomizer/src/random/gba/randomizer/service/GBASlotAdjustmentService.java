@@ -16,6 +16,7 @@ import util.DebugPrinter;
 
 public class GBASlotAdjustmentService {
 
+	private static final int ASSUMED_PROMOTION_LEVEL = 10;
 	
 	/**
 	 * Used by Recruitment Randomization and Character Shuffling to Calculate the following information:
@@ -29,15 +30,19 @@ public class GBASlotAdjustmentService {
 			GBAFEClassData targetClass, GBAFEClassData fillSourceClass, GBAFECharacterData fill, 
 			GBAFEClassData slotSourceClass, RecruitmentOptions options, TextLoader textData, DebugPrinter.Key key) {
 		ClassAdjustmentDto dto = new ClassAdjustmentDto();
-		if (shouldBePromoted) { targetLevel += 10; }
-		if (isPromoted) { sourceLevel += 10; }
+		if (shouldBePromoted) { targetLevel += ASSUMED_PROMOTION_LEVEL; }
+		if (isPromoted) { sourceLevel += ASSUMED_PROMOTION_LEVEL; }
 		dto.levelAdjustment = targetLevel - sourceLevel;
 		
 		// To make newly created pre-promotes not completely busted (since they probably had higher growths than real pre-promotes)
-		// we'll subtract a few levels from their autoleveling amount.
-		if (!isPromoted && shouldBePromoted) {
+		// we'll subtract a few levels from their autoleveling amount, assuming they get a lot (like 10).
+		if (!isPromoted && shouldBePromoted && dto.levelAdjustment > 10) {
 			DebugPrinter.log(key, "Dropping 3 additional levels for new prepromotes.");
 			dto.levelAdjustment  -= 3;
+		} else if(isPromoted && !shouldBePromoted && dto.levelAdjustment < -10) {
+			// Likewise, don't ruin former prepromotes as much
+			DebugPrinter.log(key, "Dropping 3 less levels for newly demoted units.");
+			dto.levelAdjustment  += 3;
 		}
 		
 		if (shouldBePromoted && !isPromoted) {
@@ -117,17 +122,32 @@ public class GBASlotAdjustmentService {
 	}
 	
 
-	public static GBAFEStatDto autolevel(GBAFEStatDto bases, GBAFEStatDto growths, List<GBAFEStatDto> promoBonuses,
-			boolean promotionRequired, boolean demotionRequired, int levelsRequired, GBAFEClassData targetClass, DebugPrinter.Key key) {
+	/**
+	 * Calculates the personal bases for the unit after applying the promotions /
+	 * demotions and required autolevels.
+	 * 
+	 * Ensures that the Personal bases don't lead to over / underflows by clamping.
+	 * 
+	 * @param bases          the personal bases prior to the current change.
+	 * @param growths        the growths that will be used for the auto levels
+	 * @param promoBonuses   a list with all the promotion (or demotion) bonuses
+	 *                       that will be given to the unit
+	 * @param levelsRequired the number of autolevels to apply
+	 * @param targetClass    the class that the unit will be in, used for clamping
+	 * @param key            the Key for which to log the changes
+	 * @return a GBAFEStatDto with the new personal bases.
+	 */
+	public static GBAFEStatDto autolevel(GBAFEStatDto bases, GBAFEStatDto growths, List<GBAFEStatDto> promoBonuses
+			, int levelsRequired, GBAFEClassData targetClass, DebugPrinter.Key key) {
 		// initialize a new DAO with the original Bases
 		GBAFEStatDto newBases = new GBAFEStatDto(bases);
 		GBAFEStatDto classBases = targetClass.getBases();
 		DebugPrinter.log(key, String.format("Original Bases: %s%n", newBases.toString()));
 		// Add all necessary promotion or demotions
-		if (promotionRequired || demotionRequired) {
+		if (!promoBonuses.isEmpty()) {
 			GBAFEStatDto totalPromoChanges = new GBAFEStatDto(promoBonuses);
 			DebugPrinter.log(key, String.format("Total Promotion Changes: %s%n", totalPromoChanges.toString()));
-			newBases.add(totalPromoChanges); // Demotion bonuses should already be negative
+			newBases.add(totalPromoChanges); // Demotion bonuses are already negative
 			DebugPrinter.log(key, String.format("Stats after Promotion / Demotion: %s%n", newBases.toString()));
 		}
 
@@ -138,7 +158,7 @@ public class GBASlotAdjustmentService {
 		// Now we have the calculated auto leveled stats.
 		// Here we must ensure that the character doesn't over or underflow, so we add the Stats to the class bases, and clamp it to the max and min stats.
 		GBAFEStatDto totalBases = new GBAFEStatDto(Arrays.asList(newBases, classBases));
-		totalBases.clamp(GBAFEStatDto.MINIMUM_STATS, targetClass.getCaps()); // Clamp to prevent over or underflow
+		totalBases = totalBases.clamp(GBAFEStatDto.MINIMUM_STATS, targetClass.getCaps()); // Clamp to prevent over or underflow
 		DebugPrinter.log(key, String.format("Theoretical final Stats after clamp: %s%n", totalBases.toString()));
 
 		// Now we remove the Class bases again and are left with proper Personal Bases

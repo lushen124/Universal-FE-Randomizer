@@ -121,10 +121,43 @@ public class GBACrossGameData {
 	 * and instead give out Dancer in the fixed mapping.
 	 */
 	protected static boolean isExceptionCase(GBAFEClassProvider provider, Optional<GBAFEClass> classOpt) {
+		GBAFEClass chosenClass = classOpt.get();
 		if (provider instanceof FE8Data) {
-			if (classOpt.get().equals(FE8Data.CharacterClass.BARD)) {
-				return true;
-			}
+			return (Arrays.asList(
+					FE8Data.CharacterClass.BARD, // Lack of Magic Animations?
+					// These following female classes are too much of a pain to make work. 
+					// They have the same animation as the male one anyway, don't have Promo Bonuses either.
+					FE8Data.CharacterClass.WYVERN_RIDER_F, 
+					FE8Data.CharacterClass.WYVERN_LORD_F, 
+					FE8Data.CharacterClass.HERO_F, 
+					FE8Data.CharacterClass.SHAMAN_F, 
+					FE8Data.CharacterClass.DRUID_F 
+					).contains(chosenClass));
+		} else if(provider instanceof FE7Data) {
+			return (Arrays.asList(
+					FE7Data.CharacterClass.CAVALIER_F, // Not a useable class
+					FE7Data.CharacterClass.MERCENARY_F, // Not a useable class
+					// These following female classes are too much of a pain to make work. 
+					// Also they have the same animation as the male one anyway, so it's not worth for just he map sprite, don't have Promo Bonuses either. 
+					FE7Data.CharacterClass.SHAMAN_F, 
+					FE7Data.CharacterClass.MYRMIDON_F, 
+					FE7Data.CharacterClass.DRUID_F, 
+					FE7Data.CharacterClass.HERO_F, 
+					FE7Data.CharacterClass.KNIGHT_F, 
+					FE7Data.CharacterClass.GENERAL_F,
+					FE7Data.CharacterClass.WYVERNKNIGHT_F,
+					FE7Data.CharacterClass.NOMAD_F,
+					FE7Data.CharacterClass.NOMADTROOPER_F
+					
+					).contains(chosenClass));
+			
+		} else if(provider instanceof FE6Data) {
+			return (Arrays.asList(
+					FE6Data.CharacterClass.PALADIN_F, // Not a useable class
+					FE6Data.CharacterClass.CAVALIER_F, // Not a useable class
+					FE6Data.CharacterClass.MERCENARY_F // Not a useable class
+					).contains(chosenClass));
+			
 		}
 
 		return false;
@@ -176,12 +209,16 @@ public class GBACrossGameData {
 			return isFE6 ? FE6Data.CharacterClass.MANAKETE_F : FE7Data.CharacterClass.DANCER;
 		} else if (asList(FE8Data.CharacterClass.CAVALIER).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.CAVALIER : FE7Data.CharacterClass.CAVALIER;
+		} else if (asList(FE8Data.CharacterClass.CAVALIER_F).contains(castedClass)) {
+			return isFE6 ? FE6Data.CharacterClass.CAVALIER : FE7Data.CharacterClass.CAVALIER_F;
 		} else if (asList(FE8Data.CharacterClass.GREAT_KNIGHT).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.GENERAL : FE7Data.CharacterClass.GENERAL;
 		} else if (asList(FE8Data.CharacterClass.KNIGHT).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.KNIGHT : FE7Data.CharacterClass.KNIGHT;
 		} else if (asList(FE8Data.CharacterClass.MERCENARY).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.MERCENARY : FE7Data.CharacterClass.MERCENARY;
+		} else if (asList(FE8Data.CharacterClass.MERCENARY_F).contains(castedClass)) {
+			return isFE6 ? FE6Data.CharacterClass.MERCENARY : FE7Data.CharacterClass.MERCENARY_F;
 		} else if (asList(FE8Data.CharacterClass.MYRMIDON).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.MYRMIDON : FE7Data.CharacterClass.MYRMIDON;
 		} else if (asList(FE8Data.CharacterClass.MYRMIDON_F).contains(castedClass)) {
@@ -233,11 +270,17 @@ public class GBACrossGameData {
 			return isFE6 ? FE6Data.CharacterClass.PEGASUS_KNIGHT : FE8Data.CharacterClass.PEGASUS_KNIGHT;
 		} else if (asList(FE7Data.CharacterClass.CAVALIER).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.CAVALIER : FE8Data.CharacterClass.CAVALIER;
+		} else if (asList(FE7Data.CharacterClass.CAVALIER_F).contains(castedClass)) {
+			return isFE6 ? FE6Data.CharacterClass.CAVALIER : FE8Data.CharacterClass.CAVALIER;
 		} else if (asList(FE7Data.CharacterClass.PALADIN).contains(castedClass)) {
+			return isFE6 ? FE6Data.CharacterClass.PALADIN : FE8Data.CharacterClass.PALADIN;
+		} else if (asList(FE7Data.CharacterClass.PALADIN_F).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.PALADIN : FE8Data.CharacterClass.PALADIN;
 		} else if (asList(FE7Data.CharacterClass.KNIGHT).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.KNIGHT : FE8Data.CharacterClass.KNIGHT;
 		} else if (asList(FE7Data.CharacterClass.MERCENARY).contains(castedClass)) {
+			return isFE6 ? FE6Data.CharacterClass.MERCENARY : FE8Data.CharacterClass.MERCENARY;
+		} else if (asList(FE7Data.CharacterClass.MERCENARY_F).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.MERCENARY : FE8Data.CharacterClass.MERCENARY;
 		} else if (asList(FE7Data.CharacterClass.MYRMIDON).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.MYRMIDON : FE8Data.CharacterClass.MYRMIDON;
@@ -279,8 +322,6 @@ public class GBACrossGameData {
 			return isFE6 ? FE6Data.CharacterClass.GENERAL : FE8Data.CharacterClass.GENERAL;
 		} else if (asList(FE7Data.CharacterClass.BARD).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.BARD : FE8Data.CharacterClass.DANCER;
-		} else if (asList(FE7Data.CharacterClass.SWORDMASTER_F).contains(castedClass)) {
-			return isFE6 ? FE6Data.CharacterClass.SWORDMASTER_F : FE8Data.CharacterClass.SWORDMASTER_F;
 		} else if (asList(FE7Data.CharacterClass.ASSASSIN).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.SWORDMASTER : FE8Data.CharacterClass.ASSASSIN;
 		} else if (asList(FE7Data.CharacterClass.PIRATE).contains(castedClass)) {
@@ -288,7 +329,7 @@ public class GBACrossGameData {
 		} else if (asList(FE7Data.CharacterClass.WARRIOR).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.WARRIOR : FE8Data.CharacterClass.WARRIOR;
 		} else if (asList(FE7Data.CharacterClass.WYVERNLORD_F).contains(castedClass)) {
-			return isFE6 ? FE6Data.CharacterClass.WYVERN_KNIGHT_F : FE8Data.CharacterClass.WYVERN_LORD_F;
+			return isFE6 ? FE6Data.CharacterClass.WYVERN_KNIGHT_F : FE8Data.CharacterClass.WYVERN_LORD;
 		} else if (asList(FE7Data.CharacterClass.HERO).contains(castedClass)) {
 			return isFE6 ? FE6Data.CharacterClass.HERO : FE8Data.CharacterClass.HERO;
 		}
@@ -336,22 +377,22 @@ public class GBACrossGameData {
 			return isFE7 ? FE7Data.CharacterClass.SNIPER : FE8Data.CharacterClass.SNIPER;
 		} else if (asList(FE6Data.CharacterClass.ARCHER_F).contains(castedClass)) {
 			return isFE7 ? FE7Data.CharacterClass.ARCHER_F : FE8Data.CharacterClass.ARCHER_F;
-		} else if (asList(FE6Data.CharacterClass.SHAMAN).contains(castedClass)) {
+		} else if (asList(FE6Data.CharacterClass.SHAMAN, FE6Data.CharacterClass.SHAMAN_F).contains(castedClass)) {
 			return isFE7 ? FE7Data.CharacterClass.SHAMAN : FE8Data.CharacterClass.SHAMAN;
 		} else if (asList(FE6Data.CharacterClass.CLERIC).contains(castedClass)) {
 			return isFE7 ? FE7Data.CharacterClass.CLERIC : FE8Data.CharacterClass.CLERIC;
 		} else if (asList(FE6Data.CharacterClass.WYVERN_RIDER).contains(castedClass)) {
-			return isFE7 ? FE7Data.CharacterClass.WYVERNKNIGHT_F : FE8Data.CharacterClass.WYVERN_RIDER_F;
+			return isFE7 ? FE7Data.CharacterClass.WYVERNKNIGHT : FE8Data.CharacterClass.WYVERN_RIDER;
 		} else if (asList(FE6Data.CharacterClass.WYVERN_RIDER_F).contains(castedClass)) {
-			return isFE7 ? FE7Data.CharacterClass.WYVERNKNIGHT_F : FE8Data.CharacterClass.WYVERN_RIDER_F;
+			return isFE7 ? FE7Data.CharacterClass.WYVERNKNIGHT : FE8Data.CharacterClass.WYVERN_RIDER;
 		} else if (asList(FE6Data.CharacterClass.NOMAD).contains(castedClass)) {
 			return isFE7 ? FE7Data.CharacterClass.NOMAD : FE8Data.CharacterClass.ARCHER;
 		} else if (asList(FE6Data.CharacterClass.NOMAD_F).contains(castedClass)) {
-			return isFE7 ? FE7Data.CharacterClass.NOMAD_F : FE8Data.CharacterClass.ARCHER_F;
+			return isFE7 ? FE7Data.CharacterClass.NOMAD : FE8Data.CharacterClass.ARCHER_F;
 		} else if (asList(FE6Data.CharacterClass.NOMAD_TROOPER).contains(castedClass)) {
 			return isFE7 ? FE7Data.CharacterClass.NOMADTROOPER : FE8Data.CharacterClass.RANGER;
 		} else if (asList(FE6Data.CharacterClass.NOMAD_TROOPER_F).contains(castedClass)) {
-			return isFE7 ? FE7Data.CharacterClass.NOMADTROOPER_F : FE8Data.CharacterClass.RANGER_F;
+			return isFE7 ? FE7Data.CharacterClass.NOMADTROOPER : FE8Data.CharacterClass.RANGER_F;
 		} else if (asList(FE6Data.CharacterClass.BISHOP).contains(castedClass)) {
 			return isFE7 ? FE7Data.CharacterClass.BISHOP : FE8Data.CharacterClass.BISHOP;
 		} else if (asList(FE6Data.CharacterClass.SWORDMASTER_F).contains(castedClass)) {
@@ -371,7 +412,7 @@ public class GBACrossGameData {
 		} else if (asList(FE6Data.CharacterClass.HERO).contains(castedClass)) {
 			return isFE7 ? FE7Data.CharacterClass.HERO : FE8Data.CharacterClass.HERO;
 		} else if (asList(FE6Data.CharacterClass.HERO_F).contains(castedClass)) {
-			return isFE7 ? FE7Data.CharacterClass.HERO_F : FE8Data.CharacterClass.HERO_F;
+			return isFE7 ? FE7Data.CharacterClass.HERO : FE8Data.CharacterClass.HERO;
 		} else if (asList(FE6Data.CharacterClass.KING).contains(castedClass)) {
 			return isFE7 ? FE7Data.CharacterClass.GENERAL : FE8Data.CharacterClass.GENERAL;
 		} else if (asList(FE6Data.CharacterClass.WYVERN_KNIGHT).contains(castedClass)) {

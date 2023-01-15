@@ -2,8 +2,13 @@ package random.gba.randomizer.shuffling;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import javax.print.attribute.HashAttributeSet;
 
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterUnitData;
@@ -27,6 +32,7 @@ import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import random.gba.randomizer.shuffling.data.PortraitFormat;
 import random.general.PoolDistributor;
 import ui.model.CharacterShufflingOptions;
+import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
 import ui.model.ItemAssignmentOptions;
 import util.DebugPrinter;
 import util.FileReadHelper;
@@ -111,7 +117,8 @@ public class CharacterShuffler {
 				
 				for (GBAFECharacterData linkedSlot : characterData.linkedCharactersForCharacter(slot)) {
 					linkedSlot.setGrowths(crossGameData.growths);
-					updateWeaponRanks(linkedSlot, crossGameData);
+					linkedSlot.setConstitution(crossGameData.constitution);
+					updateWeaponRanks(linkedSlot, crossGameData, options);
 					
 					// (e) Update the bases, and potentially auto level the Character to the level of the slot.
 					// Due to Promotion / Demotion, the output of the targetClass might be different from what was passed into this method
@@ -145,15 +152,46 @@ public class CharacterShuffler {
 	/**
 	 * Sets the configured Weapon ranks (clamped to ensure it's between 0 and 255) for the given character
 	 */
-	private static void updateWeaponRanks(GBAFECharacterData character, GBACrossGameData crossGameData) {
-		character.setSwordRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[0], 0, 255));
-		character.setLanceRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[1], 0, 255));
-		character.setAxeRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[2], 0, 255));
-		character.setBowRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[3], 0, 255));
-		character.setStaffRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[4], 0, 255));
-		character.setAnimaRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[5], 0, 255));
-		character.setLightRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[6], 0, 255));
-		character.setDarkRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[7], 0, 255));
+	private static void updateWeaponRanks(GBAFECharacterData character, GBACrossGameData crossGameData, CharacterShufflingOptions options) {
+		if (ShuffleLevelingMode.AUTOLEVEL.equals(options.getLevelingMode())){
+			// If we auto level, then adjust the ranks down to the level of the char they replace.
+			
+			// Get the total weapon ranks of the replaced char
+			long totalWeaponRanksSlot = character.getAllWeaponRanks().stream().mapToLong(num -> (long) num).sum();
+
+			// get the total Weapon ranks of the replacing char
+			long totalWeaponRanksFill = 0;
+			for(int i = 0; i < crossGameData.weaponRanks.length; i++) {
+				totalWeaponRanksFill += crossGameData.weaponRanks[i];
+			}
+			
+			// map the Ranks by the ratio that they had for the original unit, so that characters still keep their Rank strengths
+			Map<Integer, Float> adjustedRanks = new HashMap<>();
+			for(int i = 0; i < crossGameData.weaponRanks.length; i++) {
+				adjustedRanks.put(i, ((float) crossGameData.weaponRanks[i]) / totalWeaponRanksFill * totalWeaponRanksSlot);
+			}
+			
+			character.setSwordRank(WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(0)), 0, 255));
+			character.setLanceRank(WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(1)), 0, 255));
+			character.setAxeRank(WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(2)), 0, 255));
+			character.setBowRank(WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(3)), 0, 255));
+			character.setStaffRank(WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(4)), 0, 255));
+			character.setAnimaRank(WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(5)), 0, 255));
+			character.setLightRank(WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(6)), 0, 255));
+			character.setDarkRank(WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(7)), 0, 255));
+		} else {
+			// If we don't auto level transfer 1 to 1 while making sure it doesn't over or underflow
+			character.setSwordRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[0], 0, 255));
+			character.setLanceRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[1], 0, 255));
+			character.setAxeRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[2], 0, 255));
+			character.setBowRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[3], 0, 255));
+			character.setStaffRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[4], 0, 255));
+			character.setAnimaRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[5], 0, 255));
+			character.setLightRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[6], 0, 255));
+			character.setDarkRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[7], 0, 255));
+		}
+		
+		
 	}
 
 	/**
@@ -177,14 +215,11 @@ public class CharacterShuffler {
 					chara.level, shouldBePromoted, isPromoted, rng, classData, null, targetClass, slot,
 					sourceClass, null, textData, DebugPrinter.Key.GBA_CHARACTER_SHUFFLING );
 			targetClass = adjustmentDAO.targetClass;
-			boolean promotionRequired = shouldBePromoted && !isPromoted;
-			boolean demotionRequired = !shouldBePromoted && isPromoted;
 			slot.setClassID(targetClassId);
 
 			// Calculate the auto leveled personal bases
 			GBAFEStatDto newPersonalBases = GBASlotAdjustmentService.autolevel(chara.bases, chara.growths, 
-					adjustmentDAO.promoBonuses, promotionRequired, demotionRequired, 
-					adjustmentDAO.levelAdjustment, targetClass, DebugPrinter.Key.GBA_CHARACTER_SHUFFLING);
+					adjustmentDAO.promoBonuses, adjustmentDAO.levelAdjustment, targetClass, DebugPrinter.Key.GBA_CHARACTER_SHUFFLING);
 
 			slot.setBases(newPersonalBases);
 		}
@@ -213,6 +248,7 @@ public class CharacterShuffler {
 					if (CharacterShufflingOptions.ShuffleLevelingMode.UNCHANGED.equals(options.getLevelingMode())) {
 						chapterUnit.setStartingLevel(replacement.level);
 					}
+					
 				}
 			}
 		}

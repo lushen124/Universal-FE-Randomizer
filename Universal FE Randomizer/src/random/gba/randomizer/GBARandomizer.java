@@ -346,7 +346,7 @@ public class GBARandomizer extends Randomizer {
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7, FE7Data.InternalFreeRange, handler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.05);
-		textData = new TextLoader(FEBase.GameType.FE7, handler);
+		textData = new TextLoader(FEBase.GameType.FE7, FE7Data.textProvider, handler);
 		textData.allowTextChanges = true;
 
 		updateStatusString("Loading Portrait Data...");
@@ -379,7 +379,7 @@ public class GBARandomizer extends Randomizer {
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6, FE6Data.InternalFreeRange, handler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.05);
-		textData = new TextLoader(FEBase.GameType.FE6, handler);
+		textData = new TextLoader(FEBase.GameType.FE6, FE6Data.textProvider, handler);
 		if (miscOptions.applyEnglishPatch) {
 			textData.allowTextChanges = true;
 		}
@@ -414,7 +414,7 @@ public class GBARandomizer extends Randomizer {
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE8, FE8Data.InternalFreeRange, handler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.04);
-		textData = new TextLoader(FEBase.GameType.FE8, handler);
+		textData = new TextLoader(FEBase.GameType.FE8, FE8Data.textProvider, handler);
 		textData.allowTextChanges = true;
 		
 		updateStatusString("Loading Promotion Data...");

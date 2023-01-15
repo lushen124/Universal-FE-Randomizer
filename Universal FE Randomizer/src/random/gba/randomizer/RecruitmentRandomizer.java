@@ -249,6 +249,10 @@ public class RecruitmentRandomizer {
 			Pattern pattern = Pattern.compile(patternString);
 						
 			for (int i = 0; i < textData.getStringCount(); i++) {
+				if (textData.isExcludedNameIndex(i)) {
+					// don't replace things such as Iron Lance
+					continue;
+				}
 				String originalStringWithCodes = textData.getStringAtIndex(i, false);
 				
 				String workingString = new String(originalStringWithCodes);
@@ -478,7 +482,9 @@ public class RecruitmentRandomizer {
 
 			
 			
-			ClassAdjustmentDto adjustmentDAO = GBASlotAdjustmentService.handleClassAdjustment(targetLevel, sourceLevel, shouldBePromoted, isPromoted, rng, classData, targetClass, fillSourceClass, fill, slotSourceClass, options, textData, DebugPrinter.Key.GBA_RANDOM_RECRUITMENT);
+			ClassAdjustmentDto adjustmentDAO = GBASlotAdjustmentService.handleClassAdjustment(targetLevel, sourceLevel, shouldBePromoted, 
+					isPromoted, rng, classData, targetClass, fillSourceClass, fill, slotSourceClass, 
+					options, textData, DebugPrinter.Key.GBA_RANDOM_RECRUITMENT);
 			targetClass = adjustmentDAO.targetClass;
 			int levelsToAdd = adjustmentDAO.levelAdjustment;
 			promoBonuses =  adjustmentDAO.promoBonuses;
@@ -505,16 +511,12 @@ public class RecruitmentRandomizer {
 			
 			if (options.baseMode == StatAdjustmentMode.AUTOLEVEL) {
 				GBAFEStatDto growthsToUse = options.autolevelMode == BaseStatAutolevelType.USE_NEW ? targetGrowths : fill.getGrowths();
-				boolean promotionRequired = shouldBePromoted && !isPromoted;
-				boolean demotionRequired = !shouldBePromoted && isPromoted;
 				
 				// Calculate the auto leveled personal bases
-				newStats = GBASlotAdjustmentService.autolevel(fill.getBases().add(fillSourceClass.getBases()), growthsToUse, 
-						promoBonuses, promotionRequired, demotionRequired, levelsToAdd, targetClass, DebugPrinter.Key.GBA_RANDOM_RECRUITMENT)				
-						.subtract(targetClass.getBases()); // subtract target class bases to get the personal bases
+				newStats = GBASlotAdjustmentService.autolevel(fill.getBases(), growthsToUse, 
+						promoBonuses, levelsToAdd, targetClass, DebugPrinter.Key.GBA_RANDOM_RECRUITMENT); 
 				
-				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, "== New Bases ==");
-				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, newStats.toString());
+				DebugPrinter.log(DebugPrinter.Key.GBA_RANDOM_RECRUITMENT, String.format("== New Bases ==%n%s", newStats.toString()));
 			} else if (options.baseMode == StatAdjustmentMode.MATCH_SLOT) {
 				newStats.add(linkedSlot.getBases()) // Add the original Bases of the slot
 					    .add(targetClass.getBases()) // Add the stats from the new class
@@ -525,7 +527,7 @@ public class RecruitmentRandomizer {
 				GBAFEStatDto slotStats = linkedSlot.getBases().add(slotSourceClass.getBases());
 				GBAFEStatDto fillStats = fill.getBases().add(fillSourceClass.getBases());
 
-				// Set HP to an absurdly high value so that the HP values will be mapped to one another and we can ignore them
+				// Set HP to an absurdly high value so that the HP values will be mapped to one another and we can ignore them easily
 				slotStats.hp = Integer.MAX_VALUE; 
 				fillStats.hp = Integer.MAX_VALUE; 
 				
