@@ -1,0 +1,309 @@
+package random.gba.randomizer;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import fedata.gba.GBAFEChapterData;
+import fedata.gba.GBAFEChapterUnitData;
+import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEItemData;
+import fedata.gba.fe6.FE6Data;
+import fedata.gba.fe6.FE6SpellAnimationCollection;
+import fedata.gba.general.WeaponType;
+import fedata.general.FEBase;
+import fedata.general.FEBase.GameType;
+import io.FileHandler;
+import io.UPSPatcher;
+import random.gba.loader.ChapterLoader;
+import random.gba.loader.CharacterDataLoader;
+import random.gba.loader.ClassDataLoader;
+import random.gba.loader.ItemDataLoader;
+import random.gba.loader.ItemDataLoader.AdditionalData;
+import random.gba.loader.PaletteLoader;
+import random.gba.loader.TextLoader;
+import ui.model.BaseOptions;
+import ui.model.ClassOptions;
+import ui.model.EnemyOptions;
+import ui.model.GrowthOptions;
+import ui.model.ItemAssignmentOptions;
+import ui.model.MiscellaneousOptions;
+import ui.model.OtherCharacterOptions;
+import ui.model.RecruitmentOptions;
+import ui.model.WeaponOptions;
+import util.Diff;
+import util.DiffCompiler;
+import util.FileReadHelper;
+import util.FindAndReplace;
+import util.FreeSpaceManager;
+import util.GBAImageCodec;
+import util.SeedGenerator;
+import util.WhyDoesJavaNotHaveThese;
+
+/**
+ * Class with FE6 Specific implementations needed for GBA Randomization 
+ */
+public class FE6Randomizer extends AbstractGBARandomizer {
+
+	
+	public FE6Randomizer(String sourcePath, String targetPath, GameType gameType, DiffCompiler diffs,
+			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
+			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign,
+			String seed, String friendlyName) {
+		super(sourcePath, targetPath, gameType, diffs, growths, bases, classes, weapons, other, enemies, otherOptions, recruit,
+				itemAssign, seed, friendlyName);
+	}
+
+	@Override
+	public void runDataloaders() {
+		sourceFileHandler.setAppliedDiffs(diffCompiler);
+		
+		updateStatusString("Detecting Free Space...");
+		updateProgress(0.02);
+		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6, FE6Data.InternalFreeRange, sourceFileHandler);
+		updateStatusString("Loading Text...");
+		updateProgress(0.05);
+		textData = new TextLoader(FEBase.GameType.FE6, sourceFileHandler);
+		if (miscOptions.applyEnglishPatch) {
+			textData.allowTextChanges = true;
+		}
+		
+		updateStatusString("Loading Character Data...");
+		updateProgress(0.10);
+		charData = new CharacterDataLoader(FE6Data.characterProvider, sourceFileHandler);
+		updateStatusString("Loading Class Data...");
+		updateProgress(0.15);
+		classData = new ClassDataLoader(FE6Data.classProvider, sourceFileHandler);
+		updateStatusString("Loading Chapter Data...");
+		updateProgress(0.20);
+		chapterData = new ChapterLoader(FEBase.GameType.FE6, sourceFileHandler);
+		updateStatusString("Loading Item Data...");
+		updateProgress(0.25);
+		itemData = new ItemDataLoader(FE6Data.itemProvider, sourceFileHandler, freeSpace);
+		updateStatusString("Loading Palette Data...");
+		updateProgress(0.30);
+		paletteData = new PaletteLoader(FEBase.GameType.FE6, sourceFileHandler, charData, classData);
+		updateStatusString("Loading Statboost Data...");
+		
+		
+		sourceFileHandler.clearAppliedDiffs();		
+	}
+
+	@Override
+	protected void makeFinalAdjustments() {
+		Random rng = new Random(SeedGenerator.generateSeedValue(seedString, 1));
+		applyPaletteFixes();
+		applyPromotionFix();
+		removeLockpicksFromEnemies();
+		ensureHealersHaveStaves(rng);
+		createSpecialLordClasses();
+		createPrfs(rng);
+	}
+	
+	@Override
+	public void recordNotes() {
+		recordKeeper.addNote("Characters that randomize into the Soldier class can promote using a Knight's Crest.");
+		recordKeeper.addNote("Characters that randomize into the Roy Lord class can promote using a Knight's Crest.");		
+	}
+	
+	protected void removeLockpicksFromEnemies() {
+		// Make sure no non-playable non-thief units have lock picks, as they will softlock the game when the AI gets a hold of them.
+		for (GBAFEChapterData chapter : chapterData.allChapters()) {
+			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
+				FE6Data.CharacterClass charClass = FE6Data.CharacterClass.valueOf(chapterUnit.getStartingClass());
+				if (!FE6Data.CharacterClass.allThiefClasses.contains(charClass) && (chapterUnit.isNPC() || chapterUnit.isEnemy())) {
+					chapterUnit.removeItem(FE6Data.Item.LOCKPICK.ID);
+				}
+			}
+		}
+	}
+	
+	protected void applyEnglishPatch() {
+		String tempPath = null;
+		if (miscOptions.applyEnglishPatch) {
+			updateStatusString("Applying English Patch...");
+			updateProgress(0.05);
+			
+			tempPath = new String(targetPath).concat(".tmp");
+			
+			try {
+				Boolean success = UPSPatcher.applyUPSPatch("FE6Localization_v1.1.ups", sourcePath, tempPath, null);
+				if (!success) {
+					notifyError("Failed to apply translation patch.");
+					return;
+				}
+			} catch (Exception e) {
+				notifyError("Encountered error while applying patch.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList())));
+				return;
+			}
+			
+			try {
+				sourceFileHandler = new FileHandler(tempPath);
+			} catch (IOException e1) {
+				System.err.println("Unable to open post-patched file.");
+				e1.printStackTrace();
+				notifyError("Failed to apply translation patch.");
+				return;
+			}
+		}
+	}
+
+	@Override
+	protected void createSpecialLordClasses() {
+		GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
+		
+		int oldRoyClassID = roy.getClassID();
+		
+		GBAFEClassData newRoyClass = classData.createLordClassBasedOnClass(classData.classForID(oldRoyClassID));
+		
+		roy.setClassID(newRoyClass.getID());
+		
+		// Add his new class to any effectiveness tables.
+		List<AdditionalData> effectivenesses = itemData.effectivenessArraysForClassID(oldRoyClassID);
+		for (AdditionalData effectiveness : effectivenesses) {
+			itemData.addClassIDToEffectiveness(effectiveness, newRoyClass.getID());
+		}
+		
+		// Incidentally, Roy doesn't need a promotion item, because his promotion is entirely scripted without any items.
+		
+		for (GBAFEChapterData chapter : chapterData.allChapters()) {
+			for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+				if (unit.getCharacterNumber() == FE6Data.Character.ROY.ID) {
+					if (unit.getStartingClass() == oldRoyClassID) { unit.setStartingClass(newRoyClass.getID()); }
+				}
+			}
+		}
+		
+		long mapSpriteTableOffset = FileReadHelper.readAddress(targetFileHandler, FE6Data.ClassMapSpriteTablePointer);
+		byte[] spriteTable = targetFileHandler.readBytesAtOffset(mapSpriteTableOffset, FE6Data.BytesPerMapSpriteTableEntry * FE6Data.NumberOfMapSpriteEntries);
+		long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
+		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldRoyClassID - 1) * 8, 8), "Roy Map Sprite Entry");
+		diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
+	}
+
+	@Override
+	protected void createPrfs(Random rng) {
+		if ((classes == null || !classes.createPrfs) || (recruitOptions == null || !recruitOptions.createPrfs)) {
+			return;
+		}
+		
+		boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs) || (recruitOptions != null && recruitOptions.createPrfs));
+		
+		GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
+		GBAFEClassData royClass = classData.classForID(roy.getClassID());
+		List<WeaponType> royWeaponTypes = classData.usableTypesForClass(royClass);
+		royWeaponTypes.remove(WeaponType.STAFF);
+		if (!royWeaponTypes.isEmpty()) {
+			WeaponType selectedType = royWeaponTypes.get(rng.nextInt(royWeaponTypes.size()));
+			String iconName = null;
+			String weaponName = null;
+			switch (selectedType) {
+			case SWORD:
+				weaponName = "Sun Sword";
+				iconName = "weaponIcons/SunSword.png";
+				break;
+			case LANCE:
+				weaponName = "Sea Spear";
+				iconName = "weaponIcons/SeaSpear.png";
+				break;
+			case AXE:
+				weaponName = "Gaea Splitter";
+				iconName = "weaponIcons/EarthSplitter.png";
+				break;
+			case BOW:
+				weaponName = "Gust Shot";
+				iconName = "weaponIcons/GustShot.png";
+				break;
+			case ANIMA:
+				weaponName = "Fierce Flame";
+				iconName = "weaponIcons/FierceFlame.png";
+				break;
+			case DARK:
+				weaponName = "Dark Miasma";
+				iconName = "weaponIcons/DarkMiasma.png";
+				break;
+			case LIGHT:
+				weaponName = "Holy Light";
+				iconName = "weaponIcons/HolyLight.png";
+				break;
+			default: 
+				break;
+			}
+			
+			if (weaponName != null && iconName != null) {
+				// Replace the old icon.
+				byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(iconName, GBAImageCodec.gbaWeaponColorPalette);
+				if (iconData == null) {
+					notifyError("Invalid image data for icon " + iconName);
+				}
+				diffCompiler.addDiff(new Diff(0xFC400, iconData.length, iconData, null));
+				
+				// We're going to reuse some indices already used by the watch staff. While the name's index isn't available, both its
+				// description and use item description are available.
+				textData.setStringAtIndex(0x5FE, weaponName + "[X]");
+				// TODO: Maybe give it a description string?
+				
+				GBAFEItemData itemToReplace = itemData.itemWithID(FE6Data.Item.UNUSED_WATCH_STAFF.ID);
+				itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, unbreakablePrfs, royClass.getCON() + roy.getConstitution(), 
+						itemData.itemWithID(FE6Data.Item.RAPIER.ID), itemData, freeSpace);
+				
+				switch (selectedType) {
+				case SWORD:
+				case LANCE:
+				case AXE:
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+							FE6SpellAnimationCollection.Animation.NONE2.value, FE6SpellAnimationCollection.Flash.WHITE.value);
+					break;
+				case BOW:
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+							FE6SpellAnimationCollection.Animation.ARROW.value, FE6SpellAnimationCollection.Flash.WHITE.value);
+					break;
+				case ANIMA:
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+							FE6SpellAnimationCollection.Animation.ELFIRE.value, FE6SpellAnimationCollection.Flash.RED.value);
+					break;
+				case DARK:
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+							FE6SpellAnimationCollection.Animation.FLUX.value, FE6SpellAnimationCollection.Flash.DARK.value);
+					break;
+				case LIGHT:
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
+							FE6SpellAnimationCollection.Animation.DIVINE.value, FE6SpellAnimationCollection.Flash.YELLOW.value);
+					break;
+				default:
+					// No animation needed here.
+					break;
+				}
+				
+				// Make sure the old lord class, if anybody randomizes into it, can't use this weapon.
+				GBAFEClassData oldLordClass = classData.classForID(FE6Data.CharacterClass.LORD.ID);
+				oldLordClass.removeLordLocks();
+				GBAFEClassData oldPromotedLordClass = classData.classForID(FE6Data.CharacterClass.MASTER_LORD.ID);
+				oldPromotedLordClass.removeLordLocks();
+				
+				// Make sure Roy himself can.
+				roy.enableWeaponLock(FE6Data.CharacterAndClassAbility3Mask.RAPIER_LOCK.getValue());
+				
+				for (GBAFEChapterData chapter : chapterData.allChapters()) {
+					for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+						// Give Roy the weapon when he shows up.
+						if (unit.getCharacterNumber() == roy.getID()) {
+							unit.giveItem(itemToReplace.getID());
+						}
+						
+						// Replace any Rapiers with iron swords, since we need to reuse the same lock.
+						if (unit.hasItem(FE6Data.Item.RAPIER.ID)) {
+							unit.removeItem(FE6Data.Item.RAPIER.ID);
+							unit.giveItem(FE6Data.Item.IRON_SWORD.ID);
+						}
+					}
+				}
+			}
+		}
+	}
+
+}

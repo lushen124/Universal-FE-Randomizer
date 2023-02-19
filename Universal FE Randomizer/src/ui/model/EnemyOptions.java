@@ -3,7 +3,10 @@ package ui.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnemyOptions {
+import fedata.general.FEBase.GameType;
+import util.recordkeeper.RecordKeeper;
+
+public class EnemyOptions implements RecordableOption {
 
 	public enum MinionGrowthMode {
 		NONE, FLAT, SCALING
@@ -72,5 +75,49 @@ public class EnemyOptions {
 		this.improveBossWeapons = bossWeapons;
 		this.bossImprovementChance = bossWeaponChance;
 		this.bossBuffStats = bossBuffStats;
+	}
+
+	@Override
+	public void record(RecordKeeper rk, GameType type) {
+		switch (minionMode) {
+		case NONE:
+			rk.addHeaderItem("Buff Minions", "NO");
+			break;
+		case FLAT:
+			rk.addHeaderItem("Buff Minions", "Flat Buff (Growths +" + minionBuff + "%)");
+			rk.addHeaderItem("Buffed Minion Stats", minionBuffStats.buffString());
+			break;
+		case SCALING:
+			rk.addHeaderItem("Buff Minions",
+					"Scaling Buff (Growths x" + String.format("%.2f", (minionBuff / 100.0) + 1) + ")");
+			rk.addHeaderItem("Buffed Minion Stats", minionBuffStats.buffString());
+			break;
+		}
+
+		if (improveMinionWeapons) {
+			rk.addHeaderItem("Improve Minion Weapons", "" + minionImprovementChance + "% of enemies");
+		} else {
+			rk.addHeaderItem("Improve Minion Weapons", "NO");
+		}
+
+		switch (bossMode) {
+		case NONE:
+			rk.addHeaderItem("Buff Bosses", "NO");
+			break;
+		case LINEAR:
+			rk.addHeaderItem("Buff Bosses", "Linear - Max Gain: +" + bossBuff);
+			rk.addHeaderItem("Buffed Boss Stats", bossBuffStats.buffString());
+			break;
+		case EASE_IN_OUT:
+			rk.addHeaderItem("Buff Bosses", "Ease In/Ease Out - Max Gain: +" + bossBuff);
+			rk.addHeaderItem("Buffed Boss Stats", bossBuffStats.buffString());
+			break;
+		}
+
+		if (improveBossWeapons) {
+			rk.addHeaderItem("Improve Boss Weapons", "" + bossImprovementChance + "% of bosses");
+		} else {
+			rk.addHeaderItem("Improve Boss Weapons", "NO");
+		}
 	}
 }

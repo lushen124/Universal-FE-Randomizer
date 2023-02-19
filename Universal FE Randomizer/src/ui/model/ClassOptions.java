@@ -1,6 +1,9 @@
 package ui.model;
 
-public class ClassOptions {
+import fedata.general.FEBase.GameType;
+import util.recordkeeper.RecordKeeper;
+
+public class ClassOptions implements RecordableOption {
 	
 	public enum BaseTransferOption {
 		NO_CHANGE, ADJUST_TO_MATCH, ADJUST_TO_CLASS
@@ -76,6 +79,94 @@ public class ClassOptions {
 		
 		this.forceChange = forceChange;
 		this.genderOption = genderOption;
+	}
+
+	@Override
+	public void record(RecordKeeper rk, GameType type) {
+		if (randomizePCs) {
+			StringBuilder sb = new StringBuilder();
+
+			if (includeLords) {
+				sb.append("Include Lords<br>");
+			}
+			if (includeThieves) {
+				sb.append("Include Thieves<br>");
+			}
+			if (includeSpecial) {
+				sb.append("Include Special Classes<br>");
+			}
+			if (assignEvenly) {
+				sb.append("Assign Evenly<br>");
+			}
+			if (sb.length() > 4) {
+				sb.delete(sb.length() - 4, sb.length());
+			}
+			if (sb.length() == 0) {
+				sb.append("YES");
+			}
+			rk.addHeaderItem("Randomize Playable Character Classes", sb.toString());
+
+			switch (growthOptions) {
+			case NO_CHANGE:
+				rk.addHeaderItem("Growth Transfer Option", "No Change");
+				break;
+			case TRANSFER_PERSONAL_GROWTHS:
+				rk.addHeaderItem("Growth Transfer Option", "Transfer Personal Growths");
+				break;
+			case CLASS_RELATIVE_GROWTHS:
+				rk.addHeaderItem("Growth Transfer Option", "Class Relative Growths");
+				break;
+			}
+		} else {
+			rk.addHeaderItem("Randomize Playable Character Classes", "NO");
+		}
+		if (randomizeBosses) {
+			rk.addHeaderItem("Randomize Boss Classes", "YES");
+		} else {
+			rk.addHeaderItem("Randomize Boss Classes", "NO");
+		}
+		if (randomizeEnemies) {
+			rk.addHeaderItem("Randomize Minions", "YES");
+		} else {
+			rk.addHeaderItem("Randomize Minions", "NO");
+		}
+		if (randomizePCs || randomizeBosses) {
+			switch (basesTransfer) {
+			case NO_CHANGE:
+				rk.addHeaderItem("Base Stats Transfer Mode", "Retain Personal Bases");
+				break;
+			case ADJUST_TO_MATCH:
+				rk.addHeaderItem("Base Stats Transfer Mode", "Retain Final Bases");
+				break;
+			case ADJUST_TO_CLASS:
+				rk.addHeaderItem("Base Stats Transfer Mode", "Adjust to Class");
+				break;
+			}
+		}
+		if (forceChange) {
+			rk.addHeaderItem("Force Class Change", "YES");
+		} else {
+			rk.addHeaderItem("Force Class Change", "NO");
+		}
+		switch (genderOption) {
+		case NONE:
+			rk.addHeaderItem("Gender Restriction", "None");
+			break;
+		case LOOSE:
+			rk.addHeaderItem("Gender Restriction", "Loose");
+			break;
+		case STRICT:
+			rk.addHeaderItem("Gender Restriction", "Strict");
+			break;
+		}
+		if (type == GameType.FE8) {
+			if (separateMonsters) {
+				rk.addHeaderItem("Mix Monster and Human Classes", "NO");
+			} else {
+				rk.addHeaderItem("Mix Monster and Human Classes", "YES");
+			}
+		}
+		
 	}
 
 }
