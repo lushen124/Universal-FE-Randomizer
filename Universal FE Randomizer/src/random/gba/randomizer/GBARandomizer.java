@@ -44,6 +44,7 @@ import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.PaletteLoader;
+import random.gba.loader.StatboostLoader;
 import random.gba.loader.TextLoader;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.general.Randomizer;
@@ -55,6 +56,7 @@ import ui.model.ItemAssignmentOptions;
 import ui.model.MiscellaneousOptions;
 import ui.model.OtherCharacterOptions;
 import ui.model.RecruitmentOptions;
+import ui.model.StatboosterOptions;
 import ui.model.WeaponOptions;
 import ui.model.EnemyOptions.BossStatMode;
 import ui.model.ItemAssignmentOptions.ShopAdjustment;
@@ -84,6 +86,7 @@ public class GBARandomizer extends Randomizer {
 	private ClassOptions classes;
 	private WeaponOptions weapons;
 	private OtherCharacterOptions otherCharacterOptions;
+	private StatboosterOptions statboosterOptions;
 	private EnemyOptions enemies;
 	private MiscellaneousOptions miscOptions;
 	private RecruitmentOptions recruitOptions;
@@ -91,6 +94,7 @@ public class GBARandomizer extends Randomizer {
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
+	private StatboostLoader statboostData;
 	private ChapterLoader chapterData;
 	private ItemDataLoader itemData;
 	private PaletteLoader paletteData;
@@ -115,7 +119,7 @@ public class GBARandomizer extends Randomizer {
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed) {
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, StatboosterOptions statboosterOptions, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -132,6 +136,7 @@ public class GBARandomizer extends Randomizer {
 		miscOptions = otherOptions;
 		recruitOptions = recruit;
 		itemAssignmentOptions = itemAssign;
+		this.statboosterOptions = statboosterOptions;
 		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE, false, false); }
 		
 		this.gameType = gameType;
@@ -226,6 +231,8 @@ public class GBARandomizer extends Randomizer {
 		updateProgress(0.70);
 		try { randomizeOtherThingsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing miscellaneous settings.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; } // i.e. Miscellaneous options.
 		updateProgress(0.75);
+		try { randomizeStatboostersIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing miscellaneous settings.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; } // i.e. Miscellaneous options.
+		updateProgress(0.70);
 		try { randomizeGrowthsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing growths.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.90);
 		try { makeFinalAdjustments(seed); } catch (Exception e) { notifyError("Encountered error while making final adjustments.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
@@ -238,6 +245,7 @@ public class GBARandomizer extends Randomizer {
 		itemData.compileDiffs(diffCompiler, handler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
+		statboostData.compileDiffs(diffCompiler);
 		
 		if (gameType == GameType.FE8) {
 			fe8_paletteMapper.commitChanges(diffCompiler);
@@ -356,6 +364,9 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler, charData, classData);
+		updateStatusString("Loading Statboost Data...");
+		updateProgress(0.31);
+		statboostData = new StatboostLoader(FE7Data.statboostProvider, handler);
 		
 		handler.clearAppliedDiffs();
 	}
@@ -388,6 +399,10 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler, charData, classData);
+		updateStatusString("Loading Statboost Data...");
+		updateProgress(0.31);
+		statboostData = new StatboostLoader(FE6Data.statboostProvider, handler);
+		
 		
 		handler.clearAppliedDiffs();
 	}
@@ -422,6 +437,9 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler, charData, classData);
+		updateStatusString("Loading Statboost Data...");
+		updateProgress(0.31);
+		statboostData = new StatboostLoader(FE8Data.statboostProvider, handler);
 		
 		updateStatusString("Loading Summoner Module...");
 		updateProgress(0.35);
@@ -574,6 +592,11 @@ public class GBARandomizer extends Randomizer {
 				EnemyBuffer.improveBossWeapons(enemies.bossImprovementChance, charData, classData, chapterData, itemData, rng);
 			}
 		}
+	}
+	
+	private void randomizeStatboostersIfNecessary(String seed) {
+		Random rng = new Random(SeedGenerator.generateSeedValue(seed, StatboosterRandomizer.SALT));
+		StatboosterRandomizer.randomize(statboosterOptions, statboostData, rng);
 	}
 	
 	private void randomizeOtherThingsIfNecessary(String seed) {
@@ -2412,6 +2435,10 @@ public class GBARandomizer extends Randomizer {
 				rk.addHeaderItem("Assign Promotional Weapons", itemAssignmentOptions.assignPromoWeapons ? "YES" : "NO");
 			}
 			rk.addHeaderItem("Assign Poison Weapons", itemAssignmentOptions.assignPoisonWeapons ? "YES" : "NO");
+		}
+		
+		if (statboosterOptions != null) {
+			statboosterOptions.record(rk);
 		}
 		
 		return rk;
