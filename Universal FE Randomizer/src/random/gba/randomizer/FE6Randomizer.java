@@ -178,8 +178,8 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 			}
 		}
 		
-		long mapSpriteTableOffset = FileReadHelper.readAddress(targetFileHandler, FE6Data.ClassMapSpriteTablePointer);
-		byte[] spriteTable = targetFileHandler.readBytesAtOffset(mapSpriteTableOffset, FE6Data.BytesPerMapSpriteTableEntry * FE6Data.NumberOfMapSpriteEntries);
+		long mapSpriteTableOffset = FileReadHelper.readAddress(sourceFileHandler, FE6Data.ClassMapSpriteTablePointer);
+		byte[] spriteTable = sourceFileHandler.readBytesAtOffset(mapSpriteTableOffset, FE6Data.BytesPerMapSpriteTableEntry * FE6Data.NumberOfMapSpriteEntries);
 		long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
 		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldRoyClassID - 1) * 8, 8), "Roy Map Sprite Entry");
 		diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));

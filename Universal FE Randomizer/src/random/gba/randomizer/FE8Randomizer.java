@@ -145,6 +145,8 @@ public class FE8Randomizer extends AbstractGBARandomizer {
 	
 	@Override
 	protected void compileDiffs() {
+		updateStatusString("Compiling changes...");
+		updateProgress(0.95);
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
 		classData.compileDiffs(diffCompiler, sourceFileHandler, freeSpace);
@@ -262,11 +264,11 @@ public class FE8Randomizer extends AbstractGBARandomizer {
 		ephraimPalette.setBaseClassID(newEphraimClass.getID());
 		
 		// On the bright side, we don't need to repoint the FE8 map sprite table. We just need to replace some entries in the existing one.
-		long mapSpriteTableOffset = FileReadHelper.readAddress(targetFileHandler, FE8Data.ClassMapSpriteTablePointer);
+		long mapSpriteTableOffset = FileReadHelper.readAddress(sourceFileHandler, FE8Data.ClassMapSpriteTablePointer);
 		long eirikaTargetOffset = (newEirikaClass.getID() - 1) * 8 + mapSpriteTableOffset;
 		long ephraimTargetOffset = (newEphraimClass.getID() - 1) * 8 + mapSpriteTableOffset;
-		byte[] eirikaSpriteData = targetFileHandler.readBytesAtOffset((oldEirikaClass - 1) * 8 + mapSpriteTableOffset, 8);
-		byte[] ephraimSpriteData = targetFileHandler.readBytesAtOffset((oldEphraimClass - 1) * 8 + mapSpriteTableOffset, 8);
+		byte[] eirikaSpriteData = sourceFileHandler.readBytesAtOffset((oldEirikaClass - 1) * 8 + mapSpriteTableOffset, 8);
+		byte[] ephraimSpriteData = sourceFileHandler.readBytesAtOffset((oldEphraimClass - 1) * 8 + mapSpriteTableOffset, 8);
 		diffCompiler.addDiff(new Diff(eirikaTargetOffset, 8, eirikaSpriteData, null));
 		diffCompiler.addDiff(new Diff(ephraimTargetOffset, 8, ephraimSpriteData, null));
 		

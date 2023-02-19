@@ -175,16 +175,20 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 			// (6) Apply various fixes based on the game that are necessary after the game
 			// is randomized.
 			makeFinalAdjustments();
-			// (7) Apply the diffs to the target file.
+			
+			// (7) Compile the diffs to they can be applied
+			compileDiffs();
+			
+			// (8) Apply the diffs to the target file.
 			applyDiffs();
 
-			// (8) cleanup the Source File Handler and potentially created Temporary files
+			// (9) cleanup the Source File Handler and potentially created Temporary files
 			cleanupSourceFiles();
 
-			// (9) Create a file Handler for the target File
+			// (10) Create a file Handler for the target File
 			targetFileHandler = openFileAsHandler(targetPath);
 
-			// (10) Record the State from the Target File after randomization finished.
+			// (11) Record the State from the Target File after randomization finished.
 			recordPostRandomizationState();
 
 			// Finished.
@@ -217,7 +221,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	 */
 	public void runRandomiztionStep(String stepDesc, int progress, Runnable step) {
 		try {
-			updateProgress(progress);
+			updateProgress(progress/100d);
 			step.run();
 		} catch (Exception e) {
 			throw new RandomizationStoppedException(
@@ -238,12 +242,15 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	 * Compiles the differences to apply them later.
 	 */
 	protected void compileDiffs() {
+		updateStatusString("Compiling changes...");
+		updateProgress(0.95);
 		charData.compileDiffs(diffCompiler);
 		chapterData.compileDiffs(diffCompiler);
 		classData.compileDiffs(diffCompiler, sourceFileHandler, freeSpace);
 		itemData.compileDiffs(diffCompiler, sourceFileHandler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
+		freeSpace.commitChanges(diffCompiler);
 	}
 
 	/**
@@ -265,13 +272,14 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	 * Remove the Source File Handler and remove any temporary files.
 	 */
 	protected void cleanupSourceFiles() {
+		updateStatusString("Cleaning up...");
 		sourceFileHandler.close();
 		sourceFileHandler = null;
 
 		if (tempPath == null) {
+			return;
 		}
 
-		updateStatusString("Cleaning up...");
 		File tempFile = new File(tempPath);
 		if (tempFile != null) {
 			Boolean success = tempFile.delete();

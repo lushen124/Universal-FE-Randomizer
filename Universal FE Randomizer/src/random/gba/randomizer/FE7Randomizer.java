@@ -369,8 +369,8 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 			}
 		}
 		
-		long mapSpriteTableOffset = FileReadHelper.readAddress(targetFileHandler, FE7Data.ClassMapSpriteTablePointer);
-		byte[] spriteTable = targetFileHandler.readBytesAtOffset(mapSpriteTableOffset, FE7Data.BytesPerMapSpriteTableEntry * FE7Data.NumberOfMapSpriteEntries);
+		long mapSpriteTableOffset = FileReadHelper.readAddress(sourceFileHandler, FE7Data.ClassMapSpriteTablePointer);
+		byte[] spriteTable = sourceFileHandler.readBytesAtOffset(mapSpriteTableOffset, FE7Data.BytesPerMapSpriteTableEntry * FE7Data.NumberOfMapSpriteEntries);
 		long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
 		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldLynClassID - 1) * 8, 8), "Lyn Map Sprite Entry");
 		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldEliwoodClassID - 1) * 8, 8), "Eliwood Map Sprite Entry");
@@ -885,9 +885,9 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 					new byte[] {lynReplacementAnimationID, 0, 0, 0, eliwoodReplacementAnimationID, 0, 0, 0, hectorReplacementAnimationID, 0, 0, 0}, null));
 			
 			// See if we can apply their palettes to the class default.
-			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, targetFileHandler, characterMap != null ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace, diffCompiler);
-			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, targetFileHandler, characterMap != null ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
-			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, targetFileHandler, characterMap != null ? characterMap.get(hector) : hector, hector.getClassID(), paletteData, freeSpace, diffCompiler);
+			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, sourceFileHandler, characterMap != null ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace, diffCompiler);
+			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, sourceFileHandler, characterMap != null ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
+			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, sourceFileHandler, characterMap != null ? characterMap.get(hector) : hector, hector.getClassID(), paletteData, freeSpace, diffCompiler);
 			
 			// Finally, fix the weapon text.
 			textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType() + "[X]");
