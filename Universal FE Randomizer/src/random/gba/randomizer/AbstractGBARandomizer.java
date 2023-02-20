@@ -127,10 +127,10 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 					enemies, otherOptions, recruit, itemAssign, seed);
 		} else if (GameType.FE7.equals(gameType)) {
 			return new FE7Randomizer(sourcePath, targetPath, gameType, diffs, growths, bases, classes, weapons, other,
-					enemies, otherOptions, recruit, itemAssign, seed, FE7Data.FriendlyName);
+					enemies, otherOptions, recruit, itemAssign, seed);
 		} else if (GameType.FE6.equals(gameType)) {
 			return new FE6Randomizer(sourcePath, targetPath, gameType, diffs, growths, bases, classes, weapons, other,
-					enemies, otherOptions, recruit, itemAssign, seed, FE6Data.FriendlyName);
+					enemies, otherOptions, recruit, itemAssign, seed);
 		}
 
 		throw new RandomizationStoppedException(
@@ -215,7 +215,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 			// (10) Create a file Handler for the target File
 			targetFileHandler = openFileAsHandler(targetPath);
 
-			// (11) Record the State from the Target File after randomization finished.
+			// (11) Record the State after randomization finished in the RecordKeeper.
 			recordPostRandomizationState();
 
 			// Finished.
@@ -257,7 +257,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	}
 
 	/**
-	 * Builds a string containing the first file lines of the given exceptions stack
+	 * Builds a string containing the first five lines of the given exceptions stack
 	 * trace.
 	 */
 	public String buildErrorMessage(Exception e) {
@@ -477,7 +477,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 			applySingleRN();
 		}
 	}
-	
+
 	protected void addRandomDrops() {
 		updateStatusString("Adding drops...");
 		Random rng = new Random(SeedGenerator.generateSeedValue(seedString, RandomRandomizer.rngSalt + 1));
@@ -522,37 +522,38 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	}
 
 	protected void buffEnemiesIfNecessary(String seed) {
-		if (enemies != null) {
-			if (enemies.minionMode == EnemyOptions.MinionGrowthMode.FLAT) {
-				updateStatusString("Buffing enemies...");
-				EnemyBuffer.buffMinionGrowthRates(enemies.minionBuff, classData, enemies.minionBuffStats);
-			} else if (enemies.minionMode == EnemyOptions.MinionGrowthMode.SCALING) {
-				updateStatusString("Buffing enemies...");
-				EnemyBuffer.scaleEnemyGrowthRates(enemies.minionBuff, classData, enemies.minionBuffStats);
-			}
+		if (enemies == null) {
+			return;
+		}
 
-			if (enemies.improveMinionWeapons) {
-				updateStatusString("Upgrading enemy weapons...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt));
-				EnemyBuffer.improveMinionWeapons(enemies.minionImprovementChance, charData, classData, chapterData,
-						itemData, rng);
-			}
+		if (enemies.minionMode == EnemyOptions.MinionGrowthMode.FLAT) {
+			updateStatusString("Buffing enemies...");
+			EnemyBuffer.buffMinionGrowthRates(enemies.minionBuff, classData, enemies.minionBuffStats);
+		} else if (enemies.minionMode == EnemyOptions.MinionGrowthMode.SCALING) {
+			updateStatusString("Buffing enemies...");
+			EnemyBuffer.scaleEnemyGrowthRates(enemies.minionBuff, classData, enemies.minionBuffStats);
+		}
 
-			if (enemies.bossMode == BossStatMode.LINEAR) {
-				updateStatusString("Buffing Bosses...");
-				EnemyBuffer.buffBossStatsLinearly(enemies.bossBuff, charData, classData, enemies.bossBuffStats);
-			} else if (enemies.bossMode == BossStatMode.EASE_IN_OUT) {
-				updateStatusString("Buffing Bosses...");
-				EnemyBuffer.buffBossStatsWithEaseInOutCurve(enemies.bossBuff, charData, classData,
-						enemies.bossBuffStats);
-			}
+		if (enemies.improveMinionWeapons) {
+			updateStatusString("Upgrading enemy weapons...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt));
+			EnemyBuffer.improveMinionWeapons(enemies.minionImprovementChance, charData, classData, chapterData,
+					itemData, rng);
+		}
 
-			if (enemies.improveBossWeapons) {
-				updateStatusString("Upgrading boss weapons...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt + 1));
-				EnemyBuffer.improveBossWeapons(enemies.bossImprovementChance, charData, classData, chapterData,
-						itemData, rng);
-			}
+		if (enemies.bossMode == BossStatMode.LINEAR) {
+			updateStatusString("Buffing Bosses...");
+			EnemyBuffer.buffBossStatsLinearly(enemies.bossBuff, charData, classData, enemies.bossBuffStats);
+		} else if (enemies.bossMode == BossStatMode.EASE_IN_OUT) {
+			updateStatusString("Buffing Bosses...");
+			EnemyBuffer.buffBossStatsWithEaseInOutCurve(enemies.bossBuff, charData, classData, enemies.bossBuffStats);
+		}
+
+		if (enemies.improveBossWeapons) {
+			updateStatusString("Upgrading boss weapons...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt + 1));
+			EnemyBuffer.improveBossWeapons(enemies.bossImprovementChance, charData, classData, chapterData, itemData,
+					rng);
 		}
 	}
 
@@ -561,10 +562,17 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	// ------------------------------------------------------------------
 
 	/**
-	 * 
+	 * Create Special Lord classes, which are used to prevent Lords from promoting
+	 * prematurely.
 	 */
 	protected abstract void createSpecialLordClasses();
 
+	/**
+	 * Abstract Method.
+	 * 
+	 * Create the Prf weapons for the Lords if the User selects the options to do
+	 * so.
+	 */
 	protected abstract void createPrfs(Random rng);
 
 	protected void applyPaletteFixes() {
@@ -675,7 +683,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	}
 
 	/**
-	 * Initialize the Record Keeper including the
+	 * Initialize the Record Keeper including the recording of the Selected Options.
 	 */
 	public void initializeRecordKeeper() {
 		int index = Math.max(targetPath.lastIndexOf('/'), targetPath.lastIndexOf('\\'));
@@ -695,6 +703,17 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 		tryRecordingCategory("Item Assignment", itemAssignmentOptions);
 	}
 
+	/**
+	 * if the given option is null, then this just adds a new Header to the Record
+	 * keeper with the category and "NO". Indicating that this category is not being
+	 * randomized.
+	 * 
+	 * Otherwise the responsibility for recording the options will be handed over to
+	 * the method {@link RecordableOption#record(RecordKeeper, GameType)}
+	 * 
+	 * @param category the name of the category
+	 * @param option   the option class that should be recorded
+	 */
 	public void tryRecordingCategory(String category, RecordableOption option) {
 		if (option == null) {
 			recordKeeper.addHeaderItem(category, "NO");

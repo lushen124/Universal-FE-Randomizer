@@ -55,9 +55,9 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 	public FE7Randomizer(String sourcePath, String targetPath, GameType gameType, DiffCompiler diffs,
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed, String friendlyName) {
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed) {
 		super(sourcePath, targetPath, gameType, diffs, growths, bases, classes, weapons, other, enemies, otherOptions,
-				recruit, itemAssign, seed, friendlyName);
+				recruit, itemAssign, seed, FE7Data.FriendlyName);
 	}
 
 	@Override
