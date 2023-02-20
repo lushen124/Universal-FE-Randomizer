@@ -44,24 +44,22 @@ import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
 
 /**
- * Class with FE6 Specific implementations needed for GBA Randomization 
+ * Class with FE6 Specific implementations needed for GBA Randomization
  */
 public class FE6Randomizer extends AbstractGBARandomizer {
 
-	
 	public FE6Randomizer(String sourcePath, String targetPath, GameType gameType, DiffCompiler diffs,
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign,
-			String seed, String friendlyName) {
-		super(sourcePath, targetPath, gameType, diffs, growths, bases, classes, weapons, other, enemies, otherOptions, recruit,
-				itemAssign, seed, friendlyName);
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed, String friendlyName) {
+		super(sourcePath, targetPath, gameType, diffs, growths, bases, classes, weapons, other, enemies, otherOptions,
+				recruit, itemAssign, seed, friendlyName);
 	}
 
 	@Override
 	public void runDataloaders() {
 		sourceFileHandler.setAppliedDiffs(diffCompiler);
-		
+
 		updateStatusString("Detecting Free Space...");
 		updateProgress(0.02);
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6, FE6Data.InternalFreeRange, sourceFileHandler);
@@ -71,7 +69,7 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 		if (miscOptions.applyEnglishPatch) {
 			textData.allowTextChanges = true;
 		}
-		
+
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE6Data.characterProvider, sourceFileHandler);
@@ -88,9 +86,8 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE6, sourceFileHandler, charData, classData);
 		updateStatusString("Loading Statboost Data...");
-		
-		
-		sourceFileHandler.clearAppliedDiffs();		
+
+		sourceFileHandler.clearAppliedDiffs();
 	}
 
 	@Override
@@ -103,33 +100,35 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 		createSpecialLordClasses();
 		createPrfs(rng);
 	}
-	
+
 	@Override
 	public void recordNotes() {
 		recordKeeper.addNote("Characters that randomize into the Soldier class can promote using a Knight's Crest.");
-		recordKeeper.addNote("Characters that randomize into the Roy Lord class can promote using a Knight's Crest.");		
+		recordKeeper.addNote("Characters that randomize into the Roy Lord class can promote using a Knight's Crest.");
 	}
-	
+
 	protected void removeLockpicksFromEnemies() {
-		// Make sure no non-playable non-thief units have lock picks, as they will softlock the game when the AI gets a hold of them.
+		// Make sure no non-playable non-thief units have lock picks, as they will
+		// softlock the game when the AI gets a hold of them.
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
 				FE6Data.CharacterClass charClass = FE6Data.CharacterClass.valueOf(chapterUnit.getStartingClass());
-				if (!FE6Data.CharacterClass.allThiefClasses.contains(charClass) && (chapterUnit.isNPC() || chapterUnit.isEnemy())) {
+				if (!FE6Data.CharacterClass.allThiefClasses.contains(charClass)
+						&& (chapterUnit.isNPC() || chapterUnit.isEnemy())) {
 					chapterUnit.removeItem(FE6Data.Item.LOCKPICK.ID);
 				}
 			}
 		}
 	}
-	
+
 	protected void applyEnglishPatch() {
 		String tempPath = null;
 		if (miscOptions.applyEnglishPatch) {
 			updateStatusString("Applying English Patch...");
 			updateProgress(0.05);
-			
+
 			tempPath = new String(targetPath).concat(".tmp");
-			
+
 			try {
 				Boolean success = UPSPatcher.applyUPSPatch("FE6Localization_v1.1.ups", sourcePath, tempPath, null);
 				if (!success) {
@@ -137,10 +136,12 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 					return;
 				}
 			} catch (Exception e) {
-				notifyError("Encountered error while applying patch.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList())));
+				notifyError("Encountered error while applying patch.\n\n" + e.getClass().getSimpleName()
+						+ "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream()
+								.map(element -> (element.toString())).limit(5).collect(Collectors.toList())));
 				return;
 			}
-			
+
 			try {
 				sourceFileHandler = new FileHandler(tempPath);
 			} catch (IOException e1) {
@@ -155,34 +156,40 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 	@Override
 	protected void createSpecialLordClasses() {
 		GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
-		
+
 		int oldRoyClassID = roy.getClassID();
-		
+
 		GBAFEClassData newRoyClass = classData.createLordClassBasedOnClass(classData.classForID(oldRoyClassID));
-		
+
 		roy.setClassID(newRoyClass.getID());
-		
+
 		// Add his new class to any effectiveness tables.
 		List<AdditionalData> effectivenesses = itemData.effectivenessArraysForClassID(oldRoyClassID);
 		for (AdditionalData effectiveness : effectivenesses) {
 			itemData.addClassIDToEffectiveness(effectiveness, newRoyClass.getID());
 		}
-		
-		// Incidentally, Roy doesn't need a promotion item, because his promotion is entirely scripted without any items.
-		
+
+		// Incidentally, Roy doesn't need a promotion item, because his promotion is
+		// entirely scripted without any items.
+
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			for (GBAFEChapterUnitData unit : chapter.allUnits()) {
 				if (unit.getCharacterNumber() == FE6Data.Character.ROY.ID) {
-					if (unit.getStartingClass() == oldRoyClassID) { unit.setStartingClass(newRoyClass.getID()); }
+					if (unit.getStartingClass() == oldRoyClassID) {
+						unit.setStartingClass(newRoyClass.getID());
+					}
 				}
 			}
 		}
-		
+
 		long mapSpriteTableOffset = FileReadHelper.readAddress(sourceFileHandler, FE6Data.ClassMapSpriteTablePointer);
-		byte[] spriteTable = sourceFileHandler.readBytesAtOffset(mapSpriteTableOffset, FE6Data.BytesPerMapSpriteTableEntry * FE6Data.NumberOfMapSpriteEntries);
+		byte[] spriteTable = sourceFileHandler.readBytesAtOffset(mapSpriteTableOffset,
+				FE6Data.BytesPerMapSpriteTableEntry * FE6Data.NumberOfMapSpriteEntries);
 		long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
-		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldRoyClassID - 1) * 8, 8), "Roy Map Sprite Entry");
-		diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
+		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldRoyClassID - 1) * 8, 8),
+				"Roy Map Sprite Entry");
+		diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset),
+				WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
 	}
 
 	@Override
@@ -190,9 +197,10 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 		if ((classes == null || !classes.createPrfs) || (recruitOptions == null || !recruitOptions.createPrfs)) {
 			return;
 		}
-		
-		boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs) || (recruitOptions != null && recruitOptions.createPrfs));
-		
+
+		boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs)
+				|| (recruitOptions != null && recruitOptions.createPrfs));
+
 		GBAFECharacterData roy = charData.characterWithID(FE6Data.Character.ROY.ID);
 		GBAFEClassData royClass = classData.classForID(roy.getClassID());
 		List<WeaponType> royWeaponTypes = classData.usableTypesForClass(royClass);
@@ -230,71 +238,80 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 				weaponName = "Holy Light";
 				iconName = "weaponIcons/HolyLight.png";
 				break;
-			default: 
+			default:
 				break;
 			}
-			
+
 			if (weaponName != null && iconName != null) {
 				// Replace the old icon.
-				byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(iconName, GBAImageCodec.gbaWeaponColorPalette);
+				byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(iconName,
+						GBAImageCodec.gbaWeaponColorPalette);
 				if (iconData == null) {
 					notifyError("Invalid image data for icon " + iconName);
 				}
 				diffCompiler.addDiff(new Diff(0xFC400, iconData.length, iconData, null));
-				
-				// We're going to reuse some indices already used by the watch staff. While the name's index isn't available, both its
+
+				// We're going to reuse some indices already used by the watch staff. While the
+				// name's index isn't available, both its
 				// description and use item description are available.
 				textData.setStringAtIndex(0x5FE, weaponName + "[X]");
 				// TODO: Maybe give it a description string?
-				
+
 				GBAFEItemData itemToReplace = itemData.itemWithID(FE6Data.Item.UNUSED_WATCH_STAFF.ID);
-				itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, unbreakablePrfs, royClass.getCON() + roy.getConstitution(), 
-						itemData.itemWithID(FE6Data.Item.RAPIER.ID), itemData, freeSpace);
-				
+				itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, unbreakablePrfs,
+						royClass.getCON() + roy.getConstitution(), itemData.itemWithID(FE6Data.Item.RAPIER.ID),
+						itemData, freeSpace);
+
 				switch (selectedType) {
 				case SWORD:
 				case LANCE:
 				case AXE:
-					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
-							FE6SpellAnimationCollection.Animation.NONE2.value, FE6SpellAnimationCollection.Flash.WHITE.value);
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2,
+							FE6SpellAnimationCollection.Animation.NONE2.value,
+							FE6SpellAnimationCollection.Flash.WHITE.value);
 					break;
 				case BOW:
-					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
-							FE6SpellAnimationCollection.Animation.ARROW.value, FE6SpellAnimationCollection.Flash.WHITE.value);
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2,
+							FE6SpellAnimationCollection.Animation.ARROW.value,
+							FE6SpellAnimationCollection.Flash.WHITE.value);
 					break;
 				case ANIMA:
-					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
-							FE6SpellAnimationCollection.Animation.ELFIRE.value, FE6SpellAnimationCollection.Flash.RED.value);
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2,
+							FE6SpellAnimationCollection.Animation.ELFIRE.value,
+							FE6SpellAnimationCollection.Flash.RED.value);
 					break;
 				case DARK:
-					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
-							FE6SpellAnimationCollection.Animation.FLUX.value, FE6SpellAnimationCollection.Flash.DARK.value);
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2,
+							FE6SpellAnimationCollection.Animation.FLUX.value,
+							FE6SpellAnimationCollection.Flash.DARK.value);
 					break;
 				case LIGHT:
-					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2, 
-							FE6SpellAnimationCollection.Animation.DIVINE.value, FE6SpellAnimationCollection.Flash.YELLOW.value);
+					itemData.spellAnimations.addAnimation(itemToReplace.getID(), 2,
+							FE6SpellAnimationCollection.Animation.DIVINE.value,
+							FE6SpellAnimationCollection.Flash.YELLOW.value);
 					break;
 				default:
 					// No animation needed here.
 					break;
 				}
-				
-				// Make sure the old lord class, if anybody randomizes into it, can't use this weapon.
+
+				// Make sure the old lord class, if anybody randomizes into it, can't use this
+				// weapon.
 				GBAFEClassData oldLordClass = classData.classForID(FE6Data.CharacterClass.LORD.ID);
 				oldLordClass.removeLordLocks();
 				GBAFEClassData oldPromotedLordClass = classData.classForID(FE6Data.CharacterClass.MASTER_LORD.ID);
 				oldPromotedLordClass.removeLordLocks();
-				
+
 				// Make sure Roy himself can.
 				roy.enableWeaponLock(FE6Data.CharacterAndClassAbility3Mask.RAPIER_LOCK.getValue());
-				
+
 				for (GBAFEChapterData chapter : chapterData.allChapters()) {
 					for (GBAFEChapterUnitData unit : chapter.allUnits()) {
 						// Give Roy the weapon when he shows up.
 						if (unit.getCharacterNumber() == roy.getID()) {
 							unit.giveItem(itemToReplace.getID());
 						}
-						
+
 						// Replace any Rapiers with iron swords, since we need to reuse the same lock.
 						if (unit.hasItem(FE6Data.Item.RAPIER.ID)) {
 							unit.removeItem(FE6Data.Item.RAPIER.ID);
@@ -304,6 +321,12 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 				}
 			}
 		}
+	}
+
+	@Override
+	protected void applySingleRN() {
+		diffCompiler.addDiff(new Diff(0xE6A, 4, new byte[] { (byte) 0xC0, (byte) 0x46, (byte) 0xC0, (byte) 0x46 },
+				new byte[] { (byte) 0xFF, (byte) 0xF7, (byte) 0xBB, (byte) 0xFF }));
 	}
 
 }

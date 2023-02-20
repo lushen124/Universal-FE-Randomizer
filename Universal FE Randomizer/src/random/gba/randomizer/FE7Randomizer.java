@@ -48,23 +48,22 @@ import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
 
 /**
- * Class with FE7 Specific implementations needed for GBA Randomization 
+ * Class with FE7 Specific implementations needed for GBA Randomization
  */
 public class FE7Randomizer extends AbstractGBARandomizer {
 
 	public FE7Randomizer(String sourcePath, String targetPath, GameType gameType, DiffCompiler diffs,
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign,
-			String seed, String friendlyName) {
-		super(sourcePath, targetPath, gameType, diffs, growths, bases, classes, weapons, other, enemies, otherOptions, recruit,
-				itemAssign, seed, friendlyName);
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed, String friendlyName) {
+		super(sourcePath, targetPath, gameType, diffs, growths, bases, classes, weapons, other, enemies, otherOptions,
+				recruit, itemAssign, seed, friendlyName);
 	}
 
 	@Override
 	public void runDataloaders() {
 		sourceFileHandler.setAppliedDiffs(diffCompiler);
-		
+
 		updateStatusString("Detecting Free Space...");
 		updateProgress(0.02);
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7, FE7Data.InternalFreeRange, sourceFileHandler);
@@ -72,7 +71,7 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		updateProgress(0.05);
 		textData = new TextLoader(FEBase.GameType.FE7, sourceFileHandler);
 		textData.allowTextChanges = true;
-		
+
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE7Data.characterProvider, sourceFileHandler);
@@ -89,43 +88,48 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, sourceFileHandler, charData, classData);
 		updateStatusString("Loading Statboost Data...");
-		
-		sourceFileHandler.clearAppliedDiffs();		
+
+		sourceFileHandler.clearAppliedDiffs();
 	}
-	
+
 	@Override
 	protected void makeFinalAdjustments() {
 		Random rng = new Random(SeedGenerator.generateSeedValue(seedString, 1));
 		applyPaletteFixes();
 		applyPromotionFix();
 		applyEmblemBowEffectiveness();
-		unlockModeSelect();
+		updateModeSelect();
 		fixWorldMapSprites();
 		ensureHealersHaveStaves(rng);
 		ensureHectorBeatsWire();
 		createSpecialLordClasses();
 		createPrfs(rng);
 	}
-	
+
 	@Override
 	public void recordNotes() {
-		recordKeeper.addNote("Characters that randomize into the Soldier class can promote using a Knight's Crest or Earth Seal.");
-		recordKeeper.addNote("Characters that randomize into the Lyn Lord class can promote using a Hero's Crest or Earth Seal.");
-		recordKeeper.addNote("Characters that randomize into the Eliwood Lord class can promote using a Knight's Crest or Earth Seal.");
-		recordKeeper.addNote("Characters that randomzie into the Hector Lord class can promote using a Knight's Crest or Earth Seal.");
-		recordKeeper.addNote("Characters that randomize into the Corsair class can promote using an Ocean's Seal or Earth Seal.");
-		recordKeeper.addNote("Characters that randomize into the Brigand class can promote using a Hero's Crest, Ocean's Seal, or Earth Seal.");
-		recordKeeper.addNote("Emblem Bow is now effective against fliers by default.");		
+		recordKeeper.addNote(
+				"Characters that randomize into the Soldier class can promote using a Knight's Crest or Earth Seal.");
+		recordKeeper.addNote(
+				"Characters that randomize into the Lyn Lord class can promote using a Hero's Crest or Earth Seal.");
+		recordKeeper.addNote(
+				"Characters that randomize into the Eliwood Lord class can promote using a Knight's Crest or Earth Seal.");
+		recordKeeper.addNote(
+				"Characters that randomzie into the Hector Lord class can promote using a Knight's Crest or Earth Seal.");
+		recordKeeper.addNote(
+				"Characters that randomize into the Corsair class can promote using an Ocean's Seal or Earth Seal.");
+		recordKeeper.addNote(
+				"Characters that randomize into the Brigand class can promote using a Hero's Crest, Ocean's Seal, or Earth Seal.");
+		recordKeeper.addNote("Emblem Bow is now effective against fliers by default.");
 	}
 
-	
 	public void ensureHectorBeatsWire() {
 		GBAFECharacterData wire = charData.characterWithID(FE7Data.Character.WIRE.ID);
 		GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
-		
+
 		GBAFEClassData wireClass = classData.classForID(wire.getClassID());
 		GBAFEClassData hectorClass = classData.classForID(hector.getClassID());
-		
+
 		GBAFEChapterData ch11 = chapterData.chapterWithID(FE7Data.ChapterPointer.CHAPTER_11_H.chapterID);
 		GBAFEItemData wireWeapon = null;
 		GBAFEItemData hectorWeapon = null;
@@ -137,7 +141,7 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				hectorWeapon = chapterData.getWeaponForUnit(unit, itemData);
 			}
 		}
-		
+
 		// Simulate numbers for Hector v. Wire.
 		int hectorHP = hector.getBaseHP() + hectorClass.getBaseHP();
 		int hectorSPD = hector.getBaseSPD() + hectorClass.getBaseSPD();
@@ -147,15 +151,16 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 			int wireSTR = wire.getBaseSTR() + wireClass.getBaseSTR();
 			int wireSPD = wire.getBaseSPD() + wireClass.getBaseSPD();
 			int wireCON = wire.getConstitution() + wireClass.getCON();
-			
+
 			int hectorAS = hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight());
-			int wireATK = wireSTR + wireWeapon.getMight() + (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+			int wireATK = wireSTR + wireWeapon.getMight()
+					+ (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
 			int wireAS = wireSPD + Math.min(0, wireCON - wireWeapon.getWeight());
-			
+
 			boolean wireDoublesHector = hectorAS < wireAS - 3;
 			int damageDealtToHector = wireATK - hectorDEF;
 			int totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
-			
+
 			// Hector should not be two-rounded (unless buffing boss weapons is on).
 			while (totalDamageDealt * (enemies.improveBossWeapons ? 2 : 3) > hectorHP) {
 				// If he doubles, get rid of that first.
@@ -173,10 +178,12 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				} else if (wireSTR > 0) { // Nerf Wire's damage output next.
 					wire.setBaseSTR(wire.getBaseSTR() - 1);
 					wireSTR = wire.getBaseSTR() + wireClass.getBaseSTR();
-					wireATK = wireSTR + wireWeapon.getMight() + (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+					wireATK = wireSTR + wireWeapon.getMight()
+							+ (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
 					damageDealtToHector = wireATK - hectorDEF;
 					totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
-				} else { // This is a pretty bad Hector if he can't take out a 0 AS, 0 STR Wire. Buff his DEF.
+				} else { // This is a pretty bad Hector if he can't take out a 0 AS, 0 STR Wire. Buff his
+							// DEF.
 					hector.setBaseDEF(hector.getBaseDEF() + 1);
 					hectorDEF = hector.getBaseDEF() + hectorClass.getBaseDEF();
 					damageDealtToHector = wireATK - hectorDEF;
@@ -188,15 +195,16 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 			int wireMAG = wire.getBaseSTR() + wireClass.getBaseSTR();
 			int wireSPD = wire.getBaseSPD() + wireClass.getBaseSPD();
 			int wireCON = wire.getConstitution() + wireClass.getCON();
-			
+
 			int hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
-			int wireATK = wireMAG + wireWeapon.getMight() + (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+			int wireATK = wireMAG + wireWeapon.getMight()
+					+ (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
 			int wireAS = Math.max(0, wireSPD + Math.min(0, wireCON - wireWeapon.getWeight()));
-			
+
 			boolean wireDoublesHector = hectorAS < wireAS - 3;
 			int damageDealtToHector = wireATK - hectorRES;
 			int totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
-			
+
 			// Hector should not be two-rounded.
 			while (totalDamageDealt * (enemies.improveBossWeapons ? 2 : 3) > hectorHP) {
 				// If he doubles, get rid of that first.
@@ -214,10 +222,12 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				} else if (wireMAG > 0) { // Nerf Wire's damage output next.
 					wire.setBaseSTR(wire.getBaseSTR() - 1);
 					wireMAG = wire.getBaseSTR() + wireClass.getBaseSTR();
-					wireATK = wireMAG + wireWeapon.getMight() + (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+					wireATK = wireMAG + wireWeapon.getMight()
+							+ (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
 					damageDealtToHector = wireATK - hectorRES;
 					totalDamageDealt = damageDealtToHector + (wireDoublesHector ? damageDealtToHector : 0);
-				} else { // This is a pretty bad Hector if he can't take out a 0 AS, 0 STR Wire. Buff his RES.
+				} else { // This is a pretty bad Hector if he can't take out a 0 AS, 0 STR Wire. Buff his
+							// RES.
 					hector.setBaseRES(hector.getBaseRES() + 1);
 					hectorRES = hector.getBaseRES() + hectorClass.getBaseRES();
 					damageDealtToHector = wireATK - hectorRES;
@@ -225,7 +235,7 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				}
 			}
 		}
-		
+
 		// Hector attacks Wire
 		int wireHP = wire.getBaseHP() + wireClass.getBaseHP();
 		int wireSPD = wire.getBaseSPD() + wireClass.getBaseSPD();
@@ -233,15 +243,16 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		if (hectorWeapon.getType().isPhysical()) {
 			int wireDEF = wire.getBaseDEF() + wireClass.getBaseDEF();
 			int hectorSTR = hector.getBaseSTR() + hectorClass.getBaseSTR();
-			
+
 			int hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
-			int hectorATK = hectorSTR + hectorWeapon.getMight() - (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+			int hectorATK = hectorSTR + hectorWeapon.getMight()
+					- (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
 			int wireAS = Math.max(0, wireSPD + Math.min(0, wireCON - wireWeapon.getWeight()));
-			
+
 			boolean hectorDoublesWire = wireAS < hectorAS - 3;
 			int damageDealtToWire = hectorATK - wireDEF;
 			int totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
-			
+
 			// This fight shouldn't take more than 3 rounds.
 			int i = 0;
 			while (wireHP > totalDamageDealt * 3) {
@@ -264,9 +275,10 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 						hector.setBaseSTR(hector.getBaseSTR() + 1);
 						hectorSTR = hector.getBaseSTR() + hectorClass.getBaseSTR();
 					}
-					
+
 					hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
-					hectorATK = hectorSTR + hectorWeapon.getMight() - (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+					hectorATK = hectorSTR + hectorWeapon.getMight()
+							- (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
 					hectorDoublesWire = wireAS < hectorAS - 3;
 					damageDealtToWire = hectorATK - wireDEF;
 					totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
@@ -275,15 +287,16 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		} else {
 			int wireRES = wire.getBaseRES() + wireClass.getBaseRES();
 			int hectorSTR = hector.getBaseSTR() + hectorClass.getBaseSTR();
-			
+
 			int hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
-			int hectorATK = hectorSTR + hectorWeapon.getMight() - (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+			int hectorATK = hectorSTR + hectorWeapon.getMight()
+					- (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
 			int wireAS = Math.max(0, wireSPD + Math.min(0, wireCON - wireWeapon.getWeight()));
-			
+
 			boolean hectorDoublesWire = wireAS < hectorAS - 3;
 			int damageDealtToWire = hectorATK - wireRES;
 			int totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
-			
+
 			// This fight shouldn't take more than 3 rounds.
 			int i = 0;
 			while (wireHP > totalDamageDealt * 3) {
@@ -306,18 +319,21 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 						hector.setBaseSTR(hector.getBaseSTR() + 1);
 						hectorSTR = hector.getBaseSTR() + hectorClass.getBaseSTR();
 					}
-					
+
 					hectorAS = Math.max(0, hectorSPD + Math.min(0, hectorCON - hectorWeapon.getWeight()));
-					hectorATK = hectorSTR + hectorWeapon.getMight() - (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
+					hectorATK = hectorSTR + hectorWeapon.getMight()
+							- (wireWeapon.getType().typeAdvantage() == hectorWeapon.getType() ? 1 : 0);
 					hectorDoublesWire = wireAS < hectorAS - 3;
 					damageDealtToWire = hectorATK - wireRES;
 					totalDamageDealt = damageDealtToWire + (hectorDoublesWire ? damageDealtToWire : 0);
 				}
 			}
 		}
-		
-		// Make sure Hector has at least 5 (assuming boss weapons are buffed, as this gives them S rank) + Wire's SKL/2 Luck to prevent crits.
-		hector.setBaseLCK(Math.max(hector.getBaseLCK(), (enemies.improveBossWeapons ? 5 : 0) + (wire.getBaseSKL() + wireClass.getBaseSKL()) / 2));
+
+		// Make sure Hector has at least 5 (assuming boss weapons are buffed, as this
+		// gives them S rank) + Wire's SKL/2 Luck to prevent crits.
+		hector.setBaseLCK(Math.max(hector.getBaseLCK(),
+				(enemies.improveBossWeapons ? 5 : 0) + (wire.getBaseSKL() + wireClass.getBaseSKL()) / 2));
 	}
 
 	@Override
@@ -326,20 +342,22 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		GBAFECharacterData tutorialLyn = charData.characterWithID(FE7Data.Character.LYN_TUTORIAL.ID);
 		GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
 		GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
-		
+
 		int oldLynClassID = lyn.getClassID();
 		int oldEliwoodClassID = eliwood.getClassID();
 		int oldHectorClassID = hector.getClassID();
-		
+
 		GBAFEClassData newLynClass = classData.createLordClassBasedOnClass(classData.classForID(lyn.getClassID()));
-		GBAFEClassData newEliwoodClass = classData.createLordClassBasedOnClass(classData.classForID(eliwood.getClassID()));
-		GBAFEClassData newHectorClass = classData.createLordClassBasedOnClass(classData.classForID(hector.getClassID()));
-		
+		GBAFEClassData newEliwoodClass = classData
+				.createLordClassBasedOnClass(classData.classForID(eliwood.getClassID()));
+		GBAFEClassData newHectorClass = classData
+				.createLordClassBasedOnClass(classData.classForID(hector.getClassID()));
+
 		lyn.setClassID(newLynClass.getID());
 		tutorialLyn.setClassID(newLynClass.getID());
 		eliwood.setClassID(newEliwoodClass.getID());
 		hector.setClassID(newHectorClass.getID());
-		
+
 		// Add new classes to any effectiveness tables.
 		List<AdditionalData> effectivenesses = itemData.effectivenessArraysForClassID(oldLynClassID);
 		for (AdditionalData effectiveness : effectivenesses) {
@@ -353,30 +371,44 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		for (AdditionalData effectiveness : effectivenesses) {
 			itemData.addClassIDToEffectiveness(effectiveness, newHectorClass.getID());
 		}
-		
-		itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.ELIWOOD_LYN_HEAVEN_SEAL, new ArrayList<Integer>(Arrays.asList(newLynClass.getID(), newEliwoodClass.getID())));
-		itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.HECTOR_LYN_HEAVEN_SEAL, new ArrayList<Integer>(Arrays.asList(newHectorClass.getID(), newLynClass.getID())));
-		
+
+		itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.ELIWOOD_LYN_HEAVEN_SEAL,
+				new ArrayList<Integer>(Arrays.asList(newLynClass.getID(), newEliwoodClass.getID())));
+		itemData.replaceClassesForPromotionItem(FE7Data.PromotionItem.HECTOR_LYN_HEAVEN_SEAL,
+				new ArrayList<Integer>(Arrays.asList(newHectorClass.getID(), newLynClass.getID())));
+
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
-			for(GBAFEChapterUnitData unit : chapter.allUnits()) {
-				if (unit.getCharacterNumber() == FE7Data.Character.LYN.ID || unit.getCharacterNumber() == FE7Data.Character.LYN_TUTORIAL.ID) {
-					if (unit.getStartingClass() == oldLynClassID) { unit.setStartingClass(newLynClass.getID()); }
+			for (GBAFEChapterUnitData unit : chapter.allUnits()) {
+				if (unit.getCharacterNumber() == FE7Data.Character.LYN.ID
+						|| unit.getCharacterNumber() == FE7Data.Character.LYN_TUTORIAL.ID) {
+					if (unit.getStartingClass() == oldLynClassID) {
+						unit.setStartingClass(newLynClass.getID());
+					}
 				} else if (unit.getCharacterNumber() == FE7Data.Character.ELIWOOD.ID) {
-					if (unit.getStartingClass() == oldEliwoodClassID) { unit.setStartingClass(newEliwoodClass.getID()); }
+					if (unit.getStartingClass() == oldEliwoodClassID) {
+						unit.setStartingClass(newEliwoodClass.getID());
+					}
 				} else if (unit.getCharacterNumber() == FE7Data.Character.HECTOR.ID) {
-					if (unit.getStartingClass() == oldHectorClassID) { unit.setStartingClass(newHectorClass.getID()); }
+					if (unit.getStartingClass() == oldHectorClassID) {
+						unit.setStartingClass(newHectorClass.getID());
+					}
 				}
 			}
 		}
-		
+
 		long mapSpriteTableOffset = FileReadHelper.readAddress(sourceFileHandler, FE7Data.ClassMapSpriteTablePointer);
-		byte[] spriteTable = sourceFileHandler.readBytesAtOffset(mapSpriteTableOffset, FE7Data.BytesPerMapSpriteTableEntry * FE7Data.NumberOfMapSpriteEntries);
+		byte[] spriteTable = sourceFileHandler.readBytesAtOffset(mapSpriteTableOffset,
+				FE7Data.BytesPerMapSpriteTableEntry * FE7Data.NumberOfMapSpriteEntries);
 		long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
-		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldLynClassID - 1) * 8, 8), "Lyn Map Sprite Entry");
-		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldEliwoodClassID - 1) * 8, 8), "Eliwood Map Sprite Entry");
-		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldHectorClassID - 1) * 8, 8), "Hector Map Sprite Entry");
-		diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
-		
+		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldLynClassID - 1) * 8, 8),
+				"Lyn Map Sprite Entry");
+		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldEliwoodClassID - 1) * 8, 8),
+				"Eliwood Map Sprite Entry");
+		freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldHectorClassID - 1) * 8, 8),
+				"Hector Map Sprite Entry");
+		diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset),
+				WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
+
 	}
 
 	@Override
@@ -384,31 +416,32 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		if ((classes == null || !classes.createPrfs) || (recruitOptions == null || !recruitOptions.createPrfs)) {
 			return;
 		}
-		
-		boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs) || (recruitOptions != null && recruitOptions.createPrfs));
-		
+
+		boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs)
+				|| (recruitOptions != null && recruitOptions.createPrfs));
+
 		GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
 		GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
 		GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
-		
+
 		GBAFEClassData lynClass = classData.classForID(lyn.getClassID());
 		GBAFEClassData eliwoodClass = classData.classForID(eliwood.getClassID());
 		GBAFEClassData hectorClass = classData.classForID(hector.getClassID());
-		
+
 		List<WeaponType> lynWeaponTypes = classData.usableTypesForClass(lynClass);
 		List<WeaponType> eliwoodWeaponTypes = classData.usableTypesForClass(eliwoodClass);
 		List<WeaponType> hectorWeaponTypes = classData.usableTypesForClass(hectorClass);
-		
+
 		boolean lynLockUsed = false;
 		boolean eliwoodLockUsed = false;
 		boolean hectorLockUsed = false;
 		boolean athosLockUsed = false;
 		boolean unusedLockUsed = false;
-		
+
 		lynWeaponTypes.remove(WeaponType.STAFF);
 		eliwoodWeaponTypes.remove(WeaponType.STAFF);
 		hectorWeaponTypes.remove(WeaponType.STAFF);
-		
+
 		String lynIconName = null;
 		String lynWeaponName = null;
 		WeaponType lynSelectedType = null;
@@ -418,10 +451,12 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		String hectorIconName = null;
 		String hectorWeaponName = null;
 		WeaponType hectorSelectedType = null;
-		
+
 		if (!lynWeaponTypes.isEmpty()) {
 			// Deprioritize Swords, since we only have 2 locks we can use for it.
-			if (lynWeaponTypes.size() > 1) { lynWeaponTypes.remove(WeaponType.SWORD); } 
+			if (lynWeaponTypes.size() > 1) {
+				lynWeaponTypes.remove(WeaponType.SWORD);
+			}
 			lynSelectedType = lynWeaponTypes.get(rng.nextInt(lynWeaponTypes.size()));
 			switch (lynSelectedType) {
 			case SWORD:
@@ -452,13 +487,16 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				lynWeaponName = "Sunlight";
 				lynIconName = "weaponIcons/Sunlight.png";
 				break;
-			default: break;
+			default:
+				break;
 			}
 		}
-			
+
 		if (!eliwoodWeaponTypes.isEmpty()) {
 			// Deprioritize Swords, since we only have 2 locks we can use for it.
-			if (eliwoodWeaponTypes.size() > 1) { eliwoodWeaponTypes.remove(WeaponType.SWORD); }
+			if (eliwoodWeaponTypes.size() > 1) {
+				eliwoodWeaponTypes.remove(WeaponType.SWORD);
+			}
 			eliwoodSelectedType = eliwoodWeaponTypes.get(rng.nextInt(eliwoodWeaponTypes.size()));
 			switch (eliwoodSelectedType) {
 			case SWORD:
@@ -493,10 +531,12 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				break;
 			}
 		}
-		
+
 		if (!hectorWeaponTypes.isEmpty()) {
 			// Deprioritize Swords, since we only have 2 locks we can use for it.
-			if (hectorWeaponTypes.size() > 1) { hectorWeaponTypes.remove(WeaponType.SWORD); }
+			if (hectorWeaponTypes.size() > 1) {
+				hectorWeaponTypes.remove(WeaponType.SWORD);
+			}
 			hectorSelectedType = hectorWeaponTypes.get(rng.nextInt(hectorWeaponTypes.size()));
 			switch (hectorSelectedType) {
 			case SWORD:
@@ -531,20 +571,21 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				break;
 			}
 		}
-		
+
 		if (lynSelectedType != null && lynWeaponName != null && lynIconName != null) {
-			byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(lynIconName, GBAImageCodec.gbaWeaponColorPalette);
+			byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(lynIconName,
+					GBAImageCodec.gbaWeaponColorPalette);
 			if (iconData == null) {
 				notifyError("Invalid image data for icon " + lynIconName);
 			}
 			diffCompiler.addDiff(new Diff(0xCB524, iconData.length, iconData, null));
-			
+
 			textData.setStringAtIndex(0x1225, lynWeaponName + "[X]");
 			GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.MANI_KATTI.ID);
-			GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, 0x9F, 0x1225, 0x0, 
-					lynSelectedType, unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 
-					0xAD, itemData, freeSpace);
-			
+			GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, 0x9F, 0x1225, 0x0,
+					lynSelectedType, unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 0xAD, itemData,
+					freeSpace);
+
 			// Lyn's the first, so all weapon locks are unused.
 			// Try to use her own lock, assuming it's not a sword or a bow.
 			// Remember, Lyn has a tutorial version too.
@@ -565,36 +606,40 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
 				lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
 			}
-			
+
 			itemData.addNewItem(newWeapon);
-			
+
 			switch (lynSelectedType) {
 			case SWORD:
 			case LANCE:
 			case AXE:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.NONE2.value, FE7SpellAnimationCollection.Flash.WHITE.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.NONE2.value,
+						FE7SpellAnimationCollection.Flash.WHITE.value);
 				break;
 			case BOW:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.ARROW.value	, FE7SpellAnimationCollection.Flash.WHITE.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.ARROW.value,
+						FE7SpellAnimationCollection.Flash.WHITE.value);
 				break;
 			case ANIMA:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.THUNDER.value, FE7SpellAnimationCollection.Flash.YELLOW.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.THUNDER.value,
+						FE7SpellAnimationCollection.Flash.YELLOW.value);
 				break;
 			case DARK:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
 						FE7SpellAnimationCollection.Animation.FLUX.value, FE7SpellAnimationCollection.Flash.DARK.value);
 				break;
 			case LIGHT:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.SHINE.value, FE7SpellAnimationCollection.Flash.YELLOW.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.SHINE.value,
+						FE7SpellAnimationCollection.Flash.YELLOW.value);
 				break;
 			default:
 				break;
 			}
-			
+
 			// Give her the weapon in place of the Mani Katti in Lyn mode.
 			// In every other mode, give it to her by default.
 			// Thankfully Lyn Mode uses a different Lyn, so we're good.
@@ -613,21 +658,23 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				}
 			}
 		}
-		
+
 		if (eliwoodSelectedType != null && eliwoodWeaponName != null && eliwoodIconName != null) {
-			byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(eliwoodIconName, GBAImageCodec.gbaWeaponColorPalette);
+			byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(eliwoodIconName,
+					GBAImageCodec.gbaWeaponColorPalette);
 			if (iconData == null) {
 				notifyError("Invalid image data for icon " + eliwoodIconName);
 			}
 			diffCompiler.addDiff(new Diff(0xCB5A4, iconData.length, iconData, null));
-			
+
 			textData.setStringAtIndex(0x1227, eliwoodWeaponName + "[X]");
 			GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.RAPIER.ID);
-			GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, 0xA0, 0x1227, 0x0, 
-					eliwoodSelectedType, unbreakablePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 
-					0xAE, itemData, freeSpace);
-			
-			// Eliwood only has to take into account the locks that could have already be used (Athos, Eliwood, or Lyn).
+			GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, 0xA0, 0x1227, 0x0,
+					eliwoodSelectedType, unbreakablePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 0xAE,
+					itemData, freeSpace);
+
+			// Eliwood only has to take into account the locks that could have already be
+			// used (Athos, Eliwood, or Lyn).
 			// Try to use his own lock, assuming it's not a sword or a lance.
 			if (eliwoodSelectedType == WeaponType.SWORD) {
 				if (!athosLockUsed) {
@@ -664,9 +711,8 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 					newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
 					eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
 				} else if (!athosLockUsed && // Athos lock cannot be used with any tome.
-						eliwoodSelectedType != WeaponType.ANIMA && 
-						eliwoodSelectedType != WeaponType.DARK && 
-						eliwoodSelectedType != WeaponType.LIGHT) {
+						eliwoodSelectedType != WeaponType.ANIMA && eliwoodSelectedType != WeaponType.DARK
+						&& eliwoodSelectedType != WeaponType.LIGHT) {
 					athosLockUsed = true;
 					newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
 					eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
@@ -676,36 +722,40 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 					eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
 				}
 			}
-			
+
 			itemData.addNewItem(newWeapon);
-			
+
 			switch (eliwoodSelectedType) {
 			case SWORD:
 			case LANCE:
 			case AXE:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.NONE2.value, FE7SpellAnimationCollection.Flash.WHITE.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.NONE2.value,
+						FE7SpellAnimationCollection.Flash.WHITE.value);
 				break;
 			case BOW:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.ARROW.value	, FE7SpellAnimationCollection.Flash.WHITE.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.ARROW.value,
+						FE7SpellAnimationCollection.Flash.WHITE.value);
 				break;
 			case ANIMA:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.ELFIRE.value, FE7SpellAnimationCollection.Flash.BLUE.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.ELFIRE.value,
+						FE7SpellAnimationCollection.Flash.BLUE.value);
 				break;
 			case DARK:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
 						FE7SpellAnimationCollection.Animation.FLUX.value, FE7SpellAnimationCollection.Flash.DARK.value);
 				break;
 			case LIGHT:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.SHINE.value, FE7SpellAnimationCollection.Flash.GREEN.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.SHINE.value,
+						FE7SpellAnimationCollection.Flash.GREEN.value);
 				break;
 			default:
 				break;
 			}
-			
+
 			// Replace Eliwood's starting Rapier, if he has one.
 			for (GBAFEChapterData chapter : chapterData.allChapters()) {
 				for (GBAFEChapterUnitData unit : chapter.allUnits()) {
@@ -716,21 +766,23 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				}
 			}
 		}
-		
+
 		if (hectorSelectedType != null && hectorWeaponName != null && hectorIconName != null) {
-			byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(hectorIconName, GBAImageCodec.gbaWeaponColorPalette);
+			byte[] iconData = GBAImageCodec.getGBAGraphicsDataForImage(hectorIconName,
+					GBAImageCodec.gbaWeaponColorPalette);
 			if (iconData == null) {
 				notifyError("Invalid image data for icon " + hectorIconName);
 			}
 			diffCompiler.addDiff(new Diff(0xCB624, iconData.length, iconData, null));
-			
+
 			textData.setStringAtIndex(0x1229, hectorWeaponName + "[X]");
 			GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.WOLF_BEIL.ID);
-			GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, 0xA1, 0x1229, 0x0, 
-					hectorSelectedType, unbreakablePrfs, hectorClass.getCON() + hector.getConstitution(), 
-					0xAF, itemData, freeSpace);
-			
-			// We've avoided using Hector lock the entire time, so we just need to account for swords and axes.
+			GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, 0xA1, 0x1229, 0x0,
+					hectorSelectedType, unbreakablePrfs, hectorClass.getCON() + hector.getConstitution(), 0xAF,
+					itemData, freeSpace);
+
+			// We've avoided using Hector lock the entire time, so we just need to account
+			// for swords and axes.
 			if (hectorSelectedType == WeaponType.SWORD) {
 				// Athos and Unused are the only ones possible here. If they're both used, GG.
 				if (!athosLockUsed) {
@@ -769,36 +821,40 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 				newWeapon.setAbility3(FE7Data.Item.Ability3Mask.HECTOR_LOCK.ID);
 				hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.HECTOR_LOCK.getValue());
 			}
-			
+
 			itemData.addNewItem(newWeapon);
-			
+
 			switch (hectorSelectedType) {
 			case SWORD:
 			case LANCE:
 			case AXE:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.NONE2.value, FE7SpellAnimationCollection.Flash.WHITE.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.NONE2.value,
+						FE7SpellAnimationCollection.Flash.WHITE.value);
 				break;
 			case BOW:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.ARROW.value	, FE7SpellAnimationCollection.Flash.WHITE.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.ARROW.value,
+						FE7SpellAnimationCollection.Flash.WHITE.value);
 				break;
 			case ANIMA:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.FIMBULVETR.value, FE7SpellAnimationCollection.Flash.BLUE.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.FIMBULVETR.value,
+						FE7SpellAnimationCollection.Flash.BLUE.value);
 				break;
 			case DARK:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
 						FE7SpellAnimationCollection.Animation.FLUX.value, FE7SpellAnimationCollection.Flash.DARK.value);
 				break;
 			case LIGHT:
-				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2, 
-						FE7SpellAnimationCollection.Animation.SHINE.value, FE7SpellAnimationCollection.Flash.BLUE.value);
+				itemData.spellAnimations.addAnimation(newWeapon.getID(), 2,
+						FE7SpellAnimationCollection.Animation.SHINE.value,
+						FE7SpellAnimationCollection.Flash.BLUE.value);
 				break;
 			default:
 				break;
 			}
-			
+
 			// Replace Hector's starting Wolf Beil, if he has one.
 			for (GBAFEChapterData chapter : chapterData.allChapters()) {
 				for (GBAFEChapterUnitData unit : chapter.allUnits()) {
@@ -810,19 +866,30 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 			}
 		}
 	}
-	
+
+	/**
+	 * Loop through the chapters and fix all the World Map Sprites that need to
+	 * change.
+	 */
 	protected void fixWorldMapSprites() {
 		for (FE7Data.ChapterPointer chapter : FE7Data.ChapterPointer.values()) {
 			Map<Integer, List<Integer>> perChapterMap = chapter.worldMapSpriteClassIDToCharacterIDMapping();
 			GBAFEWorldMapData worldMapData = chapterData.worldMapEventsForChapterID(chapter.chapterID);
-			if (worldMapData == null) { continue; }
+			if (worldMapData == null) {
+				continue;
+			}
 			for (GBAFEWorldMapSpriteData sprite : worldMapData.allSprites()) {
 				// If it's a class we don't touch, ignore it.
-				if (classData.classForID(sprite.getClassID()) == null) { continue; }
+				if (classData.classForID(sprite.getClassID()) == null) {
+					continue;
+				}
 				// Check Universal list first.
-				Integer characterID = FE7Data.ChapterPointer.universalWorldMapSpriteClassIDToCharacterIDMapping().get(sprite.getClassID());
+				Integer characterID = FE7Data.ChapterPointer.universalWorldMapSpriteClassIDToCharacterIDMapping()
+						.get(sprite.getClassID());
 				if (characterID != null) {
-					if (characterID == FE7Data.Character.NONE.ID) { continue; }
+					if (characterID == FE7Data.Character.NONE.ID) {
+						continue;
+					}
 					syncWorldMapSpriteToCharacter(sprite, characterID);
 				} else {
 					// Check per chapter
@@ -842,67 +909,149 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		}
 	}
 
-	protected void unlockModeSelect() {
+	@Override
+	protected void randomizeMiscellaneousThingsIfNecessary() {
+		super.randomizeMiscellaneousThingsIfNecessary();
+
+		// FE7 Specific
+		// If the option is enabled, set the effectiveness for FE7 to triple.
+		// TODO: FE9 could use this this if we could figure it out.
+		if (miscOptions.tripleEffectiveness) {
+			// Replace bytes at 0x28B3E from
+			// 01 28 07 D1 30 88 EE F7 36 FB 29 1C 5A 31 0A 88 50 00 08 80 29 1C 5A 31
+			// to
+			// 29 1C 5A 31 01 28 07 D1 30 78 C0 46 C0 46 0A 88 XX 20 50 43 08 80 C0 46
+			// where XX is the multiplier (03 in our case)
+			diffCompiler.addDiff(new Diff(0x28B3E, 24,
+					new byte[] { (byte) 0x29, (byte) 0x1C, (byte) 0x5A, (byte) 0x31, (byte) 0x01, (byte) 0x28,
+							(byte) 0x07, (byte) 0xD1, (byte) 0x30, (byte) 0x78, (byte) 0xC0, (byte) 0x46, (byte) 0xC0,
+							(byte) 0x46, (byte) 0x0A, (byte) 0x88, (byte) 0x03, (byte) 0x20, (byte) 0x50, (byte) 0x43,
+							(byte) 0x08, (byte) 0x80, (byte) 0xC0, (byte) 0x46 },
+					new byte[] { (byte) 0x01, (byte) 0x28, (byte) 0x07, (byte) 0xD1, (byte) 0x30, (byte) 0x88,
+							(byte) 0xEE, (byte) 0xF7, (byte) 0x36, (byte) 0xFB, (byte) 0x29, (byte) 0x1C, (byte) 0x5A,
+							(byte) 0x31, (byte) 0x0A, (byte) 0x88, (byte) 0x50, (byte) 0x00, (byte) 0x08, (byte) 0x80,
+							(byte) 0x29, (byte) 0x1C, (byte) 0x5A, (byte) 0x31 }));
+		}
+	}
+
+	/**
+	 * By Default the player is forced to play Lyn Normal Mode the first time they
+	 * start the game, apply the necessary changes to ensure that the players are
+	 * not forced to this, as they probably don't need a tutorial. Which is all that
+	 * this is.
+	 */
+	protected void updateModeSelect() {
 		try {
 			InputStream stream = UPSPatcher.class.getClassLoader().getResourceAsStream("FE7ClearSRAM.bin");
 			byte[] bytes = new byte[0x6F];
 			stream.read(bytes);
 			stream.close();
-			
+
 			long offset = freeSpace.setValue(bytes, "FE7 Hardcoded SRAM", true);
-			long pointer = freeSpace.setValue(WhyDoesJavaNotHaveThese.bytesFromAddress(offset), "FE7 Hardcoded SRAM Pointer", true);
-			diffCompiler.addDiff(new Diff(FE7Data.HardcodedSRAMHeaderOffset, 4, WhyDoesJavaNotHaveThese.bytesFromAddress(pointer), WhyDoesJavaNotHaveThese.bytesFromAddress(FE7Data.DefaultSRAMHeaderPointer)));
+			long pointer = freeSpace.setValue(WhyDoesJavaNotHaveThese.bytesFromAddress(offset),
+					"FE7 Hardcoded SRAM Pointer", true);
+			diffCompiler.addDiff(
+					new Diff(FE7Data.HardcodedSRAMHeaderOffset, 4, WhyDoesJavaNotHaveThese.bytesFromAddress(pointer),
+							WhyDoesJavaNotHaveThese.bytesFromAddress(FE7Data.DefaultSRAMHeaderPointer)));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		// Fix up the portraits in mode select, since they're hardcoded.
 		// Only necessary if we randomized recruitment.
-		// All of the data should have been commited at this point, so asking for Lyn will get you the Lyn replacement.
+		// All of the data should have been commited at this point, so asking for Lyn
+		// will get you the Lyn replacement.
 		if ((recruitOptions != null && recruitOptions.includeLords) || (classes != null && classes.includeLords)) {
 			GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
 			GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
 			GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
-			
-			byte lynReplacementFaceID = (byte)lyn.getFaceID();
-			byte eliwoodReplacementFaceID = (byte)eliwood.getFaceID();
-			byte hectorReplacementFaceID = (byte)hector.getFaceID();
-			
-			diffCompiler.addDiff(new Diff(FE7Data.ModeSelectPortraitOffset, 12,
-					new byte[] {lynReplacementFaceID, 0, 0, 0, eliwoodReplacementFaceID, 0, 0, 0, hectorReplacementFaceID, 0, 0, 0}, null));
-			
+
+			byte lynReplacementFaceID = (byte) lyn.getFaceID();
+			byte eliwoodReplacementFaceID = (byte) eliwood.getFaceID();
+			byte hectorReplacementFaceID = (byte) hector.getFaceID();
+
+			diffCompiler
+					.addDiff(
+							new Diff(
+									FE7Data.ModeSelectPortraitOffset, 12, new byte[] { lynReplacementFaceID, 0, 0, 0,
+											eliwoodReplacementFaceID, 0, 0, 0, hectorReplacementFaceID, 0, 0, 0 },
+									null));
+
 			// Conveniently, the class animations are here too, in the same format.
 			FE7Data.CharacterClass lynClass = FE7Data.CharacterClass.valueOf(lyn.getClassID());
 			FE7Data.CharacterClass eliwoodClass = FE7Data.CharacterClass.valueOf(eliwood.getClassID());
 			FE7Data.CharacterClass hectorClass = FE7Data.CharacterClass.valueOf(hector.getClassID());
-			
-			byte lynReplacementAnimationID = (byte)lynClass.animationID();
-			byte eliwoodReplacementAnimationID = (byte)eliwoodClass.animationID();
-			byte hectorReplacementAnimationID = (byte)hectorClass.animationID();
-			
-			diffCompiler.addDiff(new Diff(FE7Data.ModeSelectClassAnimationOffset, 12,
-					new byte[] {lynReplacementAnimationID, 0, 0, 0, eliwoodReplacementAnimationID, 0, 0, 0, hectorReplacementAnimationID, 0, 0, 0}, null));
-			
+
+			byte lynReplacementAnimationID = (byte) lynClass.animationID();
+			byte eliwoodReplacementAnimationID = (byte) eliwoodClass.animationID();
+			byte hectorReplacementAnimationID = (byte) hectorClass.animationID();
+
+			diffCompiler
+					.addDiff(new Diff(
+							FE7Data.ModeSelectClassAnimationOffset, 12, new byte[] { lynReplacementAnimationID, 0, 0, 0,
+									eliwoodReplacementAnimationID, 0, 0, 0, hectorReplacementAnimationID, 0, 0, 0 },
+							null));
+
 			// See if we can apply their palettes to the class default.
-			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, sourceFileHandler, characterMap != null ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace, diffCompiler);
-			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, sourceFileHandler, characterMap != null ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
-			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, sourceFileHandler, characterMap != null ? characterMap.get(hector) : hector, hector.getClassID(), paletteData, freeSpace, diffCompiler);
-			
+			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, sourceFileHandler,
+					characterMap != null ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace,
+					diffCompiler);
+			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, sourceFileHandler,
+					characterMap != null ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData,
+					freeSpace, diffCompiler);
+			PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, sourceFileHandler,
+					characterMap != null ? characterMap.get(hector) : hector, hector.getClassID(), paletteData,
+					freeSpace, diffCompiler);
+
 			// Finally, fix the weapon text.
 			textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType() + "[X]");
-			textData.setStringAtIndex(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex, eliwoodClass.primaryWeaponType() + "[X]");
-			textData.setStringAtIndex(FE7Data.ModeSelectTextHectorWeaponTypeIndex, hectorClass.primaryWeaponType() + "[X]");
-			
-			// Eliwood is the one we're going to override, since he normally shares the weapon string with Lyn.
-			diffCompiler.addDiff(new Diff(FE7Data.ModeSelectEliwoodWeaponOffset, 2, 
-					new byte[] {(byte)(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex & 0xFF), (byte)((FE7Data.ModeSelectTextEliwoodWeaponTypeIndex >> 8) & 0xFF)}, null));
+			textData.setStringAtIndex(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex,
+					eliwoodClass.primaryWeaponType() + "[X]");
+			textData.setStringAtIndex(FE7Data.ModeSelectTextHectorWeaponTypeIndex,
+					hectorClass.primaryWeaponType() + "[X]");
+
+			// Eliwood is the one we're going to override, since he normally shares the
+			// weapon string with Lyn.
+			diffCompiler
+					.addDiff(
+							new Diff(FE7Data.ModeSelectEliwoodWeaponOffset, 2,
+									new byte[] { (byte) (FE7Data.ModeSelectTextEliwoodWeaponTypeIndex & 0xFF),
+											(byte) ((FE7Data.ModeSelectTextEliwoodWeaponTypeIndex >> 8) & 0xFF) },
+									null));
 		}
 	}
-	
+
+	@Override
+	protected void addRandomDrops() {
+		// Change the code at 0x17826 from
+		// 20 68 61 68 80 6A 89 6A 08 43 80 21 09 05 08 40
+		// to
+		// 20 1C 41 30 00 78 40 21 08 40 00 00 00 00 00 00
+		// This will allow us to set the 4th AI bit for units to drop the last item if
+		// the 0x40 bit is set.
+		diffCompiler.addDiff(new Diff(0x17826, 16,
+				new byte[] { (byte) 0x20, (byte) 0x1C, (byte) 0x41, (byte) 0x30, (byte) 0x00, (byte) 0x78, (byte) 0x40,
+						(byte) 0x21, (byte) 0x08, (byte) 0x40, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+						(byte) 0x00, (byte) 0x00
+
+				},
+				new byte[] { (byte) 0x20, (byte) 0x68, (byte) 0x61, (byte) 0x68, (byte) 0x80, (byte) 0x6A, (byte) 0x89,
+						(byte) 0x6A, (byte) 0x08, (byte) 0x43, (byte) 0x80, (byte) 0x21, (byte) 0x09, (byte) 0x05,
+						(byte) 0x08, (byte) 0x40 }));
+
+		super.addRandomDrops();
+	}
+
 	protected void applyEmblemBowEffectiveness() {
 		GBAFEItemData emblemBow = itemData.itemWithID(FE7Data.Item.EMBLEM_BOW.ID);
 		emblemBow.setEffectivenessPointer(itemData.flierEffectPointer());
 	}
-	
+
+	@Override
+	protected void applySingleRN() {
+		diffCompiler.addDiff(new Diff(0xE92, 4, new byte[] { (byte) 0xC0, (byte) 0x46, (byte) 0xC0, (byte) 0x46 },
+				new byte[] { (byte) 0xFF, (byte) 0xF7, (byte) 0xB7, (byte) 0xFF }));
+	}
+
 }

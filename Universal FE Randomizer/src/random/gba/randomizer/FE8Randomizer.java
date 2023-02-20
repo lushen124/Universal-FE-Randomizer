@@ -507,6 +507,9 @@ public class FE8Randomizer extends AbstractGBARandomizer {
 		}
 	}
 	
+	/**
+	 * Loop through the chapters and fix all the World Map Sprites that need to change.
+	 */
 	protected void fixWorldMapSprites() {
 		for (FE8Data.ChapterPointer chapter : FE8Data.ChapterPointer.values()) {
 			Map<Integer, List<Integer>> perChapterMap = chapter.worldMapSpriteClassIDToCharacterIDMapping();
@@ -552,6 +555,12 @@ public class FE8Randomizer extends AbstractGBARandomizer {
 				}
 			}
 		}
+	}
+
+	@Override
+	protected void applySingleRN() {
+		diffCompiler.addDiff(new Diff(0xCC2, 4, new byte[] { (byte) 0xC0, (byte) 0x46, (byte) 0xC0, (byte) 0x46 },
+				new byte[] { (byte) 0xFF, (byte) 0xF7, (byte) 0xCF, (byte) 0xFF }));
 	}
 
 }

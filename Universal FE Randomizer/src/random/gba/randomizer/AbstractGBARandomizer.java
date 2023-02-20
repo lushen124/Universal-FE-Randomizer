@@ -138,11 +138,35 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	}
 
 	// Abstract methods that must be overwritten by the implementations
+
+	/**
+	 * Abstract Method
+	 */
 	protected abstract void makeFinalAdjustments();
 
+	/**
+	 * Abstract method.
+	 * 
+	 * The implementation of this method should be executing all the dataloaders
+	 * which are necessary for the randomization.
+	 */
 	protected abstract void runDataloaders();
 
+	/**
+	 * Abstract Method.
+	 * 
+	 * The implementation of this method should be adding the Notes that are
+	 * specific to the specific Implementation.
+	 */
 	protected abstract void recordNotes();
+
+	/**
+	 * Abstract Method.
+	 * 
+	 * The Implementation of this method should apply the diffs which are needed to
+	 * enable single RN.
+	 */
+	protected abstract void applySingleRN();
 
 	/**
 	 * Performs necessary adjustments before the randomization takes place
@@ -154,6 +178,9 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 		itemData.prepareForRandomization();
 	}
 
+	/**
+	 * The core method which executes the randomization.
+	 */
 	public void run() {
 		try {
 			// (1) Create a File Handler for the Source File
@@ -175,10 +202,10 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 			// (6) Apply various fixes based on the game that are necessary after the game
 			// is randomized.
 			makeFinalAdjustments();
-			
+
 			// (7) Compile the diffs to they can be applied
 			compileDiffs();
-			
+
 			// (8) Apply the diffs to the target file.
 			applyDiffs();
 
@@ -221,7 +248,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	 */
 	public void runRandomiztionStep(String stepDesc, int progress, Runnable step) {
 		try {
-			updateProgress(progress/100d);
+			updateProgress(progress / 100d);
 			step.run();
 		} catch (Exception e) {
 			throw new RandomizationStoppedException(
@@ -307,105 +334,114 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	}
 
 	protected void randomizeRecruitmentIfNecessary() {
-		if (recruitOptions != null) {
-			updateStatusString("Randomizing recruitment...");
-			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, RecruitmentRandomizer.rngSalt));
-			characterMap = RecruitmentRandomizer.randomizeRecruitment(recruitOptions, itemAssignmentOptions, gameType,
-					charData, classData, itemData, chapterData, textData, freeSpace, rng);
-			paletteFixRequired = true;
+		if (recruitOptions == null) {
+			return;
 		}
+		updateStatusString("Randomizing recruitment...");
+		Random rng = new Random(SeedGenerator.generateSeedValue(seedString, RecruitmentRandomizer.rngSalt));
+		characterMap = RecruitmentRandomizer.randomizeRecruitment(recruitOptions, itemAssignmentOptions, gameType,
+				charData, classData, itemData, chapterData, textData, freeSpace, rng);
+		paletteFixRequired = true;
 	}
 
 	protected void randomizeGrowthsIfNecessary() {
-		if (growths != null) {
-			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, GrowthsRandomizer.rngSalt));
-			switch (growths.mode) {
-			case REDISTRIBUTE:
-				updateStatusString("Redistributing growths...");
-				GrowthsRandomizer.randomizeGrowthsByRedistribution(growths.redistributionOption.variance,
-						growths.redistributionOption.minValue, growths.redistributionOption.maxValue, growths.adjustHP,
-						charData, rng);
-				break;
-			case DELTA:
-				updateStatusString("Applying random deltas to growths...");
-				GrowthsRandomizer.randomizeGrowthsByRandomDelta(growths.deltaOption.variance,
-						growths.deltaOption.minValue, growths.deltaOption.maxValue, growths.adjustHP, charData, rng);
-				break;
-			case FULL:
-				updateStatusString("Randomizing growths...");
-				GrowthsRandomizer.fullyRandomizeGrowthsWithRange(growths.fullOption.minValue,
-						growths.fullOption.maxValue, growths.adjustHP, charData, rng);
-				break;
-			}
+		if (growths == null) {
+			return;
+		}
+
+		Random rng = new Random(SeedGenerator.generateSeedValue(seedString, GrowthsRandomizer.rngSalt));
+		switch (growths.mode) {
+		case REDISTRIBUTE:
+			updateStatusString("Redistributing growths...");
+			GrowthsRandomizer.randomizeGrowthsByRedistribution(growths.redistributionOption.variance,
+					growths.redistributionOption.minValue, growths.redistributionOption.maxValue, growths.adjustHP,
+					charData, rng);
+			break;
+		case DELTA:
+			updateStatusString("Applying random deltas to growths...");
+			GrowthsRandomizer.randomizeGrowthsByRandomDelta(growths.deltaOption.variance, growths.deltaOption.minValue,
+					growths.deltaOption.maxValue, growths.adjustHP, charData, rng);
+			break;
+		case FULL:
+			updateStatusString("Randomizing growths...");
+			GrowthsRandomizer.fullyRandomizeGrowthsWithRange(growths.fullOption.minValue, growths.fullOption.maxValue,
+					growths.adjustHP, charData, rng);
+			break;
 		}
 	}
 
 	protected void randomizeBasesIfNecessary() {
-		if (bases != null) {
-			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, BasesRandomizer.rngSalt));
-			switch (bases.mode) {
-			case REDISTRIBUTE:
-				updateStatusString("Redistributing bases...");
-				BasesRandomizer.randomizeBasesByRedistribution(bases.redistributionOption.variance, charData, classData,
-						rng);
-				break;
-			case DELTA:
-				updateStatusString("Applying random deltas to growths...");
-				BasesRandomizer.randomizeBasesByRandomDelta(bases.deltaOption.variance, charData, classData, rng);
-				break;
-			}
+		if (bases == null) {
+			return;
+		}
+
+		Random rng = new Random(SeedGenerator.generateSeedValue(seedString, BasesRandomizer.rngSalt));
+		switch (bases.mode) {
+		case REDISTRIBUTE:
+			updateStatusString("Redistributing bases...");
+			BasesRandomizer.randomizeBasesByRedistribution(bases.redistributionOption.variance, charData, classData,
+					rng);
+			break;
+		case DELTA:
+			updateStatusString("Applying random deltas to growths...");
+			BasesRandomizer.randomizeBasesByRandomDelta(bases.deltaOption.variance, charData, classData, rng);
+			break;
 		}
 	}
 
 	protected void randomizeClassesIfNecessary() {
-		if (classes != null) {
-			if (classes.randomizePCs) {
-				updateStatusString("Randomizing player classes...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, ClassRandomizer.rngSalt + 1));
-				ClassRandomizer.randomizePlayableCharacterClasses(classes, itemAssignmentOptions, gameType, charData,
-						classData, chapterData, itemData, textData, rng);
-				paletteFixRequired = true;
-			}
-			if (classes.randomizeEnemies) {
-				updateStatusString("Randomizing minions...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, ClassRandomizer.rngSalt + 2));
-				ClassRandomizer.randomizeMinionClasses(classes, itemAssignmentOptions, gameType, charData, classData,
-						chapterData, itemData, rng);
-			}
-			if (classes.randomizeBosses) {
-				updateStatusString("Randomizing boss classes...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, ClassRandomizer.rngSalt + 3));
-				ClassRandomizer.randomizeBossCharacterClasses(classes, itemAssignmentOptions, gameType, charData,
-						classData, chapterData, itemData, textData, rng);
-				paletteFixRequired = true;
-			}
+		if (classes == null) {
+			return;
+		}
+		if (classes.randomizePCs) {
+			updateStatusString("Randomizing player classes...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, ClassRandomizer.rngSalt + 1));
+			ClassRandomizer.randomizePlayableCharacterClasses(classes, itemAssignmentOptions, gameType, charData,
+					classData, chapterData, itemData, textData, rng);
+			paletteFixRequired = true;
+		}
+		if (classes.randomizeEnemies) {
+			updateStatusString("Randomizing minions...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, ClassRandomizer.rngSalt + 2));
+			ClassRandomizer.randomizeMinionClasses(classes, itemAssignmentOptions, gameType, charData, classData,
+					chapterData, itemData, rng);
+		}
+		if (classes.randomizeBosses) {
+			updateStatusString("Randomizing boss classes...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, ClassRandomizer.rngSalt + 3));
+			ClassRandomizer.randomizeBossCharacterClasses(classes, itemAssignmentOptions, gameType, charData, classData,
+					chapterData, itemData, textData, rng);
+			paletteFixRequired = true;
 		}
 	}
 
 	protected void randomizeOtherCharacterTraitsIfNecessary() {
-		if (otherCharacterOptions != null) {
-			if (otherCharacterOptions.movementOptions != null) {
-				updateStatusString("Randomizing class movement ranges...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, ClassRandomizer.rngSalt + 4));
-				ClassRandomizer.randomizeClassMovement(otherCharacterOptions.movementOptions.minValue,
-						otherCharacterOptions.movementOptions.maxValue, classData, rng);
-			}
-			if (otherCharacterOptions.constitutionOptions != null) {
-				updateStatusString("Randomizing character constitution...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, CharacterRandomizer.rngSalt));
-				CharacterRandomizer.randomizeConstitution(otherCharacterOptions.constitutionOptions.minValue,
-						otherCharacterOptions.constitutionOptions.variance, charData, classData, rng);
-			}
-			if (otherCharacterOptions.randomizeAffinity) {
-				updateStatusString("Randomizing character affinity...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, CharacterRandomizer.rngSalt + 1));
-				CharacterRandomizer.randomizeAffinity(charData, rng);
-			}
+		if (otherCharacterOptions == null) {
+			return;
+		}
+
+		if (otherCharacterOptions.movementOptions != null) {
+			updateStatusString("Randomizing class movement ranges...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, ClassRandomizer.rngSalt + 4));
+			ClassRandomizer.randomizeClassMovement(otherCharacterOptions.movementOptions.minValue,
+					otherCharacterOptions.movementOptions.maxValue, classData, rng);
+		}
+		if (otherCharacterOptions.constitutionOptions != null) {
+			updateStatusString("Randomizing character constitution...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, CharacterRandomizer.rngSalt));
+			CharacterRandomizer.randomizeConstitution(otherCharacterOptions.constitutionOptions.minValue,
+					otherCharacterOptions.constitutionOptions.variance, charData, classData, rng);
+		}
+		if (otherCharacterOptions.randomizeAffinity) {
+			updateStatusString("Randomizing character affinity...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, CharacterRandomizer.rngSalt + 1));
+			CharacterRandomizer.randomizeAffinity(charData, rng);
 		}
 	}
 
 	protected void randomizeMiscellaneousThingsIfNecessary() {
 		if (miscOptions == null) {
+			return;
 		}
 
 		if (miscOptions.randomizeRewards) {
@@ -415,23 +451,6 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 		}
 
 		if (miscOptions.enemyDropChance > 0) {
-			if (gameType == GameType.FE7) {
-				// Change the code at 0x17826 from
-				// 20 68 61 68 80 6A 89 6A 08 43 80 21 09 05 08 40
-				// to
-				// 20 1C 41 30 00 78 40 21 08 40 00 00 00 00 00 00
-				// This will allow us to set the 4th AI bit for units to drop the last item if
-				// the 0x40 bit is set.
-				diffCompiler.addDiff(new Diff(0x17826, 16,
-						new byte[] { (byte) 0x20, (byte) 0x1C, (byte) 0x41, (byte) 0x30, (byte) 0x00, (byte) 0x78,
-								(byte) 0x40, (byte) 0x21, (byte) 0x08, (byte) 0x40, (byte) 0x00, (byte) 0x00,
-								(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
-
-						},
-						new byte[] { (byte) 0x20, (byte) 0x68, (byte) 0x61, (byte) 0x68, (byte) 0x80, (byte) 0x6A,
-								(byte) 0x89, (byte) 0x6A, (byte) 0x08, (byte) 0x43, (byte) 0x80, (byte) 0x21,
-								(byte) 0x09, (byte) 0x05, (byte) 0x08, (byte) 0x40 }));
-			}
 			updateStatusString("Adding drops...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, RandomRandomizer.rngSalt + 1));
 			RandomRandomizer.addRandomEnemyDrops(miscOptions.enemyDropChance, charData, itemData, chapterData, rng);
@@ -454,76 +473,51 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 			}
 		}
 
-		// If the option is enabled, set the effectiveness for FE7 to triple.
-		// TODO: FE9 could use this this if we could figure it out.
-		if (gameType == GameType.FE7 && miscOptions.tripleEffectiveness) {
-			// Replace bytes at 0x28B3E from
-			// 01 28 07 D1 30 88 EE F7 36 FB 29 1C 5A 31 0A 88 50 00 08 80 29 1C 5A 31
-			// to
-			// 29 1C 5A 31 01 28 07 D1 30 78 C0 46 C0 46 0A 88 XX 20 50 43 08 80 C0 46
-			// where XX is the multiplier (03 in our case)
-			diffCompiler.addDiff(new Diff(0x28B3E, 24,
-					new byte[] { (byte) 0x29, (byte) 0x1C, (byte) 0x5A, (byte) 0x31, (byte) 0x01, (byte) 0x28,
-							(byte) 0x07, (byte) 0xD1, (byte) 0x30, (byte) 0x78, (byte) 0xC0, (byte) 0x46, (byte) 0xC0,
-							(byte) 0x46, (byte) 0x0A, (byte) 0x88, (byte) 0x03, (byte) 0x20, (byte) 0x50, (byte) 0x43,
-							(byte) 0x08, (byte) 0x80, (byte) 0xC0, (byte) 0x46 },
-					new byte[] { (byte) 0x01, (byte) 0x28, (byte) 0x07, (byte) 0xD1, (byte) 0x30, (byte) 0x88,
-							(byte) 0xEE, (byte) 0xF7, (byte) 0x36, (byte) 0xFB, (byte) 0x29, (byte) 0x1C, (byte) 0x5A,
-							(byte) 0x31, (byte) 0x0A, (byte) 0x88, (byte) 0x50, (byte) 0x00, (byte) 0x08, (byte) 0x80,
-							(byte) 0x29, (byte) 0x1C, (byte) 0x5A, (byte) 0x31 }));
-		}
-
 		if (miscOptions.singleRNMode) {
-			switch (gameType) {
-			case FE6:
-				diffCompiler
-						.addDiff(new Diff(0xE6A, 4, new byte[] { (byte) 0xC0, (byte) 0x46, (byte) 0xC0, (byte) 0x46 },
-								new byte[] { (byte) 0xFF, (byte) 0xF7, (byte) 0xBB, (byte) 0xFF }));
-				break;
-			case FE7:
-				diffCompiler
-						.addDiff(new Diff(0xE92, 4, new byte[] { (byte) 0xC0, (byte) 0x46, (byte) 0xC0, (byte) 0x46 },
-								new byte[] { (byte) 0xFF, (byte) 0xF7, (byte) 0xB7, (byte) 0xFF }));
-				break;
-			case FE8:
-				diffCompiler
-						.addDiff(new Diff(0xCC2, 4, new byte[] { (byte) 0xC0, (byte) 0x46, (byte) 0xC0, (byte) 0x46 },
-								new byte[] { (byte) 0xFF, (byte) 0xF7, (byte) 0xCF, (byte) 0xFF }));
-				break;
-			default:
-				break;
-			}
+			applySingleRN();
 		}
 	}
 	
+	protected void addRandomDrops() {
+		updateStatusString("Adding drops...");
+		Random rng = new Random(SeedGenerator.generateSeedValue(seedString, RandomRandomizer.rngSalt + 1));
+		RandomRandomizer.addRandomEnemyDrops(miscOptions.enemyDropChance, charData, itemData, chapterData, rng);
+	}
+
 	protected void randomizeWeaponsIfNecessary() {
-		if (weapons != null) {
-			if (weapons.mightOptions != null) {
-				updateStatusString("Randomizing weapon power...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt));
-				WeaponsRandomizer.randomizeMights(weapons.mightOptions.minValue, weapons.mightOptions.maxValue, weapons.mightOptions.variance, itemData, rng);
-			}
-			if (weapons.hitOptions != null) {
-				updateStatusString("Randomizing weapon accuracy...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt + 1));
-				WeaponsRandomizer.randomizeHit(weapons.hitOptions.minValue, weapons.hitOptions.maxValue, weapons.hitOptions.variance, itemData, rng);
-			}
-			if (weapons.weightOptions != null) {
-				updateStatusString("Randomizing weapon weights...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt + 2));
-				WeaponsRandomizer.randomizeWeight(weapons.weightOptions.minValue, weapons.weightOptions.maxValue, weapons.weightOptions.variance, itemData, rng);
-			}
-			if (weapons.durabilityOptions != null) {
-				updateStatusString("Randomizing weapon durability...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt + 3));
-				WeaponsRandomizer.randomizeDurability(weapons.durabilityOptions.minValue, weapons.durabilityOptions.maxValue, weapons.durabilityOptions.variance, itemData, rng);
-			}
-			
-			if (weapons.shouldAddEffects && weapons.effectsList != null) {
-				updateStatusString("Adding random effects to weapons...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt + 4));
-				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, weapons.noEffectIronWeapons, weapons.noEffectSteelWeapons, weapons.noEffectThrownWeapons, weapons.effectChance, rng);
-			}
+		if (weapons == null) {
+			return;
+		}
+		if (weapons.mightOptions != null) {
+			updateStatusString("Randomizing weapon power...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt));
+			WeaponsRandomizer.randomizeMights(weapons.mightOptions.minValue, weapons.mightOptions.maxValue,
+					weapons.mightOptions.variance, itemData, rng);
+		}
+		if (weapons.hitOptions != null) {
+			updateStatusString("Randomizing weapon accuracy...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt + 1));
+			WeaponsRandomizer.randomizeHit(weapons.hitOptions.minValue, weapons.hitOptions.maxValue,
+					weapons.hitOptions.variance, itemData, rng);
+		}
+		if (weapons.weightOptions != null) {
+			updateStatusString("Randomizing weapon weights...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt + 2));
+			WeaponsRandomizer.randomizeWeight(weapons.weightOptions.minValue, weapons.weightOptions.maxValue,
+					weapons.weightOptions.variance, itemData, rng);
+		}
+		if (weapons.durabilityOptions != null) {
+			updateStatusString("Randomizing weapon durability...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt + 3));
+			WeaponsRandomizer.randomizeDurability(weapons.durabilityOptions.minValue,
+					weapons.durabilityOptions.maxValue, weapons.durabilityOptions.variance, itemData, rng);
+		}
+
+		if (weapons.shouldAddEffects && weapons.effectsList != null) {
+			updateStatusString("Adding random effects to weapons...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, WeaponsRandomizer.rngSalt + 4));
+			WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, weapons.noEffectIronWeapons,
+					weapons.noEffectSteelWeapons, weapons.noEffectThrownWeapons, weapons.effectChance, rng);
 		}
 	}
 
@@ -566,6 +560,9 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	// Start common Final Adjustments
 	// ------------------------------------------------------------------
 
+	/**
+	 * 
+	 */
 	protected abstract void createSpecialLordClasses();
 
 	protected abstract void createPrfs(Random rng);
@@ -628,6 +625,9 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 		}
 	}
 
+	/**
+	 * Update the Worldmap sprite to the new class of the given character
+	 */
 	protected void syncWorldMapSpriteToCharacter(GBAFEWorldMapSpriteData sprite, int characterID) {
 		GBAFECharacterData character = charData.characterWithID(characterID);
 		boolean spriteIsPromoted = classData.isPromotedClass(sprite.getClassID());
@@ -675,7 +675,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	}
 
 	/**
-	 * Initialize the Record Keeper including the 
+	 * Initialize the Record Keeper including the
 	 */
 	public void initializeRecordKeeper() {
 		int index = Math.max(targetPath.lastIndexOf('/'), targetPath.lastIndexOf('\\'));
@@ -694,13 +694,13 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 		tryRecordingCategory("Randomized Recruitment", recruitOptions);
 		tryRecordingCategory("Item Assignment", itemAssignmentOptions);
 	}
-	
+
 	public void tryRecordingCategory(String category, RecordableOption option) {
 		if (option == null) {
 			recordKeeper.addHeaderItem(category, "NO");
 			return;
 		}
-		
+
 		option.record(recordKeeper, gameType);
 	}
 
