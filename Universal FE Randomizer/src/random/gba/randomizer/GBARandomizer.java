@@ -213,6 +213,7 @@ public class GBARandomizer extends Randomizer {
 		chapterData.recordChapters(recordKeeper, true, charData, classData, itemData, textData);
 		
 		paletteData.recordReferencePalettes(recordKeeper, charData, classData, textData);
+		statboostData.recordInitial(recordKeeper, itemData, statboosterOptions);
 		
 		makePreliminaryAdjustments();
 		
@@ -294,6 +295,7 @@ public class GBARandomizer extends Randomizer {
 		classData.recordClasses(recordKeeper, false, classData, textData);
 		itemData.recordWeapons(recordKeeper, false, classData, textData, targetFileHandler);
 		chapterData.recordChapters(recordKeeper, false, charData, classData, itemData, textData);
+		statboostData.recordUpdated(recordKeeper, itemData, statboosterOptions);
 		
 		if (gameType == FEBase.GameType.FE8) {
 			paletteData.recordUpdatedFE8Palettes(recordKeeper, charData, classData, textData);
@@ -596,7 +598,7 @@ public class GBARandomizer extends Randomizer {
 	
 	private void randomizeStatboostersIfNecessary(String seed) {
 		Random rng = new Random(SeedGenerator.generateSeedValue(seed, StatboosterRandomizer.SALT));
-		StatboosterRandomizer.randomize(statboosterOptions, statboostData, rng);
+		StatboosterRandomizer.randomize(statboosterOptions, statboostData, itemData, textData, rng);
 	}
 	
 	private void randomizeOtherThingsIfNecessary(String seed) {

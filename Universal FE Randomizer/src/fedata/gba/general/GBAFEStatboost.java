@@ -2,6 +2,7 @@ package fedata.gba.general;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -10,7 +11,7 @@ import fedata.gba.AbstractGBAData;
 import fedata.gba.GBAFEStatDto;
 
 /**
- * Dataobject that contains the data of a GBAFE Stat boost entry.
+ * Dataobject that contains the data of a GBAFE Statboost entry.
  * 
  * Each entry has 12 bytes: HP, POW, SKL, SPD, DEF, RES, LUK, MOVE, CON, ??, ??, ??. (?? = unused)
  * 
@@ -45,7 +46,7 @@ public class GBAFEStatboost extends AbstractGBAData {
 		
 		/**
 		 * Verifies that there is only one non-zero stat and throws an exception if there is more than one.
-		 * After verifiying, returns the index of that stat.
+		 * After verifying, returns the index of that stat.
 		 */
 		public int getIndexOfOnlyStat() {
 			List<Integer> stats = asList().stream().filter(i -> i != 0).collect(Collectors.toList());
@@ -57,38 +58,20 @@ public class GBAFEStatboost extends AbstractGBAData {
 		
 		public void setStatAtIndex(int index, int stat) {
 			switch(index) {
-			case 0: 
-				hp = stat;
-				break;
-			case 1: 
-				str = stat;
-				break;
-			case 2: 
-				skl = stat;
-				break;
-			case 3: 
-				spd = stat;
-				break;
-			case 4: 
-				def = stat;
-				break;
-			case 5: 
-				res = stat;
-				break;
-			case 6: 
-				lck = stat;
-				break;
-			case 7: 
-				mov = stat;
-				break;
-			case 8: 
-				con = stat;
-				break;
+				case 0: hp = stat; break;
+				case 1: str = stat; break;
+				case 2: skl = stat; break;
+				case 3: spd = stat; break;
+				case 4: def = stat; break;
+				case 5: res = stat; break;
+				case 6: lck = stat; break;
+				case 7: mov = stat; break;
+				case 8: con = stat; break;
 			}
 		}
 		
 		/**
-		 * Substracts the stats from the given DAO from the current instance
+		 * Subtracts the stats from the given DAO from the current instance
 		 */
 		public GBAFEStatboostDao subtract(GBAFEStatboostDao other) {
 			super.subtract(other);
@@ -108,6 +91,82 @@ public class GBAFEStatboost extends AbstractGBAData {
 			list.add(con);
 			return list;
 		}
+		
+		public long numberOfBoosts() {
+			return this.asList().stream().filter(i -> i > 0).count();
+		}
+		
+		/**
+		 * Return a string which should be used for the ingame description of this statbooster.
+		 * 
+		 * We have access to 3 lines of 32 characters for the description.
+		 * 
+		 * Stats will be shown as following:
+		 * 
+		 * HP +XX POW +XX SKL +XX
+		 * SPD +XX DEF +XX RES +XX 
+		 * LCK +XX MOV +XX CON +XX 
+		 */
+		public String buildDescription() {
+			StringBuilder sb = new StringBuilder();
+			if (numberOfBoosts() == 1) {
+				sb.append("Grants ");
+			}
+			sb.append(buildDescriptionsImp("%s +%d"));
+			return sb.toString();
+		}
+
+		/**
+		 * Return a string which should be used for the ingame description of this statbooster.
+		 * 
+		 * This description is displayed in the menu when you try to use the item.
+		 * 
+		 * We have access to 3 lines of 13 characters for the description.
+		 * 
+		 * This will just be the short names for the stats, sadly if we add the "Boosts" at the beginning 
+		 * it wouldn't fit if too many stats are boosted, so only add that if it's single one.
+		 */
+		public String buildUseDescription() {
+			StringBuilder sb = new StringBuilder();
+			if (numberOfBoosts() == 1) {
+				sb.append("Boosts ");
+			}
+			sb.append(buildDescriptionsImp("%s"));
+			return sb.toString();
+		}
+		
+		public String buildDescriptionsImp(String format) {
+			StringBuilder sb = new StringBuilder();
+			List<Integer> stats = asList();
+			int nrAppendedStats = 0;
+			for (int i = 0; i < 9; i++) {
+				if (stats.get(i) == 0) {
+					continue;
+				}
+				
+				nrAppendedStats++;
+				
+				switch(i) {
+					case 0: sb.append(String.format(format, "HP", this.hp)); break;
+					case 1: sb.append(String.format(format, "Pow", this.str)); break;
+					case 2: sb.append(String.format(format, "Skl", this.skl)); break;
+					case 3: sb.append(String.format(format, "Spd", this.spd)); break;
+					case 4: sb.append(String.format(format, "Def", this.def)); break;
+					case 5: sb.append(String.format(format, "Res", this.res)); break;
+					case 6: sb.append(String.format(format, "Lck", this.lck)); break;
+					case 7: sb.append(String.format(format, "Mov", this.mov)); break;
+					case 8: sb.append(String.format(format, "Con", this.con)); break;
+				}
+				
+				if (Arrays.asList(3, 6).contains(nrAppendedStats)) {
+					sb.append("[0x1]");
+				} else {
+					sb.append(" ");
+				}
+			}
+			
+			return sb.toString();
+		}
 	}
 	
 	/**
@@ -125,8 +184,10 @@ public class GBAFEStatboost extends AbstractGBAData {
 	 * Constructor to be used when default Statboosts are loaded from the Rom. 
 	 */
 	public GBAFEStatboost(byte[] data, long originalOffset) {
-		this.originalData = data;
 		this.data = data;
+		// Make a copy of the array to ensure that the original data will not be overriden by changes, 
+		// so that we can still identify which statboosters were originally boots.
+		this.originalData = Arrays.copyOf(this.data, this.data.length);
 		this.originalOffset = originalOffset;
 		this.dao = new GBAFEStatboostDao(this, data);
 	}

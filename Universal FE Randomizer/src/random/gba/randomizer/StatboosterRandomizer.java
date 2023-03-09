@@ -2,9 +2,12 @@ package random.gba.randomizer;
 
 import java.util.Random;
 
+import fedata.gba.GBAFEItemData;
 import fedata.gba.general.GBAFEStatboost;
 import fedata.gba.general.GBAFEStatboost.GBAFEStatboostDao;
+import random.gba.loader.ItemDataLoader;
 import random.gba.loader.StatboostLoader;
+import random.gba.loader.TextLoader;
 import random.general.PoolDistributor;
 import ui.model.StatboosterOptions;
 
@@ -15,7 +18,7 @@ public class StatboosterRandomizer {
 	
 	public static int SALT = 4831789;
 	
-	public static void randomize(StatboosterOptions options, StatboostLoader loader, Random rng) {
+	public static void randomize(StatboosterOptions options, StatboostLoader loader, ItemDataLoader itemData, TextLoader texts, Random rng) {
 		if (!options.enabled) {
 			return;
 		}
@@ -34,6 +37,22 @@ public class StatboosterRandomizer {
 		default:
 			throw new UnsupportedOperationException("No Statbooster Randomization Mode was selected.");
 
+		}
+		
+		// Update the descriptions
+		for (GBAFEStatboost boost : loader.getStatboosters(options.includeMov, options.includeCon)) {
+			for (GBAFEItemData item : itemData.itemsByStatboostAddress(boost.getAddressOffset())) {
+				System.out.println(item.displayString());
+				int descriptionIndex = item.getDescriptionIndex();
+				int useDescriptionIndex = item.getUseDescriptionIndex();
+				
+				texts.setStringAtIndex(descriptionIndex, boost.dao.buildDescription());
+				
+				// As the Use Description doesn't include the value, if it's still the same stat, then there is no need to change it.
+				if (options.mode != StatboosterOptions.StatboosterRandomizationModes.SAME_STAT) {
+					texts.setStringAtIndex(useDescriptionIndex, boost.dao.buildUseDescription());
+				}
+			}
 		}
 	}
 

@@ -5,16 +5,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import fedata.gba.GBAFEItemData;
 import fedata.gba.general.GBAFEStatboost;
 import fedata.gba.general.GBAFEStatboostProvider;
 import io.FileHandler;
+import ui.model.StatboosterOptions;
 import util.Diff;
 import util.DiffCompiler;
+import util.recordkeeper.RecordKeeper;
 
 /**
  * Class for loading the Statboost Data from the Rom  
  */
 public class StatboostLoader {
+	public static final String RecordKeeperCategoryStatboostersKey = "Statboosters";
+
+	
 	private List<GBAFEStatboost> statboostsData = new ArrayList<>();
 	private GBAFEStatboostProvider provider;
 
@@ -47,6 +53,42 @@ public class StatboostLoader {
 		}
 
 		return statboosters;
+	}
+	
+	public void recordInitial(RecordKeeper rk, ItemDataLoader itemData, StatboosterOptions options) {
+		for (GBAFEStatboost boost : getStatboosters(options.includeMov, options.includeCon)) {
+			for (GBAFEItemData item : itemData.itemsByStatboostAddress(boost.getAddressOffset())) {
+				String name = item.displayString();
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "", "Original");
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "HP", String.valueOf(boost.dao.hp));
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "POW", String.valueOf(boost.dao.str));
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "SKL", String.valueOf(boost.dao.skl));
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "SPD", String.valueOf(boost.dao.spd));
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "LCK", String.valueOf(boost.dao.lck));
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "DEF", String.valueOf(boost.dao.def));
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "RES", String.valueOf(boost.dao.res));
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "MOV", String.valueOf(boost.dao.mov));
+				rk.recordOriginalEntry(RecordKeeperCategoryStatboostersKey, name, "CON", String.valueOf(boost.dao.con));
+			}
+		}
+	}
+	
+	public void recordUpdated(RecordKeeper rk, ItemDataLoader itemData, StatboosterOptions options) {
+		for (GBAFEStatboost boost : getStatboosters(options.includeMov, options.includeCon)) {
+			for (GBAFEItemData item : itemData.itemsByStatboostAddress(boost.getAddressOffset())) {
+				String name = item.displayString();
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "", "Modified");
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "HP", String.valueOf(boost.dao.hp));
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "POW", String.valueOf(boost.dao.str));
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "SKL", String.valueOf(boost.dao.skl));
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "SPD", String.valueOf(boost.dao.spd));
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "LCK", String.valueOf(boost.dao.lck));
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "DEF", String.valueOf(boost.dao.def));
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "RES", String.valueOf(boost.dao.res));
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "MOV", String.valueOf(boost.dao.mov));
+				rk.recordUpdatedEntry(RecordKeeperCategoryStatboostersKey, name, "CON", String.valueOf(boost.dao.con));
+			}
+		}
 	}
 
 	public void commit() {
