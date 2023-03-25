@@ -144,30 +144,6 @@ public class FE8Randomizer extends AbstractGBARandomizer {
 	}
 	
 	@Override
-	protected void compileDiffs() {
-		updateStatusString("Compiling changes...");
-		updateProgress(0.95);
-		charData.compileDiffs(diffCompiler);
-		chapterData.compileDiffs(diffCompiler);
-		classData.compileDiffs(diffCompiler, sourceFileHandler, freeSpace);
-		itemData.compileDiffs(diffCompiler, sourceFileHandler);
-		paletteData.compileDiffs(diffCompiler);
-		textData.commitChanges(freeSpace, diffCompiler);
-	
-		// FE8 Unique
-		fe8_paletteMapper.commitChanges(diffCompiler);
-		fe8_promotionManager.compileDiffs(diffCompiler);
-		
-		fe8_summonerModule.validateSummoners(charData, new Random(SeedGenerator.generateSeedValue(seedString, 0)));
-		fe8_summonerModule.commitChanges(diffCompiler, freeSpace);
-		// FE8 Unique
-		
-		freeSpace.commitChanges(diffCompiler);
-
-	}
-
-	
-	@Override
 	protected void applyPromotionFix() {
 		// FE8 stores this in a separate table.
 		for (GBAFEClassData charClass : classData.allClasses()) {
@@ -562,5 +538,16 @@ public class FE8Randomizer extends AbstractGBARandomizer {
 		diffCompiler.addDiff(new Diff(0xCC2, 4, new byte[] { (byte) 0xC0, (byte) 0x46, (byte) 0xC0, (byte) 0x46 },
 				new byte[] { (byte) 0xFF, (byte) 0xF7, (byte) 0xCF, (byte) 0xFF }));
 	}
-
+	
+	@Override
+	protected void gameSpecificDiffCompilations() {
+		fe8_paletteMapper.commitChanges(diffCompiler);
+		fe8_summonerModule.validateSummoners(charData, new Random(SeedGenerator.generateSeedValue(seedString, 0)));
+		fe8_summonerModule.commitChanges(diffCompiler, freeSpace);
+	}
+	
+	@Override
+	protected void applyUpsPatches() {
+		// N/A
+	}
 }

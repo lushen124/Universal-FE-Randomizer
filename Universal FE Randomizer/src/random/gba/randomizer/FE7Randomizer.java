@@ -1053,5 +1053,15 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		diffCompiler.addDiff(new Diff(0xE92, 4, new byte[] { (byte) 0xC0, (byte) 0x46, (byte) 0xC0, (byte) 0x46 },
 				new byte[] { (byte) 0xFF, (byte) 0xF7, (byte) 0xB7, (byte) 0xFF }));
 	}
+	
+	@Override
+	protected void gameSpecificDiffCompilations() {
+		//N/A
+	}
+	
+	@Override
+	protected void applyUpsPatches() {
+		// N/A
+	}
 
 }

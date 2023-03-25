@@ -136,9 +136,7 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 					return;
 				}
 			} catch (Exception e) {
-				notifyError("Encountered error while applying patch.\n\n" + e.getClass().getSimpleName()
-						+ "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream()
-								.map(element -> (element.toString())).limit(5).collect(Collectors.toList())));
+				notifyError("Encountered error while applying patch." + buildErrorMessage(e));
 				return;
 			}
 
@@ -329,4 +327,13 @@ public class FE6Randomizer extends AbstractGBARandomizer {
 				new byte[] { (byte) 0xFF, (byte) 0xF7, (byte) 0xBB, (byte) 0xFF }));
 	}
 
+	@Override
+	protected void gameSpecificDiffCompilations() {
+		//N/A
+	}
+	
+	@Override
+	protected void applyUpsPatches() {
+		applyEnglishPatch();
+	}
 }

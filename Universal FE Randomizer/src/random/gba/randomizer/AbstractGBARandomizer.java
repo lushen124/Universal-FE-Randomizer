@@ -169,14 +169,19 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	protected abstract void applySingleRN();
 
 	/**
-	 * Performs necessary adjustments before the randomization takes place
+	 * Abstract Method.
+	 * 
+	 * The Implementation of this Method lets the subclass add more dataloader diff compilers before the free space is commited.
 	 */
-	protected void makePreliminaryAdjustments() {
-		// Some characters have discrepancies between character data and chapter data.
-		// We'll try to address that before we get to any modifications.
-		charData.applyLevelCorrectionsIfNecessary();
-		itemData.prepareForRandomization();
-	}
+	protected abstract void gameSpecificDiffCompilations();
+	
+	/**
+	 * Abstract Method.
+	 * 
+	 * The implementation of this method lets the subclass install 
+	 * UPS Patches before any data is loaded. Currently this is only used for the FE6 Translation patch. 
+	 */
+	protected abstract void applyUpsPatches();
 
 	/**
 	 * The core method which executes the randomization.
@@ -186,36 +191,39 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 			// (1) Create a File Handler for the Source File
 			sourceFileHandler = openFileAsHandler(sourcePath);
 
-			// (2) Run the dataloaders for the current game.
+			// (2) Apply necessary UPS Patches pre-dataloading 
+			applyUpsPatches();
+			
+			// (3) Run the dataloaders for the current game.
 			runRandomiztionStep("loading data", 1, () -> runDataloaders());
 
-			// (3) Initialize the Record Keeper with the data from the original game
+			// (4) Initialize the Record Keeper with the data from the original game
 			initializeRecordKeeper();
 			recordOriginalState();
 
-			// (4) Apply some corrections needed before the Randomization.
+			// (5) Apply some corrections needed before the Randomization.
 			makePreliminaryAdjustments();
 
-			// (5) Execute the different Randomization Steps depending on the Options
+			// (6) Execute the different Randomization Steps depending on the Options
 			executeRandomization();
 
-			// (6) Apply various fixes based on the game that are necessary after the game
+			// (7) Apply various fixes based on the game that are necessary after the game
 			// is randomized.
 			makeFinalAdjustments();
 
-			// (7) Compile the diffs to they can be applied
+			// (8) Compile the diffs to they can be applied
 			compileDiffs();
 
-			// (8) Apply the diffs to the target file.
+			// (9) Apply the diffs to the target file.
 			applyDiffs();
 
-			// (9) cleanup the Source File Handler and potentially created Temporary files
+			// (10) cleanup the Source File Handler and potentially created Temporary files
 			cleanupSourceFiles();
 
-			// (10) Create a file Handler for the target File
+			// (11) Create a file Handler for the target File
 			targetFileHandler = openFileAsHandler(targetPath);
 
-			// (11) Record the State after randomization finished in the RecordKeeper.
+			// (12) Record the State after randomization finished in the RecordKeeper.
 			recordPostRandomizationState();
 
 			// Finished.
@@ -246,9 +254,11 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	 * @param progress the number to update the progress to before running the step.
 	 * @param step     a runnable which is the randomization step to perform
 	 */
-	public void runRandomiztionStep(String stepDesc, int progress, Runnable step) {
+	public void runRandomiztionStep(String stepDesc, Integer progress, Runnable step) {
 		try {
-			updateProgress(progress / 100d);
+			if (null != progress) {
+				updateProgress(progress / 100d);
+			}
 			step.run();
 		} catch (Exception e) {
 			throw new RandomizationStoppedException(
@@ -277,6 +287,16 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 		itemData.compileDiffs(diffCompiler, sourceFileHandler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
+		
+
+		// If the implementing game has any game specific dataloaders (such as FE8 Promotion Data), 
+		// then make sure to compile the changes before we commit the freespace.
+		// This should be the main position where such things should be necessary. 
+		// And can help with not having to completely override this method and having to add the compile at multiple places, which is easily forgotten.
+		gameSpecificDiffCompilations();
+
+
+		
 		freeSpace.commitChanges(diffCompiler);
 	}
 
@@ -584,7 +604,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 	}
 
 	/**
-	 * Loops through all
+	 * Loops through all ChapterUnit entries and ensures that all characters that have a staff rank have atleast one item that is a staff.
 	 */
 	protected void ensureHealersHaveStaves(Random rng) {
 		// Make sure healing classes have at least one healing staff in their starting
@@ -612,6 +632,18 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 			}
 		}
 	}
+	
+	
+	/**
+	 * Performs necessary adjustments before the randomization takes place
+	 */
+	protected void makePreliminaryAdjustments() {
+		// Some characters have discrepancies between character data and chapter data.
+		// We'll try to address that before we get to any modifications.
+		charData.applyLevelCorrectionsIfNecessary();
+		itemData.prepareForRandomization();
+	}
+	
 
 	/**
 	 * Apply a fix to ensure that forcing a promoted unit to promote gain doesn't
