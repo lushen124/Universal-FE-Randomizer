@@ -337,6 +337,12 @@ public class MiscellaneousView extends Composite {
 			experinceLayout.marginRight = 5;
 			experienceRateGroup.setLayout(experinceLayout);
 			
+			formData = new FormData();
+			formData.left = new FormAttachment(0, 5);
+			formData.right = new FormAttachment(100, 5);
+			formData.top = new FormAttachment(casualModeButton, 10);
+			experienceRateGroup.setLayoutData(formData);
+			
 			normalExperienceButton = new Button(experienceRateGroup, SWT.RADIO);
 			normalExperienceButton.setText("Normal");
 			normalExperienceButton.setToolTipText("Normal Experience Gain.");
