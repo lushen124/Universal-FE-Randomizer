@@ -30,6 +30,7 @@ import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
 import random.gba.randomizer.service.ClassAdjustmentDto;
 import random.gba.randomizer.service.GBASlotAdjustmentService;
+import random.gba.randomizer.service.GBATextReplacementService;
 import random.gba.randomizer.service.ItemAssignmentService;
 import random.general.RelativeValueMapper;
 import ui.model.ItemAssignmentOptions;
@@ -221,59 +222,14 @@ public class RecruitmentRandomizer {
 			GBAFECharacterData fill = characterMap.get(slot);
 			if (fill != null) {
 				// Track the text changes before we change anything.
-				// Face IDs
-				// Some games have multiple portraits per character. Replace all of them (think Eliwood's many faces in FE7).
-				if (textData.allowTextChanges) {
-					if (characterData.multiPortraitsForCharacter(slot.getID()).isEmpty()) {
-						textReplacements.put("[LoadFace][0x" + Integer.toHexString(slot.getFaceID()) + "]", "[LoadFace][0x" + Integer.toHexString(fill.getFaceID()) + "]");
-					} else {
-						for (int faceID : characterData.multiPortraitsForCharacter(slot.getID())) {
-							textReplacements.put("[LoadFace][0x" + Integer.toHexString(faceID) + "]", "[LoadFace][0x" + Integer.toHexString(fill.getFaceID()) + "]");
-						}
-					}
-					textReplacements.put(textData.getStringAtIndex(slot.getNameIndex(), true).trim(), textData.getStringAtIndex(fill.getNameIndex(), true).trim());
-					textReplacements.put(textData.getStringAtIndex(slot.getNameIndex(), true).toUpperCase().trim(), textData.getStringAtIndex(fill.getNameIndex(), true).trim()); // Sometimes people yell too. :(
-					// TODO: pronouns?
-				}
-				
+				GBATextReplacementService.enqueueUpdate(textData, characterData, slot, fill);
 				// Apply the change to the data.
 				fillSlot(options, inventoryOptions, slot, fill, characterData, classData, itemData, chapterData, textData, type, rng);
 			}
 		}
-		
+				
 		// Run through the text and modify portraits and names in text.
-		
-		if (textData.allowTextChanges) {
-			// Build tokens for pattern
-			String patternString = "(" + patternStringFromReplacements(textReplacements) + ")";
-			Pattern pattern = Pattern.compile(patternString);
-						
-			for (int i = 0; i < textData.getStringCount(); i++) {
-				if (textData.isExcludedNameIndex(i)) {
-					// don't replace things such as Iron Lance
-					continue;
-				}
-				String originalStringWithCodes = textData.getStringAtIndex(i, false);
-				
-				String workingString = new String(originalStringWithCodes);
-				Matcher matcher = pattern.matcher(workingString);
-				StringBuffer sb = new StringBuffer();
-				while (matcher.find()) {
-					String capture = matcher.group(1);
-					String replacementKey = textReplacements.get(capture);
-					if (replacementKey == null) {
-						// Strip out any stuttering.
-						String truncated = capture.substring(capture.lastIndexOf('-') + 1);
-						replacementKey = textReplacements.get(truncated);
-					}
-					matcher.appendReplacement(sb, replacementKey);
-				}
-				
-				matcher.appendTail(sb);
-				
-				textData.setStringAtIndex(i, sb.toString());
-			}
-		}
+		GBATextReplacementService.applyChanges(textData);
 		
 		for (GBAFEWorldMapData worldMapEvent : chapterData.allWorldMapEvents()) {
 			for (GBAFEWorldMapPortraitData portrait : worldMapEvent.allPortraits()) {

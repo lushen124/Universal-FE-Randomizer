@@ -27,6 +27,7 @@ import random.gba.loader.PortraitDataLoader;
 import random.gba.loader.TextLoader;
 import random.gba.randomizer.service.ClassAdjustmentDto;
 import random.gba.randomizer.service.GBASlotAdjustmentService;
+import random.gba.randomizer.service.GBATextReplacementService;
 import random.gba.randomizer.service.ItemAssignmentService;
 import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import random.gba.randomizer.shuffling.data.PortraitFormat;
@@ -141,12 +142,17 @@ public class CharacterShuffler {
 	
 	private static void updateName(TextLoader textData, PortraitDataLoader portraitData,
 			GBAFECharacterData slot, GBACrossGameData crossGameData) {
+		// Save the old name for text replacement
+		String oldName = textData.getStringAtIndex(slot.getNameIndex(), true).trim();
 		List<Integer> nameIndicies = new ArrayList<>();
 		nameIndicies.add(slot.getNameIndex());
 		nameIndicies.addAll(portraitData.getRelatedNameIndicies(slot.getNameIndex()));
 		for(Integer index : nameIndicies) {
 			textData.setStringAtIndex(index, crossGameData.name+"[X]");
 		}
+		
+		GBATextReplacementService.enqueueNameUpdate(textData, oldName, crossGameData.name);
+		GBATextReplacementService.applyChanges(textData);
 	}
 
 	/**

@@ -16,7 +16,20 @@ import util.DebugPrinter;
 
 public class GBASlotAdjustmentService {
 
+	/**
+	 * This Constant is for the level at which a character is assumed to be promoted with regards to Slot Adjustment.
+	 * F.e. if Eirika -> Seth she would only get 9 levels then promote. 
+	 * Rather than going to level 20 for promotion and getting 19 levels.
+	 */
 	private static final int ASSUMED_PROMOTION_LEVEL = 10;
+
+	/**
+	 * This constant describes the threshold after which the number of Autolevels will be reduced a bit.
+	 * 
+	 * This help with Making sure htat characters which receive a lot of positive levels aren't too strong, 
+	 * and characters that get negative levels don't become too weak. 
+	 */
+	private static final int AUTOLEVEL_REDUCTION_THRESHOL = 10;
 	
 	/**
 	 * Used by Recruitment Randomization and Character Shuffling to Calculate the following information:
