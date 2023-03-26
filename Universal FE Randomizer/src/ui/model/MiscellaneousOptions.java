@@ -6,6 +6,10 @@ public class MiscellaneousOptions {
 		SIMILAR, RANDOM
 	}
 	
+	public enum ExperienceRate {
+		NORMAL, PARAGON, RENEGADE
+	}
+	
 	public final Boolean applyEnglishPatch;
 	
 	public final Boolean tripleEffectiveness;
@@ -19,6 +23,9 @@ public class MiscellaneousOptions {
 	public final MinMaxOption fogOfWarVisionRange;
 	
 	public final RewardMode rewardMode;
+	
+	public final ExperienceRate experienceRate;
+	public final Boolean casualMode;
 	
 	public static class FollowupRequirement {
 		public final Boolean requiresPursuit;
@@ -35,7 +42,7 @@ public class MiscellaneousOptions {
 	public final FollowupRequirement followupRequirement;
 	
 	// FE7, FE8
-	public MiscellaneousOptions(Boolean randomRewards, int enemyDropChance, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange) {
+	public MiscellaneousOptions(Boolean randomRewards, int enemyDropChance, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange, Boolean casualMode, ExperienceRate experienceRate) {
 		super();
 		this.applyEnglishPatch = false;
 		this.tripleEffectiveness = tripleEffectiveness;
@@ -47,6 +54,8 @@ public class MiscellaneousOptions {
 		randomizeFogOfWar = fogOfWar;
 		this.fogOfWarChance = fogOfWarChance;
 		fogOfWarVisionRange = visionRange;
+		this.casualMode = casualMode;
+		this.experienceRate = experienceRate;
 	}
 
 	// FE4
@@ -62,10 +71,12 @@ public class MiscellaneousOptions {
 		randomizeFogOfWar = false;
 		fogOfWarVisionRange = null;
 		fogOfWarChance = 0;
+		casualMode = false;
+		experienceRate = ExperienceRate.NORMAL;
 	}
 	
 	// FE6
-	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange) {
+	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange, Boolean casualMode, ExperienceRate experienceRate) {
 		super();
 		this.applyEnglishPatch = applyEnglishPatch;
 		this.tripleEffectiveness = tripleEffectiveness;
@@ -77,6 +88,8 @@ public class MiscellaneousOptions {
 		randomizeFogOfWar = fogOfWar;
 		fogOfWarVisionRange = visionRange;
 		this.fogOfWarChance = fogOfWarChance;
+		this.casualMode = casualMode;
+		this.experienceRate = experienceRate;
 	}
 	
 	// FE9
@@ -92,5 +105,7 @@ public class MiscellaneousOptions {
 		randomizeFogOfWar = false;
 		fogOfWarVisionRange = null;
 		fogOfWarChance = 0;
+		casualMode = false;
+		experienceRate = ExperienceRate.NORMAL;
 	}
 }
