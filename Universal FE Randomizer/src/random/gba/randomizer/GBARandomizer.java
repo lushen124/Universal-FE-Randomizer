@@ -44,10 +44,14 @@ import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.PaletteLoader;
+import random.gba.loader.PortraitDataLoader;
 import random.gba.loader.TextLoader;
+import random.gba.randomizer.shuffling.CharacterShuffler;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.general.Randomizer;
 import ui.model.BaseOptions;
+import ui.model.CharacterShufflingOptions;
+import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
 import ui.model.GrowthOptions;
@@ -88,6 +92,7 @@ public class GBARandomizer extends Randomizer {
 	private MiscellaneousOptions miscOptions;
 	private RecruitmentOptions recruitOptions;
 	private ItemAssignmentOptions itemAssignmentOptions;
+	private CharacterShufflingOptions shufflingOptions;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -95,13 +100,14 @@ public class GBARandomizer extends Randomizer {
 	private ItemDataLoader itemData;
 	private PaletteLoader paletteData;
 	private TextLoader textData;
+	private PortraitDataLoader portraitData;
 	
 	private boolean needsPaletteFix;
 	private Map<GBAFECharacterData, GBAFECharacterData> characterMap; // valid with random recruitment. Maps slots to reference character.
 	
 	// FE8 only
-	private FE8PaletteMapper fe8_paletteMapper;
 	private FE8PromotionManager fe8_promotionManager;
+	private FE8PaletteMapper fe8_paletteMapper;
 	private FE8SummonerModule fe8_summonerModule;
 	
 	private String seedString;
@@ -115,7 +121,7 @@ public class GBARandomizer extends Randomizer {
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed) {
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -132,6 +138,7 @@ public class GBARandomizer extends Randomizer {
 		miscOptions = otherOptions;
 		recruitOptions = recruit;
 		itemAssignmentOptions = itemAssign;
+		this.shufflingOptions = shufflingOptions;
 		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE, false, false); }
 		
 		this.gameType = gameType;
@@ -212,6 +219,8 @@ public class GBARandomizer extends Randomizer {
 		makePreliminaryAdjustments();
 		
 		updateStatusString("Randomizing...");
+		try { shuffleCharactersIfNecessary(seed);} catch(Exception e) {notifyError("Encountered error while shuffling in Characters.\n\n" + e.getClass().getSimpleName() + "\n\nStackTrace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.40);
 		try { randomizeRecruitmentIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing recruitment.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.45);
 		try { randomizeClassesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing classes.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; } 
@@ -229,7 +238,6 @@ public class GBARandomizer extends Randomizer {
 		try { randomizeGrowthsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing growths.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.90);
 		try { makeFinalAdjustments(seed); } catch (Exception e) { notifyError("Encountered error while making final adjustments.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
-		
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
 		charData.compileDiffs(diffCompiler);
@@ -238,6 +246,7 @@ public class GBARandomizer extends Randomizer {
 		itemData.compileDiffs(diffCompiler, handler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
+		portraitData.compileDiffs(diffCompiler);
 		
 		if (gameType == GameType.FE8) {
 			fe8_paletteMapper.commitChanges(diffCompiler);
@@ -338,9 +347,12 @@ public class GBARandomizer extends Randomizer {
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7, FE7Data.InternalFreeRange, handler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.05);
-		textData = new TextLoader(FEBase.GameType.FE7, handler);
+		textData = new TextLoader(FEBase.GameType.FE7, FE7Data.textProvider, handler);
 		textData.allowTextChanges = true;
-		
+
+		updateStatusString("Loading Portrait Data...");
+		updateProgress(0.07);
+		portraitData = new PortraitDataLoader(FE7Data.shufflingDataProvider, handler);
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE7Data.characterProvider, handler);
@@ -368,11 +380,14 @@ public class GBARandomizer extends Randomizer {
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE6, FE6Data.InternalFreeRange, handler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.05);
-		textData = new TextLoader(FEBase.GameType.FE6, handler);
+		textData = new TextLoader(FEBase.GameType.FE6, FE6Data.textProvider, handler);
 		if (miscOptions.applyEnglishPatch) {
 			textData.allowTextChanges = true;
 		}
-		
+
+		updateStatusString("Loading Portrait Data...");
+		updateProgress(0.07);
+		portraitData = new PortraitDataLoader(FE6Data.shufflingDataProvider, handler);
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE6Data.characterProvider, handler);
@@ -400,12 +415,16 @@ public class GBARandomizer extends Randomizer {
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE8, FE8Data.InternalFreeRange, handler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.04);
-		textData = new TextLoader(FEBase.GameType.FE8, handler);
+		textData = new TextLoader(FEBase.GameType.FE8, FE8Data.textProvider, handler);
 		textData.allowTextChanges = true;
 		
 		updateStatusString("Loading Promotion Data...");
 		updateProgress(0.06);
 		fe8_promotionManager = new FE8PromotionManager(handler);
+
+		updateStatusString("Loading Portrait Data...");
+		updateProgress(0.07);
+		portraitData = new PortraitDataLoader(FE8Data.shufflingDataProvider, handler);
 		
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
@@ -433,6 +452,13 @@ public class GBARandomizer extends Randomizer {
 		
 		
 		handler.clearAppliedDiffs();
+	}
+	
+	public void shuffleCharactersIfNecessary(String seed) {
+		if(shufflingOptions != null && shufflingOptions.isShuffleEnabled()) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));
+			CharacterShuffler.shuffleCharacters(gameType, charData, textData, rng, handler, portraitData, freeSpace, chapterData, classData, shufflingOptions, itemAssignmentOptions, itemData);
+		}
 	}
 	
 	private void randomizeGrowthsIfNecessary(String seed) {
@@ -746,10 +772,9 @@ public class GBARandomizer extends Randomizer {
 						new byte[] {lynReplacementAnimationID, 0, 0, 0, eliwoodReplacementAnimationID, 0, 0, 0, hectorReplacementAnimationID, 0, 0, 0}, null));
 				
 				// See if we can apply their palettes to the class default.
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace, diffCompiler);
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
-				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null ? characterMap.get(hector) : hector, hector.getClassID(), paletteData, freeSpace, diffCompiler);
-				
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null && characterMap.containsKey(lyn) ? characterMap.get(lyn) : lyn, lyn.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null && characterMap.containsKey(eliwood) ? characterMap.get(eliwood) : eliwood, eliwood.getClassID(), paletteData, freeSpace, diffCompiler);
+				PaletteHelper.applyCharacterPaletteToSprite(GameType.FE7, handler, characterMap != null && characterMap.containsKey(hector) ? characterMap.get(hector) : hector, hector.getClassID(), paletteData, freeSpace, diffCompiler);
 				// Finally, fix the weapon text.
 				textData.setStringAtIndex(FE7Data.ModeSelectTextLynWeaponTypeIndex, lynClass.primaryWeaponType() + "[X]");
 				textData.setStringAtIndex(FE7Data.ModeSelectTextEliwoodWeaponTypeIndex, eliwoodClass.primaryWeaponType() + "[X]");
@@ -2129,207 +2154,212 @@ public class GBARandomizer extends Randomizer {
 		} else {
 			rk.addHeaderItem("Randomize Affinity", "NO");
 		}
-		
-		if (weapons.mightOptions != null) {
-			rk.addHeaderItem("Randomize Weapon Power", "+/- " + weapons.mightOptions.variance + ", (" + weapons.mightOptions.minValue + " ~ " + weapons.mightOptions.maxValue + ")");
-		} else {
-			rk.addHeaderItem("Randomize Weapon Power", "NO");
-		}
-		if (weapons.hitOptions != null) {
-			rk.addHeaderItem("Randomize Weapon Accuracy", "+/- " + weapons.hitOptions.variance + ", (" + weapons.hitOptions.minValue + " ~ " + weapons.hitOptions.maxValue + ")");
-		} else {
-			rk.addHeaderItem("Randomize Weapon Accuracy", "NO");
-		}
-		if (weapons.weightOptions != null) {
-			rk.addHeaderItem("Randomize Weapon Weight", "+/- " + weapons.weightOptions.variance + ", (" + weapons.weightOptions.minValue + " ~ " + weapons.weightOptions.maxValue + ")");
-		} else {
-			rk.addHeaderItem("Randomize Weapon Weight", "NO");
-		}
-		if (weapons.durabilityOptions != null) {
-			rk.addHeaderItem("Randomize Weapon Durability", "+/- " + weapons.durabilityOptions.variance + ", (" + weapons.durabilityOptions.minValue + " ~ " + weapons.durabilityOptions.maxValue + ")");
-		} else {
-			rk.addHeaderItem("Randomize Weapon Durability", "NO");
-		}
-		if (weapons.shouldAddEffects) {
-			rk.addHeaderItem("Add Random Effects", "YES (" + weapons.effectChance + "%)");
-			StringBuilder sb = new StringBuilder();
-			sb.append("<ul>\n");
-			if (weapons.effectsList.statBoosts > 0) { sb.append("<li>Stat Boosts" + String.format(" (%.2f%%)", (double)weapons.effectsList.statBoosts / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			if (weapons.effectsList.effectiveness > 0) { sb.append("<li>Effectiveness" + String.format(" (%.2f%%)", (double)weapons.effectsList.effectiveness / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			if (weapons.effectsList.unbreakable > 0) { sb.append("<li>Unbreakable" + String.format(" (%.2f%%)", (double)weapons.effectsList.unbreakable / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			if (weapons.effectsList.brave > 0) { sb.append("<li>Brave" + String.format(" (%.2f%%)", (double)weapons.effectsList.brave / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			if (weapons.effectsList.reverseTriangle > 0) { sb.append("<li>Reverse Triangle" + String.format(" (%.2f%%)", (double)weapons.effectsList.reverseTriangle / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			if (weapons.effectsList.extendedRange > 0) { sb.append("<li>Extended Range" + String.format(" (%.2f%%)", (double)weapons.effectsList.extendedRange / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			if (weapons.effectsList.highCritical > 0) { 
-				sb.append("<li>Critical");
-				sb.append(" (" + weapons.effectsList.criticalRange.minValue + "% ~ " + weapons.effectsList.criticalRange.maxValue + "%)");
-				sb.append(String.format(" (%.2f%%)", (double)weapons.effectsList.highCritical / (double)weapons.effectsList.getWeightTotal() * 100));
-				sb.append("</li>\n");
-			}
-			if (weapons.effectsList.magicDamage > 0) { sb.append("<li>Magic Damage" + String.format(" (%.2f%%)", (double)weapons.effectsList.magicDamage / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			if (weapons.effectsList.poison > 0) { sb.append("<li>Poison" + String.format(" (%.2f%%)", (double)weapons.effectsList.poison / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			if (weapons.effectsList.eclipse > 0) { sb.append("<li>Eclipse" + String.format(" (%.2f%%)", (double)weapons.effectsList.eclipse / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			if (weapons.effectsList.devil > 0) { sb.append("<li>Devil" + String.format(" (%.2f%%)", (double)weapons.effectsList.devil / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
-			sb.append("</ul>\n");
-			rk.addHeaderItem("Random Effects Allowed", sb.toString());
-			if (weapons.noEffectIronWeapons) {
-				rk.addHeaderItem("Safe Basic Weapons", "YES");
+		if (weapons != null) {
+			if (weapons.mightOptions != null) {
+				rk.addHeaderItem("Randomize Weapon Power", "+/- " + weapons.mightOptions.variance + ", (" + weapons.mightOptions.minValue + " ~ " + weapons.mightOptions.maxValue + ")");
 			} else {
-				rk.addHeaderItem("Safe Basic Weapons", "NO");
+				rk.addHeaderItem("Randomize Weapon Power", "NO");
 			}
-			if (weapons.noEffectSteelWeapons) {
-				rk.addHeaderItem("Safe Steel Weapons", "YES");
+			if (weapons.hitOptions != null) {
+				rk.addHeaderItem("Randomize Weapon Accuracy", "+/- " + weapons.hitOptions.variance + ", (" + weapons.hitOptions.minValue + " ~ " + weapons.hitOptions.maxValue + ")");
 			} else {
-				rk.addHeaderItem("Safe Steel Weapons", "NO");
+				rk.addHeaderItem("Randomize Weapon Accuracy", "NO");
 			}
-			if (weapons.noEffectThrownWeapons) {
-				rk.addHeaderItem("Safe Basic Thrown Weapons", "YES");
+			if (weapons.weightOptions != null) {
+				rk.addHeaderItem("Randomize Weapon Weight", "+/- " + weapons.weightOptions.variance + ", (" + weapons.weightOptions.minValue + " ~ " + weapons.weightOptions.maxValue + ")");
 			} else {
-				rk.addHeaderItem("Safe Basic Thrown Weapons", "NO");
+				rk.addHeaderItem("Randomize Weapon Weight", "NO");
 			}
-		} else {
-			rk.addHeaderItem("Add Random Effects", "NO");
+			if (weapons.durabilityOptions != null) {
+				rk.addHeaderItem("Randomize Weapon Durability", "+/- " + weapons.durabilityOptions.variance + ", (" + weapons.durabilityOptions.minValue + " ~ " + weapons.durabilityOptions.maxValue + ")");
+			} else {
+				rk.addHeaderItem("Randomize Weapon Durability", "NO");
+			}
+			if (weapons.shouldAddEffects) {
+				rk.addHeaderItem("Add Random Effects", "YES (" + weapons.effectChance + "%)");
+				StringBuilder sb = new StringBuilder();
+				sb.append("<ul>\n");
+				if (weapons.effectsList.statBoosts > 0) { sb.append("<li>Stat Boosts" + String.format(" (%.2f%%)", (double)weapons.effectsList.statBoosts / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				if (weapons.effectsList.effectiveness > 0) { sb.append("<li>Effectiveness" + String.format(" (%.2f%%)", (double)weapons.effectsList.effectiveness / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				if (weapons.effectsList.unbreakable > 0) { sb.append("<li>Unbreakable" + String.format(" (%.2f%%)", (double)weapons.effectsList.unbreakable / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				if (weapons.effectsList.brave > 0) { sb.append("<li>Brave" + String.format(" (%.2f%%)", (double)weapons.effectsList.brave / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				if (weapons.effectsList.reverseTriangle > 0) { sb.append("<li>Reverse Triangle" + String.format(" (%.2f%%)", (double)weapons.effectsList.reverseTriangle / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				if (weapons.effectsList.extendedRange > 0) { sb.append("<li>Extended Range" + String.format(" (%.2f%%)", (double)weapons.effectsList.extendedRange / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				if (weapons.effectsList.highCritical > 0) { 
+					sb.append("<li>Critical");
+					sb.append(" (" + weapons.effectsList.criticalRange.minValue + "% ~ " + weapons.effectsList.criticalRange.maxValue + "%)");
+					sb.append(String.format(" (%.2f%%)", (double)weapons.effectsList.highCritical / (double)weapons.effectsList.getWeightTotal() * 100));
+					sb.append("</li>\n");
+				}
+				if (weapons.effectsList.magicDamage > 0) { sb.append("<li>Magic Damage" + String.format(" (%.2f%%)", (double)weapons.effectsList.magicDamage / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				if (weapons.effectsList.poison > 0) { sb.append("<li>Poison" + String.format(" (%.2f%%)", (double)weapons.effectsList.poison / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				if (weapons.effectsList.eclipse > 0) { sb.append("<li>Eclipse" + String.format(" (%.2f%%)", (double)weapons.effectsList.eclipse / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				if (weapons.effectsList.devil > 0) { sb.append("<li>Devil" + String.format(" (%.2f%%)", (double)weapons.effectsList.devil / (double)weapons.effectsList.getWeightTotal() * 100) + "</li>\n"); }
+				sb.append("</ul>\n");
+				rk.addHeaderItem("Random Effects Allowed", sb.toString());
+				if (weapons.noEffectIronWeapons) {
+					rk.addHeaderItem("Safe Basic Weapons", "YES");
+				} else {
+					rk.addHeaderItem("Safe Basic Weapons", "NO");
+				}
+				if (weapons.noEffectSteelWeapons) {
+					rk.addHeaderItem("Safe Steel Weapons", "YES");
+				} else {
+					rk.addHeaderItem("Safe Steel Weapons", "NO");
+				}
+				if (weapons.noEffectThrownWeapons) {
+					rk.addHeaderItem("Safe Basic Thrown Weapons", "YES");
+				} else {
+					rk.addHeaderItem("Safe Basic Thrown Weapons", "NO");
+				}
+			} else {
+				rk.addHeaderItem("Add Random Effects", "NO");
+			}
 		}
-		
-		if (classes.randomizePCs) {
-			StringBuilder sb = new StringBuilder();
+		if(classes != null) {
+			if (classes.randomizePCs) {
+				StringBuilder sb = new StringBuilder();
+				
+				if (classes.includeLords) {
+					sb.append("Include Lords<br>");
+				}
+				if (classes.includeThieves) {
+					sb.append("Include Thieves<br>");
+				}
+				if (classes.includeSpecial) {
+					sb.append("Include Special Classes<br>");
+				}
+				if (classes.assignEvenly) {
+					sb.append("Assign Evenly<br>");
+				}
+				if (sb.length() > 4) {
+					sb.delete(sb.length() - 4, sb.length());
+				}
+				if (sb.length() == 0) { sb.append("YES"); }
+				rk.addHeaderItem("Randomize Playable Character Classes", sb.toString());
+				
+				switch (classes.growthOptions) {
+				case NO_CHANGE:
+					rk.addHeaderItem("Growth Transfer Option", "No Change");
+					break;
+				case TRANSFER_PERSONAL_GROWTHS:
+					rk.addHeaderItem("Growth Transfer Option", "Transfer Personal Growths");
+					break;
+				case CLASS_RELATIVE_GROWTHS:
+					rk.addHeaderItem("Growth Transfer Option", "Class Relative Growths");
+					break;
+				}
+			} else {
+				rk.addHeaderItem("Randomize Playable Character Classes", "NO");
+			}
+			if (classes.randomizeBosses) {
+				rk.addHeaderItem("Randomize Boss Classes", "YES");
+			} else {
+				rk.addHeaderItem("Randomize Boss Classes", "NO");
+			}
+			if (classes.randomizeEnemies) {
+				rk.addHeaderItem("Randomize Minions", "YES");
+			} else {
+				rk.addHeaderItem("Randomize Minions", "NO");
+			}
+			if (classes.randomizePCs || classes.randomizeBosses) {
+				switch (classes.basesTransfer) {
+				case NO_CHANGE:
+					rk.addHeaderItem("Base Stats Transfer Mode", "Retain Personal Bases");
+					break;
+				case ADJUST_TO_MATCH:
+					rk.addHeaderItem("Base Stats Transfer Mode", "Retain Final Bases");
+					break;
+				case ADJUST_TO_CLASS:
+					rk.addHeaderItem("Base Stats Transfer Mode", "Adjust to Class");
+					break;
+				}
+			}
+			if (classes.forceChange) {
+				rk.addHeaderItem("Force Class Change", "YES");
+			} else {
+				rk.addHeaderItem("Force Class Change", "NO");
+			}
+			switch (classes.genderOption) {
+			case NONE:
+				rk.addHeaderItem("Gender Restriction", "None");
+				break;
+			case LOOSE:
+				rk.addHeaderItem("Gender Restriction", "Loose");
+				break;
+			case STRICT:
+				rk.addHeaderItem("Gender Restriction", "Strict");
+				break;
+			}
+			if (gameType == GameType.FE8) {
+				if (classes.separateMonsters) {
+					rk.addHeaderItem("Mix Monster and Human Classes", "NO");
+				} else {
+					rk.addHeaderItem("Mix Monster and Human Classes", "YES");
+				}
+			}
 			
-			if (classes.includeLords) {
-				sb.append("Include Lords<br>");
+		}
+		if(enemies != null) {
+			switch (enemies.minionMode) {
+			case NONE:
+				rk.addHeaderItem("Buff Minions", "NO");
+				break;
+			case FLAT:
+				rk.addHeaderItem("Buff Minions", "Flat Buff (Growths +" + enemies.minionBuff + "%)");
+				rk.addHeaderItem("Buffed Minion Stats", enemies.minionBuffStats.buffString());
+				break;
+			case SCALING:
+				rk.addHeaderItem("Buff Minions", "Scaling Buff (Growths x" + String.format("%.2f", (enemies.minionBuff / 100.0) + 1) + ")");
+				rk.addHeaderItem("Buffed Minion Stats", enemies.minionBuffStats.buffString());
+				break;
 			}
-			if (classes.includeThieves) {
-				sb.append("Include Thieves<br>");
-			}
-			if (classes.includeSpecial) {
-				sb.append("Include Special Classes<br>");
-			}
-			if (classes.assignEvenly) {
-				sb.append("Assign Evenly<br>");
-			}
-			if (sb.length() > 4) {
-				sb.delete(sb.length() - 4, sb.length());
-			}
-			if (sb.length() == 0) { sb.append("YES"); }
-			rk.addHeaderItem("Randomize Playable Character Classes", sb.toString());
 			
-			switch (classes.growthOptions) {
-			case NO_CHANGE:
-				rk.addHeaderItem("Growth Transfer Option", "No Change");
-				break;
-			case TRANSFER_PERSONAL_GROWTHS:
-				rk.addHeaderItem("Growth Transfer Option", "Transfer Personal Growths");
-				break;
-			case CLASS_RELATIVE_GROWTHS:
-				rk.addHeaderItem("Growth Transfer Option", "Class Relative Growths");
-				break;
-			}
-		} else {
-			rk.addHeaderItem("Randomize Playable Character Classes", "NO");
-		}
-		if (classes.randomizeBosses) {
-			rk.addHeaderItem("Randomize Boss Classes", "YES");
-		} else {
-			rk.addHeaderItem("Randomize Boss Classes", "NO");
-		}
-		if (classes.randomizeEnemies) {
-			rk.addHeaderItem("Randomize Minions", "YES");
-		} else {
-			rk.addHeaderItem("Randomize Minions", "NO");
-		}
-		if (classes.randomizePCs || classes.randomizeBosses) {
-			switch (classes.basesTransfer) {
-			case NO_CHANGE:
-				rk.addHeaderItem("Base Stats Transfer Mode", "Retain Personal Bases");
-				break;
-			case ADJUST_TO_MATCH:
-				rk.addHeaderItem("Base Stats Transfer Mode", "Retain Final Bases");
-				break;
-			case ADJUST_TO_CLASS:
-				rk.addHeaderItem("Base Stats Transfer Mode", "Adjust to Class");
-				break;
-			}
-		}
-		if (classes.forceChange) {
-			rk.addHeaderItem("Force Class Change", "YES");
-		} else {
-			rk.addHeaderItem("Force Class Change", "NO");
-		}
-		switch (classes.genderOption) {
-		case NONE:
-			rk.addHeaderItem("Gender Restriction", "None");
-			break;
-		case LOOSE:
-			rk.addHeaderItem("Gender Restriction", "Loose");
-			break;
-		case STRICT:
-			rk.addHeaderItem("Gender Restriction", "Strict");
-			break;
-		}
-		if (gameType == GameType.FE8) {
-			if (classes.separateMonsters) {
-				rk.addHeaderItem("Mix Monster and Human Classes", "NO");
+			if (enemies.improveMinionWeapons) {
+				rk.addHeaderItem("Improve Minion Weapons", "" + enemies.minionImprovementChance + "% of enemies");
 			} else {
-				rk.addHeaderItem("Mix Monster and Human Classes", "YES");
+				rk.addHeaderItem("Improve Minion Weapons", "NO");
+			}
+			
+			switch (enemies.bossMode) {
+			case NONE:
+				rk.addHeaderItem("Buff Bosses", "NO");
+				break;
+			case LINEAR:
+				rk.addHeaderItem("Buff Bosses", "Linear - Max Gain: +" + enemies.bossBuff);
+				rk.addHeaderItem("Buffed Boss Stats", enemies.bossBuffStats.buffString());
+				break;
+			case EASE_IN_OUT:
+				rk.addHeaderItem("Buff Bosses", "Ease In/Ease Out - Max Gain: +" + enemies.bossBuff);
+				rk.addHeaderItem("Buffed Boss Stats", enemies.bossBuffStats.buffString());
+				break;
+			}
+			
+			if (enemies.improveBossWeapons) {
+				rk.addHeaderItem("Improve Boss Weapons", "" + enemies.bossImprovementChance + "% of bosses");
+			} else {
+				rk.addHeaderItem("Improve Boss Weapons", "NO");
 			}
 		}
-		
-		switch (enemies.minionMode) {
-		case NONE:
-			rk.addHeaderItem("Buff Minions", "NO");
-			break;
-		case FLAT:
-			rk.addHeaderItem("Buff Minions", "Flat Buff (Growths +" + enemies.minionBuff + "%)");
-			rk.addHeaderItem("Buffed Minion Stats", enemies.minionBuffStats.buffString());
-			break;
-		case SCALING:
-			rk.addHeaderItem("Buff Minions", "Scaling Buff (Growths x" + String.format("%.2f", (enemies.minionBuff / 100.0) + 1) + ")");
-			rk.addHeaderItem("Buffed Minion Stats", enemies.minionBuffStats.buffString());
-			break;
-		}
-		
-		if (enemies.improveMinionWeapons) {
-			rk.addHeaderItem("Improve Minion Weapons", "" + enemies.minionImprovementChance + "% of enemies");
-		} else {
-			rk.addHeaderItem("Improve Minion Weapons", "NO");
-		}
-		
-		switch (enemies.bossMode) {
-		case NONE:
-			rk.addHeaderItem("Buff Bosses", "NO");
-			break;
-		case LINEAR:
-			rk.addHeaderItem("Buff Bosses", "Linear - Max Gain: +" + enemies.bossBuff);
-			rk.addHeaderItem("Buffed Boss Stats", enemies.bossBuffStats.buffString());
-			break;
-		case EASE_IN_OUT:
-			rk.addHeaderItem("Buff Bosses", "Ease In/Ease Out - Max Gain: +" + enemies.bossBuff);
-			rk.addHeaderItem("Buffed Boss Stats", enemies.bossBuffStats.buffString());
-			break;
-		}
-		
-		if (enemies.improveBossWeapons) {
-			rk.addHeaderItem("Improve Boss Weapons", "" + enemies.bossImprovementChance + "% of bosses");
-		} else {
-			rk.addHeaderItem("Improve Boss Weapons", "NO");
-		}
-		
-		if (miscOptions.randomizeRewards) {
-			rk.addHeaderItem("Randomize Rewards", "YES");
-		} else {
-			rk.addHeaderItem("Randomize Rewards", "NO");
-		}
-		
-		if (miscOptions.singleRNMode) {
-			rk.addHeaderItem("Enable Single RN", "YES");
-		} else {
-			rk.addHeaderItem("Enable Single RN", "NO");
-		}
-		
-		if (miscOptions.randomizeFogOfWar) {
-			rk.addHeaderItem("Randomize Fog of War", "YES - " + Integer.toString(miscOptions.fogOfWarChance) + "%");
-			rk.addHeaderItem("Fog of War Vision Range", Integer.toString(miscOptions.fogOfWarVisionRange.minValue) + " ~ " + Integer.toString(miscOptions.fogOfWarVisionRange.maxValue));
-		} else {
-			rk.addHeaderItem("Randomize Fog of War", "NO");
+		if(miscOptions != null) {
+			if (miscOptions.randomizeRewards) {
+				rk.addHeaderItem("Randomize Rewards", "YES");
+			} else {
+				rk.addHeaderItem("Randomize Rewards", "NO");
+			}
+			
+			if (miscOptions.singleRNMode) {
+				rk.addHeaderItem("Enable Single RN", "YES");
+			} else {
+				rk.addHeaderItem("Enable Single RN", "NO");
+			}
+			
+			if (miscOptions.randomizeFogOfWar) {
+				rk.addHeaderItem("Randomize Fog of War", "YES - " + Integer.toString(miscOptions.fogOfWarChance) + "%");
+				rk.addHeaderItem("Fog of War Vision Range", Integer.toString(miscOptions.fogOfWarVisionRange.minValue) + " ~ " + Integer.toString(miscOptions.fogOfWarVisionRange.maxValue));
+			} else {
+				rk.addHeaderItem("Randomize Fog of War", "NO");
+			}
 		}
 		
 		if (recruitOptions != null) {
@@ -2412,6 +2442,18 @@ public class GBARandomizer extends Randomizer {
 				rk.addHeaderItem("Assign Promotional Weapons", itemAssignmentOptions.assignPromoWeapons ? "YES" : "NO");
 			}
 			rk.addHeaderItem("Assign Poison Weapons", itemAssignmentOptions.assignPoisonWeapons ? "YES" : "NO");
+		}
+		
+		if(shufflingOptions != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(String.format("Leveling Mode: %s", shufflingOptions.getLevelingMode() == ShuffleLevelingMode.AUTOLEVEL ? "autolevel characters": "leave characters unchanged")).append("<br>");
+			sb.append(String.format("Shuffle chance: %d%%", shufflingOptions.getChance())).append("<br>");
+			sb.append(shufflingOptions.shouldChangeDescription() ? "Description will be changed" : "Description will be left unchanged").append("<br>");
+			sb.append("Included configurations:<br>");
+			for (String s : shufflingOptions.getIncludedShuffles()) {
+				sb.append(s).append("<br>");
+			}
+			rk.addHeaderItem("Character Shuffling", sb.toString());
 		}
 		
 		return rk;

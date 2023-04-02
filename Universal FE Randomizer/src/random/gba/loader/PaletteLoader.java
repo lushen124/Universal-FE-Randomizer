@@ -97,6 +97,10 @@ public class PaletteLoader {
 				templatesV2.put(characterClass.ID, new PaletteV2(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID)));
 			}
 			
+			for (FE6Data.CharacterClass characterClass : FE6Data.CharacterClass.additionalClassesToPalletLoad) {
+				templatesV2.put(characterClass.ID, new PaletteV2(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID)));
+			}
+			
 			for (int i = FE6Data.Palette.maxUsedPaletteIndex() + 1; i < FE6Data.Palette.maxPaletteIndex(); i++) {
 				emptyPaletteIDs.add(i);
 			}
@@ -206,6 +210,12 @@ public class PaletteLoader {
 			}
 			
 			for (FE8Data.CharacterClass characterClass : FE8Data.CharacterClass.allValidClasses) {
+				PaletteV2 classPalette = new PaletteV2(handler, FE8Data.Palette.defaultPaletteForClass(characterClass.ID));
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Registering palette for class " + characterClass.toString() + " (" + classPalette.getOriginalCompressedLength() + " bytes)");
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, WhyDoesJavaNotHaveThese.displayStringForBytes(classPalette.getCompressedData()));
+				templatesV2.put(characterClass.ID, classPalette);
+			}
+			for (FE8Data.CharacterClass characterClass : FE8Data.CharacterClass.additionalClassesToPalletLoad) {
 				PaletteV2 classPalette = new PaletteV2(handler, FE8Data.Palette.defaultPaletteForClass(characterClass.ID));
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Registering palette for class " + characterClass.toString() + " (" + classPalette.getOriginalCompressedLength() + " bytes)");
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, WhyDoesJavaNotHaveThese.displayStringForBytes(classPalette.getCompressedData()));
@@ -402,6 +412,10 @@ public class PaletteLoader {
 	
 	private PaletteV2 v2PaletteForClass(int newClassID, PaletteV2[] referencePalettes, PaletteV2.PaletteType type, PaletteColor[] supplementalHairColors) {
 		PaletteV2 template = getV2TemplatePalette(newClassID);
+		if (template == null) {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, String.format("No Template Palette found for Class %d.", newClassID));
+			
+		}
 		PaletteV2 adapted = new PaletteV2(template);
 		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting Palette using " + referencePalettes.length + " reference palettes.");
 		// We should just apply it to every allegiance. It'll cut down on compression space if they all match.

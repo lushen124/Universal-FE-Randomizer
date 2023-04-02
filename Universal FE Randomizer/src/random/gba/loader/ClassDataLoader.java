@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEClassData;
+import fedata.gba.fe8.FE8Data;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
 import fedata.gba.general.WeaponType;
@@ -247,7 +248,7 @@ public class ClassDataLoader {
 		
 		return feClassesFromSet(targetClasses);
 	}
-	
+
 	public Boolean isPromotedClass(int classID) {
 		GBAFEClass charClass = provider.classWithID(classID);
 		return charClass != null ? charClass.isPromoted() : false;
