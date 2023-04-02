@@ -51,6 +51,7 @@ import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.general.Randomizer;
 import ui.model.BaseOptions;
 import ui.model.CharacterShufflingOptions;
+import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
 import ui.model.GrowthOptions;
@@ -2441,6 +2442,18 @@ public class GBARandomizer extends Randomizer {
 				rk.addHeaderItem("Assign Promotional Weapons", itemAssignmentOptions.assignPromoWeapons ? "YES" : "NO");
 			}
 			rk.addHeaderItem("Assign Poison Weapons", itemAssignmentOptions.assignPoisonWeapons ? "YES" : "NO");
+		}
+		
+		if(shufflingOptions != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(String.format("Leveling Mode: %s", shufflingOptions.getLevelingMode() == ShuffleLevelingMode.AUTOLEVEL ? "autolevel characters": "leave characters unchanged")).append("<br>");
+			sb.append(String.format("Shuffle chance: %d%%", shufflingOptions.getChance())).append("<br>");
+			sb.append(shufflingOptions.shouldChangeDescription() ? "Description will be changed" : "Description will be left unchanged").append("<br>");
+			sb.append("Included configurations:<br>");
+			for (String s : shufflingOptions.getIncludedShuffles()) {
+				sb.append(s).append("<br>");
+			}
+			rk.addHeaderItem("Character Shuffling", sb.toString());
 		}
 		
 		return rk;

@@ -29,7 +29,7 @@ public class GBASlotAdjustmentService {
 	 * This help with Making sure htat characters which receive a lot of positive levels aren't too strong, 
 	 * and characters that get negative levels don't become too weak. 
 	 */
-	private static final int AUTOLEVEL_REDUCTION_THRESHOL = 10;
+	private static final int AUTOLEVEL_REDUCTION_THRESHOLD = 10;
 	
 	/**
 	 * Used by Recruitment Randomization and Character Shuffling to Calculate the following information:
@@ -49,10 +49,10 @@ public class GBASlotAdjustmentService {
 		
 		// To make newly created pre-promotes not completely busted (since they probably had higher growths than real pre-promotes)
 		// we'll subtract a few levels from their autoleveling amount, assuming they get a lot (like 10).
-		if (!isPromoted && shouldBePromoted && dto.levelAdjustment > 10) {
+		if (!isPromoted && shouldBePromoted && dto.levelAdjustment > AUTOLEVEL_REDUCTION_THRESHOLD) {
 			DebugPrinter.log(key, "Dropping 3 additional levels for new prepromotes.");
 			dto.levelAdjustment  -= 3;
-		} else if(isPromoted && !shouldBePromoted && dto.levelAdjustment < -10) {
+		} else if(isPromoted && !shouldBePromoted && dto.levelAdjustment < -AUTOLEVEL_REDUCTION_THRESHOLD) {
 			// Likewise, don't ruin former prepromotes as much
 			DebugPrinter.log(key, "Dropping 3 less levels for newly demoted units.");
 			dto.levelAdjustment  += 3;
