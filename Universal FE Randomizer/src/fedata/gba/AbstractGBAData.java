@@ -53,3 +53,4 @@ public abstract class AbstractGBAData implements FEModifiableData {
 		wasModified = true;
 	}
 }
+

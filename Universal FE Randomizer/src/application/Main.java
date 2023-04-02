@@ -1,6 +1,6 @@
 package application;
 
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Display;
 
 import ui.MainView;
 

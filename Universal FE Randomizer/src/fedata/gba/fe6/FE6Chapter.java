@@ -155,16 +155,30 @@ public class FE6Chapter implements GBAFEChapterData {
 	public void applyNudges() {
 		if (nudges == null) { return; }
 		for (CharacterNudge nudge : nudges) {
-			for (GBAFEChapterUnitData unit : allUnits()) {
-				if (unit.getCharacterNumber() == nudge.getCharacterID() && unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
-					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getStartingX() + ", " + unit.getStartingY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
-					if (unit.getStartingX() == unit.getLoadingX() && unit.getStartingY() == unit.getLoadingY()) { 
-						unit.setLoadingX(nudge.getNewX());
-						unit.setLoadingY(nudge.getNewY());
+			characterLoop : for (GBAFEChapterUnitData unit : allUnits()) {
+				if (unit.getCharacterNumber() != nudge.getCharacterID() ) {
+					continue;
+				}
+				if (unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character PreMove 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+					if (unit.getPostMoveX() == unit.getStartingX() && unit.getPostMoveY() == unit.getStartingY()) { 
+						unit.setPostMoveX(nudge.getNewX());
+						unit.setPostMoveY(nudge.getNewY());
 					}
 					unit.setStartingX(nudge.getNewX());
 					unit.setStartingY(nudge.getNewY());
+					break characterLoop;
+				} else if(unit.getPostMoveX() == nudge.getOldX() && unit.getPostMoveY() == nudge.getOldY()) {
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character PostMove 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+					if (unit.getPostMoveX() == unit.getStartingX() && unit.getPostMoveY() == unit.getStartingY()) { 
+						unit.setStartingX(nudge.getNewX());
+						unit.setStartingX(nudge.getNewY());
+					}
+					unit.setPostMoveX(nudge.getNewX());
+					unit.setPostMoveY(nudge.getNewY());
+					break characterLoop;
 				}
+				
 			}
 		}
 	}
