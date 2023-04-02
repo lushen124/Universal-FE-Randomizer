@@ -1,5 +1,7 @@
 package ui.model;
 
+import java.util.List;
+
 public class RecruitmentOptions {
 	public enum GrowthAdjustmentMode {
 		USE_FILL, USE_SLOT, RELATIVE_TO_SLOT
@@ -28,6 +30,7 @@ public class RecruitmentOptions {
 	public final boolean includeSpecial;
 	
 	public final boolean includeExtras;
+	public List<String> gamesToShuffle;
 	
 	public RecruitmentOptions(GrowthAdjustmentMode growthMode, StatAdjustmentMode baseMode, BaseStatAutolevelType autolevel, ClassMode classMode, boolean lords, boolean prfs, boolean unbreakablePrfs, boolean thieves, boolean special, boolean crossGender, boolean includeExtras) {
 		super();

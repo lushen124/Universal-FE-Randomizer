@@ -1,12 +1,17 @@
 package random.gba.loader;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
+import fedata.gba.general.GBAFETextProvider;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 import io.FileHandler;
@@ -33,66 +38,33 @@ public class TextLoader {
 	
 	public Boolean allowTextChanges = false;
 	
-	public TextLoader(FEBase.GameType gameType, FileHandler handler) {
+	public Set<Integer> excludedNameIndicies;
+	
+	public TextLoader(FEBase.GameType gameType, GBAFETextProvider provider, FileHandler handler) {
 		super();
 		this.gameType = gameType;
-		Date start = new Date();
-		switch (gameType) {
-			case FE6: {
-				huffman = new HuffmanHelper(handler);
-				allStrings = new String[FE6Data.NumberOfTextStrings + 1];
-				textArrayOffset = FileReadHelper.readAddress(handler, FE6Data.TextTablePointer);
-				treeAddress = FileReadHelper.readAddress(handler, FE6Data.HuffmanTreeStart);
-				rootAddress = FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, FE6Data.HuffmanTreeEnd));
-				for (int i = 1; i <= FE6Data.NumberOfTextStrings; i++) {
-					String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree(
-							FileReadHelper.readAddress(handler, textArrayOffset + 4 * i),
-							treeAddress, 
-							rootAddress), false, gameType);
-					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, "Decoded FE6 String for index 0x" + Integer.toHexString(i).toUpperCase());
-					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, decoded);
-					allStrings[i] = decoded;
-				}
-				break;
-			}
-			case FE7: {
-				huffman = new HuffmanHelper(handler);
-				allStrings = new String[FE7Data.NumberOfTextStrings];
-				textArrayOffset = FileReadHelper.readAddress(handler, FE7Data.TextTablePointer);
-				treeAddress = FileReadHelper.readAddress(handler, FE7Data.HuffmanTreeStart);
-				rootAddress = FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, FE7Data.HuffmanTreeEnd));
-				for (int i = 0; i < FE7Data.NumberOfTextStrings; i++) {
-					String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree( 
-							FileReadHelper.readAddress(handler, textArrayOffset + 4 * i), 
-							treeAddress, 
-							rootAddress), false, gameType);
-					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, "Decoded FE7 String for index 0x" + Integer.toHexString(i).toUpperCase());
-					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, decoded);
-					allStrings[i] = decoded;
-				}
-				break;
-			}
-			case FE8: {
-				huffman = new HuffmanHelper(handler);
-				allStrings = new String[FE8Data.NumberOfTextStrings + 1];
-				textArrayOffset = FileReadHelper.readAddress(handler, FE8Data.TextTablePointer);
-				treeAddress = FileReadHelper.readAddress(handler, FE8Data.HuffmanTreeStart);
-				rootAddress = FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, FE8Data.HuffmanTreeEnd));
-				for (int i = 1; i <= FE8Data.NumberOfTextStrings; i++) {
-					String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree( 
-							FileReadHelper.readAddress(handler, textArrayOffset + 4 * i), 
-							treeAddress, 
-							rootAddress), false, gameType);
-					DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, "Loaded Text for index 0x" + Integer.toHexString(i) + ": " + decoded);
-					allStrings[i] = decoded;
-				}
-				break;
-			}
-			default:
-				break;
+		
+		long startMillis = System.currentTimeMillis();
+		
+		huffman = new HuffmanHelper(handler);
+		int startIndex = gameType.equals(GameType.FE7) ? 0 : 1;
+		int earlyEnd = gameType.equals(GameType.FE7) ? 1 : 0;
+		allStrings = new String[provider.getNumberOfTextStrings() + startIndex];
+		textArrayOffset = FileReadHelper.readAddress(handler, provider.getTextTablePointer());
+		treeAddress = FileReadHelper.readAddress(handler, provider.getHuffmanTreeStart());
+		rootAddress = FileReadHelper.readAddress(handler, FileReadHelper.readAddress(handler, provider.getHuffmanTreeEnd()));
+		excludedNameIndicies = provider.getExcludedIndiciesFromNameUpdate();
+		
+		for (int i = startIndex; i <= provider.getNumberOfTextStrings() - earlyEnd; i++) {
+			String decoded = huffman.sanitizeByteArrayIntoTextString(huffman.decodeTextAddressWithHuffmanTree(
+					FileReadHelper.readAddress(handler, textArrayOffset + 4 * i),
+					treeAddress, 
+					rootAddress), false, gameType);
+			DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, String.format("Decoded %s String for index 0x%s decoded: %s", gameType.name(), Integer.toHexString(i).toUpperCase(), decoded));
+			allStrings[i] = decoded;
 		}
-		Date end = new Date();
-		DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, "Text Import took " + Long.toString(end.getTime() - start.getTime()) + "ms");
+		long endMillis = System.currentTimeMillis();
+		DebugPrinter.log(DebugPrinter.Key.TEXT_LOADING, String.format("Text Import took %s ms", endMillis - startMillis));
 		huffman.printCache();
 	}
 	
@@ -129,8 +101,9 @@ public class TextLoader {
 		if (!allowTextChanges) { return; }
 		
 		// Let replacements with codes override any replacements without codes, if both exist.
-		for (int index : replacementsWithCodes.keySet()) {
-			String replacementWithCodes = replacementsWithCodes.get(index);
+		for (Entry<Integer, String> e : replacementsWithCodes.entrySet()) {
+			int index = e.getKey();
+			String replacementWithCodes = e.getValue();
 			
 			// FE6 has some junk entries (or at least they look like junk.)
 			if (index >= 0x1D2 && index <= 0x1E7) { continue; }
@@ -150,5 +123,9 @@ public class TextLoader {
 			
 			allStrings[index] = replacementWithCodes; // We can replace these now, since they both have codes on them.
 		}
+	}
+	
+	public boolean isExcludedNameIndex(int index) {
+		return excludedNameIndicies.contains(index);
 	}
 }
