@@ -32,10 +32,18 @@ public abstract class AbstractGBAData implements FEModifiableData {
 		return data;
 	}
 
+	public void markModified() {
+		this.wasModified = true;
+	}
+	
 	public Boolean wasModified() {
 		return wasModified;
 	}
 
+	public void setOriginalOffset(long offset) {
+		this.originalOffset = offset;
+	}
+	
 	public long getAddressOffset() {
 		return addressOverride != null ? addressOverride : originalOffset;
 	}

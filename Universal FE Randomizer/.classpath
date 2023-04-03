@@ -8,6 +8,6 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Lu/Documents/Universal-FE-Randomizer/gson-2.8.5.jar"/>
+	<classpathentry kind="lib" path="F:/Yune/Sources/gson-2.8.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

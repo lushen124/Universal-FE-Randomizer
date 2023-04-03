@@ -12,6 +12,7 @@ import java.util.Set;
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterItemData;
 import fedata.gba.GBAFEChapterUnitData;
+import fedata.gba.fe8.FE8ChapterUnitMoveData;
 import fedata.gba.general.CharacterNudge;
 import io.FileHandler;
 import util.DebugPrinter;
@@ -181,14 +182,32 @@ public class FE8Chapter implements GBAFEChapterData {
 	}
 	
 	public void applyNudges() {
-		if (nudges == null) { return; }
+		if (nudges == null || nudges.length == 0) { return; }
 		for (CharacterNudge nudge : nudges) {
-			for (GBAFEChapterUnitData unit : allUnits()) {
-				if (unit.getCharacterNumber() == nudge.getCharacterID() && unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
-					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getStartingX() + ", " + unit.getStartingY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+			characterLoop : for (GBAFEChapterUnitData unit : allUnits()) {
+				// If the nudge isn't for the current character, just continue
+				if (unit.getCharacterNumber() != nudge.getCharacterID()) {
+					continue;
+				}
+				
+				// Check if the nudge is for the current instance of the character
+				if (unit.getStartingX() != nudge.getOldX() || unit.getStartingY() != nudge.getOldY()) {
+					continue;
+				}
+				
+				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+				// Movement Id -1 implies it's the starting position
+				if (nudge.getMovementId() == -1) {
 					unit.setStartingX(nudge.getNewX());
 					unit.setStartingY(nudge.getNewY());
-				}
+				} else {
+					// Movement Ids other than -1 should be in the movements list
+					((FE8ChapterUnit) unit).getMovements().get(nudge.getMovementId()).setPostMoveX(nudge.getNewX());
+					((FE8ChapterUnit) unit).getMovements().get(nudge.getMovementId()).setPostMoveY(nudge.getNewY());
+				} 
+				
+				// The nudge was applied successfully, break out of the character loop.
+				break characterLoop;
 			}
 		}
 	}
@@ -473,7 +492,19 @@ public class FE8Chapter implements GBAFEChapterData {
 		byte[] unitData = handler.readBytesAtOffset(currentOffset, FE8Data.BytesPerChapterUnit);
 		while (unitData[0] != 0x00) {
 			DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loaded unit with data " + WhyDoesJavaNotHaveThese.displayStringForBytes(unitData));
-			FE8ChapterUnit unit = new FE8ChapterUnit(unitData, currentOffset); 
+			FE8ChapterUnit unit = new FE8ChapterUnit(unitData, currentOffset);
+			
+			
+			// If the unit has movements, load them.
+			if (unit.getNumberMovements() != 0) {
+				long movementsPointer = FileReadHelper.readAddress(handler, currentOffset + 8);
+				for (int i = 0; i < unit.getNumberMovements(); i++) {
+					long originalOffset = movementsPointer + i * 8;
+					byte[] bytes = handler.readBytesAtOffset(originalOffset, 8);
+					unit.addMovement(new FE8ChapterUnitMoveData(originalOffset, bytes));
+				}
+			}
+			
 			if (!blacklistedClassIDs.contains(unit.getStartingClass())) { // Remove any characters starting as a blacklisted class from consideration.
 				allChapterUnits.add(unit);
 			}

@@ -8,4 +8,5 @@ public interface GBAFEClass {
 	public Boolean isFemale();
 	public Boolean isPromoted();
 	public Boolean canAttack();
+	public String name();
 }

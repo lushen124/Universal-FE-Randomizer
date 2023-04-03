@@ -17,6 +17,7 @@ import org.eclipse.swt.widgets.Spinner;
 import fedata.general.FEBase.GameType;
 import ui.general.MinMaxControl;
 import ui.model.MiscellaneousOptions;
+import ui.model.MiscellaneousOptions.ExperienceRate;
 import ui.model.MiscellaneousOptions.RewardMode;
 
 public class MiscellaneousView extends Composite {
@@ -31,6 +32,7 @@ public class MiscellaneousView extends Composite {
 	private Button randomizeChestVillageRewards;
 	
 	private MiscellaneousOptions.RewardMode rewardMode;
+	private MiscellaneousOptions.ExperienceRate experienceRate;
 	
 	private Composite rewardModeContainer;
 	private Button similarRewardsButton;
@@ -46,6 +48,13 @@ public class MiscellaneousView extends Composite {
 	private Label fogOfWarChanceLabel;
 	private Spinner fogOfWarChanceSpinner;
 	private MinMaxControl fogOfWarVisionRangeControl;
+	
+	private Button casualModeButton;
+	
+	private Group experienceRateGroup;
+	private Button normalExperienceButton;
+	private Button paragonButton;
+	private Button renegadeButton;
 	
 	// FE4 only.
 	private Button followupRequirement;
@@ -307,6 +316,84 @@ public class MiscellaneousView extends Composite {
 			previousControl = fogOfWarVisionRangeControl;
 		}
 		
+		if (gameType.isGBA()) {
+			casualModeButton = new Button(container, SWT.CHECK);
+			casualModeButton.setText("Enable Casual Mode");
+			casualModeButton.setToolTipText("Disables permadeath. Defeated playable characters are available again in the next chapter.\n\nThe normal Game Over triggers are still active (i.e. Lord defeated).");
+			casualModeButton.setSelection(false);
+			
+			FormData formData = new FormData();
+			formData.left = new FormAttachment(0, 5);
+			formData.top = new FormAttachment(previousControl, 10);
+			casualModeButton.setLayoutData(formData);
+			
+			experienceRateGroup = new Group(container, SWT.NONE);
+			experienceRateGroup.setText("Experience Rate");
+			
+			FormLayout experinceLayout = new FormLayout();
+			experinceLayout.marginLeft = 5;
+			experinceLayout.marginTop = 5;
+			experinceLayout.marginBottom = 5;
+			experinceLayout.marginRight = 5;
+			experienceRateGroup.setLayout(experinceLayout);
+			
+			formData = new FormData();
+			formData.left = new FormAttachment(0, 5);
+			formData.right = new FormAttachment(100, 5);
+			formData.top = new FormAttachment(casualModeButton, 10);
+			experienceRateGroup.setLayoutData(formData);
+			
+			normalExperienceButton = new Button(experienceRateGroup, SWT.RADIO);
+			normalExperienceButton.setText("Normal");
+			normalExperienceButton.setToolTipText("Normal Experience Gain.");
+			normalExperienceButton.setSelection(true);
+			normalExperienceButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					experienceRate = ExperienceRate.NORMAL;
+				}
+			});
+			
+			formData = new FormData();
+			formData.left = new FormAttachment(0, 5);
+			formData.top = new FormAttachment(0, 5);
+			normalExperienceButton.setLayoutData(formData);
+			
+			paragonButton = new Button(experienceRateGroup, SWT.RADIO);
+			paragonButton.setText("Paragon Mode");
+			paragonButton.setToolTipText("Doubles Experience Gain.");
+			paragonButton.setSelection(false);
+			paragonButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					experienceRate = ExperienceRate.PARAGON;
+				}
+			});
+			
+			formData = new FormData();
+			formData.left = new FormAttachment(0, 5);
+			formData.top = new FormAttachment(normalExperienceButton, 5);
+			paragonButton.setLayoutData(formData);
+			
+			renegadeButton = new Button(experienceRateGroup, SWT.RADIO);
+			renegadeButton.setText("Renegade Mode");
+			renegadeButton.setToolTipText("Halves Experience Gain.");
+			renegadeButton.setSelection(false);
+			renegadeButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					experienceRate = ExperienceRate.RENEGADE;
+				}
+			});
+			
+			formData = new FormData();
+			formData.left = new FormAttachment(0, 5);
+			formData.top = new FormAttachment(paragonButton, 5);
+			renegadeButton.setLayoutData(formData);
+			
+			previousControl = experienceRateGroup;
+		}
+		
 		if (gameType == GameType.FE4) {
 			followupRequirement = new Button(container, SWT.CHECK);
 			followupRequirement.setText("Remove Pursuit Follow-up Requirement");
@@ -385,22 +472,22 @@ public class MiscellaneousView extends Composite {
 		if (type.isGBA()) {
 			switch (type) {
 			case FE6:
-				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false, singleRNButton.getSelection(), addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption());
+				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), false, singleRNButton.getSelection(), addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption(), casualModeButton.getSelection(), experienceRate);
 			case FE7:
 			default:
-				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0, tripleEffectiveness != null ? tripleEffectiveness.getSelection() : false, singleRNButton.getSelection(), addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption());
+				return new MiscellaneousOptions(randomizeChestVillageRewards.getSelection(), enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0, tripleEffectiveness != null ? tripleEffectiveness.getSelection() : false, singleRNButton.getSelection(), addFogOfWarButton.getSelection(), fogOfWarChanceSpinner.getSelection(), fogOfWarVisionRangeControl.getMinMaxOption(), casualModeButton.getSelection(), experienceRate);
 			}
 		} else if (type.isSFC()) {
 			switch (type) {
 			case FE4:
 				return new MiscellaneousOptions(applyEnglishPatch.getSelection(), randomizeChestVillageRewards.getSelection(), new MiscellaneousOptions.FollowupRequirement(!followupRequirement.getSelection(), withPursuitSpinner.getSelection(), withoutPursuitSpinner.getSelection()));
 			default:
-				return new MiscellaneousOptions(false, 0, false, false, false, 0, null);
+				return new MiscellaneousOptions(false, 0, false, false, false, 0, null, false, ExperienceRate.NORMAL);
 			}
 		} else if (type.isGCN()) {
 			return new MiscellaneousOptions(false, randomizeChestVillageRewards.getSelection(), rewardMode, enemyDropsButton.getSelection() ? enemyDropChanceSpinner.getSelection() : 0);
 		}
-		return new MiscellaneousOptions(false, 0, false, false, false, 0, null);
+		return new MiscellaneousOptions(false, 0, false, false, false, 0, null, false, ExperienceRate.NORMAL);
 	}
 	
 	public void setMiscellaneousOptions(MiscellaneousOptions options) {
@@ -450,6 +537,31 @@ public class MiscellaneousView extends Composite {
 				fogOfWarVisionRangeControl.setMin(options.fogOfWarVisionRange.minValue);
 				fogOfWarVisionRangeControl.setMax(options.fogOfWarVisionRange.maxValue);
 			}
+			
+			if (casualModeButton != null) {
+				casualModeButton.setSelection(options.casualMode);
+			}
+			
+			if (experienceRateGroup != null) {
+				normalExperienceButton.setSelection(false);
+				paragonButton.setSelection(false);
+				renegadeButton.setSelection(false);
+				
+				switch (options.experienceRate) {
+				case NORMAL:
+					normalExperienceButton.setSelection(true);
+					break;
+				case PARAGON:
+					paragonButton.setSelection(true);
+					break;
+				case RENEGADE:
+					renegadeButton.setSelection(true);
+					break;
+				}
+			}
+			
+			experienceRate = options.experienceRate;
+			rewardMode = options.rewardMode;
 		}
 	}
 }
