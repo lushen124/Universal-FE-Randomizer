@@ -5,6 +5,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B319F005B0CF324707F2B7E6969494DFF1FFF7F",
     "description1": "The next heir to Pherae.",
     "description2": "The protagonist of this story.",
+	"battlePalette": {
+		"hair": ["#f82000", "#d81018", "#983848"],
+		"primary": ["#5888f8", "#4858d0", "#485098"],
+		"secondary": ["#f8f838", "#f0a058", "#c87038"],
+		"tertiary": null
+	},
     "characterClass": "LORD",
     "level": 1,
     "bases": {
@@ -252,10 +258,10 @@
     ],
     "constitution": 1,
     "originGame": "FE6",
-    "eyeX": 0,
-    "eyeY": 0,
+    "eyeX": 3,
+    "eyeY": 4,
     "mouthX": 2,
-    "mouthY": 4
+    "mouthY": 5
   },
   {
     "name": "Barthe",

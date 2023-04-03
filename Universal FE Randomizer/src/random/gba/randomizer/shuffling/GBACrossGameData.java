@@ -25,6 +25,7 @@ public class GBACrossGameData {
 	public String paletteString;
 	public String description1;
 	public String description2;
+	public GBACrossGameDataBattlePalette battlePalette;
 	public String characterClass;
 	public int level;
 	public GBAFEStatDto bases;
@@ -37,13 +38,14 @@ public class GBACrossGameData {
 	public int mouthX;
 	public int mouthY;
 
-	public GBACrossGameData(String name, String portraitPath, String description1, String description2,
+	public GBACrossGameData(String name, String portraitPath, String description1, String description2, GBACrossGameDataBattlePalette battlePalette,
 			String paletteString, GBAFEClass characterClass, int level, GBAFEStatDto bases, GBAFEStatDto growths,
 			int[] weaponRanks, int constitution, byte[] facialFeatureCoordinates) {
 		this.name = name;
 		this.portraitPath = portraitPath;
 		this.description1 = description1;
 		this.description2 = description2;
+		this.battlePalette = battlePalette;
 		this.characterClass = characterClass.name();
 		this.level = level;
 		this.bases = bases;

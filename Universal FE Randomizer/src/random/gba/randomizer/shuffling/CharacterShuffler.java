@@ -133,7 +133,18 @@ public class CharacterShuffler {
 						
 					// (g) give the Unit new items to use
 					ItemAssignmentService.assignNewItems(characterData, linkedSlot, targetClass, chapterData, inventoryOptions, rng, textData, classData, itemData);
+					
+					// (h) Update the battle palette, if possible.
+					linkedSlot.overrideBattleHairColor = crossGameData.battlePalette.getHairColors();
+					linkedSlot.overrideBattlePrimaryColor = crossGameData.battlePalette.getPrimaryColors();
+					linkedSlot.overrideBattleSecondaryColor = crossGameData.battlePalette.getSecondaryColors();
+					linkedSlot.overrideBattleTertiaryColor = crossGameData.battlePalette.getTertiaryColors();
 				}
+				
+				slot.overrideBattleHairColor = crossGameData.battlePalette.getHairColors();
+				slot.overrideBattlePrimaryColor = crossGameData.battlePalette.getPrimaryColors();
+				slot.overrideBattleSecondaryColor = crossGameData.battlePalette.getSecondaryColors();
+				slot.overrideBattleTertiaryColor = crossGameData.battlePalette.getTertiaryColors();
 			}
 
 		}

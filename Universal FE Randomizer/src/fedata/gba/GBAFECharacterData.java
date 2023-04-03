@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import fedata.gba.fe7.FE7Data;
+import fedata.gba.general.PaletteColor;
 import fedata.general.FELockableData;
 import fedata.general.FEPrintableData;
 import util.WhyDoesJavaNotHaveThese;
@@ -42,7 +43,15 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 	
 	public abstract GBAFECharacterData createCopy(boolean useOriginalData);
 	
+	public List<PaletteColor> overrideBattleHairColor = null;
+	public List<PaletteColor> overrideBattlePrimaryColor = null;
+	public List<PaletteColor> overrideBattleSecondaryColor = null;
+	public List<PaletteColor> overrideBattleTertiaryColor = null;
 	
+	// At a minimum, we need hair and primary color to work with.
+	public boolean hasBattlePaletteOverrides() {
+		return overrideBattleHairColor != null && overrideBattlePrimaryColor != null && !overrideBattleHairColor.isEmpty() && !overrideBattlePrimaryColor.isEmpty();
+	}
 	
 	public void initializeDisplayString(String debugString) {
 		this.debugString = debugString;

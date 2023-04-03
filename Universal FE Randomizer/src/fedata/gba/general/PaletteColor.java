@@ -25,6 +25,18 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		}
 	};
 	
+	public static PaletteColor colorFromHex(String hexString) {
+		if (hexString.startsWith("#")) {
+			hexString = hexString.substring(1);
+		}
+		
+	    int r = Integer.parseInt(hexString.substring(0, 2), 16);
+	    int g = Integer.parseInt(hexString.substring(2, 4), 16);
+	    int b = Integer.parseInt(hexString.substring(4, 6), 16);
+	    
+	    return new PaletteColor(r, g, b);
+	}
+	
 	public PaletteColor(byte[] colorTuple) {
 		int colorValue = ((colorTuple[1] << 8) & 0xFF00) | (colorTuple[0] & 0xFF);
 		

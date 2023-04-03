@@ -194,6 +194,13 @@ public class PaletteV2 {
 		return result;
 	}
 	
+	public void setPalette(List<PaletteColor> hair, List<PaletteColor> primary, List<PaletteColor> secondary, List<PaletteColor> tertiary, PaletteType paletteType) {
+		setHair(hair, paletteType);
+		setPrimary(primary, paletteType);
+		setSecondary(secondary != null && !secondary.isEmpty() ? secondary : PaletteColor.adjustColors(primary, false, false), paletteType);
+		setTertiary(tertiary != null && !tertiary.isEmpty() ? tertiary : PaletteColor.adjustColors(primary, false, false), paletteType);
+	}
+	
 	public void adaptPalette(PaletteV2[] referencePalettes, PaletteType paletteType, PaletteColor[] supplementalHairColors) {
 		List<PaletteColor> referenceHair = new ArrayList<PaletteColor>();
 		List<PaletteColor> referencePrimary = new ArrayList<PaletteColor>();
