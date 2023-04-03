@@ -4,6 +4,7 @@ import java.util.Random;
 
 import fedata.gba.GBAFEItemData;
 import fedata.gba.general.GBAFEStatboost;
+import fedata.gba.general.GBAFEStatboost.BoostedStat;
 import fedata.gba.general.GBAFEStatboost.GBAFEStatboostDao;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.StatboostLoader;
@@ -67,7 +68,7 @@ public class StatboosterRandomizer {
 			GBAFEStatboostDao dao = boost.dao;
 
 			// Since in this case we should have single stat boosters, get the index of the only stat
-			int indexOfOnlyStat = dao.getIndexOfOnlyStat();
+			BoostedStat indexOfOnlyStat = BoostedStat.valueOf(dao.getIndexOfOnlyStat());
 			randomizeStatImpl(options, indexOfOnlyStat, dao, rng);
 			boost.write();
 		}
@@ -78,7 +79,7 @@ public class StatboosterRandomizer {
 	 * stabooster boosts. Makes sure that there is still a statbooster for each
 	 */
 	private static void randomizeShuffle(StatboosterOptions options, StatboostLoader loader, Random rng) {
-		PoolDistributor<Integer> distributor = getStatIndexPool();
+		PoolDistributor<BoostedStat> distributor = BoostedStat.getPool();
 
 		for (GBAFEStatboost boost : loader.getStatboosters(options.includeMov, options.includeCon)) {
 			// Get the DAO which contains the stat values
@@ -87,16 +88,10 @@ public class StatboosterRandomizer {
 			dao.subtract(dao);
 
 			// Randomize the new Stat that this boosts.
-			int selectedStat = distributor.getRandomItem(rng, true);
+			BoostedStat selectedStat = distributor.getRandomItem(rng, true);
 			randomizeStatImpl(options, selectedStat, dao, rng);
 			dao.parent.write();
 		}
-	}
-	
-	private static PoolDistributor<Integer> getStatIndexPool(){
-		PoolDistributor<Integer> distributor = new PoolDistributor<>();
-		distributor.addAll(0, 1, 2, 3, 4, 5, 6, 7, 8);
-		return distributor;
 	}
 
 	/**
@@ -105,7 +100,7 @@ public class StatboosterRandomizer {
 	 */
 	private static void randomizeMultipleStats(StatboosterOptions options, StatboostLoader loader, Random rng) {
 		for (GBAFEStatboost boost : loader.getStatboosters(options.includeMov, options.includeCon)) {
-			PoolDistributor<Integer> distributor = getStatIndexPool();
+			PoolDistributor<BoostedStat> distributor = BoostedStat.getPool();
 			// Get the DAO which contains the stat values
 			GBAFEStatboostDao dao = boost.dao;
 			// subtract the boosts from itself to remove the vanilla boost.
@@ -114,7 +109,7 @@ public class StatboosterRandomizer {
 			int numberStats = rng.nextInt(options.multipleStatsMin, options.multipleStatsMax);
 			for (int i = 0; i < numberStats; i++) {
 				// Randomize the new Stat boost to add.
-				Integer selectedStat = distributor.getRandomItem(rng, true);
+				BoostedStat selectedStat = distributor.getRandomItem(rng, true);
 				randomizeStatImpl(options, selectedStat, dao, rng);
 			}
 			dao.parent.write();
@@ -124,13 +119,13 @@ public class StatboosterRandomizer {
 	/**
 	 * Randomizes the boost for the stat with the given index (HP,POW,SKL,SPD,DEF,RES,LCK,
 	 */
-	private static void randomizeStatImpl(StatboosterOptions options, int index, GBAFEStatboostDao dao, Random rng) {
+	private static void randomizeStatImpl(StatboosterOptions options, BoostedStat index, GBAFEStatboostDao dao, Random rng) {
 		// randomize the new boost within the bounds
 		int newBoost = rng.nextInt(options.boostStrengthMin, options.boostStrengthMax);
 
 		// If this stat is HP, and the user selected to apply an HP Modifier to keep it
 		// higher than other stats (like in vanilla) then apply it.
-		if (dao.statIndexIsHp(index) && options.applyHpModifier) {
+		if (BoostedStat.HP.equals(index) && options.applyHpModifier) {
 			newBoost += options.hpModifier;
 		}
 

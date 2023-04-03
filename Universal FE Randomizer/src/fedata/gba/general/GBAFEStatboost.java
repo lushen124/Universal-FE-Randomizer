@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import fedata.gba.AbstractGBAData;
 import fedata.gba.GBAFEStatDto;
+import random.general.PoolDistributor;
 
 /**
  * Dataobject that contains the data of a GBAFE Statboost entry.
@@ -20,14 +21,41 @@ public class GBAFEStatboost extends AbstractGBAData {
 	
 	public GBAFEStatboostDao dao;
 	
+	public enum BoostedStat {
+		HP(0), STR(1), SKL(2), SPD(3), DEF(4), RES(5), LCK(6), MOV(7), CON(8);
+		
+		public int statIndex;
+		
+		private BoostedStat(int index) {
+			this.statIndex = index;
+		}
+		
+		public static PoolDistributor<BoostedStat> getPool(){
+			PoolDistributor<BoostedStat> pool = new PoolDistributor<>();
+			pool.addAll(values());
+			return pool;
+		}
+		
+		public static BoostedStat valueOf(int index) {
+			switch(index) {
+			case 0: return HP; 
+			case 1: return STR;
+			case 2: return SKL;
+			case 3: return SPD; 
+			case 4: return DEF;
+			case 5: return RES;
+			case 6: return LCK;
+			case 7: return MOV;
+			case 8: return CON;
+			default: throw new UnsupportedOperationException(String.format("No Stat matching the given index %d found", index));
+			}
+		}
+	}
+	
 	public class GBAFEStatboostDao extends GBAFEStatDto {
 		public GBAFEStatboost parent;
 		public int mov;
 		public int con;
-		
-		public boolean statIndexIsHp(int index) {
-			return index == 0;
-		}
 		
 		public GBAFEStatboostDao(GBAFEStatboost parent, byte[] bytes) {
 			assert(bytes.length == 12); // HP, POW, SKL, SPD, DEF, RES, LCK, MOV, CON in that order followed by 3 useless bytes.
@@ -56,17 +84,17 @@ public class GBAFEStatboost extends AbstractGBAData {
 			return asList().indexOf(stats.get(0));
 		}
 		
-		public void setStatAtIndex(int index, int stat) {
-			switch(index) {
-				case 0: hp = stat; break;
-				case 1: str = stat; break;
-				case 2: skl = stat; break;
-				case 3: spd = stat; break;
-				case 4: def = stat; break;
-				case 5: res = stat; break;
-				case 6: lck = stat; break;
-				case 7: mov = stat; break;
-				case 8: con = stat; break;
+		public void setStatAtIndex(BoostedStat boostedStat, int stat) {
+			switch(boostedStat) {
+				case HP: hp  = stat; break;
+				case STR: str = stat; break;
+				case SKL: skl = stat; break;
+				case SPD: spd = stat; break;
+				case DEF: def = stat; break;
+				case RES: res = stat; break;
+				case LCK: lck = stat; break;
+				case MOV: mov = stat; break;
+				case CON: con = stat; break;
 			}
 		}
 		
