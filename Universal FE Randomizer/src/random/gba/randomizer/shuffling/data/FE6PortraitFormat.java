@@ -7,7 +7,8 @@ import java.util.Optional;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.internal.win32.SIZE;
+
+import util.Size;
 
 /**
  * Class providing the Format of the FE6 Portraits for insertion <br>
@@ -43,23 +44,19 @@ public class FE6PortraitFormat extends PortraitFormat {
 	}
 
 	@Override
-	public SIZE getMainPortraitSize() {
-		SIZE size = new SIZE();
-		size.cx = 32;
-		size.cy = 5;
+	public Size getMainPortraitSize() {
+		Size size = new Size(32, 5);
 		return size;
 	}
 
 	@Override
-	public SIZE getMiniPortraitSize() {
-		SIZE size = new SIZE();
-		size.cx = 4;
-		size.cy = 4;
+	public Size getMiniPortraitSize() {
+		Size size = new Size(4, 4);
 		return size;
 	}
 
 	@Override
-	public SIZE getMouthChunksSize() {
+	public Size getMouthChunksSize() {
 		return null;
 	}
 
