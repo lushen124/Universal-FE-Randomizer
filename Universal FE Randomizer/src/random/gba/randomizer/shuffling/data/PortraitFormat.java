@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import fedata.general.FEBase;
-import org.eclipse.swt.internal.win32.SIZE;
+import util.Size;
 
 /**
  * Abstract base class for the GBA FE Portrait Formats
@@ -59,17 +59,17 @@ public abstract class PortraitFormat {
 	/**
 	 * Returns the size of the Main Portrait in Chunks
 	 */
-	public abstract SIZE getMainPortraitSize();
+	public abstract Size getMainPortraitSize();
 
 	/**
 	 * Returns the size of the Mini Portrait in Chunks
 	 */
-	public abstract SIZE getMiniPortraitSize();
+	public abstract Size getMiniPortraitSize();
 
 	/**
 	 * Returns the size of the Mouth Frames in Chunks
 	 */
-	public abstract SIZE getMouthChunksSize();
+	public abstract Size getMouthChunksSize();
 	
 	/**
 	 * Returns an optional of a byte array contianing the bytes that should be prefixed before all main Portraits 
