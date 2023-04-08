@@ -2,10 +2,14 @@ package ui.model;
 
 import java.util.List;
 
+import fedata.general.FEBase.GameType;
+import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
+import util.recordkeeper.RecordKeeper;
+
 /**
  * Model containing the different Options 
  */
-public class CharacterShufflingOptions {
+public class CharacterShufflingOptions implements RecordableOption {
 	public enum ShuffleLevelingMode {
 		UNCHANGED, AUTOLEVEL;
 	}
@@ -42,6 +46,19 @@ public class CharacterShufflingOptions {
 
 	public boolean shouldChangeDescription() {
 		return changeDescription;
+	}
+
+	@Override
+	public void record(RecordKeeper rk, GameType type) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(String.format("Leveling Mode: %s", getLevelingMode() == ShuffleLevelingMode.AUTOLEVEL ? "autolevel characters": "leave characters unchanged")).append("<br>");
+		sb.append(String.format("Shuffle chance: %d%%", getChance())).append("<br>");
+		sb.append(shouldChangeDescription() ? "Description will be changed" : "Description will be left unchanged").append("<br>");
+		sb.append("Included configurations:<br>");
+		for (String s : getIncludedShuffles()) {
+			sb.append(s).append("<br>");
+		}
+		rk.addHeaderItem("Character Shuffling", sb.toString());		
 	}
 	
 }

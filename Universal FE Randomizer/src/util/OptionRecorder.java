@@ -5,6 +5,7 @@ import java.util.prefs.Preferences;
 import com.google.gson.Gson;
 
 import fedata.general.FEBase;
+import fedata.general.FEBase.GameType;
 import ui.fe4.FE4ClassOptions;
 import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
@@ -203,6 +204,16 @@ public class OptionRecorder {
 		}
 		
 		return null;
+	}
+	
+	public static GBAOptionBundle getGBABundle(GameType type) {
+		switch (type) {
+		case FE6: return options.fe6; 
+		case FE7: return options.fe7; 
+		case FE8: return options.fe8; 
+		default:
+			throw new UnsupportedOperationException(type.name() +" is not a valid GBA GameType");
+		}
 	}
 	
 	private static void saveOptions(AllOptions options) {

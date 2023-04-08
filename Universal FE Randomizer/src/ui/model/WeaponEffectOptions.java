@@ -1,6 +1,9 @@
 package ui.model;
 
-public class WeaponEffectOptions {
+import fedata.general.FEBase.GameType;
+import util.recordkeeper.RecordKeeper;
+
+public class WeaponEffectOptions implements RecordableOption {
 
 	public final int statBoosts;
 	public final int effectiveness;
@@ -42,5 +45,11 @@ public class WeaponEffectOptions {
 	
 	public int getWeightTotal() {
 		return statBoosts + effectiveness + unbreakable + brave + reverseTriangle + extendedRange + highCritical + magicDamage + poison + stealHP + critImmune + noCrit + eclipse + devil;
+	}
+
+	@Override
+	public void record(RecordKeeper rk, GameType type) {
+		// TODO Auto-generated method stub
+		
 	}
 }

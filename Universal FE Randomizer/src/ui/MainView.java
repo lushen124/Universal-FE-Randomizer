@@ -1,6 +1,5 @@
 package ui;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +16,6 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -49,11 +47,9 @@ import fedata.gcnwii.fe9.FE9Data;
 import fedata.general.FEBase.GameType;
 import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
-import io.FileWriter;
-import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
-import random.gba.randomizer.GBARandomizer;
+import random.gba.randomizer.AbstractGBARandomizer;
 import random.gcnwii.fe9.randomizer.FE9Randomizer;
 import random.general.Randomizer;
 import random.general.RandomizerListener;
@@ -71,22 +67,15 @@ import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
 import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
-import ui.model.FE9OtherCharacterOptions;
 import util.DebugListener;
 import util.DebugPrinter;
 import util.DiffCompiler;
-import util.LZ77;
 import util.OptionRecorder;
-import util.SeedGenerator;
-import util.WhyDoesJavaNotHaveThese;
 import util.OptionRecorder.FE4OptionBundle;
 import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
+import util.SeedGenerator;
 import util.recordkeeper.ChangelogBuilder;
-import util.recordkeeper.ChangelogHeader;
-import util.recordkeeper.ChangelogHeader.HeaderLevel;
-import util.recordkeeper.ChangelogSection;
-import util.recordkeeper.ChangelogTable;
 import util.recordkeeper.RecordKeeper;
 
 public class MainView implements FileFlowDelegate {
@@ -1051,19 +1040,6 @@ public class MainView implements FileFlowDelegate {
 					Randomizer randomizer = null;
 					
 					if (type.isGBA()) {
-						randomizer = new GBARandomizer(pathToFile, writePath, type, compiler, 
-								growthView.getGrowthOptions(),
-								baseView.getBaseOptions(),
-								classView.getClassOptions(),
-								weaponView.getWeaponOptions(),
-								otherCharOptionView.getOtherCharacterOptions(),
-								enemyView.getEnemyOptions(),
-								miscView.getMiscellaneousOptions(),
-								recruitView.getRecruitmentOptions(),
-								itemAssignmentView.getAssignmentOptions(),
-								characterShufflingView.getShufflingOptions(),
-								seedField.getText());
-						
 						OptionRecorder.recordGBAFEOptions(type, 
 								growthView.getGrowthOptions(),
 								baseView.getBaseOptions(),
@@ -1076,6 +1052,10 @@ public class MainView implements FileFlowDelegate {
 								itemAssignmentView.getAssignmentOptions(),
 								characterShufflingView.getShufflingOptions(),
 								seedField.getText());
+						randomizer = AbstractGBARandomizer.buildRandomizer(pathToFile, writePath, type, compiler, 
+								OptionRecorder.getGBABundle(type),
+								seedField.getText());
+						
 					} else if (type.isSFC()) {
 						if (type == GameType.FE4) {
 							boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
