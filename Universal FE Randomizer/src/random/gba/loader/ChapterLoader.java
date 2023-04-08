@@ -19,6 +19,7 @@ import fedata.gba.fe7.FE7Chapter;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe7.FE7WorldMapEvent;
 import fedata.gba.fe8.FE8Chapter;
+import fedata.gba.fe8.FE8ChapterUnit;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8WorldMapEvent;
 import fedata.gba.general.CharacterNudge;
@@ -103,9 +104,11 @@ public class ChapterLoader {
 					for (int index = 0; index < chapter.targetedRewardRecipientsToTrack().length; index++) {
 						trackedRewardRecipients[index] = chapter.targetedRewardRecipientsToTrack()[index].ID;
 					}
+
+					CharacterNudge[] nudges = chapter.nudgesRequired();
 					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE7Chapter fe7Chapter = new FE7Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), trackedRewardRecipients, classBlacklist, chapter.getMetadata().getFriendlyName(), chapter.shouldBeEasy()); 
+					FE7Chapter fe7Chapter = new FE7Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), trackedRewardRecipients, classBlacklist, chapter.getMetadata().getFriendlyName(), chapter.shouldBeEasy(), nudges); 
 					chapters[i++] = fe7Chapter;
 					mappedChapters.put(chapterID, fe7Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe7Chapter.allUnits().length + " characters and " + fe7Chapter.allRewards().length + " rewards");
@@ -319,6 +322,18 @@ public class ChapterLoader {
 					Diff unitDiff = new Diff(unit.getAddressOffset(), unitData.length, unitData, null);
 					compiler.addDiff(unitDiff);
 				}
+				// FE8 handles post move placements differently
+				if (unit instanceof FE8ChapterUnit) {
+					((FE8ChapterUnit)unit).getMovements().forEach(mvm -> {
+						mvm.commitChanges();
+						if(!mvm.hasCommittedChanges()) {
+							return;
+						}
+						byte[] movementData = mvm.getData();
+						Diff unitDiff = new Diff(mvm.getAddressOffset(), movementData.length, movementData, null);
+						compiler.addDiff(unitDiff);
+					});
+				}
 			}
 			
 			GBAFEChapterItemData[] rewards = chapter.allRewards();
@@ -468,8 +483,8 @@ public class ChapterLoader {
 		}
 		
 		sb.append("<tr><td>Class</td><td>" + (charClass != null ? textData.getStringAtIndex(charClass.getNameIndex(), true) + (classData.isFemale(charClass.getID()) ? " (F)" : "") + " [0x" + Integer.toHexString(charClass.getID()).toUpperCase() + "]" : "Unknown (0x" + Integer.toHexString(chapterUnit.getStartingClass()) + ")") + "</td></tr>\n");
-		sb.append("<tr><td>Loading Coordinates</td><td>(" + chapterUnit.getLoadingX() + ", " + chapterUnit.getLoadingY() + ")</td></tr>\n");
-		sb.append("<tr><td>Starting Coordinates</td><td>(" + chapterUnit.getStartingX() + ", " + chapterUnit.getStartingY() + ")</td></tr>\n");
+		sb.append("<tr><td>Loading Coordinates</td><td>(" + chapterUnit.getStartingX() + ", " + chapterUnit.getStartingY() + ")</td></tr>\n");
+		sb.append("<tr><td>Starting Coordinates</td><td>(" + chapterUnit.getPostMoveX() + ", " + chapterUnit.getPostMoveY() + ")</td></tr>\n");
 		GBAFEItemData item1 = itemData.itemWithID(chapterUnit.getItem1());
 		GBAFEItemData item2 = itemData.itemWithID(chapterUnit.getItem2());
 		GBAFEItemData item3 = itemData.itemWithID(chapterUnit.getItem3());

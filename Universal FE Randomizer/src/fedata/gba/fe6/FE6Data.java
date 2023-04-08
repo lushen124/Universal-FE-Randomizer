@@ -15,6 +15,7 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.gba.fe8.FE8Data.CharacterClass;
 import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
@@ -24,15 +25,19 @@ import fedata.gba.general.GBAFEClassProvider;
 import fedata.gba.general.GBAFEItem;
 import fedata.gba.general.GBAFEItemProvider;
 import fedata.gba.general.GBAFEPromotionItem;
+import fedata.gba.general.GBAFETextProvider;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader.AdditionalData;
+import random.gba.randomizer.shuffling.GBAFEShufflingDataProvider;
+import random.gba.randomizer.shuffling.data.FE6PortraitData;
+import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
+public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider {
 	public static final String FriendlyName = "ファイアーエムブレム　封印の剣";
 	public static final String GameCode = "AFEJ";
 
@@ -66,12 +71,6 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long SpellAnimationTablePointer = 0x49DB4; // True in both prepatch and postpatch
 	//public static final long DefaultSpellAnimationTableOffset = 0x662E4C;
 	
-	public static final int HuffmanTreeStart = 0x6E0; // Resolved once
-	public static final int HuffmanTreeEnd = 0x6DC; // Resolved twice
-	public static final long TextTablePointer = 0x13B10;
-	//public static final long DefaultTextArrayOffset = 0xB808AC;
-	public static final int NumberOfTextStrings = 0xD0D;
-	
 	public static final long ChapterTablePointer = 0x18A7C;
 	//public static final long DefaultChapterArrayOffset = 0x664398;
 	public static final int BytesPerChapterUnit = 16;
@@ -103,6 +102,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
+	public static final GBAFETextProvider textProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -413,6 +414,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				WYVERN_RIDER, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMAD_TROOPER, WYVERN_KNIGHT,
 				BERSERKER, /*MANAKETE,*/ MASTER_LORD, MYRMIDON_F, KNIGHT_F, ARCHER_F, CLERIC, MAGE_F, SHAMAN_F, TROUBADOUR, NOMAD_F, PEGASUS_KNIGHT, WYVERN_RIDER_F, THIEF_F, DANCER, HERO_F, SWORDMASTER_F, GENERAL_F, SNIPER_F,
 				BISHOP_F, SAGE_F, DRUID_F, VALKYRIE, NOMAD_TROOPER_F, FALCON_KNIGHT, WYVERN_KNIGHT_F/*, MANAKETE_F*/));
+		
+		public static Set<CharacterClass> additionalClassesToPalletLoad = new HashSet<CharacterClass>(Arrays.asList(MANAKETE_F));
+
 		
 		public static Set<CharacterClass> allPlayerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARD, DANCER));
 		
@@ -1482,6 +1486,11 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			switch(this) {
 			case CHAPTER_6:
 				return new CharacterNudge[] {new CharacterNudge(Character.CASS.ID, 17, 23, 16, 23) }; // Cath spwans in a wall for some reason in vanilla. Move her out of the wall so she doesn't softlock the game.
+			case CHAPTER_10B:
+				return new CharacterNudge[] { // Thito (Thea) spawns on a mountain
+						new CharacterNudge(Character.THITO.ID, 12, 0, 16, 0), // Starting position 
+						new CharacterNudge(Character.THITO.ID, 12, 1, 16, 1)  // Post move position
+						}; 
 			default:
 				return new CharacterNudge[] {};
 			}
@@ -2896,5 +2905,102 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public GBAFESpellAnimationCollection spellAnimationCollectionAtAddress(byte[] data, long offset) {
 		return new FE6SpellAnimationCollection(data, offset);
+	}
+
+	@Override
+	public long portraitDataTableAddress() {
+		return 0x66074C;
+	}
+
+	@Override
+	public int numberOfPortraits() {
+		return 231 - 2;
+	}
+
+	@Override
+	public int bytesPerPortraitEntry() {
+		return 16;
+	}
+
+	@Override
+	public GBAFEPortraitData portraitDataWithData(byte[] data, long offset, int faceId) {
+		return new FE6PortraitData(data, offset, faceId, false);
+	}
+	
+	
+	public static Map<Integer, List<Integer>> faceIdRelationMap = createFaceIdRelationMap();
+	private static Map<Integer, List<Integer>> createFaceIdRelationMap(){
+		Map<Integer, List<Integer>> relationMap = new HashMap<>();
+		// FE6 doesn't have any
+		return relationMap;
+	}
+
+	@Override
+	public List<Integer> getRelatedPortraits(Integer faceId) {
+		List<Integer> result = faceIdRelationMap.get(faceId);
+		return result == null ? new ArrayList<>() : new ArrayList<>(result);
+	}
+	
+	public static Map<Integer, List<Integer>> nameIndexRelationMap = createNameIndexRelationMap();
+	private static Map<Integer, List<Integer>> createNameIndexRelationMap(){
+		Map<Integer, List<Integer>> relationMap = new HashMap<>();
+		relationMap.put(0x7F1, Arrays.asList(0x7F2)); // Dayan
+		relationMap.put(0x7F6, Arrays.asList(0x7F7)); // Douglas
+		relationMap.put(0x7FD, Arrays.asList(0x7FE)); // Yoder
+		relationMap.put(0x813, Arrays.asList(0x814)); // Niime
+		relationMap.put(0x817, Arrays.asList(0x818)); // Juno
+		relationMap.put(0x819, Arrays.asList(0x81A, 0x81B)); // Thea
+		relationMap.put(0x823, Arrays.asList(0x824)); // Gonzalez
+		relationMap.put(0x828, Arrays.asList(0x829)); // Echidna
+		relationMap.put(0x82B, Arrays.asList(0x82C)); // Geese
+		
+		return relationMap;
+	}
+	
+	@Override
+	public List<Integer> getRelatedNames(Integer nameIndex) {
+		List<Integer> result = nameIndexRelationMap.get(nameIndex);
+		return result == null ? new ArrayList<>(): new ArrayList<>(result);
+	}
+	
+	@Override
+	public int getHuffmanTreeStart() {
+		return 0x6E0;// Resolved once
+	}
+
+	@Override
+	public int getHuffmanTreeEnd() {
+		return  0x6DC;// Resolved twice
+	}
+
+	@Override
+	public int getTextTablePointer() {
+		return  0x13B10;
+	}
+
+	@Override
+	public int getNumberOfTextStrings() {
+		return 0xD0D;
+	}
+	
+	private final Set<Integer> excludedIndicies = generateExcludedIndiciesSet();
+	
+	@Override
+	public Set<Integer> getExcludedIndiciesFromNameUpdate() {
+		return excludedIndicies;
+	}
+
+	private Set<Integer> generateExcludedIndiciesSet() {
+		Set<Integer> indicies = new HashSet<>();
+		indicies.add(0x736); // Lancereaver
+		indicies.add(0x739); // Iron Lance
+		indicies.add(0x73A); // Steel Lance
+		indicies.add(0x73B); // Silver Lance
+		indicies.add(0x73C); // Slim Lance
+		indicies.add(0x73D); // Poison Lance
+		indicies.add(0x73E); // Brave Lance
+		indicies.add(0x742); // Killer Lance
+		
+		return indicies;
 	}
 }

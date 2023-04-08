@@ -16,7 +16,7 @@ public class PoolDistributor<T> {
 		itemSet = new HashSet<T>();
 	}
 	
-	public void addAll(T... items) {
+	public void addAll(List<T> items) {
 		for(T item : items) {
 			addItem(item, 1);
 		}

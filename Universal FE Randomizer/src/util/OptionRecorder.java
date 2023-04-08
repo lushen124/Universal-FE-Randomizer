@@ -5,6 +5,7 @@ import java.util.prefs.Preferences;
 import com.google.gson.Gson;
 
 import fedata.general.FEBase;
+import fedata.general.FEBase.GameType;
 import ui.fe4.FE4ClassOptions;
 import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
@@ -13,6 +14,7 @@ import ui.fe4.SkillsOptions;
 import ui.fe9.FE9ClassOptions;
 import ui.fe9.FE9SkillsOptions;
 import ui.model.BaseOptions;
+import ui.model.CharacterShufflingOptions;
 import ui.model.ClassOptions;
 import ui.model.EnemyOptions;
 import ui.model.FE9EnemyBuffOptions;
@@ -26,7 +28,7 @@ import ui.model.WeaponOptions;
 
 public class OptionRecorder {
 	private static final Integer FE4OptionBundleVersion = 5;
-	private static final Integer GBAOptionBundleVersion = 13;
+	private static final Integer GBAOptionBundleVersion = 14;
 	private static final Integer FE9OptionBundleVersion = 12;
 	
 	public static class AllOptions {
@@ -47,6 +49,7 @@ public class OptionRecorder {
 		public MiscellaneousOptions otherOptions;
 		public RecruitmentOptions recruitmentOptions;
 		public ItemAssignmentOptions itemAssignmentOptions;
+		public CharacterShufflingOptions characterShufflingOptions;
 		public String seed;
 		public Integer version;
 	}
@@ -203,6 +206,16 @@ public class OptionRecorder {
 		return null;
 	}
 	
+	public static GBAOptionBundle getGBABundle(GameType type) {
+		switch (type) {
+		case FE6: return options.fe6; 
+		case FE7: return options.fe7; 
+		case FE8: return options.fe8; 
+		default:
+			throw new UnsupportedOperationException(type.name() +" is not a valid GBA GameType");
+		}
+	}
+	
 	private static void saveOptions(AllOptions options) {
 		Gson gson = new Gson();
 		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
@@ -269,7 +282,7 @@ public class OptionRecorder {
 	}
 	
 	public static void recordGBAFEOptions(FEBase.GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, String seed) {
+			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, String seed) {
 		GBAOptionBundle bundle = new GBAOptionBundle();
 		bundle.growths = growths;
 		bundle.bases = bases;
@@ -282,6 +295,7 @@ public class OptionRecorder {
 		bundle.itemAssignmentOptions = itemAssignment;
 		bundle.seed = seed;
 		bundle.version = GBAOptionBundleVersion;
+		bundle.characterShufflingOptions = shufflingOptions;
 		
 		switch (gameType) {
 		case FE6:

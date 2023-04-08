@@ -24,15 +24,18 @@ import fedata.gba.general.GBAFEClassProvider;
 import fedata.gba.general.GBAFEItem;
 import fedata.gba.general.GBAFEItemProvider;
 import fedata.gba.general.GBAFEPromotionItem;
+import fedata.gba.general.GBAFETextProvider;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader.AdditionalData;
+import random.gba.randomizer.shuffling.GBAFEShufflingDataProvider;
+import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider {
+public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider {
 	public static final String FriendlyName = "Fire Emblem: The Sacred Stones";
 	public static final String GameCode = "BE8E";
 
@@ -62,12 +65,6 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int BytesPerSpellAnimation = 16;
 	public static final long SpellAnimationTablePointer = 0x58014;
 	//public static final long DefaultSpellAnimationTableOffset = 0x8AFBD8;
-	
-	public static final int HuffmanTreeStart = 0x6E0; // Resolved once
-	public static final int HuffmanTreeEnd = 0x6DC; // Resolved twice
-	public static final long TextTablePointer = 0xA2A0;
-	//public static final long DefaultTextArrayOffset = 0x15D48C;
-	public static final int NumberOfTextStrings = 0xD4B;
 	
 	public static final long ChapterTablePointer = 0x19900;
 	//public static final long DefaultChapterArrayOffset = 0x8B363C;
@@ -131,6 +128,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
+	public static final GBAFETextProvider textProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -480,7 +479,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				BONEWALKER_BOW, BAEL, MAUTHE_DOOG, TARVOS, MOGALL, GARGOYLE));
 		public static Set<CharacterClass> allPromotedClasses = new HashSet<CharacterClass>(Arrays.asList(EPHRAIM_MASTER_LORD, PALADIN, GENERAL, HERO, SWORDMASTER, ASSASSIN, SNIPER, RANGER, WYVERN_LORD, WYVERN_KNIGHT, 
 				SAGE, MAGE_KNIGHT, BISHOP, DRUID, SUMMONER, ROGUE, GREAT_KNIGHT, SUPER_TRAINEE, SUPER_PUPIL, WARRIOR, BERSERKER, EIRIKA_MASTER_LORD, PALADIN_F, GENERAL_F, SWORDMASTER_F, ASSASSIN_F, SNIPER_F, RANGER_F, 
-				WYVERN_KNIGHT_F, SAGE_F, MAGE_KNIGHT_F, BISHOP_F, GREAT_KNIGHT_F, SUPER_RECRUIT, MANAKETE_F, FALCON_KNIGHT, VALKYRIE, ENTOMBED, WIGHT, WIGHT_BOW, ELDER_BAEL, CYCLOPS, GWYLLGI, MAELDUIN, ARCH_MOGALL, 
+				 WYVERN_LORD_F, WYVERN_KNIGHT_F, SAGE_F, MAGE_KNIGHT_F, BISHOP_F, GREAT_KNIGHT_F, SUPER_RECRUIT, MANAKETE_F, FALCON_KNIGHT, VALKYRIE, ENTOMBED, WIGHT, WIGHT_BOW, ELDER_BAEL, CYCLOPS, GWYLLGI, MAELDUIN, ARCH_MOGALL, 
 				GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2));
 		
 		public static Set<CharacterClass> allPacifistClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, CLERIC, TROUBADOUR, PRIEST));
@@ -488,12 +487,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				GWYLLGI, REVENANT, ENTOMBED));
 		public static Set<CharacterClass> allRangeLockedClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, ARCHER_F, SNIPER, SNIPER_F, BONEWALKER_BOW, WIGHT_BOW));
 		
-		public static Set<CharacterClass> allValidClasses = new HashSet<CharacterClass>(Arrays.asList(EPHRAIM_LORD, CAVALIER, KNIGHT, THIEF, MERCENARY, MYRMIDON, ARCHER, WYVERN_RIDER, MAGE, SHAMAN, 
+		public static Set<CharacterClass> allValidClasses = new HashSet<CharacterClass>(Arrays.asList(EPHRAIM_LORD, CAVALIER, KNIGHT, THIEF, MERCENARY, MYRMIDON, ARCHER, WYVERN_RIDER, MAGE, SHAMAN,  
 				FIGHTER, BRIGAND, PIRATE, MONK, PRIEST, SOLDIER, TRAINEE_2, PUPIL_2, EPHRAIM_MASTER_LORD, PALADIN, GENERAL, HERO, SWORDMASTER, ASSASSIN, SNIPER, RANGER, WYVERN_LORD, WYVERN_KNIGHT, SAGE, 
 				MAGE_KNIGHT, BISHOP, DRUID, SUMMONER, ROGUE, GREAT_KNIGHT, SUPER_TRAINEE, SUPER_PUPIL, WARRIOR, BERSERKER, EIRIKA_LORD, CAVALIER_F, KNIGHT_F, MYRMIDON_F, ARCHER_F, MAGE_F, PEGASUS_KNIGHT, CLERIC, 
 				TROUBADOUR, DANCER, RECRUIT_2, EIRIKA_MASTER_LORD, PALADIN_F, GENERAL_F, SWORDMASTER_F, ASSASSIN_F, SNIPER_F, RANGER_F, WYVERN_KNIGHT_F, SAGE_F, MAGE_KNIGHT_F, BISHOP_F,
 				GREAT_KNIGHT_F, SUPER_RECRUIT, /*MANAKETE_F,*/ FALCON_KNIGHT, VALKYRIE, REVENANT, BONEWALKER, BONEWALKER_BOW, BAEL, MAUTHE_DOOG, TARVOS, MOGALL, GARGOYLE,
 				ENTOMBED, WIGHT, WIGHT_BOW, ELDER_BAEL, CYCLOPS, GWYLLGI, MAELDUIN, ARCH_MOGALL, GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2));
+		
+		public static Set<CharacterClass> additionalClassesToPalletLoad = new HashSet<CharacterClass>(Arrays.asList(MANAKETE_F));
 		
 		// Leaving this empty for the time being. If it turns out to be an issue when hostile AI gets its hands on classes it doesn't know 
 		// how to deal with, we can add it back in.
@@ -1956,6 +1957,14 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			switch(this) {
 			case CHAPTER_9_EIRIKA:
 				return new CharacterNudge[] {new CharacterNudge(Character.TANA.ID, 0, 2, 0, 5) }; // Tana flies onscreen for a scene. This allows us to keep her class from being locked into flying classes.
+			case CHAPTER_13_EIRIKA:
+				return new CharacterNudge[] { // Cormag Spawns on a Mountain.
+						new CharacterNudge(Character.CORMAG.ID, 0, 15, 5, 15), // Move his starting spot off the mountain 
+						new CharacterNudge(Character.CORMAG.ID, 5, 15, 6, 13, 0) // he moves a couple steps, so also move that. Note that the Old XY will match the Nudge above.
+						};  
+			case CHAPTER_10_EPHRAIM:
+				return new CharacterNudge[] {new CharacterNudge(Character.CORMAG.ID, 21, 18, 11, 12) }; // Cormag Spawns on an Island where you're likely not to be able to recruit him. 
+			
 			default:
 				return new CharacterNudge[] {};
 			}
@@ -2501,8 +2510,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			defaultPaletteForClass.put(CharacterClass.DANCER.ID, DANCER_TETHYS.info);
 			defaultPaletteForClass.put(CharacterClass.PIRATE.ID, PIRATE_ROSS.info);
 			
+
 			defaultPaletteForClass.put(CharacterClass.SOLDIER.ID, SOLDIER_GENERIC.info);
-			
+
 		}
 		
 		private Palette(int paletteID, int charID, int classID, long offset) {
@@ -3847,5 +3857,97 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public GBAFESpellAnimationCollection spellAnimationCollectionAtAddress(byte[] data, long offset) {
 		return new FE8SpellAnimationCollection(data, offset);
+	}
+
+	@Override
+	public long portraitDataTableAddress() {
+		return 0x8ACBC4;
+	}
+
+	@Override
+	public int numberOfPortraits() {
+		return 171;
+	}
+
+	@Override
+	public int bytesPerPortraitEntry() {
+		return 28;
+	}
+	
+	@Override
+	public GBAFEPortraitData portraitDataWithData(byte[] data, long offset, int faceId) {
+		return new GBAFEPortraitData(data, offset, faceId, true);
+	}
+	
+	public static Map<Integer, List<Integer>> faceIdRelationMap = createFaceIdRelationMap();
+	private static Map<Integer, List<Integer>> createFaceIdRelationMap(){
+		Map<Integer, List<Integer>> relationMap = new HashMap<>();
+		relationMap.put(0x2, Arrays.asList(0x3, 0x2D)); // Eirika
+		relationMap.put(0xA, Arrays.asList(0xB)); // Neimi
+		relationMap.put(0xC, Arrays.asList(0xD)); // Colm
+		relationMap.put(0x11, Arrays.asList(0x12)); // Natasha
+		relationMap.put(0x14, Arrays.asList(0x15, 0x2E)); // Ephraim
+		relationMap.put(0x16, Arrays.asList(0x17)); // Forde
+		relationMap.put(0x1C, Arrays.asList(0x1D)); // Tethys
+		relationMap.put(0x1E, Arrays.asList(0x1F)); // Marisa
+		relationMap.put(0x26, Arrays.asList(0x27, 0x28)); // Myrrh
+		relationMap.put(0x29, Arrays.asList(0x2F)); // Knoll
+		relationMap.put(0x44, Arrays.asList(0x45)); // Orson
+		relationMap.put(0x46, Arrays.asList(0x47, 0x4A, 0x50)); // Lyon
+		relationMap.put(0x56, Arrays.asList(0x57)); // Ismaire
+		return relationMap;
+	}
+
+	@Override
+	public List<Integer> getRelatedPortraits(Integer faceId) {
+		List<Integer> result = faceIdRelationMap.get(faceId);
+		return result == null ? new ArrayList<>() : new ArrayList<>(result);	
+	}
+	
+	@Override
+	public List<Integer> getRelatedNames(Integer nameIndex) {
+		return new ArrayList<>();
+	}
+	
+
+	@Override
+	public int getHuffmanTreeStart() {
+		return 0x6E0;
+	}
+
+	@Override
+	public int getHuffmanTreeEnd() {
+		return  0x6DC;
+	}
+
+	@Override
+	public int getTextTablePointer() {
+		return  0xA2A0;
+	}
+
+	@Override
+	public int getNumberOfTextStrings() {
+		return 0xD4B;
+	}
+	
+	private final Set<Integer> excludedIndicies = generateExcludedIndiciesSet();
+	
+	@Override
+	public Set<Integer> getExcludedIndiciesFromNameUpdate() {
+		return excludedIndicies;
+	}
+
+	private Set<Integer> generateExcludedIndiciesSet() {
+		Set<Integer> indicies = new HashSet<>();
+		indicies.add(0x364); // Lancereaver
+		indicies.add(0x369); // Iron Lance
+		indicies.add(0x36A); // Slim Lance
+		indicies.add(0x36B); // Steel Lance
+		indicies.add(0x36C); // Silver Lance
+		indicies.add(0x36D); // Toxin Lance
+		indicies.add(0x36E); // Brave Lance
+		indicies.add(0x36F); // Killer Lance
+		
+		return indicies;
 	}
 }

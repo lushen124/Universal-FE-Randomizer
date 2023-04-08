@@ -276,7 +276,7 @@ public class FE8SpellAnimationCollection implements GBAFESpellAnimationCollectio
 		// Then another 0.
 		entryBytes.appendByte((byte)0);
 		// Then the animation value.
-		entryBytes.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(animation.value, false, 2));
+		entryBytes.appendBytes(WhyDoesJavaNotHaveThese.byteArrayFromLongValue(animation.value, true, 2));
 		// Then two 0s.
 		entryBytes.appendByte((byte)0);
 		entryBytes.appendByte((byte)0);

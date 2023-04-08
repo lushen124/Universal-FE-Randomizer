@@ -28,6 +28,7 @@ import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.gba.loader.PaletteLoader;
+import random.gba.loader.PortraitDataLoader;
 import random.gba.loader.TextLoader;
 import ui.model.BaseOptions;
 import ui.model.ClassOptions;
@@ -46,6 +47,7 @@ import util.FreeSpaceManager;
 import util.GBAImageCodec;
 import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
+import util.OptionRecorder.GBAOptionBundle;
 
 /**
  * Class with FE7 Specific implementations needed for GBA Randomization
@@ -53,11 +55,8 @@ import util.WhyDoesJavaNotHaveThese;
 public class FE7Randomizer extends AbstractGBARandomizer {
 
 	public FE7Randomizer(String sourcePath, String targetPath, GameType gameType, DiffCompiler diffs,
-			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, String seed) {
-		super(sourcePath, targetPath, gameType, diffs, growths, bases, classes, weapons, other, enemies, otherOptions,
-				recruit, itemAssign, seed, FE7Data.FriendlyName);
+			GBAOptionBundle options, String seed) {
+		super(sourcePath, targetPath, gameType, diffs, options, seed, FE7Data.FriendlyName);
 	}
 
 	@Override
@@ -69,9 +68,11 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		freeSpace = new FreeSpaceManager(FEBase.GameType.FE7, FE7Data.InternalFreeRange, sourceFileHandler);
 		updateStatusString("Loading Text...");
 		updateProgress(0.05);
-		textData = new TextLoader(FEBase.GameType.FE7, sourceFileHandler);
+		textData = new TextLoader(FEBase.GameType.FE7, FE7Data.textProvider, sourceFileHandler);
 		textData.allowTextChanges = true;
-
+		updateStatusString("Loading Portrait Data...");
+		updateProgress(0.07);
+		portraitData = new PortraitDataLoader(FE7Data.shufflingDataProvider, sourceFileHandler);
 		updateStatusString("Loading Character Data...");
 		updateProgress(0.10);
 		charData = new CharacterDataLoader(FE7Data.characterProvider, sourceFileHandler);
@@ -1062,6 +1063,74 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 	@Override
 	protected void applyUpsPatches() {
 		// N/A
+	}
+
+	@Override
+	protected void applyCasualMode() {
+		diffCompiler.addDiff(new Diff(0x17EA0, 1, new byte[] {(byte)0x09}, new byte[] {(byte)0x05}));
+	}
+
+	@Override
+	protected void applyParagonMode() {
+		// Combat EXP
+		diffCompiler.addDiff(new Diff(0x29F64, 24, 
+				new byte[] {(byte)0x24, (byte)0x18, (byte)0x64, (byte)0x00, (byte)0x64, (byte)0x2C, (byte)0x00, (byte)0xDD,
+						    (byte)0x64, (byte)0x24, (byte)0x00, (byte)0x2C, (byte)0x00, (byte)0xDA, (byte)0x00, (byte)0x24,
+						    (byte)0x20, (byte)0x1C, (byte)0x70, (byte)0xBC, (byte)0x02, (byte)0xBC, (byte)0x08, (byte)0x47}, 
+				new byte[] {(byte)0x24, (byte)0x18, (byte)0x64, (byte)0x2C, (byte)0x00, (byte)0xDD, (byte)0x64, (byte)0x24, 
+						    (byte)0x00, (byte)0x2C, (byte)0x00, (byte)0xDA, (byte)0x00, (byte)0x24, (byte)0x20, (byte)0x1C,
+						    (byte)0x70, (byte)0xBC, (byte)0x02, (byte)0xBC, (byte)0x08, (byte)0x47, (byte)0x00, (byte)0x00}));
+		diffCompiler.addDiff(new Diff(0x29F50, 2,
+				new byte[] {(byte)0x11, (byte)0xE0},
+				new byte[] {(byte)0x10, (byte)0xE0}));
+		diffCompiler.addDiff(new Diff(0x29F3E, 2,
+				new byte[] {(byte)0x1A, (byte)0xE0},
+				new byte[] {(byte)0x19, (byte)0xE0}));
+		diffCompiler.addDiff(new Diff(0x29F4E, 2,
+				new byte[] {(byte)0x02, (byte)0x20},
+				new byte[] {(byte)0x01, (byte)0x20}));
+		
+		// Staff EXP
+		diffCompiler.addDiff(new Diff(0x2A044, 12,
+				new byte[] {(byte)0x00, (byte)0x28, (byte)0x01, (byte)0xD0, (byte)0x52, (byte)0x10, (byte)0x00, (byte)0x00,
+						    (byte)0x52, (byte)0x00, (byte)0x64, (byte)0x2A},
+				new byte[] {(byte)0x00, (byte)0x28, (byte)0x02, (byte)0xD0, (byte)0xD0, (byte)0x0F, (byte)0x10, (byte)0x18,
+						    (byte)0x42, (byte)0x10, (byte)0x64, (byte)0x2A}));
+		
+		// Steal/Dance EXP
+		diffCompiler.addDiff(new Diff(0x2A086, 8,
+				new byte[] {(byte)0x14, (byte)0x20, (byte)0x08, (byte)0x70, (byte)0x60, (byte)0x7A, (byte)0x14, (byte)0x30},
+				new byte[] {(byte)0x0A, (byte)0x20, (byte)0x08, (byte)0x70, (byte)0x60, (byte)0x7A, (byte)0x0A, (byte)0x30}));		
+	}
+
+	@Override
+	protected void applyRenegadeMode() {
+		// Combat EXP
+		diffCompiler.addDiff(new Diff(0x29F64, 24, 
+				new byte[] {(byte)0x24, (byte)0x18, (byte)0x64, (byte)0x10, (byte)0x64, (byte)0x2C, (byte)0x00, (byte)0xDD,
+					        (byte)0x64, (byte)0x24, (byte)0x00, (byte)0x2C, (byte)0x00, (byte)0xDA, (byte)0x00, (byte)0x24,
+					        (byte)0x20, (byte)0x1C, (byte)0x70, (byte)0xBC, (byte)0x02, (byte)0xBC, (byte)0x08, (byte)0x47}, 
+				new byte[] {(byte)0x24, (byte)0x18, (byte)0x64, (byte)0x2C, (byte)0x00, (byte)0xDD, (byte)0x64, (byte)0x24, 
+						    (byte)0x00, (byte)0x2C, (byte)0x00, (byte)0xDA, (byte)0x00, (byte)0x24, (byte)0x20, (byte)0x1C,
+						    (byte)0x70, (byte)0xBC, (byte)0x02, (byte)0xBC, (byte)0x08, (byte)0x47, (byte)0x00, (byte)0x00}));
+		diffCompiler.addDiff(new Diff(0x29F50, 2,
+				new byte[] {(byte)0x11, (byte)0xE0},
+				new byte[] {(byte)0x10, (byte)0xE0}));
+		diffCompiler.addDiff(new Diff(0x29F3E, 2,
+				new byte[] {(byte)0x1A, (byte)0xE0},
+				new byte[] {(byte)0x19, (byte)0xE0}));
+		
+		// Staff EXP
+		diffCompiler.addDiff(new Diff(0x2A044, 12,
+				new byte[] {(byte)0x00, (byte)0x28, (byte)0x01, (byte)0xD0, (byte)0x52, (byte)0x10, (byte)0x00, (byte)0x00,
+					        (byte)0x52, (byte)0x10, (byte)0x64, (byte)0x2A},
+				new byte[] {(byte)0x00, (byte)0x28, (byte)0x02, (byte)0xD0, (byte)0xD0, (byte)0x0F, (byte)0x10, (byte)0x18,
+						    (byte)0x42, (byte)0x10, (byte)0x64, (byte)0x2A}));
+		
+		// Steal/Dance EXP
+		diffCompiler.addDiff(new Diff(0x2A086, 8,
+				new byte[] {(byte)0x05, (byte)0x20, (byte)0x08, (byte)0x70, (byte)0x60, (byte)0x7A, (byte)0x05, (byte)0x30},
+				new byte[] {(byte)0x0A, (byte)0x20, (byte)0x08, (byte)0x70, (byte)0x60, (byte)0x7A, (byte)0x0A, (byte)0x30}));		
 	}
 
 }

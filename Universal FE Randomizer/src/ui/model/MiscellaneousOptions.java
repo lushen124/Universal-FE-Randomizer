@@ -8,6 +8,10 @@ public class MiscellaneousOptions implements RecordableOption {
 	public enum RewardMode {
 		SIMILAR, RANDOM
 	}
+	
+	public enum ExperienceRate {
+		NORMAL, PARAGON, RENEGADE
+	}
 
 	public final Boolean applyEnglishPatch;
 
@@ -22,7 +26,10 @@ public class MiscellaneousOptions implements RecordableOption {
 	public final MinMaxOption fogOfWarVisionRange;
 
 	public final RewardMode rewardMode;
-
+	
+	public final ExperienceRate experienceRate;
+	public final Boolean casualMode;
+	
 	public static class FollowupRequirement {
 		public final Boolean requiresPursuit;
 		public final int thresholdWithPursuit;
@@ -38,8 +45,7 @@ public class MiscellaneousOptions implements RecordableOption {
 	public final FollowupRequirement followupRequirement;
 
 	// FE7, FE8
-	public MiscellaneousOptions(Boolean randomRewards, int enemyDropChance, Boolean tripleEffectiveness,
-			Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange) {
+	public MiscellaneousOptions(Boolean randomRewards, int enemyDropChance, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange, Boolean casualMode, ExperienceRate experienceRate) {
 		super();
 		this.applyEnglishPatch = false;
 		this.tripleEffectiveness = tripleEffectiveness;
@@ -51,6 +57,8 @@ public class MiscellaneousOptions implements RecordableOption {
 		randomizeFogOfWar = fogOfWar;
 		this.fogOfWarChance = fogOfWarChance;
 		fogOfWarVisionRange = visionRange;
+		this.casualMode = casualMode;
+		this.experienceRate = experienceRate;
 	}
 
 	// FE4
@@ -67,11 +75,12 @@ public class MiscellaneousOptions implements RecordableOption {
 		randomizeFogOfWar = false;
 		fogOfWarVisionRange = null;
 		fogOfWarChance = 0;
+		casualMode = false;
+		experienceRate = ExperienceRate.NORMAL;
 	}
 
 	// FE6
-	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, Boolean tripleEffectiveness,
-			Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange) {
+	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange, Boolean casualMode, ExperienceRate experienceRate) {
 		super();
 		this.applyEnglishPatch = applyEnglishPatch;
 		this.tripleEffectiveness = tripleEffectiveness;
@@ -83,6 +92,8 @@ public class MiscellaneousOptions implements RecordableOption {
 		randomizeFogOfWar = fogOfWar;
 		fogOfWarVisionRange = visionRange;
 		this.fogOfWarChance = fogOfWarChance;
+		this.casualMode = casualMode;
+		this.experienceRate = experienceRate;
 	}
 
 	// FE9
@@ -99,6 +110,8 @@ public class MiscellaneousOptions implements RecordableOption {
 		randomizeFogOfWar = false;
 		fogOfWarVisionRange = null;
 		fogOfWarChance = 0;
+		casualMode = false;
+		experienceRate = ExperienceRate.NORMAL;
 	}
 
 	@Override
@@ -121,6 +134,21 @@ public class MiscellaneousOptions implements RecordableOption {
 					+ Integer.toString(fogOfWarVisionRange.maxValue));
 		} else {
 			rk.addHeaderItem("Randomize Fog of War", "NO");
+		}
+		
+		String expRateDesc = "";
+		switch(experienceRate) {
+		case NORMAL: expRateDesc = "Regular exp gain."; break;
+		case PARAGON: expRateDesc = "Paragon Mode. Exp gain doubled."; break;
+		case RENEGADE: expRateDesc = "Renegade Mode. Exp gain halved."; break;
+		}
+		
+		rk.addHeaderItem("Experience Rate: ", expRateDesc);
+		
+		if (casualMode) {
+			rk.addHeaderItem("Casual Mode", "YES");
+		} else {
+			rk.addHeaderItem("Casual Mode", "NO");
 		}
 	}
 }

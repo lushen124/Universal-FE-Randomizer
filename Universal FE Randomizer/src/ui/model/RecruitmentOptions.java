@@ -1,5 +1,7 @@
 package ui.model;
 
+import java.util.List;
+
 import fedata.general.FEBase.GameType;
 import util.recordkeeper.RecordKeeper;
 
