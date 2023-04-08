@@ -135,6 +135,7 @@ public class CharacterShuffler {
 					ItemAssignmentService.assignNewItems(characterData, linkedSlot, targetClass, chapterData, inventoryOptions, rng, textData, classData, itemData);
 				}
 			}
+			GBATextReplacementService.applyChanges(textData);
 		}
 	}
 
@@ -143,15 +144,7 @@ public class CharacterShuffler {
 			GBAFECharacterData slot, GBACrossGameData crossGameData) {
 		// Save the old name for text replacement
 		String oldName = textData.getStringAtIndex(slot.getNameIndex(), true).trim();
-		List<Integer> nameIndicies = new ArrayList<>();
-		nameIndicies.add(slot.getNameIndex());
-		nameIndicies.addAll(portraitData.getRelatedNameIndicies(slot.getNameIndex()));
-		for(Integer index : nameIndicies) {
-			textData.setStringAtIndex(index, crossGameData.name+"[X]");
-		}
-		
 		GBATextReplacementService.enqueueNameUpdate(textData, oldName, crossGameData.name);
-		GBATextReplacementService.applyChanges(textData);
 	}
 
 	/**
