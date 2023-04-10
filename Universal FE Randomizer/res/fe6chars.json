@@ -81,9 +81,9 @@
     "constitution": 0,
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
-    "mouthY": 6
+    "mouthY": 5
   },
   {
     "name": "Fae",
@@ -125,8 +125,8 @@
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 5,
-    "mouthX": 2,
-    "mouthY": 6
+    "mouthX": 3,
+    "mouthY": 7
   },
   {
     "name": "Sin",
@@ -166,7 +166,7 @@
     ],
     "constitution": 0,
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -210,7 +210,7 @@
     "constitution": 0,
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -252,10 +252,10 @@
     ],
     "constitution": 1,
     "originGame": "FE6",
-    "eyeX": 0,
-    "eyeY": 0,
+    "eyeX": 3,
+    "eyeY": 3,
     "mouthX": 2,
-    "mouthY": 4
+    "mouthY": 5
   },
   {
     "name": "Barthe",
@@ -338,7 +338,7 @@
     ],
     "constitution": 1,
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 2,
     "mouthX": 2,
     "mouthY": 4
@@ -384,7 +384,7 @@
     "eyeX": 3,
     "eyeY": 4,
     "mouthX": 2,
-    "mouthY": 5
+    "mouthY": 6
   },
   {
     "name": "Douglas",
@@ -597,7 +597,7 @@
     "constitution": 1,
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -683,7 +683,7 @@
     "constitution": 0,
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -854,8 +854,8 @@
     ],
     "constitution": -1,
     "originGame": "FE6",
-    "eyeX": 3,
-    "eyeY": 4,
+    "eyeX": 2,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1070,7 +1070,7 @@
     "constitution": 0,
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1327,7 +1327,7 @@
     ],
     "constitution": 1,
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -1371,7 +1371,7 @@
     "constitution": 1,
     "originGame": "FE6",
     "eyeX": 2,
-    "eyeY": 3,
+    "eyeY": 2,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1500,7 +1500,7 @@
     "constitution": 1,
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1671,7 +1671,7 @@
     ],
     "constitution": 1,
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -1929,8 +1929,8 @@
     ],
     "constitution": 0,
     "originGame": "FE6",
-    "eyeX": 2,
-    "eyeY": 5,
+    "eyeX": 3,
+    "eyeY": 4,
     "mouthX": 2,
     "mouthY": 6
   },
@@ -1972,7 +1972,7 @@
     ],
     "constitution": 0,
     "originGame": "FE6",
-    "eyeX": 3,
+    "eyeX": 4,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -2102,7 +2102,7 @@
     "constitution": 0,
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -2144,7 +2144,7 @@
     ],
     "constitution": 0,
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -2231,7 +2231,7 @@
     "constitution": 0,
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
