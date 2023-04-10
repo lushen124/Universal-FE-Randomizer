@@ -5,6 +5,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B31DE14BA10F320A46D464D297EFF275373FE7F",
     "description1": "Marquess Pherae's young",
     "description2": "son. Just and honorable.",
+    "battlePalette": {
+      "hair": ["#ee2a24", "#ca241d", "#8d3138"],
+      "primary": ["#3e7df7", "#1c5dd3", "#2a478d"],
+      "secondary": ["#f7f73f", "#ee964e", "#c16531"],
+      "tertiary": null
+    },
     "characterClass": "LORD_ELIWOOD",
     "level": 1,
     "bases": {
@@ -48,6 +54,12 @@
     "paletteString": "344FFF639F3F9E2AD81D6E2D0B31AF7D4A6D2A41F0516C3953003A7F9808FF7F",
     "description1": "Marquess Ostia's younger",
     "description2": "brother. Reckless, but loyal.",
+    "battlePalette": {
+      "hair": ["#6c5df7", "#4647d3", "#463f75"],
+      "primary": ["#756d96", "#554e65", "#4e3855"],
+      "secondary": ["#b81d11", "#8e1100"],
+      "tertiary": null
+    },
     "characterClass": "LORD_HECTOR",
     "level": 1,
     "bases": {
@@ -91,6 +103,12 @@
     "paletteString": "344FFF679F3FBE2AD91D6E2D0B31B9107410EE20A75E044ACE494A399221156B",
     "description1": "A troubled mercenary with a",
     "description2": "grudge against House Ostia.",
+    "battlePalette": {
+      "hair": ["#c1241d", "#96171d", "#653138"],
+      "primary": ["#656585", "#464665"],
+      "secondary": ["#309eaf", "#1c7585"],
+      "tertiary": null
+    },
     "characterClass": "MERCENARY",
     "level": 1,
     "bases": {
@@ -134,6 +152,12 @@
     "paletteString": "344FDF635E437D2AD91D6E2D0B311839B4340F3195461136BC7BF6661957FF7F",
     "description1": "The eldest son of a wealthy",
     "description2": "merchant. Finding himself.",
+    "battlePalette": {
+      "hair": ["#b83865", "#96245d", "#6d3855"],
+      "primary": ["#9e967d", "#7d755d", "#654e4e"],
+      "secondary": ["#db5eee", "#a7afc1"],
+      "tertiary": null
+    },
     "characterClass": "WARRIOR",
     "level": 3,
     "bases": {
@@ -177,6 +201,12 @@
     "paletteString": "344FFF679F37BE26191E6E2D0B316D2EC9194821127F6D6AC855FA269C77FF7F",
     "description1": "A youth from Sacae. Yearns",
     "description2": "to be a swordmaster.",
+    "battlePalette": {
+      "hair": ["#5d8d4e", "#3f652a", "#384638"],
+      "primary": ["#85b8f7", "#5d8dca", "#38659e"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "MYRMIDON",
     "level": 1,
     "bases": {
@@ -220,6 +250,12 @@
     "paletteString": "344FFF5F9F33BE2AD81D6E310B315542CF2D6C25AB594A45B64A4B2D376BFF7F",
     "description1": "An eastern swordmaster.",
     "description2": "Seeking worthy opponents.",
+    "battlePalette": {
+      "hair": ["#9e8575", "#6d654e", "#554e3f"],
+      "primary": ["#4d5da7", "#46477d"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "SWORDMASTER",
     "level": 1,
     "bases": {
@@ -263,6 +299,12 @@
     "paletteString": "344FFF5B5F339E26B8156E310B31181DD31CEE241A2F9732D12DFF17133EFF7F",
     "description1": "A man from a small village in",
     "description2": "Bern. Fights for his wife.",
+    "battlePalette": {
+      "hair": ["#b83831", "#8d2a31", "#65313f"],
+      "primary": ["#cab84e", "#af9655", "#7d654e"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "FIGHTER",
     "level": 3,
     "bases": {
@@ -306,6 +348,12 @@
     "paletteString": "344FFF679F4BDE2EF9216E310B317726F21D6C216E7ECA6DAC45B15A3467FF7F",
     "description1": "One of Eliwood's guardsmen.",
     "description2": "Duty is everything to him.",
+    "battlePalette": {
+      "hair": ["#af8d3f", "#856d31", "#554e38"],
+      "primary": ["#648df7", "#4665d3", "#555d7d"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "FIGHTER",
     "level": 2,
     "bases": {
@@ -349,6 +397,12 @@
     "paletteString": "344FFF639F3F9E2AD81D6E2D0B315306CF094D09FC159A157421FF27F55EFE7F",
     "description1": "A knight in service to House",
     "description2": "Ostia. Hector's sworn man.",
+    "battlePalette": {
+      "hair": ["#8d8509", "#6d6511", "#5d4611"],
+      "primary": ["#dc6d24", "#ca5524", "#964e38"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "KNIGHT",
     "level": 9,
     "bases": {
@@ -392,6 +446,12 @@
     "paletteString": "344FFF737F53BD32F91D6E2D0B31C63A042A65259717F216CC19BD267A7FFF7F",
     "description1": "A youth from Pherae. Very",
     "description2": "helpful and bright.",
+    "battlePalette": {
+      "hair": ["#2aa765", "#1d7546", "#244e3f"],
+      "primary": ["#e59e3f", "#c16d31", "#654e4e"],
+      "secondary": ["#afdb23", "#85af23", "#55652a"],
+      "tertiary": null
+    },
     "characterClass": "ARCHER_F",
     "level": 1,
     "bases": {
@@ -435,6 +495,12 @@
     "paletteString": "344FFF6F7F477D2AD71D6E2D0B31FF3B7C239722F87134613E5ABB3D197BFF7F",
     "description1": "The wife of Marquess",
     "description2": "Reglay. A lethal beauty.",
+    "battlePalette": {
+      "hair": ["#f7f765", "#dcd238", "#af9638"],
+      "primary": ["#ee7da7", "#d35d6d"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "SNIPER_F",
     "level": 1,
     "bases": {
@@ -478,6 +544,12 @@
     "paletteString": "344FFF737F53BD32F91D6E2D0B31FF4F5C37762EAE722A5E3873104A9B77FF7F",
     "description1": "A traveling acolyte.",
     "description2": "Gentle and serene.",
+    "battlePalette": {
+      "hair": ["#f7f78d", "#dcc95d", "#a78d4e"],
+      "primary": ["#649edc", "#467daf"],
+      "secondary": ["#f7f7f7", "#d2dce5", "#b8c1dc"],
+      "tertiary": null
+    },
     "characterClass": "MONK",
     "level": 3,
     "bases": {
@@ -521,6 +593,12 @@
     "paletteString": "344FFF737F53BD32F91D6E2D0B31DF6A1D5A783DB2624B45BA7E156A7A7FFF7F",
     "description1": "A cleric in service to House",
     "description2": "Ostia. Headstrong and bold.",
+    "battlePalette": {
+      "hair": ["#f7a7ca", "#e575a7", "#b84e6d"],
+      "primary": ["#ca9ef7", "#9e75ca", "#4e477d"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "CLERIC",
     "level": 1,
     "bases": {
@@ -564,6 +642,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B31325FAE4EEB35386F935E0F4AF341BB3DFF7F",
     "description1": "A cleric wandering Valor.",
     "description2": "Shrouded in mystery.",
+    "battlePalette": {
+      "hair": ["#85c1af", "#659e8d", "#4e6d5d"],
+      "primary": ["#b8c1d3", "#8d96af", "#6d7585"],
+      "secondary": ["#8d6d75", "#654e4e"],
+      "tertiary": null
+    },
     "characterClass": "BISHOP",
     "level": 16,
     "bases": {
@@ -607,6 +691,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B315859F3500E31191D1525D31C961D4D4DFF7F",
     "description1": "A young mage from Etruria.",
     "description2": "Charming, but uptight.",
+    "battlePalette": {
+      "hair": ["#b847a7", "#8d3196", "#653855"],
+      "primary": ["#c13831", "#9e383f", "#8d2a31"],
+      "secondary": ["#5d478d", "#4e3855"],
+      "tertiary": null
+    },
     "characterClass": "MAGE",
     "level": 1,
     "bases": {
@@ -650,6 +740,12 @@
     "paletteString": "344FFF6B7F47BE2ED91D6E2D0B31CF1F2B1F2C2E4E5D2C4103527177AB72FF7F",
     "description1": "One of the Black Fang.",
     "description2": "True and innocent.",
+    "battlePalette": {
+      "hair": ["#6cee31", "#4ec131", "#557d4e"],
+      "primary": ["#6547af", "#553f75", "#4e3855"],
+      "secondary": ["#7cd3e5", "#4d9edc", "#167596"],
+      "tertiary": null
+    },
     "characterClass": "MAGE_F",
     "level": 5,
     "bases": {
@@ -693,6 +789,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B313773B25E2E4E505215628E4DB1399A7FFF7F",
     "description1": "Marquess of Reglay. Sole",
     "description2": "student of Archsage Athos.",
+    "battlePalette": {
+      "hair": ["#c9dcf7", "#afc1dc", "#859eaf"],
+      "primary": ["#9e75b8", "#65558d", "#4e3855"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "SAGE",
     "level": 6,
     "bases": {
@@ -736,6 +838,12 @@
     "paletteString": "344FFF6B9F4BDE2EF9216E310B313B6DD758D14472410D3DB45ECD45FD7EFF7F",
     "description1": "A scholar, and a novice",
     "description2": "student of ancient magics.",
+    "battlePalette": {
+      "hair": ["#d340d3", "#af2ba7", "#7d2b7d"],
+      "primary": ["#854e75", "#5d386d", "#4e3855"],
+      "secondary": ["#969eaf", "#5d657d"],
+      "tertiary": null
+    },
     "characterClass": "SHAMAN",
     "level": 8,
     "bases": {
@@ -778,7 +886,13 @@
     "portraitPath": "portraits/FE7/lowen.png",
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B316E57CA46E9311F177B12B4212B7E5577FF7F",
     "description1": "A knight in service to House",
-    "description2": "Pherae. A fresh recruit.",
+    "description2": "Pherae. A frsesh recruit.",
+    "battlePalette": {
+      "hair": ["#64d29e", "#46a77d", "#3f6d55"],
+      "primary": ["#f7b823", "#d38d1d", "#965d38"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "CAVALIER",
     "level": 2,
     "bases": {
@@ -822,6 +936,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B315A6ED5554E3D1B2E761D4F25BF13F329FF7F",
     "description1": "A paladin serving House",
     "description2": "Pherae. A skilled veteran.",
+    "battlePalette": {
+      "hair": ["#ca85d3", "#9e659e", "#65466d"],
+      "primary": ["#d3754e", "#a74e31", "#6d463f"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "PALADIN",
     "level": 1,
     "bases": {
@@ -865,6 +985,12 @@
     "paletteString": "344FFF6F7F53BE36DA1D6E2D0B31FC14F814F214FE7BC626E215B877D36EFF7F",
     "description1": "A vassal in service to Count",
     "description2": "Caerleon of Etruria.",
+    "battlePalette": {
+      "hair": ["#dc3124", "#b83124", "#853124"],
+      "primary": ["#f7f7f7", "#b8e5e5", "#8da7d3"],
+      "secondary": ["#2aa73f", "#116d24"],
+      "tertiary": null
+    },
     "characterClass": "TROUBADOUR",
     "level": 3,
     "bases": {
@@ -908,6 +1034,12 @@
     "paletteString": "344FFF737F53BD32F91D6E2D0B31486BA45AE64D707F2B7E69696B39967FFF7F",
     "description1": "Commander of the 5th wing",
     "description2": "of Ilia's pegasus knights.",
+    "battlePalette": {
+      "hair": ["#37caca", "#1c9ea7", "#2a6d8d"],
+      "primary": ["#4d7df7", "#3e4eca"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "PEGASUSKNIGHT",
     "level": 7,
     "bases": {
@@ -951,6 +1083,12 @@
     "paletteString": "344FFF737F53BD32F91D6E2D0B316B7D296D2B45707F2B7E69696B39F37FFF7F",
     "description1": "A member of the 3rd wing",
     "description2": "of Ilia's pegasus knights.",
+    "battlePalette": {
+      "hair": ["#4d4ef7", "#3e40d3", "#4e3f7d"],
+      "primary": ["#4d7df7", "#3e4eca"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "PEGASUSKNIGHT",
     "level": 12,
     "bases": {
@@ -994,6 +1132,12 @@
     "paletteString": "344FFF639F4BDE2EF9216E310B31E726441A2A32BC7F3A6FB55EF155AE490B41",
     "description1": "A deserter from Bern's",
     "description2": "wyvern riders. Prideful.",
+    "battlePalette": {
+      "hair": ["#31af3f", "#db5ef7", "#1d852a"],
+      "primary": ["#7d6d9e", "#655d85", "#4e3875"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "WYVERNKNIGHT",
     "level": 7,
     "bases": {
@@ -1037,6 +1181,12 @@
     "paletteString": "344FFF6B9F4BDE2EF9216E310B31FF3B5B23762258001300CD20F5665156FF7F",
     "description1": "A deserter from Bern's",
     "description2": "wyvern riders. Brutal.",
+    "battlePalette": {
+      "hair": ["#f7f765", "#d3c938", "#a78d38"],
+      "primary": ["#b81100", "#8e0000", "#5d2a38"],
+      "secondary": ["#9eafc1", "#7d859e"],
+      "tertiary": null
+    },
     "characterClass": "WYVERNLORD_F",
     "level": 9,
     "bases": {
@@ -1080,6 +1230,12 @@
     "paletteString": "344F1F339D26191AD61D6E2D0B31FF4B9C37F72A322A386F926A5C0C0E5AFF7F",
     "description1": "The protector of Nabata. A",
     "description2": "mysterious air surrounds him.",
+    "battlePalette": {
+      "hair": ["#f7f785", "#dcdb5d", "#afaf46"],
+      "primary": ["#b8c1d3", "#8596ca", "#6575a7"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "BERSERKER",
     "level": 4,
     "bases": {
@@ -1123,6 +1279,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B31BD26391ED3219717F216F718B2187A7FFF7F",
     "description1": "A cheery thief. His casual",
     "description2": "demeanor belies his skill.",
+    "battlePalette": {
+      "hair": ["#e59e3f", "#c17d31", "#8d6538"],
+      "primary": ["#b0312a", "#85242a"],
+      "secondary": ["#ee964e", "#c16531"],
+      "tertiary": ["#afdb23", "#85af23"]
+    },
     "characterClass": "THIEF",
     "level": 2,
     "bases": {
@@ -1166,6 +1328,12 @@
     "paletteString": "344F9E4BFE367D26B7196E2D0B31F718B218CD20313ECE2D6B2D6B39FA21FF7F",
     "description1": "The Black Fang's Angel of",
     "description2": "Death. Once served Nergal.",
+    "battlePalette": {
+      "hair": ["#b0312a", "#85242a", "#5d2a38"],
+      "primary": ["#7d7d6d", "#65654e", "#4e4e4e"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "ASSASSIN",
     "level": 13,
     "bases": {
@@ -1209,6 +1377,12 @@
     "paletteString": "344FFF7B7F5BBE36F9216E2D0B318F7309674D42B615BF63F5189C11F87FFF7F",
     "description1": "A somber girl. Quiet, but",
     "description2": "filled with a solemn energy.",
+    "battlePalette": {
+      "hair": ["#b8f7f7", "#6cdcdc", "#3eb8c1"],
+      "primary": ["#6cdcdc", "#3eb8c1", "#5d8575"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "DANCER",
     "level": 1,
     "bases": {
@@ -1252,6 +1426,12 @@
     "paletteString": "344FFF737F53BD32F91D6E2D0B318A6B095F0A3EFC17382FB5181C01F37FFF7F",
     "description1": "A bard possessing arcane",
     "description2": "powers. Brother of Ninian.",
+    "battlePalette": {
+      "hair": ["#45dcca", "#3eb8af", "#46756d"],
+      "primary": ["#dcf723", "#b8c14e"],
+      "secondary": ["#46756d"],
+      "tertiary": null
+    },
     "characterClass": "BARD",
     "level": 1,
     "bases": {
@@ -1295,6 +1475,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B317F7E7F7E7F7E7A77F5625152AD397F7EFF7F",
     "description1": "A retired knight of Caelin.",
     "description2": "Constantly testing himself.",
+    "battlePalette": {
+      "hair": ["#f7f7ca", "#f7d27d", "#ee964e"],
+      "primary": ["#cad3e5", "#9eafb8", "#7d8596"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "KNIGHT",
     "level": 12,
     "bases": {
@@ -1338,6 +1524,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B31464AA6354629495F8B6207525C0C5577FF7F",
     "description1": "A young girl from the Lorca",
     "description2": "tribe. Stouthearted and kind.",
+    "battlePalette": {
+      "hair": ["#2a8585", "#2a5d5d", "#2a4646"],
+      "primary": ["#4d96b8", "#307596", "#2a5d5d"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "LORD_LYN",
     "level": 4,
     "bases": {
@@ -1381,6 +1573,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B31571112150E1D0B676852A539961ED029FF7F",
     "description1": "A youth from Pherae, in the",
     "description2": "Lycian League. Very social.",
+    "battlePalette": {
+      "hair": ["#b0461d", "#853824", "#653831"],
+      "primary": ["#4db8c1", "#378d96", "#235d65"],
+      "secondary": ["#a79631", "#756546"],
+      "tertiary": null
+    },
     "characterClass": "ARCHER",
     "level": 4,
     "bases": {
@@ -1424,6 +1622,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B311F169B157421F718B218CD20156B9B77FF7F",
     "description1": "A knight in service to house",
     "description2": "Caelin. Virtuous to a fault.",
+    "battlePalette": {
+      "hair": ["#f77523", "#d35524", "#964e38"],
+      "primary": ["#b0312a", "#85242a", "#5d2a38"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "CAVALIER",
     "level": 5,
     "bases": {
@@ -1467,6 +1671,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B317616F1096D1D874AE631641DB139156BFF7F",
     "description1": "A knight in service to house",
     "description2": "Caelin. A bit of a scoundrel.",
+    "battlePalette": {
+      "hair": ["#a78d23", "#7d6d11", "#5d4e31"],
+      "primary": ["#309685", "#2a6d55", "#1d4e31"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "CAVALIER",
     "level": 4,
     "bases": {
@@ -1510,6 +1720,12 @@
     "paletteString": "344FFF7B7F5BBE36F9216E2D0B313A7F59769461AA67295B07522B7E967FFF7F",
     "description1": "A pegasus knight earning",
     "description2": "her title. A friend of Lyn's.",
+    "battlePalette": {
+      "hair": ["#c9c1f7", "#c185e5", "#9656b8"],
+      "primary": ["#4d7df7", "#307596"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "PEGASUSKNIGHT",
     "level": 3,
     "bases": {
@@ -1553,6 +1769,12 @@
     "paletteString": "344FFF679F37BE26191E6E2D0B31EA2967216C5F9A1535151011B5197877FF7F",
     "description1": "A young hired sword from",
     "description2": "the Kutolah tribe.",
+    "battlePalette": {
+      "hair": ["#466d46", "#314e38"],
+      "primary": ["#ca5524", "#9e3f24", "#75381d"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "NOMAD",
     "level": 9,
     "bases": {
@@ -1596,6 +1818,12 @@
     "paletteString": "344FDF5F9F33BE2AF81D6E2D0B31344F1F3FAF390C67AA5A0846926A9A77FF7B",
     "description1": "One of Fargus's corsairs.",
     "description2": "Foulmouthed, but kind.",
+    "battlePalette": {
+      "hair": ["#6d5d65", "#4e3855"],
+      "primary": ["#55b8c1", "#469ea7", "#38757d"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "PIRATE",
     "level": 8,
     "bases": {
@@ -1639,6 +1867,12 @@
     "paletteString": "344FFF6F7F477D2AD71D6E2D0B312A66A75529459A7FF57250625C19DF3AFF7F",
     "description1": "A paladin in service to House",
     "description2": "Pherae. Modest and polite.",
+    "battlePalette": {
+      "hair": ["#467dc1", "#305d9e", "#3f3f7d"],
+      "primary": ["#f7f7f7", "#c9dcf7", "#9eafdc"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "PALADIN_F",
     "level": 1,
     "bases": {
@@ -1682,6 +1916,12 @@
     "paletteString": "344FFF679F4BDE2EF9216E310B31F976376A9259EB55A83D6E452C3D3B2AFF7F",
     "description1": "A former Black Fang once",
     "description2": "known as Hurricane.",
+    "battlePalette": {
+      "hair": ["#c1afe5", "#af7dca", "#8556a7"],
+      "primary": ["#654e7d", "#553f6d", "#4e3855"],
+      "secondary": ["#4e6d9e", "#385d6d"],
+      "tertiary": null
+    },
     "characterClass": "THIEF",
     "level": 12,
     "bases": {
@@ -1725,6 +1965,12 @@
     "paletteString": "344FFF679F37BE2ED8216E310B31544ED03D6C2DAB594A45D972F361376BFF7F",
     "description1": "A dedicated swordfighter.",
     "description2": "Cool and detached.",
+    "battlePalette": {
+      "hair": ["#96858d", "#75656d", "#554e4e"],
+      "primary": ["#f7f7f7", "#afc1ca", "#96858d"],
+      "secondary": ["#c1a7dc", "#8d6db8"],
+      "tertiary": ["#4d5da7", "#46477d"]
+    },
     "characterClass": "SWORDMASTER_F",
     "level": 5,
     "bases": {
@@ -1768,6 +2014,12 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B31FF3B7C237622315F6D4A8C41B439997BFF7F",
     "description1": "The sole survivor of the",
     "description2": "Knights of Pherae.",
+    "battlePalette": {
+      "hair": ["#f7f765", "#dcd238", "#a78d38"],
+      "primary": ["#7dc1af", "#5d8d85", "#555575"],
+      "secondary": ["#965d65", "#654e4e"],
+      "tertiary": null
+    },
     "characterClass": "HERO",
     "level": 8,
     "bases": {
