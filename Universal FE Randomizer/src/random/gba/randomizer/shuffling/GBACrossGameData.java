@@ -290,6 +290,7 @@ public class GBACrossGameData {
 		addEntry(GameType.FE8, FE8Data.CharacterClass.MONK, FE6Data.CharacterClass.PRIEST, FE7Data.CharacterClass.MONK);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.TROUBADOUR, FE6Data.CharacterClass.TROUBADOUR, FE7Data.CharacterClass.TROUBADOUR);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.SAGE, FE6Data.CharacterClass.SAGE, FE7Data.CharacterClass.SAGE);
+		addEntry(GameType.FE8, FE8Data.CharacterClass.MAGE_KNIGHT, FE6Data.CharacterClass.VALKYRIE, FE7Data.CharacterClass.VALKYRIE);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.MAGE_KNIGHT_F, FE6Data.CharacterClass.VALKYRIE, FE7Data.CharacterClass.VALKYRIE);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.SNIPER, FE6Data.CharacterClass.SNIPER, FE7Data.CharacterClass.SNIPER);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.ARCHER_F, FE6Data.CharacterClass.ARCHER_F, FE7Data.CharacterClass.ARCHER_F);
