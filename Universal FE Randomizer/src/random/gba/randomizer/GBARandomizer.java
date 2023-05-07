@@ -1305,7 +1305,7 @@ public class GBARandomizer extends Randomizer {
 		}
 		
 		if ((classes != null && classes.createPrfs) || (recruitOptions != null && recruitOptions.createPrfs)) {
-			boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs) || (recruitOptions != null && recruitOptions.createPrfs));
+			boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs) || (recruitOptions != null && recruitOptions.unbreakablePrfs));
 
 			// Create new PRF weapons.
 			if (gameType == GameType.FE6) {
