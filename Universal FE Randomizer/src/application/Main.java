@@ -5,25 +5,25 @@ import org.eclipse.swt.widgets.Display;
 import ui.MainView;
 
 public class Main {
-	
-	static Display mainDisplay;
-	static MainView mainView;
 
-	public static void main(String[] args) {
-		
-		 /* Instantiate Display object, it represents SWT session */
-		  mainDisplay = new Display();
+    static Display mainDisplay;
+    static MainView mainView;
 
-		  mainView = new MainView(mainDisplay);
-		  
+    public static void main(String[] args) {
 
-		  while (!mainView.mainShell.isDisposed()) {
-		   if (!mainDisplay.readAndDispatch())
-			   mainDisplay.sleep();
-		  }
+        /* Instantiate Display object, it represents SWT session */
+        mainDisplay = new Display();
 
-		  /* Dispose the display */
-		  mainDisplay.dispose();
-	}
+        mainView = new MainView(mainDisplay);
+
+
+        while (!mainView.mainShell.isDisposed()) {
+            if (!mainDisplay.readAndDispatch())
+                mainDisplay.sleep();
+        }
+
+        /* Dispose the display */
+        mainDisplay.dispose();
+    }
 
 }

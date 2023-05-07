@@ -1,26 +1,17 @@
 package ui;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Spinner;
-
-import fedata.general.FEBase.GameType;
+import org.eclipse.swt.widgets.*;
 import ui.model.CharacterShufflingOptions;
 import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CharacterShufflingView extends Composite {
 	
@@ -199,8 +190,9 @@ public class CharacterShufflingView extends Composite {
 		
 		fileDialog = new FileDialog((Shell) container
 											.getParent() // CharacterShufflingView
-											.getParent() // Main View Container
-											.getParent() // Main View Scrollable Component
+											.getParent() // CharactersTab Container
+											.getParent() // Main View CTabFolder
+				                            .getParent() // Main View Wrapper Container
 											.getParent() // Main View Shell
 											, SWT.MULTI);
 		

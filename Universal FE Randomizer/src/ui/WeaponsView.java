@@ -324,8 +324,8 @@ public class WeaponsView extends Composite {
 		enableRandomEffectsButton.setToolTipText("Adds a random effect to all weapons. Effects includes stat bonuses, effectiveness, weapon triangle reversal, brave, magic damge, etc. Weapons that already have effects get a second effect added on.");
 
 		FormData effectsData = new FormData();
-		effectsData.left = new FormAttachment(0, 5);
-		effectsData.top = new FormAttachment(durabilityParamContainer, 5);
+		effectsData.left = new FormAttachment(mtParamContainer, 5, SWT.RIGHT);
+		effectsData.top = new FormAttachment(0, 5);
 		enableRandomEffectsButton.setLayoutData(effectsData);
 		
 		noEffectsForIronButton = new Button(container, SWT.CHECK);
