@@ -24,12 +24,7 @@ public class SeedGroup extends YuneGroup {
 
         generateButton = new Button(group, SWT.PUSH);
         generateButton.setText("Generate");
-        generateButton.addListener(SWT.Selection, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                //TODO
-            }
-        });
+
 
         FormData seedFieldData = new FormData();
         seedFieldData.top = new FormAttachment(0, 0);
@@ -51,5 +46,11 @@ public class SeedGroup extends YuneGroup {
 
     public void setRandomizeButton(Button randomizeButton) {
         this.randomizeButton = randomizeButton;
+        generateButton.addListener(SWT.Selection, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                randomizeButton.setEnabled(event.text.length() != 0);
+            }
+        });
     }
 }

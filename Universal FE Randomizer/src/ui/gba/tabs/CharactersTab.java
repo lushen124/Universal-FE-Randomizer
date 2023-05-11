@@ -4,17 +4,24 @@ import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import ui.CharacterShufflingView;
+import ui.ClassesView;
 import ui.RecruitmentView;
+import util.OptionRecorder;
 
 public class CharactersTab extends YuneTabItem {
     public CharactersTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
     }
 
+    private RecruitmentView recruitment;
+    private CharacterShufflingView shuffling;
+    private ClassesView classes;
+
     @Override
     protected void compose() {
-        addView(new RecruitmentView(container, SWT.NONE, type));
-        addView(new CharacterShufflingView(container, SWT.NONE, type));
+        classes = addView(new ClassesView(container, SWT.NONE, type));
+        recruitment = addView(new RecruitmentView(container, SWT.NONE, type));
+        shuffling = addView(new CharacterShufflingView(container, SWT.NONE, type));
     }
 
     @Override
@@ -29,6 +36,13 @@ public class CharactersTab extends YuneTabItem {
 
     @Override
     protected int numberColumns() {
-        return 2;
+        return 3;
+    }
+
+    @Override
+    public void preloadOptions(OptionRecorder.GBAOptionBundle bundle) {
+        classes.setClassOptions(bundle.classes);
+        recruitment.setRecruitmentOptions(bundle.recruitmentOptions);
+        shuffling.setShufflingOptions(bundle.characterShufflingOptions, type);
     }
 }

@@ -5,6 +5,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import ui.gba.tabs.RomInfoDto;
 
 public class RomInfoGroup extends YuneGroup {
 
@@ -15,19 +17,12 @@ public class RomInfoGroup extends YuneGroup {
     protected Label checksum;
 
     public RomInfoGroup(Composite parent) {
-        group = new Group(parent, SWT.NONE);
-        group.setLayout(GuiUtil.formLayoutWithMargin());
-        group.setText("ROM Info");
-        compose();
+        super(parent);
+        ((Group) group).setText("ROM Info");
     }
 
     @Override
     protected void compose() {
-        GridLayout gridLayout = GuiUtil.gridLayoutWithMargin();
-        gridLayout.numColumns = 3;
-        gridLayout.makeColumnsEqualWidth = true;
-        group.setLayout(gridLayout);
-
         romName = new Label(group, SWT.NONE);
         romCode = new Label(group, SWT.NONE);
         friendlyName = new Label(group, SWT.NONE);
@@ -35,8 +30,28 @@ public class RomInfoGroup extends YuneGroup {
         checksum = new Label(group, SWT.NONE);
     }
 
-    public void setVisible(boolean visible) {
-        group.setVisible(visible);
+    public void initialize(RomInfoDto dto) {
+        setFriendlyName(dto.getFriendlyName());
+        setRomName(dto.getRomName());
+        setRomCode(dto.getRomCode());
+        setChecksum(dto.getChecksum());
+        setLength(dto.getLength());
+    }
+
+    @Override
+    protected void createGroup(Composite parent) {
+        // Override to make this a proper group rather than a Composite itself
+        group = new Group(parent, SWT.NONE);
+        group.setLayout(getGroupLayout());
+    }
+
+    @Override
+    protected Layout getGroupLayout(){
+        GridLayout gridLayout = new GridLayout();
+        gridLayout.numColumns = 3;
+        gridLayout.makeColumnsEqualWidth = true;
+        gridLayout.verticalSpacing = 1;
+        return gridLayout;
     }
 
     public void setRomName(String romName) {
@@ -58,5 +73,4 @@ public class RomInfoGroup extends YuneGroup {
     public void setChecksum(String checksum) {
         this.checksum.setText(checksum);
     }
-
 }

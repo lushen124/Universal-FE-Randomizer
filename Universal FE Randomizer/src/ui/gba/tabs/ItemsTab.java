@@ -6,8 +6,12 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.layout.GridData;
 import ui.ItemAssignmentView;
 import ui.WeaponsView;
+import util.OptionRecorder;
 
 public class ItemsTab extends YuneTabItem {
+
+    private WeaponsView weapons;
+    private ItemAssignmentView itemAssignment;
 
     public ItemsTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
@@ -17,8 +21,8 @@ public class ItemsTab extends YuneTabItem {
     protected void compose() {
         GridData weaponsData = new GridData();
         weaponsData.verticalSpan = 3;
-        addView(new WeaponsView(container, SWT.NONE, type), weaponsData);
-        addView(new ItemAssignmentView(container, SWT.NONE, type));
+        weapons = addView(new WeaponsView(container, SWT.NONE, type), weaponsData);
+        itemAssignment = addView(new ItemAssignmentView(container, SWT.NONE, type));
     }
 
     @Override
@@ -34,5 +38,11 @@ public class ItemsTab extends YuneTabItem {
     @Override
     protected int numberColumns() {
         return 2;
+    }
+
+    @Override
+    public void preloadOptions(OptionRecorder.GBAOptionBundle bundle) {
+        this.weapons.setWeaponOptions(bundle.weapons);
+        this.itemAssignment.setItemAssignmentOptions(bundle.itemAssignmentOptions);
     }
 }

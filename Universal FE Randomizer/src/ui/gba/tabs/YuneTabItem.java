@@ -9,6 +9,9 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import util.OptionRecorder.FE4OptionBundle;
+import util.OptionRecorder.FE9OptionBundle;
+import util.OptionRecorder.GBAOptionBundle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +20,7 @@ import java.util.List;
  * The Base class for all Yune Tab Items
  */
 public abstract class YuneTabItem extends CTabItem {
-
-    /**
-     * The main container of this Tab.
-     */
     protected Composite container;
-
-
     protected GameType type;
     protected List<Composite> views = new ArrayList<>();
 
@@ -45,7 +42,7 @@ public abstract class YuneTabItem extends CTabItem {
     /**
      * Creates the default Main Container of the Tab which consist of a Simple Container with a GridLayout.
      */
-    protected void setupDefaultMainContainer(){
+    protected void setupDefaultMainContainer() {
         container = new Composite(getParent(), SWT.NONE);
         GridLayout layout = new GridLayout(numberColumns(), true);
         layout.marginLeft = 5;
@@ -55,6 +52,9 @@ public abstract class YuneTabItem extends CTabItem {
         container.setLayout(layout);
     }
 
+    /**
+     * Must be overriden by each individual tab to arrange the views inside of the tab control
+     */
     protected abstract void compose();
 
     /**
@@ -72,17 +72,62 @@ public abstract class YuneTabItem extends CTabItem {
      */
     protected abstract int numberColumns();
 
-    protected void addView(Composite subview, GridData data) {
-        subview.setLayoutData(data);
+    /**
+     * Adds a new View to the control of this TabItem
+     *
+     * @param subview    the view that will be added to the tab
+     * @param layoutData the layout data that will be set for positioning the view
+     * @param <T>        One of the Yune views, which extends Composite
+     * @return returns the view that was added
+     */
+    protected <T extends Composite> T addView(T subview, Object layoutData) {
+        subview.setLayoutData(layoutData);
         views.add(subview);
-    }
-    protected void addView(Composite subview) {
-        GridData data = new GridData(SWT.LEFT, SWT.TOP, false, false);
-        addView(subview, data);
+        return subview;
     }
 
-    public Composite getContainer(){
+    /**
+     * Convenience overload of {@link #addView(Composite, Object)} which passes the {@link #defaultLayoutData()} for the second parameter.
+     */
+    protected <T extends Composite> T addView(T subview) {
+        return addView(subview, defaultLayoutData());
+    }
+
+    /**
+     * Constructs the Default Layout data for Widgets inside this Tab.
+     * <p>
+     * By Default that is GridData telling the widget to be in the top left of it's grid, while not grabbing excess space horizintally or vertically
+     */
+    protected Object defaultLayoutData() {
+        return new GridData(SWT.LEFT, SWT.TOP, false, false);
+    }
+
+    /**
+     * Getter for the control of the TabItem
+     */
+    public Composite getContainer() {
         return this.container;
+    }
+
+    /**
+     * Called to preload the options for GBAFE Tabs
+     */
+    public void preloadOptions(GBAOptionBundle bundle) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Called to preload the options for FE4 Tabs
+     */
+    public void preloadOptions(FE4OptionBundle bundle) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Called to preload the options for FE9 Tabs
+     */
+    public void preloadOptions(FE9OptionBundle bundle) {
+        throw new UnsupportedOperationException();
     }
 
 }
