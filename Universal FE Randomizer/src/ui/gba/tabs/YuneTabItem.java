@@ -116,6 +116,10 @@ public abstract class YuneTabItem extends CTabItem {
         throw new UnsupportedOperationException();
     }
 
+    public void updateOptionBundle(GBAOptionBundle bundle) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Called to preload the options for FE4 Tabs
      */
@@ -123,10 +127,18 @@ public abstract class YuneTabItem extends CTabItem {
         throw new UnsupportedOperationException();
     }
 
+    public void updateOptionBundle(FE4OptionBundle bundle) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Called to preload the options for FE9 Tabs
      */
     public void preloadOptions(FE9OptionBundle bundle) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void updateOptionBundle(FE9OptionBundle bundle) {
         throw new UnsupportedOperationException();
     }
 

@@ -1,4 +1,4 @@
-package ui;
+package ui.legacy;
 
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;

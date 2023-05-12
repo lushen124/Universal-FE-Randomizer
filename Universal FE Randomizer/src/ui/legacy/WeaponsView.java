@@ -1,4 +1,4 @@
-package ui;
+package ui.legacy;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -15,7 +15,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
 import fedata.general.FEBase.GameType;
-import ui.WeaponEffectSelectionView.WeaponEffectSelectionViewListener;
+import ui.legacy.WeaponEffectSelectionView.WeaponEffectSelectionViewListener;
 import ui.general.MinMaxControl;
 import ui.model.MinMaxVarOption;
 import ui.model.WeaponOptions;

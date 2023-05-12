@@ -12,8 +12,8 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import ui.WeightView;
-import ui.WeightView.WeightViewListener;
+import ui.legacy.WeightView;
+import ui.legacy.WeightView.WeightViewListener;
 import ui.model.WeightedOptions;
 import ui.model.WeightedOptions.Weight;
 

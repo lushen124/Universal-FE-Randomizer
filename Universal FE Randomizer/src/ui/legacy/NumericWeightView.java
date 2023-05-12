@@ -1,4 +1,4 @@
-package ui;
+package ui.legacy;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;

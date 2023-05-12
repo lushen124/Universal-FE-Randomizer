@@ -4,8 +4,8 @@ import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.layout.GridData;
-import ui.ItemAssignmentView;
-import ui.WeaponsView;
+import ui.legacy.ItemAssignmentView;
+import ui.legacy.WeaponsView;
 import util.OptionRecorder;
 
 public class ItemsTab extends YuneTabItem {
@@ -44,5 +44,11 @@ public class ItemsTab extends YuneTabItem {
     public void preloadOptions(OptionRecorder.GBAOptionBundle bundle) {
         this.weapons.setWeaponOptions(bundle.weapons);
         this.itemAssignment.setItemAssignmentOptions(bundle.itemAssignmentOptions);
+    }
+
+    @Override
+    public void updateOptionBundle(OptionRecorder.GBAOptionBundle bundle) {
+        bundle.weapons = weapons.getWeaponOptions();
+        bundle.itemAssignmentOptions = itemAssignment.getAssignmentOptions();
     }
 }

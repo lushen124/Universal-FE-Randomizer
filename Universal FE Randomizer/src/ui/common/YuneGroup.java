@@ -2,6 +2,7 @@ package ui.common;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Layout;
 
 public abstract class YuneGroup {
@@ -42,11 +43,17 @@ public abstract class YuneGroup {
 
     /**
      * Factory of the Group that this Object wraps.
-     *
+     * <p>
      * By default the group is a simple Composite, but by overriding this method you can change it to any subclass of Composite aswell.
      */
     protected void createGroup(Composite parent) {
-        group = new Composite(parent, SWT.NONE);
+        if(getGroupTitle() == null) {
+            group = new Composite(parent, SWT.NONE);
+        } else {
+            group = new Group(parent, SWT.NONE);
+            ((Group) group).setText(getGroupTitle());
+        }
+
         group.setLayout(getGroupLayout());
     }
 
@@ -56,5 +63,14 @@ public abstract class YuneGroup {
      */
     protected Layout getGroupLayout() {
         return GuiUtil.formLayoutWithMargin();
+    }
+
+    /**
+     * Can be overriden to define the title of this group that will be displayed in the UI.
+     * <p>
+     * If no title should be shown (this return null), then this will cause the group to be created as a Composite rather than as a Group.
+     */
+    protected String getGroupTitle() {
+        return null;
     }
 }

@@ -3,7 +3,6 @@ package ui.common;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import ui.gba.tabs.RomInfoDto;
@@ -18,7 +17,6 @@ public class RomInfoGroup extends YuneGroup {
 
     public RomInfoGroup(Composite parent) {
         super(parent);
-        ((Group) group).setText("ROM Info");
     }
 
     @Override
@@ -39,14 +37,7 @@ public class RomInfoGroup extends YuneGroup {
     }
 
     @Override
-    protected void createGroup(Composite parent) {
-        // Override to make this a proper group rather than a Composite itself
-        group = new Group(parent, SWT.NONE);
-        group.setLayout(getGroupLayout());
-    }
-
-    @Override
-    protected Layout getGroupLayout(){
+    protected Layout getGroupLayout() {
         GridLayout gridLayout = new GridLayout();
         gridLayout.numColumns = 3;
         gridLayout.makeColumnsEqualWidth = true;
@@ -72,5 +63,10 @@ public class RomInfoGroup extends YuneGroup {
 
     public void setChecksum(String checksum) {
         this.checksum.setText(checksum);
+    }
+
+    @Override
+    public String getGroupTitle() {
+        return "ROM Info";
     }
 }

@@ -3,7 +3,7 @@ package ui.gba.tabs;
 import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import ui.MiscellaneousView;
+import ui.legacy.MiscellaneousView;
 import util.OptionRecorder;
 
 public class MiscTab extends YuneTabItem {
@@ -37,5 +37,10 @@ public class MiscTab extends YuneTabItem {
     @Override
     public void preloadOptions(OptionRecorder.GBAOptionBundle bundle) {
         misc.setMiscellaneousOptions(bundle.otherOptions);
+    }
+
+    @Override
+    public void updateOptionBundle(OptionRecorder.GBAOptionBundle bundle) {
+        bundle.otherOptions = misc.getMiscellaneousOptions();
     }
 }

@@ -1,15 +1,15 @@
 package ui.common;
 
+import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.*;
+import util.SeedGenerator;
 
 public class SeedGroup extends YuneGroup {
     private Text seedField;
     private Button generateButton;
-
-    private Button randomizeButton;
 
     public SeedGroup(Composite parent){
         super(parent);
@@ -44,13 +44,24 @@ public class SeedGroup extends YuneGroup {
         generateButton.setLayoutData(generateData);
     }
 
-    public void setRandomizeButton(Button randomizeButton) {
-        this.randomizeButton = randomizeButton;
-        generateButton.addListener(SWT.Selection, new Listener() {
-            @Override
-            public void handleEvent(Event event) {
-                randomizeButton.setEnabled(event.text.length() != 0);
-            }
+    public void addGenerateButtonListener(Button randomizeButton, GameType type) {
+        // First remove old listeners (previous game)
+        for (Listener listener : generateButton.getListeners(SWT.Selection)) {
+            generateButton.removeListener(SWT.Selection,listener);
+        }
+
+        // Now add a new listener with the current game
+        generateButton.addListener(SWT.Selection, selectionEvent -> {
+            seedField.setText(SeedGenerator.generateRandomSeed(type));
+            randomizeButton.setEnabled(seedField.getText().length() != 0);
         });
+    }
+
+    public String getSeed() {
+        return this.seedField.getText();
+    }
+
+    public void setSeedFieldText(String seed) {
+        this.seedField.setText(seed);
     }
 }

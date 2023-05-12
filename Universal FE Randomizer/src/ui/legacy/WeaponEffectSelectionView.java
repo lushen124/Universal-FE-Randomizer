@@ -1,4 +1,4 @@
-package ui;
+package ui.legacy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import fedata.general.FEBase.GameType;
 import ui.general.MinMaxControl;
-import ui.NumericWeightView.NumericWeightViewListener;
+import ui.legacy.NumericWeightView.NumericWeightViewListener;
 import ui.model.WeaponEffectOptions;
 
 public class WeaponEffectSelectionView extends Composite {

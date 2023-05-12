@@ -4,9 +4,9 @@ import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.layout.GridData;
-import ui.BasesView;
-import ui.GrowthsView;
-import ui.MOVCONAffinityView;
+import ui.legacy.BasesView;
+import ui.legacy.GrowthsView;
+import ui.legacy.MOVCONAffinityView;
 import util.OptionRecorder;
 
 public class StatsTab extends YuneTabItem {
@@ -47,5 +47,12 @@ public class StatsTab extends YuneTabItem {
         growths.setGrowthOptions(bundle.growths);
         bases.setBasesOptions(bundle.bases);
         movConAffinity.setOtherCharacterOptions(bundle.other);
+    }
+
+    @Override
+    public void updateOptionBundle(OptionRecorder.GBAOptionBundle bundle) {
+        bundle.growths = growths.getGrowthOptions();
+        bundle.bases = bases.getBaseOptions();
+        bundle.other = movConAffinity.getOtherCharacterOptions();
     }
 }
