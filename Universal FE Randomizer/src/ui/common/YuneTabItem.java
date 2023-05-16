@@ -1,4 +1,4 @@
-package ui.gba.tabs;
+package ui.common;
 
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
@@ -99,7 +99,7 @@ public abstract class YuneTabItem extends CTabItem {
      * By Default that is GridData telling the widget to be in the top left of it's grid, while not grabbing excess space horizintally or vertically
      */
     protected Object defaultLayoutData() {
-        return new GridData(SWT.LEFT, SWT.TOP, false, false);
+        return new GridData(SWT.LEFT, SWT.TOP, true, false);
     }
 
     /**

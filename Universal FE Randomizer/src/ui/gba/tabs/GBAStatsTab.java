@@ -3,26 +3,25 @@ package ui.gba.tabs;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.layout.GridData;
+import ui.common.YuneTabItem;
 import ui.legacy.BasesView;
 import ui.legacy.GrowthsView;
 import ui.legacy.MOVCONAffinityView;
 import util.OptionRecorder;
 
-public class StatsTab extends YuneTabItem {
+public class GBAStatsTab extends YuneTabItem {
 
     private GrowthsView growths;
     private BasesView bases;
     private MOVCONAffinityView movConAffinity;
 
-    public StatsTab(CTabFolder parent, GameType type) {
+    public GBAStatsTab(CTabFolder parent, GameType type) {
         super(parent, type);
     }
 
     @Override
     protected void compose() {
-        GridData growthsData = new GridData();
-        growths = addView(new GrowthsView(container, SWT.NONE, type.hasSTRMAGSplit()), growthsData);
+        growths = addView(new GrowthsView(container, SWT.NONE, type.hasSTRMAGSplit()));
         bases = addView(new BasesView(container, SWT.NONE, type));
         movConAffinity = addView(new MOVCONAffinityView(container, SWT.NONE));
     }

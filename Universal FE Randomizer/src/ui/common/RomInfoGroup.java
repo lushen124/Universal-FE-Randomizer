@@ -5,7 +5,6 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import ui.gba.tabs.RomInfoDto;
 
 public class RomInfoGroup extends YuneGroup {
 
@@ -63,6 +62,10 @@ public class RomInfoGroup extends YuneGroup {
 
     public void setChecksum(String checksum) {
         this.checksum.setText(checksum);
+    }
+
+    public String getChecksum() {
+        return this.checksum.getText();
     }
 
     @Override

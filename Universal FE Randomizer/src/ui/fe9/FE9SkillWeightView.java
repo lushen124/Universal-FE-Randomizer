@@ -1,21 +1,20 @@
 package ui.fe9;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-
 import ui.legacy.WeightView;
 import ui.legacy.WeightView.WeightViewListener;
 import ui.model.WeightedOptions;
 import ui.model.WeightedOptions.Weight;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FE9SkillWeightView extends Composite {
 	
@@ -75,7 +74,7 @@ public class FE9SkillWeightView extends Composite {
 
 	public FE9SkillWeightView(Composite parent, int style, List<String> skillTitles) {
 		super(parent, style);
-		
+
 		FormLayout formLayout = new FormLayout();
 		formLayout.marginTop = 10;
 		formLayout.marginLeft = 10;
@@ -83,19 +82,19 @@ public class FE9SkillWeightView extends Composite {
 		
 		titleLabel = new Label(this, SWT.NONE);
 		titleLabel.setText("Skill Weights");
-		
+
 		FormData titleData = new FormData();
 		titleData.left = new FormAttachment(0, 0);
 		titleLabel.setLayoutData(titleData);
 		
 		Composite header = new Composite(this, SWT.NONE);
-		
+
 		FormData headerData = new FormData();
 		headerData.left = new FormAttachment(0, 5);
 		headerData.top = new FormAttachment(titleLabel, 5);
 		headerData.right = new FormAttachment(100, -5);
 		header.setLayoutData(headerData);
-		
+
 		FormLayout headerLayout = new FormLayout();
 		header.setLayout(headerLayout);
 		
@@ -132,17 +131,19 @@ public class FE9SkillWeightView extends Composite {
 		
 		Composite previousView = header;
 		weightViewsByString = new HashMap<String, WeightView>();
-		
+
+
+
 		for (String title : skillTitles) {
 			WeightView view = new WeightView(title, Weight.NORMAL, this, SWT.NONE);
 			view.setListener(weightListener);
-			
+
 			FormData viewData = new FormData();
 			viewData.left = new FormAttachment(previousView, 0, SWT.LEFT);
 			viewData.top = new FormAttachment(previousView, 5);
 			viewData.right = new FormAttachment(100, -5);
 			view.setLayoutData(viewData);
-			
+
 			previousView = view;
 			weightViewsByString.put(title, view);
 		}

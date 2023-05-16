@@ -47,7 +47,7 @@ public abstract class YuneGroup {
      * By default the group is a simple Composite, but by overriding this method you can change it to any subclass of Composite aswell.
      */
     protected void createGroup(Composite parent) {
-        if(getGroupTitle() == null) {
+        if (getGroupTitle() == null) {
             group = new Composite(parent, SWT.NONE);
         } else {
             group = new Group(parent, SWT.NONE);

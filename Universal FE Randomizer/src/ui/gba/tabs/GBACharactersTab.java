@@ -3,13 +3,14 @@ package ui.gba.tabs;
 import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import ui.common.YuneTabItem;
 import ui.legacy.CharacterShufflingView;
 import ui.legacy.ClassesView;
 import ui.legacy.RecruitmentView;
 import util.OptionRecorder.GBAOptionBundle;
 
-public class CharactersTab extends YuneTabItem {
-    public CharactersTab(CTabFolder parent, FEBase.GameType type) {
+public class GBACharactersTab extends YuneTabItem {
+    public GBACharactersTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
     }
 

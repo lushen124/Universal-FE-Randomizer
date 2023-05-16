@@ -1,4 +1,4 @@
-package ui.gba.tabs;
+package ui.common;
 
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;

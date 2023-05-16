@@ -2,6 +2,7 @@ package ui;
 
 import application.Main;
 import fedata.general.FEBase.GameType;
+import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -13,11 +14,16 @@ import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.*;
 import random.gba.randomizer.GBARandomizer;
+import random.gcnwii.fe9.randomizer.FE9Randomizer;
 import random.general.Randomizer;
 import random.general.RandomizerListener;
-import ui.common.RomInfoGroup;
-import ui.common.RomSelectionGroup;
-import ui.common.SeedGroup;
+import random.snes.fe4.randomizer.FE4Randomizer;
+import ui.common.*;
+import ui.fe4.tabs.FE4ClassesTab;
+import ui.fe4.tabs.FE4EnemiesTab;
+import ui.fe4.tabs.FE4SkillsTab;
+import ui.fe4.tabs.FE4StatsTab;
+import ui.fe9.tabs.*;
 import ui.gba.tabs.*;
 import ui.general.FileFlowDelegate;
 import ui.general.MessageModal;
@@ -60,16 +66,18 @@ public class MainView implements FileFlowDelegate {
     List<YuneTabItem> availableTabs = new ArrayList<>();
 
     // GBA Tabs
-    CharactersTab charactersTab;
-    EnemiesTab enemiesTab;
-    ItemsTab itemsTab;
-    MiscTab miscTab;
-    StatsTab statsTab;
+    YuneTabItem charactersTab;
+    YuneTabItem enemiesTab;
+    YuneTabItem itemsTab;
+    YuneTabItem miscTab;
+    YuneTabItem statsTab;
+    YuneTabItem classesTab;
+    YuneTabItem skillsTab;
 
 
     public MainView(Display mainDisplay) {
         mainShell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.MAX);
-        mainShell.setText("Yune: GUI Rework Test");
+        mainShell.setText("Yune: GUI Rework");
         mainShell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
         mainShell.setLayout(new FillLayout());
 
@@ -109,227 +117,162 @@ public class MainView implements FileFlowDelegate {
             @Override
             public void handleEvent(Event event) {
                 FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
-                if (loadedGameType.isGBA()) {
-                    openDialog.setFilterExtensions(new String[]{"*.gba"});
-                } else if (loadedGameType.isSFC()) {
-                    openDialog.setFilterExtensions(new String[]{"*.smc"});
-                } else if (loadedGameType.isGCN()) {
-                    openDialog.setFilterExtensions(new String[]{"*.iso"});
-                }
+                openDialog.setFilterExtensions(loadedGameType.getFileExtensions());
                 String writePath = openDialog.open();
 
-                if (writePath != null && writePath.length() > 0) {
-                    if (writePath.equals(pathToFile)) {
-                        String extension = writePath.substring(writePath.length() - 4);
-                        StringBuilder sb = new StringBuilder(writePath);
-                        sb.delete(sb.length() - 4, sb.length());
-                        sb.append(" (Randomized)");
-                        sb.append(extension);
-                        writePath = sb.toString();
-                    }
-                    DiffCompiler compiler = new DiffCompiler();
-
-                    if (loadedGameType == GameType.FE7) {
-                        try {
-                            compiler.addDiffsFromFile("tutorialSlayer");
-                        } catch (IOException e) {
-                            MessageBox tutorialSlayerFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK | SWT.CANCEL);
-                            tutorialSlayerFail.setText("Error");
-                            tutorialSlayerFail.setMessage("Failed to patch the tutorial slayer.\n\nThe randomizer can continue, but it is recommended that Lyn Normal mode not be used.");
-                            int selectedButton = tutorialSlayerFail.open();
-                            if (selectedButton == SWT.CANCEL) {
-                                return;
-                            }
-                        }
-                    }
-
-                    Randomizer randomizer = null;
-
-                    if (loadedGameType.isGBA()) {
-                        // Start building the new Option Bundle
-                        GBAOptionBundle updatedOptions = new GBAOptionBundle();
-                        updatedOptions.seed = seedGroup.getSeed();
-                        // Make the Tabs update the settings they contain into the bundle
-                        availableTabs.stream().forEach(tab -> tab.updateOptionBundle(updatedOptions));
-                        // Update the Bundle in the Option Recorder
-                        OptionRecorder.recordGBAFEOptions(updatedOptions, loadedGameType);
-                    } else if (loadedGameType.isSFC()) {
-                        FE4OptionBundle updatedOptions = new FE4OptionBundle();
-                        updatedOptions.seed = seedGroup.getSeed();
-                        // Make the Tabs update the settings they contain into the bundle
-                        availableTabs.stream().forEach(tab -> tab.updateOptionBundle(updatedOptions));
-                        // Update the Bundle in the Option Recorder
-                        OptionRecorder.recordFE4Options(updatedOptions);
-                    } else if (loadedGameType.isGCN()) {
-                        FE9OptionBundle updatedOptions = new FE9OptionBundle();
-                        updatedOptions.seed = seedGroup.getSeed();
-                        // Make the Tabs update the settings they contain into the bundle
-                        availableTabs.stream().forEach(tab -> tab.updateOptionBundle(updatedOptions));
-                        // Update the Bundle in the Option Recorder
-                        OptionRecorder.recordFE9Options(updatedOptions);
-                    }
-                    GBAOptionBundle gbaBundle = OptionRecorder.getGBABundle(loadedGameType);
-                    randomizer = new GBARandomizer(pathToFile, writePath, loadedGameType, compiler,
-                            gbaBundle.growths, gbaBundle.bases, gbaBundle.classes, gbaBundle.weapons,
-                            gbaBundle.other, gbaBundle.enemies, gbaBundle.otherOptions, gbaBundle.recruitmentOptions,
-                            gbaBundle.itemAssignmentOptions, gbaBundle.characterShufflingOptions, gbaBundle.seed);
-//
-//                        OptionRecorder.recordGBAFEOptions(type,
-//                                growthView.getGrowthOptions(),
-//                                baseView.getBaseOptions(),
-//                                classView.getClassOptions(),
-//                                weaponView.getWeaponOptions(),
-//                                otherCharOptionView.getOtherCharacterOptions(),
-//                                enemyView.getEnemyOptions(),
-//                                miscView.getMiscellaneousOptions(),
-//                                recruitView.getRecruitmentOptions(),
-//                                itemAssignmentView.getAssignmentOptions(),
-//                                characterShufflingView.getShufflingOptions(),
-//                                seedField.getText());
-//                    } else if (type.isSFC()) {
-//                        if (type == GameType.FE4) {
-//                            boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
-//                            randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler,
-//                                    growthView.getGrowthOptions(),
-//                                    baseView.getBaseOptions(),
-//                                    holyBloodView.getHolyBloodOptions(),
-//                                    skillsView.getSkillOptions(),
-//                                    fe4ClassView.getClassOptions(),
-//                                    fe4PromotionView.getPromotionOptions(),
-//                                    fe4EnemyBuffView.getBuffOptions(),
-//                                    miscView.getMiscellaneousOptions(),
-//                                    seedField.getText());
-//
-//                            OptionRecorder.recordFE4Options(growthView.getGrowthOptions(),
-//                                    baseView.getBaseOptions(),
-//                                    holyBloodView.getHolyBloodOptions(),
-//                                    skillsView.getSkillOptions(),
-//                                    fe4ClassView.getClassOptions(),
-//                                    fe4PromotionView.getPromotionOptions(),
-//                                    fe4EnemyBuffView.getBuffOptions(),
-//                                    miscView.getMiscellaneousOptions(),
-//                                    seedField.getText());
-//                        }
-//                    } else if (type.isGCN()) {
-//                        randomizer = new FE9Randomizer(pathToFile, writePath,
-//                                growthView.getGrowthOptions(),
-//                                baseView.getBaseOptions(),
-//                                fe9SkillView.getSkillOptions(),
-//                                conAffinityView.getOtherCharacterOptions(),
-//                                fe9EnemyView.getEnemyBuffOptions(),
-//                                fe9ClassesView.getClassOptions(),
-//                                weaponView.getWeaponOptions(),
-//                                miscView.getMiscellaneousOptions(),
-//                                seedField.getText());
-//
-//                        OptionRecorder.recordFE9Options(growthView.getGrowthOptions(),
-//                                baseView.getBaseOptions(),
-//                                fe9SkillView.getSkillOptions(),
-//                                conAffinityView.getOtherCharacterOptions(),
-//                                fe9EnemyView.getEnemyBuffOptions(),
-//                                fe9ClassesView.getClassOptions(),
-//                                weaponView.getWeaponOptions(),
-//                                miscView.getMiscellaneousOptions(),
-//                                seedField.getText());
-//                    }
-
-                    final String romPath = writePath;
-                    randomizer.setListener(new RandomizerListener() {
-
-                        @Override
-                        public void onStatusUpdate(String status) {
-                            progressBox.statusLabel.setText(status);
-                        }
-
-                        @Override
-                        public void onComplete(RecordKeeper rk, ChangelogBuilder cb) {
-                            hideModalProgressDialog();
-                            MessageModal randomSuccess;
-                            if (rk != null) {
-                                randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
-                                randomSuccess.addButton("Yes", new ModalButtonListener() {
-                                    @Override
-                                    public void onSelected() {
-                                        randomSuccess.hide();
-                                        FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
-                                        openDialog.setFilterExtensions(new String[]{"*.html"});
-                                        String writePath = openDialog.open();
-                                        if (writePath != null) {
-                                            Boolean success = rk.exportRecordsToHTML(writePath);
-                                            if (success) {
-                                                MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
-                                                saveSuccess.show();
-                                            } else {
-                                                MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
-                                                saveFail.show();
-                                            }
-                                        }
-                                    }
-                                });
-                                randomSuccess.addButton("No", new ModalButtonListener() {
-                                    public void onSelected() {
-                                        randomSuccess.hide();
-                                    }
-                                });
-                            } else if (cb != null) {
-                                randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
-                                randomSuccess.addButton("Yes", new ModalButtonListener() {
-                                    @Override
-                                    public void onSelected() {
-                                        randomSuccess.hide();
-                                        FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
-                                        openDialog.setFilterExtensions(new String[]{"*.html"});
-                                        String changelogPath = openDialog.open();
-                                        if (changelogPath != null) {
-                                            int index = Math.max(romPath.lastIndexOf('/'), romPath.lastIndexOf('\\'));
-                                            String title = romPath.substring(index + 1);
-                                            cb.setDocumentTitle("Changelog for " + title);
-                                            Boolean success = cb.writeToPath(changelogPath);
-                                            if (success) {
-                                                MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
-                                                saveSuccess.show();
-                                            } else {
-                                                MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
-                                                saveFail.show();
-                                            }
-                                        }
-                                    }
-                                });
-                                randomSuccess.addButton("No", new ModalButtonListener() {
-                                    public void onSelected() {
-                                        randomSuccess.hide();
-                                    }
-                                });
-                            } else {
-                                randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!");
-                            }
-
-                            randomSuccess.show();
-                        }
-
-                        @Override
-                        public void onError(String errorString) {
-                            hideModalProgressDialog();
-                            MessageModal randomFailure = new MessageModal(mainShell, "Error", "Randomization failed with error: " + errorString);
-                            randomFailure.show();
-                        }
-
-                        @Override
-                        public void onProgressUpdate(double progress) {
-                            progressBox.progressBar.setSelection((int) (progress * 100));
-                        }
-                    });
-
-                    randomizer.start();
-                    showModalProgressDialog();
+                if (writePath == null || writePath.length() == 0) {
+                    // No target path given (i.e. cancel), so do nothing
+                    return;
                 }
+
+                // if the user selected the same rom name as the one loaded, we can't just overwrite it, so append a (Randomized) after the name of the file, but before the extension.
+                if (writePath.equals(pathToFile)) {
+                    String fileName = writePath.substring(0, writePath.length() - 4);
+                    String extension = writePath.substring(writePath.length() - 4);
+                    writePath = String.format("%s%s%s", fileName, " (Randomized)", extension);
+                }
+                DiffCompiler compiler = new DiffCompiler();
+
+                if (loadedGameType == GameType.FE7) {
+                    try {
+                        compiler.addDiffsFromFile("tutorialSlayer");
+                    } catch (IOException e) {
+                        MessageBox tutorialSlayerFail = new MessageBox(mainShell, SWT.ICON_ERROR | SWT.OK | SWT.CANCEL);
+                        tutorialSlayerFail.setText("Error");
+                        tutorialSlayerFail.setMessage("Failed to patch the tutorial slayer.\n\nThe randomizer can continue, but it is recommended that Lyn Normal mode not be used.");
+                        int selectedButton = tutorialSlayerFail.open();
+                        if (selectedButton == SWT.CANCEL) {
+                            return;
+                        }
+                    }
+                }
+
+                Randomizer randomizer = null;
+
+                if (loadedGameType.isGBA()) {
+                    // Start building the new Option Bundle
+                    GBAOptionBundle bundle = new GBAOptionBundle();
+                    bundle.seed = seedGroup.getSeed();
+                    // Make the Tabs update the settings they contain into the bundle
+                    availableTabs.forEach(tab -> tab.updateOptionBundle(bundle));
+                    // Update the Bundle in the Option Recorder
+                    OptionRecorder.recordGBAFEOptions(bundle, loadedGameType);
+                    randomizer = new GBARandomizer(pathToFile, writePath, loadedGameType, compiler, bundle.growths, bundle.bases, bundle.classes, bundle.weapons, bundle.other, bundle.enemies, bundle.otherOptions, bundle.recruitmentOptions, bundle.itemAssignmentOptions, bundle.characterShufflingOptions, bundle.seed);
+                } else if (loadedGameType.isSFC()) {
+                    FE4OptionBundle options = new FE4OptionBundle();
+                    options.seed = seedGroup.getSeed();
+                    // Make the Tabs update the settings they contain into the bundle
+                    availableTabs.forEach(tab -> tab.updateOptionBundle(options));
+                    // Update the Bundle in the Option Recorder
+                    OptionRecorder.recordFE4Options(options);
+                    boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
+                    randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, options.growths, options.bases, options.holyBlood, options.skills, options.classes, options.promo, options.enemyBuff, options.misc, options.seed);
+                } else if (loadedGameType.isGCN()) {
+                    FE9OptionBundle options = new FE9OptionBundle();
+                    options.seed = seedGroup.getSeed();
+                    // Make the Tabs update the settings they contain into the bundle
+                    availableTabs.forEach(tab -> tab.updateOptionBundle(options));
+                    // Update the Bundle in the Option Recorder
+                    OptionRecorder.recordFE9Options(options);
+                    randomizer = new FE9Randomizer(pathToFile, writePath, options.growths, options.bases, options.skills, options.otherOptions, options.enemyBuff, options.classes, options.weapons, options.misc, options.seed);
+                }
+
+                final String romPath = writePath;
+                randomizer.setListener(new RandomizerListener() {
+
+                    @Override
+                    public void onStatusUpdate(String status) {
+                        progressBox.statusLabel.setText(status);
+                    }
+
+                    @Override
+                    public void onComplete(RecordKeeper rk, ChangelogBuilder cb) {
+                        hideModalProgressDialog();
+                        MessageModal randomSuccess;
+                        if (rk != null) {
+                            randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
+                            randomSuccess.addButton("Yes", new ModalButtonListener() {
+                                @Override
+                                public void onSelected() {
+                                    randomSuccess.hide();
+                                    FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
+                                    openDialog.setFilterExtensions(new String[]{"*.html"});
+                                    String writePath = openDialog.open();
+                                    if (writePath != null) {
+                                        Boolean success = rk.exportRecordsToHTML(writePath);
+                                        if (success) {
+                                            MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
+                                            saveSuccess.show();
+                                        } else {
+                                            MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
+                                            saveFail.show();
+                                        }
+                                    }
+                                }
+                            });
+                            randomSuccess.addButton("No", new ModalButtonListener() {
+                                public void onSelected() {
+                                    randomSuccess.hide();
+                                }
+                            });
+                        } else if (cb != null) {
+                            randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!\n\nSave changelog?");
+                            randomSuccess.addButton("Yes", new ModalButtonListener() {
+                                @Override
+                                public void onSelected() {
+                                    randomSuccess.hide();
+                                    FileDialog openDialog = new FileDialog(mainShell, SWT.SAVE);
+                                    openDialog.setFilterExtensions(new String[]{"*.html"});
+                                    String changelogPath = openDialog.open();
+                                    if (changelogPath != null) {
+                                        int index = Math.max(romPath.lastIndexOf('/'), romPath.lastIndexOf('\\'));
+                                        String title = romPath.substring(index + 1);
+                                        cb.setDocumentTitle("Changelog for " + title);
+                                        Boolean success = cb.writeToPath(changelogPath);
+                                        if (success) {
+                                            MessageModal saveSuccess = new MessageModal(mainShell, "Success", "Changelog saved.");
+                                            saveSuccess.show();
+                                        } else {
+                                            MessageModal saveFail = new MessageModal(mainShell, "Error", "Failed to write changelog.");
+                                            saveFail.show();
+                                        }
+                                    }
+                                }
+                            });
+                            randomSuccess.addButton("No", new ModalButtonListener() {
+                                public void onSelected() {
+                                    randomSuccess.hide();
+                                }
+                            });
+                        } else {
+                            randomSuccess = new MessageModal(mainShell, "Success", "Finished Randomizing!");
+                        }
+
+                        randomSuccess.show();
+                    }
+
+                    @Override
+                    public void onError(String errorString) {
+                        hideModalProgressDialog();
+                        MessageModal randomFailure = new MessageModal(mainShell, "Error", "Randomization failed with error: " + errorString);
+                        randomFailure.show();
+                    }
+
+                    @Override
+                    public void onProgressUpdate(double progress) {
+                        progressBox.progressBar.setSelection((int) (progress * 100));
+                    }
+                });
+
+                randomizer.start();
+                showModalProgressDialog();
             }
         });
 
     }
 
     private void updateLayoutForGameType() {
-        // Clear the Previous tabs
+        // Clear the Tabs from pontentially loaded previous games
         if (tabFolder.getTabList().length != 0) {
             for (CTabItem item : tabFolder.getItems()) {
                 item.dispose();
@@ -337,12 +280,25 @@ public class MainView implements FileFlowDelegate {
             availableTabs.clear();
         }
 
+        // Initialize the Tab Folder with the tabs based on the game type
         if (loadedGameType.isGBA()) {
-            statsTab = addTab(new StatsTab(tabFolder, loadedGameType));
-            charactersTab = addTab(new CharactersTab(tabFolder, loadedGameType));
-            itemsTab = addTab(new ItemsTab(tabFolder, loadedGameType));
-            enemiesTab = addTab(new EnemiesTab(tabFolder, loadedGameType));
-            miscTab = addTab(new MiscTab(tabFolder, loadedGameType));
+            statsTab = addTab(new GBAStatsTab(tabFolder, loadedGameType));
+            charactersTab = addTab(new GBACharactersTab(tabFolder, loadedGameType));
+            itemsTab = addTab(new GBAItemsTab(tabFolder, loadedGameType));
+            enemiesTab = addTab(new GBAEnemiesTab(tabFolder, loadedGameType));
+            miscTab = addTab(new GBAMiscTab(tabFolder, loadedGameType));
+        } else if (loadedGameType.isSFC()) {
+            statsTab = addTab(new FE4StatsTab(tabFolder));
+            classesTab = addTab(new FE4ClassesTab(tabFolder));
+            skillsTab = addTab(new FE4SkillsTab(tabFolder));
+            enemiesTab = addTab(new FE4EnemiesTab(tabFolder));
+            miscTab = addTab(new GBAMiscTab(tabFolder, loadedGameType));
+        } else if (loadedGameType.isGCN()) {
+            statsTab = addTab(new FE9StatsTab(tabFolder));
+            classesTab = addTab(new FE9ClassesTab(tabFolder));
+            itemsTab = addTab(new FE9ItemsTab(tabFolder));
+            skillsTab = addTab(new FE9SkillsTab(tabFolder));
+            enemiesTab = addTab(new FE9EnemiesTab(tabFolder));
         }
 
         tabFolder.setSelection(0);
@@ -459,10 +415,7 @@ public class MainView implements FileFlowDelegate {
 
 
     private MessageModal buildChecksumFailureModal(String pathToFile, FileHandler handler) {
-        MessageModal checksumFailure = new MessageModal(mainShell, "Unrecognized Checksum", "Yune was unable to determine the game from the file selected.\n"
-                + "If you know the game for the file, you may select it below.\n\nNote: Patching cannot be guaranteed, and is therefore, disabled.\n\n"
-                + "Warning: Be aware that this file is likely untested and may cause errors.\n"
-                + "There will be very limited support for issues from randomizing this file.");
+        MessageModal checksumFailure = new MessageModal(mainShell, "Unrecognized Checksum", "Yune was unable to determine the game from the file selected.\n" + "If you know the game for the file, you may select it below.\n\nNote: Patching cannot be guaranteed, and is therefore, disabled.\n\n" + "Warning: Be aware that this file is likely untested and may cause errors.\n" + "There will be very limited support for issues from randomizing this file.");
         ModalButtonListener fe4Selection = new ModalButtonListener() {
             @Override
             public void onSelected() {
@@ -509,11 +462,7 @@ public class MainView implements FileFlowDelegate {
         selectionMap.put("FE7 (Blazing Sword)", fe7Selection);
         selectionMap.put("FE8 (The Sacred Stones)", fe8Selection);
         selectionMap.put("FE9 (Path of Radiance)", fe9Selection);
-        checksumFailure.addSelectionItems(selectionMap, Arrays.asList("FE4 (Genealogy of the Holy War)",
-                "FE6 (Binding Blade)",
-                "FE7 (Blazing Sword)",
-                "FE8 (The Sacred Stones)",
-                "FE9 (Path of Radiance)"), new ModalButtonListener() {
+        checksumFailure.addSelectionItems(selectionMap, Arrays.asList("FE4 (Genealogy of the Holy War)", "FE6 (Binding Blade)", "FE7 (Blazing Sword)", "FE8 (The Sacred Stones)", "FE9 (Path of Radiance)"), new ModalButtonListener() {
             @Override
             public void onSelected() {
                 // On cancel...

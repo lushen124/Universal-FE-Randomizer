@@ -4,16 +4,17 @@ import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.layout.GridData;
+import ui.common.YuneTabItem;
 import ui.legacy.ItemAssignmentView;
 import ui.legacy.WeaponsView;
 import util.OptionRecorder;
 
-public class ItemsTab extends YuneTabItem {
+public class GBAItemsTab extends YuneTabItem {
 
     private WeaponsView weapons;
     private ItemAssignmentView itemAssignment;
 
-    public ItemsTab(CTabFolder parent, FEBase.GameType type) {
+    public GBAItemsTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
     }
 

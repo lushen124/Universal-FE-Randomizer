@@ -3,14 +3,18 @@ package ui.gba.tabs;
 import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import ui.common.YuneTabItem;
 import ui.legacy.MiscellaneousView;
 import util.OptionRecorder;
 
-public class MiscTab extends YuneTabItem {
+/**
+ * Tab containing the GUI of the GBA (and FE4) Misc Tab
+ */
+public class GBAMiscTab extends YuneTabItem {
 
     private MiscellaneousView misc;
 
-    public MiscTab(CTabFolder parent, FEBase.GameType type) {
+    public GBAMiscTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
     }
 
@@ -38,9 +42,18 @@ public class MiscTab extends YuneTabItem {
     public void preloadOptions(OptionRecorder.GBAOptionBundle bundle) {
         misc.setMiscellaneousOptions(bundle.otherOptions);
     }
+    @Override
+    public void preloadOptions(OptionRecorder.FE4OptionBundle bundle) {
+        misc.setMiscellaneousOptions(bundle.misc);
+    }
 
     @Override
     public void updateOptionBundle(OptionRecorder.GBAOptionBundle bundle) {
         bundle.otherOptions = misc.getMiscellaneousOptions();
+    }
+
+    @Override
+    public void updateOptionBundle(OptionRecorder.FE4OptionBundle bundle) {
+        bundle.misc = misc.getMiscellaneousOptions();
     }
 }

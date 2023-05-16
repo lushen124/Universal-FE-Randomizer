@@ -3,14 +3,15 @@ package ui.gba.tabs;
 import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import ui.common.YuneTabItem;
 import ui.legacy.EnemyBuffsView;
 import util.OptionRecorder;
 
-public class EnemiesTab extends YuneTabItem {
+public class GBAEnemiesTab extends YuneTabItem {
 
     EnemyBuffsView enemies;
 
-    public EnemiesTab(CTabFolder parent, FEBase.GameType type) {
+    public GBAEnemiesTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
     }
 
