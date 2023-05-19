@@ -37,9 +37,11 @@ public class FE4SkillsTab extends YuneTabItem {
 
     @Override
     public void preloadOptions(OptionRecorder.FE4OptionBundle bundle) {
+        skills.setSkillOptions(bundle.skills);
     }
 
     @Override
     public void updateOptionBundle(OptionRecorder.FE4OptionBundle bundle) {
+        bundle.skills = skills.getSkillOptions();
     }
 }

@@ -72,6 +72,7 @@ public class WeightView extends Composite {
 		enableToggle.setText(name);
 		enableToggle.setSelection(defaultWeight != WeightedOptions.Weight.NONE);
 		enableToggle.setEnabled(true);
+		enableToggle.setToolTipText("Prevents this skill from being assigned to a unit");
 		enableToggle.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -96,6 +97,7 @@ public class WeightView extends Composite {
 		veryLowWeight = new Button(weightContainer, SWT.RADIO);
 		veryLowWeight.setEnabled(enableToggle.getSelection());
 		veryLowWeight.setSelection(defaultWeight == WeightedOptions.Weight.VERY_LOW);
+		veryLowWeight.setToolTipText("Very low chance of a unit getting this skill");
 		veryLowWeight.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -106,6 +108,7 @@ public class WeightView extends Composite {
 		lowWeight = new Button(weightContainer, SWT.RADIO);
 		lowWeight.setEnabled(enableToggle.getSelection());
 		lowWeight.setSelection(defaultWeight == WeightedOptions.Weight.LOW);
+		lowWeight.setToolTipText("Low chance of a unit getting this skill");
 		lowWeight.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -116,6 +119,7 @@ public class WeightView extends Composite {
 		normalWeight = new Button(weightContainer, SWT.RADIO);
 		normalWeight.setEnabled(enableToggle.getSelection());
 		normalWeight.setSelection(defaultWeight == WeightedOptions.Weight.NORMAL);
+		normalWeight.setToolTipText("Medium chance of a unit getting this skill");
 		normalWeight.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -126,6 +130,7 @@ public class WeightView extends Composite {
 		highWeight = new Button(weightContainer, SWT.RADIO);
 		highWeight.setEnabled(enableToggle.getSelection());
 		highWeight.setSelection(defaultWeight == WeightedOptions.Weight.HIGH);
+		highWeight.setToolTipText("High chance of a unit getting this skill");
 		highWeight.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
@@ -136,6 +141,7 @@ public class WeightView extends Composite {
 		veryHighWeight = new Button(weightContainer, SWT.RADIO);
 		veryHighWeight.setEnabled(enableToggle.getSelection());
 		veryHighWeight.setSelection(defaultWeight == WeightedOptions.Weight.VERY_HIGH);
+		veryHighWeight.setToolTipText("Very high chance of a unit getting this skill");
 		veryHighWeight.addListener(SWT.Selection, new Listener() {
 			@Override
 			public void handleEvent(Event event) {

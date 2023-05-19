@@ -4,6 +4,7 @@ import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import ui.common.YuneTabItem;
+import ui.fe4.FE4EnemyBuffView;
 import ui.fe4.HolyBloodView;
 import ui.legacy.BasesView;
 import ui.legacy.GrowthsView;
@@ -14,7 +15,7 @@ public class FE4StatsTab extends YuneTabItem {
     private GrowthsView growths;
     private BasesView bases;
     private HolyBloodView holyBlood;
-
+    private FE4EnemyBuffView enemies;
     public FE4StatsTab(CTabFolder parent) {
         super(parent, GameType.FE4);
     }
@@ -22,8 +23,9 @@ public class FE4StatsTab extends YuneTabItem {
     @Override
     protected void compose() {
         growths = addView(new GrowthsView(container, SWT.NONE, type.hasSTRMAGSplit()));
-        bases = addView(new BasesView(container, SWT.NONE, type));
         holyBlood = addView(new HolyBloodView(container, SWT.NONE));
+        bases = addView(new BasesView(container, SWT.NONE, type));
+        enemies = addView(new FE4EnemyBuffView(container, SWT.NONE));
     }
 
     @Override
@@ -38,7 +40,7 @@ public class FE4StatsTab extends YuneTabItem {
 
     @Override
     protected int numberColumns() {
-        return 3;
+        return 2;
     }
 
     @Override
@@ -46,6 +48,7 @@ public class FE4StatsTab extends YuneTabItem {
         growths.setGrowthOptions(bundle.growths);
         bases.setBasesOptions(bundle.bases);
         holyBlood.setHolyBloodOptions(bundle.holyBlood);
+        enemies.setBuffOptions(bundle.enemyBuff);
     }
 
     @Override
@@ -53,5 +56,6 @@ public class FE4StatsTab extends YuneTabItem {
         bundle.growths = growths.getGrowthOptions();
         bundle.bases = bases.getBaseOptions();
         bundle.holyBlood = holyBlood.getHolyBloodOptions();
+        bundle.enemyBuff = enemies.getBuffOptions();
     }
 }

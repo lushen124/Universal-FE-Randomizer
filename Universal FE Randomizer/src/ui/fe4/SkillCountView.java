@@ -1,19 +1,18 @@
 package ui.fe4;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-
 import ui.legacy.WeightView;
 import ui.legacy.WeightView.WeightViewListener;
 import ui.model.WeightedOptions.Weight;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SkillCountView extends Composite {
 	
@@ -183,28 +182,10 @@ public class SkillCountView extends Composite {
 	
 	public void setMaxSkillCount(int max) {
 		if (!isEnabled) { return; }
-		
-		if (max >= 3) {
-			threeView.setEnabled(true);
-			twoView.setEnabled(true);
-			oneView.setEnabled(true);
-			zeroView.setEnabled(true);
-		} else if (max >= 2) {
-			threeView.setEnabled(false);
-			twoView.setEnabled(true);
-			oneView.setEnabled(true);
-			zeroView.setEnabled(true);
-		} else if (max >= 1) {
-			threeView.setEnabled(false);
-			twoView.setEnabled(false);
-			oneView.setEnabled(true);
-			zeroView.setEnabled(true);
-		} else {
-			threeView.setEnabled(false);
-			twoView.setEnabled(false);
-			oneView.setEnabled(false);
-			zeroView.setEnabled(true);
-		}
+		threeView.setEnabled(max >= 3);
+		twoView.setEnabled(max >= 2);
+		oneView.setEnabled(max >= 1);
+		zeroView.setEnabled(true);
 	}
 	
 	public void setEnabled(boolean enabled) {

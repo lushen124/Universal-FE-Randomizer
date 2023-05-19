@@ -4,33 +4,35 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import ui.legacy.WeightView;
 import ui.legacy.WeightView.WeightViewListener;
 import ui.model.WeightedOptions;
 import ui.model.WeightedOptions.Weight;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FE9SkillWeightView extends Composite {
-	
-	public interface FE9SkillWeightsListener {
+public class SkillWeightView extends Composite {
+
+
+	public interface SkillWeightsListener {
 		public void onAllItemsDisabled();
 		public void onEnableCountChanged(int enabledCount);
 	}
 	
-	private Map<String, WeightView> weightViewsByString;
+	private Map<String, WeightView> weightViewsByString = new HashMap<>();
 	
 	private Label titleLabel;
 	
-	private FE9SkillWeightsListener listener;
+	private SkillWeightsListener listener;
 	private boolean allItemsDisabled;
 	
-	private class FE9WeightListener implements WeightViewListener {
+	public class WeightListener implements WeightViewListener {
 		private void notifyCount() {
 			int count = 0;
 			for (WeightView view : weightViewsByString.values()) {
@@ -53,7 +55,7 @@ public class FE9SkillWeightView extends Composite {
 		public void onItemDisabled() { notifyCount(); }
 	}
 	
-	private FE9WeightListener weightListener = new FE9WeightListener();
+	private WeightListener weightListener = new WeightListener();
 	
 	private void notifyAllItemsDisabled() {
 		allItemsDisabled = true;
@@ -68,11 +70,11 @@ public class FE9SkillWeightView extends Composite {
 		}
 	}
 	
-	public void setListener(FE9SkillWeightsListener listener) {
+	public void setListener(SkillWeightsListener listener) {
 		this.listener = listener;
 	}
 
-	public FE9SkillWeightView(Composite parent, int style, List<String> skillTitles) {
+	public SkillWeightView(Composite parent, int style, List<String> skillTitles) {
 		super(parent, style);
 
 		FormLayout formLayout = new FormLayout();
@@ -87,64 +89,19 @@ public class FE9SkillWeightView extends Composite {
 		titleData.left = new FormAttachment(0, 0);
 		titleLabel.setLayoutData(titleData);
 		
-		Composite header = new Composite(this, SWT.NONE);
+		skillTitles.sort(String::compareTo);
+		
+		Group skillListContainer = new Group(this, SWT.NONE);
+		FormData skillListData = new FormData();
+		skillListData.top = new FormAttachment(titleLabel, 5);
+		skillListContainer.setLayoutData(skillListData);
 
-		FormData headerData = new FormData();
-		headerData.left = new FormAttachment(0, 5);
-		headerData.top = new FormAttachment(titleLabel, 5);
-		headerData.right = new FormAttachment(100, -5);
-		header.setLayoutData(headerData);
-
-		FormLayout headerLayout = new FormLayout();
-		header.setLayout(headerLayout);
-		
-		Label allowLabel = new Label(header, SWT.NONE);
-		allowLabel.setText("Allow?");
-		
-		FormData allowData = new FormData();
-		allowData.left = new FormAttachment(0, 0);
-		allowData.top = new FormAttachment(0, 0);
-		allowLabel.setLayoutData(allowData);
-		
-		Label lessLikely = new Label(header, SWT.NONE);
-		lessLikely.setText("Less Likely");
-		
-		FormData lessData = new FormData();
-		lessData.left = new FormAttachment(0, 80);
-		lessData.top = new FormAttachment(allowLabel, 0, SWT.CENTER);
-		lessLikely.setLayoutData(lessData);
-		
-		Label moreLikely = new Label(header, SWT.NONE);
-		moreLikely.setText("More Likely");
-		
-		FormData moreData = new FormData();
-		moreData.right = new FormAttachment(100, -5);
-		moreData.top = new FormAttachment(allowLabel, 0, SWT.CENTER);
-		moreLikely.setLayoutData(moreData);
-		
-		skillTitles.sort(new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return o1.compareTo(o2);
-			}
-		});
-		
-		Composite previousView = header;
-		weightViewsByString = new HashMap<String, WeightView>();
-
-
+		GridLayout skillListLayout = new GridLayout(3, false);
+	 	skillListContainer.setLayout(skillListLayout);
 
 		for (String title : skillTitles) {
-			WeightView view = new WeightView(title, Weight.NORMAL, this, SWT.NONE);
+			WeightView view = new WeightView(title, Weight.NORMAL, skillListContainer, SWT.NONE);
 			view.setListener(weightListener);
-
-			FormData viewData = new FormData();
-			viewData.left = new FormAttachment(previousView, 0, SWT.LEFT);
-			viewData.top = new FormAttachment(previousView, 5);
-			viewData.right = new FormAttachment(100, -5);
-			view.setLayoutData(viewData);
-
-			previousView = view;
 			weightViewsByString.put(title, view);
 		}
 	}
@@ -158,17 +115,17 @@ public class FE9SkillWeightView extends Composite {
 		}
 	}
 	
-	public FE9SkillWeightOptions getSkillWeights() {
+	public SkillWeightOptions getSkillWeights() {
 		Map<String, WeightedOptions> weights = new HashMap<String, WeightedOptions>();
 		for (String skill : weightViewsByString.keySet()) {
 			WeightView view = weightViewsByString.get(skill);
 			weights.put(skill, view.getWeightedOptions());
 		}
 		
-		return new FE9SkillWeightOptions(weights);
+		return new SkillWeightOptions(weights);
 	}
 	
-	public void setSkillWeights(FE9SkillWeightOptions options) {
+	public void setSkillWeights(SkillWeightOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
 		} else {

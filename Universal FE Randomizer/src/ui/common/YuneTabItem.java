@@ -44,7 +44,7 @@ public abstract class YuneTabItem extends CTabItem {
      */
     protected void setupDefaultMainContainer() {
         container = new Composite(getParent(), SWT.NONE);
-        GridLayout layout = new GridLayout(numberColumns(), true);
+        GridLayout layout = new GridLayout(numberColumns(), false);
         layout.marginLeft = 5;
         layout.marginTop = 5;
         layout.marginRight = 5;
@@ -99,7 +99,7 @@ public abstract class YuneTabItem extends CTabItem {
      * By Default that is GridData telling the widget to be in the top left of it's grid, while not grabbing excess space horizintally or vertically
      */
     protected Object defaultLayoutData() {
-        return new GridData(SWT.LEFT, SWT.TOP, true, false);
+        return new GridData(SWT.LEFT, SWT.TOP, false, false);
     }
 
     /**
@@ -142,4 +142,10 @@ public abstract class YuneTabItem extends CTabItem {
         throw new UnsupportedOperationException();
     }
 
+    protected void setViewData(Composite view, int colSpan, int rowSpan) {
+        GridData data = (GridData) defaultLayoutData();
+        data.horizontalSpan = colSpan;
+        data.verticalSpan = rowSpan;
+        view.setLayoutData(data);
+    }
 }

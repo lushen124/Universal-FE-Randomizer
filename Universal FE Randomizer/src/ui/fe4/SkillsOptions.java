@@ -1,5 +1,7 @@
 package ui.fe4;
 
+import ui.fe9.SkillWeightOptions;
+
 public class SkillsOptions {
 	
 	public enum Mode {

@@ -20,7 +20,6 @@ import random.general.RandomizerListener;
 import random.snes.fe4.randomizer.FE4Randomizer;
 import ui.common.*;
 import ui.fe4.tabs.FE4ClassesTab;
-import ui.fe4.tabs.FE4EnemiesTab;
 import ui.fe4.tabs.FE4SkillsTab;
 import ui.fe4.tabs.FE4StatsTab;
 import ui.fe9.tabs.*;
@@ -285,20 +284,16 @@ public class MainView implements FileFlowDelegate {
             statsTab = addTab(new GBAStatsTab(tabFolder, loadedGameType));
             charactersTab = addTab(new GBACharactersTab(tabFolder, loadedGameType));
             itemsTab = addTab(new GBAItemsTab(tabFolder, loadedGameType));
-            enemiesTab = addTab(new GBAEnemiesTab(tabFolder, loadedGameType));
             miscTab = addTab(new GBAMiscTab(tabFolder, loadedGameType));
         } else if (loadedGameType.isSFC()) {
             statsTab = addTab(new FE4StatsTab(tabFolder));
             classesTab = addTab(new FE4ClassesTab(tabFolder));
             skillsTab = addTab(new FE4SkillsTab(tabFolder));
-            enemiesTab = addTab(new FE4EnemiesTab(tabFolder));
             miscTab = addTab(new GBAMiscTab(tabFolder, loadedGameType));
         } else if (loadedGameType.isGCN()) {
-            statsTab = addTab(new FE9StatsTab(tabFolder));
-            classesTab = addTab(new FE9ClassesTab(tabFolder));
+            charactersTab = addTab(new FE9CharactersTab(tabFolder));
             itemsTab = addTab(new FE9ItemsTab(tabFolder));
             skillsTab = addTab(new FE9SkillsTab(tabFolder));
-            enemiesTab = addTab(new FE9EnemiesTab(tabFolder));
         }
 
         tabFolder.setSelection(0);

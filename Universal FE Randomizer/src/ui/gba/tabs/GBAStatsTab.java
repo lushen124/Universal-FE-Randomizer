@@ -5,6 +5,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import ui.common.YuneTabItem;
 import ui.legacy.BasesView;
+import ui.legacy.EnemyBuffsView;
 import ui.legacy.GrowthsView;
 import ui.legacy.MOVCONAffinityView;
 import util.OptionRecorder;
@@ -14,6 +15,7 @@ public class GBAStatsTab extends YuneTabItem {
     private GrowthsView growths;
     private BasesView bases;
     private MOVCONAffinityView movConAffinity;
+    private EnemyBuffsView enemies;
 
     public GBAStatsTab(CTabFolder parent, GameType type) {
         super(parent, type);
@@ -22,8 +24,11 @@ public class GBAStatsTab extends YuneTabItem {
     @Override
     protected void compose() {
         growths = addView(new GrowthsView(container, SWT.NONE, type.hasSTRMAGSplit()));
-        bases = addView(new BasesView(container, SWT.NONE, type));
+        enemies = addView(new EnemyBuffsView(container, SWT.NONE));
+        setViewData(enemies, 1, 2);
         movConAffinity = addView(new MOVCONAffinityView(container, SWT.NONE));
+        setViewData(movConAffinity, 1, 2);
+        bases = addView(new BasesView(container, SWT.NONE, type));
     }
 
     @Override

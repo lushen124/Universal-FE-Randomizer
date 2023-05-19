@@ -35,7 +35,7 @@ public class FE9ItemsTab extends YuneTabItem {
 
     @Override
     protected int numberColumns() {
-        return 1;
+        return 2;
     }
 
     @Override

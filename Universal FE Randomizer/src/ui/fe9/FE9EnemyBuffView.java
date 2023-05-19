@@ -1,22 +1,10 @@
 package ui.fe9;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Spinner;
-
+import org.eclipse.swt.layout.*;
+import org.eclipse.swt.widgets.*;
 import ui.model.FE9EnemyBuffOptions;
 import ui.model.FE9EnemyBuffOptions.BossStatMode;
-import ui.model.FE9EnemyBuffOptions.BuffStats;
 import ui.model.FE9EnemyBuffOptions.MinionGrowthMode;
 
 public class FE9EnemyBuffView extends Composite {
@@ -102,7 +90,6 @@ public class FE9EnemyBuffView extends Composite {
 		
 		FormData minionData = new FormData();
 		minionData.left = new FormAttachment(0, 0);
-		minionData.right = new FormAttachment(100, 0);
 		minionGroup.setLayoutData(minionData);
 		
 		buffMinionGrowthsButton = new Button(minionGroup, SWT.CHECK);
@@ -329,9 +316,7 @@ public class FE9EnemyBuffView extends Composite {
 		bossGroup.setLayout(bossLayout);
 		
 		FormData bossData = new FormData();
-		bossData.left = new FormAttachment(minionGroup, 0, SWT.LEFT);
-		bossData.right = new FormAttachment(minionGroup, 0, SWT.RIGHT);
-		bossData.top = new FormAttachment(minionGroup, 5);
+		bossData.left = new FormAttachment(minionGroup, 5);
 		bossGroup.setLayoutData(bossData);
 		
 		buffBossStatButton = new Button(bossGroup, SWT.CHECK);

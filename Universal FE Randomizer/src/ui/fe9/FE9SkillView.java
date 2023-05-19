@@ -1,22 +1,15 @@
 package ui.fe9;
 
-import java.util.List;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Spinner;
-
-import ui.fe9.FE9SkillWeightView.FE9SkillWeightsListener;
+import org.eclipse.swt.widgets.*;
 import ui.fe9.FE9SkillsOptions.Mode;
+import ui.fe9.SkillWeightView.SkillWeightsListener;
+
+import java.util.List;
 
 public class FE9SkillView extends Composite {
 
@@ -33,7 +26,7 @@ public class FE9SkillView extends Composite {
 	private Label countLabel;
 	private Spinner skillCountSpinner;
 	
-	private FE9SkillWeightView weightsView;
+	private SkillWeightView weightsView;
 	
 	public FE9SkillView(Composite parent, int style, List<String> skillList) {
 		super(parent, style);
@@ -112,8 +105,8 @@ public class FE9SkillView extends Composite {
 			}
 		});
 		
-		weightsView = new FE9SkillWeightView(container, SWT.NONE, skillList);
-		weightsView.setListener(new FE9SkillWeightsListener() {
+		weightsView = new SkillWeightView(container, SWT.NONE, skillList);
+		weightsView.setListener(new SkillWeightsListener() {
 			@Override
 			public void onEnableCountChanged(int enabledCount) {}
 			
@@ -128,7 +121,6 @@ public class FE9SkillView extends Composite {
 		weightData.left = new FormAttachment(enableButton, 0, SWT.LEFT);
 		weightData.top = new FormAttachment(skillCountSpinner, 5);
 		weightData.right = new FormAttachment(100, -5);
-		weightData.width = 280;
 		weightsView.setLayoutData(weightData);
 		
 		setEnabled(false);
