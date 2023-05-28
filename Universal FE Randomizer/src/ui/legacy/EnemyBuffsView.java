@@ -442,7 +442,7 @@ public class EnemyBuffsView extends Composite {
 		bossWeaponSpinner.setLayoutData(spinnerData);
 	}
 	
-	public EnemyOptions getEnemyOptions() {
+	public EnemyOptions getOptions() {
 
 		boolean buffMinionWeapons = improveEnemyWeaponsButton.getSelection();
 		int minionWeaponChance = weaponSpinner.getSelection();
@@ -468,130 +468,130 @@ public class EnemyBuffsView extends Composite {
 				new EnemyOptions.BuffStats(bossHP.getSelection(), bossSTR.getSelection(), bossSKL.getSelection(), bossSPD.getSelection(), bossLCK.getSelection(), bossDEF.getSelection(), bossRES.getSelection()));
 	}
 	
-	public void setEnemyOptions(EnemyOptions options) {
+	public void initialize(EnemyOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
-		} else {
-			if (options.minionMode != null) {
-				switch (options.minionMode) {
-				case NONE:
-					buffEnemyGrowthsButton.setSelection(false);
-					flatBonusButton.setEnabled(false);
-					scalingBonusButton.setEnabled(false);
-					buffSpinner.setEnabled(false);
-					minionSpinnerLabel.setEnabled(false);
-					break;
-				case FLAT:
-					buffEnemyGrowthsButton.setSelection(true);
-					flatBonusButton.setEnabled(true);
-					scalingBonusButton.setEnabled(true);
-					flatBonusButton.setSelection(true);
-					scalingBonusButton.setSelection(false);
-					buffSpinner.setEnabled(true);
-					minionSpinnerLabel.setEnabled(true);
-					buffSpinner.setSelection(options.minionBuff);
-					break;
-				case SCALING:
-					buffEnemyGrowthsButton.setSelection(true);
-					flatBonusButton.setEnabled(true);
-					scalingBonusButton.setEnabled(true);
-					flatBonusButton.setSelection(false);
-					scalingBonusButton.setSelection(true);
-					buffSpinner.setEnabled(true);
-					minionSpinnerLabel.setEnabled(true);
-					buffSpinner.setSelection(options.minionBuff);
-					break;
-				}
-				
-				if (options.minionMode != EnemyOptions.MinionGrowthMode.NONE) {
-					minionHP.setEnabled(true);
-					minionSTR.setEnabled(true);
-					minionSKL.setEnabled(true);
-					minionSPD.setEnabled(true);
-					minionDEF.setEnabled(true);
-					minionRES.setEnabled(true);
-					minionLCK.setEnabled(true);
-					
-					if (options.minionBuffStats != null) {
-						minionHP.setSelection(options.minionBuffStats.hp);
-						minionSTR.setSelection(options.minionBuffStats.str);
-						minionSKL.setSelection(options.minionBuffStats.skl);
-						minionSPD.setSelection(options.minionBuffStats.spd);
-						minionDEF.setSelection(options.minionBuffStats.def);
-						minionRES.setSelection(options.minionBuffStats.res);
-						minionLCK.setSelection(options.minionBuffStats.lck);
-					}
+			return;
+		}
+		if (options.minionMode != null) {
+			switch (options.minionMode) {
+			case NONE:
+				buffEnemyGrowthsButton.setSelection(false);
+				flatBonusButton.setEnabled(false);
+				scalingBonusButton.setEnabled(false);
+				buffSpinner.setEnabled(false);
+				minionSpinnerLabel.setEnabled(false);
+				break;
+			case FLAT:
+				buffEnemyGrowthsButton.setSelection(true);
+				flatBonusButton.setEnabled(true);
+				scalingBonusButton.setEnabled(true);
+				flatBonusButton.setSelection(true);
+				scalingBonusButton.setSelection(false);
+				buffSpinner.setEnabled(true);
+				minionSpinnerLabel.setEnabled(true);
+				buffSpinner.setSelection(options.minionBuff);
+				break;
+			case SCALING:
+				buffEnemyGrowthsButton.setSelection(true);
+				flatBonusButton.setEnabled(true);
+				scalingBonusButton.setEnabled(true);
+				flatBonusButton.setSelection(false);
+				scalingBonusButton.setSelection(true);
+				buffSpinner.setEnabled(true);
+				minionSpinnerLabel.setEnabled(true);
+				buffSpinner.setSelection(options.minionBuff);
+				break;
+			}
+
+			if (options.minionMode != EnemyOptions.MinionGrowthMode.NONE) {
+				minionHP.setEnabled(true);
+				minionSTR.setEnabled(true);
+				minionSKL.setEnabled(true);
+				minionSPD.setEnabled(true);
+				minionDEF.setEnabled(true);
+				minionRES.setEnabled(true);
+				minionLCK.setEnabled(true);
+
+				if (options.minionBuffStats != null) {
+					minionHP.setSelection(options.minionBuffStats.hp);
+					minionSTR.setSelection(options.minionBuffStats.str);
+					minionSKL.setSelection(options.minionBuffStats.skl);
+					minionSPD.setSelection(options.minionBuffStats.spd);
+					minionDEF.setSelection(options.minionBuffStats.def);
+					minionRES.setSelection(options.minionBuffStats.res);
+					minionLCK.setSelection(options.minionBuffStats.lck);
 				}
 			}
-			if (options.improveMinionWeapons) {
-				improveEnemyWeaponsButton.setSelection(true);
-				weaponSpinner.setEnabled(true);
-				weaponSpinner.setSelection(options.minionImprovementChance);
-				minionWeaponSpinnerLabel.setEnabled(true);
-			}
-			
-			if (options.bossMode != null) {
-				switch (options.bossMode) {
-				case NONE:
-					buffBossStatButton.setSelection(false);
-					linearBossButton.setEnabled(false);
-					easeInOutBossButton.setEnabled(false);
-					bossStatSpinner.setEnabled(false);
-					bossStatSpinnerLabel.setEnabled(false);
-					break;
-				case LINEAR:
-					buffBossStatButton.setSelection(true);
-					linearBossButton.setEnabled(true);
-					easeInOutBossButton.setEnabled(true);
-					bossStatSpinner.setEnabled(true);
-					bossStatSpinnerLabel.setEnabled(true);
-					
-					linearBossButton.setSelection(true);
-					easeInOutBossButton.setSelection(false);
-					
-					bossStatSpinner.setSelection(options.bossBuff);
-					break;
-				case EASE_IN_OUT:
-					buffBossStatButton.setSelection(true);
-					linearBossButton.setEnabled(true);
-					easeInOutBossButton.setEnabled(true);
-					bossStatSpinner.setEnabled(true);
-					bossStatSpinnerLabel.setEnabled(true);
-					
-					linearBossButton.setSelection(false);
-					easeInOutBossButton.setSelection(true);
-					
-					bossStatSpinner.setSelection(options.bossBuff);
-					break;
-				}
-				
-				if (options.bossMode != EnemyOptions.BossStatMode.NONE) {
-					bossHP.setEnabled(true);
-					bossSTR.setEnabled(true);
-					bossSKL.setEnabled(true);
-					bossSPD.setEnabled(true);
-					bossDEF.setEnabled(true);
-					bossRES.setEnabled(true);
-					bossLCK.setEnabled(true);
-					
-					if (options.bossBuffStats != null) {
-						bossHP.setSelection(options.bossBuffStats.hp);
-						bossSTR.setSelection(options.bossBuffStats.str);
-						bossSKL.setSelection(options.bossBuffStats.skl);
-						bossSPD.setSelection(options.bossBuffStats.spd);
-						bossDEF.setSelection(options.bossBuffStats.def);
-						bossRES.setSelection(options.bossBuffStats.res);
-						bossLCK.setSelection(options.bossBuffStats.lck);
-					}
-				}
-			}
-			if (options.improveBossWeapons) {
-				improveBossWeaponButton.setSelection(true);
-				bossWeaponSpinnerLabel.setEnabled(true);
-				bossWeaponSpinner.setEnabled(true);
+		}
+		if (options.improveMinionWeapons) {
+			improveEnemyWeaponsButton.setSelection(true);
+			weaponSpinner.setEnabled(true);
+			weaponSpinner.setSelection(options.minionImprovementChance);
+			minionWeaponSpinnerLabel.setEnabled(true);
+		}
+
+		if (options.bossMode != null) {
+			switch (options.bossMode) {
+			case NONE:
+				buffBossStatButton.setSelection(false);
+				linearBossButton.setEnabled(false);
+				easeInOutBossButton.setEnabled(false);
+				bossStatSpinner.setEnabled(false);
+				bossStatSpinnerLabel.setEnabled(false);
+				break;
+			case LINEAR:
+				buffBossStatButton.setSelection(true);
+				linearBossButton.setEnabled(true);
+				easeInOutBossButton.setEnabled(true);
+				bossStatSpinner.setEnabled(true);
 				bossStatSpinnerLabel.setEnabled(true);
-				bossWeaponSpinner.setSelection(options.bossImprovementChance);
+
+				linearBossButton.setSelection(true);
+				easeInOutBossButton.setSelection(false);
+
+				bossStatSpinner.setSelection(options.bossBuff);
+				break;
+			case EASE_IN_OUT:
+				buffBossStatButton.setSelection(true);
+				linearBossButton.setEnabled(true);
+				easeInOutBossButton.setEnabled(true);
+				bossStatSpinner.setEnabled(true);
+				bossStatSpinnerLabel.setEnabled(true);
+
+				linearBossButton.setSelection(false);
+				easeInOutBossButton.setSelection(true);
+
+				bossStatSpinner.setSelection(options.bossBuff);
+				break;
 			}
+
+			if (options.bossMode != EnemyOptions.BossStatMode.NONE) {
+				bossHP.setEnabled(true);
+				bossSTR.setEnabled(true);
+				bossSKL.setEnabled(true);
+				bossSPD.setEnabled(true);
+				bossDEF.setEnabled(true);
+				bossRES.setEnabled(true);
+				bossLCK.setEnabled(true);
+
+				if (options.bossBuffStats != null) {
+					bossHP.setSelection(options.bossBuffStats.hp);
+					bossSTR.setSelection(options.bossBuffStats.str);
+					bossSKL.setSelection(options.bossBuffStats.skl);
+					bossSPD.setSelection(options.bossBuffStats.spd);
+					bossDEF.setSelection(options.bossBuffStats.def);
+					bossRES.setSelection(options.bossBuffStats.res);
+					bossLCK.setSelection(options.bossBuffStats.lck);
+				}
+			}
+		}
+		if (options.improveBossWeapons) {
+			improveBossWeaponButton.setSelection(true);
+			bossWeaponSpinnerLabel.setEnabled(true);
+			bossWeaponSpinner.setEnabled(true);
+			bossStatSpinnerLabel.setEnabled(true);
+			bossWeaponSpinner.setSelection(options.bossImprovementChance);
 		}
 	}
 }

@@ -200,17 +200,17 @@ public class SkillCountView extends Composite {
 	}
 	
 	public SkillCountDistributionOptions getSkillCountDistribution() {
-		return new SkillCountDistributionOptions(zeroView.getWeightedOptions(), oneView.getWeightedOptions(), twoView.getWeightedOptions(), threeView.getWeightedOptions());
+		return new SkillCountDistributionOptions(zeroView.getOptions(), oneView.getOptions(), twoView.getOptions(), threeView.getOptions());
 	}
 
 	public void setSkillCountDistribution(SkillCountDistributionOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
 		} else {
-			zeroView.setWeightedOptions(options.zeroSkillsChance);
-			oneView.setWeightedOptions(options.oneSkillChance);
-			twoView.setWeightedOptions(options.twoSkillChance);
-			threeView.setWeightedOptions(options.threeSkillChance);
+			zeroView.initialize(options.zeroSkillsChance);
+			oneView.initialize(options.oneSkillChance);
+			twoView.initialize(options.twoSkillChance);
+			threeView.initialize(options.threeSkillChance);
 		}
 	}
 }

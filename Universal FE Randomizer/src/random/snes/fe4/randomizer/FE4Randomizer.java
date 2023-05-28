@@ -14,10 +14,7 @@ import random.snes.fe4.loader.*;
 import ui.fe4.*;
 import ui.fe4.FE4ClassOptions.BloodOptions;
 import ui.fe4.SkillsOptions.Mode;
-import ui.model.BaseOptions;
-import ui.model.GrowthOptions;
-import ui.model.MiscellaneousOptions;
-import ui.model.WeightedOptions;
+import ui.model.*;
 import util.Diff;
 import util.DiffCompiler;
 import util.SeedGenerator;
@@ -42,7 +39,8 @@ public class FE4Randomizer extends Randomizer {
 	private FE4ClassOptions classOptions;
 	private FE4PromotionOptions promoOptions;
 	private FE4EnemyBuffOptions buffOptions;
-	private MiscellaneousOptions miscOptions;
+	private GameMechanicOptions miscOptions;
+	private RewardOptions rewardOptions;
 
 	HolyBloodLoader bloodData;
 	CharacterDataLoader charData;
@@ -58,7 +56,7 @@ public class FE4Randomizer extends Randomizer {
 	private FileHandler handler;
 
 	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions,
-			SkillsOptions skillOptions, FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, MiscellaneousOptions miscOptions, String seed) {
+						 SkillsOptions skillOptions, FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, GameMechanicOptions miscOptions, RewardOptions rewardOptions, String seed) {
 		super();
 
 		this.sourcePath = sourcePath;
@@ -76,6 +74,7 @@ public class FE4Randomizer extends Randomizer {
 		this.promoOptions = promoOptions;
 		this.buffOptions = buffOptions;
 		this.miscOptions = miscOptions;
+		this.rewardOptions = rewardOptions;
 	}
 
 	public void run() {
@@ -472,7 +471,7 @@ public class FE4Randomizer extends Randomizer {
 	}
 
 	private void randomizeRingsIfNecessary(String seed) {
-		if (miscOptions.randomizeRewards) {
+		if (rewardOptions.randomizeRewards) {
 			updateStatusString("Randomizing Rings...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4RingRandomizer.rngSalt + 1));
 			FE4RingRandomizer.randomizeRings(itemMapper, rng);
@@ -1005,7 +1004,9 @@ public class FE4Randomizer extends Randomizer {
 
 		if (miscOptions != null) {
 			rk.addHeaderItem("Apply English Patch", miscOptions.applyEnglishPatch ? "YES" : "NO");
-			rk.addHeaderItem("Randomize Rings", miscOptions.randomizeRewards ? "YES" : "NO");
+		}
+		if (rewardOptions != null) {
+			rk.addHeaderItem("Randomize Rings", rewardOptions.randomizeRewards ? "YES" : "NO");
 		}
 
 		if (buffOptions != null) {

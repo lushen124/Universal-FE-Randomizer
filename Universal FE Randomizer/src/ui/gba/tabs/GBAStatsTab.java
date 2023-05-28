@@ -48,15 +48,15 @@ public class GBAStatsTab extends YuneTabItem {
 
     @Override
     public void preloadOptions(OptionRecorder.GBAOptionBundle bundle) {
-        growths.setGrowthOptions(bundle.growths);
-        bases.setBasesOptions(bundle.bases);
-        movConAffinity.setOtherCharacterOptions(bundle.other);
+        growths.initialize(bundle.growths);
+        bases.initialize(bundle.bases);
+        movConAffinity.initialize(bundle.other);
     }
 
     @Override
     public void updateOptionBundle(OptionRecorder.GBAOptionBundle bundle) {
-        bundle.growths = growths.getGrowthOptions();
-        bundle.bases = bases.getBaseOptions();
+        bundle.growths = growths.getOptions();
+        bundle.bases = bases.getOptions();
         bundle.other = movConAffinity.getOtherCharacterOptions();
     }
 }

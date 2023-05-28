@@ -3,6 +3,7 @@ package ui.fe4.tabs;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import ui.common.GuiUtil;
 import ui.common.YuneTabItem;
 import ui.fe4.SkillsView;
 import util.OptionRecorder;
@@ -17,7 +18,7 @@ public class FE4SkillsTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        skills = addView(new SkillsView(container, SWT.NONE));
+        skills = addView(new SkillsView(container, SWT.NONE), GuiUtil.defaultGridData(3));
     }
 
     @Override

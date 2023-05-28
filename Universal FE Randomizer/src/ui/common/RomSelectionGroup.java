@@ -32,7 +32,7 @@ public class RomSelectionGroup extends YuneGroup {
 
         openSelectorButton = new Button(group, SWT.PUSH);
         openSelectorButton.setText("Browse...");
-        openSelectorButton.addListener(SWT.Selection, new OpenFileFlow((Shell) group.getParent().getParent(), delegate));
+        openSelectorButton.addListener(SWT.Selection, new OpenFileFlow((Shell) group.getParent().getParent().getParent(), delegate));
 
         FormData labelData = new FormData();
         labelData.left = new FormAttachment(group, 5);

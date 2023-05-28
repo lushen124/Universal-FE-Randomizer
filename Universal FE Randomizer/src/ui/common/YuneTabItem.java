@@ -24,7 +24,12 @@ public abstract class YuneTabItem extends CTabItem {
     protected GameType type;
     protected List<Composite> views = new ArrayList<>();
 
+
     public YuneTabItem(CTabFolder parent, GameType type) {
+        this(parent, type, false);
+    }
+
+    public YuneTabItem(CTabFolder parent, GameType type, boolean isScrollable) {
         super(parent, SWT.NONE);
         // Increase the Height of the text in the Tabs a bit
         FontData fontData = this.getFont().getFontData()[0];
@@ -34,7 +39,7 @@ public abstract class YuneTabItem extends CTabItem {
         setText(getTabName());
         setToolTipText(getTabTooltip());
         this.type = type;
-        setupDefaultMainContainer();
+        setupDefaultMainContainer(isScrollable);
         compose();
         this.setControl(container);
     }
@@ -42,7 +47,7 @@ public abstract class YuneTabItem extends CTabItem {
     /**
      * Creates the default Main Container of the Tab which consist of a Simple Container with a GridLayout.
      */
-    protected void setupDefaultMainContainer() {
+    protected void setupDefaultMainContainer(boolean isScrollable) {
         container = new Composite(getParent(), SWT.NONE);
         GridLayout layout = new GridLayout(numberColumns(), false);
         layout.marginLeft = 5;
@@ -53,7 +58,7 @@ public abstract class YuneTabItem extends CTabItem {
     }
 
     /**
-     * Must be overriden by each individual tab to arrange the views inside of the tab control
+     * Must be overridden by each individual tab to arrange the views inside the tab control
      */
     protected abstract void compose();
 
@@ -87,19 +92,10 @@ public abstract class YuneTabItem extends CTabItem {
     }
 
     /**
-     * Convenience overload of {@link #addView(Composite, Object)} which passes the {@link #defaultLayoutData()} for the second parameter.
+     * Convenience overload of {@link #addView(Composite, Object)} which passes the {@link GuiUtil#defaultGridData()} for the second parameter.
      */
     protected <T extends Composite> T addView(T subview) {
-        return addView(subview, defaultLayoutData());
-    }
-
-    /**
-     * Constructs the Default Layout data for Widgets inside this Tab.
-     * <p>
-     * By Default that is GridData telling the widget to be in the top left of it's grid, while not grabbing excess space horizintally or vertically
-     */
-    protected Object defaultLayoutData() {
-        return new GridData(SWT.LEFT, SWT.TOP, false, false);
+        return addView(subview, GuiUtil.defaultGridData());
     }
 
     /**
@@ -143,7 +139,7 @@ public abstract class YuneTabItem extends CTabItem {
     }
 
     protected void setViewData(Composite view, int colSpan, int rowSpan) {
-        GridData data = (GridData) defaultLayoutData();
+        GridData data = view.getLayoutData() != null ? (GridData) view.getLayoutData() : (GridData) GuiUtil.defaultGridData();
         data.horizontalSpan = colSpan;
         data.verticalSpan = rowSpan;
         view.setLayoutData(data);

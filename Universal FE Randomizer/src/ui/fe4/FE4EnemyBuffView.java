@@ -162,33 +162,33 @@ public class FE4EnemyBuffView extends Composite {
 		majorHolyBloodBossButton.setLayoutData(optionData);
 	}
 
-	public FE4EnemyBuffOptions getBuffOptions() {
+	public FE4EnemyBuffOptions getOptions() {
 		FE4EnemyBuffOptions.EnemyScalingOptions scalingOption = flatOptionButton.getSelection() ? FE4EnemyBuffOptions.EnemyScalingOptions.FLAT : FE4EnemyBuffOptions.EnemyScalingOptions.SCALING;
 		return new FE4EnemyBuffOptions(enemyScalingButton.getSelection(), scalingOption, scaleAmountSpinner.getSelection(), weaponImprovementButton.getSelection(), improveChanceSpinner.getSelection(), majorHolyBloodBossButton.getSelection());
 	}
 	
-	public void setBuffOptions(FE4EnemyBuffOptions options) {
+	public void initialize(FE4EnemyBuffOptions options) {
 		if (options == null) {
 			// Shouldn't happen
-		} else {
-			enemyScalingButton.setSelection(options.increaseEnemyScaling);
-			scaleAmountLabel.setEnabled(options.increaseEnemyScaling);
-			scaleAmountSpinner.setEnabled(options.increaseEnemyScaling);
-			flatOptionButton.setEnabled(options.increaseEnemyScaling);
-			proportionalOptionButton.setEnabled(options.increaseEnemyScaling);
-			
-			scaleAmountSpinner.setSelection(options.scalingAmount);
-			
-			flatOptionButton.setSelection(options.scalingOption == EnemyScalingOptions.FLAT);
-			proportionalOptionButton.setSelection(options.scalingOption == EnemyScalingOptions.SCALING);
-			
-			weaponImprovementButton.setSelection(options.improveMinionWeapons);
-			improveChanceLabel.setEnabled(options.improveMinionWeapons);
-			improveChanceSpinner.setEnabled(options.improveMinionWeapons);
-			
-			improveChanceSpinner.setSelection(options.improvementChance);
-			
-			majorHolyBloodBossButton.setSelection(options.majorHolyBloodBosses);
+			return;
 		}
+		enemyScalingButton.setSelection(options.increaseEnemyScaling);
+		scaleAmountLabel.setEnabled(options.increaseEnemyScaling);
+		scaleAmountSpinner.setEnabled(options.increaseEnemyScaling);
+		flatOptionButton.setEnabled(options.increaseEnemyScaling);
+		proportionalOptionButton.setEnabled(options.increaseEnemyScaling);
+
+		scaleAmountSpinner.setSelection(options.scalingAmount);
+
+		flatOptionButton.setSelection(options.scalingOption == EnemyScalingOptions.FLAT);
+		proportionalOptionButton.setSelection(options.scalingOption == EnemyScalingOptions.SCALING);
+
+		weaponImprovementButton.setSelection(options.improveMinionWeapons);
+		improveChanceLabel.setEnabled(options.improveMinionWeapons);
+		improveChanceSpinner.setEnabled(options.improveMinionWeapons);
+
+		improveChanceSpinner.setSelection(options.improvementChance);
+
+		majorHolyBloodBossButton.setSelection(options.majorHolyBloodBosses);
 	}
 }

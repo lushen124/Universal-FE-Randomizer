@@ -3,6 +3,7 @@ package ui.fe9.tabs;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import ui.common.GuiUtil;
 import ui.common.YuneTabItem;
 import ui.fe9.FE9ClassesView;
 import ui.fe9.FE9EnemyBuffView;
@@ -30,9 +31,8 @@ public class FE9CharactersTab extends YuneTabItem {
         classes = addView(new FE9ClassesView(container, SWT.NONE));
         setViewData(classes, 1, 2);
         conAffinity = addView(new CONAffinityView(container, SWT.NONE));
-        enemies = addView(new FE9EnemyBuffView(container, SWT.NONE));
+        enemies = addView(new FE9EnemyBuffView(container, SWT.NONE), GuiUtil.defaultGridData(2));
         setViewData(enemies, 2, 1);
-
     }
 
     @Override

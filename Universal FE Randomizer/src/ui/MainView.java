@@ -7,11 +7,12 @@ import io.FileHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.RowData;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import random.gba.randomizer.GBARandomizer;
 import random.gcnwii.fe9.randomizer.FE9Randomizer;
@@ -22,7 +23,9 @@ import ui.common.*;
 import ui.fe4.tabs.FE4ClassesTab;
 import ui.fe4.tabs.FE4SkillsTab;
 import ui.fe4.tabs.FE4StatsTab;
-import ui.fe9.tabs.*;
+import ui.fe9.tabs.FE9CharactersTab;
+import ui.fe9.tabs.FE9ItemsTab;
+import ui.fe9.tabs.FE9SkillsTab;
 import ui.gba.tabs.*;
 import ui.general.FileFlowDelegate;
 import ui.general.MessageModal;
@@ -45,7 +48,10 @@ public class MainView implements FileFlowDelegate {
 
     public Shell mainShell;
 
+    private ScrolledComposite scrollable;
     private Composite mainContainer;
+    private ControlListener resizeListener;
+    private int screenHeight;
 
     private ProgressModal progressBox;
     private boolean isShowingModalProgressDialog = false;
@@ -80,7 +86,16 @@ public class MainView implements FileFlowDelegate {
         mainShell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
         mainShell.setLayout(new FillLayout());
 
-        mainContainer = new Composite(mainShell, SWT.NONE);
+        screenHeight = mainDisplay.getBounds().height;
+        for (Monitor monitor : mainDisplay.getMonitors()) {
+            screenHeight = Math.max(screenHeight, monitor.getClientArea().height);
+        }
+
+        screenHeight -= 20;
+
+        scrollable = new ScrolledComposite(mainShell, SWT.V_SCROLL);
+        mainContainer = new Composite(scrollable, SWT.NONE);
+        scrollable.setContent(mainContainer);
         RowLayout rowLayout = new RowLayout(SWT.VERTICAL);
         rowLayout.fill = true;
         rowLayout.justify = true;
@@ -94,10 +109,64 @@ public class MainView implements FileFlowDelegate {
     }
 
     private void resize() {
-        mainContainer.layout();
         mainShell.layout();
-        Point containerSize = mainShell.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-        mainShell.setSize(containerSize);
+        mainContainer.layout();
+        int titleBarHeight = mainShell.getBounds().height - mainShell.getClientArea().height;
+        Point containerSize = mainContainer.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+        // For some reason, in debug, everything works fine, but when exporting to JAR,
+        // the right margin is off (maybe due to different JREs?) The +10 is to make sure the
+        // JAR being run is shown correctly.
+        Point actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + titleBarHeight, screenHeight));
+
+        final Point contentSize = actualSize;
+
+        if (actualSize.y - titleBarHeight < containerSize.y) {
+            ScrollBar verticalScrollBar = scrollable.getVerticalBar();
+            RowLayout containerLayout = (RowLayout)mainContainer.getLayout();
+            containerLayout.marginRight = verticalScrollBar.getSize().x + 5;
+
+            mainShell.layout();
+            mainContainer.layout();
+            containerSize = mainContainer.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+            actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + (mainShell.getBounds().height - mainShell.getClientArea().height), screenHeight));
+        }
+
+        // On Ubuntu, 44 is the size of the natural container size, so we'll give some additional margin too.
+        if (containerSize.y < 50) {
+            mainShell.setMinimumSize(containerSize.x + 10, 0);
+        } else {
+            mainShell.setMinimumSize(containerSize.x + 10, 300);
+        }
+
+        if (resizeListener != null) { mainShell.removeControlListener(resizeListener); }
+
+        resizeListener = new ControlListener() {
+            @Override
+            public void controlMoved(ControlEvent e) {}
+            @Override
+            public void controlResized(ControlEvent e) {
+                Point size = mainShell.getSize();
+                if (contentSize.y < 50) { return; }
+                if (size.y >= screenHeight) { return; } // This is to allow Full screen to work on Mac OS.
+                if (size.y > contentSize.y || size.x > contentSize.x) {
+                    mainShell.setSize(contentSize.x, contentSize.y);
+                }
+            }
+        };
+
+        mainShell.addControlListener(resizeListener);
+
+        mainContainer.setSize(containerSize);
+        mainShell.setSize(actualSize);
+
+        FormData scrollableData = new FormData();
+        scrollableData.top = new FormAttachment(0, 0);
+        scrollableData.left = new FormAttachment(0, 0);
+        scrollableData.right = new FormAttachment(100, 0);
+        scrollableData.bottom = new FormAttachment(100, 0);
+        scrollableData.width = actualSize.x;
+        scrollableData.height = actualSize.y;
+        scrollable.setLayoutData(scrollableData);
     }
 
     private void loadGameType(String pathToFile, FileHandler handler) {
@@ -156,7 +225,7 @@ public class MainView implements FileFlowDelegate {
                     availableTabs.forEach(tab -> tab.updateOptionBundle(bundle));
                     // Update the Bundle in the Option Recorder
                     OptionRecorder.recordGBAFEOptions(bundle, loadedGameType);
-                    randomizer = new GBARandomizer(pathToFile, writePath, loadedGameType, compiler, bundle.growths, bundle.bases, bundle.classes, bundle.weapons, bundle.other, bundle.enemies, bundle.otherOptions, bundle.recruitmentOptions, bundle.itemAssignmentOptions, bundle.characterShufflingOptions, bundle.seed);
+                    randomizer = new GBARandomizer(pathToFile, writePath, loadedGameType, compiler, bundle.growths, bundle.bases, bundle.classes, bundle.weapons, bundle.other, bundle.enemies, bundle.otherOptions, bundle.recruitmentOptions, bundle.itemAssignmentOptions, bundle.characterShufflingOptions, bundle.rewards, bundle.seed);
                 } else if (loadedGameType.isSFC()) {
                     FE4OptionBundle options = new FE4OptionBundle();
                     options.seed = seedGroup.getSeed();
@@ -165,7 +234,7 @@ public class MainView implements FileFlowDelegate {
                     // Update the Bundle in the Option Recorder
                     OptionRecorder.recordFE4Options(options);
                     boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
-                    randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, options.growths, options.bases, options.holyBlood, options.skills, options.classes, options.promo, options.enemyBuff, options.misc, options.seed);
+                    randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, options.growths, options.bases, options.holyBlood, options.skills, options.classes, options.promo, options.enemyBuff, options.mechanics, options.rewards, options.seed);
                 } else if (loadedGameType.isGCN()) {
                     FE9OptionBundle options = new FE9OptionBundle();
                     options.seed = seedGroup.getSeed();
@@ -173,7 +242,7 @@ public class MainView implements FileFlowDelegate {
                     availableTabs.forEach(tab -> tab.updateOptionBundle(options));
                     // Update the Bundle in the Option Recorder
                     OptionRecorder.recordFE9Options(options);
-                    randomizer = new FE9Randomizer(pathToFile, writePath, options.growths, options.bases, options.skills, options.otherOptions, options.enemyBuff, options.classes, options.weapons, options.misc, options.seed);
+                    randomizer = new FE9Randomizer(pathToFile, writePath, options.growths, options.bases, options.skills, options.otherOptions, options.enemyBuff, options.classes, options.weapons, options.mechanics, options.rewards, options.seed);
                 }
 
                 final String romPath = writePath;
@@ -284,12 +353,12 @@ public class MainView implements FileFlowDelegate {
             statsTab = addTab(new GBAStatsTab(tabFolder, loadedGameType));
             charactersTab = addTab(new GBACharactersTab(tabFolder, loadedGameType));
             itemsTab = addTab(new GBAItemsTab(tabFolder, loadedGameType));
-            miscTab = addTab(new GBAMiscTab(tabFolder, loadedGameType));
+            miscTab = addTab(new GBAMechanicsTab(tabFolder, loadedGameType));
         } else if (loadedGameType.isSFC()) {
             statsTab = addTab(new FE4StatsTab(tabFolder));
             classesTab = addTab(new FE4ClassesTab(tabFolder));
             skillsTab = addTab(new FE4SkillsTab(tabFolder));
-            miscTab = addTab(new GBAMiscTab(tabFolder, loadedGameType));
+            miscTab = addTab(new GBAMechanicsTab(tabFolder, loadedGameType));
         } else if (loadedGameType.isGCN()) {
             charactersTab = addTab(new FE9CharactersTab(tabFolder));
             itemsTab = addTab(new FE9ItemsTab(tabFolder));

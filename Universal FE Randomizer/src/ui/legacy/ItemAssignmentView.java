@@ -187,7 +187,7 @@ public class ItemAssignmentView extends Composite {
 		randomShopButton.setLayoutData(optionData);*/
 	}
 	
-	public ItemAssignmentOptions getAssignmentOptions() {
+	public ItemAssignmentOptions getOptions() {
 		WeaponReplacementPolicy weaponPolicy = null;
 		if (strictWeaponButton.getSelection()) { weaponPolicy = WeaponReplacementPolicy.STRICT; }
 		else if (rankWeaponButton.getSelection()) { weaponPolicy = WeaponReplacementPolicy.EQUAL_RANK; }
@@ -209,7 +209,7 @@ public class ItemAssignmentView extends Composite {
 		return new ItemAssignmentOptions(weaponPolicy, shopPolicy, promoWeaponsButton != null ? promoWeaponsButton.getSelection() : false, poisonWeaponsButton.getSelection());		
 	}
 	
-	public void setItemAssignmentOptions(ItemAssignmentOptions options) {
+	public void initialize(ItemAssignmentOptions options) {
 		if (options == null) { return; }
 		
 		strictWeaponButton.setSelection(options.weaponPolicy == WeaponReplacementPolicy.STRICT);

@@ -119,7 +119,7 @@ public class SkillWeightView extends Composite {
 		Map<String, WeightedOptions> weights = new HashMap<String, WeightedOptions>();
 		for (String skill : weightViewsByString.keySet()) {
 			WeightView view = weightViewsByString.get(skill);
-			weights.put(skill, view.getWeightedOptions());
+			weights.put(skill, view.getOptions());
 		}
 		
 		return new SkillWeightOptions(weights);
@@ -131,7 +131,7 @@ public class SkillWeightView extends Composite {
 		} else {
 			for (String skill : weightViewsByString.keySet()) {
 				WeightView view = weightViewsByString.get(skill);
-				view.setWeightedOptions(options.getWeightedOptionsByName(skill));
+				view.initialize(options.getWeightedOptionsByName(skill));
 			}
 		}
 	}

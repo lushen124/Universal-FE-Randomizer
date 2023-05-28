@@ -51,7 +51,7 @@ public class BasesView extends Composite {
 		mainLayout.marginBottom = 5;
 		mainLayout.marginRight = 5;
 		container.setLayout(mainLayout);
-		
+
 		enableButton = new Button(container, SWT.CHECK);
 		enableButton.setText("Enable Bases Randomization");
 		enableButton.addListener(SWT.Selection, new Listener() {
@@ -206,7 +206,7 @@ public class BasesView extends Composite {
 		}
 	}
 	
-	public BaseOptions getBaseOptions() {
+	public BaseOptions getOptions() {
 		if (!isEnabled) { return null; }
 		
 		VarOption redistributionOption = null;
@@ -226,7 +226,7 @@ public class BasesView extends Composite {
 		return new BaseOptions(currentMode, redistributionOption, deltaOption, adjustSTRMAGBases);
 	}
 	
-	public void setBasesOptions(BaseOptions options) {
+	public void initialize(BaseOptions options) {
 		if (options == null) {
 			enableButton.setSelection(false);
 			setEnableBases(false);

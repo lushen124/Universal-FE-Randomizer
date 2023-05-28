@@ -172,26 +172,26 @@ public class MOVCONAffinityView extends Composite {
 		return new OtherCharacterOptions(movementOptions, constitutionOptions, randomizeAffinityButton.getSelection());
 	}
 	
-	public void setOtherCharacterOptions(OtherCharacterOptions options) {
+	public void initialize(OtherCharacterOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
-		} else {
-			if (options.movementOptions != null) {
-				randomizeMOVButton.setSelection(true);
-				movLimitControl.setEnabled(true);
-				movLimitControl.setMin(options.movementOptions.minValue);
-				movLimitControl.setMax(options.movementOptions.maxValue);
-			}
-			
-			if (options.constitutionOptions != null) {
-				randomizeCONButton.setSelection(true);
-				minCONSpinner.setEnabled(true);
-				varianceSpinner.setEnabled(true);
-				minCONSpinner.setSelection(options.constitutionOptions.minValue);
-				varianceSpinner.setSelection(options.constitutionOptions.variance);
-			}
-			
-			randomizeAffinityButton.setSelection(options.randomizeAffinity);
+			return;
 		}
+		if (options.movementOptions != null) {
+			randomizeMOVButton.setSelection(true);
+			movLimitControl.setEnabled(true);
+			movLimitControl.setMin(options.movementOptions.minValue);
+			movLimitControl.setMax(options.movementOptions.maxValue);
+		}
+
+		if (options.constitutionOptions != null) {
+			randomizeCONButton.setSelection(true);
+			minCONSpinner.setEnabled(true);
+			varianceSpinner.setEnabled(true);
+			minCONSpinner.setSelection(options.constitutionOptions.minValue);
+			varianceSpinner.setSelection(options.constitutionOptions.variance);
+		}
+
+		randomizeAffinityButton.setSelection(options.randomizeAffinity);
 	}
 }

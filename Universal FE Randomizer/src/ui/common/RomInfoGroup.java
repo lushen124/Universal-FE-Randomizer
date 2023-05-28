@@ -41,6 +41,7 @@ public class RomInfoGroup extends YuneGroup {
         gridLayout.numColumns = 3;
         gridLayout.makeColumnsEqualWidth = true;
         gridLayout.verticalSpacing = 1;
+        gridLayout.horizontalSpacing = 50;
         return gridLayout;
     }
 

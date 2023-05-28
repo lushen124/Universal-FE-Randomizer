@@ -412,7 +412,7 @@ public class ClassesView extends Composite {
 		}
 	}
 	
-	public ClassOptions getClassOptions() {
+	public ClassOptions getOptions() {
 		Boolean pcsEnabled = randomizePCButton.getSelection();
 		Boolean lordsEnabled = false;
 		Boolean thievesEnabled = false;
@@ -451,7 +451,7 @@ public class ClassesView extends Composite {
 		}
 	}
 	
-	public void setClassOptions(ClassOptions options) {
+	public void initialize(ClassOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
 		} else {

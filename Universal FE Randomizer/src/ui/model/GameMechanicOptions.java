@@ -1,11 +1,8 @@
 package ui.model;
 
-public class MiscellaneousOptions {
+public class GameMechanicOptions {
 	
-	public enum RewardMode {
-		SIMILAR, RANDOM
-	}
-	
+
 	public enum ExperienceRate {
 		NORMAL, PARAGON, RENEGADE
 	}
@@ -14,16 +11,13 @@ public class MiscellaneousOptions {
 	
 	public final Boolean tripleEffectiveness;
 	
-	public final Boolean randomizeRewards;
-	public final Integer enemyDropChance;
 	public final Boolean singleRNMode;
 	
 	public final Boolean randomizeFogOfWar;
 	public final Integer fogOfWarChance;
 	public final MinMaxOption fogOfWarVisionRange;
 	
-	public final RewardMode rewardMode;
-	
+
 	public final ExperienceRate experienceRate;
 	public final Boolean casualMode;
 	
@@ -42,13 +36,10 @@ public class MiscellaneousOptions {
 	public final FollowupRequirement followupRequirement;
 	
 	// FE7, FE8
-	public MiscellaneousOptions(Boolean randomRewards, int enemyDropChance, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange, Boolean casualMode, ExperienceRate experienceRate) {
+	public GameMechanicOptions(Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange, Boolean casualMode, ExperienceRate experienceRate) {
 		super();
 		this.applyEnglishPatch = false;
 		this.tripleEffectiveness = tripleEffectiveness;
-		rewardMode = RewardMode.RANDOM;
-		this.randomizeRewards = randomRewards;
-		this.enemyDropChance = enemyDropChance;
 		followupRequirement = null;
 		singleRNMode = singleRN;
 		randomizeFogOfWar = fogOfWar;
@@ -59,14 +50,11 @@ public class MiscellaneousOptions {
 	}
 
 	// FE4
-	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, FollowupRequirement followupRequirement) {
+	public GameMechanicOptions(Boolean applyEnglishPatch, FollowupRequirement followupRequirement) {
 		super();
 		this.applyEnglishPatch = applyEnglishPatch;
-		this.randomizeRewards = randomRewards;
-		rewardMode = RewardMode.RANDOM;
 		this.followupRequirement = followupRequirement;
 		this.tripleEffectiveness = false;
-		this.enemyDropChance = 0;
 		singleRNMode = false;
 		randomizeFogOfWar = false;
 		fogOfWarVisionRange = null;
@@ -76,13 +64,10 @@ public class MiscellaneousOptions {
 	}
 	
 	// FE6
-	public MiscellaneousOptions(Boolean applyEnglishPatch, Boolean randomRewards, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange, Boolean casualMode, ExperienceRate experienceRate) {
+	public GameMechanicOptions(Boolean applyEnglishPatch, Boolean tripleEffectiveness, Boolean singleRN, Boolean fogOfWar, int fogOfWarChance, MinMaxOption visionRange, Boolean casualMode, ExperienceRate experienceRate) {
 		super();
 		this.applyEnglishPatch = applyEnglishPatch;
 		this.tripleEffectiveness = tripleEffectiveness;
-		rewardMode = RewardMode.RANDOM;
-		this.randomizeRewards = randomRewards;
-		enemyDropChance = 0;
 		followupRequirement = null;
 		singleRNMode = singleRN;
 		randomizeFogOfWar = fogOfWar;
@@ -93,13 +78,10 @@ public class MiscellaneousOptions {
 	}
 	
 	// FE9
-	public MiscellaneousOptions(Boolean tripleEffectiveness, Boolean randomRewards, RewardMode rewardMode, Integer enemyDropChance) {
+	public GameMechanicOptions(Boolean tripleEffectiveness) {
 		super();
 		this.applyEnglishPatch = false;
 		this.tripleEffectiveness = tripleEffectiveness;
-		this.rewardMode = rewardMode;
-		this.randomizeRewards = randomRewards;
-		this.enemyDropChance = enemyDropChance;
 		followupRequirement = null;
 		singleRNMode = false;
 		randomizeFogOfWar = false;

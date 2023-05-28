@@ -194,6 +194,7 @@ public class CharacterShufflingView extends Composite {
 											.getParent() // Main View CTabFolder
 				                            .getParent() // Main View Wrapper Container
 											.getParent() // Main View Shell
+											.getParent()
 											, SWT.MULTI);
 		
 		
@@ -246,7 +247,7 @@ public class CharacterShufflingView extends Composite {
 		
 	}
 	
-	public CharacterShufflingOptions getShufflingOptions() {
+	public CharacterShufflingOptions getOptions() {
 		boolean isEnabled = enableButton.getSelection();
 		ShuffleLevelingMode levelingMode = autoLevelingButton.getSelection() ? ShuffleLevelingMode.AUTOLEVEL : ShuffleLevelingMode.UNCHANGED;
 		int chance = shuffleChanceSpinner.getSelection();
@@ -265,7 +266,7 @@ public class CharacterShufflingView extends Composite {
 		return new CharacterShufflingOptions(levelingMode, isEnabled, chance, shuffles, isEnabled);
 	}
 	
-	public void setShufflingOptions(CharacterShufflingOptions options, GameType type) {
+	public void initialize(CharacterShufflingOptions options, GameType type) {
 		if (options == null) {
 			enableButton.setSelection(false);
 			modeContainer.setEnabled(false);

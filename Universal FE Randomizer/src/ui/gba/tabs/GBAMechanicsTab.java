@@ -4,23 +4,23 @@ import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import ui.common.YuneTabItem;
-import ui.legacy.MiscellaneousView;
+import ui.legacy.GameMechanicsView;
 import util.OptionRecorder;
 
 /**
  * Tab containing the GUI of the GBA (and FE4) Misc Tab
  */
-public class GBAMiscTab extends YuneTabItem {
+public class GBAMechanicsTab extends YuneTabItem {
 
-    private MiscellaneousView misc;
+    private GameMechanicsView misc;
 
-    public GBAMiscTab(CTabFolder parent, FEBase.GameType type) {
+    public GBAMechanicsTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
     }
 
     @Override
     protected void compose() {
-        misc = addView(new MiscellaneousView(container, SWT.NONE, type));
+        misc = addView(new GameMechanicsView(container, SWT.NONE, type));
     }
 
     @Override
@@ -30,7 +30,7 @@ public class GBAMiscTab extends YuneTabItem {
 
     @Override
     protected String getTabTooltip() {
-        return "Tab for Miscellaneous settings";
+        return "Tab for changes related to Game mechanics, such as Fog of War, 1RN mode, Casual Mode etc.";
     }
 
     @Override
@@ -40,20 +40,20 @@ public class GBAMiscTab extends YuneTabItem {
 
     @Override
     public void preloadOptions(OptionRecorder.GBAOptionBundle bundle) {
-        misc.setMiscellaneousOptions(bundle.otherOptions);
+        misc.initialize(bundle.otherOptions);
     }
     @Override
     public void preloadOptions(OptionRecorder.FE4OptionBundle bundle) {
-        misc.setMiscellaneousOptions(bundle.misc);
+        misc.initialize(bundle.mechanics);
     }
 
     @Override
     public void updateOptionBundle(OptionRecorder.GBAOptionBundle bundle) {
-        bundle.otherOptions = misc.getMiscellaneousOptions();
+        bundle.otherOptions = misc.getOptions();
     }
 
     @Override
     public void updateOptionBundle(OptionRecorder.FE4OptionBundle bundle) {
-        bundle.misc = misc.getMiscellaneousOptions();
+        bundle.mechanics = misc.getOptions();
     }
 }

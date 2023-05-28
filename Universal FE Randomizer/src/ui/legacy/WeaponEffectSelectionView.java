@@ -1,17 +1,16 @@
 package ui.legacy;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
-
-import fedata.general.FEBase.GameType;
 import ui.general.MinMaxControl;
 import ui.legacy.NumericWeightView.NumericWeightViewListener;
 import ui.model.WeaponEffectOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WeaponEffectSelectionView extends Composite {
 	
@@ -490,7 +489,7 @@ public class WeaponEffectSelectionView extends Composite {
 				devilOption != null ? devilOption.getWeight() : 0);
 	}
 	
-	public void setOptions(WeaponEffectOptions options) {
+	public void initialize(WeaponEffectOptions options) {
 		if (options != null) {
 			statBoostOption.setSelectable(true);
 			statBoostOption.setWeight(options.statBoosts);

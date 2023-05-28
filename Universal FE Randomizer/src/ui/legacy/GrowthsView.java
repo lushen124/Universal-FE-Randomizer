@@ -272,7 +272,7 @@ public class GrowthsView extends Composite {
 		}
 	}
 
-	public GrowthOptions getGrowthOptions() {
+	public GrowthOptions getOptions() {
 		if (!isEnabled) { return null; }
 
 		MinMaxVarOption redistributionOption = null;
@@ -296,60 +296,61 @@ public class GrowthsView extends Composite {
 		return new GrowthOptions(currentMode, redistributionOption, deltaOption, fullOption, adjustHPGrowths.getSelection(), adjustSTRMAG);
 	}
 
-	public void setGrowthOptions(GrowthOptions options) {
+	public void initialize(GrowthOptions options) {
 		if (options == null) {
 			enableButton.setSelection(false);
 			setEnableGrowths(false);
-		} else {
-			enableButton.setSelection(true);
-			setEnableGrowths(true);
-			setMode(options.mode);
+			return;
+		}
 
-			switch (options.mode) {
-				case REDISTRIBUTE:
-					redistributeOption.setSelection(true);
-					byDeltaOption.setSelection(false);
-					fullRandomOption.setSelection(false);
-					varianceSpinner.setSelection(options.redistributionOption.variance);
-					if (options.redistributionOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
-						growthRangeControl.setMin(options.redistributionOption.minValue);
-						growthRangeControl.setMax(options.redistributionOption.maxValue);
-					} else {
-						growthRangeControl.setMax(options.redistributionOption.maxValue);
-						growthRangeControl.setMin(options.redistributionOption.minValue);
-					}
-					break;
-				case DELTA:
-					redistributeOption.setSelection(false);
-					byDeltaOption.setSelection(true);
-					fullRandomOption.setSelection(false);
-					deltaSpinner.setSelection(options.deltaOption.variance);
-					if (options.deltaOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
-						growthRangeControl.setMin(options.deltaOption.minValue);
-						growthRangeControl.setMax(options.deltaOption.maxValue);
-					} else {
-						growthRangeControl.setMax(options.deltaOption.maxValue);
-						growthRangeControl.setMin(options.deltaOption.minValue);
-					}
-					break;
-				case FULL:
-					redistributeOption.setSelection(false);
-					byDeltaOption.setSelection(false);
-					fullRandomOption.setSelection(true);
-					if (options.fullOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
-						growthRangeControl.setMin(options.fullOption.minValue);
-						growthRangeControl.setMax(options.fullOption.maxValue);
-					} else {
-						growthRangeControl.setMax(options.fullOption.maxValue);
-						growthRangeControl.setMin(options.fullOption.minValue);
-					}
-					break;
-			}
+		enableButton.setSelection(true);
+		setEnableGrowths(true);
+		setMode(options.mode);
 
-			adjustHPGrowths.setSelection(options.adjustHP);
-			if (adjustSTRMAGSplit != null) {
-				adjustSTRMAGSplit.setSelection(options.adjustSTRMAGSplit);
-			}
+		switch (options.mode) {
+			case REDISTRIBUTE:
+				redistributeOption.setSelection(true);
+				byDeltaOption.setSelection(false);
+				fullRandomOption.setSelection(false);
+				varianceSpinner.setSelection(options.redistributionOption.variance);
+				if (options.redistributionOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
+					growthRangeControl.setMin(options.redistributionOption.minValue);
+					growthRangeControl.setMax(options.redistributionOption.maxValue);
+				} else {
+					growthRangeControl.setMax(options.redistributionOption.maxValue);
+					growthRangeControl.setMin(options.redistributionOption.minValue);
+				}
+				break;
+			case DELTA:
+				redistributeOption.setSelection(false);
+				byDeltaOption.setSelection(true);
+				fullRandomOption.setSelection(false);
+				deltaSpinner.setSelection(options.deltaOption.variance);
+				if (options.deltaOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
+					growthRangeControl.setMin(options.deltaOption.minValue);
+					growthRangeControl.setMax(options.deltaOption.maxValue);
+				} else {
+					growthRangeControl.setMax(options.deltaOption.maxValue);
+					growthRangeControl.setMin(options.deltaOption.minValue);
+				}
+				break;
+			case FULL:
+				redistributeOption.setSelection(false);
+				byDeltaOption.setSelection(false);
+				fullRandomOption.setSelection(true);
+				if (options.fullOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
+					growthRangeControl.setMin(options.fullOption.minValue);
+					growthRangeControl.setMax(options.fullOption.maxValue);
+				} else {
+					growthRangeControl.setMax(options.fullOption.maxValue);
+					growthRangeControl.setMin(options.fullOption.minValue);
+				}
+				break;
+		}
+
+		adjustHPGrowths.setSelection(options.adjustHP);
+		if (adjustSTRMAGSplit != null) {
+			adjustSTRMAGSplit.setSelection(options.adjustSTRMAGSplit);
 		}
 	}
 }

@@ -10,9 +10,9 @@ import ui.model.*;
 import java.util.prefs.Preferences;
 
 public class OptionRecorder {
-    private static final Integer FE4OptionBundleVersion = 5;
-    private static final Integer GBAOptionBundleVersion = 14;
-    private static final Integer FE9OptionBundleVersion = 12;
+    private static final Integer FE4OptionBundleVersion = 6;
+    private static final Integer GBAOptionBundleVersion = 15;
+    private static final Integer FE9OptionBundleVersion = 13;
 
     public static class AllOptions {
         public FE4OptionBundle fe4;
@@ -29,7 +29,8 @@ public class OptionRecorder {
         public WeaponOptions weapons;
         public OtherCharacterOptions other;
         public EnemyOptions enemies;
-        public MiscellaneousOptions otherOptions;
+        public GameMechanicOptions otherOptions;
+        public RewardOptions rewards;
         public RecruitmentOptions recruitmentOptions;
         public ItemAssignmentOptions itemAssignmentOptions;
         public CharacterShufflingOptions characterShufflingOptions;
@@ -45,7 +46,8 @@ public class OptionRecorder {
         public FE4ClassOptions classes;
         public FE4PromotionOptions promo;
         public FE4EnemyBuffOptions enemyBuff;
-        public MiscellaneousOptions misc;
+        public GameMechanicOptions mechanics;
+        public RewardOptions rewards;
         public String seed;
         public Integer version;
     }
@@ -58,7 +60,8 @@ public class OptionRecorder {
         public FE9EnemyBuffOptions enemyBuff;
         public FE9ClassOptions classes;
         public WeaponOptions weapons;
-        public MiscellaneousOptions misc;
+        public GameMechanicOptions mechanics;
+        public RewardOptions rewards;
         public String seed;
         public Integer version;
     }
@@ -240,7 +243,7 @@ public class OptionRecorder {
 
     public static void recordFE9Options(GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions,
                                         FE9OtherCharacterOptions otherOptions, FE9EnemyBuffOptions buffOptions, FE9ClassOptions classOptions, WeaponOptions weaponOptions,
-                                        MiscellaneousOptions miscOptions, String seed) {
+                                        GameMechanicOptions miscOptions, String seed) {
         FE9OptionBundle bundle = new FE9OptionBundle();
         bundle.growths = growthOptions;
         bundle.bases = baseOptions;
@@ -249,7 +252,7 @@ public class OptionRecorder {
         bundle.enemyBuff = buffOptions;
         bundle.classes = classOptions;
         bundle.weapons = weaponOptions;
-        bundle.misc = miscOptions;
+        bundle.mechanics = miscOptions;
         bundle.seed = seed;
         recordFE9Options(bundle);
     }
@@ -261,7 +264,7 @@ public class OptionRecorder {
     }
 
     public static void recordFE4Options(GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions,
-                                        FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, MiscellaneousOptions miscOptions, String seed) {
+                                        FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, GameMechanicOptions miscOptions, String seed) {
         FE4OptionBundle bundle = new FE4OptionBundle();
         bundle.growths = growthOptions;
         bundle.bases = basesOptions;
@@ -270,7 +273,7 @@ public class OptionRecorder {
         bundle.classes = classOptions;
         bundle.promo = promoOptions;
         bundle.enemyBuff = buffOptions;
-        bundle.misc = miscOptions;
+        bundle.mechanics = miscOptions;
         bundle.seed = seed;
         recordFE4Options(bundle);
 
@@ -283,7 +286,7 @@ public class OptionRecorder {
     }
 
     public static void recordGBAFEOptions(GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-                                          OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, String seed) {
+                                          OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, String seed) {
         GBAOptionBundle bundle = new GBAOptionBundle();
         bundle.growths = growths;
         bundle.bases = bases;

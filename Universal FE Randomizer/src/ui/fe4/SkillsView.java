@@ -206,6 +206,7 @@ public class SkillsView extends Composite {
         }
 
         separateByGeneration.setEnabled(SHUFFLE.equals(mode));
+        pursuitSpinner.setEnabled(RANDOMIZE.equals(mode));
         skillCountView.setEnabled(RANDOMIZE.equals(mode) && !retainSkillCountsButton.getSelection());
         skillWeightView.setEnabled(RANDOMIZE.equals(mode));
     }

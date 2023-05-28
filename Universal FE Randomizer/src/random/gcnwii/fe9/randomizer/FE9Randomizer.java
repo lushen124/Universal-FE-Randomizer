@@ -1,64 +1,27 @@
 package random.gcnwii.fe9.randomizer;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-
-import fedata.gcnwii.fe9.FE9ChapterArmy;
-import fedata.gcnwii.fe9.FE9ChapterUnit;
-import fedata.gcnwii.fe9.FE9Character;
-import fedata.gcnwii.fe9.FE9Class;
-import fedata.gcnwii.fe9.FE9Data;
-import fedata.gcnwii.fe9.FE9Item;
-import fedata.gcnwii.fe9.FE9Skill;
-import fedata.gcnwii.fe9.FE9ScriptScene;
-import fedata.gcnwii.fe9.scripting.CallSceneByNameInstruction;
-import fedata.gcnwii.fe9.scripting.NOPInstruction;
-import fedata.gcnwii.fe9.scripting.PushLiteralNum8Instruction;
-import fedata.gcnwii.fe9.scripting.PushLiteralString16Instruction;
-import fedata.gcnwii.fe9.scripting.PushVar8Instruction;
-import fedata.gcnwii.fe9.scripting.ScriptInstruction;
+import fedata.gcnwii.fe9.*;
+import fedata.gcnwii.fe9.scripting.*;
 import io.FileHandler;
-import io.gcn.GCNByteArrayHandler;
 import io.gcn.GCNCMBFileHandler;
-import io.gcn.GCNDBXFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import io.gcn.GCNISOHandlerRecompilationDelegate;
-import random.gcnwii.fe9.loader.FE9ChapterDataLoader;
-import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
-import random.gcnwii.fe9.loader.FE9ClassDataLoader;
-import random.gcnwii.fe9.loader.FE9CommonTextLoader;
-import random.gcnwii.fe9.loader.FE9ItemDataLoader;
+import random.gcnwii.fe9.loader.*;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponRank;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponType;
-import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.Randomizer;
 import random.general.WeightedDistributor;
 import ui.fe9.FE9ClassOptions;
 import ui.fe9.FE9SkillsOptions;
-import ui.model.BaseOptions;
-import ui.model.FE9EnemyBuffOptions;
-import ui.model.FE9OtherCharacterOptions;
-import ui.model.GrowthOptions;
-import ui.model.MiscellaneousOptions;
-import ui.model.WeaponOptions;
-import util.DebugPrinter;
+import ui.model.*;
 import util.SeedGenerator;
-import util.WhyDoesJavaNotHaveThese;
-import util.recordkeeper.ChangelogAsset;
-import util.recordkeeper.ChangelogBuilder;
-import util.recordkeeper.ChangelogDivider;
-import util.recordkeeper.ChangelogHeader;
-import util.recordkeeper.ChangelogSection;
-import util.recordkeeper.ChangelogStyleRule;
-import util.recordkeeper.ChangelogTOC;
-import util.recordkeeper.ChangelogTable;
+import util.recordkeeper.*;
 import util.recordkeeper.ChangelogHeader.HeaderLevel;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FE9Randomizer extends Randomizer {
 	private String sourcePath;
@@ -71,7 +34,8 @@ public class FE9Randomizer extends Randomizer {
 	private GrowthOptions growthOptions;
 	private BaseOptions baseOptions;
 	private FE9SkillsOptions skillOptions;
-	private MiscellaneousOptions miscOptions;
+	private GameMechanicOptions miscOptions;
+	private RewardOptions rewardOptions;
 	private FE9OtherCharacterOptions otherCharOptions;
 	private FE9EnemyBuffOptions enemyBuffOptions;
 	private FE9ClassOptions classOptions;
@@ -84,7 +48,7 @@ public class FE9Randomizer extends Randomizer {
 	FE9SkillDataLoader skillData;
 	FE9ChapterDataLoader chapterData;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, FE9EnemyBuffOptions enemyBuffOptions, FE9ClassOptions classOptions, WeaponOptions weaponOptions, MiscellaneousOptions miscOptions, String seed) {
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, FE9EnemyBuffOptions enemyBuffOptions, FE9ClassOptions classOptions, WeaponOptions weaponOptions, GameMechanicOptions miscOptions, RewardOptions rewardOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -98,7 +62,8 @@ public class FE9Randomizer extends Randomizer {
 		this.classOptions = classOptions;
 		this.weaponOptions = weaponOptions;
 		this.miscOptions = miscOptions;
-		
+		this.rewardOptions = rewardOptions;
+
 		this.seedString = seed;
 	}
 	
@@ -877,11 +842,11 @@ public class FE9Randomizer extends Randomizer {
 	}
 	
 	private void randomizeMiscellaneousIfNecessary(String seed) {
-		if (miscOptions != null) {
+		if (rewardOptions != null) {
 			updateStatus(0.45, "Randomizing rewards...");
-			if (miscOptions.randomizeRewards) {
+			if (rewardOptions.randomizeRewards) {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9RewardsRandomizer.rngSalt));
-				switch (miscOptions.rewardMode) {
+				switch (rewardOptions.rewardMode) {
 				case SIMILAR:
 					FE9RewardsRandomizer.randomizeSimilarRewards(itemData, chapterData, rng);
 					break;
@@ -890,9 +855,9 @@ public class FE9Randomizer extends Randomizer {
 					break;
 				}
 			}
-			if (miscOptions.enemyDropChance > 0) {
+			if (rewardOptions.enemyDropChance > 0) {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9RewardsRandomizer.rngSalt));
-				FE9RewardsRandomizer.addEnemyDrops(charData, itemData, chapterData, miscOptions.enemyDropChance, rng);
+				FE9RewardsRandomizer.addEnemyDrops(charData, itemData, chapterData, rewardOptions.enemyDropChance, rng);
 			}
 		}
 	}
@@ -1162,9 +1127,9 @@ public class FE9Randomizer extends Randomizer {
 			table.addRow(new String[] {"Improve Boss Weapons", enemyBuffOptions.improveBossWeapons ? "YES (" + enemyBuffOptions.bossImprovementChance + "%)" : "NO"});
 			table.addRow(new String[] {"Give Bosses Skills", enemyBuffOptions.giveBossSkills ? "YES (" + enemyBuffOptions.bossSkillChance + "%)" : "NO"});
 		}
-		if (miscOptions != null) {
-			if (miscOptions.randomizeRewards) {
-				switch(miscOptions.rewardMode) {
+		if (rewardOptions != null) {
+			if (rewardOptions.randomizeRewards) {
+				switch(rewardOptions.rewardMode) {
 				case SIMILAR:
 					table.addRow(new String[] {"Randomize Rewards", "Randomize with Similar Items"});
 					break;

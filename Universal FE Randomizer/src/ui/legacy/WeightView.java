@@ -209,7 +209,7 @@ public class WeightView extends Composite {
 		squelchCallbacks = false;
 	}
 	
-	public WeightedOptions getWeightedOptions() {
+	public WeightedOptions getOptions() {
 		if (enableToggle.getSelection()) {
 			return new WeightedOptions(true, currentWeight);
 		} else {
@@ -217,16 +217,17 @@ public class WeightView extends Composite {
 		}
 	}
 	
-	public void setWeightedOptions(WeightedOptions options) {
+	public void initialize(WeightedOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
+			return;
+		}
+
+		setSelected(options.enabled);
+		if (options.weight == WeightedOptions.Weight.NONE) {
+			// Shouldn't happen.
 		} else {
-			setSelected(options.enabled);
-			if (options.weight == WeightedOptions.Weight.NONE) {
-				// Shouldn't happen.
-			} else {
-				setWeight(options.weight);
-			}
+			setWeight(options.weight);
 		}
 	}
 }

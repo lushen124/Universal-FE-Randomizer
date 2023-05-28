@@ -436,62 +436,40 @@ public class RecruitmentView extends Composite {
 	}
 	
 	public void setRecruitmentOptions(RecruitmentOptions options) {
-		if (options == null) {
-			enableButton.setSelection(false);
-			
-			growthContainer.setEnabled(false);
-			basesContainer.setEnabled(false);
-			classContainer.setEnabled(false);
-			
-			fillGrowthButton.setEnabled(false);
-			slotGrowthButton.setEnabled(false);
-			slotRelativeGrowthButton.setEnabled(false);
-			
-			autolevelButton.setEnabled(false);
-			autolevelTypeContainer.setEnabled(false);
-			autolevelOriginalButton.setEnabled(false);
-			autolevelNewButton.setEnabled(false);
-			
-			absoluteButton.setEnabled(false);
-			relativeButton.setEnabled(false);
-			
-			fillClassButton.setEnabled(false);
-			slotClassButton.setEnabled(false);
-			
-			lordsButton.setEnabled(false);
-			createPrfsButton.setEnabled(false);
-			unbreakablePrfsButton.setEnabled(false);
-			thievesButton.setEnabled(false);
-			specialButton.setEnabled(false);
-			crossGenderButton.setEnabled(false);
-			if (includeExtras != null) {
-				includeExtras.setEnabled(false);
-			}
-		} else {
-			enableButton.setSelection(true);
-			
-			growthContainer.setEnabled(true);
-			basesContainer.setEnabled(true);
-			classContainer.setEnabled(true);
-			
-			fillGrowthButton.setEnabled(true);
-			slotGrowthButton.setEnabled(true);
-			slotRelativeGrowthButton.setEnabled(true);
-			
-			autolevelButton.setEnabled(true);
-			absoluteButton.setEnabled(true);
-			relativeButton.setEnabled(true);
-			
-			fillClassButton.setEnabled(true);
-			slotClassButton.setEnabled(true);
-			
-			lordsButton.setEnabled(true);
-			createPrfsButton.setEnabled(options.includeLords);
-			unbreakablePrfsButton.setEnabled(options.includeLords && options.createPrfs);
-			thievesButton.setEnabled(true);
-			specialButton.setEnabled(true);
-			crossGenderButton.setEnabled(true);
-			
+		boolean optionsAvailable = options != null;
+		enableButton.setSelection(optionsAvailable);
+		growthContainer.setEnabled(optionsAvailable);
+		basesContainer.setEnabled(optionsAvailable);
+		classContainer.setEnabled(optionsAvailable);
+
+		fillGrowthButton.setEnabled(optionsAvailable);
+		slotGrowthButton.setEnabled(optionsAvailable);
+		slotRelativeGrowthButton.setEnabled(optionsAvailable);
+
+		autolevelButton.setEnabled(optionsAvailable);
+		autolevelTypeContainer.setEnabled(optionsAvailable);
+		autolevelOriginalButton.setEnabled(optionsAvailable);
+		autolevelNewButton.setEnabled(optionsAvailable);
+
+		absoluteButton.setEnabled(optionsAvailable);
+		relativeButton.setEnabled(optionsAvailable);
+
+		fillClassButton.setEnabled(optionsAvailable);
+		slotClassButton.setEnabled(optionsAvailable);
+
+		lordsButton.setEnabled(optionsAvailable);
+		createPrfsButton.setEnabled(optionsAvailable && options.includeLords);
+		unbreakablePrfsButton.setEnabled(optionsAvailable && options.includeLords && options.createPrfs);
+		thievesButton.setEnabled(optionsAvailable);
+		specialButton.setEnabled(optionsAvailable);
+		crossGenderButton.setEnabled(optionsAvailable);
+
+		// This button might be null as FE7 for example doesn't have extras
+		if (includeExtras != null) {
+			includeExtras.setEnabled(optionsAvailable);
+		}
+
+		if (optionsAvailable) {
 			fillGrowthButton.setSelection(options.growthMode == GrowthAdjustmentMode.USE_FILL || options.growthMode == null);
 			slotGrowthButton.setSelection(options.growthMode == GrowthAdjustmentMode.USE_SLOT);
 			slotRelativeGrowthButton.setSelection(options.growthMode == GrowthAdjustmentMode.RELATIVE_TO_SLOT);
@@ -517,7 +495,6 @@ public class RecruitmentView extends Composite {
 			crossGenderButton.setSelection(options.allowCrossGender);
 			
 			if (includeExtras != null) {
-				includeExtras.setEnabled(true);
 				includeExtras.setSelection(options.includeExtras);
 			}
 		}

@@ -89,11 +89,11 @@ public class CONAffinityView extends Composite {
 		randomizeAffinityButton.setLayoutData(affinityData);
 	}
 
-	public FE9OtherCharacterOptions getOtherCharacterOptions() {
+	public FE9OtherCharacterOptions getOptions() {
 		return new FE9OtherCharacterOptions(randomizeCONButton.getSelection(), conVarianceSpinner.getSelection(), randomizeAffinityButton.getSelection());
 	}
 	
-	public void setOtherCharacterOptions(FE9OtherCharacterOptions options) {
+	public void initialize(FE9OtherCharacterOptions options) {
 		randomizeCONButton.setSelection(options.randomizeCON);
 		conVarianceLabel.setEnabled(options.randomizeCON);
 		conVarianceSpinner.setEnabled(options.randomizeCON);

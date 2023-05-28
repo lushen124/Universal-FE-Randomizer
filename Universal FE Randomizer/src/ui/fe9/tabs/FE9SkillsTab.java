@@ -4,6 +4,7 @@ import fedata.gcnwii.fe9.FE9Data;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import ui.common.GuiUtil;
 import ui.common.YuneTabItem;
 import ui.fe9.FE9SkillView;
 import util.OptionRecorder;
@@ -25,7 +26,7 @@ public class FE9SkillsTab extends YuneTabItem {
             return skill.getDisplayString();
         }).collect(Collectors.toList());
 
-        skills = addView(new FE9SkillView(container, SWT.NONE, skillList));
+        skills = addView(new FE9SkillView(container, SWT.NONE, skillList), GuiUtil.defaultGridData(3));
     }
 
     @Override

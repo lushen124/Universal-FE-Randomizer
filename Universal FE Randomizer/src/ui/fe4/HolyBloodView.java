@@ -385,7 +385,7 @@ public class HolyBloodView extends Composite {
 		giveBloodContainer.setLayoutData(containerData);
 	}
 
-	public HolyBloodOptions getHolyBloodOptions() {
+	public HolyBloodOptions getOptions() {
 		HolyBloodOptions.STRMAGOptions strMag = STRMAGOptions.NO_LIMIT;
 		if (adjustButton.getSelection()) { strMag = STRMAGOptions.ADJUST_STR_MAG; }
 		else if (limitButton.getSelection()) { strMag = STRMAGOptions.LIMIT_STR_MAG; }
@@ -395,50 +395,51 @@ public class HolyBloodView extends Composite {
 				giveHolyBlood.getSelection(), matchClass.getSelection(), majorBloodChance.getSelection(), minorBloodChance.getSelection());
 	}
 	
-	public void setHolyBloodOptions(HolyBloodOptions options) {
+	public void initialize(HolyBloodOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
-		} else {
-			boolean growthBonusesEnabled = options.randomizeGrowthBonuses;
-			randomizeGrowthBonusesButton.setSelection(growthBonusesEnabled);
-			growthTotalLabel.setEnabled(growthBonusesEnabled);
-			growthBonusTotalSpinner.setEnabled(growthBonusesEnabled);
-			growthBonusTotalSpinner.setSelection(options.growthTotal);
-			chunkSizeLabel.setEnabled(growthBonusesEnabled);
-			chunkSizeSpinner.setEnabled(growthBonusesEnabled);
-			chunkSizeSpinner.setSelection(Math.max(5, options.chunkSize));
-			hpBaselineLabel.setEnabled(growthBonusesEnabled);
-			hpBaselineSpinner.setEnabled(growthBonusesEnabled);
-			hpBaselineSpinner.setSelection(options.hpBaseline);
-			uniqueBonusesButton.setEnabled(growthBonusesEnabled);
-			uniqueBonusesButton.setSelection(options.generateUniqueBonuses);
-		
-			strMagGroup.setEnabled(growthBonusesEnabled);
-			noLimitButton.setEnabled(growthBonusesEnabled);
-			adjustButton.setEnabled(growthBonusesEnabled);
-			limitButton.setEnabled(growthBonusesEnabled);
-			
-			noLimitButton.setSelection(options.strMagOptions == STRMAGOptions.NO_LIMIT);
-			adjustButton.setSelection(options.strMagOptions == STRMAGOptions.ADJUST_STR_MAG);
-			limitButton.setSelection(options.strMagOptions == null || options.strMagOptions == STRMAGOptions.LIMIT_STR_MAG);
-			
-			randomizeHolyWeaponBonusesButton.setSelection(options.randomizeWeaponBonuses);
-
-			giveHolyBlood.setSelection(options.giveHolyBlood);
-				
-			matchClass.setEnabled(options.giveHolyBlood);
-			majorBloodChance.setEnabled(options.giveHolyBlood);
-			minorBloodChance.setEnabled(options.giveHolyBlood);
-				
-			majorBloodLabel.setEnabled(options.giveHolyBlood);
-			minorBloodLabel.setEnabled(options.giveHolyBlood);
-			noBloodLabel.setEnabled(options.giveHolyBlood);
-				
-			matchClass.setSelection(options.matchClass);
-				
-			majorBloodChance.setSelection(options.majorBloodChance);
-			minorBloodChance.setSelection(options.minorBloodChance);
-			noBloodChance.setSelection(100 - options.majorBloodChance - options.minorBloodChance);
+			return;
 		}
+
+		boolean growthBonusesEnabled = options.randomizeGrowthBonuses;
+		randomizeGrowthBonusesButton.setSelection(growthBonusesEnabled);
+		growthTotalLabel.setEnabled(growthBonusesEnabled);
+		growthBonusTotalSpinner.setEnabled(growthBonusesEnabled);
+		growthBonusTotalSpinner.setSelection(options.growthTotal);
+		chunkSizeLabel.setEnabled(growthBonusesEnabled);
+		chunkSizeSpinner.setEnabled(growthBonusesEnabled);
+		chunkSizeSpinner.setSelection(Math.max(5, options.chunkSize));
+		hpBaselineLabel.setEnabled(growthBonusesEnabled);
+		hpBaselineSpinner.setEnabled(growthBonusesEnabled);
+		hpBaselineSpinner.setSelection(options.hpBaseline);
+		uniqueBonusesButton.setEnabled(growthBonusesEnabled);
+		uniqueBonusesButton.setSelection(options.generateUniqueBonuses);
+
+		strMagGroup.setEnabled(growthBonusesEnabled);
+		noLimitButton.setEnabled(growthBonusesEnabled);
+		adjustButton.setEnabled(growthBonusesEnabled);
+		limitButton.setEnabled(growthBonusesEnabled);
+
+		noLimitButton.setSelection(options.strMagOptions == STRMAGOptions.NO_LIMIT);
+		adjustButton.setSelection(options.strMagOptions == STRMAGOptions.ADJUST_STR_MAG);
+		limitButton.setSelection(options.strMagOptions == null || options.strMagOptions == STRMAGOptions.LIMIT_STR_MAG);
+
+		randomizeHolyWeaponBonusesButton.setSelection(options.randomizeWeaponBonuses);
+
+		giveHolyBlood.setSelection(options.giveHolyBlood);
+
+		matchClass.setEnabled(options.giveHolyBlood);
+		majorBloodChance.setEnabled(options.giveHolyBlood);
+		minorBloodChance.setEnabled(options.giveHolyBlood);
+
+		majorBloodLabel.setEnabled(options.giveHolyBlood);
+		minorBloodLabel.setEnabled(options.giveHolyBlood);
+		noBloodLabel.setEnabled(options.giveHolyBlood);
+
+		matchClass.setSelection(options.matchClass);
+
+		majorBloodChance.setSelection(options.majorBloodChance);
+		minorBloodChance.setSelection(options.minorBloodChance);
+		noBloodChance.setSelection(100 - options.majorBloodChance - options.minorBloodChance);
 	}
 }

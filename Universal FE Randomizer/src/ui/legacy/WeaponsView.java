@@ -472,7 +472,7 @@ public class WeaponsView extends Composite {
 		});
 	}
 	
-	public WeaponOptions getWeaponOptions() {
+	public WeaponOptions getOptions() {
 		MinMaxVarOption mightOptions = null;
 		MinMaxVarOption hitOptions = null;
 		MinMaxVarOption weightOptions = null;
@@ -498,67 +498,68 @@ public class WeaponsView extends Composite {
 				includeLaguzButton != null ? includeLaguzButton.getSelection() : false);
 	}
 	
-	public void setWeaponOptions(WeaponOptions options) {
+	public void initialize(WeaponOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
-		} else {
-			if (options.mightOptions != null) {
-				enableMightButton.setSelection(true);
-				mightRangeControl.setEnabled(true);
-				mightRangeControl.setMin(options.mightOptions.minValue);
-				mightRangeControl.setMax(options.mightOptions.maxValue);
-				mightVarianceSpinner.setEnabled(true);
-				mightVarianceSpinner.setSelection(options.mightOptions.variance);
+			return;
+		}
+
+		if (options.mightOptions != null) {
+			enableMightButton.setSelection(true);
+			mightRangeControl.setEnabled(true);
+			mightRangeControl.setMin(options.mightOptions.minValue);
+			mightRangeControl.setMax(options.mightOptions.maxValue);
+			mightVarianceSpinner.setEnabled(true);
+			mightVarianceSpinner.setSelection(options.mightOptions.variance);
+		}
+
+		if (options.hitOptions != null) {
+			enableHitButton.setSelection(true);
+			hitRangeControl.setEnabled(true);
+			hitRangeControl.setMin(options.hitOptions.minValue);
+			hitRangeControl.setMax(options.hitOptions.maxValue);
+			hitVarianceSpinner.setEnabled(true);
+			hitVarianceSpinner.setSelection(options.hitOptions.variance);
+		}
+
+		if (options.weightOptions != null) {
+			enableWeightButton.setSelection(true);
+			weightRangeControl.setEnabled(true);
+			weightRangeControl.setMin(options.weightOptions.minValue);
+			weightRangeControl.setMax(options.weightOptions.maxValue);
+			weightVarianceSpinner.setEnabled(true);
+			weightVarianceSpinner.setSelection(options.weightOptions.variance);
+		}
+
+		if (options.durabilityOptions != null) {
+			enableDurabilityButton.setSelection(true);
+			durabilityRangeControl.setEnabled(true);
+			durabilityRangeControl.setMin(options.durabilityOptions.minValue);
+			durabilityRangeControl.setMax(options.durabilityOptions.maxValue);
+			durabilityVarianceSpinner.setEnabled(true);
+			durabilityVarianceSpinner.setSelection(options.durabilityOptions.variance);
+		}
+
+		if (options.shouldAddEffects) {
+			enableRandomEffectsButton.setSelection(true);
+			effectsSelectionView.setEnabled(true);
+			noEffectsForIronButton.setEnabled(true);
+			effectChanceSpinner.setEnabled(true);
+			effectChanceLabel.setEnabled(true);
+			effectsSelectionView.initialize(options.effectsList);
+			noEffectsForIronButton.setSelection(options.noEffectIronWeapons);
+			if (noEffectsForSteelButton != null) {
+				noEffectsForSteelButton.setEnabled(true);
+				noEffectsForSteelButton.setSelection(options.noEffectSteelWeapons);
 			}
-			
-			if (options.hitOptions != null) {
-				enableHitButton.setSelection(true);
-				hitRangeControl.setEnabled(true);
-				hitRangeControl.setMin(options.hitOptions.minValue);
-				hitRangeControl.setMax(options.hitOptions.maxValue);
-				hitVarianceSpinner.setEnabled(true);
-				hitVarianceSpinner.setSelection(options.hitOptions.variance);
+			if (noEffectsForBasicThrownButton != null) {
+				noEffectsForBasicThrownButton.setEnabled(true);
+				noEffectsForBasicThrownButton.setSelection(options.noEffectThrownWeapons);
 			}
-			
-			if (options.weightOptions != null) {
-				enableWeightButton.setSelection(true);
-				weightRangeControl.setEnabled(true);
-				weightRangeControl.setMin(options.weightOptions.minValue);
-				weightRangeControl.setMax(options.weightOptions.maxValue);
-				weightVarianceSpinner.setEnabled(true);
-				weightVarianceSpinner.setSelection(options.weightOptions.variance);
-			}
-			
-			if (options.durabilityOptions != null) {
-				enableDurabilityButton.setSelection(true);
-				durabilityRangeControl.setEnabled(true);
-				durabilityRangeControl.setMin(options.durabilityOptions.minValue);
-				durabilityRangeControl.setMax(options.durabilityOptions.maxValue);
-				durabilityVarianceSpinner.setEnabled(true);
-				durabilityVarianceSpinner.setSelection(options.durabilityOptions.variance);
-			}
-			
-			if (options.shouldAddEffects) {
-				enableRandomEffectsButton.setSelection(true);
-				effectsSelectionView.setEnabled(true);
-				noEffectsForIronButton.setEnabled(true);
-				effectChanceSpinner.setEnabled(true);
-				effectChanceLabel.setEnabled(true);
-				effectsSelectionView.setOptions(options.effectsList);
-				noEffectsForIronButton.setSelection(options.noEffectIronWeapons);
-				if (noEffectsForSteelButton != null) {
-					noEffectsForSteelButton.setEnabled(true);
-					noEffectsForSteelButton.setSelection(options.noEffectSteelWeapons);
-				}
-				if (noEffectsForBasicThrownButton != null) {
-					noEffectsForBasicThrownButton.setEnabled(true);
-					noEffectsForBasicThrownButton.setSelection(options.noEffectThrownWeapons);
-				}
-				effectChanceSpinner.setSelection(options.effectChance);
-				if (includeLaguzButton != null) {
-					includeLaguzButton.setEnabled(true);
-					includeLaguzButton.setSelection(options.includeLaguzWeapons);
-				}
+			effectChanceSpinner.setSelection(options.effectChance);
+			if (includeLaguzButton != null) {
+				includeLaguzButton.setEnabled(true);
+				includeLaguzButton.setSelection(options.includeLaguzWeapons);
 			}
 		}
 	}

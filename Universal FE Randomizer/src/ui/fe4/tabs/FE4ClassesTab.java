@@ -3,6 +3,7 @@ package ui.fe4.tabs;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import ui.common.GuiUtil;
 import ui.fe4.FE4ClassesView;
 import ui.fe4.FE4PromotionView;
 import ui.common.YuneTabItem;
@@ -19,7 +20,7 @@ public class FE4ClassesTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        classes = addView(new FE4ClassesView(container, SWT.NONE));
+        classes = addView(new FE4ClassesView(container, SWT.NONE), GuiUtil.defaultGridData(2, true));
         promotions = addView(new FE4PromotionView(container, SWT.NONE));
     }
 

@@ -24,8 +24,9 @@ public class FE4StatsTab extends YuneTabItem {
     protected void compose() {
         growths = addView(new GrowthsView(container, SWT.NONE, type.hasSTRMAGSplit()));
         holyBlood = addView(new HolyBloodView(container, SWT.NONE));
-        bases = addView(new BasesView(container, SWT.NONE, type));
+        setViewData(holyBlood, 1, 2);
         enemies = addView(new FE4EnemyBuffView(container, SWT.NONE));
+        bases = addView(new BasesView(container, SWT.NONE, type));
     }
 
     @Override
@@ -40,22 +41,22 @@ public class FE4StatsTab extends YuneTabItem {
 
     @Override
     protected int numberColumns() {
-        return 2;
+        return 3;
     }
 
     @Override
     public void preloadOptions(OptionRecorder.FE4OptionBundle bundle) {
-        growths.setGrowthOptions(bundle.growths);
-        bases.setBasesOptions(bundle.bases);
-        holyBlood.setHolyBloodOptions(bundle.holyBlood);
-        enemies.setBuffOptions(bundle.enemyBuff);
+        growths.initialize(bundle.growths);
+        bases.initialize(bundle.bases);
+        holyBlood.initialize(bundle.holyBlood);
+        enemies.initialize(bundle.enemyBuff);
     }
 
     @Override
     public void updateOptionBundle(OptionRecorder.FE4OptionBundle bundle) {
-        bundle.growths = growths.getGrowthOptions();
-        bundle.bases = bases.getBaseOptions();
-        bundle.holyBlood = holyBlood.getHolyBloodOptions();
-        bundle.enemyBuff = enemies.getBuffOptions();
+        bundle.growths = growths.getOptions();
+        bundle.bases = bases.getOptions();
+        bundle.holyBlood = holyBlood.getOptions();
+        bundle.enemyBuff = enemies.getOptions();
     }
 }

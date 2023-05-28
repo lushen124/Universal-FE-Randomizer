@@ -3,15 +3,16 @@ package ui.fe9.tabs;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import ui.common.GuiUtil;
 import ui.common.YuneTabItem;
-import ui.legacy.MiscellaneousView;
+import ui.legacy.GameMechanicsView;
 import ui.legacy.WeaponsView;
 import util.OptionRecorder;
 
 public class FE9ItemsTab extends YuneTabItem {
 
     private WeaponsView weapons;
-    private MiscellaneousView misc;
+    private GameMechanicsView misc;
 
     public FE9ItemsTab(CTabFolder parent) {
         super(parent, GameType.FE9);
@@ -19,8 +20,8 @@ public class FE9ItemsTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        weapons = addView(new WeaponsView(container, SWT.NONE, type));
-        misc = addView(new MiscellaneousView(container, SWT.NONE, type));
+        weapons = addView(new WeaponsView(container, SWT.NONE, type), GuiUtil.defaultGridData(2));
+        misc = addView(new GameMechanicsView(container, SWT.NONE, type));
     }
 
     @Override
@@ -40,13 +41,13 @@ public class FE9ItemsTab extends YuneTabItem {
 
     @Override
     public void preloadOptions(OptionRecorder.FE9OptionBundle bundle) {
-        weapons.setWeaponOptions(bundle.weapons);
-        misc.setMiscellaneousOptions(bundle.misc);
+        weapons.initialize(bundle.weapons);
+        misc.initialize(bundle.mechanics);
     }
 
     @Override
     public void updateOptionBundle(OptionRecorder.FE9OptionBundle bundle) {
-        bundle.weapons = weapons.getWeaponOptions();
-        bundle.misc = misc.getMiscellaneousOptions();
+        bundle.weapons = weapons.getOptions();
+        bundle.mechanics = misc.getOptions();
     }
 }
