@@ -6,7 +6,7 @@ import fedata.snes.fe4.FE4StaticCharacter;
 import random.general.PoolDistributor;
 import random.general.WeightedDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
-import ui.fe4.SkillsOptions;
+import ui.model.fe4.SkillsOptions;
 import ui.model.WeightedOptions;
 import util.DebugPrinter;
 

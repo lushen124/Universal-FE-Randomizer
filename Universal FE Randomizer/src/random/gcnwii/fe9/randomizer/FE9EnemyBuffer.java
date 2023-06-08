@@ -15,7 +15,7 @@ import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
-import ui.model.FE9EnemyBuffOptions;
+import ui.model.fe9.FE9EnemyBuffOptions;
 
 public class FE9EnemyBuffer {
 	

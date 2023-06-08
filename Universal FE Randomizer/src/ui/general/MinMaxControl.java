@@ -24,9 +24,7 @@ public class MinMaxControl extends Composite {
 
 	public MinMaxControl(Composite parent, int style, String minString, String maxString) {
 		super(parent, style);
-		
-		FormLayout layout = new FormLayout();
-		setLayout(layout);
+		setLayout(new FormLayout());
 		
 		minLabel = new Label(this, SWT.RIGHT);
 		minLabel.setText(minString);

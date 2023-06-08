@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * The Base class for all Yune Tab Items
  */
-public abstract class YuneTabItem extends CTabItem {
+public abstract class YuneTabItem extends CTabItem implements Preloadable {
     protected Composite container;
     protected GameType type;
     protected List<Composite> views = new ArrayList<>();
@@ -33,7 +33,7 @@ public abstract class YuneTabItem extends CTabItem {
         super(parent, SWT.NONE);
         // Increase the Height of the text in the Tabs a bit
         FontData fontData = this.getFont().getFontData()[0];
-        fontData.setHeight(13);
+        fontData.setHeight(10);
         this.setFont(new Font(this.getFont().getDevice(), fontData));
 
         setText(getTabName());
@@ -103,39 +103,6 @@ public abstract class YuneTabItem extends CTabItem {
      */
     public Composite getContainer() {
         return this.container;
-    }
-
-    /**
-     * Called to preload the options for GBAFE Tabs
-     */
-    public void preloadOptions(GBAOptionBundle bundle) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void updateOptionBundle(GBAOptionBundle bundle) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Called to preload the options for FE4 Tabs
-     */
-    public void preloadOptions(FE4OptionBundle bundle) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void updateOptionBundle(FE4OptionBundle bundle) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Called to preload the options for FE9 Tabs
-     */
-    public void preloadOptions(FE9OptionBundle bundle) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void updateOptionBundle(FE9OptionBundle bundle) {
-        throw new UnsupportedOperationException();
     }
 
     protected void setViewData(Composite view, int colSpan, int rowSpan) {

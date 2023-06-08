@@ -2,10 +2,12 @@ package util;
 
 import com.google.gson.Gson;
 import fedata.general.FEBase.GameType;
-import ui.fe4.*;
-import ui.fe9.FE9ClassOptions;
-import ui.fe9.FE9SkillsOptions;
+import ui.model.fe4.*;
+import ui.model.fe9.FE9ClassOptions;
+import ui.model.fe9.FE9SkillsOptions;
 import ui.model.*;
+import ui.model.fe9.FE9EnemyBuffOptions;
+import ui.model.fe9.FE9OtherCharacterOptions;
 
 import java.util.prefs.Preferences;
 
@@ -22,7 +24,7 @@ public class OptionRecorder {
         public FE9OptionBundle fe9;
     }
 
-    public static class GBAOptionBundle {
+    public static class GBAOptionBundle extends Bundle {
         public GrowthOptions growths;
         public BaseOptions bases;
         public ClassOptions classes;
@@ -38,7 +40,7 @@ public class OptionRecorder {
         public Integer version;
     }
 
-    public static class FE4OptionBundle {
+    public static class FE4OptionBundle extends Bundle {
         public GrowthOptions growths;
         public BaseOptions bases;
         public HolyBloodOptions holyBlood;
@@ -52,7 +54,7 @@ public class OptionRecorder {
         public Integer version;
     }
 
-    public static class FE9OptionBundle {
+    public static class FE9OptionBundle extends Bundle {
         public GrowthOptions growths;
         public BaseOptions bases;
         public FE9SkillsOptions skills;
@@ -202,8 +204,24 @@ public class OptionRecorder {
         return null;
     }
 
-    public static GBAOptionBundle getGBABundle(GameType type) {
+    public static Bundle createBundle(GameType type) {
         switch (type) {
+            case FE9: return new FE9OptionBundle();
+            case FE4: return new FE4OptionBundle();
+            case FE6:
+            case FE7:
+            case FE8:
+                return new GBAOptionBundle();
+            default: throw new UnsupportedOperationException();
+        }
+    }
+
+    public static Bundle getBundle(GameType type) {
+        switch (type) {
+            case FE4:
+                return options.fe4;
+            case FE9:
+                return options.fe9;
             case FE6:
                 return options.fe6;
             case FE7:
@@ -211,7 +229,7 @@ public class OptionRecorder {
             case FE8:
                 return options.fe8;
             default:
-                throw new UnsupportedOperationException(type.name() + " is not a valid GBA GameType");
+                throw new UnsupportedOperationException(type.name() + " is not a valid GameType");
         }
     }
 
@@ -243,7 +261,7 @@ public class OptionRecorder {
 
     public static void recordFE9Options(GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions,
                                         FE9OtherCharacterOptions otherOptions, FE9EnemyBuffOptions buffOptions, FE9ClassOptions classOptions, WeaponOptions weaponOptions,
-                                        GameMechanicOptions miscOptions, String seed) {
+                                        GameMechanicOptions miscOptions, RewardOptions rewards, String seed) {
         FE9OptionBundle bundle = new FE9OptionBundle();
         bundle.growths = growthOptions;
         bundle.bases = baseOptions;
@@ -253,6 +271,7 @@ public class OptionRecorder {
         bundle.classes = classOptions;
         bundle.weapons = weaponOptions;
         bundle.mechanics = miscOptions;
+        bundle.rewards = rewards;
         bundle.seed = seed;
         recordFE9Options(bundle);
     }
@@ -264,7 +283,7 @@ public class OptionRecorder {
     }
 
     public static void recordFE4Options(GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, SkillsOptions skillOptions,
-                                        FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, GameMechanicOptions miscOptions, String seed) {
+                                        FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, GameMechanicOptions miscOptions, RewardOptions rewards, String seed) {
         FE4OptionBundle bundle = new FE4OptionBundle();
         bundle.growths = growthOptions;
         bundle.bases = basesOptions;
@@ -274,6 +293,7 @@ public class OptionRecorder {
         bundle.promo = promoOptions;
         bundle.enemyBuff = buffOptions;
         bundle.mechanics = miscOptions;
+        bundle.rewards = rewards;
         bundle.seed = seed;
         recordFE4Options(bundle);
 
@@ -286,7 +306,7 @@ public class OptionRecorder {
     }
 
     public static void recordGBAFEOptions(GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-                                          OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, String seed) {
+                                          OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions, RewardOptions rewards, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, String seed) {
         GBAOptionBundle bundle = new GBAOptionBundle();
         bundle.growths = growths;
         bundle.bases = bases;
@@ -299,6 +319,7 @@ public class OptionRecorder {
         bundle.itemAssignmentOptions = itemAssignment;
         bundle.seed = seed;
         bundle.characterShufflingOptions = shufflingOptions;
+        bundle.rewards = rewards;
         recordGBAFEOptions(bundle, gameType);
     }
 

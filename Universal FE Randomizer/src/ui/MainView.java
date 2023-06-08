@@ -6,7 +6,6 @@ import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -20,17 +19,11 @@ import random.general.Randomizer;
 import random.general.RandomizerListener;
 import random.snes.fe4.randomizer.FE4Randomizer;
 import ui.common.*;
-import ui.fe4.tabs.FE4ClassesTab;
-import ui.fe4.tabs.FE4SkillsTab;
-import ui.fe4.tabs.FE4StatsTab;
-import ui.fe9.tabs.FE9CharactersTab;
-import ui.fe9.tabs.FE9ItemsTab;
-import ui.fe9.tabs.FE9SkillsTab;
-import ui.gba.tabs.*;
 import ui.general.FileFlowDelegate;
 import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
 import ui.general.ProgressModal;
+import util.Bundle;
 import util.DiffCompiler;
 import util.OptionRecorder;
 import util.OptionRecorder.FE4OptionBundle;
@@ -41,7 +34,6 @@ import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.RecordKeeper;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.*;
 
 public class MainView implements FileFlowDelegate {
@@ -57,29 +49,21 @@ public class MainView implements FileFlowDelegate {
     private boolean isShowingModalProgressDialog = false;
     private boolean patchingAvailable = false;
 
-    public GameType loadedGameType;
+
+    private int currentLayout = 1;
+    private GameType loadedGameType;
 
     // Widget Groups
     RomSelectionGroup romSelection;
     RomInfoGroup romInfo;
     SeedGroup seedGroup;
-    CTabFolder tabFolder;
+    YuneViewContainer viewContainer;
 
     Button randomizeButton;
 
-    // Tabs
-    List<YuneTabItem> availableTabs = new ArrayList<>();
-
-    // GBA Tabs
-    YuneTabItem charactersTab;
-    YuneTabItem enemiesTab;
-    YuneTabItem itemsTab;
-    YuneTabItem miscTab;
-    YuneTabItem statsTab;
-    YuneTabItem classesTab;
-    YuneTabItem skillsTab;
-
-
+    /**
+     * Constructs the Main Window
+     */
     public MainView(Display mainDisplay) {
         mainShell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.MAX);
         mainShell.setText("Yune: GUI Rework");
@@ -106,6 +90,48 @@ public class MainView implements FileFlowDelegate {
 
         resize();
         mainShell.open();
+        mainDisplay.addFilter(SWT.KeyDown, new ConsoleListener());
+        mainDisplay.addFilter(SWT.KeyDown, new LayoutSwapListener(this));
+    }
+
+    /**
+     * Called by the {@link LayoutSwapListener} to re-render the current View container after the user pressed a shortcut to swap the layout:
+     *
+     * <ul>
+     * <li>CTRL + 1 : Single view layout</li>
+     * <li>CTRL + 2 : Tabbed layout </li>
+     * <li>CTRL + 3 : Scroll layout </li>
+     * </ul>
+     */
+    public void swapLayout(int newLayout) {
+        // Do nothing if the user pressed the combination for the current layout again
+        if (newLayout == currentLayout) {
+            return;
+        }
+
+        // Create a new Bundle so we can transfer over the selections to the new Layout
+        Bundle bundle = OptionRecorder.createBundle(loadedGameType);
+        viewContainer.updateOptionBundle(bundle);
+
+        // User selected a new layout, so dispose of the old one
+        viewContainer.dispose();
+        // Construct the new View Container depending on the selection
+        switch(newLayout) {
+            case 1:
+                this.viewContainer = new LegacyViewContainer(mainContainer, loadedGameType);
+                break;
+            case 2:
+                this.viewContainer = new TabbedViewContainer(mainContainer, loadedGameType);
+                break;
+            default:
+                throw new UnsupportedOperationException("No layout exists for selection CTRL + " + newLayout);
+        }
+
+        // Load the options now that the new viewContainer has been created
+        viewContainer.preloadOptions(bundle);
+        // update the currentLayout so that if the user clicks the same thing multiple times, we don't swap layout each time
+        currentLayout = newLayout;
+        resize();
     }
 
     private void resize() {
@@ -169,9 +195,8 @@ public class MainView implements FileFlowDelegate {
         scrollable.setLayoutData(scrollableData);
     }
 
-    private void loadGameType(String pathToFile, FileHandler handler) {
+    private void initializeViewContainer(String pathToFile, FileHandler handler) {
         if (loadedGameType == GameType.UNKNOWN) return;
-        updateLayoutForGameType();
         preloadOptions();
         seedGroup.setSeedFieldText(SeedGenerator.generateRandomSeed(loadedGameType));
         seedGroup.addGenerateButtonListener(randomizeButton, loadedGameType);
@@ -221,28 +246,28 @@ public class MainView implements FileFlowDelegate {
                     // Start building the new Option Bundle
                     GBAOptionBundle bundle = new GBAOptionBundle();
                     bundle.seed = seedGroup.getSeed();
-                    // Make the Tabs update the settings they contain into the bundle
-                    availableTabs.forEach(tab -> tab.updateOptionBundle(bundle));
+                    // Make the View Container update the settings they contain into the bundle
+                    viewContainer.updateOptionBundle(bundle);
                     // Update the Bundle in the Option Recorder
                     OptionRecorder.recordGBAFEOptions(bundle, loadedGameType);
                     randomizer = new GBARandomizer(pathToFile, writePath, loadedGameType, compiler, bundle.growths, bundle.bases, bundle.classes, bundle.weapons, bundle.other, bundle.enemies, bundle.otherOptions, bundle.recruitmentOptions, bundle.itemAssignmentOptions, bundle.characterShufflingOptions, bundle.rewards, bundle.seed);
                 } else if (loadedGameType.isSFC()) {
-                    FE4OptionBundle options = new FE4OptionBundle();
-                    options.seed = seedGroup.getSeed();
-                    // Make the Tabs update the settings they contain into the bundle
-                    availableTabs.forEach(tab -> tab.updateOptionBundle(options));
+                    FE4OptionBundle bundle = new FE4OptionBundle();
+                    bundle.seed = seedGroup.getSeed();
+                    // Make the View Container update the settings they contain into the bundle
+                    viewContainer.updateOptionBundle(bundle);
                     // Update the Bundle in the Option Recorder
-                    OptionRecorder.recordFE4Options(options);
+                    OptionRecorder.recordFE4Options(bundle);
                     boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
-                    randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, options.growths, options.bases, options.holyBlood, options.skills, options.classes, options.promo, options.enemyBuff, options.mechanics, options.rewards, options.seed);
+                    randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, bundle.growths, bundle.bases, bundle.holyBlood, bundle.skills, bundle.classes, bundle.promo, bundle.enemyBuff, bundle.mechanics, bundle.rewards, bundle.seed);
                 } else if (loadedGameType.isGCN()) {
-                    FE9OptionBundle options = new FE9OptionBundle();
-                    options.seed = seedGroup.getSeed();
-                    // Make the Tabs update the settings they contain into the bundle
-                    availableTabs.forEach(tab -> tab.updateOptionBundle(options));
+                    FE9OptionBundle bundle = new FE9OptionBundle();
+                    bundle.seed = seedGroup.getSeed();
+                    // Make the View Container update the settings they contain into the bundle
+                    viewContainer.updateOptionBundle(bundle);
                     // Update the Bundle in the Option Recorder
-                    OptionRecorder.recordFE9Options(options);
-                    randomizer = new FE9Randomizer(pathToFile, writePath, options.growths, options.bases, options.skills, options.otherOptions, options.enemyBuff, options.classes, options.weapons, options.mechanics, options.rewards, options.seed);
+                    OptionRecorder.recordFE9Options(bundle);
+                    randomizer = new FE9Randomizer(pathToFile, writePath, bundle.growths, bundle.bases, bundle.skills, bundle.otherOptions, bundle.enemyBuff, bundle.classes, bundle.weapons, bundle.mechanics, bundle.rewards, bundle.seed);
                 }
 
                 final String romPath = writePath;
@@ -339,40 +364,14 @@ public class MainView implements FileFlowDelegate {
 
     }
 
-    private void updateLayoutForGameType() {
-        // Clear the Tabs from pontentially loaded previous games
-        if (tabFolder.getTabList().length != 0) {
-            for (CTabItem item : tabFolder.getItems()) {
-                item.dispose();
-            }
-            availableTabs.clear();
+    private void createViewContainer() {
+        if (viewContainer != null) {
+            viewContainer.dispose();
         }
-
-        // Initialize the Tab Folder with the tabs based on the game type
-        if (loadedGameType.isGBA()) {
-            statsTab = addTab(new GBAStatsTab(tabFolder, loadedGameType));
-            charactersTab = addTab(new GBACharactersTab(tabFolder, loadedGameType));
-            itemsTab = addTab(new GBAItemsTab(tabFolder, loadedGameType));
-            miscTab = addTab(new GBAMechanicsTab(tabFolder, loadedGameType));
-        } else if (loadedGameType.isSFC()) {
-            statsTab = addTab(new FE4StatsTab(tabFolder));
-            classesTab = addTab(new FE4ClassesTab(tabFolder));
-            skillsTab = addTab(new FE4SkillsTab(tabFolder));
-            miscTab = addTab(new GBAMechanicsTab(tabFolder, loadedGameType));
-        } else if (loadedGameType.isGCN()) {
-            charactersTab = addTab(new FE9CharactersTab(tabFolder));
-            itemsTab = addTab(new FE9ItemsTab(tabFolder));
-            skillsTab = addTab(new FE9SkillsTab(tabFolder));
-        }
-
-        tabFolder.setSelection(0);
+//        viewContainer = new TabbedViewContainer(mainContainer, loadedGameType);
+        viewContainer = new LegacyViewContainer(mainContainer, loadedGameType);
     }
 
-
-    public <T extends YuneTabItem> T addTab(T tabItem) {
-        this.availableTabs.add(tabItem);
-        return tabItem;
-    }
 
     public void showModalProgressDialog() {
         if (!isShowingModalProgressDialog) {
@@ -396,54 +395,48 @@ public class MainView implements FileFlowDelegate {
         if (romSelection != null) romSelection.dispose();
         if (romInfo != null) romInfo.dispose();
         if (seedGroup != null) seedGroup.dispose();
-        // Tab Folder disposal should also dispose all children automatically
-        if (tabFolder != null) tabFolder.dispose();
     }
 
+    /**
+     * Read the saved
+     */
     private void preloadOptions() {
+        // If no Options exist at all (f.e. first time user), then don't preload
         if (OptionRecorder.options == null) {
             return;
         }
 
-        if (loadedGameType == GameType.FE4 && OptionRecorder.options.fe4 != null) {
-            this.availableTabs.forEach(tab -> tab.preloadOptions(OptionRecorder.options.fe4));
-        } else if (loadedGameType.isGBA()) {
-            final GBAOptionBundle bundle = OptionRecorder.getGBABundle(loadedGameType);
-            if (bundle != null) {
-                this.availableTabs.forEach(tab -> tab.preloadOptions(bundle));
-            }
-        } else if (loadedGameType == GameType.FE9 && OptionRecorder.options.fe9 != null) {
-            this.availableTabs.forEach(tab -> tab.preloadOptions(OptionRecorder.options.fe9));
+        // Try to find the bundle for the currently selected game
+        final Bundle bundle = OptionRecorder.getBundle(loadedGameType);
+        // if there are options saved for the game, then we can load them
+        if (bundle != null) {
+            viewContainer.preloadOptions(bundle);
         }
-
     }
 
     @Override
     public void onSelectedFile(String pathToFile) {
-        if (pathToFile != null) {
-            romSelection.setFilePath(pathToFile);
-        } else {
+        if (pathToFile == null) {
+            // No file selected, do nothing
             return;
         }
+
+        // Set the path into the text field
+        romSelection.setFilePath(pathToFile);
+
 
         MessageModal loadingModal = new MessageModal(mainShell, "Loading", "Verifying File...");
         loadingModal.showRaw();
 
+        // Create the groups if they don't exist yet
         if (romInfo == null) {
             romInfo = new RomInfoGroup(mainContainer);
         }
         if (seedGroup == null) {
             seedGroup = new SeedGroup(mainContainer);
         }
-        if (tabFolder == null) {
-            tabFolder = new CTabFolder(mainContainer, SWT.BORDER);
-        }
-        if (randomizeButton == null) {
-            randomizeButton = new Button(mainContainer, SWT.PUSH);
-            randomizeButton.setText("Randomize");
-            randomizeButton.setLayoutData(new RowData(SWT.DEFAULT, 50));
-        }
 
+        // Create the File Handler and try parsing the rom Info from it
         RomInfoDto romInfoDto;
         FileHandler handler;
         try {
@@ -459,16 +452,26 @@ public class MainView implements FileFlowDelegate {
         patchingAvailable = romInfoDto.isPatchingAvailable();
         romInfo.initialize(romInfoDto);
 
+        if (randomizeButton == null) {
+            randomizeButton = new Button(mainContainer, SWT.PUSH);
+            randomizeButton.setText("Randomize");
+            randomizeButton.setLayoutData(new RowData(SWT.DEFAULT, 50));
+        }
 
         if (loadedGameType != GameType.UNKNOWN) {
-            loadGameType(pathToFile, handler);
+            // successfully parsed the Game from the File, start initializing the view Container
+            createViewContainer();
+
+            initializeViewContainer(pathToFile, handler);
             loadingModal.hide();
         } else {
+            // Parsing game from the file failed, let the user select what kind of rom this is
             loadingModal.hide();
             MessageModal checksumFailure = buildChecksumFailureModal(pathToFile, handler);
             checksumFailure.show();
         }
 
+        //
         resize();
 
         if (loadedGameType == GameType.FE9 && System.getProperty("sun.arch.data.model").equals("32")) {
@@ -484,7 +487,7 @@ public class MainView implements FileFlowDelegate {
             @Override
             public void onSelected() {
                 loadedGameType = GameType.FE4;
-                loadGameType(pathToFile, handler);
+                initializeViewContainer(pathToFile, handler);
                 romInfo.setFriendlyName("Display Name: (Unverified) Fire Emblem: Genealogy of the Holy War");
             }
         };
@@ -492,7 +495,7 @@ public class MainView implements FileFlowDelegate {
             @Override
             public void onSelected() {
                 loadedGameType = GameType.FE6;
-                loadGameType(pathToFile, handler);
+                initializeViewContainer(pathToFile, handler);
                 romInfo.setFriendlyName("Display Name: (Unverified) Fire Emblem: Binding Blade");
             }
         };
@@ -500,7 +503,7 @@ public class MainView implements FileFlowDelegate {
             @Override
             public void onSelected() {
                 loadedGameType = GameType.FE7;
-                loadGameType(pathToFile, handler);
+                initializeViewContainer(pathToFile, handler);
                 romInfo.setFriendlyName("Display Name: (Unverified) Fire Emblem: Blazing Sword");
             }
         };
@@ -508,7 +511,7 @@ public class MainView implements FileFlowDelegate {
             @Override
             public void onSelected() {
                 loadedGameType = GameType.FE8;
-                loadGameType(pathToFile, handler);
+                initializeViewContainer(pathToFile, handler);
                 romInfo.setFriendlyName("Display Name: (Unverified) Fire Emblem: The Sacred Stones");
             }
         };
@@ -516,7 +519,7 @@ public class MainView implements FileFlowDelegate {
             @Override
             public void onSelected() {
                 loadedGameType = GameType.FE9;
-                loadGameType(pathToFile, handler);
+                initializeViewContainer(pathToFile, handler);
                 romInfo.setFriendlyName("Display Name: (Unverified) Fire Emblem: Path of Radiance");
             }
         };

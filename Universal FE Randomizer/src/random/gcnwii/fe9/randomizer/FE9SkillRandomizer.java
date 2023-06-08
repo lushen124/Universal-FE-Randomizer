@@ -12,7 +12,7 @@ import random.gcnwii.fe9.loader.FE9ChapterDataLoader;
 import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.WeightedDistributor;
-import ui.fe9.SkillWeightOptions;
+import ui.model.SkillWeightOptions;
 import ui.model.WeightedOptions;
 
 public class FE9SkillRandomizer {

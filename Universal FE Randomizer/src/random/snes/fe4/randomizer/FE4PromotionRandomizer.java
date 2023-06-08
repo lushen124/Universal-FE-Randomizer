@@ -13,9 +13,9 @@ import fedata.snes.fe4.FE4Data;
 import fedata.snes.fe4.FE4StaticCharacter;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.PromotionMapper;
-import ui.fe4.FE4ClassOptions;
-import ui.fe4.FE4ClassOptions.ChildOptions;
-import ui.fe4.FE4PromotionOptions;
+import ui.model.fe4.FE4ClassOptions;
+import ui.model.fe4.FE4ClassOptions.ChildOptions;
+import ui.model.fe4.FE4PromotionOptions;
 
 public class FE4PromotionRandomizer {
 	

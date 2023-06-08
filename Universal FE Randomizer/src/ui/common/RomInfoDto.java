@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Simple Dto that bundles info that is parsed from
+ * Simple Dto that bundles info that is parsed from the File and is to be displayed in the GUI
  */
 public class RomInfoDto {
 
@@ -36,7 +36,7 @@ public class RomInfoDto {
         dto.romName = "ROM Name: " + parseGameTitle(handler);
         dto.romCode = "ROM Code: " + parseGameCode(handler);
         dto.length = "File Length: " + handler.getFileLength();
-        dto.checksum = "Checksum: " + String.valueOf(crc32);
+        dto.checksum = "Checksum: " + crc32;
         fillByGame(dto, crc32, handler);
 
         return dto;

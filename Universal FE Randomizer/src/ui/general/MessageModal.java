@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import application.Main;
+import ui.common.GuiUtil;
 
 public class MessageModal {
 	
@@ -82,12 +83,7 @@ public class MessageModal {
 		imageLabel.setLayoutData(imageData);
 		
 		contentGroup = new Composite(dialogShell, SWT.NONE);
-		FormLayout contentLayout = new FormLayout();
-		contentLayout.marginTop = 5;
-		contentLayout.marginLeft = 5;
-		contentLayout.marginBottom = 5;
-		contentLayout.marginRight = 5;
-		contentGroup.setLayout(contentLayout);
+		contentGroup.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		titleLabel = new Label(contentGroup, SWT.LEFT);
 		titleLabel.setText(title);
