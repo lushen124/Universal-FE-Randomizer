@@ -17,19 +17,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Base class for all Yune Tab Items
+ * The Base class for all Yune Tab Items.
+ *
+ * Provides methods to help with layouting and letting the child classes be somewhat configurable.
  */
 public abstract class YuneTabItem extends CTabItem implements Preloadable {
     protected Composite container;
     protected GameType type;
     protected List<Composite> views = new ArrayList<>();
 
-
     public YuneTabItem(CTabFolder parent, GameType type) {
-        this(parent, type, false);
-    }
-
-    public YuneTabItem(CTabFolder parent, GameType type, boolean isScrollable) {
         super(parent, SWT.NONE);
         // Increase the Height of the text in the Tabs a bit
         FontData fontData = this.getFont().getFontData()[0];
@@ -39,7 +36,7 @@ public abstract class YuneTabItem extends CTabItem implements Preloadable {
         setText(getTabName());
         setToolTipText(getTabTooltip());
         this.type = type;
-        setupDefaultMainContainer(isScrollable);
+        setupDefaultMainContainer();
         compose();
         this.setControl(container);
     }
@@ -47,7 +44,7 @@ public abstract class YuneTabItem extends CTabItem implements Preloadable {
     /**
      * Creates the default Main Container of the Tab which consist of a Simple Container with a GridLayout.
      */
-    protected void setupDefaultMainContainer(boolean isScrollable) {
+    protected void setupDefaultMainContainer() {
         container = new Composite(getParent(), SWT.NONE);
         GridLayout layout = new GridLayout(numberColumns(), false);
         layout.marginLeft = 5;
@@ -105,6 +102,11 @@ public abstract class YuneTabItem extends CTabItem implements Preloadable {
         return this.container;
     }
 
+    /**
+     * Allows setting the col and rowSpan of the given View.
+     * If the view already defines a LayoutData, then the colSpan and rowSpan are just added on.
+     * Otherwise, the {@link GuiUtil#defaultGridData()} will be set for the view.
+     */
     protected void setViewData(Composite view, int colSpan, int rowSpan) {
         GridData data = view.getLayoutData() != null ? (GridData) view.getLayoutData() : (GridData) GuiUtil.defaultGridData();
         data.horizontalSpan = colSpan;

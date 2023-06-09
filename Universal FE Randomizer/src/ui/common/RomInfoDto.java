@@ -24,8 +24,8 @@ public class RomInfoDto {
     private String friendlyName = "Display Name: Unknown";
     private String romCode;
     private String romName;
-    private String checksum;
-    private String length;
+    private long checksum;
+    private long length;
 
     private RomInfoDto() {
     }
@@ -33,10 +33,10 @@ public class RomInfoDto {
     public static RomInfoDto forROM(FileHandler handler) throws IOException {
         RomInfoDto dto = new RomInfoDto();
         long crc32 = handler.getCRC32();
-        dto.romName = "ROM Name: " + parseGameTitle(handler);
-        dto.romCode = "ROM Code: " + parseGameCode(handler);
-        dto.length = "File Length: " + handler.getFileLength();
-        dto.checksum = "Checksum: " + crc32;
+        dto.romName = parseGameTitle(handler);
+        dto.romCode = parseGameCode(handler);
+        dto.length = handler.getFileLength();
+        dto.checksum = + crc32;
         fillByGame(dto, crc32, handler);
 
         return dto;
@@ -55,9 +55,9 @@ public class RomInfoDto {
         if (crc32 != FE4Data.CleanHeaderedCRC32 && crc32 != FE4Data.CleanUnheaderedCRC32) return;
         dto.type = GameType.FE4;
         dto.patchingAvailable = true;
-        dto.friendlyName = "Display Name: " + FE4Data.FriendlyName;
-        dto.romName = "ROM Name: " + FE4Data.InternalName;
-        dto.romCode = "ROM Code: --";
+        dto.friendlyName = FE4Data.FriendlyName;
+        dto.romName = FE4Data.InternalName;
+        dto.romCode = "--";
     }
     private static void caseFE6(RomInfoDto dto, long crc32) {
         if (crc32 != FE6Data.CleanCRC32) return;
@@ -81,12 +81,12 @@ public class RomInfoDto {
         try {
             GCNISOHandler gcnHandler = new GCNISOHandler(handler);
             dto.type = GameType.FE9;
-            dto.romName = "ROM Name: " + gcnHandler.getGameName();
-            dto.romCode = "ROM Code: " + gcnHandler.getGameCode();
+            dto.romName = gcnHandler.getGameName();
+            dto.romCode = gcnHandler.getGameCode();
         } catch (GCNISOException e) {
             DebugPrinter.log(DebugPrinter.Key.MAIN, e.getMessage());
-            dto.romName = "ROM Name: Read Failed";
-            dto.romCode = "ROM Code: Read Failed";
+            dto.romName = "Read Failed";
+            dto.romCode = "Read Failed";
         }
     }
 
@@ -122,11 +122,11 @@ public class RomInfoDto {
         return romName;
     }
 
-    public String getChecksum() {
+    public long getChecksum() {
         return checksum;
     }
 
-    public String getLength() {
+    public long getLength() {
         return length;
     }
 }

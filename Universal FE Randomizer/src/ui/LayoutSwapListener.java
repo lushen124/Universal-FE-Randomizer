@@ -13,6 +13,9 @@ import org.eclipse.swt.widgets.*;
 import util.DebugListener;
 import util.DebugPrinter;
 
+/**
+ * Listens for keyboard inputs that are mapped to cause the currently used {@link YuneViewContainer} to be swapped.
+ */
 public class LayoutSwapListener implements Listener {
 
     private MainView mainView;

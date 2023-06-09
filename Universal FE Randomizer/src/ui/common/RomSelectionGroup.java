@@ -56,4 +56,6 @@ public class RomSelectionGroup extends YuneGroup {
     public void setFilePath(String path) {
         this.selectedPath.setText(path);
     }
+
+    public String getFilePath() { return this.selectedPath.getText(); }
 }

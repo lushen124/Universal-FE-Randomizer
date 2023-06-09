@@ -30,7 +30,7 @@ public class FE9SkillView extends Composite {
 	
 	private SkillWeightView weightsView;
 	
-	public FE9SkillView(Composite parent, List<String> skillList) {
+	public FE9SkillView(Composite parent, List<String> skillList, int skillColumns) {
 		super(parent, SWT.NONE);
 		
 		setLayout(new FillLayout());
@@ -101,7 +101,7 @@ public class FE9SkillView extends Composite {
 			}
 		});
 		
-		weightsView = new SkillWeightView(container, SWT.NONE, skillList, 3);
+		weightsView = new SkillWeightView(container, SWT.NONE, skillList, skillColumns);
 		weightsView.setListener(new SkillWeightsListener() {
 			@Override
 			public void onEnableCountChanged(int enabledCount) {}

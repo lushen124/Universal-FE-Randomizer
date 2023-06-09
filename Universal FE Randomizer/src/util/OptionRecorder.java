@@ -22,6 +22,7 @@ public class OptionRecorder {
         public GBAOptionBundle fe7;
         public GBAOptionBundle fe8;
         public FE9OptionBundle fe9;
+        public int chosenLayout;
     }
 
     public static class GBAOptionBundle extends Bundle {
@@ -36,8 +37,6 @@ public class OptionRecorder {
         public RecruitmentOptions recruitmentOptions;
         public ItemAssignmentOptions itemAssignmentOptions;
         public CharacterShufflingOptions characterShufflingOptions;
-        public String seed;
-        public Integer version;
     }
 
     public static class FE4OptionBundle extends Bundle {
@@ -50,8 +49,6 @@ public class OptionRecorder {
         public FE4EnemyBuffOptions enemyBuff;
         public GameMechanicOptions mechanics;
         public RewardOptions rewards;
-        public String seed;
-        public Integer version;
     }
 
     public static class FE9OptionBundle extends Bundle {
@@ -64,8 +61,6 @@ public class OptionRecorder {
         public WeaponOptions weapons;
         public GameMechanicOptions mechanics;
         public RewardOptions rewards;
-        public String seed;
-        public Integer version;
     }
 
     public static AllOptions options = loadOptions();
@@ -257,6 +252,15 @@ public class OptionRecorder {
             String fe9String = gson.toJson(options.fe9);
             prefs.put(SettingsKey + FE9Suffix, fe9String);
         }
+    }
+
+    public static void setLayoutPreference(Integer layout) {
+        Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
+        prefs.put(SettingsKey + "layoutPreference", String.valueOf(layout));
+    }
+    public static Integer getLayoutPreference() {
+        Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
+        return Integer.parseInt(prefs.get(SettingsKey + "layoutPreference", "1"));
     }
 
     public static void recordFE9Options(GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions,

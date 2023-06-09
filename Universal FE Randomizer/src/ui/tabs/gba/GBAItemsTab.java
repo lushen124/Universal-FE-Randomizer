@@ -10,6 +10,17 @@ import ui.views.RewardRandomizationView;
 import ui.views.WeaponsView;
 import util.OptionRecorder;
 
+/**
+ * Tab Item tab for the GBAFE Games.
+ *
+ * This contains the views:
+ * <ul>
+ *     <li>Weapons</li>
+ *     <li>Item Assignment</li>
+ *     <li>Rewards</li>
+ * </ul>
+ *
+ */
 public class GBAItemsTab extends YuneTabItem {
 
     private WeaponsView weapons;
@@ -22,7 +33,7 @@ public class GBAItemsTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        weapons = addView(new WeaponsView(container, type), GuiUtil.defaultGridData(2));
+        weapons = addView(new WeaponsView(container, type, 2), GuiUtil.defaultGridData(2));
         setViewData(weapons, 1, 3);
         itemAssignment = addView(new ItemAssignmentView(container, type));
         rewards = addView(new RewardRandomizationView(container, type));
@@ -35,7 +46,7 @@ public class GBAItemsTab extends YuneTabItem {
 
     @Override
     protected String getTabTooltip() {
-        return "Contains all Setting related to Items. For Example Weapon Stats, and Weapon Assignment";
+        return "Contains all Setting related to Items. For Example Weapon Stats, Rewards, and Weapon Assignment";
     }
 
     @Override

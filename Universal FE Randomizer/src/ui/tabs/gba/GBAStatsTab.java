@@ -8,7 +8,19 @@ import ui.views.EnemyBuffsView;
 import ui.views.GrowthsView;
 import ui.views.MOVCONAffinityView;
 import util.OptionRecorder;
+import util.OptionRecorder.GBAOptionBundle;
 
+/**
+ * The Stats Tab for the GBAFE Games.
+ *
+ * This contains the views:
+ * <ul>
+ *     <li>Bases</li>
+ *     <li>Growths</li>
+ *     <li>Other Character Settings (Mov/Con/Affinity)</li>
+ *     <li>Enemy Buffs</li>
+ * </ul>
+ */
 public class GBAStatsTab extends YuneTabItem {
 
     private GrowthsView growths;
@@ -46,16 +58,18 @@ public class GBAStatsTab extends YuneTabItem {
     }
 
     @Override
-    public void preloadOptions(OptionRecorder.GBAOptionBundle bundle) {
+    public void preloadOptions(GBAOptionBundle bundle) {
         growths.initialize(bundle.growths);
         bases.initialize(bundle.bases);
         movConAffinity.initialize(bundle.other);
+        enemies.initialize(bundle.enemies);
     }
 
     @Override
-    public void updateOptionBundle(OptionRecorder.GBAOptionBundle bundle) {
+    public void updateOptionBundle(GBAOptionBundle bundle) {
         bundle.growths = growths.getOptions();
         bundle.bases = bases.getOptions();
         bundle.other = movConAffinity.getOptions();
+        bundle.enemies = enemies.getOptions();
     }
 }

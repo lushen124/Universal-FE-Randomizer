@@ -5,10 +5,15 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 
+/**
+ * Util class that contains some functions to make SWT Layouting less verbose.
+ */
 public class GuiUtil {
 
+    /**
+     * Arbitrary Default width for all objects in a grid based layout.
+     */
     public static final int DEFAULT_ITEM_WIDTH_280 = 280;
-
 
     /**
      * Constructs the Default Layout data for Widgets inside this Tab.
@@ -23,6 +28,7 @@ public class GuiUtil {
         gridData.widthHint = DEFAULT_ITEM_WIDTH_280 * widthMultiplier + margins;
         return gridData;
     }
+
     /**
      * Constructs the Default Layout data for Widgets inside this Tab.
      * <p>
@@ -41,14 +47,9 @@ public class GuiUtil {
         return defaultGridData(1);
     }
 
-    public static FormLayout formLayoutWithMargin(){
-        FormLayout formLayout = new FormLayout();
-        formLayout.marginLeft = 5;
-        formLayout.marginTop = 5;
-        formLayout.marginRight = 5;
-        formLayout.marginBottom = 5;
-        return formLayout;
-    }
+    /**
+     * Returns a GridLayout with a margin of 5px in all directions
+     */
     public static GridLayout gridLayoutWithMargin(){
         GridLayout gridLayout = new GridLayout();
         gridLayout.marginLeft = 5;
@@ -56,5 +57,17 @@ public class GuiUtil {
         gridLayout.marginRight = 5;
         gridLayout.marginBottom = 5;
         return gridLayout;
+    }
+
+    /**
+     * Returns a FormLayout with a margin of 5px in all directions
+     */
+    public static FormLayout formLayoutWithMargin(){
+        FormLayout formLayout = new FormLayout();
+        formLayout.marginLeft = 5;
+        formLayout.marginTop = 5;
+        formLayout.marginRight = 5;
+        formLayout.marginBottom = 5;
+        return formLayout;
     }
 }

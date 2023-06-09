@@ -12,6 +12,9 @@ import util.OptionRecorder;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Tab for FE9 Skills.
+ */
 public class FE9SkillsTab extends YuneTabItem {
 
     private FE9SkillView skills;
@@ -22,15 +25,12 @@ public class FE9SkillsTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        List<String> skillList = FE9Data.Skill.allValidSkills.stream().map(skill -> {
-            return skill.getDisplayString();
-        }).collect(Collectors.toList());
-
-        skills = addView(new FE9SkillView(container, skillList), GuiUtil.defaultGridData(3));
+        List<String> skillList = FE9Data.Skill.allValidSkills.stream().map(FE9Data.Skill::getDisplayString).collect(Collectors.toList());
+        skills = addView(new FE9SkillView(container, skillList, 3), GuiUtil.defaultGridData(3));
     }
 
     @Override
-    protected String getTabName(){
+    protected String getTabName() {
         return "Skills";
     }
 

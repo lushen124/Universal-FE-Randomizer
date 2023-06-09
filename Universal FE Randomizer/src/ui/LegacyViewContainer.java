@@ -18,6 +18,9 @@ import util.OptionRecorder;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * View Container that is the equivalent of the GUI from before the GUI Rework, everything is just in one large Form Layout.
+ */
 public class LegacyViewContainer extends YuneViewContainer {
 
 
@@ -48,6 +51,10 @@ public class LegacyViewContainer extends YuneViewContainer {
 
     public LegacyViewContainer(Composite parent, GameType loadedType) {
         super(parent, loadedType);
+    }
+
+    @Override
+    protected void compose() {
         this.setLayout(new FormLayout());
         growthView = new GrowthsView(this, type.hasSTRMAGSplit());
         growthView.setSize(200, 200);
@@ -133,7 +140,6 @@ public class LegacyViewContainer extends YuneViewContainer {
             rewardData.top = new FormAttachment(miscView, 5);
             rewardData.left = new FormAttachment(miscView, 0, SWT.LEFT);
             rewardData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
-            rewardData.bottom = new FormAttachment(100, -10);
             rewardView.setLayoutData(rewardData);
 
         } else if (type == GameType.FE9) {
@@ -163,13 +169,12 @@ public class LegacyViewContainer extends YuneViewContainer {
             rewardData.top = new FormAttachment(miscView, 5);
             rewardData.left = new FormAttachment(miscView, 0, SWT.LEFT);
             rewardData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
-            rewardData.bottom = new FormAttachment(100, -10);
             rewardView.setLayoutData(rewardData);
 
             List<String> skills = FE9Data.Skill.allValidSkills.stream().map(skill -> {
                 return skill.getDisplayString();
             }).collect(Collectors.toList());
-            fe9SkillView = new FE9SkillView(this, skills);
+            fe9SkillView = new FE9SkillView(this, skills, 1);
             fe9SkillView.setSize(200, 200);
 
             FormData skillData = new FormData();
@@ -178,7 +183,7 @@ public class LegacyViewContainer extends YuneViewContainer {
             skillData.bottom = new FormAttachment(100, -10);
             fe9SkillView.setLayoutData(skillData);
 
-            weaponView = new WeaponsView(this, type);
+            weaponView = new WeaponsView(this, type, 1);
             weaponView.setSize(200, 200);
 
             FormData weaponData = new FormData();
@@ -229,10 +234,9 @@ public class LegacyViewContainer extends YuneViewContainer {
             rewardData.top = new FormAttachment(miscView, 5);
             rewardData.left = new FormAttachment(miscView, 0, SWT.LEFT);
             rewardData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
-            rewardData.bottom = new FormAttachment(100, -10);
             rewardView.setLayoutData(rewardData);
 
-            weaponView = new WeaponsView(this, type);
+            weaponView = new WeaponsView(this, type, 1);
             weaponView.setSize(200, 200);
 
             FormData weaponData = new FormData();

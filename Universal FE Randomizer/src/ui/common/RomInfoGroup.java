@@ -13,6 +13,7 @@ public class RomInfoGroup extends YuneGroup {
     protected Label friendlyName;
     protected Label length;
     protected Label checksum;
+    protected long crc32;
 
     public RomInfoGroup(Composite parent) {
         super(parent);
@@ -46,28 +47,34 @@ public class RomInfoGroup extends YuneGroup {
     }
 
     public void setRomName(String romName) {
-        this.romName.setText(romName);
+        this.romName.setText("ROM Name: " + romName);
     }
 
     public void setRomCode(String romCode) {
-        this.romCode.setText(romCode);
+        this.romCode.setText("ROM Code: " + romCode);
     }
 
     public void setFriendlyName(String friendlyName) {
-        this.friendlyName.setText(friendlyName);
+        this.friendlyName.setText("Display Name: " + friendlyName);
     }
 
-    public void setLength(String length) {
-        this.length.setText(length);
+    public void setLength(long length) {
+        this.length.setText("File Length: " + length);
     }
 
-    public void setChecksum(String checksum) {
-        this.checksum.setText(checksum);
+    public void setChecksum(long checksum) {
+        crc32 = checksum;
+        this.checksum.setText("CRC-32: " + checksum);
     }
 
     public String getChecksum() {
         return this.checksum.getText();
     }
+
+    public long getCrc32() {
+        return this.crc32;
+    }
+
 
     @Override
     public String getGroupTitle() {

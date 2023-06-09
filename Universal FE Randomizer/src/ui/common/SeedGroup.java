@@ -44,16 +44,15 @@ public class SeedGroup extends YuneGroup {
         generateButton.setLayoutData(generateData);
     }
 
-    public void addGenerateButtonListener(Button randomizeButton, GameType type) {
+    public void addGenerateButtonListener(GameType type) {
         // First remove old listeners (previous game)
         for (Listener listener : generateButton.getListeners(SWT.Selection)) {
-            generateButton.removeListener(SWT.Selection,listener);
+            generateButton.removeListener(SWT.Selection, listener);
         }
 
         // Now add a new listener with the current game
         generateButton.addListener(SWT.Selection, selectionEvent -> {
             seedField.setText(SeedGenerator.generateRandomSeed(type));
-            randomizeButton.setEnabled(seedField.getText().length() != 0);
         });
     }
 

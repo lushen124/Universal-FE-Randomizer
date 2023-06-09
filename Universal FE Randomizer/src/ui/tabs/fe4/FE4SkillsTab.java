@@ -7,6 +7,9 @@ import ui.common.YuneTabItem;
 import ui.views.fe4.FE4SkillsView;
 import util.OptionRecorder;
 
+/**
+ * The Stats Tab for FE4.
+ */
 public class FE4SkillsTab extends YuneTabItem {
 
     private FE4SkillsView skills;
@@ -17,11 +20,11 @@ public class FE4SkillsTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        skills = addView(new FE4SkillsView(container,3), GuiUtil.defaultGridData(3));
+        skills = addView(new FE4SkillsView(container, 3), GuiUtil.defaultGridData(3));
     }
 
     @Override
-    protected String getTabName(){
+    protected String getTabName() {
         return "Skills";
     }
 

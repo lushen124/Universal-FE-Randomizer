@@ -10,6 +10,17 @@ import ui.views.BasesView;
 import ui.views.GrowthsView;
 import util.OptionRecorder;
 
+/**
+ * The Stats Tab for FE4.
+ *
+ * This contains the views:
+ * <ul>
+ *     <li>Bases</li>
+ *     <li>Growths</li>
+ *     <li>Holy Blood</li>
+ *     <li>Enemy Buffs</li>
+ * </ul>
+ */
 public class FE4StatsTab extends YuneTabItem {
 
     private GrowthsView growths;

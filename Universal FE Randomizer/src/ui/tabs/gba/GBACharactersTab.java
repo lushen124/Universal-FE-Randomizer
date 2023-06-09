@@ -8,6 +8,17 @@ import ui.views.ClassesView;
 import ui.views.RecruitmentView;
 import util.OptionRecorder.GBAOptionBundle;
 
+/**
+ * Tab for all Settings related to the character pool.
+ *
+ * This contains the views:
+ * <ul>
+ *     <li>Random Recruitment</li>
+ *     <li>Class Randomization</li>
+ *     <li>Character Shuffling</li>
+ * </ul>
+ *
+ */
 public class GBACharactersTab extends YuneTabItem {
     public GBACharactersTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);

@@ -10,7 +10,20 @@ import ui.views.BasesView;
 import ui.views.fe9.CONAffinityView;
 import ui.views.GrowthsView;
 import util.OptionRecorder;
+import util.OptionRecorder.FE9OptionBundle;
 
+/**
+ * The Stats Tab for FE9 Games.
+ *
+ * This contains the views:
+ * <ul>
+ *     <li>Bases</li>
+ *     <li>Growths</li>
+ *     <li>Other Character Settings (Con/Affinity)</li>
+ *     <li>Enemy Buffs</li>
+ *     <li>Classes</li>
+ * </ul>
+ */
 public class FE9CharactersTab extends YuneTabItem {
     private GrowthsView growths;
     private BasesView bases;
@@ -50,12 +63,20 @@ public class FE9CharactersTab extends YuneTabItem {
     }
 
     @Override
-    public void preloadOptions(OptionRecorder.FE9OptionBundle bundle) {
+    public void preloadOptions(FE9OptionBundle bundle) {
+        growths.initialize(bundle.growths);
+        bases.initialize(bundle.bases);
+        conAffinity.initialize(bundle.otherOptions);
         classes.initialize(bundle.classes);
+        enemies.initialize(bundle.enemyBuff);
     }
 
     @Override
-    public void updateOptionBundle(OptionRecorder.FE9OptionBundle bundle) {
+    public void updateOptionBundle(FE9OptionBundle bundle) {
         bundle.classes = classes.getOptions();
+        bundle.otherOptions = conAffinity.getOptions();
+        bundle.growths = growths.getOptions();
+        bundle.bases = bases.getOptions();
+        bundle.enemyBuff = enemies.getOptions();
     }
 }

@@ -25,35 +25,35 @@ import util.OptionRecorder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * View container which presents the Options in a tab based layout using {@link CTabFolder} and {@link CTabItem}.
+ *
+ * See also {@link YuneTabItem}.
+ */
 public class TabbedViewContainer extends YuneViewContainer {
 
     CTabFolder tabFolder;
 
     // Tabs
-    List<YuneTabItem> availableTabs = new ArrayList<>();
+    List<YuneTabItem> availableTabs;
 
     // GBA Tabs
     YuneTabItem charactersTab;
-    YuneTabItem enemiesTab;
     YuneTabItem itemsTab;
     YuneTabItem miscTab;
     YuneTabItem statsTab;
     YuneTabItem classesTab;
     YuneTabItem skillsTab;
 
-
-
     public TabbedViewContainer(Composite parent, GameType loadedType) {
         super(parent, loadedType);
+    }
+
+    @Override
+    protected void compose() {
         this.setLayout(new FillLayout());
         tabFolder = new CTabFolder(this, SWT.NONE);
-        // Clear the Tabs from potentially loaded previous games
-        if (tabFolder.getTabList().length != 0) {
-            for (CTabItem item : tabFolder.getItems()) {
-                item.dispose();
-            }
-            availableTabs.clear();
-        }
+        availableTabs = new ArrayList<>();
 
         // Initialize the Tab Folder with the tabs based on the game type
         if (type.isGBA()) {
@@ -70,6 +70,7 @@ public class TabbedViewContainer extends YuneViewContainer {
             charactersTab = addTab(new FE9CharactersTab(tabFolder));
             itemsTab = addTab(new FE9ItemsTab(tabFolder));
             skillsTab = addTab(new FE9SkillsTab(tabFolder));
+            miscTab = addTab(new GBAMechanicsTab(tabFolder, type));
         }
 
         tabFolder.setSelection(0);

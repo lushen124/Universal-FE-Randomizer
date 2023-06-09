@@ -8,6 +8,15 @@ import ui.views.fe4.FE4PromotionView;
 import ui.common.YuneTabItem;
 import util.OptionRecorder;
 
+/**
+ * The Classes Tab for FE4.
+ *
+ * This contains the views:
+ * <ul>
+ *     <li>Classes</li>
+ *     <li>Promotions</li>
+ * </ul>
+ */
 public class FE4ClassesTab extends YuneTabItem {
 
     FE4ClassesView classes;

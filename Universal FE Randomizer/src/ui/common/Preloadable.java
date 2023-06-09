@@ -8,7 +8,6 @@ import util.OptionRecorder;
  */
 public interface Preloadable {
 
-
     default void preloadOptions(Bundle bundle) {
         if (bundle instanceof OptionRecorder.GBAOptionBundle) {
             preloadOptions((OptionRecorder.GBAOptionBundle) bundle);

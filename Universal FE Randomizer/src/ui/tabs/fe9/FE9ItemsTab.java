@@ -1,18 +1,26 @@
 package ui.tabs.fe9;
 
 import fedata.general.FEBase.GameType;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import ui.common.GuiUtil;
 import ui.common.YuneTabItem;
-import ui.views.GameMechanicsView;
+import ui.views.RewardRandomizationView;
 import ui.views.WeaponsView;
 import util.OptionRecorder;
 
+/**
+ * The Stats Tab for FE9.
+ *
+ * This contains the views:
+ * <ul>
+ *     <li>Weapon</li>
+ *     <li>Rewards</li>
+ * </ul>
+ */
 public class FE9ItemsTab extends YuneTabItem {
 
     private WeaponsView weapons;
-    private GameMechanicsView misc;
+    private RewardRandomizationView rewards;
 
     public FE9ItemsTab(CTabFolder parent) {
         super(parent, GameType.FE9);
@@ -20,8 +28,8 @@ public class FE9ItemsTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        weapons = addView(new WeaponsView(container, type), GuiUtil.defaultGridData(2));
-        misc = addView(new GameMechanicsView(container, type));
+        weapons = addView(new WeaponsView(container, type, 2), GuiUtil.defaultGridData(2));
+        rewards = addView(new RewardRandomizationView(container, type));
     }
 
     @Override
@@ -42,12 +50,12 @@ public class FE9ItemsTab extends YuneTabItem {
     @Override
     public void preloadOptions(OptionRecorder.FE9OptionBundle bundle) {
         weapons.initialize(bundle.weapons);
-        misc.initialize(bundle.mechanics);
+        rewards.initialize(bundle.rewards);
     }
 
     @Override
     public void updateOptionBundle(OptionRecorder.FE9OptionBundle bundle) {
         bundle.weapons = weapons.getOptions();
-        bundle.mechanics = misc.getOptions();
+        bundle.rewards = rewards.getOptions();
     }
 }
