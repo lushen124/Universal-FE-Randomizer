@@ -36,7 +36,7 @@ public class RomInfoDto {
         dto.romName = parseGameTitle(handler);
         dto.romCode = parseGameCode(handler);
         dto.length = handler.getFileLength();
-        dto.checksum = + crc32;
+        dto.checksum = crc32;
         fillByGame(dto, crc32, handler);
 
         return dto;
