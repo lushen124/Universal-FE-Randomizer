@@ -54,7 +54,7 @@ public class GBACharactersTab extends YuneTabItem {
     public void preloadOptions(GBAOptionBundle bundle) {
         classes.initialize(bundle.classes);
         recruitment.initialize(bundle.recruitmentOptions);
-        shuffling.initialize(bundle.characterShufflingOptions, type);
+        shuffling.initialize(bundle.characterShufflingOptions);
     }
 
     @Override

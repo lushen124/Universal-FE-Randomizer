@@ -20,12 +20,9 @@ import ui.general.MinMaxControl;
 import ui.model.GameMechanicOptions;
 import ui.model.GameMechanicOptions.ExperienceRate;
 
-public class GameMechanicsView extends Composite {
+public class GameMechanicsView extends YuneView<GameMechanicOptions> {
 	
-	private Group container;
-	
-	GameType type;
-	
+
 	private Button applyEnglishPatch; // pre-FE6 only
 	private Button tripleEffectiveness; // FE7 only
 	
@@ -56,25 +53,22 @@ public class GameMechanicsView extends Composite {
 	private Spinner withoutPursuitSpinner;
 	
 	public GameMechanicsView(Composite parent, GameType gameType) {
-		super(parent, SWT.NONE);
-		
-		type = gameType;
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		container.setText("Game Mechanics");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		//////////////////////////////////////////////////////////////////
-		
+		super(parent, gameType);
+	}
+
+	@Override
+	public String getGroupTitle() {
+		return "Game Mechanics";
+	}
+
+	@Override
+	protected void compose() {
 		Control previousControl = null;
 		
-		if (gameType.hasEnglishPatch()) {
-			applyEnglishPatch = new Button(container, SWT.CHECK);
+		if (type.hasEnglishPatch()) {
+			applyEnglishPatch = new Button(group, SWT.CHECK);
 			applyEnglishPatch.setText("Apply English Patch");
-			switch (gameType) {
+			switch (type) {
 			case FE4:
 				applyEnglishPatch.setToolTipText("Applies the Project Naga localization patch.");
 				break;
@@ -94,8 +88,8 @@ public class GameMechanicsView extends Composite {
 			previousControl = applyEnglishPatch;
 		}
 		
-		if (gameType == GameType.FE7) {
-			tripleEffectiveness = new Button(container, SWT.CHECK);
+		if (type == GameType.FE7 || type == GameType.FE9) {
+			tripleEffectiveness = new Button(group, SWT.CHECK);
 			tripleEffectiveness.setText("Set Effectiveness to 3x");
 			tripleEffectiveness.setToolTipText("Reverts the weapon effectiveness to 3x like in the Japanese release, instead of 2x.");
 			
@@ -112,8 +106,8 @@ public class GameMechanicsView extends Composite {
 
 		//////////////////////////////////////////////////////////////////
 
-		if (gameType.isGBA()) {
-			singleRNButton = new Button(container, SWT.CHECK);
+		if (type.isGBA()) {
+			singleRNButton = new Button(group, SWT.CHECK);
 			singleRNButton.setText("Enable Single RN for Hit");
 			singleRNButton.setToolTipText("Makes accuracy rolls based on a single random number instead of the average of two random numbers.\n\nGood for those that don't like being lied to about hit rates.");
 			singleRNButton.setSelection(false);
@@ -127,10 +121,10 @@ public class GameMechanicsView extends Composite {
 		}
 
 		// Fog of War
-		if (gameType.isGBA()) {
-			addFogOfWarButton = new Button(container, SWT.CHECK);
+		if (type.isGBA()) {
+			addFogOfWarButton = new Button(group, SWT.CHECK);
 			addFogOfWarButton.setText("Add Fog of War (Beta)");
-			if (gameType == GameType.FE7) {
+			if (type == GameType.FE7) {
 				addFogOfWarButton.setToolTipText("Adds a chance for maps to feature fog of war.\n\nMaps featuring Kishuna are exempt.");
 			} else {
 				addFogOfWarButton.setToolTipText("Adds a chance for maps to have fog of war.");
@@ -143,7 +137,7 @@ public class GameMechanicsView extends Composite {
 					fogOfWarChanceSpinner.setEnabled(addFogOfWarButton.getSelection());
 					fogOfWarChanceLabel.setEnabled(addFogOfWarButton.getSelection());
 					fogOfWarVisionRangeControl.setEnabled(addFogOfWarButton.getSelection());
-				}	
+				}
 			});
 			
 			FormData formData = new FormData();
@@ -151,7 +145,7 @@ public class GameMechanicsView extends Composite {
 			formData.top = new FormAttachment(previousControl, 10);
 			addFogOfWarButton.setLayoutData(formData);
 			
-			fogOfWarChanceSpinner = new Spinner(container, SWT.CHECK);
+			fogOfWarChanceSpinner = new Spinner(group, SWT.CHECK);
 			fogOfWarChanceSpinner.setValues(10, 1, 100, 0, 1, 1);
 			fogOfWarChanceSpinner.setEnabled(false);
 			
@@ -160,7 +154,7 @@ public class GameMechanicsView extends Composite {
 			formData.top = new FormAttachment(addFogOfWarButton, 5);
 			fogOfWarChanceSpinner.setLayoutData(formData);
 			
-			fogOfWarChanceLabel = new Label(container, SWT.NONE);
+			fogOfWarChanceLabel = new Label(group, SWT.NONE);
 			fogOfWarChanceLabel.setText("Fog of War Chance:");
 			fogOfWarChanceLabel.setEnabled(false);
 			
@@ -169,7 +163,7 @@ public class GameMechanicsView extends Composite {
 			formData.top = new FormAttachment(fogOfWarChanceSpinner, 0, SWT.CENTER);
 			fogOfWarChanceLabel.setLayoutData(formData);
 			
-			fogOfWarVisionRangeControl = new MinMaxControl(container, SWT.NONE, "Vision Range", "~");
+			fogOfWarVisionRangeControl = new MinMaxControl(group, SWT.NONE, "Vision Range", "~");
 			fogOfWarVisionRangeControl.setMin(3);
 			fogOfWarVisionRangeControl.getMinSpinner().setValues(3, 1, 6, 0, 1, 1);
 			fogOfWarVisionRangeControl.setMax(6);
@@ -185,8 +179,8 @@ public class GameMechanicsView extends Composite {
 			previousControl = fogOfWarVisionRangeControl;
 		}
 		
-		if (gameType.isGBA()) {
-			casualModeButton = new Button(container, SWT.CHECK);
+		if (type.isGBA()) {
+			casualModeButton = new Button(group, SWT.CHECK);
 			casualModeButton.setText("Enable Casual Mode");
 			casualModeButton.setToolTipText("Disables permadeath. Defeated playable characters are available again in the next chapter.\n\nThe normal Game Over triggers are still active (i.e. Lord defeated).");
 			casualModeButton.setSelection(false);
@@ -196,7 +190,7 @@ public class GameMechanicsView extends Composite {
 			formData.top = new FormAttachment(previousControl, 10);
 			casualModeButton.setLayoutData(formData);
 			
-			experienceRateGroup = new Group(container, SWT.NONE);
+			experienceRateGroup = new Group(group, SWT.NONE);
 			experienceRateGroup.setText("Experience Rate");
 			experienceRateGroup.setLayout(GuiUtil.formLayoutWithMargin());
 			
@@ -259,8 +253,8 @@ public class GameMechanicsView extends Composite {
 			previousControl = experienceRateGroup;
 		}
 		
-		if (gameType == GameType.FE4) {
-			followupRequirement = new Button(container, SWT.CHECK);
+		if (type == GameType.FE4) {
+			followupRequirement = new Button(group, SWT.CHECK);
 			followupRequirement.setText("Remove Pursuit Follow-up Requirement");
 			followupRequirement.setToolTipText("Modifies the battle system so that the Pursuit skill is not needed to make follow-up attacks.");
 			followupRequirement.setSelection(false);
@@ -270,7 +264,7 @@ public class GameMechanicsView extends Composite {
 			followupData.top = new FormAttachment(previousControl, 10);
 			followupRequirement.setLayoutData(followupData);
 			
-			withoutPursuitSpinner = new Spinner(container, SWT.NONE);
+			withoutPursuitSpinner = new Spinner(group, SWT.NONE);
 			withoutPursuitSpinner.setValues(6, 1, 10, 0, 1, 1);
 			withoutPursuitSpinner.setEnabled(false);
 			withoutPursuitSpinner.setToolTipText("Sets the minimum Attack Speed advantage needed to perform follow-up attacks without the Pursuit skill.");
@@ -280,7 +274,7 @@ public class GameMechanicsView extends Composite {
 			spinnerData.top = new FormAttachment(followupRequirement, 5);
 			withoutPursuitSpinner.setLayoutData(spinnerData);
 			
-			withoutPursuitLabel = new Label(container, SWT.NONE);
+			withoutPursuitLabel = new Label(group, SWT.NONE);
 			withoutPursuitLabel.setText("AS Threshold w/o Pursuit:");
 			withoutPursuitLabel.setEnabled(false);
 			
@@ -289,7 +283,7 @@ public class GameMechanicsView extends Composite {
 			labelData.top = new FormAttachment(withoutPursuitSpinner, 0, SWT.CENTER);
 			withoutPursuitLabel.setLayoutData(labelData);
 			
-			withPursuitSpinner = new Spinner(container, SWT.NONE);
+			withPursuitSpinner = new Spinner(group, SWT.NONE);
 			withPursuitSpinner.setValues(3, 1, 10, 0, 1, 1);
 			withPursuitSpinner.setEnabled(false);
 			withPursuitSpinner.setToolTipText("Sets the minimum Attack Speed advantage needed to perform follow-up attacks with the Pursuit skill.");
@@ -299,7 +293,7 @@ public class GameMechanicsView extends Composite {
 			spinnerData.top = new FormAttachment(withoutPursuitSpinner, 5);
 			withPursuitSpinner.setLayoutData(spinnerData);
 			
-			withPursuitLabel = new Label(container, SWT.NONE);
+			withPursuitLabel = new Label(group, SWT.NONE);
 			withPursuitLabel.setText("AS Threshold w/ Pursuit:");
 			withPursuitLabel.setEnabled(false);
 			
@@ -317,22 +311,10 @@ public class GameMechanicsView extends Composite {
 					withPursuitSpinner.setEnabled(followupRequirement.getSelection());
 				}
 			});
-			
-			previousControl = withPursuitSpinner;
-		}
-	}
-	
-	public void setPatchingEnabled(boolean patchingEnabled) {
-		if (applyEnglishPatch != null) {
-			if (patchingEnabled) {
-				applyEnglishPatch.setEnabled(true);
-			} else {
-				applyEnglishPatch.setEnabled(false);
-				applyEnglishPatch.setSelection(false);
-			}
 		}
 	}
 
+	@Override
 	public GameMechanicOptions getOptions() {
 		if (type.isGBA()) {
 			switch (type) {
@@ -349,12 +331,11 @@ public class GameMechanicsView extends Composite {
 			default:
 				return new GameMechanicOptions(false, false, false, false, 0, null, false, ExperienceRate.NORMAL);
 			}
-		} else if (type.isGCN()) {
-			return new GameMechanicOptions(false);
 		}
 		return new GameMechanicOptions(false, false, false, false, 0, null, false, ExperienceRate.NORMAL);
 	}
 
+	@Override
 	public void initialize(GameMechanicOptions options) {
 		if (options == null) {
 			// Shouldn't happen.

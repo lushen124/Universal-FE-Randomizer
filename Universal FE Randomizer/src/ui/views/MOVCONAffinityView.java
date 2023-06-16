@@ -18,9 +18,8 @@ import ui.model.MinMaxOption;
 import ui.model.MinVarOption;
 import ui.model.OtherCharacterOptions;
 
-public class MOVCONAffinityView extends Composite {
+public class MOVCONAffinityView extends YuneView<OtherCharacterOptions> {
 	
-	private Group container;
 	
 	private Button randomizeMOVButton;
 	private MinMaxControl movLimitControl;
@@ -32,19 +31,17 @@ public class MOVCONAffinityView extends Composite {
 	private Button randomizeAffinityButton;
 
 	public MOVCONAffinityView(Composite parent) {
-		super(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		
-		container.setText("Other Character Settings");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		///////////////////////////////////////////////////////
-		
-		randomizeMOVButton = new Button(container, SWT.CHECK);
+		super(parent);
+	}
+
+	@Override
+	public String getGroupTitle() {
+		return "Other Character Settings";
+	}
+
+	@Override
+	protected void compose() {
+		randomizeMOVButton = new Button(group, SWT.CHECK);
 		randomizeMOVButton.setText("Randomize MOV");
 		randomizeMOVButton.setToolTipText("Assigns each class a random MOV range between the minimum and maximum specified. Male and Female versions are considered different classes.");
 		
@@ -53,7 +50,7 @@ public class MOVCONAffinityView extends Composite {
 		movButtonData.top = new FormAttachment(0, 5);
 		randomizeMOVButton.setLayoutData(movButtonData);
 		
-		movLimitControl = new MinMaxControl(container, SWT.NONE, "Min MOV:", "Max MOV:");
+		movLimitControl = new MinMaxControl(group, SWT.NONE, "Min MOV:", "Max MOV:");
 		
 		movLimitControl.getMinSpinner().setValues(4, 1, 8, 0, 1, 1);
 		movLimitControl.getMaxSpinner().setValues(8, 4, 15, 0, 1, 1);
@@ -74,7 +71,7 @@ public class MOVCONAffinityView extends Composite {
 		
 		///////////////////////////////////////////////////////
 		
-		randomizeCONButton = new Button(container, SWT.CHECK);
+		randomizeCONButton = new Button(group, SWT.CHECK);
 		randomizeCONButton.setText("Randomize CON");
 		randomizeCONButton.setToolTipText("Randomly adjusts each character's CON offset from their class base, up to a maximum variance.");
 		
@@ -83,7 +80,7 @@ public class MOVCONAffinityView extends Composite {
 		conButtonData.top = new FormAttachment(movLimitControl, 10);
 		randomizeCONButton.setLayoutData(conButtonData);
 		
-		Composite conParamContainer = new Composite(container, SWT.NONE);
+		Composite conParamContainer = new Composite(group, SWT.NONE);
 		conParamContainer.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		Label varianceLabel = new Label(conParamContainer, SWT.RIGHT);
@@ -136,7 +133,7 @@ public class MOVCONAffinityView extends Composite {
 		
 		///////////////////////////////////////////////////////
 		
-		randomizeAffinityButton = new Button(container, SWT.CHECK);
+		randomizeAffinityButton = new Button(group, SWT.CHECK);
 		randomizeAffinityButton.setText("Randomize Affinity");
 		randomizeAffinityButton.setToolTipText("Assigns random support affinities to all characters.");
 		
@@ -146,6 +143,7 @@ public class MOVCONAffinityView extends Composite {
 		randomizeAffinityButton.setLayoutData(affinityData);
 	}
 
+	@Override
 	public OtherCharacterOptions getOptions() {
 		MinMaxOption movementOptions = null;
 		MinVarOption constitutionOptions = null;
@@ -160,6 +158,7 @@ public class MOVCONAffinityView extends Composite {
 		return new OtherCharacterOptions(movementOptions, constitutionOptions, randomizeAffinityButton.getSelection());
 	}
 
+	@Override
 	public void initialize(OtherCharacterOptions options) {
 		if (options == null) {
 			// Shouldn't happen.

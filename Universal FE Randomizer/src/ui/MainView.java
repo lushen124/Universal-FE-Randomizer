@@ -90,11 +90,13 @@ public class MainView implements FileFlowDelegate {
         rowLayout.marginRight = 20;
         mainContainer.setLayout(rowLayout);
 
-
+        // Create the Rom Selection Group, so the user can select the initial rom
         romSelection = new RomSelectionGroup(mainContainer, this);
 
+        // Start display
         resize();
         mainShell.open();
+
         // Add Listener for Shortcut CTRL + SHIFT + C to open the console
         mainDisplay.addFilter(SWT.KeyDown, new ConsoleListener());
         // Add listener for Shortcut CTRL + 1 or CTRL + 2 to swap between layouts

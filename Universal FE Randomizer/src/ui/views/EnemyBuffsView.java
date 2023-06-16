@@ -19,10 +19,9 @@ import ui.model.EnemyOptions;
 import ui.model.EnemyOptions.BossStatMode;
 import ui.model.EnemyOptions.MinionGrowthMode;
 
-public class EnemyBuffsView extends Composite {
+public class EnemyBuffsView extends YuneView<EnemyOptions> {
 	
-	private Group container;
-	
+
 	private Button buffEnemyGrowthsButton;
 	private Label minionSpinnerLabel;
 	private Spinner buffSpinner;
@@ -62,18 +61,20 @@ public class EnemyBuffsView extends Composite {
 	private Button bossRES;
 	
 	public EnemyBuffsView(Composite parent) {
-		super(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		
-		container.setText("Buff Enemies");
-		container.setToolTipText("Options to mix up the normal enemies, generally to make the game more challenging.");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		Group minionGroup = new Group(container, SWT.NONE);
+		super(parent);
+	}
+	@Override
+	public String getGroupTitle() {
+		return "Buff Enemies";
+	}
+
+	@Override
+	public String getGroupTooltip() {
+		return "Options to mix up the normal enemies, generally to make the game more challenging.";
+	}
+	@Override
+	protected void compose() {
+		Group minionGroup = new Group(group, SWT.NONE);
 		minionGroup.setText("Minions");
 		minionGroup.setLayout(GuiUtil.formLayoutWithMargin());
 		
@@ -252,7 +253,7 @@ public class EnemyBuffsView extends Composite {
 		
 		//////////////////////////////////////////////////////////////////	
 		
-		Group bossGroup = new Group(container, SWT.NONE);
+		Group bossGroup = new Group(group, SWT.NONE);
 		bossGroup.setText("Bosses");
 		bossGroup.setLayout(GuiUtil.formLayoutWithMargin());
 		
@@ -419,6 +420,7 @@ public class EnemyBuffsView extends Composite {
 		bossWeaponSpinner.setLayoutData(spinnerData);
 	}
 
+	@Override
 	public EnemyOptions getOptions() {
 
 		boolean buffMinionWeapons = improveEnemyWeaponsButton.getSelection();
@@ -445,6 +447,7 @@ public class EnemyBuffsView extends Composite {
 				new EnemyOptions.BuffStats(bossHP.getSelection(), bossSTR.getSelection(), bossSKL.getSelection(), bossSPD.getSelection(), bossLCK.getSelection(), bossDEF.getSelection(), bossRES.getSelection()));
 	}
 
+	@Override
 	public void initialize(EnemyOptions options) {
 		if (options == null) {
 			// Shouldn't happen.

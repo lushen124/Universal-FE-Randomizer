@@ -6,6 +6,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import ui.common.GuiUtil;
 import ui.common.YuneTabItem;
 import ui.views.ItemAssignmentView;
+import ui.views.PrfView;
 import ui.views.RewardRandomizationView;
 import ui.views.WeaponsView;
 import util.OptionRecorder;
@@ -26,6 +27,7 @@ public class GBAItemsTab extends YuneTabItem {
     private WeaponsView weapons;
     private ItemAssignmentView itemAssignment;
     private RewardRandomizationView rewards;
+    private PrfView prfs;
 
     public GBAItemsTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
@@ -37,6 +39,7 @@ public class GBAItemsTab extends YuneTabItem {
         setViewData(weapons, 1, 3);
         itemAssignment = addView(new ItemAssignmentView(container, type));
         rewards = addView(new RewardRandomizationView(container, type));
+        prfs = addView(new PrfView(container));
     }
 
     @Override
@@ -59,6 +62,7 @@ public class GBAItemsTab extends YuneTabItem {
         this.weapons.initialize(bundle.weapons);
         this.itemAssignment.initialize(bundle.itemAssignmentOptions);
         this.rewards.initialize(bundle.rewards);
+        this.prfs.initialize(bundle.prfs);
     }
 
     @Override
@@ -66,5 +70,6 @@ public class GBAItemsTab extends YuneTabItem {
         bundle.weapons = weapons.getOptions();
         bundle.itemAssignmentOptions = itemAssignment.getOptions();
         bundle.rewards = rewards.getOptions();
+        bundle.prfs = prfs.getOptions();
     }
 }

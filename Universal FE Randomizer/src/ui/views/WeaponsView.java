@@ -1,10 +1,8 @@
 package ui.views;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -21,9 +19,10 @@ import ui.general.MinMaxControl;
 import ui.model.MinMaxVarOption;
 import ui.model.WeaponOptions;
 
-public class WeaponsView extends Composite {
-	private Group container;
-	
+public class WeaponsView extends YuneView<WeaponOptions> {
+
+	private int numberColumns;
+
 	private Button enableMightButton;
 	private Spinner mightVarianceSpinner;
 	private MinMaxControl mightRangeControl;
@@ -50,18 +49,20 @@ public class WeaponsView extends Composite {
 	private WeaponEffectSelectionView effectsSelectionView;
 	
 	public WeaponsView(Composite parent, GameType type, int numberColumns) {
-		super(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		container.setText("Weapons");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		///////////////////////////////////////////////////////
-		
-		enableMightButton = new Button(container, SWT.CHECK);
+		super();
+		createGroup(parent);
+		this.type = type;
+		this.numberColumns = numberColumns;
+		compose();
+	}
+
+	@Override
+	public String getGroupTitle() {
+		return "Weapons";
+	}
+
+	protected void compose() {
+		enableMightButton = new Button(group, SWT.CHECK);
 		enableMightButton.setText("Randomize Power (MT)");
 		enableMightButton.setToolTipText("Applies a random delta +/- Variance to all weapons' MT stat. All weapons are then clamped to the min and max specified.");
 
@@ -69,24 +70,24 @@ public class WeaponsView extends Composite {
 		mtData.left = new FormAttachment(0, 5);
 		mtData.top = new FormAttachment(0, 5);
 		enableMightButton.setLayoutData(mtData);
-		
-		Composite mtParamContainer = new Composite(container, SWT.NONE);
-		
+
+		Composite mtParamContainer = new Composite(group, SWT.NONE);
+
 		mtParamContainer.setLayout(GuiUtil.formLayoutWithMargin());
-		
+
 		Label mtVarianceLabel = new Label(mtParamContainer, SWT.RIGHT);
 		mtVarianceLabel.setText("Variance:");
-		
+
 		mightVarianceSpinner = new Spinner(mtParamContainer, SWT.NONE);
 		mightVarianceSpinner.setValues(3, 1, 31, 0, 1, 1);
 		mightVarianceSpinner.setEnabled(false);
-		
+
 		FormData mtVarLabelData = new FormData();
 		mtVarLabelData.left = new FormAttachment(0, 5);
 		mtVarLabelData.right = new FormAttachment(50, -5);
 		mtVarLabelData.top = new FormAttachment(mightVarianceSpinner, 0, SWT.CENTER);
 		mtVarianceLabel.setLayoutData(mtVarLabelData);
-		
+
 		FormData mtVarSpinnerData = new FormData();
 		mtVarSpinnerData.left = new FormAttachment(50, 0);
 		mtVarSpinnerData.top = new FormAttachment(0, 5);
@@ -111,15 +112,15 @@ public class WeaponsView extends Composite {
 				mightVarianceSpinner.setEnabled(enableMightButton.getSelection());
 			}
 		});
-		
+
 		FormData mtContainerData = new FormData();
 		mtContainerData.left = new FormAttachment(enableMightButton, 0, SWT.LEFT);
 		mtContainerData.top = new FormAttachment(enableMightButton, 0);
 		mtParamContainer.setLayoutData(mtContainerData);
 
 		///////////////////////////////////////////////////////
-		
-		enableHitButton = new Button(container, SWT.CHECK);
+
+		enableHitButton = new Button(group, SWT.CHECK);
 		enableHitButton.setText("Randomize Accuracy (Hit)");
 		enableHitButton.setToolTipText("Applies a random delta +/- Variance to all weapons' accuracy. All weapons are then clamped to the min and max specified.");
 
@@ -127,23 +128,23 @@ public class WeaponsView extends Composite {
 		hitData.left = new FormAttachment(0, 5);
 		hitData.top = new FormAttachment(mtParamContainer, 5);
 		enableHitButton.setLayoutData(hitData);
-		
-		Composite hitParamContainer = new Composite(container, SWT.NONE);
+
+		Composite hitParamContainer = new Composite(group, SWT.NONE);
 		hitParamContainer.setLayout(GuiUtil.formLayoutWithMargin());
-		
+
 		Label hitVarianceLabel = new Label(hitParamContainer, SWT.RIGHT);
 		hitVarianceLabel.setText("Variance:");
-		
+
 		hitVarianceSpinner = new Spinner(hitParamContainer, SWT.NONE);
 		hitVarianceSpinner.setValues(20, 1, 255, 0, 1, 5);
 		hitVarianceSpinner.setEnabled(false);
-		
+
 		FormData hitVarLabelData = new FormData();
 		hitVarLabelData.left = new FormAttachment(0, 5);
 		hitVarLabelData.right = new FormAttachment(50, -5);
 		hitVarLabelData.top = new FormAttachment(hitVarianceSpinner, 0, SWT.CENTER);
 		hitVarianceLabel.setLayoutData(hitVarLabelData);
-		
+
 		FormData hitVarSpinnerData = new FormData();
 		hitVarSpinnerData.left = new FormAttachment(50, 0);
 		hitVarSpinnerData.top = new FormAttachment(0, 5);
@@ -168,15 +169,15 @@ public class WeaponsView extends Composite {
 				hitVarianceSpinner.setEnabled(enableHitButton.getSelection());
 			}
 		});
-		
+
 		FormData hitContainerData = new FormData();
 		hitContainerData.left = new FormAttachment(enableHitButton, 0, SWT.LEFT);
 		hitContainerData.top = new FormAttachment(enableHitButton, 0);
 		hitParamContainer.setLayoutData(hitContainerData);
 
 		///////////////////////////////////////////////////////
-		
-		enableWeightButton = new Button(container, SWT.CHECK);
+
+		enableWeightButton = new Button(group, SWT.CHECK);
 		enableWeightButton.setText("Randomize Weights (WT)");
 		enableWeightButton.setToolTipText("Applies a random delta +/- Variance to all weapons' weight. All weapons are then clamped to the min and max specified.");
 
@@ -184,23 +185,23 @@ public class WeaponsView extends Composite {
 		wtData.left = new FormAttachment(0, 5);
 		wtData.top = new FormAttachment(hitParamContainer, 5);
 		enableWeightButton.setLayoutData(wtData);
-		
-		Composite wtParamContainer = new Composite(container, SWT.NONE);
+
+		Composite wtParamContainer = new Composite(group, SWT.NONE);
 		wtParamContainer.setLayout(GuiUtil.formLayoutWithMargin());
-		
+
 		Label wtVarianceLabel = new Label(wtParamContainer, SWT.RIGHT);
 		wtVarianceLabel.setText("Variance:");
-		
+
 		weightVarianceSpinner = new Spinner(wtParamContainer, SWT.NONE);
 		weightVarianceSpinner.setValues(5, 1, 255, 0, 1, 5);
 		weightVarianceSpinner.setEnabled(false);
-		
+
 		FormData wtVarLabelData = new FormData();
 		wtVarLabelData.left = new FormAttachment(0, 5);
 		wtVarLabelData.right = new FormAttachment(50, -5);
 		wtVarLabelData.top = new FormAttachment(weightVarianceSpinner, 0, SWT.CENTER);
 		wtVarianceLabel.setLayoutData(wtVarLabelData);
-		
+
 		FormData wtVarSpinnerData = new FormData();
 		wtVarSpinnerData.left = new FormAttachment(50, 0);
 		wtVarSpinnerData.top = new FormAttachment(0, 5);
@@ -225,15 +226,15 @@ public class WeaponsView extends Composite {
 				weightVarianceSpinner.setEnabled(enableWeightButton.getSelection());
 			}
 		});
-		
+
 		FormData wtContainerData = new FormData();
 		wtContainerData.left = new FormAttachment(enableWeightButton, 0, SWT.LEFT);
 		wtContainerData.top = new FormAttachment(enableWeightButton, 0);
 		wtParamContainer.setLayoutData(wtContainerData);
 
 		///////////////////////////////////////////////////////
-		
-		enableDurabilityButton = new Button(container, SWT.CHECK);
+
+		enableDurabilityButton = new Button(group, SWT.CHECK);
 		enableDurabilityButton.setText("Randomize Durability");
 		enableDurabilityButton.setToolTipText("Applies a random delta +/- Variance to all weapons' durability. All weapons are then clamped to the min and max specified. Siege tomes are limited to a 1-use minimum.");
 
@@ -241,23 +242,23 @@ public class WeaponsView extends Composite {
 		durabilityData.left = new FormAttachment(0, 5);
 		durabilityData.top = new FormAttachment(wtParamContainer, 5);
 		enableDurabilityButton.setLayoutData(durabilityData);
-		
-		Composite durabilityParamContainer = new Composite(container, SWT.NONE);
+
+		Composite durabilityParamContainer = new Composite(group, SWT.NONE);
 		durabilityParamContainer.setLayout(GuiUtil.formLayoutWithMargin());
-		
+
 		Label durabilityVarianceLabel = new Label(durabilityParamContainer, SWT.RIGHT);
 		durabilityVarianceLabel.setText("Variance:");
-		
+
 		durabilityVarianceSpinner = new Spinner(durabilityParamContainer, SWT.NONE);
 		durabilityVarianceSpinner.setValues(20, 1, 255, 0, 1, 5);
 		durabilityVarianceSpinner.setEnabled(false);
-		
+
 		FormData durabilityVarLabelData = new FormData();
 		durabilityVarLabelData.left = new FormAttachment(0, 5);
 		durabilityVarLabelData.right = new FormAttachment(50, -5);
 		durabilityVarLabelData.top = new FormAttachment(durabilityVarianceSpinner, 0, SWT.CENTER);
 		durabilityVarianceLabel.setLayoutData(durabilityVarLabelData);
-		
+
 		FormData durabilityVarSpinnerData = new FormData();
 		durabilityVarSpinnerData.left = new FormAttachment(50, 0);
 		durabilityVarSpinnerData.top = new FormAttachment(0, 5);
@@ -282,15 +283,15 @@ public class WeaponsView extends Composite {
 				durabilityVarianceSpinner.setEnabled(enableDurabilityButton.getSelection());
 			}
 		});
-		
+
 		FormData durabilityContainerData = new FormData();
 		durabilityContainerData.left = new FormAttachment(enableDurabilityButton, 0, SWT.LEFT);
 		durabilityContainerData.top = new FormAttachment(enableDurabilityButton, 0);
 		durabilityParamContainer.setLayoutData(durabilityContainerData);
 
 		///////////////////////////////////////////////////////
-		
-		enableRandomEffectsButton = new Button(container, SWT.CHECK);
+
+		enableRandomEffectsButton = new Button(group, SWT.CHECK);
 		enableRandomEffectsButton.setText("Add Random Effects");
 		enableRandomEffectsButton.setToolTipText("Adds a random effect to all weapons. Effects includes stat bonuses, effectiveness, weapon triangle reversal, brave, magic damge, etc. Weapons that already have effects get a second effect added on.");
 
@@ -307,7 +308,7 @@ public class WeaponsView extends Composite {
 		}
 
 
-		noEffectsForIronButton = new Button(container, SWT.CHECK);
+		noEffectsForIronButton = new Button(group, SWT.CHECK);
 		noEffectsForIronButton.setText("Safe Basic Weapons");
 		if (type == GameType.FE9) {
 			noEffectsForIronButton.setToolTipText("Iron Weapons (inc. Knife, Fire, Wind, Thunder, and Light) remain unchanged. This establishes a safe-zone for weapons to not be broken.");
@@ -315,35 +316,35 @@ public class WeaponsView extends Composite {
 			noEffectsForIronButton.setToolTipText("Iron Weapons (inc. Fire, Lightning, and Flux) remain unchanged. This establishes a safe-zone for weapons to not be broken.");
 		}
 		noEffectsForIronButton.setEnabled(false);
-		
+
 		FormData ironData = new FormData();
 		ironData.left = new FormAttachment(enableRandomEffectsButton, 10, SWT.LEFT);
 		ironData.top = new FormAttachment(enableRandomEffectsButton, 5);
 		noEffectsForIronButton.setLayoutData(ironData);
-		
+
 		Control lastControl = noEffectsForIronButton;
-		
+
 		if (type.isGBA()) {
-			noEffectsForSteelButton = new Button(container, SWT.CHECK);
+			noEffectsForSteelButton = new Button(group, SWT.CHECK);
 			noEffectsForSteelButton.setText("Safe Steel Weapons");
 			noEffectsForSteelButton.setToolTipText("Steel Weapons (and Thunder) remain unchanged.");
 			noEffectsForSteelButton.setEnabled(false);
-			
+
 			FormData steelData = new FormData();
 			steelData.left = new FormAttachment(noEffectsForIronButton, 10, SWT.LEFT);
 			steelData.top = new FormAttachment(noEffectsForIronButton, 5);
 			noEffectsForSteelButton.setLayoutData(steelData);
-			
-			noEffectsForBasicThrownButton = new Button(container, SWT.CHECK);
+
+			noEffectsForBasicThrownButton = new Button(group, SWT.CHECK);
 			noEffectsForBasicThrownButton.setText("Safe Basic Thrown Weapons");
 			noEffectsForBasicThrownButton.setToolTipText("Thrown Weapons (Javelin, Hand Axe) remain unchanged.");
 			noEffectsForBasicThrownButton.setEnabled(false);
-			
+
 			FormData thrownData = new FormData();
 			thrownData.left = new FormAttachment(noEffectsForSteelButton, 0, SWT.LEFT);
 			thrownData.top = new FormAttachment(noEffectsForSteelButton, 5);
 			noEffectsForBasicThrownButton.setLayoutData(thrownData);
-			
+
 			noEffectsForIronButton.addListener(SWT.Selection, new Listener() {
 				@Override
 				public void handleEvent(Event event) {
@@ -353,49 +354,49 @@ public class WeaponsView extends Composite {
 					noEffectsForBasicThrownButton.setSelection(noEffectsForIronButton.getSelection());
 				}
 			});
-			
+
 			lastControl = noEffectsForBasicThrownButton;
 		} else if (type == GameType.FE9) {
-			includeLaguzButton = new Button(container, SWT.CHECK);
+			includeLaguzButton = new Button(group, SWT.CHECK);
 			includeLaguzButton.setText("Include Laguz Weapons");
 			includeLaguzButton.setToolTipText("Adds a random effect to claws, fangs, beaks, and breaths. All laguz of the same type share the same weapon trait.\nSome effects (like extended range) are not eligible for laguz weapons.");
 			includeLaguzButton.setEnabled(false);
-			
+
 			FormData laguzData = new FormData();
 			laguzData.left = new FormAttachment(noEffectsForIronButton, 0, SWT.LEFT);
 			laguzData.top = new FormAttachment(noEffectsForIronButton, 5);
 			includeLaguzButton.setLayoutData(laguzData);
-			
+
 			lastControl = includeLaguzButton;
 		}
-		
-		effectChanceSpinner = new Spinner(container, SWT.NONE);
+
+		effectChanceSpinner = new Spinner(group, SWT.NONE);
 		effectChanceSpinner.setToolTipText("Sets the chance of an effect being added to a weapon.");
 		effectChanceSpinner.setEnabled(false);
 		effectChanceSpinner.setValues(25, 1, 100, 0, 1, 5);
 		effectChanceSpinner.setEnabled(false);
-		
-		effectChanceLabel = new Label(container, SWT.NONE);
+
+		effectChanceLabel = new Label(group, SWT.NONE);
 		effectChanceLabel.setText("Effect Chance:");
 		effectChanceLabel.setEnabled(false);
-		
+
 		FormData spinnerData = new FormData();
 		spinnerData.left = new FormAttachment(effectChanceLabel, 10);
 		spinnerData.top = new FormAttachment(lastControl, 5);
 		effectChanceSpinner.setLayoutData(spinnerData);
-		
+
 		FormData labelData = new FormData();
 		labelData.left = new FormAttachment(noEffectsForIronButton, 0, SWT.LEFT);
 		labelData.top = new FormAttachment(effectChanceSpinner, 0, SWT.CENTER);
 		effectChanceLabel.setLayoutData(labelData);
-		
+
 		updateWeaponEffectSelectionViewForGame(type);
 	}
 	
 	public void updateWeaponEffectSelectionViewForGame(GameType type) {
 		if (effectsSelectionView != null) { effectsSelectionView.dispose(); }
 		
-		effectsSelectionView = new WeaponEffectSelectionView(container, type);
+		effectsSelectionView = new WeaponEffectSelectionView(group, type);
 		effectsSelectionView.setEnabled(false);
 		
 		FormData effectData = new FormData();
@@ -451,6 +452,7 @@ public class WeaponsView extends Composite {
 		});
 	}
 
+	@Override
 	public WeaponOptions getOptions() {
 		MinMaxVarOption mightOptions = null;
 		MinMaxVarOption hitOptions = null;
@@ -477,6 +479,7 @@ public class WeaponsView extends Composite {
 				includeLaguzButton != null ? includeLaguzButton.getSelection() : false);
 	}
 
+	@Override
 	public void initialize(WeaponOptions options) {
 		if (options == null) {
 			// Shouldn't happen.

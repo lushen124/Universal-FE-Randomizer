@@ -18,10 +18,9 @@ import ui.model.RecruitmentOptions.ClassMode;
 import ui.model.RecruitmentOptions.GrowthAdjustmentMode;
 import ui.model.RecruitmentOptions.StatAdjustmentMode;
 
-public class RecruitmentView extends Composite {
+public class RecruitmentView extends YuneView<RecruitmentOptions> {
 	
-	private Group container;
-	
+
 	private Button enableButton;
 	
 	private Group growthContainer;
@@ -42,8 +41,6 @@ public class RecruitmentView extends Composite {
 	private Button slotClassButton;
 	
 	private Button lordsButton;
-	private Button createPrfsButton;
-	private Button unbreakablePrfsButton;
 	private Button thievesButton;
 	private Button specialButton;
 	
@@ -51,17 +48,22 @@ public class RecruitmentView extends Composite {
 	private Button includeExtras;
 	
 	public RecruitmentView(Composite parent, GameType type) {
-		super(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		container.setText("Recruitment");
-		container.setToolTipText("Randomized character join order.");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		enableButton = new Button(container, SWT.CHECK);
+		super(parent, type);
+	}
+
+	@Override
+	public String getGroupTitle() {
+		return "Recruitment";
+	}
+
+	@Override
+	public String getGroupTooltip() {
+		return "Randomized character join order.";
+	}
+
+	@Override
+	protected void compose() {
+		enableButton = new Button(group, SWT.CHECK);
 		enableButton.setText("Randomize Recruitment");
 		enableButton.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -83,9 +85,6 @@ public class RecruitmentView extends Composite {
 				thievesButton.setEnabled(enableButton.getSelection());
 				specialButton.setEnabled(enableButton.getSelection());
 				
-				createPrfsButton.setEnabled(enableButton.getSelection() && lordsButton.getSelection());
-				unbreakablePrfsButton.setEnabled(enableButton.getSelection() && lordsButton.getSelection() && createPrfsButton.getSelection());
-				
 				autolevelTypeContainer.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
 				autolevelOriginalButton.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
 				autolevelNewButton.setEnabled(enableButton.getSelection() && autolevelButton.getSelection());
@@ -106,7 +105,7 @@ public class RecruitmentView extends Composite {
 		
 		///////////////////////////////////////////
 		
-		growthContainer = new Group(container, SWT.NONE);
+		growthContainer = new Group(group, SWT.NONE);
 		growthContainer.setText("Growths");
 		growthContainer.setToolTipText("Determines how growths are assigned.");
 		growthContainer.setLayout(GuiUtil.formLayoutWithMargin());
@@ -153,7 +152,7 @@ public class RecruitmentView extends Composite {
 		
 		/////////////////////////////////////////////////
 		
-		basesContainer = new Group(container, SWT.NONE);
+		basesContainer = new Group(group, SWT.NONE);
 		basesContainer.setText("Bases");
 		basesContainer.setToolTipText("Determines how bases are transferred.");
 		basesContainer.setLayout(GuiUtil.formLayoutWithMargin());
@@ -229,7 +228,7 @@ public class RecruitmentView extends Composite {
 		optionData.top = new FormAttachment(absoluteButton, 5);
 		relativeButton.setLayoutData(optionData);
 		
-		classContainer = new Group(container, SWT.NONE);
+		classContainer = new Group(group, SWT.NONE);
 		classContainer.setText("Classes");
 		classContainer.setToolTipText("Determines how classes are assigned.");
 		classContainer.setLayout(GuiUtil.formLayoutWithMargin());
@@ -286,7 +285,7 @@ public class RecruitmentView extends Composite {
 		optionData.top = new FormAttachment(fillClassButton, 5);
 		slotClassButton.setLayoutData(optionData);
 		
-		lordsButton = new Button(container, SWT.CHECK);
+		lordsButton = new Button(group, SWT.CHECK);
 		lordsButton.setText("Include Lords");
 		lordsButton.setToolTipText("Allows Lord characters to randomize their recruitment time.");
 		lordsButton.setEnabled(false);
@@ -296,45 +295,8 @@ public class RecruitmentView extends Composite {
 		optionData.left = new FormAttachment(classContainer, 0, SWT.LEFT);
 		optionData.top = new FormAttachment(classContainer, 10);
 		lordsButton.setLayoutData(optionData);
-		
-		createPrfsButton = new Button(container, SWT.CHECK);
-		createPrfsButton.setText("Create Matching Prf Weapons");
-		createPrfsButton.setToolTipText("If enabled, creates Prf weapons for characters that randomize into the lord slots.");
-		createPrfsButton.setEnabled(false);
-		createPrfsButton.setSelection(false);
-		
-		optionData = new FormData();
-		optionData.left = new FormAttachment(lordsButton, 10, SWT.LEFT);
-		optionData.top = new FormAttachment(lordsButton, 5);
-		createPrfsButton.setLayoutData(optionData);
-		
-		unbreakablePrfsButton = new Button(container, SWT.CHECK);
-		unbreakablePrfsButton.setText("Make Prf Weapons Unbreakable");
-		unbreakablePrfsButton.setToolTipText("If enabled, created Prf weapons are unbreakable.");
-		unbreakablePrfsButton.setEnabled(false);
-		unbreakablePrfsButton.setSelection(false);
-		
-		optionData = new FormData();
-		optionData.left = new FormAttachment(createPrfsButton, 10, SWT.LEFT);
-		optionData.top = new FormAttachment(createPrfsButton, 5);
-		unbreakablePrfsButton.setLayoutData(optionData);
-		
-		lordsButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				createPrfsButton.setEnabled(lordsButton.getSelection());
-				unbreakablePrfsButton.setEnabled(lordsButton.getSelection() && createPrfsButton.getSelection());
-			}
-		});
-		
-		createPrfsButton.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				unbreakablePrfsButton.setEnabled(lordsButton.getSelection() && createPrfsButton.getSelection());
-			}
-		});
-		
-		thievesButton = new Button(container, SWT.CHECK);
+
+		thievesButton = new Button(group, SWT.CHECK);
 		thievesButton.setText("Include Thieves");
 		thievesButton.setToolTipText("Allows Thief characters to randomize their recruitment time.");
 		thievesButton.setEnabled(false);
@@ -342,10 +304,10 @@ public class RecruitmentView extends Composite {
 		
 		optionData = new FormData();
 		optionData.left = new FormAttachment(lordsButton, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(unbreakablePrfsButton, 10);
+		optionData.top = new FormAttachment(lordsButton, 10);
 		thievesButton.setLayoutData(optionData);
 		
-		specialButton = new Button(container, SWT.CHECK);
+		specialButton = new Button(group, SWT.CHECK);
 		specialButton.setText("Include Special Characters");
 		specialButton.setToolTipText("Allows Dancers, Bards, and Manaketes to randomize their recruitment time.");
 		specialButton.setEnabled(false);
@@ -356,7 +318,7 @@ public class RecruitmentView extends Composite {
 		optionData.top = new FormAttachment(thievesButton, 5);
 		specialButton.setLayoutData(optionData);
 		
-		crossGenderButton = new Button(container, SWT.CHECK);
+		crossGenderButton = new Button(group, SWT.CHECK);
 		crossGenderButton.setText("Allow Cross-gender Assignments");
 		crossGenderButton.setToolTipText("Allows males to be assigned to female slots and vice versa.");
 		crossGenderButton.setEnabled(false);
@@ -369,7 +331,7 @@ public class RecruitmentView extends Composite {
 		
 		if (type == GameType.FE8) {
 			// Option to include Creature Campaign
-			includeExtras = new Button(container, SWT.CHECK);
+			includeExtras = new Button(group, SWT.CHECK);
 			includeExtras.setText("Include Creature Campaign NPCs");
 			includeExtras.setToolTipText("Includes NPCs from the creature campaign into the pool.\nSpecifically: Glen, Fado, Hayden, and Ismaire.");
 			includeExtras.setEnabled(false);
@@ -382,6 +344,7 @@ public class RecruitmentView extends Composite {
 		}
 	}
 
+	@Override
 	public RecruitmentOptions getOptions() {
 		boolean isEnabled = enableButton.getSelection();
 		StatAdjustmentMode basesMode = null;
@@ -405,12 +368,13 @@ public class RecruitmentView extends Composite {
 		if (slotClassButton.getSelection()) { classMode = ClassMode.USE_SLOT; }
 		
 		if (isEnabled && basesMode != null && growthMode != null) {
-			return new RecruitmentOptions(growthMode, basesMode, autolevel, classMode, lordsButton.getSelection(), createPrfsButton.getSelection(), unbreakablePrfsButton.getSelection(), thievesButton.getSelection(), specialButton.getSelection(), crossGenderButton.getSelection(), extras);
+			return new RecruitmentOptions(growthMode, basesMode, autolevel, classMode, lordsButton.getSelection(), thievesButton.getSelection(), specialButton.getSelection(), crossGenderButton.getSelection(), extras);
 		} else {
 			return null;
 		}
 	}
 
+	@Override
 	public void initialize(RecruitmentOptions options) {
 		boolean optionsAvailable = options != null;
 		enableButton.setSelection(optionsAvailable);
@@ -434,8 +398,6 @@ public class RecruitmentView extends Composite {
 		slotClassButton.setEnabled(optionsAvailable);
 
 		lordsButton.setEnabled(optionsAvailable);
-		createPrfsButton.setEnabled(optionsAvailable && options.includeLords);
-		unbreakablePrfsButton.setEnabled(optionsAvailable && options.includeLords && options.createPrfs);
 		thievesButton.setEnabled(optionsAvailable);
 		specialButton.setEnabled(optionsAvailable);
 		crossGenderButton.setEnabled(optionsAvailable);
@@ -464,8 +426,6 @@ public class RecruitmentView extends Composite {
 			autolevelNewButton.setEnabled(autolevelButton.getSelection());
 			
 			lordsButton.setSelection(options.includeLords);
-			createPrfsButton.setSelection(options.createPrfs);
-			unbreakablePrfsButton.setSelection(options.unbreakablePrfs);
 			thievesButton.setSelection(options.includeThieves);
 			specialButton.setSelection(options.includeSpecial);
 			crossGenderButton.setSelection(options.allowCrossGender);

@@ -12,9 +12,9 @@ import ui.model.fe9.FE9OtherCharacterOptions;
 import java.util.prefs.Preferences;
 
 public class OptionRecorder {
-    private static final Integer FE4OptionBundleVersion = 6;
-    private static final Integer GBAOptionBundleVersion = 15;
-    private static final Integer FE9OptionBundleVersion = 13;
+    private static final Integer FE4OptionBundleVersion = 7;
+    private static final Integer GBAOptionBundleVersion = 16;
+    private static final Integer FE9OptionBundleVersion = 14;
 
     public static class AllOptions {
         public FE4OptionBundle fe4;
@@ -37,6 +37,7 @@ public class OptionRecorder {
         public RecruitmentOptions recruitmentOptions;
         public ItemAssignmentOptions itemAssignmentOptions;
         public CharacterShufflingOptions characterShufflingOptions;
+        public PrfOptions prfs;
     }
 
     public static class FE4OptionBundle extends Bundle {

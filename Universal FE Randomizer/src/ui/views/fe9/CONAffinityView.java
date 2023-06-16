@@ -15,11 +15,11 @@ import org.eclipse.swt.widgets.Spinner;
 
 import ui.common.GuiUtil;
 import ui.model.fe9.FE9OtherCharacterOptions;
+import ui.views.YuneView;
 
-public class CONAffinityView extends Composite {
+public class CONAffinityView extends YuneView<FE9OtherCharacterOptions> {
 	
-	private Group container;
-	
+
 	private Button randomizeCONButton;
 	private Label conVarianceLabel;
 	private Spinner conVarianceSpinner;
@@ -27,16 +27,17 @@ public class CONAffinityView extends Composite {
 	private Button randomizeAffinityButton;
 	
 	public CONAffinityView(Composite parent) {
-		super(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		container.setText("Other Character Settings");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		randomizeCONButton = new Button(container, SWT.CHECK);
+		super(parent);
+	}
+
+	@Override
+	public String getGroupTitle() {
+		return "Other Character Settings";
+	}
+
+	@Override
+	protected void compose() {
+		randomizeCONButton = new Button(group, SWT.CHECK);
 		randomizeCONButton.setText("Randomize Constitution");
 		randomizeCONButton.setToolTipText("Randomizes Constitution, which affects weight, and therefore, the ability to\nto shove/rescue and to be shoved/rescued.");
 		
@@ -45,7 +46,7 @@ public class CONAffinityView extends Composite {
 		conData.top = new FormAttachment(0, 0);
 		randomizeCONButton.setLayoutData(conData);
 		
-		conVarianceSpinner = new Spinner(container, SWT.NONE);
+		conVarianceSpinner = new Spinner(group, SWT.NONE);
 		conVarianceSpinner.setValues(3, 1, 8, 0, 1, 1);
 		conVarianceSpinner.setToolTipText("Determines how far in each direction Constitution is allowed to adjust.");
 		
@@ -54,7 +55,7 @@ public class CONAffinityView extends Composite {
 		spinnerData.top = new FormAttachment(randomizeCONButton, 5);
 		conVarianceSpinner.setLayoutData(spinnerData);
 		
-		conVarianceLabel = new Label(container, SWT.NONE);
+		conVarianceLabel = new Label(group, SWT.NONE);
 		conVarianceLabel.setText("Variance:");
 		
 		FormData labelData = new FormData();
@@ -73,7 +74,7 @@ public class CONAffinityView extends Composite {
 			}
 		});
 		
-		randomizeAffinityButton = new Button(container, SWT.CHECK);
+		randomizeAffinityButton = new Button(group, SWT.CHECK);
 		randomizeAffinityButton.setText("Randomize Affinity");
 		randomizeAffinityButton.setToolTipText("Randomizes affinity, which affects support bonuses.");
 		
@@ -83,10 +84,12 @@ public class CONAffinityView extends Composite {
 		randomizeAffinityButton.setLayoutData(affinityData);
 	}
 
+	@Override
 	public FE9OtherCharacterOptions getOptions() {
 		return new FE9OtherCharacterOptions(randomizeCONButton.getSelection(), conVarianceSpinner.getSelection(), randomizeAffinityButton.getSelection());
 	}
 
+	@Override
 	public void initialize(FE9OtherCharacterOptions options) {
 		if (options == null) {
 			return;

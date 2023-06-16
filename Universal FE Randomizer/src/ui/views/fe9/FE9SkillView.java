@@ -9,17 +9,20 @@ import org.eclipse.swt.widgets.*;
 import ui.common.GuiUtil;
 import ui.model.fe9.FE9SkillsOptions;
 import ui.model.fe9.FE9SkillsOptions.Mode;
+import ui.views.YuneView;
 import ui.views.fe9.SkillWeightView.SkillWeightsListener;
 
 import java.util.List;
 
-public class FE9SkillView extends Composite {
+public class FE9SkillView extends YuneView<FE9SkillsOptions> {
+
+	private int numberColumns;
+	private List<String> skillList;
 
 	private boolean skillsEnabled;
 	
 	private FE9SkillsOptions.Mode currentMode = Mode.RANDOMIZE_EXISTING;
 	
-	private Group container;
 	private Button enableButton;
 	
 	private Button randomizeExistingModeButton;
@@ -31,16 +34,21 @@ public class FE9SkillView extends Composite {
 	private SkillWeightView weightsView;
 	
 	public FE9SkillView(Composite parent, List<String> skillList, int skillColumns) {
-		super(parent, SWT.NONE);
-		
-		setLayout(new FillLayout());
-		
-		container = new Group(this, SWT.NONE);
-		
-		container.setText("Skills");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		enableButton = new Button(container, SWT.CHECK);
+		super();
+		createGroup(parent);
+		this.skillList = skillList;
+		this.numberColumns = skillColumns;
+		compose();
+	}
+
+	@Override
+	public String getGroupTitle() {
+		return "Skills";
+	}
+
+	@Override
+	protected void compose(){
+		enableButton = new Button(group, SWT.CHECK);
 		enableButton.setText("Enable Skill Randomization");
 		enableButton.setToolTipText("Randomizes skils for playable characters.");
 		enableButton.addListener(SWT.Selection, new Listener() {
@@ -50,12 +58,12 @@ public class FE9SkillView extends Composite {
 			}
 		});
 		
-		randomizeExistingModeButton = new Button(container, SWT.RADIO);
+		randomizeExistingModeButton = new Button(group, SWT.RADIO);
 		randomizeExistingModeButton.setText("Randomize Existing Skills");
 		randomizeExistingModeButton.setToolTipText("Only randomizes skills that already exist.\nA character with no skills will still have no skills.\nA character with a skill may have a different skill.");
 		randomizeExistingModeButton.setSelection(true);
 		
-		randomizeFullModeButton = new Button(container, SWT.RADIO);
+		randomizeFullModeButton = new Button(group, SWT.RADIO);
 		randomizeFullModeButton.setText("Fully Randomize Skills");
 		randomizeFullModeButton.setToolTipText("Randomizes skills for all characters.\nA character with no skills may gain a skill.\nA character with an existing skill may have a different skill or lose it.");
 		
@@ -69,7 +77,7 @@ public class FE9SkillView extends Composite {
 		modeData.top = new FormAttachment(randomizeExistingModeButton, 10);
 		randomizeFullModeButton.setLayoutData(modeData);
 		
-		skillCountSpinner = new Spinner(container, SWT.NONE);
+		skillCountSpinner = new Spinner(group, SWT.NONE);
 		skillCountSpinner.setValues(80, 0, 100, 0, 1, 5);
 		skillCountSpinner.setToolTipText("Sets the chance a character has to have a skill.");
 		
@@ -78,7 +86,7 @@ public class FE9SkillView extends Composite {
 		spinnerData.top = new FormAttachment(randomizeFullModeButton, 10);
 		skillCountSpinner.setLayoutData(spinnerData);
 		
-		countLabel = new Label(container, SWT.NONE);
+		countLabel = new Label(group, SWT.NONE);
 		countLabel.setText("Chance for Skill: ");
 		
 		FormData labelData = new FormData();
@@ -101,7 +109,7 @@ public class FE9SkillView extends Composite {
 			}
 		});
 		
-		weightsView = new SkillWeightView(container, SWT.NONE, skillList, skillColumns);
+		weightsView = new SkillWeightView(group, SWT.NONE, skillList, numberColumns);
 		weightsView.setListener(new SkillWeightsListener() {
 			@Override
 			public void onEnableCountChanged(int enabledCount) {}
@@ -153,11 +161,13 @@ public class FE9SkillView extends Composite {
 		weightsView.setEnabled(skillsEnabled);
 	}
 
+	@Override
 	public FE9SkillsOptions getOptions() {
 		if (!skillsEnabled) { return null; }
 		return new FE9SkillsOptions(currentMode, skillCountSpinner.getSelection(), weightsView.getSkillWeights());
 	}
 
+	@Override
 	public void initialize(FE9SkillsOptions options) {
 		if (options == null) {
 			setEnabled(false);

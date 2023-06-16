@@ -7,6 +7,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.*;
 import ui.common.GuiUtil;
+import ui.views.YuneView;
 import ui.views.fe4.SkillCountView.SkillCountListener;
 import ui.model.fe4.SkillsOptions;
 import ui.model.SkillWeightOptions;
@@ -19,12 +20,12 @@ import java.util.stream.Collectors;
 import static ui.model.fe4.SkillsOptions.Mode.RANDOMIZE;
 import static ui.model.fe4.SkillsOptions.Mode.SHUFFLE;
 
-public class FE4SkillsView extends Composite {
+public class FE4SkillsView extends YuneView<SkillsOptions> {
 
     private boolean skillsEnabled;
     private SkillsOptions.Mode currentMode = SHUFFLE;
+    private int skillColumns;
 
-    private Group container;
     private Button enableButton;
 
     private Button retainSkillCountsButton;
@@ -38,15 +39,18 @@ public class FE4SkillsView extends Composite {
     private Spinner pursuitSpinner;
 
     public FE4SkillsView(Composite parent, int skillColumns) {
-        super(parent, SWT.NONE);
-
-        setLayout(new FillLayout());
-
-        container = new Group(this, SWT.NONE);
-        container.setText("Skills");
-        container.setLayout(GuiUtil.formLayoutWithMargin());
-
-        enableButton = new Button(container, SWT.CHECK);
+        super();
+        createGroup(parent);
+        this.skillColumns = skillColumns;
+        compose();
+    }
+    @Override
+    public String getGroupTitle() {
+        return "Skills";
+    }
+    @Override
+    protected void compose(){
+        enableButton = new Button(group, SWT.CHECK);
         enableButton.setText("Enable Skill Randomization");
         enableButton.setToolTipText("Randomizes the personal skills of playable characters. Child characters are not affected by any settings and continue to rely on inheritence from parents.");
         enableButton.addListener(SWT.Selection, new Listener() {
@@ -72,7 +76,7 @@ public class FE4SkillsView extends Composite {
             }
         });
 
-        retainSkillCountsButton = new Button(container, SWT.CHECK);
+        retainSkillCountsButton = new Button(group, SWT.CHECK);
         retainSkillCountsButton.setText("Retain Number of Skills");
         retainSkillCountsButton.setToolTipText("Retains each character's normal number of skills.\n\ne.g. A character with 2 personal skills will continue to have 2 personal skills after shuffling or randomization.");
         retainSkillCountsButton.setEnabled(false);
@@ -89,7 +93,7 @@ public class FE4SkillsView extends Composite {
         retainCountData.top = new FormAttachment(enableButton, 10);
         retainSkillCountsButton.setLayoutData(retainCountData);
 
-        shuffleButton = new Button(container, SWT.RADIO);
+        shuffleButton = new Button(group, SWT.RADIO);
         shuffleButton.setText("Shuffle");
         shuffleButton.setToolTipText("Shuffles and redistributes all playable characters' existing skills.");
         shuffleButton.setEnabled(false);
@@ -106,7 +110,7 @@ public class FE4SkillsView extends Composite {
         optionData.top = new FormAttachment(retainSkillCountsButton, 10);
         shuffleButton.setLayoutData(optionData);
 
-        separateByGeneration = new Button(container, SWT.CHECK);
+        separateByGeneration = new Button(group, SWT.CHECK);
         separateByGeneration.setText("Separate Pools by Generation");
         separateByGeneration.setToolTipText("Shuffles Generation 1 character skills separately from Generation 2 Common Characters and Substitutes.");
         separateByGeneration.setEnabled(false);
@@ -117,7 +121,7 @@ public class FE4SkillsView extends Composite {
         optionData.top = new FormAttachment(shuffleButton, 5);
         separateByGeneration.setLayoutData(optionData);
 
-        randomizeButton = new Button(container, SWT.RADIO);
+        randomizeButton = new Button(group, SWT.RADIO);
         randomizeButton.setText("Randomize");
         randomizeButton.setToolTipText("Randomizes all skills on all playable characters.");
         randomizeButton.setEnabled(false);
@@ -134,7 +138,7 @@ public class FE4SkillsView extends Composite {
         optionData.top = new FormAttachment(separateByGeneration, 10);
         randomizeButton.setLayoutData(optionData);
 
-        skillCountView = new SkillCountView(container, SWT.NONE);
+        skillCountView = new SkillCountView(group, SWT.NONE);
         skillCountView.setEnabled(false);
         skillCountView.setListener(new SkillCountListener() {
             @Override
@@ -152,7 +156,7 @@ public class FE4SkillsView extends Composite {
 
         List<String> skillList = Arrays.stream(FE4Data.Skill.values()).map(FE4Data.Skill::capitalizedName).collect(Collectors.toList());
 
-        skillWeightView = new SkillWeightView(container, SWT.NONE, skillList, skillColumns);
+        skillWeightView = new SkillWeightView(group, SWT.NONE, skillList, skillColumns);
         skillWeightView.setEnabled(false);
         skillWeightView.setListener(new SkillWeightView.SkillWeightsListener() {
             @Override
@@ -161,7 +165,7 @@ public class FE4SkillsView extends Composite {
             @Override
             public void onAllItemsDisabled() {
                 enableButton.setSelection(false);
-                setEnabled(false);
+                group.setEnabled(false);
             }
         });
 
@@ -172,7 +176,7 @@ public class FE4SkillsView extends Composite {
         skillWeightView.setLayoutData(viewData);
 
 
-        Label pursuitLabel = new Label(container, SWT.NONE);
+        Label pursuitLabel = new Label(group, SWT.NONE);
         pursuitLabel.setText("Pursuit Chance:");
         pursuitLabel.setEnabled(false);
 
@@ -181,7 +185,7 @@ public class FE4SkillsView extends Composite {
         labelData.left = new FormAttachment(0, 0);
         pursuitLabel.setLayoutData(labelData);
 
-        pursuitSpinner = new Spinner(container, SWT.NONE);
+        pursuitSpinner = new Spinner(group, SWT.NONE);
         pursuitSpinner.setValues(50, 0, 100, 0, 5, 10);
         pursuitSpinner.setEnabled(false);
         pursuitSpinner.setToolTipText("Due to Pursuit's outsized importance in FE4, pursuit's chance can be set independently of the skill pool specified above.\nWhether a unit has pursuit is rolled first before determining other skills.\nA unit randomized with 0 skills will not be rolled.");
@@ -205,6 +209,7 @@ public class FE4SkillsView extends Composite {
         skillWeightView.setEnabled(RANDOMIZE.equals(mode));
     }
 
+    @Override
     public SkillsOptions getOptions() {
         if (!skillsEnabled) {
             return null;
@@ -214,6 +219,7 @@ public class FE4SkillsView extends Composite {
 
         return new SkillsOptions(currentMode, retainSkillCountsButton.getSelection(), separateByGeneration.getSelection(), skillCountView.getSkillCountDistribution(), skillWeights);
     }
+    @Override
 
     public void initialize(SkillsOptions options) {
         skillsEnabled = options != null;

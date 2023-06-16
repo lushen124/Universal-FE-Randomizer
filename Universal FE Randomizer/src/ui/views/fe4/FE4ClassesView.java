@@ -10,37 +10,50 @@ import ui.model.fe4.FE4ClassOptions.BloodOptions;
 import ui.model.fe4.FE4ClassOptions.ChildOptions;
 import ui.model.fe4.FE4ClassOptions.ItemAssignmentOptions;
 import ui.model.fe4.FE4ClassOptions.ShopOptions;
+import ui.views.YuneView;
 
-public class FE4ClassesView extends Composite {
-    protected Group container;
+public class FE4ClassesView extends YuneView<FE4ClassOptions> {
 
+    private int numberColumns;
     protected EnemyOptionsGroup enemyGroup;
     protected ItemOptionsGroup itemGroup;
     protected PlayablesOptionsGroup playablesGroup;
 
-    public FE4ClassesView(Composite parent) {
-        super(parent, SWT.NONE);
+    public FE4ClassesView(Composite parent, int numberColumns) {
+        super();
+        createGroup(parent);
+        this.numberColumns = numberColumns;
+        compose();
+    }
 
-        setLayout(new FillLayout());
+    @Override
+    public String getGroupTitle() {
+        return "Classes";
+    }
 
-        container = new Group(this, SWT.NONE);
-        container.setText("Classes");
-        container.setToolTipText("Randomize character classes and related options requiring flexible classes.");
+    @Override
+    public String getGroupTooltip() {
+        return "Randomize character classes and related options requiring flexible classes.";
+    }
+
+    @Override
+    protected void compose(){
         GridLayout gridLayout = GuiUtil.gridLayoutWithMargin();
         gridLayout.numColumns = 2;
-        container.setLayout(gridLayout);
+        group.setLayout(gridLayout);
 
-        playablesGroup = new PlayablesOptionsGroup(this, container);
+        playablesGroup = new PlayablesOptionsGroup(this, group);
         GridData gridData = (GridData) GuiUtil.defaultGridData();
         gridData.verticalSpan = 2;
         playablesGroup.group.setLayoutData(gridData);
-        itemGroup = new ItemOptionsGroup(this, container);
+        itemGroup = new ItemOptionsGroup(this, group);
         itemGroup.group.setLayoutData(GuiUtil.defaultGridData());
-        enemyGroup = new EnemyOptionsGroup(this, container);
+        enemyGroup = new EnemyOptionsGroup(this, group);
         enemyGroup.group.setLayoutData(GuiUtil.defaultGridData());
 
     }
 
+    @Override
     public FE4ClassOptions getOptions() {
         ChildOptions childOptions = ChildOptions.MATCH_STRICT;
         if (playablesGroup.adjustChildrenLoose.getSelection()) {
@@ -82,6 +95,7 @@ public class FE4ClassesView extends Composite {
                 enemyGroup.randomizeMinions.getSelection(), enemyGroup.randomizeArenas.getSelection(), enemyGroup.randomizeBosses.getSelection(), bossBloodOptions);
     }
 
+    @Override
     public void initialize(FE4ClassOptions options) {
         if (options == null) {
             // shouldn't happen.
@@ -156,7 +170,6 @@ public class FE4ClassesView extends Composite {
 }
 
 class EnemyOptionsGroup extends YuneGroup {
-
     private FE4ClassesView mainView;
 
     public Button randomizeMinions;

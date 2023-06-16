@@ -1129,8 +1129,7 @@ public class FE9Randomizer extends Randomizer {
 			table.addRow(new String[] {"Improve Boss Weapons", enemyBuffOptions.improveBossWeapons ? "YES (" + enemyBuffOptions.bossImprovementChance + "%)" : "NO"});
 			table.addRow(new String[] {"Give Bosses Skills", enemyBuffOptions.giveBossSkills ? "YES (" + enemyBuffOptions.bossSkillChance + "%)" : "NO"});
 		}
-		if (rewardOptions != null) {
-			if (rewardOptions.randomizeRewards) {
+		if (rewardOptions != null && rewardOptions.randomizeRewards) {
 				switch(rewardOptions.rewardMode) {
 				case SIMILAR:
 					table.addRow(new String[] {"Randomize Rewards", "Randomize with Similar Items"});
@@ -1139,11 +1138,10 @@ public class FE9Randomizer extends Randomizer {
 					table.addRow(new String[] {"Randomize Rewards", "Randomize with Random Items"});
 					break;
 				}
-			} else {
-				table.addRow(new String[] {"Randomize Rewards", "NO"});
-			}
+		} else {
+			table.addRow(new String[] {"Randomize Rewards", "NO"});
 		}
-		
+
 		table.addRow(new String[] {"Randomizer Seed Phrase", seed});
 		
 		optionsSection.addElement(table);

@@ -16,10 +16,10 @@ import org.eclipse.swt.widgets.Spinner;
 import ui.common.GuiUtil;
 import ui.model.fe4.HolyBloodOptions;
 import ui.model.fe4.HolyBloodOptions.STRMAGOptions;
+import ui.views.YuneView;
 
-public class HolyBloodView extends Composite {
+public class HolyBloodView extends YuneView<HolyBloodOptions> {
 	
-	private Group container;
 	
 	private Button randomizeGrowthBonusesButton;
 	private Label growthTotalLabel;
@@ -47,18 +47,22 @@ public class HolyBloodView extends Composite {
 	private Spinner noBloodChance;
 	
 	public HolyBloodView(Composite parent) {
-		super(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		
-		container.setText("Holy Blood");
-		container.setToolTipText("Randomizes the properties of Holy Blood.");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		randomizeGrowthBonusesButton = new Button(container, SWT.CHECK);
+		super(parent);
+	}
+
+	@Override
+	public String getGroupTitle() {
+		return "Holy Blood";
+	}
+
+	@Override
+	public String getGroupTooltip() {
+		return "Randomizes the properties of Holy Blood.";
+	}
+
+	@Override
+	protected void compose() {
+		randomizeGrowthBonusesButton = new Button(group, SWT.CHECK);
 		randomizeGrowthBonusesButton.setText("Randomize Growth Bonuses");
 		randomizeGrowthBonusesButton.setToolTipText("Randomly assigns the growth bonuses bestowed on those with Minor or Major Holy Blood.");
 		randomizeGrowthBonusesButton.setEnabled(true);
@@ -86,7 +90,7 @@ public class HolyBloodView extends Composite {
 			}
 		});
 		
-		Composite growthBonusParameterContainer = new Composite(container, 0);
+		Composite growthBonusParameterContainer = new Composite(group, 0);
 		growthBonusParameterContainer.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		growthTotalLabel = new Label(growthBonusParameterContainer, SWT.RIGHT);
@@ -227,7 +231,7 @@ public class HolyBloodView extends Composite {
 		
 		/////////////////////////////////////////////////////////////
 		
-		randomizeHolyWeaponBonusesButton = new Button(container, SWT.CHECK);
+		randomizeHolyWeaponBonusesButton = new Button(group, SWT.CHECK);
 		randomizeHolyWeaponBonusesButton.setText("Randomize Holy Weapon Bonuses");
 		randomizeHolyWeaponBonusesButton.setToolTipText("Randomizes the bonuses granted when Holy Weapons are equipped. Does not affect Naga and Loptous.");
 		randomizeHolyWeaponBonusesButton.setEnabled(true);
@@ -238,7 +242,7 @@ public class HolyBloodView extends Composite {
 		holyWeaponBonusData.top = new FormAttachment(growthBonusParameterContainer, 5);
 		randomizeHolyWeaponBonusesButton.setLayoutData(holyWeaponBonusData);
 		
-		giveHolyBlood = new Button(container, SWT.CHECK);
+		giveHolyBlood = new Button(group, SWT.CHECK);
 		giveHolyBlood.setText("Assign Holy Blood to Playable Characters");
 		giveHolyBlood.setToolTipText("Assigns either Major or Minor Holy Blood to all Playable Characters.\n\nThose that already have Major Holy Blood are unaffected.\nThose that have Minor Holy Blood may gain an additional Minor Blood or convert into Major Blood.\nThose with none have a chance of either Major or Minor Blood.\n\nApplies to all non-child characters.");
 		giveHolyBlood.setEnabled(true);
@@ -260,7 +264,7 @@ public class HolyBloodView extends Composite {
 		giveBloodData.top = new FormAttachment(randomizeHolyWeaponBonusesButton, 10);
 		giveHolyBlood.setLayoutData(giveBloodData);
 		
-		matchClass = new Button(container, SWT.CHECK);
+		matchClass = new Button(group, SWT.CHECK);
 		matchClass.setText("Match Blood to Weapon Usage");
 		matchClass.setToolTipText("When assigning a character with no holy blood, assigns a blood that matches their weapon type.\n\nFor characters with minor blood, a blood of a different weapon type will be used.");
 		matchClass.setEnabled(false);
@@ -271,7 +275,7 @@ public class HolyBloodView extends Composite {
 		matchData.top = new FormAttachment(giveHolyBlood, 5);
 		matchClass.setLayoutData(matchData);
 		
-		Composite giveBloodContainer = new Composite(container, 0);
+		Composite giveBloodContainer = new Composite(group, 0);
 		giveBloodContainer.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		majorBloodLabel = new Label(giveBloodContainer, SWT.RIGHT);
@@ -363,6 +367,7 @@ public class HolyBloodView extends Composite {
 		giveBloodContainer.setLayoutData(containerData);
 	}
 
+	@Override
 	public HolyBloodOptions getOptions() {
 		HolyBloodOptions.STRMAGOptions strMag = STRMAGOptions.NO_LIMIT;
 		if (adjustButton.getSelection()) { strMag = STRMAGOptions.ADJUST_STR_MAG; }
@@ -372,7 +377,8 @@ public class HolyBloodView extends Composite {
 				randomizeHolyWeaponBonusesButton.getSelection(), 
 				giveHolyBlood.getSelection(), matchClass.getSelection(), majorBloodChance.getSelection(), minorBloodChance.getSelection());
 	}
-	
+
+	@Override
 	public void initialize(HolyBloodOptions options) {
 		if (options == null) {
 			// Shouldn't happen.

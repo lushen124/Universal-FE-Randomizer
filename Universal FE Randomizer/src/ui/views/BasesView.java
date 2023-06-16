@@ -18,13 +18,12 @@ import ui.common.GuiUtil;
 import ui.model.BaseOptions;
 import ui.model.VarOption;
 
-public class BasesView extends Composite {
+public class BasesView extends YuneView<BaseOptions> {
 	
 	private Boolean isEnabled = false;
 	private BaseOptions.Mode currentMode = BaseOptions.Mode.REDISTRIBUTE;
 	
-	private Group container;
-	
+
 	private Button enableButton;
 	
 	private Button redistributeOption;
@@ -36,18 +35,22 @@ public class BasesView extends Composite {
 	private Button adjustSTRMAG;
 
 	public BasesView(Composite parent, GameType type) {
-		super(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		
-		container.setText("Bases");
-		container.setToolTipText("Randomizes the base stat offsets of all playable characters, relative to their class (excluding CON).");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
+		super(parent, type);
+	}
 
-		enableButton = new Button(container, SWT.CHECK);
+	@Override
+	public String getGroupTitle() {
+		return "Bases";
+	}
+
+	@Override
+	public String getGroupTooltip() {
+		return "Randomizes the base stat offsets of all playable characters, relative to their class (excluding CON).";
+	}
+
+	@Override
+	protected void compose() {
+		enableButton = new Button(group, SWT.CHECK);
 		enableButton.setText("Enable Bases Randomization");
 		enableButton.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -58,7 +61,7 @@ public class BasesView extends Composite {
 		
 		/////////////////////////////////////////////////////////////
 		
-		redistributeOption = new Button(container, SWT.RADIO);
+		redistributeOption = new Button(group, SWT.RADIO);
 		redistributeOption.setText("Redistribute");
 		if (type == GameType.FE4) {
 			redistributeOption.setToolTipText("Randomly redistrubtes the sum of the character's base stat offsets (excluding HP).");
@@ -79,7 +82,7 @@ public class BasesView extends Composite {
 		optionData.top = new FormAttachment(enableButton, 5);
 		redistributeOption.setLayoutData(optionData);
 		
-		Composite redistParamContainer = new Composite(container, 0);
+		Composite redistParamContainer = new Composite(group, 0);
 		redistParamContainer.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		Label redistParamLabel = new Label(redistParamContainer, SWT.RIGHT);
@@ -107,7 +110,7 @@ public class BasesView extends Composite {
 		
 		/////////////////////////////////////////////////////////////
 		
-		byDeltaOption = new Button(container, SWT.RADIO);
+		byDeltaOption = new Button(group, SWT.RADIO);
 		byDeltaOption.setText("Randomize Delta");
 		byDeltaOption.setToolTipText("Applies a random delta between +X and -X to all base stats (excluding CON).");
 		byDeltaOption.setEnabled(false);
@@ -124,7 +127,7 @@ public class BasesView extends Composite {
 		optionData.top = new FormAttachment(redistParamContainer, 0);
 		byDeltaOption.setLayoutData(optionData);
 		
-		Composite deltaParamContainer = new Composite(container, 0);
+		Composite deltaParamContainer = new Composite(group, 0);
 		deltaParamContainer.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		Label deltaParamLabel = new Label(deltaParamContainer, SWT.RIGHT);
@@ -151,7 +154,7 @@ public class BasesView extends Composite {
 		deltaParamContainer.setLayoutData(paramContainerData);
 		
 		if (type.hasSTRMAGSplit()) {
-			adjustSTRMAG = new Button(container, SWT.CHECK);
+			adjustSTRMAG = new Button(group, SWT.CHECK);
 			adjustSTRMAG.setText("Adjust STR/MAG by Class");
 			adjustSTRMAG.setToolTipText("Ensures that characters that primarily use magic randomize a higher or equal magic base than strength and that\ncharacters that primarily use physical attacks randomize a higher or equal strength base than magic.\n\nCharacters that use both will not be weighted in either direction.");
 			adjustSTRMAG.setEnabled(false);
@@ -189,6 +192,7 @@ public class BasesView extends Composite {
 		}
 	}
 
+	@Override
 	public BaseOptions getOptions() {
 		if (!isEnabled) { return null; }
 		
@@ -209,6 +213,7 @@ public class BasesView extends Composite {
 		return new BaseOptions(currentMode, redistributionOption, deltaOption, adjustSTRMAGBases);
 	}
 
+	@Override
 	public void initialize(BaseOptions options) {
 		if (options == null) {
 			enableButton.setSelection(false);

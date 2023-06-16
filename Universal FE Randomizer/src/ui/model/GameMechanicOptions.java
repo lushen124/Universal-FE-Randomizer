@@ -77,17 +77,4 @@ public class GameMechanicOptions {
 		this.experienceRate = experienceRate;
 	}
 	
-	// FE9
-	public GameMechanicOptions(Boolean tripleEffectiveness) {
-		super();
-		this.applyEnglishPatch = false;
-		this.tripleEffectiveness = tripleEffectiveness;
-		followupRequirement = null;
-		singleRNMode = false;
-		randomizeFogOfWar = false;
-		fogOfWarVisionRange = null;
-		fogOfWarChance = 0;
-		casualMode = false;
-		experienceRate = ExperienceRate.NORMAL;
-	}
 }

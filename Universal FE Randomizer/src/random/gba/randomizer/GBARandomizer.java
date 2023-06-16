@@ -53,6 +53,7 @@ public class GBARandomizer extends Randomizer {
 	private RecruitmentOptions recruitOptions;
 	private ItemAssignmentOptions itemAssignmentOptions;
 	private CharacterShufflingOptions shufflingOptions;
+	private PrfOptions prfs;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -1265,8 +1266,8 @@ public class GBARandomizer extends Randomizer {
 			}
 		}
 		
-		if ((classes != null && classes.createPrfs) || (recruitOptions != null && recruitOptions.createPrfs)) {
-			boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs) || (recruitOptions != null && recruitOptions.unbreakablePrfs));
+		if (prfs != null && prfs.createPrfs) {
+			boolean unbreakablePrfs = prfs.unbreakablePrfs;
 
 			// Create new PRF weapons.
 			if (gameType == GameType.FE6) {

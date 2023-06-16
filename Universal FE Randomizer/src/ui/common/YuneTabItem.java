@@ -9,6 +9,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import ui.views.YuneView;
 import util.OptionRecorder.FE4OptionBundle;
 import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
@@ -24,7 +25,7 @@ import java.util.List;
 public abstract class YuneTabItem extends CTabItem implements Preloadable {
     protected Composite container;
     protected GameType type;
-    protected List<Composite> views = new ArrayList<>();
+    protected List<YuneView> views = new ArrayList<>();
 
     public YuneTabItem(CTabFolder parent, GameType type) {
         super(parent, SWT.NONE);
@@ -82,16 +83,16 @@ public abstract class YuneTabItem extends CTabItem implements Preloadable {
      * @param <T>        One of the Yune views, which extends Composite
      * @return returns the view that was added
      */
-    protected <T extends Composite> T addView(T subview, Object layoutData) {
-        subview.setLayoutData(layoutData);
+    protected <T extends YuneView> T addView(T subview, Object layoutData) {
+        subview.group.setLayoutData(layoutData);
         views.add(subview);
         return subview;
     }
 
     /**
-     * Convenience overload of {@link #addView(Composite, Object)} which passes the {@link GuiUtil#defaultGridData()} for the second parameter.
+     * Convenience overload of {@link #addView(YuneView, Object)} which passes the {@link GuiUtil#defaultGridData()} for the second parameter.
      */
-    protected <T extends Composite> T addView(T subview) {
+    protected <T extends YuneView> T addView(T subview) {
         return addView(subview, GuiUtil.defaultGridData());
     }
 
@@ -107,10 +108,10 @@ public abstract class YuneTabItem extends CTabItem implements Preloadable {
      * If the view already defines a LayoutData, then the colSpan and rowSpan are just added on.
      * Otherwise, the {@link GuiUtil#defaultGridData()} will be set for the view.
      */
-    protected void setViewData(Composite view, int colSpan, int rowSpan) {
-        GridData data = view.getLayoutData() != null ? (GridData) view.getLayoutData() : (GridData) GuiUtil.defaultGridData();
+    protected void setViewData(YuneView view, int colSpan, int rowSpan) {
+        GridData data = view.group.getLayoutData() != null ? (GridData) view.group.getLayoutData() : (GridData) GuiUtil.defaultGridData();
         data.horizontalSpan = colSpan;
         data.verticalSpan = rowSpan;
-        view.setLayoutData(data);
+        view.group.setLayoutData(data);
     }
 }

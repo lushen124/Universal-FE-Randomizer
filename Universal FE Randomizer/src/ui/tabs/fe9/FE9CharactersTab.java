@@ -43,7 +43,7 @@ public class FE9CharactersTab extends YuneTabItem {
         classes = addView(new FE9ClassesView(container));
         setViewData(classes, 1, 2);
         conAffinity = addView(new CONAffinityView(container));
-        enemies = addView(new FE9EnemyBuffView(container), GuiUtil.defaultGridData(2));
+        enemies = addView(new FE9EnemyBuffView(container, true), GuiUtil.defaultGridData(2));
         setViewData(enemies, 2, 1);
     }
 

@@ -14,9 +14,7 @@ import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CharacterShufflingView extends Composite {
-	
-	private Group container;
+public class CharacterShufflingView extends YuneView<CharacterShufflingOptions> {
 	
 	private Button enableButton;
 	private Label shuffleChanceLabel;
@@ -41,19 +39,22 @@ public class CharacterShufflingView extends Composite {
 	
 	
 	public CharacterShufflingView(Composite parent, GameType type) {
-		super(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		container.setText("Character Shuffling");
-		container.setToolTipText("Shuffle in characters from other games.");
+		super(parent, type);
+	}
 
-		FormLayout groupMargins = GuiUtil.formLayoutWithMargin();
-		container.setLayout(groupMargins);
+	@Override
+	public String getGroupTitle() {
+		return "Character Shuffling";
+	}
 
-		enableButton = new Button(container, SWT.CHECK);
+	@Override
+	public String getGroupTooltip() {
+		return "Shuffle in characters from other games.";
+	}
+
+	@Override
+	protected void compose() {
+		enableButton = new Button(group, SWT.CHECK);
 		enableButton.setText("Character Shuffling");
 		enableButton.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -81,11 +82,11 @@ public class CharacterShufflingView extends Composite {
 		
 		///////////////////////////////////////////
 		
-		shuffleChanceLabel = new Label(container, SWT.NONE);
+		shuffleChanceLabel = new Label(group, SWT.NONE);
 		shuffleChanceLabel.setText("Chance:");
 		shuffleChanceLabel.setToolTipText("The chance for each player character to get replaced by one of the shuffled ones.:");
 		
-		shuffleChanceSpinner = new Spinner(container, SWT.NONE);
+		shuffleChanceSpinner = new Spinner(group, SWT.NONE);
 		shuffleChanceSpinner.setToolTipText("The chance for each player character to get replaced by one of the shuffled ones.");
 		shuffleChanceSpinner.setEnabled(false);
 		shuffleChanceSpinner.setValues(25, 1, 100, 0, 1, 5);
@@ -101,7 +102,7 @@ public class CharacterShufflingView extends Composite {
 		shuffleChanceSpinnerData.right = new FormAttachment(100, -10);
 		shuffleChanceSpinner.setLayoutData(shuffleChanceSpinnerData);
 		
-		changeDescriptionButton = new Button(container, SWT.CHECK);
+		changeDescriptionButton = new Button(group, SWT.CHECK);
 		changeDescriptionButton.setText("Change Descriptions?");
 		changeDescriptionButton.setToolTipText("If the Description of the replaced Character should be overwritten. Leaving this off might reduce confusion of which character is which.");
 		FormData changeDescriptionButtonData = new FormData();
@@ -109,10 +110,10 @@ public class CharacterShufflingView extends Composite {
 		changeDescriptionButtonData.top = new FormAttachment(shuffleChanceSpinner, 0);
 		changeDescriptionButton.setLayoutData(changeDescriptionButtonData);
 		
-		modeContainer = new Group(container, SWT.NONE);
+		modeContainer = new Group(group, SWT.NONE);
 		modeContainer.setText("Leveling Mode");
 		modeContainer.setToolTipText("Determines how the Level of the shuffled in character will be changed.");
-		modeContainer.setLayout(groupMargins);
+		modeContainer.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		FormData groupData = new FormData();
 		groupData.left = new FormAttachment(changeDescriptionButton, 0, SWT.LEFT);
@@ -144,10 +145,10 @@ public class CharacterShufflingView extends Composite {
 		unchangedButton.setLayoutData(optionData);
 		
 		
-		includedFilesContainer = new Group(container, SWT.NONE);
+		includedFilesContainer = new Group(group, SWT.NONE);
 		includedFilesContainer.setText("Included Shuffles");
 		includedFilesContainer.setToolTipText("Determines which configured Character swill be included for the shuffling.");
-		includedFilesContainer.setLayout(groupMargins);
+		includedFilesContainer.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		FormData includedFilesContainerData = new FormData();
 		includedFilesContainerData.left = new FormAttachment(modeContainer, 0, SWT.LEFT);
@@ -184,7 +185,7 @@ public class CharacterShufflingView extends Composite {
 		optionData.top = new FormAttachment(includeFE7Button, 5);
 		includeFE8Button.setLayoutData(optionData);
 		
-		Composite shell = container;
+		Composite shell = group;
 		while(!(shell instanceof Shell)) {
 			shell = shell.getParent();
 		}
@@ -240,7 +241,8 @@ public class CharacterShufflingView extends Composite {
 		
 		
 	}
-	
+
+	@Override
 	public CharacterShufflingOptions getOptions() {
 		boolean isEnabled = enableButton.getSelection();
 		ShuffleLevelingMode levelingMode = autoLevelingButton.getSelection() ? ShuffleLevelingMode.AUTOLEVEL : ShuffleLevelingMode.UNCHANGED;
@@ -260,7 +262,8 @@ public class CharacterShufflingView extends Composite {
 		return new CharacterShufflingOptions(levelingMode, isEnabled, chance, shuffles, isEnabled);
 	}
 
-	public void initialize(CharacterShufflingOptions options, GameType type) {
+	@Override
+	public void initialize(CharacterShufflingOptions options) {
 		if (options == null) {
 			enableButton.setSelection(false);
 			modeContainer.setEnabled(false);

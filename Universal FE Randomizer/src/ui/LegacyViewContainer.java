@@ -57,239 +57,237 @@ public class LegacyViewContainer extends YuneViewContainer {
     protected void compose() {
         this.setLayout(new FormLayout());
         growthView = new GrowthsView(this, type.hasSTRMAGSplit());
-        growthView.setSize(200, 200);
+        growthView.group.setSize(200, 200);
 
         FormData growthData = new FormData();
         growthData.top = new FormAttachment(0, 0);
         growthData.left = new FormAttachment(0, 0);
-        growthView.setLayoutData(growthData);
+        growthView.group.setLayoutData(growthData);
 
         baseView = new BasesView(this, type);
-        baseView.setSize(200, 200);
+        baseView.group.setSize(200, 200);
 
         FormData baseData = new FormData();
-        baseData.top = new FormAttachment(growthView, 5);
-        baseData.left = new FormAttachment(growthView, 0, SWT.LEFT);
-        baseData.right = new FormAttachment(growthView, 0, SWT.RIGHT);
-        baseView.setLayoutData(baseData);
+        baseData.top = new FormAttachment(growthView.group, 5);
+        baseData.left = new FormAttachment(growthView.group, 0, SWT.LEFT);
+        baseData.right = new FormAttachment(growthView.group, 0, SWT.RIGHT);
+        baseView.group.setLayoutData(baseData);
 
         if (type == GameType.FE4) {
-            // To prevent gen 2 overflow, the max growth allowed for any single stat is 85%.
-            growthView.overrideMaxGrowthAllowed(85);
-
-            holyBloodView = new HolyBloodView(this);
-            holyBloodView.setSize(200, 200);
-
-            FormData holyBloodData = new FormData();
-            holyBloodData.top = new FormAttachment(baseView, 5);
-            holyBloodData.left = new FormAttachment(baseView, 0, SWT.LEFT);
-            holyBloodData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
-            holyBloodData.bottom = new FormAttachment(100, -10);
-            holyBloodView.setLayoutData(holyBloodData);
-
-            skillsView = new FE4SkillsView(this, 1);
-            skillsView.setSize(200, 200);
-
-            FormData skillsData = new FormData();
-            skillsData.top = new FormAttachment(growthView, 0, SWT.TOP);
-            skillsData.left = new FormAttachment(growthView, 5);
-            skillsData.bottom = new FormAttachment(100, -10);
-            skillsView.setLayoutData(skillsData);
-
-            fe4ClassView = new FE4ClassesView(this);
-            fe4ClassView.setSize(200, 200);
-
-            FormData classData = new FormData();
-            classData.top = new FormAttachment(skillsView, 0, SWT.TOP);
-            classData.left = new FormAttachment(skillsView, 5);
-            classData.bottom = new FormAttachment(100, -10);
-            fe4ClassView.setLayoutData(classData);
-
-            fe4PromotionView = new FE4PromotionView(this);
-            fe4PromotionView.setSize(200, 200);
-
-            FormData promoData = new FormData();
-            promoData.top = new FormAttachment(fe4ClassView, 0, SWT.TOP);
-            promoData.left = new FormAttachment(fe4ClassView, 5);
-            promoData.right = new FormAttachment(100, -5);
-            fe4PromotionView.setLayoutData(promoData);
-
-            fe4EnemyBuffView = new FE4EnemyBuffView(this);
-            fe4EnemyBuffView.setSize(200, 200);
-
-            FormData buffData = new FormData();
-            buffData.top = new FormAttachment(fe4PromotionView, 5);
-            buffData.left = new FormAttachment(fe4PromotionView, 0, SWT.LEFT);
-            buffData.right = new FormAttachment(fe4PromotionView, 0, SWT.RIGHT);
-            fe4EnemyBuffView.setLayoutData(buffData);
-
-            miscView = new GameMechanicsView(this, type);
-            miscView.setSize(200, 200);
-
-            FormData miscData = new FormData();
-            miscData.top = new FormAttachment(fe4EnemyBuffView, 5);
-            miscData.left = new FormAttachment(fe4EnemyBuffView, 0, SWT.LEFT);
-            miscData.right = new FormAttachment(fe4EnemyBuffView, 0, SWT.RIGHT);
-            //miscData.bottom = new FormAttachment(100, -10);
-            miscView.setLayoutData(miscData);
-
-            rewardView = new RewardRandomizationView(this, type);
-            rewardView.setSize(200, 200);
-
-            FormData rewardData = new FormData();
-            rewardData.top = new FormAttachment(miscView, 5);
-            rewardData.left = new FormAttachment(miscView, 0, SWT.LEFT);
-            rewardData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
-            rewardView.setLayoutData(rewardData);
-
+            composeFE4();
         } else if (type == GameType.FE9) {
-            conAffinityView = new CONAffinityView(this);
-            conAffinityView.setSize(200, 200);
-
-            FormData conAffinityData = new FormData();
-            conAffinityData.top = new FormAttachment(baseView, 5);
-            conAffinityData.left = new FormAttachment(baseView, 0, SWT.LEFT);
-            conAffinityData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
-            conAffinityView.setLayoutData(conAffinityData);
-
-            miscView = new GameMechanicsView(this, type);
-            miscView.setSize(200, 200);
-
-            FormData miscData = new FormData();
-            miscData.top = new FormAttachment(conAffinityView, 5);
-            miscData.left = new FormAttachment(conAffinityView, 0, SWT.LEFT);
-            miscData.right = new FormAttachment(conAffinityView, 0, SWT.RIGHT);
-            //miscData.bottom = new FormAttachment(100, -10);
-            miscView.setLayoutData(miscData);
-
-            rewardView = new RewardRandomizationView(this, type);
-            rewardView.setSize(200, 200);
-
-            FormData rewardData = new FormData();
-            rewardData.top = new FormAttachment(miscView, 5);
-            rewardData.left = new FormAttachment(miscView, 0, SWT.LEFT);
-            rewardData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
-            rewardView.setLayoutData(rewardData);
-
-            List<String> skills = FE9Data.Skill.allValidSkills.stream().map(skill -> {
-                return skill.getDisplayString();
-            }).collect(Collectors.toList());
-            fe9SkillView = new FE9SkillView(this, skills, 1);
-            fe9SkillView.setSize(200, 200);
-
-            FormData skillData = new FormData();
-            skillData.top = new FormAttachment(growthView, 0, SWT.TOP);
-            skillData.left = new FormAttachment(growthView, 5);
-            skillData.bottom = new FormAttachment(100, -10);
-            fe9SkillView.setLayoutData(skillData);
-
-            weaponView = new WeaponsView(this, type, 1);
-            weaponView.setSize(200, 200);
-
-            FormData weaponData = new FormData();
-            weaponData.top = new FormAttachment(growthView, 0, SWT.TOP);
-            weaponData.left = new FormAttachment(fe9SkillView, 5);
-            weaponView.setLayoutData(weaponData);
-
-            fe9ClassesView = new FE9ClassesView(this);
-            fe9ClassesView.setSize(200, 200);
-
-            FormData classData = new FormData();
-            classData.top = new FormAttachment(growthView, 0, SWT.TOP);
-            classData.left = new FormAttachment(weaponView, 5);
-            classData.right = new FormAttachment(100, -5);
-            fe9ClassesView.setLayoutData(classData);
-
-            fe9EnemyView = new FE9EnemyBuffView(this);
-            fe9EnemyView.setSize(200, 200);
-
-            FormData enemyData = new FormData();
-            enemyData.top = new FormAttachment(fe9ClassesView, 5);
-            enemyData.left = new FormAttachment(fe9ClassesView, 0, SWT.LEFT);
-            enemyData.right = new FormAttachment(100, -5);
-            fe9EnemyView.setLayoutData(enemyData);
+            composeFE9();
         } else {
-            otherCharOptionView = new MOVCONAffinityView(this);
-            otherCharOptionView.setSize(200, 200);
-
-            FormData otherData = new FormData();
-            otherData.top = new FormAttachment(baseView, 5);
-            otherData.left = new FormAttachment(baseView, 0, SWT.LEFT);
-            otherData.right = new FormAttachment(baseView, 0, SWT.RIGHT);
-            otherCharOptionView.setLayoutData(otherData);
-
-            miscView = new GameMechanicsView(this, type);
-            miscView.setSize(200, 200);
-
-            FormData miscData = new FormData();
-            miscData.top = new FormAttachment(otherCharOptionView, 5);
-            miscData.left = new FormAttachment(otherCharOptionView, 0, SWT.LEFT);
-            miscData.right = new FormAttachment(otherCharOptionView, 0, SWT.RIGHT);
-            miscView.setLayoutData(miscData);
-
-            rewardView = new RewardRandomizationView(this, type);
-            rewardView.setSize(200, 200);
-
-            FormData rewardData = new FormData();
-            rewardData.top = new FormAttachment(miscView, 5);
-            rewardData.left = new FormAttachment(miscView, 0, SWT.LEFT);
-            rewardData.right = new FormAttachment(miscView, 0, SWT.RIGHT);
-            rewardView.setLayoutData(rewardData);
-
-            weaponView = new WeaponsView(this, type, 1);
-            weaponView.setSize(200, 200);
-
-            FormData weaponData = new FormData();
-            weaponData.top = new FormAttachment(growthView, 0, SWT.TOP);
-            weaponData.left = new FormAttachment(growthView, 5);
-            weaponData.bottom = new FormAttachment(100, -10);
-            weaponView.setLayoutData(weaponData);
-
-            classView = new ClassesView(this, type);
-            classView.setSize(200, 200);
-
-            FormData classData = new FormData();
-            classData.top = new FormAttachment(weaponView, 0, SWT.TOP);
-            classData.left = new FormAttachment(weaponView, 5);
-            classView.setLayoutData(classData);
-
-            enemyView = new EnemyBuffsView(this);
-            enemyView.setSize(200, 200);
-
-            FormData enemyData = new FormData();
-            enemyData.top = new FormAttachment(classView, 5);
-            enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
-            enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
-            enemyData.bottom = new FormAttachment(100, -10);
-            enemyView.setLayoutData(enemyData);
-
-            recruitView = new RecruitmentView(this, type);
-            recruitView.setSize(200, 200);
-
-            FormData recruitData = new FormData();
-            recruitData.top = new FormAttachment(classView, 0, SWT.TOP);
-            recruitData.left = new FormAttachment(classView, 5);
-            recruitView.setLayoutData(recruitData);
-
-            characterShufflingView = new CharacterShufflingView(this, type);
-            characterShufflingView.setSize(200, 200);
-
-            FormData characterShufflingData = new FormData();
-            characterShufflingData.top = new FormAttachment(recruitView, 0, SWT.TOP);
-            characterShufflingData.left = new FormAttachment(recruitView, 5);
-            characterShufflingData.right = new FormAttachment(100, 0);
-            characterShufflingView.setLayoutData(characterShufflingData);
-
-            itemAssignmentView = new ItemAssignmentView(this, type);
-            itemAssignmentView.setSize(200, 200);
-
-            FormData itemAssignData = new FormData();
-            itemAssignData.top = new FormAttachment(characterShufflingView, 5);
-            itemAssignData.left = new FormAttachment(characterShufflingView, 0, SWT.LEFT);
-            itemAssignData.right = new FormAttachment(characterShufflingView, 0, SWT.RIGHT);
-            itemAssignmentView.setLayoutData(itemAssignData);
-
+            composeGBA();
         }
+    }
+
+    private void composeFE9(){
+        conAffinityView = new CONAffinityView(this);
+        conAffinityView.group.setSize(200, 200);
+
+        FormData conAffinityData = new FormData();
+        conAffinityData.top = new FormAttachment(baseView.group, 5);
+        conAffinityData.left = new FormAttachment(baseView.group, 0, SWT.LEFT);
+        conAffinityData.right = new FormAttachment(baseView.group, 0, SWT.RIGHT);
+        conAffinityView.group.setLayoutData(conAffinityData);
+
+        rewardView = new RewardRandomizationView(this, type);
+        rewardView.group.setSize(200, 200);
+
+        FormData rewardData = new FormData();
+        rewardData.top = new FormAttachment(conAffinityView.group, 5);
+        rewardData.left = new FormAttachment(conAffinityView.group, 0, SWT.LEFT);
+        rewardData.right = new FormAttachment(conAffinityView.group, 0, SWT.RIGHT);
+        rewardView.group.setLayoutData(rewardData);
+
+        List<String> skills = FE9Data.Skill.allValidSkills.stream().map(FE9Data.Skill::getDisplayString).collect(Collectors.toList());
+        fe9SkillView = new FE9SkillView(this, skills, 1);
+        fe9SkillView.group.setSize(200, 200);
+
+        FormData skillData = new FormData();
+        skillData.top = new FormAttachment(growthView.group, 0, SWT.TOP);
+        skillData.left = new FormAttachment(growthView.group, 5);
+        skillData.bottom = new FormAttachment(100, -10);
+        fe9SkillView.group.setLayoutData(skillData);
+
+        weaponView = new WeaponsView(this, type, 1);
+        weaponView.group.setSize(200, 200);
+
+        FormData weaponData = new FormData();
+        weaponData.top = new FormAttachment(growthView.group, 0, SWT.TOP);
+        weaponData.left = new FormAttachment(fe9SkillView.group, 5);
+        weaponView.group.setLayoutData(weaponData);
+
+        fe9ClassesView = new FE9ClassesView(this);
+        fe9ClassesView.group.setSize(200, 200);
+
+        FormData classData = new FormData();
+        classData.top = new FormAttachment(growthView.group, 0, SWT.TOP);
+        classData.left = new FormAttachment(weaponView.group, 5);
+        classData.right = new FormAttachment(100, -5);
+        fe9ClassesView.group.setLayoutData(classData);
+
+        fe9EnemyView = new FE9EnemyBuffView(this, false);
+        fe9EnemyView.group.setSize(200, 200);
+
+        FormData enemyData = new FormData();
+        enemyData.top = new FormAttachment(fe9ClassesView.group, 5);
+        enemyData.left = new FormAttachment(fe9ClassesView.group, 0, SWT.LEFT);
+        enemyData.right = new FormAttachment(100, -5);
+        fe9EnemyView.group.setLayoutData(enemyData);
+    }
+
+    private void composeGBA() {
+        otherCharOptionView = new MOVCONAffinityView(this);
+        otherCharOptionView.group.setSize(200, 200);
+
+        FormData otherData = new FormData();
+        otherData.top = new FormAttachment(baseView.group, 5);
+        otherData.left = new FormAttachment(baseView.group, 0, SWT.LEFT);
+        otherData.right = new FormAttachment(baseView.group, 0, SWT.RIGHT);
+        otherCharOptionView.group.setLayoutData(otherData);
+
+        miscView = new GameMechanicsView(this, type);
+        miscView.group.setSize(200, 200);
+
+        FormData miscData = new FormData();
+        miscData.top = new FormAttachment(otherCharOptionView.group, 5);
+        miscData.left = new FormAttachment(otherCharOptionView.group, 0, SWT.LEFT);
+        miscData.right = new FormAttachment(otherCharOptionView.group, 0, SWT.RIGHT);
+        miscView.group.setLayoutData(miscData);
+
+        rewardView = new RewardRandomizationView(this, type);
+        rewardView.group.setSize(200, 200);
+
+        FormData rewardData = new FormData();
+        rewardData.top = new FormAttachment(miscView.group, 5);
+        rewardData.left = new FormAttachment(miscView.group, 0, SWT.LEFT);
+        rewardData.right = new FormAttachment(miscView.group, 0, SWT.RIGHT);
+        rewardView.group.setLayoutData(rewardData);
+
+        weaponView = new WeaponsView(this, type, 1);
+        weaponView.group.setSize(200, 200);
+
+        FormData weaponData = new FormData();
+        weaponData.top = new FormAttachment(growthView.group, 0, SWT.TOP);
+        weaponData.left = new FormAttachment(growthView.group, 5);
+        weaponData.bottom = new FormAttachment(100, -10);
+        weaponView.group.setLayoutData(weaponData);
+
+        classView = new ClassesView(this, type);
+        classView.group.setSize(200, 200);
+
+        FormData classData = new FormData();
+        classData.top = new FormAttachment(weaponView.group, 0, SWT.TOP);
+        classData.left = new FormAttachment(weaponView.group, 5);
+        classView.group.setLayoutData(classData);
+
+        enemyView = new EnemyBuffsView(this);
+        enemyView.group.setSize(200, 200);
+
+        FormData enemyData = new FormData();
+        enemyData.top = new FormAttachment(classView.group, 5);
+        enemyData.left = new FormAttachment(classView.group, 0, SWT.LEFT);
+        enemyData.right = new FormAttachment(classView.group, 0, SWT.RIGHT);
+        enemyData.bottom = new FormAttachment(100, -10);
+        enemyView.group.setLayoutData(enemyData);
+
+        recruitView = new RecruitmentView(this, type);
+        recruitView.group.setSize(200, 200);
+
+        FormData recruitData = new FormData();
+        recruitData.top = new FormAttachment(classView.group, 0, SWT.TOP);
+        recruitData.left = new FormAttachment(classView.group, 5);
+        recruitView.group.setLayoutData(recruitData);
+
+        characterShufflingView = new CharacterShufflingView(this, type);
+        characterShufflingView.group.setSize(200, 200);
+
+        FormData characterShufflingData = new FormData();
+        characterShufflingData.top = new FormAttachment(recruitView.group, 0, SWT.TOP);
+        characterShufflingData.left = new FormAttachment(recruitView.group, 5);
+        characterShufflingData.right = new FormAttachment(100, 0);
+        characterShufflingView.group.setLayoutData(characterShufflingData);
+
+        itemAssignmentView = new ItemAssignmentView(this, type);
+        itemAssignmentView.group.setSize(200, 200);
+
+        FormData itemAssignData = new FormData();
+        itemAssignData.top = new FormAttachment(characterShufflingView.group, 5);
+        itemAssignData.left = new FormAttachment(characterShufflingView.group, 0, SWT.LEFT);
+        itemAssignData.right = new FormAttachment(characterShufflingView.group, 0, SWT.RIGHT);
+        itemAssignmentView.group.setLayoutData(itemAssignData);
+    }
+
+    private void composeFE4() {
+        // To prevent gen 2 overflow, the max growth allowed for any single stat is 85%.
+        growthView.overrideMaxGrowthAllowed(85);
+
+        holyBloodView = new HolyBloodView(this);
+        holyBloodView.group.setSize(200, 200);
+
+        FormData holyBloodData = new FormData();
+        holyBloodData.top = new FormAttachment(baseView.group, 5);
+        holyBloodData.left = new FormAttachment(baseView.group, 0, SWT.LEFT);
+        holyBloodData.right = new FormAttachment(baseView.group, 0, SWT.RIGHT);
+        holyBloodData.bottom = new FormAttachment(100, -10);
+        holyBloodView.group.setLayoutData(holyBloodData);
+
+        skillsView = new FE4SkillsView(this, 1);
+        skillsView.group.setSize(200, 200);
+
+        FormData skillsData = new FormData();
+        skillsData.top = new FormAttachment(growthView.group, 0, SWT.TOP);
+        skillsData.left = new FormAttachment(growthView.group, 5);
+        skillsData.bottom = new FormAttachment(100, -10);
+        skillsView.group.setLayoutData(skillsData);
+
+        fe4ClassView = new FE4ClassesView(this, 1);
+        fe4ClassView.group.setSize(200, 200);
+
+        FormData classData = new FormData();
+        classData.top = new FormAttachment(skillsView.group, 0, SWT.TOP);
+        classData.left = new FormAttachment(skillsView.group, 5);
+        classData.bottom = new FormAttachment(100, -10);
+        fe4ClassView.group.setLayoutData(classData);
+
+        fe4PromotionView = new FE4PromotionView(this);
+        fe4PromotionView.group.setSize(200, 200);
+
+        FormData promoData = new FormData();
+        promoData.top = new FormAttachment(fe4ClassView.group, 0, SWT.TOP);
+        promoData.left = new FormAttachment(fe4ClassView.group, 5);
+        promoData.right = new FormAttachment(100, -5);
+        fe4PromotionView.group.setLayoutData(promoData);
+
+        fe4EnemyBuffView = new FE4EnemyBuffView(this);
+        fe4EnemyBuffView.group.setSize(200, 200);
+
+        FormData buffData = new FormData();
+        buffData.top = new FormAttachment(fe4PromotionView.group, 5);
+        buffData.left = new FormAttachment(fe4PromotionView.group, 0, SWT.LEFT);
+        buffData.right = new FormAttachment(fe4PromotionView.group, 0, SWT.RIGHT);
+        fe4EnemyBuffView.group.setLayoutData(buffData);
+
+        miscView = new GameMechanicsView(this, type);
+        miscView.group.setSize(200, 200);
+
+        FormData miscData = new FormData();
+        miscData.top = new FormAttachment(fe4EnemyBuffView.group, 5);
+        miscData.left = new FormAttachment(fe4EnemyBuffView.group, 0, SWT.LEFT);
+        miscData.right = new FormAttachment(fe4EnemyBuffView.group, 0, SWT.RIGHT);
+        //miscData.bottom = new FormAttachment(100, -10);
+        miscView.group.setLayoutData(miscData);
+
+        rewardView = new RewardRandomizationView(this, type);
+        rewardView.group.setSize(200, 200);
+
+        FormData rewardData = new FormData();
+        rewardData.top = new FormAttachment(miscView.group, 5);
+        rewardData.left = new FormAttachment(miscView.group, 0, SWT.LEFT);
+        rewardData.right = new FormAttachment(miscView.group, 0, SWT.RIGHT);
+        rewardView.group.setLayoutData(rewardData);
     }
 
     @Override
@@ -306,7 +304,7 @@ public class LegacyViewContainer extends YuneViewContainer {
         otherCharOptionView.initialize(bundle.other);
         recruitView.initialize(bundle.recruitmentOptions);
         itemAssignmentView.initialize(bundle.itemAssignmentOptions);
-        characterShufflingView.initialize(bundle.characterShufflingOptions, type);
+        characterShufflingView.initialize(bundle.characterShufflingOptions);
     }
 
     @Override

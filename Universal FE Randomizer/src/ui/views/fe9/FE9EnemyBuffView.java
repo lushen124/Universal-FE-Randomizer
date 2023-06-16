@@ -8,11 +8,12 @@ import ui.common.GuiUtil;
 import ui.model.fe9.FE9EnemyBuffOptions;
 import ui.model.fe9.FE9EnemyBuffOptions.BossStatMode;
 import ui.model.fe9.FE9EnemyBuffOptions.MinionGrowthMode;
+import ui.views.YuneView;
 
-public class FE9EnemyBuffView extends Composite {
+public class FE9EnemyBuffView extends YuneView<FE9EnemyBuffOptions> {
 
-	private Group container;
-	
+	private boolean horizontal;
+
 	private Group minionContainer;
 	
 	private Button buffMinionGrowthsButton;
@@ -63,18 +64,26 @@ public class FE9EnemyBuffView extends Composite {
 	private Label bossSkillLabel;
 	private Spinner bossSkillSpinner;
 	
-	public FE9EnemyBuffView(Composite parent) {
-		super(parent, SWT.NONE);
-		
-		FillLayout layout = new FillLayout();
-		setLayout(layout);
-		
-		container = new Group(this, SWT.NONE);
-		container.setText("Buff Enemies");
-		container.setToolTipText("Options to mix up enemy units, generally to make the game more challenging.");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		Group minionGroup = new Group(container, SWT.NONE);
+	public FE9EnemyBuffView(Composite parent, boolean horizontal) {
+		super();
+		createGroup(parent);
+		this.horizontal = horizontal;
+		compose();
+	}
+
+	@Override
+	public String getGroupTitle() {
+		return "Buff Enemies";
+	}
+
+	@Override
+	public String getGroupTooltip() {
+		return "Options to mix up enemy units, generally to make the game more challenging.";
+	}
+
+	@Override
+	protected void compose() {
+		Group minionGroup = new Group(group, SWT.NONE);
 		minionGroup.setText("Minions");
 		minionGroup.setLayout(GuiUtil.formLayoutWithMargin());
 		
@@ -289,12 +298,16 @@ public class FE9EnemyBuffView extends Composite {
 		
 		//////////////////////////////////////////////////////////////////
 		
-		Group bossGroup = new Group(container, SWT.NONE);
+		Group bossGroup = new Group(group, SWT.NONE);
 		bossGroup.setText("Bosses");
 		bossGroup.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		FormData bossData = new FormData();
-		bossData.left = new FormAttachment(minionGroup, 5);
+		if (horizontal) {
+			bossData.left = new FormAttachment(minionGroup, 5);
+		} else {
+			bossData.top = new FormAttachment(minionGroup, 5);
+		}
 		bossGroup.setLayoutData(bossData);
 		
 		buffBossStatButton = new Button(bossGroup, SWT.CHECK);
@@ -507,6 +520,7 @@ public class FE9EnemyBuffView extends Composite {
 		//////////////////////////////////////////////////////////////////
 	}
 
+	@Override
 	public FE9EnemyBuffOptions getOptions() {
 		int minionAmount = minionGrowthSpinner.getSelection();
 		MinionGrowthMode minionMode = MinionGrowthMode.NONE;
@@ -538,6 +552,7 @@ public class FE9EnemyBuffView extends Composite {
 				bossWeapons, bossWeaponChance, bossSkills, bossSkillChance);
 	}
 
+	@Override
 	public void initialize(FE9EnemyBuffOptions options) {
 		if (options == null) {
 			// Shouldn't happen.

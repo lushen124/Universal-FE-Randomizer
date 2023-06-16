@@ -28,7 +28,7 @@ public class FE4ClassesTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        classes = addView(new FE4ClassesView(container), GuiUtil.defaultGridData(2, true));
+        classes = addView(new FE4ClassesView(container, 2), GuiUtil.defaultGridData(2, true));
         promotions = addView(new FE4PromotionView(container));
     }
 

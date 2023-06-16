@@ -53,7 +53,7 @@ public abstract class YuneGroup {
             group = new Group(parent, SWT.NONE);
             ((Group) group).setText(getGroupTitle());
         }
-
+        group.setToolTipText(getGroupTooltip());
         group.setLayout(getGroupLayout());
     }
 
@@ -71,6 +71,13 @@ public abstract class YuneGroup {
      * If no title should be shown (this return null), then this will cause the group to be created as a Composite rather than as a Group.
      */
     protected String getGroupTitle() {
+        return null;
+    }
+
+    /**
+     * Can be overriden to define the Tooltip of this group that will be displayed in the UI.
+     */
+    protected String getGroupTooltip(){
         return null;
     }
 }

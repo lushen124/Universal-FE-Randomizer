@@ -7,10 +7,10 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.*;
 import ui.common.GuiUtil;
 import ui.model.fe4.FE4PromotionOptions;
+import ui.views.YuneView;
 
-public class FE4PromotionView extends Composite {
-	private Group container;
-	
+public class FE4PromotionView extends YuneView<FE4PromotionOptions> {
+
 	private Button strictButton;
 	
 	private Button looseButton;
@@ -23,16 +23,22 @@ public class FE4PromotionView extends Composite {
 	private FE4PromotionOptions.Mode currentMode;
 	
 	public FE4PromotionView(Composite parent) {
-		super(parent, SWT.NONE);
-		
-		setLayout(new FillLayout());
-		
-		container = new Group(this, SWT.NONE);
-		container.setText("Promotions");
-		container.setToolTipText("Controls class promotions for all playable characters.");
-		container.setLayout(GuiUtil.formLayoutWithMargin());
-		
-		strictButton = new Button(container, SWT.RADIO);
+		super(parent);
+	}
+
+	@Override
+	public String getGroupTitle() {
+		return "Promotions";
+	}
+
+	@Override
+	public String getGroupTooltip() {
+		return "Controls class promotions for all playable characters.";
+	}
+
+	@Override
+	protected void compose() {
+		strictButton = new Button(group, SWT.RADIO);
 		strictButton.setText("Default Promotions");
 		strictButton.setToolTipText("Sets promotions based on normal class progression.");
 		strictButton.setEnabled(true);
@@ -49,7 +55,7 @@ public class FE4PromotionView extends Composite {
 		optionData.top = new FormAttachment(0, 0);
 		strictButton.setLayoutData(optionData);
 		
-		looseButton = new Button(container, SWT.RADIO);
+		looseButton = new Button(group, SWT.RADIO);
 		looseButton.setText("Similar Promotions");
 		looseButton.setToolTipText("Sets promotions based on weapon ranks, holy blood, class skills, and base stats.");
 		looseButton.setEnabled(true);
@@ -66,7 +72,7 @@ public class FE4PromotionView extends Composite {
 		optionData.top = new FormAttachment(strictButton, 15);
 		looseButton.setLayoutData(optionData);
 		
-		allowMountChangeButton = new Button(container, SWT.CHECK);
+		allowMountChangeButton = new Button(group, SWT.CHECK);
 		allowMountChangeButton.setText("Allow Mount Change");
 		allowMountChangeButton.setToolTipText("Allows mounted units to change between mounts (e.g. flying to horseback, and vice versa).");
 		allowMountChangeButton.setEnabled(false);
@@ -77,7 +83,7 @@ public class FE4PromotionView extends Composite {
 		optionData.top = new FormAttachment(looseButton, 5);
 		allowMountChangeButton.setLayoutData(optionData);
 		
-		allowEnemyClassButton = new Button(container, SWT.CHECK);
+		allowEnemyClassButton = new Button(group, SWT.CHECK);
 		allowEnemyClassButton.setText("Allow Enemy-only Promotions");
 		allowEnemyClassButton.setToolTipText("Allows units to promote into enemy-only classes like Baron, Queen, and Emperor.");
 		allowEnemyClassButton.setEnabled(false);
@@ -88,7 +94,7 @@ public class FE4PromotionView extends Composite {
 		optionData.top = new FormAttachment(allowMountChangeButton, 5);
 		allowEnemyClassButton.setLayoutData(optionData);
 		
-		randomButton = new Button(container, SWT.RADIO);
+		randomButton = new Button(group, SWT.RADIO);
 		randomButton.setText("Random Promotions");
 		randomButton.setToolTipText("Sets promotions enitrely randomly.");
 		randomButton.setEnabled(true);
@@ -105,7 +111,7 @@ public class FE4PromotionView extends Composite {
 		optionData.top = new FormAttachment(allowEnemyClassButton, 15);
 		randomButton.setLayoutData(optionData);
 		
-		commonWeaponButton = new Button(container, SWT.CHECK);
+		commonWeaponButton = new Button(group, SWT.CHECK);
 		commonWeaponButton.setText("Requires Common Weapon");
 		commonWeaponButton.setToolTipText("Requires the promoted class to share at least one weapon type with its predecessor.");
 		commonWeaponButton.setEnabled(false);
@@ -116,7 +122,8 @@ public class FE4PromotionView extends Composite {
 		optionData.top = new FormAttachment(randomButton, 5);
 		commonWeaponButton.setLayoutData(optionData);
 	}
-	
+
+
 	private void setMode(FE4PromotionOptions.Mode mode) {
 		currentMode = mode;
 		
@@ -124,11 +131,13 @@ public class FE4PromotionView extends Composite {
 		allowEnemyClassButton.setEnabled(currentMode == FE4PromotionOptions.Mode.LOOSE);
 		commonWeaponButton.setEnabled(currentMode == FE4PromotionOptions.Mode.RANDOM);	
 	}
-	
+
+	@Override
 	public FE4PromotionOptions getOptions() {
 		return new FE4PromotionOptions(currentMode, allowMountChangeButton.getSelection(), allowEnemyClassButton.getSelection(), commonWeaponButton.getSelection());
 	}
-	
+
+	@Override
 	public void initialize(FE4PromotionOptions options) {
 		if (options == null) {
 			// Shouldn't happen.
