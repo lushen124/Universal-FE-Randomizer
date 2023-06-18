@@ -35,6 +35,7 @@ public class LegacyViewContainer extends YuneViewContainer {
     private RecruitmentView recruitView;
     private ItemAssignmentView itemAssignmentView;
     private CharacterShufflingView characterShufflingView;
+    private PrfView prfView;
 
     // FE4
     private FE4SkillsView skillsView;
@@ -218,6 +219,15 @@ public class LegacyViewContainer extends YuneViewContainer {
         itemAssignData.left = new FormAttachment(characterShufflingView.group, 0, SWT.LEFT);
         itemAssignData.right = new FormAttachment(characterShufflingView.group, 0, SWT.RIGHT);
         itemAssignmentView.group.setLayoutData(itemAssignData);
+
+        prfView = new PrfView(this);
+        prfView.group.setSize(200, 200);
+
+        FormData prfViewData = new FormData();
+        prfViewData.top = new FormAttachment(itemAssignmentView.group, 5);
+        prfViewData.left = new FormAttachment(itemAssignmentView.group, 0, SWT.LEFT);
+        prfViewData.right = new FormAttachment(itemAssignmentView.group, 0, SWT.RIGHT);
+        prfView.group.setLayoutData(prfViewData);
     }
 
     private void composeFE4() {
@@ -301,6 +311,7 @@ public class LegacyViewContainer extends YuneViewContainer {
         rewardView.initialize(bundle.rewards);
 
         // GBA Specific
+        prfView.initialize(bundle.prfs);
         otherCharOptionView.initialize(bundle.other);
         recruitView.initialize(bundle.recruitmentOptions);
         itemAssignmentView.initialize(bundle.itemAssignmentOptions);
@@ -318,6 +329,7 @@ public class LegacyViewContainer extends YuneViewContainer {
         bundle.weapons = weaponView.getOptions();
 
         // GBA specific
+        bundle.prfs = prfView.getOptions();
         bundle.other = otherCharOptionView.getOptions();
         bundle.itemAssignmentOptions = itemAssignmentView.getOptions();
         bundle.recruitmentOptions = recruitView.getOptions();

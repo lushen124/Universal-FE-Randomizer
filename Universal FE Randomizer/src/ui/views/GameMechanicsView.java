@@ -196,7 +196,7 @@ public class GameMechanicsView extends YuneView<GameMechanicOptions> {
 			
 			formData = new FormData();
 			formData.left = new FormAttachment(0, 5);
-			formData.right = new FormAttachment(100, 5);
+			formData.right = new FormAttachment(100, -5);
 			formData.top = new FormAttachment(casualModeButton, 10);
 			experienceRateGroup.setLayoutData(formData);
 			
