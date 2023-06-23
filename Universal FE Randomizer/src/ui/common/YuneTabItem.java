@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * The Base class for all Yune Tab Items.
  *
- * Provides methods to help with layouting and letting the child classes be somewhat configurable.
+ * Provides methods to help with layouting and letting the child classes be somewhat configurable by just overriding some methods.
  */
 public abstract class YuneTabItem extends CTabItem implements Preloadable {
     protected Composite container;
@@ -29,11 +29,6 @@ public abstract class YuneTabItem extends CTabItem implements Preloadable {
 
     public YuneTabItem(CTabFolder parent, GameType type) {
         super(parent, SWT.NONE);
-        // Increase the Height of the text in the Tabs a bit
-        FontData fontData = this.getFont().getFontData()[0];
-        fontData.setHeight(10);
-        this.setFont(new Font(this.getFont().getDevice(), fontData));
-
         setText(getTabName());
         setToolTipText(getTabTooltip());
         this.type = type;
@@ -47,11 +42,9 @@ public abstract class YuneTabItem extends CTabItem implements Preloadable {
      */
     protected void setupDefaultMainContainer() {
         container = new Composite(getParent(), SWT.NONE);
-        GridLayout layout = new GridLayout(numberColumns(), false);
-        layout.marginLeft = 5;
-        layout.marginTop = 5;
-        layout.marginRight = 5;
-        layout.marginBottom = 5;
+
+        GridLayout layout = GuiUtil.gridLayoutWithMargin();
+        layout.numColumns = numberColumns();
         container.setLayout(layout);
     }
 

@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 import ui.common.Preloadable;
 import ui.common.YuneTabItem;
 import ui.tabs.fe4.FE4ClassesTab;
+import ui.tabs.fe4.FE4MiscTab;
 import ui.tabs.fe4.FE4SkillsTab;
 import ui.tabs.fe4.FE4StatsTab;
 import ui.tabs.fe9.FE9CharactersTab;
@@ -37,14 +38,6 @@ public class TabbedViewContainer extends YuneViewContainer {
     // Tabs
     List<YuneTabItem> availableTabs;
 
-    // GBA Tabs
-    YuneTabItem charactersTab;
-    YuneTabItem itemsTab;
-    YuneTabItem miscTab;
-    YuneTabItem statsTab;
-    YuneTabItem classesTab;
-    YuneTabItem skillsTab;
-
     public TabbedViewContainer(Composite parent, GameType loadedType) {
         super(parent, loadedType);
     }
@@ -57,25 +50,30 @@ public class TabbedViewContainer extends YuneViewContainer {
 
         // Initialize the Tab Folder with the tabs based on the game type
         if (type.isGBA()) {
-            statsTab = addTab(new GBAStatsTab(tabFolder, type));
-            charactersTab = addTab(new GBACharactersTab(tabFolder, type));
-            itemsTab = addTab(new GBAItemsTab(tabFolder, type));
-            miscTab = addTab(new GBAMechanicsTab(tabFolder, type));
+            addTab(new GBAStatsTab(tabFolder, type));
+            addTab(new GBACharactersTab(tabFolder, type));
+            addTab(new GBAItemsTab(tabFolder, type));
+            addTab(new GBAMechanicsTab(tabFolder, type));
         } else if (type.isSFC()) {
-            statsTab = addTab(new FE4StatsTab(tabFolder));
-            classesTab = addTab(new FE4ClassesTab(tabFolder));
-            skillsTab = addTab(new FE4SkillsTab(tabFolder));
-            miscTab = addTab(new GBAMechanicsTab(tabFolder, type));
+            addTab(new FE4StatsTab(tabFolder));
+            addTab(new FE4ClassesTab(tabFolder));
+            addTab(new FE4SkillsTab(tabFolder));
+            addTab(new FE4MiscTab(tabFolder));
         } else if (type.isGCN()) {
-            charactersTab = addTab(new FE9CharactersTab(tabFolder));
-            itemsTab = addTab(new FE9ItemsTab(tabFolder));
-            skillsTab = addTab(new FE9SkillsTab(tabFolder));
-            miscTab = addTab(new GBAMechanicsTab(tabFolder, type));
+            addTab(new FE9CharactersTab(tabFolder));
+            addTab(new FE9ItemsTab(tabFolder));
+            addTab(new FE9SkillsTab(tabFolder));
         }
 
         tabFolder.setSelection(0);
     }
 
+    /**
+     * Adds the given {@link YuneTabItem} to the list of available Tabs.
+     * Usually should be called directly with the output of a YuneTabItem constructor.
+     *
+     * @return Returns the parameter tabItem, so that you can assign it to a variable in addition to adding it to the list (if needed).
+     */
     public <T extends YuneTabItem> T addTab(T tabItem) {
         this.availableTabs.add(tabItem);
         return tabItem;

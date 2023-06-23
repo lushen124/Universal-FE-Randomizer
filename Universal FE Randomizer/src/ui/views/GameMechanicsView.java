@@ -88,7 +88,7 @@ public class GameMechanicsView extends YuneView<GameMechanicOptions> {
 			previousControl = applyEnglishPatch;
 		}
 		
-		if (type == GameType.FE7 || type == GameType.FE9) {
+		if (type == GameType.FE7) {
 			tripleEffectiveness = new Button(group, SWT.CHECK);
 			tripleEffectiveness.setText("Set Effectiveness to 3x");
 			tripleEffectiveness.setToolTipText("Reverts the weapon effectiveness to 3x like in the Japanese release, instead of 2x.");

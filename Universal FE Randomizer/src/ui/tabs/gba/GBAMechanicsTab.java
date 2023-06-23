@@ -42,18 +42,9 @@ public class GBAMechanicsTab extends YuneTabItem {
     public void preloadOptions(OptionRecorder.GBAOptionBundle bundle) {
         misc.initialize(bundle.otherOptions);
     }
-    @Override
-    public void preloadOptions(OptionRecorder.FE4OptionBundle bundle) {
-        misc.initialize(bundle.mechanics);
-    }
 
     @Override
     public void updateOptionBundle(OptionRecorder.GBAOptionBundle bundle) {
         bundle.otherOptions = misc.getOptions();
-    }
-
-    @Override
-    public void updateOptionBundle(OptionRecorder.FE4OptionBundle bundle) {
-        bundle.mechanics = misc.getOptions();
     }
 }

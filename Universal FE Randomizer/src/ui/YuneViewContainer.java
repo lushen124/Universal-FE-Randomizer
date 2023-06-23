@@ -20,10 +20,15 @@ import ui.common.Preloadable;
  */
 public abstract class YuneViewContainer extends Composite implements Preloadable {
 
+    /**
+     * The currently loaded GameType can be passed to the subviews for Game specific layouting.
+     */
     protected GameType type;
 
     /**
-     * Common Constructor,
+     * Common Constructor.
+     *
+     * Sets the current game type, and calls the {@link #compose()} for creating the content of the composite
      */
     public YuneViewContainer(Composite parent, GameType loadedType) {
         super(parent, SWT.NONE);

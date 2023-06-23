@@ -151,7 +151,7 @@ public class FE4SkillsView extends YuneView<SkillsOptions> {
         FormData viewData = new FormData();
         viewData.left = new FormAttachment(randomizeButton, 0, SWT.LEFT);
         viewData.top = new FormAttachment(randomizeButton, 0);
-        viewData.right = new FormAttachment(100, -5);
+        viewData.width = GuiUtil.DEFAULT_ITEM_WIDTH_280;
         skillCountView.setLayoutData(viewData);
 
         List<String> skillList = Arrays.stream(FE4Data.Skill.values()).map(FE4Data.Skill::capitalizedName).collect(Collectors.toList());
@@ -178,7 +178,6 @@ public class FE4SkillsView extends YuneView<SkillsOptions> {
 
         Label pursuitLabel = new Label(group, SWT.NONE);
         pursuitLabel.setText("Pursuit Chance:");
-        pursuitLabel.setEnabled(false);
 
         FormData labelData = new FormData();
         labelData.top = new FormAttachment(skillWeightView, 10);
