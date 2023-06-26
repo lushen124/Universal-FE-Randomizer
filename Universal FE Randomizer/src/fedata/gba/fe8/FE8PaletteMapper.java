@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import random.gba.loader.PromotionDataLoader;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
@@ -205,9 +206,9 @@ public class FE8PaletteMapper {
 	private List<Integer> emptyPaletteIDs; // Can be used as long as the address is written after the pointer table.
 	private Map<Integer, List<Integer>> recycledPaletteIDsByLength; // Maps lengths to recycled paletteIDs of that length.
 	
-	private FE8PromotionManager promotionManager;
+	private PromotionDataLoader promotionManager;
 	
-	public FE8PaletteMapper(FileHandler handler, FE8PromotionManager promotionManager, List<Integer> emptyIDs) {
+	public FE8PaletteMapper(FileHandler handler, PromotionDataLoader promotionManager, List<Integer> emptyIDs) {
 		paletteClassMap = new HashMap<FE8Data.Character, ClassMapEntry>();
 		paletteIndexMap = new HashMap<FE8Data.Character, PaletteMapEntry>();
 		

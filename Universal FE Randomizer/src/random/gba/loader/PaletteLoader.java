@@ -13,7 +13,6 @@ import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8PaletteMapper;
-import fedata.gba.fe8.FE8PromotionManager;
 import fedata.gba.fe8.FE8PaletteMapper.SlotType;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
@@ -48,7 +47,7 @@ public class PaletteLoader {
 	private PaletteMapper mapper;
 	
 	private FE8PaletteMapper fe8Mapper;
-	private FE8PromotionManager fe8Promotions;
+	private PromotionDataLoader fe8Promotions;
 	
 	private List<Integer> emptyPaletteIDs = new ArrayList<Integer>();
 	
@@ -239,7 +238,7 @@ public class PaletteLoader {
 		}
 	}
 	
-	public FE8PaletteMapper setupFE8SpecialManagers(FileHandler handler, FE8PromotionManager promotionManager) {
+	public FE8PaletteMapper setupFE8SpecialManagers(FileHandler handler, PromotionDataLoader promotionManager) {
 		assert gameType == GameType.FE8 : "Special setup only needs to be called for FE8.";
 		// FE8PaletteMapper will handle the empty palettes for us. All we need to be prepared for is the chance of a palette ID not existing yet.
 		fe8Mapper = new FE8PaletteMapper(handler, promotionManager, emptyPaletteIDs);

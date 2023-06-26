@@ -1,6 +1,5 @@
 package fedata.gba;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
 import fedata.gba.fe7.FE7Data;
@@ -287,12 +286,46 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		return data[39] & 0xFF;
 	}
 
-	public int getSwordRank() {
-		return data[44] & 0xFF;
-	}
-	
+
 	public GBAFEStatDto getPromoBonuses() {
 		return new GBAFEStatDto(getPromoHP(), getPromoSTR(), getPromoSKL(), getPromoSPD(), getPromoDEF(), getPromoRES(), 0);
+	}
+
+	public void setPromoHP(int newHp) {
+		data[34] = (byte) (newHp & 0xFF);
+	}
+
+	public void setPromoSTR(int newStr) {
+		data[35] = (byte) (newStr & 0xFF);
+	}
+
+	public void setPromoSKL(int newSkl) {
+		data[36] = (byte) (newSkl & 0xFF);
+	}
+
+	public void setPromoSPD(int newSpd) {
+		data[37] = (byte) (newSpd & 0xFF);
+	}
+
+	public void setPromoDEF(int newDef) {
+		data[38] = (byte) (newDef & 0xFF);
+	}
+
+	public void setPromoRES(int newRes) {
+		data[39] = (byte) (newRes & 0xFF);
+	}
+
+	public void setPromoBonuses(GBAFEStatDto newStats) {
+		setPromoHP(newStats.hp);
+		setPromoSTR(newStats.str);
+		setPromoSKL(newStats.skl);
+		setPromoSPD(newStats.spd);
+		setPromoDEF(newStats.def);
+		setPromoRES(newStats.res);
+	}
+
+	public int getSwordRank() {
+		return data[44] & 0xFF;
 	}
 
 	public void setSwordRank(WeaponRank rank) {

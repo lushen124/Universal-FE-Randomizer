@@ -15,17 +15,17 @@ import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.PromotionMapper;
 import ui.fe4.FE4ClassOptions;
 import ui.fe4.FE4ClassOptions.ChildOptions;
-import ui.fe4.FE4PromotionOptions;
+import ui.model.PromotionOptions;
 
 public class FE4PromotionRandomizer {
 	
 	static final int rngSalt = 192168;
 	
-	public static void randomizePromotions(FE4PromotionOptions options, FE4ClassOptions classOptions, CharacterDataLoader charData, PromotionMapper promotionMap, Random rng) {
+	public static void randomizePromotions(PromotionOptions options, FE4ClassOptions classOptions, CharacterDataLoader charData, PromotionMapper promotionMap, Random rng) {
 		boolean matchAnalogueForChildren = classOptions != null ? classOptions.childOption == ChildOptions.MATCH_STRICT : false;
-		if (options.promotionMode == FE4PromotionOptions.Mode.STRICT) { setPromotions(charData, promotionMap, rng); }
-		if (options.promotionMode == FE4PromotionOptions.Mode.LOOSE) { randomizePromotionsLoosely(charData, promotionMap, options.allowMountChanges, options.allowEnemyOnlyPromotedClasses, matchAnalogueForChildren, rng); }
-		if (options.promotionMode == FE4PromotionOptions.Mode.RANDOM) { randomizePromotionsRandomly(charData, promotionMap, options.requireCommonWeapon, matchAnalogueForChildren, rng); }
+		if (options.promotionMode == PromotionOptions.Mode.STRICT) { setPromotions(charData, promotionMap, rng); }
+		if (options.promotionMode == PromotionOptions.Mode.LOOSE) { randomizePromotionsLoosely(charData, promotionMap, options.allowMountChanges, options.allowEnemyOnlyPromotedClasses, matchAnalogueForChildren, rng); }
+		if (options.promotionMode == PromotionOptions.Mode.RANDOM) { randomizePromotionsRandomly(charData, promotionMap, options.requireCommonWeapon, matchAnalogueForChildren, rng); }
 	}
 	
 	private static void setPromotions(CharacterDataLoader charData, PromotionMapper promotionMap, Random rng) {
