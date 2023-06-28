@@ -71,7 +71,7 @@ public class CharacterShuffler {
 			}
 			for (GBAFECharacterData slot : characterPool) {
 				// Determine if the current character should be replaced
-				if (options.getChance() < rng.nextInt(1, 100)) {
+				if (options.getChance() < rng.nextInt(100)) {
 					continue;
 				}
 

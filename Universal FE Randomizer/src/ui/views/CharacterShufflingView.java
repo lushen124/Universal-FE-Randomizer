@@ -214,7 +214,7 @@ public class CharacterShufflingView extends YuneView<CharacterShufflingOptions> 
 					StringBuilder sb = new StringBuilder();
 					for (String file : chosenFiles) {
 						includedShuffles.add(currentFolder + "/"+ file);
-						if (!sb.isEmpty()){
+						if (sb.length() != 0){
 							sb.append(",");
 						}
 						sb.append(file);
