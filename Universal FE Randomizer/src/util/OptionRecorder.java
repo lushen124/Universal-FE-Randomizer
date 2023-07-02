@@ -310,16 +310,6 @@ public class OptionRecorder {
 		saveOptions(options);
 	}
 
-	public static GBAOptionBundle getGBABundle(GameType type) {
-		switch (type) {
-			case FE6: return options.fe6;
-			case FE7: return options.fe7;
-			case FE8: return options.fe8;
-			default:
-				throw new UnsupportedOperationException(type.name() +" is not a valid GBA GameType");
-		}
-	}
-
 	public static Bundle getBundle(GameType type) {
 		switch (type) {
 			case FE4: return options.fe4;
