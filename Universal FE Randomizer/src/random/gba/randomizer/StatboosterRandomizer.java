@@ -106,7 +106,7 @@ public class StatboosterRandomizer {
 			// subtract the boosts from itself to remove the vanilla boost.
 			dao.subtract(dao);
 
-			int numberStats = rng.nextInt(options.multipleStatsMin, options.multipleStatsMax);
+			int numberStats = options.multipleStatsMin + rng.nextInt(options.multipleStatsMax-options.multipleStatsMin);
 			for (int i = 0; i < numberStats; i++) {
 				// Randomize the new Stat boost to add.
 				BoostedStat selectedStat = distributor.getRandomItem(rng, true);
@@ -121,7 +121,7 @@ public class StatboosterRandomizer {
 	 */
 	private static void randomizeStatImpl(StatboosterOptions options, BoostedStat index, GBAFEStatboostDao dao, Random rng) {
 		// randomize the new boost within the bounds
-		int newBoost = rng.nextInt(options.boostStrengthMin, options.boostStrengthMax);
+		int newBoost = options.boostStrengthMin + rng.nextInt(options.boostStrengthMax - options.boostStrengthMin);
 
 		// If this stat is HP, and the user selected to apply an HP Modifier to keep it
 		// higher than other stats (like in vanilla) then apply it.
