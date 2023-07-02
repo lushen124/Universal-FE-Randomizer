@@ -1,5 +1,7 @@
 package random.gba.randomizer.shuffling;
 
+import java.util.*;
+
 import fedata.gba.GBAFEStatDto;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
@@ -8,8 +10,6 @@ import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
 import fedata.general.FEBase.GameType;
 import util.DebugPrinter;
-
-import java.util.*;
 
 /**
  * Class that Represents the necessary data and offers useful functions for
@@ -290,12 +290,8 @@ public class GBACrossGameData {
 		addEntry(GameType.FE8, FE8Data.CharacterClass.MONK, FE6Data.CharacterClass.PRIEST, FE7Data.CharacterClass.MONK);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.TROUBADOUR, FE6Data.CharacterClass.TROUBADOUR, FE7Data.CharacterClass.TROUBADOUR);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.SAGE, FE6Data.CharacterClass.SAGE, FE7Data.CharacterClass.SAGE);
-		addEntry(GameType.FE8, FE8Data.CharacterClass.MAGE_KNIGHT, FE6Data.CharacterClass.VALKYRIE, FE7Data.CharacterClass.VALKYRIE);
-		addEntry(GameType.FE8, FE8Data.CharacterClass.MAGE_KNIGHT_F, FE6Data.CharacterClass.VALKYRIE, FE7Data.CharacterClass.VALKYRIE);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.SNIPER, FE6Data.CharacterClass.SNIPER, FE7Data.CharacterClass.SNIPER);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.ARCHER_F, FE6Data.CharacterClass.ARCHER_F, FE7Data.CharacterClass.ARCHER_F);
-		addEntry(GameType.FE8, FE8Data.CharacterClass.RANGER, FE6Data.CharacterClass.NOMAD_TROOPER, FE7Data.CharacterClass.NOMADTROOPER);
-		addEntry(GameType.FE8, FE8Data.CharacterClass.RANGER_F, FE6Data.CharacterClass.NOMAD_TROOPER_F, FE7Data.CharacterClass.NOMADTROOPER_F);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.SHAMAN, FE6Data.CharacterClass.SHAMAN, FE7Data.CharacterClass.SHAMAN);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.CLERIC, FE6Data.CharacterClass.CLERIC, FE7Data.CharacterClass.CLERIC);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.WYVERN_RIDER, FE6Data.CharacterClass.WYVERN_RIDER, FE7Data.CharacterClass.WYVERNKNIGHT);
@@ -303,12 +299,15 @@ public class GBACrossGameData {
 	}
 
 	
-	private static Map<GameType, List<GameType>> sourceGameMap = 
-			Map.of(
-					GameType.FE6, Arrays.asList(GameType.FE7, GameType.FE8), 
-					GameType.FE7, Arrays.asList(GameType.FE6, GameType.FE8), 
-					GameType.FE8, Arrays.asList(GameType.FE6, GameType.FE7)
-			); 
+	private static Map<GameType, List<GameType>> sourceGameMap = buildSourceGameMap();
+
+	private static Map<GameType, List<GameType>> buildSourceGameMap() {
+		Map<GameType, List<GameType>> map = new HashMap<>();
+		map.put(GameType.FE6, Arrays.asList(GameType.FE7, GameType.FE8));
+		map.put(GameType.FE7, Arrays.asList(GameType.FE6, GameType.FE8));
+		map.put(GameType.FE8, Arrays.asList(GameType.FE6, GameType.FE7));
+		return Collections.unmodifiableMap(map);
+	}
 	//@formatter:on
 
 	/**
@@ -329,7 +328,10 @@ public class GBACrossGameData {
 	 */
 	private static void addEntry(GameType sourceGame, GBAFEClass source, GBAFEClass to1, GBAFEClass to2) {
 		List<GameType> sourceGames = sourceGameMap.get(sourceGame);
-		classMap.put(source, Map.of(sourceGames.get(0), to1, sourceGames.get(1), to2));
+		Map<GameType, GBAFEClass> inner = new HashMap<>();
+		inner.put(sourceGames.get(0), to1);
+		inner.put(sourceGames.get(1), to2);
+		classMap.put(source, Collections.unmodifiableMap(inner));
 	}
 
 }
