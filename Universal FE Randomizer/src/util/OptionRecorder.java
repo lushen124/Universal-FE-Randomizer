@@ -5,6 +5,7 @@ import java.util.prefs.Preferences;
 import com.google.gson.Gson;
 
 import fedata.general.FEBase;
+import fedata.general.FEBase.GameType;
 import ui.fe4.FE4ClassOptions;
 import ui.fe4.FE4EnemyBuffOptions;
 import ui.fe4.FE4PromotionOptions;
@@ -37,8 +38,14 @@ public class OptionRecorder {
 		public GBAOptionBundle fe8;
 		public FE9OptionBundle fe9;
 	}
-	
-	public static class GBAOptionBundle {
+
+	public static class Bundle {
+		public String seed;
+		public Integer version;
+		public GameType type;
+	}
+
+	public static class GBAOptionBundle extends Bundle {
 		public GrowthOptions growths;
 		public BaseOptions bases;
 		public ClassOptions classes;
@@ -49,11 +56,9 @@ public class OptionRecorder {
 		public RecruitmentOptions recruitmentOptions;
 		public ItemAssignmentOptions itemAssignmentOptions;
 		public CharacterShufflingOptions characterShufflingOptions;
-		public String seed;
-		public Integer version;
 	}
 	
-	public static class FE4OptionBundle {
+	public static class FE4OptionBundle extends Bundle  {
 		public GrowthOptions growths;
 		public BaseOptions bases;
 		public HolyBloodOptions holyBlood;
@@ -62,11 +67,12 @@ public class OptionRecorder {
 		public FE4PromotionOptions promo;
 		public FE4EnemyBuffOptions enemyBuff;
 		public MiscellaneousOptions misc;
-		public String seed;
-		public Integer version;
+		public FE4OptionBundle() {
+			this.type = GameType.FE4;
+		}
 	}
 	
-	public static class FE9OptionBundle {
+	public static class FE9OptionBundle extends Bundle  {
 		public GrowthOptions growths;
 		public BaseOptions bases;
 		public FE9SkillsOptions skills;
@@ -75,8 +81,9 @@ public class OptionRecorder {
 		public FE9ClassOptions classes;
 		public WeaponOptions weapons;
 		public MiscellaneousOptions misc;
-		public String seed;
-		public Integer version;
+		public FE9OptionBundle() {
+			this.type = GameType.FE9;
+		}
 	}
 	
 	public static AllOptions options = loadOptions();
@@ -205,7 +212,7 @@ public class OptionRecorder {
 		return null;
 	}
 	
-	private static void saveOptions(AllOptions options) {
+	public static void saveOptions(AllOptions options) {
 		Gson gson = new Gson();
 		Preferences prefs = Preferences.userRoot().node(OptionRecorder.class.getName());
 		
@@ -270,8 +277,8 @@ public class OptionRecorder {
 		saveOptions(options);
 	}
 	
-	public static void recordGBAFEOptions(FEBase.GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, String seed) {
+	public static void recordGBAFEOptions(GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
+										  OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, String seed) {
 		GBAOptionBundle bundle = new GBAOptionBundle();
 		bundle.growths = growths;
 		bundle.bases = bases;
@@ -285,7 +292,7 @@ public class OptionRecorder {
 		bundle.seed = seed;
 		bundle.version = GBAOptionBundleVersion;
 		bundle.characterShufflingOptions = shufflingOptions;
-		
+		bundle.type = gameType;
 		switch (gameType) {
 		case FE6:
 			options.fe6 = bundle;
@@ -301,6 +308,28 @@ public class OptionRecorder {
 		}
 		
 		saveOptions(options);
+	}
+
+	public static GBAOptionBundle getGBABundle(GameType type) {
+		switch (type) {
+			case FE6: return options.fe6;
+			case FE7: return options.fe7;
+			case FE8: return options.fe8;
+			default:
+				throw new UnsupportedOperationException(type.name() +" is not a valid GBA GameType");
+		}
+	}
+
+	public static Bundle getBundle(GameType type) {
+		switch (type) {
+			case FE4: return options.fe4;
+			case FE6: return options.fe6;
+			case FE7: return options.fe7;
+			case FE8: return options.fe8;
+			case FE9: return options.fe9;
+			default:
+				throw new UnsupportedOperationException(type.name() + " is not a valid GBA GameType");
+		}
 	}
 
 }

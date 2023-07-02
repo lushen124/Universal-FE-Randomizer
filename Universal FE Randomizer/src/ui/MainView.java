@@ -1,6 +1,5 @@
 package ui;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +16,6 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.ShellListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
@@ -49,8 +47,6 @@ import fedata.gcnwii.fe9.FE9Data;
 import fedata.general.FEBase.GameType;
 import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
-import io.FileWriter;
-import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import random.gba.randomizer.GBARandomizer;
@@ -71,22 +67,17 @@ import ui.general.MessageModal;
 import ui.general.ModalButtonListener;
 import ui.general.OpenFileFlow;
 import ui.general.ProgressModal;
-import ui.model.FE9OtherCharacterOptions;
+import ui.importexport.ExportSettingsListener;
+import ui.importexport.ImportSettingsListener;
 import util.DebugListener;
 import util.DebugPrinter;
 import util.DiffCompiler;
-import util.LZ77;
 import util.OptionRecorder;
 import util.SeedGenerator;
-import util.WhyDoesJavaNotHaveThese;
 import util.OptionRecorder.FE4OptionBundle;
 import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
 import util.recordkeeper.ChangelogBuilder;
-import util.recordkeeper.ChangelogHeader;
-import util.recordkeeper.ChangelogHeader.HeaderLevel;
-import util.recordkeeper.ChangelogSection;
-import util.recordkeeper.ChangelogTable;
 import util.recordkeeper.RecordKeeper;
 
 public class MainView implements FileFlowDelegate {
@@ -122,6 +113,8 @@ public class MainView implements FileFlowDelegate {
 	
 	private Label length;
 	private Label checksum;
+	private Button exportSettings;
+	private Button importSettings;
 	
 	private GrowthsView growthView;
 	private BasesView baseView;
@@ -412,6 +405,10 @@ public class MainView implements FileFlowDelegate {
 		length = new Label(bottomInfo, SWT.LEFT);
 		checksum = new Label(bottomInfo, SWT.LEFT);
 		new Label(bottomInfo, SWT.LEFT); // Spacer
+		importSettings = new Button(topInfo, SWT.PUSH);
+		importSettings.setText("Import Settings");
+		exportSettings = new Button(bottomInfo, SWT.PUSH);
+		exportSettings.setText("Export Settings");
 	}
 	
 	private void disposeRandomizationOptionsViews() {
@@ -445,7 +442,7 @@ public class MainView implements FileFlowDelegate {
 		resize();
 	}
 	
-	private void preloadOptions(GameType type) {
+	public void preloadOptions(GameType type) {
 		if (OptionRecorder.options == null) { return; }
 		
 		if (type == GameType.FE4 && OptionRecorder.options.fe4 != null) {
@@ -953,7 +950,7 @@ public class MainView implements FileFlowDelegate {
 		loadedGameType = type;
 		
 		if (type == GameType.UNKNOWN) { return; }
-		
+		updateImportExportListeners();
 		updateLayoutForGameType(type);
 		
 		// Preload options if there are any.
@@ -1063,34 +1060,11 @@ public class MainView implements FileFlowDelegate {
 								itemAssignmentView.getAssignmentOptions(),
 								characterShufflingView.getShufflingOptions(),
 								seedField.getText());
-						
-						OptionRecorder.recordGBAFEOptions(type, 
-								growthView.getGrowthOptions(),
-								baseView.getBaseOptions(),
-								classView.getClassOptions(),
-								weaponView.getWeaponOptions(),
-								otherCharOptionView.getOtherCharacterOptions(),
-								enemyView.getEnemyOptions(),
-								miscView.getMiscellaneousOptions(),
-								recruitView.getRecruitmentOptions(),
-								itemAssignmentView.getAssignmentOptions(),
-								characterShufflingView.getShufflingOptions(),
-								seedField.getText());
 					} else if (type.isSFC()) {
 						if (type == GameType.FE4) {
 							boolean headeredROM = handler.getCRC32() == FE4Data.CleanHeaderedCRC32;;
 							randomizer = new FE4Randomizer(pathToFile, headeredROM, writePath, compiler, 
 									growthView.getGrowthOptions(),
-									baseView.getBaseOptions(),
-									holyBloodView.getHolyBloodOptions(),
-									skillsView.getSkillOptions(),
-									fe4ClassView.getClassOptions(),
-									fe4PromotionView.getPromotionOptions(),
-									fe4EnemyBuffView.getBuffOptions(),
-									miscView.getMiscellaneousOptions(), 
-									seedField.getText());
-							
-							OptionRecorder.recordFE4Options(growthView.getGrowthOptions(),
 									baseView.getBaseOptions(),
 									holyBloodView.getHolyBloodOptions(),
 									skillsView.getSkillOptions(),
@@ -1111,18 +1085,9 @@ public class MainView implements FileFlowDelegate {
 								weaponView.getWeaponOptions(),
 								miscView.getMiscellaneousOptions(),
 								seedField.getText());
-						
-						OptionRecorder.recordFE9Options(growthView.getGrowthOptions(), 
-								baseView.getBaseOptions(), 
-								fe9SkillView.getSkillOptions(), 
-								conAffinityView.getOtherCharacterOptions(), 
-								fe9EnemyView.getEnemyBuffOptions(), 
-								fe9ClassesView.getClassOptions(), 
-								weaponView.getWeaponOptions(),
-								miscView.getMiscellaneousOptions(),
-								seedField.getText());
 					}
-					
+					triggerOptionSave(type);
+
 					final String romPath = writePath;
 					randomizer.setListener(new RandomizerListener() {
 
@@ -1215,5 +1180,56 @@ public class MainView implements FileFlowDelegate {
 				}
 			}
 		  });
+	}
+
+	private void updateImportExportListeners() {
+		// First delete all existing listeners form the buttons
+		for (Listener listener : importSettings.getListeners(SWT.Selection)) {
+			importSettings.removeListener(SWT.Selection, listener);
+		}
+		for (Listener listener : exportSettings.getListeners(SWT.Selection)) {
+			exportSettings.removeListener(SWT.Selection, listener);
+		}
+
+		// Now add the new ones
+		importSettings.addListener(SWT.Selection, new ImportSettingsListener(mainShell, this, loadedGameType));
+		exportSettings.addListener(SWT.Selection, new ExportSettingsListener(mainShell, this, loadedGameType));
+	}
+
+	public void triggerOptionSave(GameType type) {
+		if (GameType.FE9.equals(type)) {
+			OptionRecorder.recordFE9Options(growthView.getGrowthOptions(),
+					baseView.getBaseOptions(),
+					fe9SkillView.getSkillOptions(),
+					conAffinityView.getOtherCharacterOptions(),
+					fe9EnemyView.getEnemyBuffOptions(),
+					fe9ClassesView.getClassOptions(),
+					weaponView.getWeaponOptions(),
+					miscView.getMiscellaneousOptions(),
+					seedField.getText());
+		} else if(GameType.FE4.equals(type)) {
+			OptionRecorder.recordFE4Options(growthView.getGrowthOptions(),
+					baseView.getBaseOptions(),
+					holyBloodView.getHolyBloodOptions(),
+					skillsView.getSkillOptions(),
+					fe4ClassView.getClassOptions(),
+					fe4PromotionView.getPromotionOptions(),
+					fe4EnemyBuffView.getBuffOptions(),
+					miscView.getMiscellaneousOptions(),
+					seedField.getText());
+		} else if(type.isGBA()) {
+			OptionRecorder.recordGBAFEOptions(type,
+					growthView.getGrowthOptions(),
+					baseView.getBaseOptions(),
+					classView.getClassOptions(),
+					weaponView.getWeaponOptions(),
+					otherCharOptionView.getOtherCharacterOptions(),
+					enemyView.getEnemyOptions(),
+					miscView.getMiscellaneousOptions(),
+					recruitView.getRecruitmentOptions(),
+					itemAssignmentView.getAssignmentOptions(),
+					characterShufflingView.getShufflingOptions(),
+					seedField.getText());
+		}
 	}
 }
