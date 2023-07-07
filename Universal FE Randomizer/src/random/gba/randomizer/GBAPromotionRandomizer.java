@@ -44,6 +44,7 @@ public class GBAPromotionRandomizer {
                 break;
             case FE8:
                 if (options.promotionMode.equals(Mode.STRICT)) {
+                    // Keep normal promotions, except letting Soldiers promote.a
                     Map<CharacterClass, PromotionBranch> promotionBranches = promotionData.getAllPromotionBranches();
                     PromotionBranch soldierPromotions = promotionBranches.get(FE8Data.CharacterClass.SOLDIER);
                     soldierPromotions.setFirstPromotion(FE8Data.CharacterClass.GENERAL.ID);
@@ -169,23 +170,26 @@ public class GBAPromotionRandomizer {
             GBAFEClassData baseClassData = classMap.get(baseClass);
             GBAFEClassData candidateData = classMap.get(candidate);
 
-            // (B) Check general damage type
-            if (options.promotionMode.equals(Mode.RANDOM) && options.keepSameDamageType && !useSameDamageType(baseClassData, candidateData)) {
-                return false;
+            // (B) Check specific weapon usage
+            if (options.promotionMode.equals(Mode.LOOSE)) {
+                if (!canUseAllUnpromotedWeapons(baseClassData, candidateData)) {
+                    return false;
+                }
+            } else if (options.promotionMode.equals(Mode.RANDOM)) {
+                if (options.keepSameDamageType && !useSameDamageType(baseClassData, candidateData)) {
+                    return false;
+                } else if (options.requireCommonWeapon && !hasAnyMatchingWeaponType(baseClassData, candidateData)) {
+                    return false;
+                }
             }
 
-            // (C) Check specific weapon usage
-            if (options.promotionMode.equals(Mode.RANDOM) && options.requireCommonWeapon && !hasAnyMatchingWeaponType(baseClassData, candidateData)) {
-                return false;
-            } else if (options.promotionMode.equals(Mode.LOOSE) && !canUseAllUnpromotedWeapons(baseClassData, candidateData)) {
-                return false;
-            }
-
-            // (D) Check that the class has the correct mount if that is desired
-            // If unit is a flier they should stay a flier.
-            return !options.promotionMode.equals(Mode.LOOSE) || options.allowMountChanges || (classData.isFlying(baseClass.getID()) == classData.isFlying(candidate.getID()) &&
-                    // If unit is a non-flying mounted unit keep them as such.
-                    classData.isHorseUnit(baseClass.getID()) == classData.isHorseUnit(candidate.getID()));
+            // (D) Mount validations
+            return options.promotionMode.equals(Mode.RANDOM) // Random Mode always allows Mount Changes
+                    || options.allowMountChanges // User Opted for Allowing Mount Changes for Lose mode
+                    // Otherwise, check that unit stays flying
+                    || (classData.isFlying(baseClass.getID()) == classData.isFlying(candidate.getID())
+                    // Or Unit Stays Horse Unit (excl. flying)
+                    && classData.isHorseUnit(baseClass.getID()) == classData.isHorseUnit(candidate.getID()));
         }).collect(Collectors.toList());
 
         return validPromotions;

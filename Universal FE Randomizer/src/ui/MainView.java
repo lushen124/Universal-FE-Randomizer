@@ -462,6 +462,7 @@ public class MainView implements FileFlowDelegate {
 				miscView.setMiscellaneousOptions(bundle.otherOptions);		
 				recruitView.setRecruitmentOptions(bundle.recruitmentOptions);
 				characterShufflingView.setShufflingOptions(bundle.characterShufflingOptions, type);
+				promotionView.setPromotionOptions(bundle.promotionOptions, loadedGameType);
 				itemAssignmentView.setItemAssignmentOptions(bundle.itemAssignmentOptions);
 			}
 		} else if (type == GameType.FE9 && OptionRecorder.options.fe9 != null) {

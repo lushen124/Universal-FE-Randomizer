@@ -297,22 +297,27 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 
 	public void setPromoSTR(int newStr) {
 		data[35] = (byte) (newStr & 0xFF);
+		wasModified = true;
 	}
 
 	public void setPromoSKL(int newSkl) {
 		data[36] = (byte) (newSkl & 0xFF);
+		wasModified = true;
 	}
 
 	public void setPromoSPD(int newSpd) {
 		data[37] = (byte) (newSpd & 0xFF);
+		wasModified = true;
 	}
 
 	public void setPromoDEF(int newDef) {
 		data[38] = (byte) (newDef & 0xFF);
+		wasModified = true;
 	}
 
 	public void setPromoRES(int newRes) {
 		data[39] = (byte) (newRes & 0xFF);
+		wasModified = true;
 	}
 
 	public void setPromoBonuses(GBAFEStatDto newStats) {
