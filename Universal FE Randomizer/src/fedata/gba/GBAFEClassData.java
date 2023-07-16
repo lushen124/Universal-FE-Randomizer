@@ -35,6 +35,12 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 	public int getNameIndex() {
 		return (data[0] & 0xFF) | ((data[1] & 0xFF) << 8);
 	}
+	public void setNameIndex(int newValue) {
+		data[0] = (byte)(newValue & 0xFF);
+		data[1] = (byte)((newValue >> 8) &0xFF);
+
+		wasModified = true;
+	}
 
 	public int getDescriptionIndex() {
 		return (data[2] & 0xFF) | ((data[3] & 0xFF) << 8);
@@ -492,5 +498,23 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		data[42] &= 0xFE;
 		data[43] &= 0x0F;
 		wasModified = true;
+	}
+
+	public int getAbility1Value() {
+		return data[0x28];
+	}
+	public void setAbility1Value(int newValue) {
+		data[0x28] = (byte) (newValue & 0xFF);
+		wasModified = true;
+	}
+
+	public void makeThief(boolean keepOldAbilities) {
+		int newValue = 0xC;
+
+		if (keepOldAbilities) {
+			newValue |= getAbility1Value();
+		}
+
+		setAbility1Value(newValue);
 	}
 }

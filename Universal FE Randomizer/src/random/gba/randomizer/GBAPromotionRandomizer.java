@@ -27,19 +27,16 @@ public class GBAPromotionRandomizer {
 
     public static void randomizePromotions(PromotionOptions options, PromotionDataLoader promotionData,
                                            ClassDataLoader classData, GameType type, Random rng) {
+
         classMap = getClassMapForGame(options, classData, type);
+
+        if (PromotionOptions.Mode.RANDOM.equals(options.promotionMode) || options.allowEnemyOnlyPromotedClasses) {
+            fixPromotionBonusesOfSpecialClasses(classData, type);
+        }
 
         switch (type) {
             case FE6:
             case FE7:
-                if (options.promotionMode.equals(Mode.STRICT)) {
-                    // Keep normal promotions, except letting Soldiers promote.
-                    GBAFEClassData soldierClassData = classMap.get(
-                            type.equals(GameType.FE6) ? FE6Data.CharacterClass.SOLDIER : FE7Data.CharacterClass.SOLDIER);
-                    soldierClassData.setTargetPromotionID(type.equals(GameType.FE6) ? FE6Data.CharacterClass.GENERAL.ID
-                            : FE7Data.CharacterClass.GENERAL.ID);
-                    break;
-                }
                 randomizePromotions(options, classData, type, rng);
                 break;
             case FE8:
@@ -57,6 +54,27 @@ public class GBAPromotionRandomizer {
             default:
         }
 
+        if (GameType.FE6.equals(type) && Boolean.TRUE.equals(options.keepThiefAbilities)) {
+            if (!options.universal) {
+
+            }
+        }
+
+    }
+
+    private static void fixPromotionBonusesOfSpecialClasses(ClassDataLoader data, GameType type) {
+        if (GameType.FE8.equals(type)) {
+            copyPromotionBonuses(data, FE8Data.CharacterClass.NECROMANCER, FE8Data.CharacterClass.SUMMONER);
+        } else if (GameType.FE7.equals(type)) {
+            copyPromotionBonuses(data, FE7Data.CharacterClass.ARCHSAGE, FE7Data.CharacterClass.SAGE);
+            copyPromotionBonuses(data, FE7Data.CharacterClass.DARK_DRUID, FE7Data.CharacterClass.DRUID);
+        }
+    }
+
+    private static void copyPromotionBonuses(ClassDataLoader classData, GBAFEClass to, GBAFEClass from) {
+        GBAFEClassData template = classData.classForID(from.getID());
+        GBAFEClassData target = classData.classForID(to.getID());
+        target.setPromoBonuses(template.getPromoBonuses());
     }
 
     /**
@@ -86,7 +104,7 @@ public class GBAPromotionRandomizer {
             }
             PoolDistributor<GBAFEClass> promotionDistributor = new PoolDistributor<>();
             promotionDistributor.addAll(promotions);
-            if (!classToRandomize.equals(FE8Data.CharacterClass.DANCER)) {
+            if (classData.canClassPromote(classToRandomize.getID())) {
                 PromotionBranch promotionBranch = promotionBranches.get(classToRandomize);
                 GBAFEClass firstPromotion = promotionDistributor.getRandomItem(rng, true);
                 GBAFEClass secondPromotion = promotionDistributor.getRandomItem(rng, true);
@@ -143,9 +161,7 @@ public class GBAPromotionRandomizer {
         // Get the classdata for all unpromoted classes that should promote (i.e. not
         // dancers)
         Map<GBAFEClass, GBAFEClassData> unpromotedClassDataMapping = classMap.entrySet()
-                .stream()
-                .filter(e -> unpromotedClasses.contains(e.getKey())
-                        && !e.getKey().name().matches(REGEX_SHOULD_NOT_PROMOTE))
+                .stream().filter(e -> shouldPromote(classData, e, options))
                 .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 
         for (GBAFEClass unpromotedClass : unpromotedClassDataMapping.keySet()) {
@@ -154,6 +170,14 @@ public class GBAPromotionRandomizer {
             GBAFEClassData classToEdit = unpromotedClassDataMapping.get(unpromotedClass);
             classToEdit.setTargetPromotionID(promotionDistributor.getRandomItem(rng, false).getID());
         }
+    }
+
+    private static boolean shouldPromote(ClassDataLoader classData, Map.Entry<GBAFEClass, GBAFEClassData> e, PromotionOptions options) {
+        if (classData.isThief(e.getKey().getID()) && Boolean.TRUE.equals(options.allowThiefPromotion)) {
+            return true;
+        }
+
+        return classData.canClassPromote(e.getKey().getID());
     }
 
     /**

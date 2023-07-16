@@ -19,13 +19,17 @@ public class PromotionView extends Composite {
     private Button allowMountChangeButton;
     private Button allowEnemyClassButton;
     private Button allowMonsterClassButton;
-    private Button allowSpecialClassesButton;
+
 
     private Button randomButton;
     private Button commonWeaponButton;
     private Button keepDamageTypeButton;
 
     private PromotionOptions.Mode currentMode;
+    // FE6 Only
+    private Button allowThiefPromotion;
+    private Button keepThiefAbilities;
+    private Button universally;
 
     public PromotionView(Composite parent, int style, GameType type) {
         super(parent, style);
@@ -97,7 +101,7 @@ public class PromotionView extends Composite {
 
         allowEnemyClassButton = new Button(container, SWT.CHECK);
         allowEnemyClassButton.setText("Allow Enemy-only Promotions");
-        if (GameType.FE8.equals(type)){
+        if (GameType.FE8.equals(type)) {
             allowEnemyClassButton.setToolTipText(
                     "Allows units to promote into Special not usually usable classes (Necromancer, Fleet).");
         } else if (GameType.FE7.equals(type)) {
@@ -171,6 +175,42 @@ public class PromotionView extends Composite {
                 optionData.left = new FormAttachment(randomButton, 0, SWT.LEFT);
                 optionData.top = new FormAttachment(keepDamageTypeButton, 10);
                 allowMonsterClassButton.setLayoutData(optionData);
+            } else if (GameType.FE6.equals(type)) {
+                allowThiefPromotion = new Button(container, SWT.CHECK);
+                allowThiefPromotion.setText("Allow Thief Promotion");
+                allowThiefPromotion.setToolTipText("Allow Thieves to promote.");
+                allowThiefPromotion.setEnabled(true);
+                allowThiefPromotion.setSelection(false);
+
+                optionData = new FormData();
+                optionData.left = new FormAttachment(randomButton, 0, SWT.LEFT);
+                optionData.top = new FormAttachment(keepDamageTypeButton, 10);
+                allowThiefPromotion.setLayoutData(optionData);
+                allowThiefPromotion.addListener(SWT.Selection, onSelection -> keepThiefAbilities.setEnabled(true));
+
+                keepThiefAbilities = new Button(container, SWT.CHECK);
+                keepThiefAbilities.setText("Keep thief abilities");
+                keepThiefAbilities.setToolTipText("Allows Promoted thieves to keep their thief abilities.");
+                keepThiefAbilities.setEnabled(false);
+                keepThiefAbilities.setSelection(false);
+
+                optionData = new FormData();
+                optionData.left = new FormAttachment(allowThiefPromotion, 5, SWT.LEFT);
+                optionData.top = new FormAttachment(allowThiefPromotion, 5);
+                keepThiefAbilities.setLayoutData(optionData);
+
+                keepThiefAbilities.addListener(SWT.Selection, onSelection -> universally.setEnabled(true));
+
+                universally = new Button(container, SWT.CHECK);
+                universally.setText("Universally");
+                universally.setToolTipText("All units that are in the Promoted thief class can steal, no matter if they started as a thief or not.");
+                universally.setEnabled(false);
+                universally.setSelection(false);
+
+                optionData = new FormData();
+                optionData.left = new FormAttachment(keepThiefAbilities, 5, SWT.LEFT);
+                optionData.top = new FormAttachment(keepThiefAbilities, 5);
+                universally.setLayoutData(optionData);
             }
         }
 
@@ -196,7 +236,10 @@ public class PromotionView extends Composite {
                 allowEnemyClassButton == null ? null : allowEnemyClassButton.getSelection(),
                 commonWeaponButton.getSelection(),
                 allowMonsterClassButton == null ? null : allowMonsterClassButton.getSelection(),
-                keepDamageTypeButton == null ? null : keepDamageTypeButton.getSelection());
+                keepDamageTypeButton == null ? null : keepDamageTypeButton.getSelection(),
+                allowThiefPromotion == null ? null : allowThiefPromotion.getSelection(),
+                keepThiefAbilities == null ? null : keepThiefAbilities.getSelection(),
+                universally == null ? null : universally.getSelection());
     }
 
     public void setPromotionOptions(PromotionOptions options, GameType type) {
@@ -222,7 +265,16 @@ public class PromotionView extends Composite {
                 if (type.equals(GameType.FE8)) {
                     allowMonsterClassButton.setEnabled(true);
                     allowMonsterClassButton.setSelection(options.allowMonsterClasses);
+                } else if (type.equals(GameType.FE6)) {
+                    allowThiefPromotion.setSelection(options.allowThiefPromotion);
+
+                    keepThiefAbilities.setEnabled(options.allowThiefPromotion);
+                    keepThiefAbilities.setSelection(options.keepThiefAbilities);
+
+                    universally.setEnabled(options.keepThiefAbilities);
+                    universally.setSelection(options.universal);
                 }
+
                 keepDamageTypeButton.setEnabled(currentMode == PromotionOptions.Mode.RANDOM);
                 keepDamageTypeButton.setSelection(options.keepSameDamageType);
             }

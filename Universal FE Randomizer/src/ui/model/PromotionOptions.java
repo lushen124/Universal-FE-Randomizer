@@ -16,11 +16,15 @@ public class PromotionOptions {
 
 	public final Boolean requireCommonWeapon;
 	public final Boolean allowMonsterClasses;
-	public Boolean keepSameDamageType;
+	public final Boolean keepSameDamageType;
+
+	// FE6 Only
+	public final Boolean allowThiefPromotion;
+	public final Boolean keepThiefAbilities;
+	public final Boolean universal;
 
 	public PromotionOptions(Mode mode, Boolean allowMountChange, Boolean allowEnemyClass, Boolean commonWeapon,
-							Boolean allowMonsterClasses, Boolean keepSameDamageType) {
-		super();
+							Boolean allowMonsterClasses, Boolean keepSameDamageType, Boolean allowThiefPromotion, Boolean keepThiefAbilities, Boolean universal) {
 		this.promotionMode = mode;
 
 		this.allowMountChanges = allowMountChange;
@@ -29,6 +33,9 @@ public class PromotionOptions {
 		this.requireCommonWeapon = commonWeapon;
 		this.allowMonsterClasses = allowMonsterClasses;
 		this.keepSameDamageType = keepSameDamageType;
+		this.allowThiefPromotion = allowThiefPromotion;
+		this.keepThiefAbilities = keepThiefAbilities;
+		this.universal = universal;
 	}
 
 }

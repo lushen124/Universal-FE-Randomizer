@@ -275,4 +275,16 @@ public class FE6Class extends GBAFEClassData {
 		setPromoDEF(newStats.def);
 		setPromoRES(newStats.res);
 	}
+
+	@Override
+	public int getAbility1Value() {
+		return data[0x24];
+	}
+
+	@Override
+	public void setAbility1Value(int newValue) {
+		data[0x24] = (byte) (newValue & 0xFF);
+		wasModified = true;
+	}
+
 }

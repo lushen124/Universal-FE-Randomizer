@@ -1733,7 +1733,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		WARRIOR_BARTRE(0x64, Character.BARTRE.ID, CharacterClass.WARRIOR.ID, 0x7FEF94),
 		
 		MANAKETE_GENERIC(0x0, Character.NONE.ID, CharacterClass.MANAKETE.ID, 0x716DCB), // Based off of sprite's base palette.
-		MANAKETE_FA(0x0, Character.FA.ID, CharacterClass.MANAKETE_F.ID, 0x7FF050) // TODO: Verify Fa's pointer. There's one last entry in the table that's not listed anywhere else, but Fa herself has no palette index.
+		MANAKETE_FA(0x0, Character.FA.ID, CharacterClass.MANAKETE_F.ID, 0x7FF050), // TODO: Verify Fa's pointer. There's one last entry in the table that's not listed anywhere else, but Fa herself has no palette index.
+		KING_ZEPHIEL(0x63, Character.ZEPHIEL.ID, CharacterClass.KING.ID, 0x7FEF3C)
 		;
 		
 		int characterID;
@@ -1822,6 +1823,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			defaultPaletteForClass.put(CharacterClass.LORD.ID, LORD_ROY.info);
 			defaultPaletteForClass.put(CharacterClass.MASTER_LORD.ID, LORD_ROY.info);
 			defaultPaletteForClass.put(CharacterClass.MANAKETE.ID, MANAKETE_GENERIC.info);
+			defaultPaletteForClass.put(CharacterClass.MANAKETE.ID, MANAKETE_GENERIC.info);
+			defaultPaletteForClass.put(CharacterClass.KING.ID, KING_ZEPHIEL.info);
 		}
 		
 		private Palette(int paletteID, int charID, int classID, long offset) {
@@ -1949,6 +1952,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case WYVERN_KNIGHT:
 				case WYVERN_KNIGHT_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {10, 11, 12, 13}, new int[] {1, 9}, new int[] {});
+					break;
+				case KING:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7}, new int[] {15,14,13,12,11}, new int[] {9}, new int[] {});
 					break;
 				default:
 					System.err.println("Unknown class detected while creating palette info.");
