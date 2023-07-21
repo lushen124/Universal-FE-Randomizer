@@ -12,13 +12,14 @@
 			"tertiary": null
 		},
     "characterClass": "LORD",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 2,
-      "skl": 2,
-      "spd": 3,
-      "def": 0,
+      "hp": 18,
+      "str": 5,
+      "skl": 5,
+      "spd": 7,
+      "def": 5,
       "res": 0,
       "lck": 7
     },
@@ -41,7 +42,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -61,14 +62,15 @@
 			"tertiary": null
 		},
     "characterClass": "TROUBADOUR",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 1,
-      "skl": 4,
-      "spd": 6,
-      "def": 0,
-      "res": 0,
+      "hp": 15,
+      "str": 2,
+      "skl": 5,
+      "spd": 9,
+      "def": 2,
+      "res": 5,
       "lck": 8
     },
     "growths": {
@@ -90,7 +92,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -110,14 +112,15 @@
 			"tertiary": null
 		},
     "characterClass": "MANAKETE_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 4,
+      "hp": 16,
       "str": 2,
       "skl": 2,
-      "spd": 1,
-      "def": 1,
-      "res": 5,
+      "spd": 3,
+      "def": 2,
+      "res": 6,
       "lck": 7
     },
     "growths": {
@@ -139,7 +142,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 1,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 5,
@@ -159,13 +162,14 @@
 			"tertiary": null
 		},
     "characterClass": "NOMAD",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 8,
-      "str": 2,
-      "skl": 4,
-      "spd": 5,
-      "def": 3,
+      "hp": 24,
+      "str": 7,
+      "skl": 8,
+      "spd": 10,
+      "def": 7,
       "res": 0,
       "lck": 6
     },
@@ -188,7 +192,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 7,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -208,13 +212,14 @@
 			"tertiary": null
 		},
     "characterClass": "NOMAD_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 1,
-      "skl": 2,
-      "spd": 2,
-      "def": 2,
+      "hp": 18,
+      "str": 5,
+      "skl": 7,
+      "spd": 8,
+      "def": 5,
       "res": 0,
       "lck": 4
     },
@@ -237,7 +242,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -257,14 +262,15 @@
 			"tertiary": null
 		},
     "characterClass": "NOMAD_TROOPER",
-    "level": 14,
+    "promoted": true,
+    "level": 12,
     "bases": {
-      "hp": 22,
-      "str": 7,
-      "skl": 10,
-      "spd": 13,
-      "def": 4,
-      "res": 9,
+      "hp": 43,
+      "str": 14,
+      "skl": 16,
+      "spd": 20,
+      "def": 10,
+      "res": 12,
       "lck": 12
     },
     "growths": {
@@ -286,7 +292,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 9,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -306,13 +312,14 @@
 			"tertiary": null
 		},
     "characterClass": "KNIGHT",
+    "promoted": false,
     "level": 9,
     "bases": {
-      "hp": 8,
-      "str": 5,
-      "skl": 4,
+      "hp": 25,
+      "str": 10,
+      "skl": 6,
       "spd": 5,
-      "def": 5,
+      "def": 14,
       "res": 1,
       "lck": 2
     },
@@ -335,7 +342,7 @@
       0,
       0
     ],
-    "constitution": 3,
+    "constitution": 16,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 2,
@@ -355,13 +362,14 @@
 			"tertiary": null
 		},
     "characterClass": "KNIGHT",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 2,
-      "skl": 2,
+      "hp": 20,
+      "str": 7,
+      "skl": 4,
       "spd": 3,
-      "def": 2,
+      "def": 11,
       "res": 0,
       "lck": 4
     },
@@ -384,7 +392,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 14,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 2,
@@ -404,14 +412,15 @@
 			"tertiary": null
 		},
     "characterClass": "KNIGHT_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 0,
-      "skl": 0,
-      "spd": 2,
-      "def": 0,
-      "res": 0,
+      "hp": 19,
+      "str": 4,
+      "skl": 3,
+      "spd": 3,
+      "def": 8,
+      "res": 1,
       "lck": 6
     },
     "growths": {
@@ -433,7 +442,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 10,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -453,14 +462,15 @@
 			"tertiary": null
 		},
     "characterClass": "GENERAL",
+    "promoted": true,
     "level": 8,
     "bases": {
-      "hp": 25,
-      "str": 11,
-      "skl": 9,
-      "spd": 5,
-      "def": 7,
-      "res": 2,
+      "hp": 46,
+      "str": 19,
+      "skl": 13,
+      "spd": 8,
+      "def": 20,
+      "res": 5,
       "lck": 11
     },
     "growths": {
@@ -482,7 +492,7 @@
       0,
       0
     ],
-    "constitution": 2,
+    "constitution": 17,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -502,13 +512,14 @@
 			"tertiary": null
 		},
     "characterClass": "ARCHER",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 1,
-      "spd": 2,
-      "def": 1,
+      "hp": 18,
+      "str": 4,
+      "skl": 4,
+      "spd": 5,
+      "def": 4,
       "res": 0,
       "lck": 2
     },
@@ -531,7 +542,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 7,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -551,13 +562,14 @@
 			"tertiary": null
 		},
     "characterClass": "ARCHER_F",
+    "promoted": false,
     "level": 3,
     "bases": {
-      "hp": 2,
-      "str": 2,
-      "skl": 3,
-      "spd": 2,
-      "def": 1,
+      "hp": 19,
+      "str": 5,
+      "skl": 6,
+      "spd": 6,
+      "def": 4,
       "res": 2,
       "lck": 3
     },
@@ -580,7 +592,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 7,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -600,14 +612,15 @@
 			"tertiary": null
 		},
     "characterClass": "SNIPER",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 6,
-      "str": 6,
-      "skl": 7,
-      "spd": 6,
-      "def": 3,
-      "res": 4,
+      "hp": 27,
+      "str": 13,
+      "skl": 13,
+      "spd": 11,
+      "def": 8,
+      "res": 6,
       "lck": 10
     },
     "growths": {
@@ -629,7 +642,7 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 7,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -649,14 +662,15 @@
 			"tertiary": null
 		},
     "characterClass": "PRIEST",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 2,
-      "str": 3,
-      "skl": 5,
-      "spd": 8,
-      "def": 1,
-      "res": 0,
+      "hp": 20,
+      "str": 4,
+      "skl": 6,
+      "spd": 10,
+      "def": 2,
+      "res": 5,
       "lck": 2
     },
     "growths": {
@@ -678,7 +692,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 6,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -698,14 +712,15 @@
 			"tertiary": null
 		},
     "characterClass": "CLERIC",
+    "promoted": false,
     "level": 2,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 4,
-      "spd": 6,
+      "hp": 16,
+      "str": 1,
+      "skl": 6,
+      "spd": 8,
       "def": 0,
-      "res": 0,
+      "res": 6,
       "lck": 8
     },
     "growths": {
@@ -727,7 +742,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 4,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -747,14 +762,15 @@
 			"tertiary": null
 		},
     "characterClass": "BISHOP",
-    "level": 17,
+    "promoted": true,
+    "level": 20,
     "bases": {
-      "hp": 14,
-      "str": 15,
-      "skl": 14,
-      "spd": 10,
-      "def": 2,
-      "res": 22,
+      "hp": 35,
+      "str": 19,
+      "skl": 18,
+      "spd": 14,
+      "def": 5,
+      "res": 30,
       "lck": 11
     },
     "growths": {
@@ -776,7 +792,7 @@
       201,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -796,13 +812,14 @@
 			"tertiary": null
 		},
     "characterClass": "THIEF",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 2,
-      "spd": 1,
-      "def": 0,
+      "hp": 16,
+      "str": 3,
+      "skl": 3,
+      "spd": 10,
+      "def": 2,
       "res": 0,
       "lck": 4
     },
@@ -825,7 +842,7 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 5,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -845,14 +862,15 @@
 			"tertiary": null
 		},
     "characterClass": "SWORDMASTER",
+    "promoted": true,
     "level": 19,
     "bases": {
-      "hp": 23,
-      "str": 14,
-      "skl": 17,
-      "spd": 13,
-      "def": 10,
-      "res": 11,
+      "hp": 44,
+      "str": 20,
+      "skl": 28,
+      "spd": 23,
+      "def": 15,
+      "res": 13,
       "lck": 18
     },
     "growths": {
@@ -874,7 +892,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -894,14 +912,15 @@
 			"tertiary": null
 		},
     "characterClass": "MYRMIDON_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 4,
-      "str": 3,
-      "skl": 0,
-      "spd": 0,
-      "def": 2,
-      "res": 0,
+      "hp": 19,
+      "str": 6,
+      "skl": 9,
+      "spd": 10,
+      "def": 3,
+      "res": 1,
       "lck": 3
     },
     "growths": {
@@ -923,7 +942,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -943,13 +962,14 @@
 			"tertiary": null
 		},
     "characterClass": "MYRMIDON",
+    "promoted": false,
     "level": 4,
     "bases": {
-      "hp": 6,
-      "str": 3,
-      "skl": 3,
-      "spd": 4,
-      "def": 3,
+      "hp": 22,
+      "str": 7,
+      "skl": 12,
+      "spd": 13,
+      "def": 5,
       "res": 0,
       "lck": 2
     },
@@ -972,7 +992,7 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 7,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -992,13 +1012,14 @@
 			"tertiary": null
 		},
     "characterClass": "MERCENARY",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 8,
-      "str": 5,
-      "skl": 4,
-      "spd": 2,
-      "def": 2,
+      "hp": 26,
+      "str": 9,
+      "skl": 12,
+      "spd": 10,
+      "def": 6,
       "res": 1,
       "lck": 5
     },
@@ -1021,7 +1042,7 @@
       0,
       0
     ],
-    "constitution": 4,
+    "constitution": 13,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1041,13 +1062,14 @@
 			"tertiary": null
 		},
     "characterClass": "MERCENARY",
+    "promoted": false,
     "level": 3,
     "bases": {
-      "hp": 6,
-      "str": 3,
-      "skl": 2,
-      "spd": 1,
-      "def": 0,
+      "hp": 24,
+      "str": 7,
+      "skl": 10,
+      "spd": 9,
+      "def": 4,
       "res": 0,
       "lck": 6
     },
@@ -1070,7 +1092,7 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 8,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1090,13 +1112,14 @@
 			"tertiary": null
 		},
     "characterClass": "BERSERKER",
-    "level": 2,
+    "promoted": true,
+    "level": 1,
     "bases": {
-      "hp": 25,
-      "str": 10,
-      "skl": 7,
-      "spd": 3,
-      "def": 3,
+      "hp": 49,
+      "str": 17,
+      "skl": 13,
+      "spd": 10,
+      "def": 9,
       "res": 4,
       "lck": 12
     },
@@ -1119,7 +1142,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 13,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 2,
@@ -1139,13 +1162,14 @@
 			"tertiary": null
 		},
     "characterClass": "CAVALIER",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 1,
-      "str": 2,
-      "skl": 2,
-      "spd": 1,
-      "def": 0,
+      "hp": 21,
+      "str": 7,
+      "skl": 4,
+      "spd": 6,
+      "def": 6,
       "res": 0,
       "lck": 3
     },
@@ -1168,7 +1192,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -1188,13 +1212,14 @@
 			"tertiary": null
 		},
     "characterClass": "CAVALIER",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 4,
-      "spd": 3,
-      "def": 0,
+      "hp": 20,
+      "str": 5,
+      "skl": 6,
+      "spd": 8,
+      "def": 6,
       "res": 0,
       "lck": 2
     },
@@ -1217,7 +1242,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1237,14 +1262,15 @@
 			"tertiary": null
 		},
     "characterClass": "PALADIN",
-    "level": 13,
+    "promoted": true,
+    "level": 5,
     "bases": {
-      "hp": 20,
-      "str": 10,
-      "skl": 9,
-      "spd": 11,
-      "def": 6,
-      "res": 8,
+      "hp": 43,
+      "str": 17,
+      "skl": 13,
+      "spd": 18,
+      "def": 14,
+      "res": 11,
       "lck": 12
     },
     "growths": {
@@ -1266,7 +1292,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 12,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1286,14 +1312,15 @@
 			"tertiary": null
 		},
     "characterClass": "SNIPER_F",
-    "level": 5,
+    "promoted": true,
+    "level": 1,
     "bases": {
-      "hp": 13,
-      "str": 10,
-      "skl": 12,
-      "spd": 8,
-      "def": 6,
-      "res": 7,
+      "hp": 32,
+      "str": 16,
+      "skl": 18,
+      "spd": 15,
+      "def": 11,
+      "res": 10,
       "lck": 9
     },
     "growths": {
@@ -1315,7 +1342,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 7,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -1335,14 +1362,15 @@
 			"tertiary": null
 		},
     "characterClass": "PALADIN",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 9,
-      "str": 2,
-      "skl": 10,
-      "spd": 4,
-      "def": 1,
-      "res": 5,
+      "hp": 32,
+      "str": 9,
+      "skl": 14,
+      "spd": 11,
+      "def": 9,
+      "res": 8,
       "lck": 10
     },
     "growths": {
@@ -1364,7 +1392,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 11,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1384,13 +1412,14 @@
 			"tertiary": null
 		},
     "characterClass": "THIEF",
+    "promoted": false,
     "level": 10,
     "bases": {
-      "hp": 9,
-      "str": 4,
-      "skl": 7,
-      "spd": 6,
-      "def": 5,
+      "hp": 25,
+      "str": 7,
+      "skl": 8,
+      "spd": 15,
+      "def": 7,
       "res": 3,
       "lck": 11
     },
@@ -1413,7 +1442,7 @@
       0,
       0
     ],
-    "constitution": 2,
+    "constitution": 8,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1433,13 +1462,14 @@
 			"tertiary": null
 		},
     "characterClass": "FIGHTER",
+    "promoted": false,
     "level": 2,
     "bases": {
-      "hp": 8,
-      "str": 3,
-      "skl": 1,
-      "spd": 1,
-      "def": 1,
+      "hp": 28,
+      "str": 8,
+      "skl": 3,
+      "spd": 5,
+      "def": 3,
       "res": 0,
       "lck": 4
     },
@@ -1462,7 +1492,7 @@
       0,
       0
     ],
-    "constitution": 2,
+    "constitution": 13,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1482,13 +1512,14 @@
 			"tertiary": null
 		},
     "characterClass": "FIGHTER",
+    "promoted": false,
     "level": 3,
     "bases": {
-      "hp": 9,
-      "str": 2,
-      "skl": 4,
-      "spd": 3,
-      "def": 2,
+      "hp": 29,
+      "str": 7,
+      "skl": 6,
+      "spd": 7,
+      "def": 4,
       "res": 1,
       "lck": 2
     },
@@ -1511,7 +1542,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 12,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1531,13 +1562,14 @@
 			"tertiary": null
 		},
     "characterClass": "WARRIOR",
-    "level": 1,
+    "promoted": true,
+    "level": 2,
     "bases": {
-      "hp": 20,
-      "str": 14,
-      "skl": 6,
-      "spd": 4,
-      "def": 5,
+      "hp": 48,
+      "str": 22,
+      "skl": 11,
+      "spd": 10,
+      "def": 10,
       "res": 3,
       "lck": 14
     },
@@ -1560,7 +1592,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 14,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1580,14 +1612,15 @@
 			"tertiary": null
 		},
     "characterClass": "MAGE",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 3,
-      "skl": 3,
-      "spd": 3,
-      "def": 0,
-      "res": 2,
+      "hp": 16,
+      "str": 4,
+      "skl": 5,
+      "spd": 6,
+      "def": 3,
+      "res": 5,
       "lck": 5
     },
     "growths": {
@@ -1609,7 +1642,7 @@
       0,
       0
     ],
-    "constitution": -2,
+    "constitution": 4,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1629,14 +1662,15 @@
 			"tertiary": null
 		},
     "characterClass": "MAGE_F",
+    "promoted": false,
     "level": 1,
         "bases": {
-      "hp": 0,
-      "str": 4,
-      "skl": 2,
-      "spd": 2,
-      "def": 0,
-      "res": 3,
+      "hp": 16,
+      "str": 5,
+      "skl": 5,
+      "spd": 4,
+      "def": 2,
+      "res": 7,
       "lck": 4
     },
     "growths": {
@@ -1658,7 +1692,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 4,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1678,14 +1712,15 @@
 			"tertiary": null
 		},
     "characterClass": "MAGE",
+    "promoted": false,
     "level": 15,
     "bases": {
-      "hp": 10,
-      "str": 12,
-      "skl": 9,
-      "spd": 9,
-      "def": 6,
-      "res": 6,
+      "hp": 26,
+      "str": 13,
+      "skl": 11,
+      "spd": 12,
+      "def": 9,
+      "res": 9,
       "lck": 10
     },
     "growths": {
@@ -1707,7 +1742,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 7,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1727,14 +1762,15 @@
 			"tertiary": null
 		},
     "characterClass": "DRUID_F",
-    "level": 17,
+    "promoted": true,
+    "level": 18,
     "bases": {
-      "hp": 8,
-      "str": 14,
-      "skl": 17,
-      "spd": 12,
-      "def": 2,
-      "res": 11,
+      "hp": 25,
+      "str": 21,
+      "skl": 20,
+      "spd": 16,
+      "def": 5,
+      "res": 18,
       "lck": 15
     },
     "growths": {
@@ -1756,7 +1792,7 @@
       0,
       201
     ],
-    "constitution": 0,
+    "constitution": 4,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 4,
@@ -1776,14 +1812,15 @@
 			"tertiary": null
 		},
     "characterClass": "SHAMAN",
-    "level": 10,
+    "promoted": false,
+    "level": 12,
     "bases": {
-      "hp": 7,
-      "str": 10,
-      "skl": 8,
-      "spd": 7,
-      "def": 3,
-      "res": 6,
+      "hp": 23,
+      "str": 12,
+      "skl": 9,
+      "spd": 9,
+      "def": 5,
+      "res": 10,
       "lck": 6
     },
     "growths": {
@@ -1805,7 +1842,7 @@
       0,
       101
     ],
-    "constitution": -1,
+    "constitution": 4,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1825,14 +1862,15 @@
 			"tertiary": null
 		},
     "characterClass": "Dancer",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 0,
-      "spd": 4,
+      "hp": 14,
+      "str": 1,
+      "skl": 2,
+      "spd": 11,
       "def": 2,
-      "res": 3,
+      "res": 4,
       "lck": 9
     },
     "growths": {
@@ -1854,7 +1892,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 4,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1874,14 +1912,15 @@
 			"tertiary": null
 		},
     "characterClass": "FALCON_KNIGHT",
+    "promoted": true,
     "level": 9,
     "bases": {
-      "hp": 13,
-      "str": 5,
-      "skl": 7,
-      "spd": 9,
-      "def": 3,
-      "res": 8,
+      "hp": 33,
+      "str": 11,
+      "skl": 14,
+      "spd": 16,
+      "def": 8,
+      "res": 12,
       "lck": 14
     },
     "growths": {
@@ -1903,7 +1942,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 7,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1923,14 +1962,15 @@
 			"tertiary": null
 		},
     "characterClass": "PEGASUS_KNIGHT",
+    "promoted": false,
     "level": 8,
     "bases": {
-      "hp": 8,
-      "str": 2,
-      "skl": 3,
-      "spd": 6,
-      "def": 4,
-      "res": 4,
+      "hp": 22,
+      "str": 6,
+      "skl": 8,
+      "spd": 11,
+      "def": 7,
+      "res": 6,
       "lck": 3
     },
     "growths": {
@@ -1952,7 +1992,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1972,14 +2012,15 @@
 			"tertiary": null
 		},
     "characterClass": "PEGASUS_KNIGHT",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 0,
-      "skl": 1,
-      "spd": 7,
-      "def": 3,
-      "res": 3,
+      "hp": 17,
+      "str": 4,
+      "skl": 6,
+      "spd": 12,
+      "def": 6,
+      "res": 5,
       "lck": 5
     },
     "growths": {
@@ -2001,7 +2042,7 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 4,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -2021,13 +2062,14 @@
 			"tertiary": null
 		},
     "characterClass": "WYVERN_RIDER",
+    "promoted": false,
     "level": 7,
     "bases": {
-      "hp": 8,
-      "str": 7,
-      "skl": 6,
-      "spd": 3,
-      "def": 4,
+      "hp": 28,
+      "str": 14,
+      "skl": 9,
+      "spd": 8,
+      "def": 12,
       "res": 2,
       "lck": 6
     },
@@ -2050,7 +2092,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 10,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -2070,13 +2112,14 @@
 			"tertiary": null
 		},
     "characterClass": "BARD",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 1,
-      "str": 0,
-      "skl": 1,
-      "spd": 3,
-      "def": 3,
+      "hp": 15,
+      "str": 1,
+      "skl": 3,
+      "spd": 10,
+      "def": 4,
       "res": 1,
       "lck": 11
     },
@@ -2099,7 +2142,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -2119,14 +2162,15 @@
 			"tertiary": null
 		},
     "characterClass": "THIEF_F",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 0,
-      "str": 2,
-      "skl": 6,
-      "spd": 4,
-      "def": 1,
-      "res": 0,
+      "hp": 16,
+      "str": 3,
+      "skl": 7,
+      "spd": 11,
+      "def": 2,
+      "res": 1,
       "lck": 8
     },
     "growths": {
@@ -2148,7 +2192,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -2168,14 +2212,15 @@
 			"tertiary": null
 		},
     "characterClass": "SHAMAN_F",
+    "promoted": false,
     "level": 1,
         "bases": {
-      "hp": 0,
-      "str": 3,
-      "skl": 1,
-      "spd": 3,
-      "def": 0,
-      "res": 3,
+      "hp": 15,
+      "str": 6,
+      "skl": 2,
+      "spd": 4,
+      "def": 1,
+      "res": 8,
       "lck": 3
     },
     "growths": {
@@ -2197,7 +2242,7 @@
       101,
       0
     ],
-    "constitution": 0,
+    "constitution": 3,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 5,
@@ -2217,13 +2262,14 @@
 			"tertiary": null
 		},
     "characterClass": "WYVERN_RIDER_F",
+    "promoted": false,
     "level": 10,
     "bases": {
-      "hp": 11,
-      "str": 6,
-      "skl": 6,
-      "spd": 5,
-      "def": 6,
+      "hp": 30,
+      "str": 12,
+      "skl": 11,
+      "spd": 10,
+      "def": 13,
       "res": 3,
       "lck": 5
     },
@@ -2246,7 +2292,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -2266,13 +2312,14 @@
 			"tertiary": null
 		},
     "characterClass": "BRIGAND",
-    "level": 11,
+    "promoted": false,
+    "level": 5,
     "bases": {
-      "hp": 16,
-      "str": 7,
-      "skl": 4,
-      "spd": 4,
-      "def": 3,
+      "hp": 36,
+      "str": 12,
+      "skl": 5,
+      "spd": 9,
+      "def": 6,
       "res": 0,
       "lck": 5
     },
@@ -2295,7 +2342,7 @@
       0,
       0
     ],
-    "constitution": 3,
+    "constitution": 15,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -2315,13 +2362,14 @@
 			"tertiary": null
 		},
     "characterClass": "CAVALIER",
-    "level": 4,
+    "promoted": false,
+    "level": 7,
     "bases": {
-      "hp": 7,
-      "str": 3,
-      "skl": 5,
-      "spd": 4,
-      "def": 1,
+      "hp": 27,
+      "str": 8,
+      "skl": 7,
+      "spd": 9,
+      "def": 7,
       "res": 1,
       "lck": 6
     },
@@ -2344,7 +2392,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 10,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -2364,13 +2412,14 @@
 			"tertiary": null
 		},
     "characterClass": "CAVALIER",
-    "level": 3,
+    "promoted": false,
+    "level": 4,
     "bases": {
-      "hp": 5,
-      "str": 3,
-      "skl": 4,
-      "spd": 2,
-      "def": 2,
+      "hp": 25,
+      "str": 8,
+      "skl": 6,
+      "spd": 7,
+      "def": 8,
       "res": 0,
       "lck": 5
     },
@@ -2393,7 +2442,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -2413,14 +2462,15 @@
 			"tertiary": null
 		},
     "characterClass": "PALADIN",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 12,
-      "str": 3,
-      "skl": 8,
-      "spd": 6,
-      "def": 3,
-      "res": 4,
+      "hp": 35,
+      "str": 10,
+      "skl": 12,
+      "spd": 13,
+      "def": 11,
+      "res": 7,
       "lck": 5
     },
     "growths": {
@@ -2442,7 +2492,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 11,
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -2462,14 +2512,15 @@
 			"tertiary": null
 		},
     "characterClass": "HERO_F",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 13,
-      "str": 7,
-      "skl": 9,
-      "spd": 7,
-      "def": 2,
-      "res": 4,
+      "hp": 35,
+      "str": 13,
+      "skl": 19,
+      "spd": 18,
+      "def": 8,
+      "res": 7,
       "lck": 6
     },
     "growths": {
@@ -2491,7 +2542,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -2511,14 +2562,15 @@
 			"tertiary": ["#f8a860", "#d08048"]
 		},
     "characterClass": "VALKYRIE",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 11,
-      "str": 7,
-      "skl": 4,
-      "spd": 5,
-      "def": 3,
-      "res": 5,
+      "hp": 30,
+      "str": 11,
+      "skl": 7,
+      "spd": 10,
+      "def": 7,
+      "res": 13,
       "lck": 10
     },
     "growths": {
@@ -2540,7 +2592,7 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -2560,13 +2612,14 @@
 			"tertiary": null
 		},
     "characterClass": "PIRATE",
+    "promoted": false,
     "level": 10,
     "bases": {
-      "hp": 14,
-      "str": 6,
-      "skl": 7,
-      "spd": 3,
-      "def": 5,
+      "hp": 33,
+      "str": 10,
+      "skl": 9,
+      "spd": 9,
+      "def": 8,
       "res": 0,
       "lck": 9
     },
@@ -2589,7 +2642,7 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 11,
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,

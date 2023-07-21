@@ -27,6 +27,7 @@ public class GBACrossGameData {
 	public String description2;
 	public GBACrossGameDataBattlePalette battlePalette;
 	public String characterClass;
+	public boolean promoted;
 	public int level;
 	public GBAFEStatDto bases;
 	public GBAFEStatDto growths;
@@ -39,7 +40,7 @@ public class GBACrossGameData {
 	public int mouthY;
 
 	public GBACrossGameData(String name, String portraitPath, String description1, String description2, GBACrossGameDataBattlePalette battlePalette,
-			String paletteString, GBAFEClass characterClass, int level, GBAFEStatDto bases, GBAFEStatDto growths,
+			String paletteString, GBAFEClass characterClass, boolean promoted, int level, GBAFEStatDto bases, GBAFEStatDto growths,
 			int[] weaponRanks, int constitution, byte[] facialFeatureCoordinates) {
 		this.name = name;
 		this.portraitPath = portraitPath;

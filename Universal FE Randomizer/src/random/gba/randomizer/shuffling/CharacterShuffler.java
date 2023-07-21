@@ -118,7 +118,6 @@ public class CharacterShuffler {
 				
 				for (GBAFECharacterData linkedSlot : characterData.linkedCharactersForCharacter(slot)) {
 					linkedSlot.setGrowths(crossGameData.growths);
-					linkedSlot.setConstitution(crossGameData.constitution);
 					updateWeaponRanks(linkedSlot, crossGameData, options);
 					
 					// (e) Update the bases, and potentially auto level the Character to the level of the slot.
@@ -126,6 +125,8 @@ public class CharacterShuffler {
 					targetClass = updateBases(textData, rng, classData, options, linkedSlot, crossGameData, targetClassId,
 							targetClass, sourceClass, slotLevel);
 					targetClassId = targetClass.getID();
+					
+					linkedSlot.setConstitution(crossGameData.constitution - targetClass.getCON());
 	
 					
 					// (f) Update the class for all the slots of the character
@@ -217,8 +218,14 @@ public class CharacterShuffler {
 	private static GBAFEClassData updateBases(TextLoader textData, Random rng, ClassDataLoader classData,
 			CharacterShufflingOptions options, GBAFECharacterData slot, GBACrossGameData chara, int targetClassId,
 			GBAFEClassData targetClass, GBAFEClassData sourceClass, int slotLevel) {
+		
+		// We store the final (effective) bases in the JSON now.
+		// Subtract the target class bases to get the correct values to write to character data.
+		GBAFEStatDto personalBases = chara.bases;
+		personalBases.subtract(targetClass.getBases());
+		
 		if (CharacterShufflingOptions.ShuffleLevelingMode.UNCHANGED.equals(options.getLevelingMode())) {
-			slot.setBases(chara.bases);
+			slot.setBases(personalBases);
 		} else if (CharacterShufflingOptions.ShuffleLevelingMode.AUTOLEVEL.equals(options.getLevelingMode())) {
 
 			boolean shouldBePromoted = classData.isPromotedClass(slot.getClassID());
@@ -235,7 +242,7 @@ public class CharacterShuffler {
 			slot.setClassID(targetClassId);
 
 			// Calculate the auto leveled personal bases
-			GBAFEStatDto newPersonalBases = GBASlotAdjustmentService.autolevel(chara.bases, chara.growths, 
+			GBAFEStatDto newPersonalBases = GBASlotAdjustmentService.autolevel(personalBases, chara.growths, 
 					adjustmentDAO.promoBonuses, adjustmentDAO.levelAdjustment, targetClass, DebugPrinter.Key.GBA_CHARACTER_SHUFFLING);
 
 			slot.setBases(newPersonalBases);
