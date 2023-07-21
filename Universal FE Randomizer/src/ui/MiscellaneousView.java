@@ -347,6 +347,8 @@ public class MiscellaneousView extends Composite {
 			normalExperienceButton.setText("Normal");
 			normalExperienceButton.setToolTipText("Normal Experience Gain.");
 			normalExperienceButton.setSelection(true);
+			experienceRate = ExperienceRate.NORMAL;
+			
 			normalExperienceButton.addListener(SWT.Selection, new Listener() {
 				@Override
 				public void handleEvent(Event event) {

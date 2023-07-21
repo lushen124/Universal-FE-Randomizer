@@ -14,7 +14,6 @@ import javax.imageio.ImageIO;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.internal.win32.SIZE;
 
 import application.Main;
 import fedata.gba.general.PaletteColor;
@@ -110,7 +109,7 @@ public class GBAImageCodec {
 	 * that passes an empty optional, indicating that there is no prefix
 	 */
 	public static byte[] getGBAPortraitGraphicsDataForImage(String name, PaletteColor[] palette,
-			List<PortraitChunkInfo> chunks, SIZE size) throws IOException {
+			List<PortraitChunkInfo> chunks, Size size) throws IOException {
 		return getGBAPortraitGraphicsDataForImage(name, palette, chunks, size, Optional.empty());
 	}
 
@@ -129,7 +128,7 @@ public class GBAImageCodec {
 	 *                the output, if any
 	 */
 	public static byte[] getGBAPortraitGraphicsDataForImage(String name, PaletteColor[] palette,
-			List<PortraitChunkInfo> chunks, SIZE size, Optional<byte[]> prefix) throws IOException {
+			List<PortraitChunkInfo> chunks, Size size, Optional<byte[]> prefix) throws IOException {
 		if (palette == null || name == null || chunks == null || chunks.isEmpty()) {
 			throw new IllegalArgumentException(
 					String.format("One of the arguments is invalid: palette %s, name %s, chunks %s, add %s, size %s",
@@ -160,7 +159,7 @@ public class GBAImageCodec {
 		 * Create a new Buffered image with the size of the given size. And create the
 		 * Graphics2D object so we can write into the BufferedImage
 		 */
-		BufferedImage destImage = new BufferedImage(size.cx * 8, size.cy * 8, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage destImage = new BufferedImage(size.width * 8, size.height * 8, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D graphics = destImage.createGraphics();
 
 		/*
