@@ -5,6 +5,12 @@
     "paletteString": "344FDF6F3F477D2ED3252C2587206377A26245416261FE335B23BA105373FE7F",
     "description1": "The princess of the kingdom of",
     "description2": "Renais. She's elegant and kind.",
+    "battlePalette": {
+      "hair": ["#18d8e8", "#10a8c0", "#285080"],
+      "primary": ["#f0f860", "#d8d040"],
+      "secondary": ["#d02820"],
+      "tertiary": null
+    },
     "characterClass": "EIRIKA_LORD",
     "level": 1,
     "bases": {
@@ -48,6 +54,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720570410004C0CEF662B468731FF275373FE7F",
     "description1": "A young commander of Renais.",
     "description2": "He's calm, composed, and skilled.",
+    "battlePalette": {
+      "hair": ["#b81008", "#800000", "#601018"],
+      "primary": ["#78b8c8", "#588888", "#386060"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "PALADIN",
     "level": 1,
     "bases": {
@@ -91,6 +103,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C25872010368C250921264AE12D412DFF275373FE7F",
     "description1": "An armored knight of Frelia.",
     "description2": "He's quiet yet dependable.",
+    "battlePalette": {
+      "hair": ["#808068", "#606048", "#484040"],
+      "primary": ["#308890", "#087858", "#085058"],
+      "secondary": ["#f8f848", "#f8d070", "#e89850"],
+      "tertiary": null
+    },
     "characterClass": "KNIGHT",
     "level": 4,
     "bases": {
@@ -134,6 +152,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587205D1B9812B01D972BF30EEB09D14E0B36FE7F",
     "description1": "An earnest and compassionate",
     "description2": "cavalier from Renais.",
+    "battlePalette": {
+      "hair": ["#e8d030", "#c0a020", "#806838"],
+      "primary": ["#b8e050", "#98b818", "#587810"],
+      "secondary": ["#88b098", "#588068"],
+      "tertiary": null
+    },
     "characterClass": "CAVALIER",
     "level": 1,
     "bases": {
@@ -177,6 +201,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720361A900D0C11DE5F1853EF2D7815B0048B04",
     "description1": "A mature priest of Frelia. He's",
     "description2": "gentle and reassuring.",
+    "battlePalette": {
+      "hair": ["#b08830", "#806018", "#604020"],
+      "primary": ["#c05828", "#802808", "#582008"],
+      "secondary": ["#f0f0b8", "#c0c0a0", "#787858"],
+      "tertiary": null
+    },
     "characterClass": "PRIEST",
     "level": 3,
     "bases": {
@@ -220,6 +250,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720671FA51A871D9F193721776F6D52FF27FE7F",
     "description1": "A sincere, honest, and honorable",
     "description2": "pegasus knight of Frelia.",
+    "battlePalette": {
+      "hair": ["#38d838", "#28a830", "#386038"],
+      "primary": ["#f0f8f8", "#b8d8d8", "#6898a0"],
+      "secondary": ["#f86030", "#b84840"],
+      "tertiary": null
+    },
     "characterClass": "PEGASUS_KNIGHT",
     "level": 1,
     "bases": {
@@ -263,6 +299,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720CE414A29EA2498193019626103453667FE7F",
     "description1": "A young villager. He longs to be a",
     "description2": "warrior, like his father.",
+    "battlePalette": {
+      "hair": ["#707080", "#505050", "#503848"],
+      "primary": ["#1058c0", "#184088"],
+      "secondary": ["#c06030", "#804830"],
+      "tertiary": null
+    },
     "characterClass": "TRAINEE",
     "level": 1,
     "bases": {
@@ -306,6 +348,12 @@
     "paletteString": "344FDF6F3F477D2ED3252C2587201D4D793CB1286A14D523D00EEB09FF27FE7F",
     "description1": "A childhood friend of Colm who",
     "description2": "hails from Renais. She cries a lot.",
+    "battlePalette": {
+      "hair": ["#e84098", "#c81878", "#882850"],
+      "primary": ["#c81878", "#882850", "#501828"],
+      "secondary": ["#a8f040", "#80b018", "#587810"],
+      "tertiary": null
+    },
     "characterClass": "ARCHER_F",
     "level": 1,
     "bases": {
@@ -349,6 +397,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720E2616149022D9819684DE72C714E5767FE7F",
     "description1": "A childhood friend of Neimi who",
     "description2": "hails from Renais. He can be snide.",
+    "battlePalette": {
+      "hair": ["#1078c0", "#085890", "#104058"],
+      "primary": ["#405898", "#383858", "#382040"],
+      "secondary": ["#b8d0c8", "#889898"],
+      "tertiary": null
+    },
     "characterClass": "THIEF",
     "level": 2,
     "bases": {
@@ -392,6 +446,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720CE414A29EA249819301962614F4A5767FE7F",
     "description1": "A villager from Renais. He was",
     "description2": "once a feared military leader.",
+    "battlePalette": {
+      "hair": ["#707080", "#505050", "#503848"],
+      "primary": ["#1058c0"],
+      "secondary": ["#e89850", "#c06030", "#804830"],
+      "tertiary": null
+    },
     "characterClass": "FIGHTER",
     "level": 4,
     "bases": {
@@ -435,6 +495,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720174B703A6A25746FAC56C8418F55E93CFE7F",
     "description1": "The prince of Frelia. He's brash",
     "description2": "and arrogant, but good at heart.",
+    "battlePalette": {
+      "hair": ["#b8c090", "#809870", "#505848"],
+      "primary": ["#a0d8d8", "#60a8a8", "#407080"],
+      "secondary": ["#7860a8", "#483878", "#382040"],
+      "tertiary": null
+    },
     "characterClass": "SNIPER",
     "level": 1,
     "bases": {
@@ -478,6 +544,12 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720B66C7254AC345373825E2541FF271813FE7F",
     "description1": "A young mage of Renais. She",
     "description2": "believes she is a prodigy.",
+    "battlePalette": {
+      "hair": ["#b028d8", "#9018a8", "#602868"],
+      "primary": ["#b028d8", "#9018a8", "#602868"],
+      "secondary": ["#10a0b8", "#284880"],
+      "tertiary": null
+    },
     "characterClass": "MAGE_F",
     "level": 1,
     "bases": {
@@ -521,6 +593,12 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720FF335A2394168D19C37542616A395767FE7F",
     "description1": "A beautiful cleric from the Grado",
     "description2": "Empire. She's graceful and serious.",
+    "battlePalette": {
+      "hair": ["#f8f860", "#d0d040", "#a0a028"],
+      "primary": ["#f0f8f8", "#b8d0c8", "#505870"],
+      "secondary": ["#1870e8", "#1050c0"],
+      "tertiary": null
+    },
     "characterClass": "CLERIC",
     "level": 1,
     "bases": {
@@ -564,6 +642,12 @@
     "paletteString": "344F5F477D2EF725911D2C258720FF5F7B33B51ACE192A4E86390525766FFE7F",
     "description1": "A wyvern knight of Grado. A gentle",
     "description2": "man, but a ferocious warrior.",
+    "battlePalette": {
+      "hair": ["#f8f8b8", "#d8d860", "#a8a830"],
+      "primary": ["#508898", "#306070", "#284048"],
+      "secondary": ["#b0d8d8", "#508898"],
+      "tertiary": null
+    },
     "characterClass": "WYVERN_RIDER",
     "level": 9,
     "bases": {
@@ -607,6 +691,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720225B6252683983652241F47A2D662831FE7F",
     "description1": "The prince of Renais. He is a man",
     "description2": "of great honor and bravery.",
+    "battlePalette": {
+      "hair": ["#10c8b0", "#1098a0", "#405870"],
+      "primary": ["#1860c8", "#104880"],
+      "secondary": ["#a0b8f0", "#6888c8"],
+      "tertiary": null
+    },
     "characterClass": "EPHRAIM_LORD",
     "level": 4,
     "bases": {
@@ -650,6 +740,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587207D07D906F3151815B308AD08312FE80DFE7F",
     "description1": "A cavalier of Renais. He is skilled,",
     "description2": "but reckless. He's Franz's brother.",
+    "battlePalette": {
+      "hair": ["#e8d808", "#c8b008", "#987828"],
+      "primary": ["#c04028", "#982810", "#682810"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "CAVALIER",
     "level": 5,
     "bases": {
@@ -693,6 +789,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720C3120106630D7232CB2548216725BF27FE7F",
     "description1": "A steadfast and honorable cavalier",
     "description2": "in sworn service to Renais.",
+    "battlePalette": {
+      "hair": ["#18b020", "#088008", "#185818"],
+      "primary": ["#909860", "#587048", "#405040"],
+      "secondary": ["#f8e848", "#e89850"],
+      "tertiary": null
+    },
     "characterClass": "CAVALIER",
     "level": 6,
     "bases": {
@@ -736,6 +838,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720DE1F1817101EFF353D0DD70C4736346BFE7F",
     "description1": "A young girl from a small village in",
     "description2": "Grado. She is honest and sincere.",
+    "battlePalette": {
+      "hair": ["#f0f038", "#c0c028", "#808038"],
+      "primary": ["#f87868", "#e84818", "#b83018"],
+      "secondary": ["#f0f8f8", "#a0c8d0"],
+      "tertiary": null
+    },
     "characterClass": "RECRUIT",
     "level": 1,
     "bases": {
@@ -779,6 +887,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587201F127911F108EE7F0C63C739714E5767FE7F",
     "description1": "A young monk from Renais. He is a",
     "description2": "very forthright and pious man.",
+    "battlePalette": {
+      "hair": ["#f88020", "#c85820", "#883810"],
+      "primary": ["#f0f8f8", "#b8d0c8", "#889898"],
+      "secondary": ["#70f8f8", "#60c0c0", "#387070"],
+      "tertiary": null
+    },
     "characterClass": "MONK",
     "level": 2,
     "bases": {
@@ -822,6 +936,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720F30E2D0E6A05FE33D334AC20782A1463FE7F",
     "description1": "A mercenary leader from Jehanna. He's",
     "description2": "better known as the Desert Tiger.",
+    "battlePalette": {
+      "hair": ["#98b818", "#688818", "#505808"],
+      "primary": ["#983068", "#602840"],
+      "secondary": ["#c09850", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "MERCENARY",
     "level": 10,
     "bases": {
@@ -865,6 +985,12 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720FD14790C9008FF52FF31FF27AC20734E3567",
     "description1": "A beautiful and charming dancer",
     "description2": "from Jehanna.",
+    "battlePalette": {
+      "hair": ["#e83828", "#c81818", "#802010"],
+      "primary": ["#a8c8c8", "#989898"],
+      "secondary": ["#f8f848", "#e89858", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "DANCER",
     "level": 1,
     "bases": {
@@ -908,6 +1034,12 @@
     "paletteString": "344FDF6F3F477D2ED3252C2587201F7E5A6D30457C0456040421FF275573FE7F",
     "description1": "An aloof sword fighter from Jehanna.",
     "description2": "She's known as the Crimson Flash.",
+    "battlePalette": {
+      "hair": ["#f880f8", "#d050d8", "#804888"],
+      "primary": ["#204040"],
+      "secondary": ["#e01808", "#b01008"],
+      "tertiary": null
+    },
     "characterClass": "MYRMIDON_F",
     "level": 5,
     "bases": {
@@ -951,6 +1083,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720554EB0352B2D984BB14AAA31591E5373FE7F",
     "description1": "A sage from the village Caer Pelyn.",
     "description2": "He's Ewan's solemn, but kind, teacher.",
+    "battlePalette": {
+      "hair": ["#a89098", "#806868", "#584858"],
+      "primary": ["#c0e090", "#88a890", "#506860"],
+      "secondary": ["#f8d070", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "SAGE",
     "level": 2,
     "bases": {
@@ -994,6 +1132,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587203D15B90CB008087A6261357B4E6E8B3DFE7F",
     "description1": "A sage-in-training from Jehanna.",
     "description2": "He reveres his teacher, Saleh.",
+    "battlePalette": {
+      "hair": ["#e84828", "#c82818", "#802810"],
+      "primary": ["#a8c8f0", "#7090d8", "#586078"],
+      "secondary": ["#802810"],
+      "tertiary": null
+    },
     "characterClass": "PUPIL",
     "level": 2,
     "bases": {
@@ -1037,6 +1181,12 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720D61710072D0E6A154948ED5DFF275573FE7F",
     "description1": "A young woman from Rausten. She",
     "description2": "fights for justice and order.",
+    "battlePalette": {
+      "hair": ["#b0f028", "#80c008", "#688818"],
+      "primary": ["#f0f8f8", "#a8d0e0", "#6878b8"],
+      "secondary": ["#481090"],
+      "tertiary": null
+    },
     "characterClass": "TROUBADOUR",
     "level": 3,
     "bases": {
@@ -1080,6 +1230,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587204B2686150715BE21B808F110FF275373FE7F",
     "description1": "A berserker from Rausten. He's a",
     "description2": "hearty man with a thirst for life.",
+    "battlePalette": {
+      "hair": ["#589048", "#306028", "#384028"],
+      "primary": ["#f06840", "#c02810", "#883820"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "BERSERKER",
     "level": 1,
     "bases": {
@@ -1123,6 +1279,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720D60D5109EB109819511D1B13C93C3667FE7F",
     "description1": "A lazy, greedy, but exceptional",
     "description2": "fighter from the Republic of Carcino.",
+    "battlePalette": {
+      "hair": ["#b07018", "#885010", "#583820"],
+      "primary": ["#483078", "#382040"],
+      "secondary": ["#c06030", "#885038"],
+      "tertiary": null
+    },
     "characterClass": "ROGUE",
     "level": 1,
     "bases": {
@@ -1166,6 +1328,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720F34D4D350925B710710CAC14B85A5B6BFE7F",
     "description1": "A courageous general in Grado's army.",
     "description2": "He's better known as Obsidian.",
+    "battlePalette": {
+      "hair": ["#c0a8b0", "#987898", "#685068"],
+      "primary": ["#b82820", "#881818", "#602828"],
+      "secondary": ["#d8d0d0", "#c0a8b0", "#987898"],
+      "tertiary": null
+    },
     "characterClass": "GREAT_KNIGHT",
     "level": 8,
     "bases": {
@@ -1209,6 +1377,12 @@
     "paletteString": "344FDF6F3F477D2ED3252C2587202E55CB34FF23F8122D2A2E28BB0C7410FE7F",
     "description1": "A young, pure-hearted girl from",
     "description2": "Darkling Woods. She tends to be shy.",
+    "battlePalette": {
+      "hair": ["#7048a8", "#583068", "#382040"],
+      "primary": ["#d82818", "#a81820"],
+      "secondary": ["#f8f840", "#c0b820", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "MANAKETE_F",
     "level": 1,
     "bases": {
@@ -1252,6 +1426,12 @@
     "paletteString": "344FFF6B7F37BD26D3252C258720B66E12564B416B45EA38C924554E1963FE7F",
     "description1": "One of Grado's royal mages. He knows",
     "description2": "the riddle of the Dark Stone.",
+    "battlePalette": {
+      "hair": ["#b0a8d8", "#9080a8", "#585080"],
+      "primary": ["#585888", "#503870", "#483048"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "SHAMAN",
     "level": 9,
     "bases": {
@@ -1295,6 +1475,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587207C0457046E0CAA3926294D39EA2C372AFE7F",
     "description1": "A wandering swordsman from Jehanna.",
     "description2": "He loves to gamble.",
+    "battlePalette": {
+      "hair": ["#e01808", "#b81008", "#701818"],
+      "primary": ["#506870", "#304850"],
+      "secondary": ["#b88850", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "MYRMIDON",
     "level": 5,
     "bases": {
@@ -1338,6 +1524,12 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720271F651A881D345BEC390619581E1963FE7F",
     "description1": "The dutiful commander of the 3rd",
     "description2": "battalion of Frelia's pegasus knights.",
+    "battlePalette": {
+      "hair": ["#38c838", "#289830", "#406038"],
+      "primary": ["#f0f8f8", "#a0c8b0", "#607870"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "FALCON_KNIGHT",
     "level": 1,
     "bases": {
@@ -1381,6 +1573,12 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720AB5D654104253F193B08FF272B465373FE7F",
     "description1": "A young lady of Frelia. She is both",
     "description2": "cheery and sociable.",
+    "battlePalette": {
+      "hair": ["#5868b8", "#285880", "#204048"],
+      "primary": ["#f0f8f8", "#98d0e0", "#588888"],
+      "secondary": ["#f84830", "#d80810"],
+      "tertiary": null
+    },
     "characterClass": "PEGASUS_KNIGHT",
     "level": 4,
     "bases": {
