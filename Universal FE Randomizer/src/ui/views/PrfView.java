@@ -54,6 +54,7 @@ public class PrfView extends YuneView<PrfOptions> {
     public void initialize(PrfOptions options) {
         if (options == null) return;
         this.createPrfsButton.setSelection(options.createPrfs);
+        this.unbreakablePrfsButton.setEnabled(options.createPrfs);
         this.unbreakablePrfsButton.setSelection(options.createPrfs && options.unbreakablePrfs);
     }
 }

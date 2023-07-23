@@ -1,5 +1,9 @@
 package ui.model;
 
+import fedata.general.FEBase;
+import fedata.general.FEBase.GameType;
+import util.recordkeeper.RecordKeeper;
+
 import static ui.model.RewardOptions.RewardMode.SIMILAR;
 
 public class RewardOptions {
@@ -41,5 +45,26 @@ public class RewardOptions {
         this.randomizeRewards = randomizeRewards;
         this.enemyDropChance = enemyDropChance;
         this.randomizeRings = false;
+    }
+
+    public void record(RecordKeeper rk, GameType type) {
+
+        StringBuilder sb = new StringBuilder();
+        if (GameType.FE4.equals(type)) {
+            sb.append("Randomizer Rings: " + (randomizeRings ? "YES" : "NO"));
+        } else {
+            if (Boolean.TRUE.equals(randomizeRewards)) {
+                sb.append("Randomization Mode: ");
+                switch (rewardMode) {
+                    case SIMILAR: sb.append("Similar rewards"); break;
+                    case RANDOM: sb.append("Fully random"); break;
+                }
+                sb.append("<br>");
+            }
+            if (enemyDropChance != null) {
+                sb.append("Adding random enemy drops with " + enemyDropChance + "% chance");
+            }
+        }
+        rk.addHeaderItem("Reward Randomization", sb.toString());
     }
 }

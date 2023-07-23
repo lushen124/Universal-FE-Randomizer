@@ -151,7 +151,7 @@ public class FE4SkillsView extends YuneView<SkillsOptions> {
         FormData viewData = new FormData();
         viewData.left = new FormAttachment(randomizeButton, 0, SWT.LEFT);
         viewData.top = new FormAttachment(randomizeButton, 0);
-        viewData.width = GuiUtil.DEFAULT_ITEM_WIDTH_280;
+        viewData.width = GuiUtil.DEFAULT_ITEM_WIDTH_300;
         skillCountView.setLayoutData(viewData);
 
         List<String> skillList = Arrays.stream(FE4Data.Skill.values()).map(FE4Data.Skill::capitalizedName).collect(Collectors.toList());

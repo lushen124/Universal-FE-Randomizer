@@ -7,6 +7,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import ui.common.GuiUtil;
 import ui.views.*;
 import ui.views.fe4.*;
 import ui.views.fe9.CONAffinityView;
@@ -182,6 +183,7 @@ public class LegacyViewContainer extends YuneViewContainer {
         FormData classData = new FormData();
         classData.top = new FormAttachment(weaponView.group, 0, SWT.TOP);
         classData.left = new FormAttachment(weaponView.group, 5);
+        classData.width = GuiUtil.DEFAULT_ITEM_WIDTH_300;
         classView.group.setLayoutData(classData);
 
         enemyView = new EnemyBuffsView(this);

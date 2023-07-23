@@ -38,8 +38,12 @@ public class GBAItemsTab extends YuneTabItem {
         weapons = addView(new WeaponsView(container, type, 2), GuiUtil.defaultGridData(2));
         setViewData(weapons, 1, 3);
         itemAssignment = addView(new ItemAssignmentView(container, type));
-        rewards = addView(new RewardRandomizationView(container, type));
-        prfs = addView(new PrfView(container));
+
+        // these two views are located below the weapons view which has a colspan of two.
+        // But since there is a margin of 5 pixels between the two, views, they would be a bit wider and so misaligned.
+        // reduce each of these views by 5px to make sure they are properly aligned with the weapons view
+        rewards = addView(new RewardRandomizationView(container, type), GuiUtil.defaultGridData(1, -5));
+        prfs = addView(new PrfView(container), GuiUtil.defaultGridData(1, -5));
     }
 
     @Override

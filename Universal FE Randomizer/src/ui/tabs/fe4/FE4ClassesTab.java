@@ -28,7 +28,8 @@ public class FE4ClassesTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        classes = addView(new FE4ClassesView(container, 2), GuiUtil.defaultGridData(2, true));
+        // Account for internal margins within the width of this view
+        classes = addView(new FE4ClassesView(container, 2), GuiUtil.defaultGridData(2, 4 * GuiUtil.DEFAULT_MARGIN_5));
         promotions = addView(new FE4PromotionView(container));
     }
 

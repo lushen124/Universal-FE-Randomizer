@@ -82,7 +82,7 @@ public class GBARandomizer extends Randomizer {
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, RewardOptions rewards, String seed) {
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, RewardOptions rewards, PrfOptions prfs, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -101,6 +101,7 @@ public class GBARandomizer extends Randomizer {
 		itemAssignmentOptions = itemAssign;
 		this.shufflingOptions = shufflingOptions;
 		this.rewardOptions = rewards;
+		this.prfs = prfs;
 		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE, false, false); }
 		
 		this.gameType = gameType;

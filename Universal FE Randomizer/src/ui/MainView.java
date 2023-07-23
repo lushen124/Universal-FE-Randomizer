@@ -148,7 +148,7 @@ public class MainView implements FileFlowDelegate {
         if (actualSize.y - titleBarHeight < containerSize.y) {
             ScrollBar verticalScrollBar = scrollable.getVerticalBar();
             RowLayout containerLayout = (RowLayout)mainContainer.getLayout();
-            containerLayout.marginRight = verticalScrollBar.getSize().x + 5;
+            containerLayout.marginRight = verticalScrollBar.getSize().x + 10;
 
             mainShell.layout();
             mainContainer.layout();
