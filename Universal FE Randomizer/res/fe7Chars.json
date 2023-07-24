@@ -43,6 +43,7 @@
       0
     ],
     "constitution": 7,
+    "affinity": "anima",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -93,6 +94,7 @@
       0
     ],
     "constitution": 13,
+    "affinity": "thunder",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 2,
@@ -143,6 +145,7 @@
       0
     ],
     "constitution": 8,
+    "affinity": "ice",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -193,6 +196,7 @@
       0
     ],
     "constitution": 13,
+    "affinity": "thunder",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -243,6 +247,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "fire",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 4,
@@ -293,6 +298,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "light",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -343,6 +349,7 @@
       0
     ],
     "constitution": 14,
+    "affinity": "fire",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 2,
@@ -393,6 +400,7 @@
       0
     ],
     "constitution": 13,
+    "affinity": "thunder",
     "originGame": "FE7",
     "eyeX": 2,
     "eyeY": 3,
@@ -443,6 +451,7 @@
       0
     ],
     "constitution": 14,
+    "affinity": "anima",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 2,
@@ -493,6 +502,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "fire",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 4,
@@ -543,6 +553,7 @@
       0
     ],
     "constitution": 6,
+    "affinity": "light",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 4,
@@ -593,6 +604,7 @@
       0
     ],
     "constitution": 6,
+    "affinity": "light",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -643,6 +655,7 @@
       0
     ],
     "constitution": 4,
+    "affinity": "thunder",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 4,
@@ -693,6 +706,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "anima",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -743,6 +757,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "thunder",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 4,
@@ -793,6 +808,7 @@
       0
     ],
     "constitution": 3,
+    "affinity": "fire",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 4,
@@ -843,6 +859,7 @@
       0
     ],
     "constitution": 8,
+    "affinity": "ice",
     "originGame": "FE7",
     "eyeX": 4,
     "eyeY": 3,
@@ -893,6 +910,7 @@
       121
     ],
     "constitution": 7,
+    "affinity": "anima",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -943,6 +961,7 @@
       0
     ],
     "constitution": 10,
+    "affinity": "fire",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -993,6 +1012,7 @@
       0
     ],
     "constitution": 11,
+    "affinity": "ice",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1043,6 +1063,7 @@
       0
     ],
     "constitution": 4,
+    "affinity": "wind",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 4,
@@ -1069,7 +1090,7 @@
       "str": 8,
       "skl": 11,
       "spd": 13,
-      "def": 6
+      "def": 6,
       "res": 7,
       "lck": 6
     },
@@ -1093,6 +1114,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "wind",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1143,6 +1165,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "anima",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1193,6 +1216,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "thunder",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1243,6 +1267,7 @@
       0
     ],
     "constitution": 12,
+    "affinity": "fire",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1293,6 +1318,7 @@
       0
     ],
     "constitution": 16,
+    "affinity": "wind",
     "originGame": "FE7",
     "eyeX": 2,
     "eyeY": 2,
@@ -1343,6 +1369,7 @@
       0
     ],
     "constitution": 7,
+    "affinity": "wind",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1393,6 +1420,7 @@
       0
     ],
     "constitution": 8,
+    "affinity": "ice",
     "originGame": "FE7",
     "eyeX": 2,
     "eyeY": 3,
@@ -1443,6 +1471,7 @@
       0
     ],
     "constitution": 4,
+    "affinity": "ice",
     "originGame": "FE7",
     "eyeX": 4,
     "eyeY": 4,
@@ -1493,6 +1522,7 @@
       0
     ],
     "constitution": 3,
+    "affinity": "ice",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 5,
@@ -1543,6 +1573,7 @@
       0
     ],
     "constitution": 13,
+    "affinity": "thunder",
     "originGame": "FE7",
     "eyeX": 2,
     "eyeY": 2,
@@ -1593,6 +1624,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "wind",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 4,
@@ -1643,6 +1675,7 @@
       0
     ],
     "constitution": 6,
+    "affinity": "wind",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1693,6 +1726,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "anima",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1743,6 +1777,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "wind",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1793,6 +1828,7 @@
       0
     ],
     "constitution": 4,
+    "affinity": "light",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 5,
@@ -1843,6 +1879,7 @@
       0
     ],
     "constitution": 8,
+    "affinity": "dark",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1893,6 +1930,7 @@
       0
     ],
     "constitution": 10,
+    "affinity": "fire",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -1943,6 +1981,7 @@
       0
     ],
     "constitution": 6,
+    "affinity": "dark",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 4,
@@ -1993,6 +2032,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "ice",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 2,
@@ -2043,6 +2083,7 @@
       0
     ],
     "constitution": 7,
+    "affinity": "dark",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,
@@ -2093,6 +2134,7 @@
       0
     ],
     "constitution": 11,
+    "affinity": "fire",
     "originGame": "FE7",
     "eyeX": 3,
     "eyeY": 3,

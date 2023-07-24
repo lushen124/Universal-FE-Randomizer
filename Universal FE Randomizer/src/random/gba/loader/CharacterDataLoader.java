@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFECharacterData.Affinity;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
@@ -160,6 +161,10 @@ public class CharacterDataLoader {
 	
 	public int[] validAffinityValues() {
 		return provider.affinityValues();
+	}
+	
+	public int getAffinityValue(Affinity affinity) {
+		return provider.affinityValueForAffinity(affinity);
 	}
 	
 	public Boolean characterIDRequiresAttack(int characterID) {

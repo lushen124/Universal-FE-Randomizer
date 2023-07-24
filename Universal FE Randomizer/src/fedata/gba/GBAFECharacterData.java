@@ -39,6 +39,19 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		public static Affinity[] validAffinities() { 
 			return new Affinity[] {FIRE, THUNDER, WIND, WATER, DARK, LIGHT, ANIMA};
 		}
+		
+		public static Affinity affinityForString(String affinityString) {
+			String normalizedString = affinityString.toLowerCase();
+			
+			if (normalizedString.equals("fire")) { return FIRE; }
+			if (normalizedString.equals("thunder")) { return THUNDER; }
+			if (normalizedString.equals("wind")) { return WIND; }
+			if (normalizedString.equals("ice") || normalizedString.equals("water")) { return WATER; }
+			if (normalizedString.equals("dark")) { return DARK; }
+			if (normalizedString.equals("light")) { return LIGHT; }
+			if (normalizedString.equals("anima")) { return ANIMA; }
+			return NONE;
+		}
 	}
 	
 	public abstract GBAFECharacterData createCopy(boolean useOriginalData);

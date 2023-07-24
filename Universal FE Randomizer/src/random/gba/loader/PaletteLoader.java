@@ -13,8 +13,8 @@ import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8PaletteMapper;
-import fedata.gba.fe8.FE8PromotionManager;
 import fedata.gba.fe8.FE8PaletteMapper.SlotType;
+import fedata.gba.fe8.FE8PromotionManager;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
 import fedata.gba.general.PaletteV2;
@@ -310,7 +310,7 @@ public class PaletteLoader {
 		PaletteColor[] supplementalHair = FE8Data.Palette.supplementaryHairColorForCharacter(referenceID);
 		
 		if (willBecomeTrainee) {
-			if (fe8Mapper.classIDMappedToCharacterForType(charID, SlotType.TRAINEE) == newClassID) {
+			if (fe8Mapper.classIDMappedToCharacterForType(charID, SlotType.TRAINEE) == newClassID && !character.hasBattlePaletteOverrides()) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same trainee class found. Skipping palette replacement.");
 			} else {
 				int base1 = newPromotion1;
@@ -357,7 +357,7 @@ public class PaletteLoader {
 				integrateFE8PaletteIfPossible(charID, adaptedPromoted4, SlotType.FOURTH_PROMOTION);
 			}
 		} else if (!newClassIsPromoted) {
-			if (fe8Mapper.classIDMappedToCharacterForType(charID, SlotType.PRIMARY_BASE) == newClassID) {
+			if (fe8Mapper.classIDMappedToCharacterForType(charID, SlotType.PRIMARY_BASE) == newClassID && !character.hasBattlePaletteOverrides()) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same base class found. Skipping palette replacement.");
 			} else {
 				if (newClassHasPromotions && !isBoss) {
@@ -393,7 +393,7 @@ public class PaletteLoader {
 				}
 			}
 		} else { // New class is promoted
-			if (fe8Mapper.classIDMappedToCharacterForType(charID, SlotType.FIRST_PROMOTION) == newClassID) {
+			if (fe8Mapper.classIDMappedToCharacterForType(charID, SlotType.FIRST_PROMOTION) == newClassID && !character.hasBattlePaletteOverrides()) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same Promoted class found. Skipping palette replacement.");
 			} else {
 				PaletteV2 adaptedPromotion = v2PaletteForClass(newClassID, referencePalettes, isBoss ? PaletteType.ENEMY : PaletteType.PLAYER, supplementalHair);
@@ -494,7 +494,7 @@ public class PaletteLoader {
 		if (isPromoted) {
 			int originalPaletteIndex = character.getPromotedPaletteIndex();
 			PaletteV2 originalPalette = paletteByPaletteIDV2.get(originalPaletteIndex);
-			if (originalPalette != null && originalPalette.getClassID() == targetClassID) {
+			if (originalPalette != null && originalPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides()) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same promoted class found. Skipping adapting palette.");
 			} else {
 				PaletteV2 adaptedPromotion = v2PaletteForClass(targetClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));
@@ -510,7 +510,7 @@ public class PaletteLoader {
 		} else if (!canPromote) {
 			int originalPaletteIndex = character.getUnpromotedPaletteIndex();
 			PaletteV2 originalPalette = paletteByPaletteIDV2.get(originalPaletteIndex);
-			if (originalPalette != null && originalPalette.getClassID() == targetClassID) {
+			if (originalPalette != null && originalPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides()) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same unpromoted class found. Skipping adapting palette.");
 			} else {
 				PaletteV2 adaptedBase = v2PaletteForClass(targetClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));
@@ -531,8 +531,8 @@ public class PaletteLoader {
 			
 			int promotedClassID = classData.classForID(targetClassID).getTargetPromotionID();
 			
-			if ((unpromotedPalette != null && unpromotedPalette.getClassID() == targetClassID) ||
-					(promotedPalette != null && promotedPalette.getClassID() == promotedClassID)) {
+			if ((unpromotedPalette != null && unpromotedPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides()) ||
+					(promotedPalette != null && promotedPalette.getClassID() == promotedClassID && !character.hasBattlePaletteOverrides())) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same unpromoted class found. Skipping adapting palette.");
 			} else {
 				PaletteV2 adaptedBase = v2PaletteForClass(targetClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));
@@ -726,11 +726,14 @@ public class PaletteLoader {
 		for (Change change : queuedChanges) {
 			GBAFECharacterData character = change.character;
 			String characterName = textData.getStringAtIndex(character.getNameIndex(), true);
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Recording updated palette for " + characterName);
 			
 			if (change.basePalette != null) {
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Base Palette Recorded");
 				recordPalette(rk, category, characterName, change.basePalette.getClassID(), change.basePalette, classData, textData);
 			}
 			if (change.promotedPalette != null) {
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Promoted Palette Recorded");
 				recordPalette(rk, category, characterName, change.promotedPalette.getClassID(), change.promotedPalette, classData, textData);
 			}
 		}

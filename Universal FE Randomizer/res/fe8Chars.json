@@ -42,7 +42,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -92,7 +93,8 @@
       0,
       0
     ],
-    "constitution": 5,
+    "constitution": 11,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -142,7 +144,8 @@
       0,
       0
     ],
-    "constitution": 11,
+    "constitution": 14,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -193,6 +196,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -243,6 +247,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -257,8 +262,8 @@
     "description2": "pegasus knight of Frelia.",
     "battlePalette": {
       "hair": ["#38d838", "#28a830", "#386038"],
-      "primary": ["#f0f8f8", "#b8d8d8", "#6898a0"],
-      "secondary": ["#f86030", "#b84840"],
+      "primary": ["#f86030", "#b84840"],
+      "secondary": ["#f0f8f8", "#b8d8d8", "#6898a0"],
       "tertiary": null
     },
     "characterClass": "PEGASUS_KNIGHT",
@@ -293,6 +298,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -343,6 +349,7 @@
       0
     ],
     "constitution": 8,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -393,6 +400,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -443,6 +451,7 @@
       0
     ],
     "constitution": 6,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -493,6 +502,7 @@
       0
     ],
     "constitution": 14,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -543,6 +553,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -593,6 +604,7 @@
       0
     ],
     "constitution": 3,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -643,6 +655,7 @@
       0
     ],
     "constitution": 4,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -693,6 +706,7 @@
       0
     ],
     "constitution": 11,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -743,6 +757,7 @@
       0
     ],
     "constitution": 8,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -793,6 +808,7 @@
       0
     ],
     "constitution": 9,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -843,6 +859,7 @@
       0
     ],
     "constitution": 10,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -893,6 +910,7 @@
       0
     ],
     "constitution": 6,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -943,6 +961,7 @@
       0
     ],
     "constitution": 6,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -993,6 +1012,7 @@
       0
     ],
     "constitution": 13,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 2,
@@ -1043,6 +1063,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -1093,6 +1114,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -1143,6 +1165,7 @@
       0
     ],
     "constitution": 8,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1193,6 +1216,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 5,
@@ -1243,6 +1267,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -1293,6 +1318,7 @@
       0
     ],
     "constitution": 16,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -1343,6 +1369,7 @@
       0
     ],
     "constitution": 7,
+    "affinity": "dark",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1393,6 +1420,7 @@
       0
     ],
     "constitution": 15,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1443,6 +1471,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 5,
@@ -1493,6 +1522,7 @@
       71
     ],
     "constitution": 7,
+    "affinity": "dark",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1543,6 +1573,7 @@
       0
     ],
     "constitution": 8,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1593,6 +1624,7 @@
       0
     ],
     "constitution": 7,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1642,6 +1674,7 @@
       0
     ],
     "constitution": 5,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,

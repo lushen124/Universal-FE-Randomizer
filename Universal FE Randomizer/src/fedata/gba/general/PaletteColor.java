@@ -225,12 +225,12 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	}
 	
 	private static PaletteColor darkerColor(PaletteColor referenceColor) {
-		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation - 0.1, 0.0), Math.max(referenceColor.brightness * 0.8, 0.0));
+		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation - 0.1, 0.0), Math.max(referenceColor.brightness * 0.6, 0.0));
 	}
 	
 	private static PaletteColor lighterColor(PaletteColor referenceColor) {
 		double distanceToMax = 1.0 - referenceColor.brightness;
-		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation + 0.1, 0.0), Math.max(referenceColor.brightness + distanceToMax * 0.2, 0.0));
+		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation + 0.1, 0.0), Math.max(referenceColor.brightness + distanceToMax * 0.4, 0.0));
 	}
 	
 	private static PaletteColor[] interpolateColors(PaletteColor[] colors, int numberOfColors) {
