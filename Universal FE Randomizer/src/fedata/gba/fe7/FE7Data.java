@@ -15,7 +15,6 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
-import fedata.gba.fe8.FE8Data.Character;
 import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
@@ -479,7 +478,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		NOMADTROOPER_F(0x31), // Doesn't exist naturally. May not work.
 		
 		FIRE_DRAGON(0x46), // For dragon effectiveness.
-		UBER_SAGE(0x5A); // Limstella has higher DEF and RES caps.
+		UBER_SAGE(0x5A), // Limstella has higher DEF and RES caps.
+		ARCHSAGE(0x42), // Athos
+		DARK_DRUID(0x45); // Nergal
 		
 		public int ID;
 		
@@ -531,9 +532,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, LORD_KNIGHT, GREAT_LORD, UBER_SAGE));
 		
 		public static Set<CharacterClass> allPlayerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, BARD));
-		
+		public static Set<CharacterClass> allSpecialEnemyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHSAGE, DARK_DRUID));
+
 		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERNKNIGHT, WYVERNLORD, PEGASUSKNIGHT, FALCONKNIGHT));
-		
+		public static Set<CharacterClass> horseClasses = new HashSet<CharacterClass>(Arrays.asList(CAVALIER, CAVALIER_F, PALADIN, PALADIN_F, TROUBADOUR, VALKYRIE, LORD_KNIGHT, NOMAD,
+						NOMAD_F, NOMADTROOPER, NOMADTROOPER_F));
 		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, MERCENARY, MYRMIDON, THIEF, SWORDMASTER, ASSASSIN, LORD_LYN, SWORDMASTER_F));
 		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, NOMAD, SNIPER, ARCHER_F, SNIPER_F));
 		
@@ -2809,7 +2812,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEClass> allValidClasses() {
 		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 	}
-	
+	public Set<GBAFEClass> allSpecialEnemyClasses() {
+		return new HashSet<>(CharacterClass.allSpecialEnemyClasses);
+	}
 	public Set<GBAFEClass> meleeSupportedClasses() {
 		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 		classes.removeAll(CharacterClass.rangedOnlyClasses);
@@ -2873,7 +2878,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public boolean isFlier(GBAFEClass charClass) {
 		return CharacterClass.flyingClasses.contains(charClass);
 	}
-
+	public boolean isHorseUnit(GBAFEClass charClass) {
+		return CharacterClass.horseClasses.contains(charClass);
+	}
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options) {
 		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);
 		if (excludeLords == null) { excludeLords = false; }

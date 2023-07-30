@@ -15,6 +15,7 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.gba.fe6.FE6Data;
 import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
@@ -480,7 +481,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<CharacterClass> allPromotedClasses = new HashSet<CharacterClass>(Arrays.asList(EPHRAIM_MASTER_LORD, PALADIN, GENERAL, HERO, SWORDMASTER, ASSASSIN, SNIPER, RANGER, WYVERN_LORD, WYVERN_KNIGHT, 
 				SAGE, MAGE_KNIGHT, BISHOP, DRUID, SUMMONER, ROGUE, GREAT_KNIGHT, SUPER_TRAINEE, SUPER_PUPIL, WARRIOR, BERSERKER, EIRIKA_MASTER_LORD, PALADIN_F, GENERAL_F, SWORDMASTER_F, ASSASSIN_F, SNIPER_F, RANGER_F, 
 				 WYVERN_LORD_F, WYVERN_KNIGHT_F, SAGE_F, MAGE_KNIGHT_F, BISHOP_F, GREAT_KNIGHT_F, SUPER_RECRUIT, MANAKETE_F, FALCON_KNIGHT, VALKYRIE, ENTOMBED, WIGHT, WIGHT_BOW, ELDER_BAEL, CYCLOPS, GWYLLGI, MAELDUIN, ARCH_MOGALL, 
-				GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2));
+				GORGON, DEATHGOYLE, CYCLOPS_2, ELDER_BAEL_2, NECROMANCER));
 		
 		public static Set<CharacterClass> allPacifistClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, CLERIC, TROUBADOUR, PRIEST));
 		public static Set<CharacterClass> allMeleeLockedClasses = new HashSet<CharacterClass>(Arrays.asList(MYRMIDON, MERCENARY, EIRIKA_LORD, THIEF, MYRMIDON_F, BAEL, ELDER_BAEL, ELDER_BAEL_2, MAUTHE_DOOG,
@@ -499,9 +500,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		// Leaving this empty for the time being. If it turns out to be an issue when hostile AI gets its hands on classes it doesn't know 
 		// how to deal with, we can add it back in.
 		public static Set<CharacterClass> allPlayerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList());
-		
+		public static Set<CharacterClass> allSpecialEnemyClasses = new HashSet<>(Arrays.asList(NECROMANCER));
 		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, PEGASUS_KNIGHT, MOGALL, GARGOYLE, WYVERN_LORD, WYVERN_KNIGHT, WYVERN_KNIGHT_F, FALCON_KNIGHT, ARCH_MOGALL, DEATHGOYLE));
-		
+		public static Set<CharacterClass> horseClasses = new HashSet<CharacterClass>(Arrays.asList(CAVALIER, PALADIN, GREAT_KNIGHT, TROUBADOUR, MAGE_KNIGHT, VALKYRIE, EPHRAIM_MASTER_LORD, EIRIKA_MASTER_LORD));
 		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, MERCENARY, MYRMIDON, SWORDMASTER, ASSASSIN, ROGUE, EIRIKA_LORD, MYRMIDON_F, MANAKETE_F, SWORDMASTER_F, ASSASSIN_F, REVENANT,
 				BAEL, MAUTHE_DOOG, ENTOMBED, ELDER_BAEL, GWYLLGI, ELDER_BAEL_2));
 		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, SNIPER, ARCHER_F, SNIPER_F, BONEWALKER_BOW, WIGHT_BOW));
@@ -2984,7 +2985,11 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEClass> allValidClasses() {
 		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 	}
-	
+
+	@Override
+	public Set<GBAFEClass> allSpecialEnemyClasses() {
+		return new HashSet<>(CharacterClass.allSpecialEnemyClasses);
+	}
 	public Set<GBAFEClass> meleeSupportedClasses() {
 		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 		classes.removeAll(CharacterClass.rangedOnlyClasses);
@@ -3049,7 +3054,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public boolean isFlier(GBAFEClass charClass) {
 		return CharacterClass.flyingClasses.contains(charClass);
 	}
-
+	public boolean isHorseUnit(GBAFEClass charClass) {
+		return CharacterClass.horseClasses.contains(charClass);
+	}
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options) {
 		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);
 		if (excludeLords == null) { excludeLords = false; }

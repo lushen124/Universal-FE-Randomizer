@@ -28,4 +28,6 @@ public class FE7Class extends GBAFEClassData {
 		clone.setOriginalOffset(-1);
 		return clone;
 	}
+
+
 }

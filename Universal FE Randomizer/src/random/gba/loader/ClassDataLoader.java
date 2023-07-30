@@ -11,7 +11,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEClassData;
+import fedata.gba.fe8.FE8Class;
 import fedata.gba.fe8.FE8Data;
+import fedata.gba.fe8.PromotionBranch;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
 import fedata.gba.general.WeaponType;
@@ -70,10 +72,22 @@ public class ClassDataLoader {
 			GBAFEClassData classObject = provider.classDataWithData(classData, offset, demoted);
 			classMap.put(charClass.getID(), classObject);
 		}
+
+		for (GBAFEClass specialEnemyClasses : provider.allSpecialEnemyClasses()) {
+			long offset = baseAddress + (specialEnemyClasses.getID() * provider.bytesPerClass());
+			byte[] classData = handler.readBytesAtOffset(offset, provider.bytesPerClass());
+			// These don't have demoted classes by default
+			GBAFEClassData classObject = provider.classDataWithData(classData, offset, null);
+			classMap.put(specialEnemyClasses.getID(), classObject);
+		}
 		
 		provider.prepareForClassRandomization(classMap);
 		
 		lastClassID = provider.numberOfClasses();
+	}
+
+	public Map<Integer, GBAFEClassData> getClassMap(){
+		return this.classMap;
 	}
 	
 	public GBAFEClassData createLordClassBasedOnClass(GBAFEClassData referenceClass) {
@@ -301,6 +315,11 @@ public class ClassDataLoader {
 		GBAFEClass charClass = provider.classWithID(classID);
 		return charClass != null ? provider.isFlier(charClass) : false;
 	}
+
+	public boolean isHorseUnit(int classId) {
+		GBAFEClass charClass = provider.classWithID(classId);
+		return charClass != null ? provider.isHorseUnit(charClass) : false;
+	}
 	
 	public Boolean canSupportMelee(int classID) {
 		GBAFEClass charClass = provider.classWithID(classID);
@@ -351,14 +370,33 @@ public class ClassDataLoader {
 		return classList;
 	}
 	
-	public void recordClasses(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, TextLoader textData) {
+	public void recordClasses(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, TextLoader textData, PromotionDataLoader promotionData) {
 		for (GBAFEClassData charClass : allClasses()) {
 			if (!isValidClass(charClass.getID())) { continue; }
-			recordClass(rk, charClass, isInitial, textData);
+			recordClass(rk, charClass, isInitial, textData, getPromotionNameIndexes(classData, promotionData, charClass));
 		}
 	}
+
+	/**
+	 * Returns a list with the promotion options for the given GBAFEClassData
+	 */
+	private List<Integer> getPromotionNameIndexes(ClassDataLoader classData, PromotionDataLoader promotionData,
+												  GBAFEClassData charClass) {
+		List<Integer> promoNameIndexes = new ArrayList<>();
+		if (!classData.canClassPromote(charClass.getID()))
+			return promoNameIndexes;
+		if (charClass instanceof FE8Class) {
+			FE8Data.CharacterClass cc = FE8Data.CharacterClass.valueOf(charClass.getID());
+			PromotionBranch branch = promotionData.getAllPromotionBranches().get(cc);
+			promoNameIndexes.add(classData.classForID(branch.getFirstPromotion()).getNameIndex());
+			promoNameIndexes.add(classData.classForID(branch.getSecondPromotion()).getNameIndex());
+		} else {
+			promoNameIndexes.add(classData.classForID(charClass.getTargetPromotionID()).getNameIndex());
+		}
+		return promoNameIndexes;
+	}
 	
-	private void recordClass(RecordKeeper rk, GBAFEClassData charClass, Boolean isInitial, TextLoader textData) {
+	private void recordClass(RecordKeeper rk, GBAFEClassData charClass, Boolean isInitial, TextLoader textData, List<Integer> promos) {
 		int nameIndex = charClass.getNameIndex();
 		String name = textData.getStringAtIndex(nameIndex, true).trim();
 		
@@ -375,6 +413,11 @@ public class ClassDataLoader {
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "RES Growth", String.format("%d%%", charClass.getRESGrowth()));
 			
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Movement Range", Integer.toString(charClass.getMOV()));
+			for (int i = 0; i < promos.size(); i++) {
+				String promoName = textData.getStringAtIndex(promos.get(i), true).trim();
+				rk.recordOriginalEntry(RecordKeeperCategoryKey, name,
+						"Promotion Option " + (promos.size() == 1 ? "" : i + 1), promoName);
+			}
 		} else {
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "HP Growth", String.format("%d%%", charClass.getHPGrowth()));
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "STR/MAG Growth", String.format("%d%%", charClass.getSTRGrowth()));
@@ -385,6 +428,11 @@ public class ClassDataLoader {
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "RES Growth", String.format("%d%%", charClass.getRESGrowth()));
 			
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Movement Range", Integer.toString(charClass.getMOV()));
+			for (int i = 0; i < promos.size(); i++) {
+				String promoName = textData.getStringAtIndex(promos.get(i), true).trim();
+				rk.recordUpdatedEntry(RecordKeeperCategoryKey, name,
+						"Promotion Option " + (promos.size() == 1 ? "" : i + 1), promoName);
+			}
 		}
 	}
 }

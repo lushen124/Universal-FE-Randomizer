@@ -15,7 +15,6 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
-import fedata.gba.fe8.FE8Data.CharacterClass;
 import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
@@ -414,14 +413,17 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				WYVERN_RIDER, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMAD_TROOPER, WYVERN_KNIGHT,
 				BERSERKER, /*MANAKETE,*/ MASTER_LORD, MYRMIDON_F, KNIGHT_F, ARCHER_F, CLERIC, MAGE_F, SHAMAN_F, TROUBADOUR, NOMAD_F, PEGASUS_KNIGHT, WYVERN_RIDER_F, THIEF_F, DANCER, HERO_F, SWORDMASTER_F, GENERAL_F, SNIPER_F,
 				BISHOP_F, SAGE_F, DRUID_F, VALKYRIE, NOMAD_TROOPER_F, FALCON_KNIGHT, WYVERN_KNIGHT_F/*, MANAKETE_F*/));
-		
-		public static Set<CharacterClass> additionalClassesToPalletLoad = new HashSet<CharacterClass>(Arrays.asList(MANAKETE_F));
+
+		public static Set<CharacterClass> allSpecialEnemyClasses = new HashSet<>(Arrays.asList(KING));
+
+		public static Set<CharacterClass> additionalClassesToPalletLoad = new HashSet<CharacterClass>(Arrays.asList(MANAKETE_F, KING));
 
 		
 		public static Set<CharacterClass> allPlayerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARD, DANCER));
 		
 		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_KNIGHT, WYVERN_KNIGHT_F, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
-		
+		public static Set<CharacterClass> horseClasses = new HashSet<>(Arrays.asList(CAVALIER, CAVALIER_F, PALADIN,
+				PALADIN_F, TROUBADOUR, VALKYRIE, NOMAD, NOMAD_F, NOMAD_TROOPER, NOMAD_TROOPER_F));
 		// Includes most sword locks. Yes, they gain range with magic swords, but we're not going to assume they can use magic swords.
 		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, MERCENARY, MYRMIDON, SWORDMASTER, MASTER_LORD, MYRMIDON_F, THIEF, THIEF_F, SWORDMASTER_F, MANAKETE_F));
 		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(NOMAD, ARCHER, SNIPER, SNIPER_F, NOMAD_F));
@@ -1580,6 +1582,21 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			default: return 0;
 			}
 		}
+
+		public static GBAFEPromotionItem fromItemId(int id) {
+			if (id == Item.HERO_CREST.ID) {
+				return HERO_CREST;
+			} else if (id == Item.KNIGHT_CREST.ID) {
+				return KNIGHT_CREST;
+			} else if (id == Item.ORION_BOLT.ID) {
+				return ORION_BOLT;
+			} else if (id == Item.ELYSIAN_WHIP.ID) {
+				return ELYSIAN_WHIP;
+			} else if (id == Item.GUIDING_RING.ID) {
+				return GUIDING_RING;
+			}
+			return null;
+		}
 	}
 	
 	public enum Palette {
@@ -1730,7 +1747,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		WARRIOR_BARTRE(0x64, Character.BARTRE.ID, CharacterClass.WARRIOR.ID, 0x7FEF94),
 		
 		MANAKETE_GENERIC(0x0, Character.NONE.ID, CharacterClass.MANAKETE.ID, 0x716DCB), // Based off of sprite's base palette.
-		MANAKETE_FA(0x0, Character.FA.ID, CharacterClass.MANAKETE_F.ID, 0x7FF050) // TODO: Verify Fa's pointer. There's one last entry in the table that's not listed anywhere else, but Fa herself has no palette index.
+		MANAKETE_FA(0x0, Character.FA.ID, CharacterClass.MANAKETE_F.ID, 0x7FF050), // TODO: Verify Fa's pointer. There's one last entry in the table that's not listed anywhere else, but Fa herself has no palette index.
+		KING_ZEPHIEL(0x63, Character.ZEPHIEL.ID, CharacterClass.KING.ID, 0x7FEF3C)
 		;
 		
 		int characterID;
@@ -1819,6 +1837,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			defaultPaletteForClass.put(CharacterClass.LORD.ID, LORD_ROY.info);
 			defaultPaletteForClass.put(CharacterClass.MASTER_LORD.ID, LORD_ROY.info);
 			defaultPaletteForClass.put(CharacterClass.MANAKETE.ID, MANAKETE_GENERIC.info);
+			defaultPaletteForClass.put(CharacterClass.MANAKETE.ID, MANAKETE_GENERIC.info);
+			defaultPaletteForClass.put(CharacterClass.KING.ID, KING_ZEPHIEL.info);
 		}
 		
 		private Palette(int paletteID, int charID, int classID, long offset) {
@@ -1946,6 +1966,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case WYVERN_KNIGHT:
 				case WYVERN_KNIGHT_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {10, 11, 12, 13}, new int[] {1, 9}, new int[] {});
+					break;
+				case KING:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7}, new int[] {15,14,13,12,11}, new int[] {9}, new int[] {});
 					break;
 				default:
 					System.err.println("Unknown class detected while creating palette info.");
@@ -2226,7 +2249,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEClass> allValidClasses() {
 		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 	}
-	
+	public Set<GBAFEClass> allSpecialEnemyClasses() {
+		return new HashSet<>(CharacterClass.allSpecialEnemyClasses);
+	}
+
 	public Set<GBAFEClass> meleeSupportedClasses() {
 		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 		classes.removeAll(CharacterClass.rangedOnlyClasses);
@@ -2289,6 +2315,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public boolean isFlier(GBAFEClass charClass) {
 		return CharacterClass.flyingClasses.contains(charClass);
+	}
+
+	public boolean isHorseUnit(GBAFEClass charClass) {
+		return CharacterClass.horseClasses.contains(charClass);
 	}
 
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass,

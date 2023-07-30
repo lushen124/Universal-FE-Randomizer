@@ -24,6 +24,7 @@ public interface GBAFEClassProvider {
 	public GBAFEClass[] allClasses();
 	
 	public Set<GBAFEClass> allValidClasses();
+	public Set<GBAFEClass> allSpecialEnemyClasses();
 	public Set<GBAFEClass> meleeSupportedClasses();
 	public Set<GBAFEClass> rangeSupportedClasses();
 	public Set<GBAFEClass> playerOnlyClasses();
@@ -37,7 +38,8 @@ public interface GBAFEClassProvider {
 	public GBAFEClass[] demotedClass(GBAFEClass promotedClass);
 	
 	public boolean isFlier(GBAFEClass charClass);
-	
+	public boolean isHorseUnit(GBAFEClass charClass);
+
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options);
 	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isForEnemy, Map<String, Boolean> options);
 	

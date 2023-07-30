@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
+import fedata.gba.GBAFEStatDto;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 
@@ -239,4 +240,51 @@ public class FE6Class extends GBAFEClassData {
 		clone.originalOffset = -1;
 		return clone;
 	}
+
+	@Override
+	public void setPromoHP(int newHp) {
+		this.promoHP = newHp;
+	}
+	@Override
+	public void setPromoSTR(int newStr) {
+		this.promoSTR = newStr;
+	}
+	@Override
+	public void setPromoSKL(int newSkl) {
+		this.promoSKL = newSkl;
+	}
+	@Override
+	public void setPromoSPD(int newSpd) {
+		this.promoSPD = newSpd;
+	}
+	@Override
+	public void setPromoDEF(int newDef) {
+		this.promoDEF = newDef;
+	}
+	@Override
+	public void setPromoRES(int newRes) {
+		this.promoRES = newRes;
+	}
+
+	@Override
+	public void setPromoBonuses(GBAFEStatDto newStats) {
+		setPromoHP(newStats.hp);
+		setPromoSTR(newStats.str);
+		setPromoSKL(newStats.skl);
+		setPromoSPD(newStats.spd);
+		setPromoDEF(newStats.def);
+		setPromoRES(newStats.res);
+	}
+
+	@Override
+	public int getAbility1Value() {
+		return data[0x24];
+	}
+
+	@Override
+	public void setAbility1Value(int newValue) {
+		data[0x24] = (byte) (newValue & 0xFF);
+		wasModified = true;
+	}
+
 }

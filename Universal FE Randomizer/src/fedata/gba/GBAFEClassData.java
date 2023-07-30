@@ -1,6 +1,5 @@
 package fedata.gba;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
 import fedata.gba.fe7.FE7Data;
@@ -35,6 +34,12 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 
 	public int getNameIndex() {
 		return (data[0] & 0xFF) | ((data[1] & 0xFF) << 8);
+	}
+	public void setNameIndex(int newValue) {
+		data[0] = (byte)(newValue & 0xFF);
+		data[1] = (byte)((newValue >> 8) &0xFF);
+
+		wasModified = true;
 	}
 
 	public int getDescriptionIndex() {
@@ -287,12 +292,51 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		return data[39] & 0xFF;
 	}
 
-	public int getSwordRank() {
-		return data[44] & 0xFF;
-	}
-	
+
 	public GBAFEStatDto getPromoBonuses() {
 		return new GBAFEStatDto(getPromoHP(), getPromoSTR(), getPromoSKL(), getPromoSPD(), getPromoDEF(), getPromoRES(), 0);
+	}
+
+	public void setPromoHP(int newHp) {
+		data[34] = (byte) (newHp & 0xFF);
+	}
+
+	public void setPromoSTR(int newStr) {
+		data[35] = (byte) (newStr & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoSKL(int newSkl) {
+		data[36] = (byte) (newSkl & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoSPD(int newSpd) {
+		data[37] = (byte) (newSpd & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoDEF(int newDef) {
+		data[38] = (byte) (newDef & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoRES(int newRes) {
+		data[39] = (byte) (newRes & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoBonuses(GBAFEStatDto newStats) {
+		setPromoHP(newStats.hp);
+		setPromoSTR(newStats.str);
+		setPromoSKL(newStats.skl);
+		setPromoSPD(newStats.spd);
+		setPromoDEF(newStats.def);
+		setPromoRES(newStats.res);
+	}
+
+	public int getSwordRank() {
+		return data[44] & 0xFF;
 	}
 
 	public void setSwordRank(WeaponRank rank) {
@@ -454,5 +498,23 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		data[42] &= 0xFE;
 		data[43] &= 0x0F;
 		wasModified = true;
+	}
+
+	public int getAbility1Value() {
+		return data[0x28];
+	}
+	public void setAbility1Value(int newValue) {
+		data[0x28] = (byte) (newValue & 0xFF);
+		wasModified = true;
+	}
+
+	public void makeThief(boolean keepOldAbilities) {
+		int newValue = 0xC;
+
+		if (keepOldAbilities) {
+			newValue |= getAbility1Value();
+		}
+
+		setAbility1Value(newValue);
 	}
 }

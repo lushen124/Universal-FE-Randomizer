@@ -32,7 +32,7 @@ import random.snes.fe4.loader.PromotionMapper;
 import ui.fe4.FE4ClassOptions;
 import ui.fe4.FE4ClassOptions.BloodOptions;
 import ui.fe4.FE4EnemyBuffOptions;
-import ui.fe4.FE4PromotionOptions;
+import ui.model.PromotionOptions;
 import ui.fe4.HolyBloodOptions;
 import ui.fe4.HolyBloodOptions.STRMAGOptions;
 import ui.fe4.SkillsOptions;
@@ -40,6 +40,7 @@ import ui.fe4.SkillsOptions.Mode;
 import ui.model.BaseOptions;
 import ui.model.GrowthOptions;
 import ui.model.MiscellaneousOptions;
+import ui.model.PromotionOptions;
 import util.Diff;
 import util.DiffCompiler;
 import util.SeedGenerator;
@@ -56,7 +57,7 @@ public class FE4Randomizer extends Randomizer {
 	private HolyBloodOptions bloodOptions;
 	private SkillsOptions skillsOptions;
 	private FE4ClassOptions classOptions;
-	private FE4PromotionOptions promoOptions;
+	private PromotionOptions promoOptions;
 	private FE4EnemyBuffOptions buffOptions;
 	private MiscellaneousOptions miscOptions;
 	
@@ -74,7 +75,7 @@ public class FE4Randomizer extends Randomizer {
 	private FileHandler handler;
 	
 	public FE4Randomizer(String sourcePath, boolean isHeadered, String targetPath, DiffCompiler diffs, GrowthOptions growthOptions, BaseOptions basesOptions, HolyBloodOptions bloodOptions, 
-			SkillsOptions skillOptions, FE4ClassOptions classOptions, FE4PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, MiscellaneousOptions miscOptions, String seed) {
+			SkillsOptions skillOptions, FE4ClassOptions classOptions, PromotionOptions promoOptions, FE4EnemyBuffOptions buffOptions, MiscellaneousOptions miscOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -499,7 +500,7 @@ public class FE4Randomizer extends Randomizer {
 	private void randomizePromotionsIfNecessary(String seed) {
 		if (promoOptions != null) {
 			// Don't touch promotions if they're supposed to be strict and we didn't randomize playable character classes.
-			if (promoOptions.promotionMode == FE4PromotionOptions.Mode.STRICT && (classOptions == null || !classOptions.randomizePlayableCharacters)) { return; }
+			if (promoOptions.promotionMode == PromotionOptions.Mode.STRICT && (classOptions == null || !classOptions.randomizePlayableCharacters)) { return; }
 			updateStatusString("Randomizing Promotions...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE4PromotionRandomizer.rngSalt + 1));
 			FE4PromotionRandomizer.randomizePromotions(promoOptions, classOptions, charData, promotionMapper, rng);
@@ -742,7 +743,7 @@ public class FE4Randomizer extends Randomizer {
 			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte2Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot2Value}, null));
 			diffCompiler.addDiff(new Diff(FE4Data.SeliphHolyBloodByte3Offset - (isHeadered ? 0 : 0x200), 1, new byte[] {(byte)slot3Value}, null));
 			
-			if (classOptions != null && promoOptions != null && promoOptions.promotionMode != FE4PromotionOptions.Mode.STRICT) {
+			if (classOptions != null && promoOptions != null && promoOptions.promotionMode != PromotionOptions.Mode.STRICT) {
 				// Make sure Seliph's promoted class can use Sigurd's major blood weapon.
 				FE4ChildCharacter seliph = charData.getChildCharacter(FE4Data.Character.SELIPH);
 				FE4Data.CharacterClass seliphClass = FE4Data.CharacterClass.valueOf(seliph.getClassID());
