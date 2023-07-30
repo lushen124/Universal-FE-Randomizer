@@ -14,7 +14,7 @@ public class DebugPrinter {
 		
 		PALETTE("Palette"), CHAPTER_LOADER("ChapterLoader"), DIFF("Diff"), HUFFMAN("Huffman"), TEXT_LOADING("Text"), RANDOM("Random"), FREESPACE("Free Space"), WEAPONS("Weapon Effect"), UPS("UPS"), CLASS_RANDOMIZER("Class Random"),
 		PALETTE_RECYCLER("Palette Recycling"), FE8_SUMMONER_MODULE("Summoner"), FE4_CHARACTER_LOADER("FE4 Character Loader"), FE4_ITEM_MAPPER("FE4 Item Mapper"), FE4_SKILL_RANDOM("FE4 Skill Randomizer"), 
-		GBA_TEXT_CODE_CHANGE("GBAFE Text Change"), GBA_RANDOM_RECRUITMENT("GBA Random Recruitment"), LZ77("LZ77"), 
+		GBA_TEXT_CODE_CHANGE("GBAFE Text Change"), PROMOTION_RANDOMIZATION("Promotion Randomization"), GBA_RANDOM_RECRUITMENT("GBA Random Recruitment"), LZ77("LZ77"),
 		
 		GCN_HANDLER("GCN Handler"), FE9_CHARACTER_LOADER("FE9 Character Loader"), FE9_TEXT_LOADER("FE9 Text Loader"),
 		FE9_CLASS_LOADER("FE9 Class Loader"), FE9_ITEM_LOADER("FE9 Item Loader"), FE9_SKILL_LOADER("FE9 Skill Loader"),
@@ -41,11 +41,27 @@ public class DebugPrinter {
 			public void run() {
 				for (DebugListener listener : listeners.values()) {
 					listener.logMessage(label.label, output);
-				}	
+				}
 			}
 		});
 	}
-	
+	public static void log(Key label, String output, Object... params) {
+		String message = String.format(output, params);
+
+		if (shouldPrintLabel(label)) {
+			System.out.println("[" + label.label + "] " + message);
+		}
+
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				for (DebugListener listener : listeners.values()) {
+					listener.logMessage(label.label, message);
+				}
+			}
+		});
+	}
+
 	public static void error(Key label, String output) {
 		System.err.println("[" + label.label + "] " + output);
 	}

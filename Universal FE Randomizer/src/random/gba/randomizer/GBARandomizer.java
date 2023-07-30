@@ -23,10 +23,7 @@ import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe6.FE6SpellAnimationCollection;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe7.FE7SpellAnimationCollection;
-import fedata.gba.fe8.FE8Data;
-import fedata.gba.fe8.FE8PaletteMapper;
-import fedata.gba.fe8.FE8SpellAnimationCollection;
-import fedata.gba.fe8.FE8SummonerModule;
+import fedata.gba.fe8.*;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFEChapterMetadataData;
 import fedata.gba.general.GBAFEClass;
@@ -95,6 +92,7 @@ public class GBARandomizer extends Randomizer {
     private String seedString;
 
     private FreeSpaceManager freeSpace;
+    private MapSpriteManager mapSprites;
 
     private FileHandler handler;
 
@@ -306,6 +304,7 @@ public class GBARandomizer extends Randomizer {
         paletteData.compileDiffs(diffCompiler);
         textData.commitChanges(freeSpace, diffCompiler);
         portraitData.compileDiffs(diffCompiler);
+        mapSprites.compileDiffs(diffCompiler, freeSpace);
 
         if (gameType == GameType.FE8) {
             fe8_paletteMapper.commitChanges(diffCompiler);
@@ -409,6 +408,10 @@ public class GBARandomizer extends Randomizer {
         textData = new TextLoader(FEBase.GameType.FE7, FE7Data.textProvider, handler);
         textData.allowTextChanges = true;
 
+        updateStatusString("Preparing Mapsprites...");
+        updateProgress(0.06);
+        mapSprites = new MapSpriteManager(FEBase.GameType.FE7, handler);
+
         updateStatusString("Loading Portrait Data...");
         updateProgress(0.07);
         portraitData = new PortraitDataLoader(FE7Data.shufflingDataProvider, handler);
@@ -444,6 +447,10 @@ public class GBARandomizer extends Randomizer {
             textData.allowTextChanges = true;
         }
 
+        updateStatusString("Preparing Mapsprites...");
+        updateProgress(0.06);
+        mapSprites = new MapSpriteManager(FEBase.GameType.FE6, handler);
+
         updateStatusString("Loading Portrait Data...");
         updateProgress(0.07);
         portraitData = new PortraitDataLoader(FE6Data.shufflingDataProvider, handler);
@@ -476,6 +483,10 @@ public class GBARandomizer extends Randomizer {
         updateProgress(0.04);
         textData = new TextLoader(FEBase.GameType.FE8, FE8Data.textProvider, handler);
         textData.allowTextChanges = true;
+
+        updateStatusString("Preparing Mapsprites...");
+        updateProgress(0.05);
+        mapSprites = new MapSpriteManager(FEBase.GameType.FE8, handler);
 
         updateStatusString("Loading Promotion Data...");
         updateProgress(0.06);
@@ -800,7 +811,10 @@ public class GBARandomizer extends Randomizer {
 
         switch (gameType) {
             case FE6:
-                if (PromotionOptions.Mode.STRICT.equals(promotionOptions.promotionMode) && Boolean.TRUE.equals(promotionOptions.allowThiefPromotion)) {
+                // FE6 Only: If User selects it, add promotion for thieves
+                if (promotionOptions != null
+                        && PromotionOptions.Mode.STRICT.equals(promotionOptions.promotionMode)
+                        && Boolean.TRUE.equals(promotionOptions.allowThiefPromotion)) {
                     // while named create Lord Class, there is nothing special being added other than making a copy.
                     GBAFEClassData maleThiefPromotion = classMap.get(FE6Data.CharacterClass.SWORDMASTER.ID);
                     GBAFEClassData femaleThiefPromotion = classMap.get(FE6Data.CharacterClass.SWORDMASTER_F.ID);
@@ -812,6 +826,8 @@ public class GBARandomizer extends Randomizer {
                             textData.setStringAtIndex(0x7E8, "Thiefmaster");
                             maleThiefPromotion.setNameIndex(0x7E8);
                             femaleThiefPromotion.setNameIndex(0x7E8);
+                            mapSprites.duplicateSprite("Male Thiefmaster Mapsprite", FE6Data.CharacterClass.SWORDMASTER.ID);
+                            mapSprites.duplicateSprite("Female Thiefmaster Mapsprite", FE6Data.CharacterClass.SWORDMASTER_F.ID);
                         }
 
                         maleThiefPromotion.makeThief(promotionOptions.universal);
@@ -822,15 +838,25 @@ public class GBARandomizer extends Randomizer {
                     GBAFEClassData femaleThiefClassData = classMap.get(FE6Data.CharacterClass.THIEF_F.ID);
                     thiefClassData.setTargetPromotionID(maleThiefPromotion.getID());
                     femaleThiefClassData.setTargetPromotionID(femaleThiefPromotion.getID());
+                    itemData.addClassToPromotionItem(FE6Data.PromotionItem.HERO_CREST, FE6Data.CharacterClass.THIEF.ID);
+                    itemData.addClassToPromotionItem(FE6Data.PromotionItem.HERO_CREST, FE6Data.CharacterClass.THIEF_F.ID);
                 }
+
             case FE7:
-                // Keep normal promotions, except letting Soldiers promote.
+                // FE6 & FE7, always allow Soldiers to promote.
                 GBAFEClassData soldierClassData = classMap.get(
                         gameType.equals(GameType.FE6) ? FE6Data.CharacterClass.SOLDIER.ID : FE7Data.CharacterClass.SOLDIER.ID);
                 soldierClassData.setTargetPromotionID(gameType.equals(GameType.FE6) ? FE6Data.CharacterClass.GENERAL.ID
                         : FE7Data.CharacterClass.GENERAL.ID);
                 break;
+
             case FE8:
+                // Keep normal promotions, except letting Soldiers promote.a
+                Map<FE8Data.CharacterClass, PromotionBranch> promotionBranches = promotionData.getAllPromotionBranches();
+                PromotionBranch soldierPromotions = promotionBranches.get(FE8Data.CharacterClass.SOLDIER);
+                soldierPromotions.setFirstPromotion(FE8Data.CharacterClass.GENERAL.ID);
+                soldierPromotions.setSecondPromotion(FE8Data.CharacterClass.PALADIN.ID);
+                promotionBranches.put(FE8Data.CharacterClass.SOLDIER, soldierPromotions);
                 break;
             default:
 
@@ -1324,12 +1350,7 @@ public class GBARandomizer extends Randomizer {
                     }
                 }
             }
-
-            long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE6Data.ClassMapSpriteTablePointer);
-            byte[] spriteTable = handler.readBytesAtOffset(mapSpriteTableOffset, FE6Data.BytesPerMapSpriteTableEntry * FE6Data.NumberOfMapSpriteEntries);
-            long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
-            freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldRoyClassID - 1) * 8, 8), "Roy Map Sprite Entry");
-            diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
+            mapSprites.duplicateSprite("Roy Map Sprite Entry", oldRoyClassID);
         } else if (gameType == GameType.FE7) {
             GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
             GBAFECharacterData tutorialLyn = charData.characterWithID(FE7Data.Character.LYN_TUTORIAL.ID);
@@ -1384,14 +1405,9 @@ public class GBARandomizer extends Randomizer {
                 }
             }
 
-            long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE7Data.ClassMapSpriteTablePointer);
-            byte[] spriteTable = handler.readBytesAtOffset(mapSpriteTableOffset, FE7Data.BytesPerMapSpriteTableEntry * FE7Data.NumberOfMapSpriteEntries);
-            long newSpriteTableOffset = freeSpace.setValue(spriteTable, "Repointed Sprite Table", true);
-            freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldLynClassID - 1) * 8, 8), "Lyn Map Sprite Entry");
-            freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldEliwoodClassID - 1) * 8, 8), "Eliwood Map Sprite Entry");
-            freeSpace.setValue(WhyDoesJavaNotHaveThese.subArray(spriteTable, (oldHectorClassID - 1) * 8, 8), "Hector Map Sprite Entry");
-            diffCompiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.bytesFromAddress(mapSpriteTableOffset), WhyDoesJavaNotHaveThese.bytesFromAddress(newSpriteTableOffset), true));
-
+            mapSprites.duplicateSprite("Lyn Map Sprite Entry", oldLynClassID);
+            mapSprites.duplicateSprite("Eliwood Map Sprite Entry", oldEliwoodClassID);
+            mapSprites.duplicateSprite("Hector Map Sprite Entry", oldHectorClassID);
         } else if (gameType == GameType.FE8) {
             GBAFECharacterData eirika = charData.characterWithID(FE8Data.Character.EIRIKA.ID);
             GBAFECharacterData ephraim = charData.characterWithID(FE8Data.Character.EPHRAIM.ID);
@@ -1416,8 +1432,8 @@ public class GBARandomizer extends Randomizer {
                 itemData.addClassIDToEffectiveness(effectiveness, newEphraimClass.getID());
             }
 
-            itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.LUNAR_BRACE, new ArrayList<Integer>(Arrays.asList(newEirikaClass.getID())));
-            itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.SOLAR_BRACE, new ArrayList<Integer>(Arrays.asList(newEphraimClass.getID())));
+            itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.LUNAR_BRACE, new ArrayList<>(Arrays.asList(newEirikaClass.getID())));
+            itemData.replaceClassesForPromotionItem(FE8Data.PromotionItem.SOLAR_BRACE, new ArrayList<>(Arrays.asList(newEphraimClass.getID())));
 
             for (GBAFEChapterData chapter : chapterData.allChapters()) {
                 for (GBAFEChapterUnitData unit : chapter.allUnits()) {
@@ -1453,13 +1469,8 @@ public class GBARandomizer extends Randomizer {
             ephraimPalette.setBaseClassID(newEphraimClass.getID());
 
             // On the bright side, we don't need to repoint the FE8 map sprite table. We just need to replace some entries in the existing one.
-            long mapSpriteTableOffset = FileReadHelper.readAddress(handler, FE8Data.ClassMapSpriteTablePointer);
-            long eirikaTargetOffset = (newEirikaClass.getID() - 1) * 8 + mapSpriteTableOffset;
-            long ephraimTargetOffset = (newEphraimClass.getID() - 1) * 8 + mapSpriteTableOffset;
-            byte[] eirikaSpriteData = handler.readBytesAtOffset((oldEirikaClass - 1) * 8 + mapSpriteTableOffset, 8);
-            byte[] ephraimSpriteData = handler.readBytesAtOffset((oldEphraimClass - 1) * 8 + mapSpriteTableOffset, 8);
-            diffCompiler.addDiff(new Diff(eirikaTargetOffset, 8, eirikaSpriteData, null));
-            diffCompiler.addDiff(new Diff(ephraimTargetOffset, 8, ephraimSpriteData, null));
+            mapSprites.duplicateSprite("Eirika Class", oldEirikaClass, newEirikaClass.getID());
+            mapSprites.duplicateSprite("Ephraim Class", oldEphraimClass, newEphraimClass.getID());
 
             if (fe8_walkingSoundFixApplied) {
                 long eirikaWalkingSoundOffset = 0x78D90 + newEirikaClass.getID();

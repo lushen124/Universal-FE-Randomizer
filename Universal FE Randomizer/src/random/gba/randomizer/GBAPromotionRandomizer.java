@@ -1,8 +1,5 @@
 package random.gba.randomizer;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 import fedata.gba.GBAFEClassData;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
@@ -16,6 +13,10 @@ import random.gba.loader.PromotionDataLoader;
 import random.general.PoolDistributor;
 import ui.model.PromotionOptions;
 import ui.model.PromotionOptions.Mode;
+import util.DebugPrinter;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Class responsible to perform the Promotion Randomization for GBAFE
@@ -30,6 +31,11 @@ public class GBAPromotionRandomizer {
 
         classMap = getClassMapForGame(options, classData, type);
 
+        if (classMap.isEmpty()) {
+            DebugPrinter.log(DebugPrinter.Key.PROMOTION_RANDOMIZATION, "couldn't build the classMap");
+            return;
+        }
+
         if (PromotionOptions.Mode.RANDOM.equals(options.promotionMode) || options.allowEnemyOnlyPromotedClasses) {
             fixPromotionBonusesOfSpecialClasses(classData, type);
         }
@@ -40,26 +46,10 @@ public class GBAPromotionRandomizer {
                 randomizePromotions(options, classData, type, rng);
                 break;
             case FE8:
-                if (options.promotionMode.equals(Mode.STRICT)) {
-                    // Keep normal promotions, except letting Soldiers promote.a
-                    Map<CharacterClass, PromotionBranch> promotionBranches = promotionData.getAllPromotionBranches();
-                    PromotionBranch soldierPromotions = promotionBranches.get(FE8Data.CharacterClass.SOLDIER);
-                    soldierPromotions.setFirstPromotion(FE8Data.CharacterClass.GENERAL.ID);
-                    soldierPromotions.setSecondPromotion(FE8Data.CharacterClass.PALADIN.ID);
-                    promotionBranches.put(FE8Data.CharacterClass.SOLDIER, soldierPromotions);
-                    break;
-                }
                 randomizePromotionsForFE8(options, promotionData, classData, rng);
                 break;
             default:
         }
-
-        if (GameType.FE6.equals(type) && Boolean.TRUE.equals(options.keepThiefAbilities)) {
-            if (!options.universal) {
-
-            }
-        }
-
     }
 
     private static void fixPromotionBonusesOfSpecialClasses(ClassDataLoader data, GameType type) {
@@ -89,7 +79,7 @@ public class GBAPromotionRandomizer {
         List<FE8Data.CharacterClass> classesNeedingPromotions = new ArrayList<>();
         classesNeedingPromotions.addAll(FE8Data.CharacterClass.allUnpromotedClasses);
         if (!options.allowMonsterClasses) {
-           classesNeedingPromotions.removeAll(CharacterClass.allMonsterClasses);
+            classesNeedingPromotions.removeAll(CharacterClass.allMonsterClasses);
         }
 
         // for each entry pick new promotions
@@ -98,20 +88,21 @@ public class GBAPromotionRandomizer {
             List<GBAFEClass> promotions = getValidPromotionsForClass(options, classData, classToRandomize,
                     GameType.FE8);
 
-            // If there aren't enough promotions to satisfy the branch, keep it vanilla
+            // If there aren't enough valid promotions to satisfy the branch, keep it vanilla
             if (promotions == null || promotions.isEmpty() || promotions.size() == 1) {
                 continue;
             }
             PoolDistributor<GBAFEClass> promotionDistributor = new PoolDistributor<>();
             promotionDistributor.addAll(promotions);
+            PromotionBranch promotionBranch = promotionBranches.get(classToRandomize);
             if (classData.canClassPromote(classToRandomize.getID())) {
-                PromotionBranch promotionBranch = promotionBranches.get(classToRandomize);
                 GBAFEClass firstPromotion = promotionDistributor.getRandomItem(rng, true);
                 GBAFEClass secondPromotion = promotionDistributor.getRandomItem(rng, true);
 
                 // These classes could be equivalent (i.e. Swordmaster and Swordmaster_F), try
                 // again.
                 if (mightNeedReroll(firstPromotion, secondPromotion) && promotionDistributor.possibleResults().size() != 0) {
+                    DebugPrinter.log(DebugPrinter.Key.PROMOTION_RANDOMIZATION, "Re-rolling the second promotion, as it might have been a duplicate 1: %s 2: %s", firstPromotion, secondPromotion);
                     secondPromotion = promotionDistributor.getRandomItem(rng, true);
                 }
 
@@ -119,11 +110,13 @@ public class GBAPromotionRandomizer {
                 promotionBranch.setSecondPromotion(secondPromotion.getID());
                 promotionBranches.put(classToRandomize, promotionBranch);
             } else {
-                PromotionBranch promotionBranch = promotionBranches.get(classToRandomize);
+                // Class that can't promote, so just add two empty promotions
                 promotionBranch.setFirstPromotion(0);
                 promotionBranch.setSecondPromotion(0);
                 promotionBranches.put(classToRandomize, promotionBranch);
             }
+
+            DebugPrinter.log(DebugPrinter.Key.PROMOTION_RANDOMIZATION, "Randomized the promotions of class %s Promotion 1: 0x%d 2: 0x%d", classToRandomize, promotionBranch.getFirstPromotion(), promotionBranch.getSecondPromotion());
         }
     }
 
@@ -142,7 +135,6 @@ public class GBAPromotionRandomizer {
 
         return nameFirstPromo.equals(nameSecondPromo)
                 && Arrays.asList(-1, 0, 1).contains(firstPromotion.getID() - secondPromotion.getID()); // The Female and Male classes are next to each other Id wise
-
     }
 
     /**
@@ -153,11 +145,6 @@ public class GBAPromotionRandomizer {
      */
     public static void randomizePromotions(PromotionOptions options, ClassDataLoader classData, GameType type,
                                            Random rng) {
-        final String REGEX_SHOULD_NOT_PROMOTE = "^[DANCER|BARD]";
-        Set<GBAFEClass> unpromotedClasses = new HashSet<>(
-                type.equals(GameType.FE6) ? FE6Data.CharacterClass.allUnpromotedClasses
-                        : FE7Data.CharacterClass.allUnpromotedClasses);
-
         // Get the classdata for all unpromoted classes that should promote (i.e. not
         // dancers)
         Map<GBAFEClass, GBAFEClassData> unpromotedClassDataMapping = classMap.entrySet()
@@ -165,14 +152,24 @@ public class GBAPromotionRandomizer {
                 .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 
         for (GBAFEClass unpromotedClass : unpromotedClassDataMapping.keySet()) {
-            PoolDistributor<GBAFEClass> promotionDistributor = new PoolDistributor<>();
-            promotionDistributor.addAll(getValidPromotionsForClass(options, classData, unpromotedClass, type));
+            PoolDistributor<GBAFEClass> promotionDistributor = PoolDistributor.of(getValidPromotionsForClass(options, classData, unpromotedClass, type));
             GBAFEClassData classToEdit = unpromotedClassDataMapping.get(unpromotedClass);
-            classToEdit.setTargetPromotionID(promotionDistributor.getRandomItem(rng, false).getID());
+            int newPromotion = promotionDistributor.getRandomItem(rng, false).getID();
+            classToEdit.setTargetPromotionID(newPromotion);
+            DebugPrinter.log(DebugPrinter.Key.PROMOTION_RANDOMIZATION,
+                    "Randomized the promotions of class %s Promotion : 0x%d (%s)",
+                    unpromotedClass, newPromotion, classData.debugStringForClass(newPromotion));
+
         }
     }
 
+    /**
+     * Returns true if the class represendet by the entry should promote in the current game.
+     * Primarily determined by {@link ClassDataLoader#canClassPromote(int)} except for FE6 where usually
+     * Thieves don't promote but the user can select to give them the ability to promote
+     */
     private static boolean shouldPromote(ClassDataLoader classData, Map.Entry<GBAFEClass, GBAFEClassData> e, PromotionOptions options) {
+        // in fe7/8 options.allowThiefPromotion will always be null and return false, so it will be determined by
         if (classData.isThief(e.getKey().getID()) && Boolean.TRUE.equals(options.allowThiefPromotion)) {
             return true;
         }

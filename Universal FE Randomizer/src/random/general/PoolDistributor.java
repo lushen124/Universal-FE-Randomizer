@@ -1,10 +1,8 @@
 package random.general;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import com.sun.jndi.ldap.pool.Pool;
+
+import java.util.*;
 
 public class PoolDistributor<T> {
 	
@@ -14,6 +12,12 @@ public class PoolDistributor<T> {
 	public PoolDistributor() {
 		itemList = new ArrayList<T>();
 		itemSet = new HashSet<T>();
+	}
+
+	public static PoolDistributor of(List c) {
+		PoolDistributor pd = new PoolDistributor();
+		pd.addAll(c);
+		return pd;
 	}
 	
 	public void addAll(List<T> items) {
