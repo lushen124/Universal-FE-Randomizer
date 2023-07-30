@@ -3055,7 +3055,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return CharacterClass.flyingClasses.contains(charClass);
 	}
 	public boolean isHorseUnit(GBAFEClass charClass) {
-		return FE6Data.CharacterClass.horseClasses.contains(charClass);
+		return CharacterClass.horseClasses.contains(charClass);
 	}
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options) {
 		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);

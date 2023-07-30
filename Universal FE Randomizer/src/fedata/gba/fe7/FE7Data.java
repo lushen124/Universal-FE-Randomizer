@@ -15,7 +15,6 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
-import fedata.gba.fe6.FE6Data;
 import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
@@ -2814,7 +2813,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
 	}
 	public Set<GBAFEClass> allSpecialEnemyClasses() {
-		return new HashSet<>(FE6Data.CharacterClass.allSpecialEnemyClasses);
+		return new HashSet<>(CharacterClass.allSpecialEnemyClasses);
 	}
 	public Set<GBAFEClass> meleeSupportedClasses() {
 		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allValidClasses);
@@ -2880,7 +2879,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return CharacterClass.flyingClasses.contains(charClass);
 	}
 	public boolean isHorseUnit(GBAFEClass charClass) {
-		return FE6Data.CharacterClass.horseClasses.contains(charClass);
+		return CharacterClass.horseClasses.contains(charClass);
 	}
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options) {
 		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);
