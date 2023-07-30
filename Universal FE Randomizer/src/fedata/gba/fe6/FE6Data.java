@@ -1582,6 +1582,21 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			default: return 0;
 			}
 		}
+
+		public static GBAFEPromotionItem fromItemId(int id) {
+			if (id == Item.HERO_CREST.ID) {
+				return HERO_CREST;
+			} else if (id == Item.KNIGHT_CREST.ID) {
+				return KNIGHT_CREST;
+			} else if (id == Item.ORION_BOLT.ID) {
+				return ORION_BOLT;
+			} else if (id == Item.ELYSIAN_WHIP.ID) {
+				return ELYSIAN_WHIP;
+			} else if (id == Item.GUIDING_RING.ID) {
+				return GUIDING_RING;
+			}
+			return null;
+		}
 	}
 	
 	public enum Palette {

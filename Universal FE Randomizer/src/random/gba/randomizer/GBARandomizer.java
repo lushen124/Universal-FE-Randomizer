@@ -598,6 +598,31 @@ public class GBARandomizer extends Randomizer {
         updateStatusString("Randomizing Promotions...");
         Random rng = new Random(SeedGenerator.generateSeedValue(seedString, GBAPromotionRandomizer.rngSalt));
         GBAPromotionRandomizer.randomizePromotions(promotionOptions, promotionData, classData, gameType, rng);
+
+        // If the current game is FE6, and the user opted to have thieves keep their stealing ability with random promotions, then make sure to set the flag on the class
+        if (GameType.FE6.equals(gameType) && !promotionOptions.promotionMode.equals(PromotionOptions.Mode.STRICT) && promotionOptions.keepThiefAbilities) {
+            for (GBAFEClass thiefClass : Arrays.asList(FE6Data.CharacterClass.THIEF, FE6Data.CharacterClass.THIEF_F)) {
+                GBAFEClassData unpromotedThief = classData.classForID(thiefClass.getID());
+                int originalPromotionId = unpromotedThief.getTargetPromotionID();
+                GBAFEClassData promotion = classData.classForID(unpromotedThief.getTargetPromotionID());
+
+                /*
+                 * If the user selected to not hae the Thief
+                 * abilities be universal (f.e. if Mercenary and Thief promote into the same class,
+                 * then the ones promoting from Merc shouldn't be able to steal)
+                 * Then Make a duplicate of the original promotion and do necessary adjustments
+                 */
+                if (!promotionOptions.universal) {
+                    promotion = classData.createLordClassBasedOnClass(promotion);
+                    mapSprites.duplicateSprite("FE6 "+thiefClass.name()+" Promotion Map Sprite", originalPromotionId);
+                    unpromotedThief.setTargetPromotionID(promotion.getID());
+                    itemData.addClassToPromotionItem(FE6Data.PromotionItem.HERO_CREST, thiefClass.getID());
+                }
+
+                // bitwise OR the ability1Flag of the originalPromotion with 0xC to give them Steal / Lockpick access (0x4 and 0x8)
+                promotion.makeThief(true);
+            }
+        }
     }
 
     private void randomizeWeaponsIfNecessary(String seed) {
