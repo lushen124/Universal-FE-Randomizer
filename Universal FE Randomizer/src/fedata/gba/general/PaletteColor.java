@@ -20,6 +20,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	private double hue;
 	private double saturation;
 	private double brightness;
+	private boolean backgroundColor;
 	
 	public static final Comparator<PaletteColor> lowToHighBrightnessComparator = new Comparator<PaletteColor>() {
 		@Override
@@ -27,7 +28,13 @@ public class PaletteColor implements Comparable<PaletteColor> {
 			return o1.brightness > o2.brightness ? WhyDoesJavaNotHaveThese.ComparatorResult.FIRST_GREATER.returnValue() : WhyDoesJavaNotHaveThese.ComparatorResult.SECOND_GREATER.returnValue();
 		}
 	};
-	
+	public static final Comparator<PaletteColor> backgroundColorComparator = new Comparator<PaletteColor>() {
+		@Override
+		public int compare(PaletteColor o1, PaletteColor o2) {
+			return Boolean.compare(o1.isBackgroundColor(), o2.isBackgroundColor()) * -1;
+		}
+	};
+
 	public PaletteColor(byte[] colorTuple) {
 		int colorValue = ((colorTuple[1] << 8) & 0xFF00) | (colorTuple[0] & 0xFF);
 		
@@ -46,6 +53,9 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		calculateValuesWithRGB();
 	}
 	
+	public PaletteColor(int colorValue) {
+		this((colorValue & 0xFF0000) >> 16, (colorValue & 0xFF00) >> 8, (colorValue & 0xFF));
+	}
 	public PaletteColor(int r, int g, int b) {
 		red = (double)WhyDoesJavaNotHaveThese.clamp(r, 0, 255) / 255.0;
 		green = (double)WhyDoesJavaNotHaveThese.clamp(g, 0, 255) / 255.0;
@@ -524,5 +534,13 @@ public class PaletteColor implements Comparable<PaletteColor> {
 
 	public static String arrayToString(PaletteColor[] palette) {
 		return String.format("%-64s",PaletteColor.paletteStringForArray(palette)).replace(" ", "0");
+	}
+
+	public boolean isBackgroundColor() {
+		return backgroundColor;
+	}
+
+	public void setBackgroundColor(boolean backgroundColor) {
+		this.backgroundColor = backgroundColor;
 	}
 }

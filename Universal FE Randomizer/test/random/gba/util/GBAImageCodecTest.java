@@ -92,9 +92,10 @@ public class GBAImageCodecTest {
 
     private static void assertPalettes(String tethysPaletteString, List<PaletteColor> expectedArray, List<PaletteColor> actualArray, String actualString) {
         // check that the PaletteColor objects that were calculated are all contained within the expected ones
-        for (PaletteColor color : actualArray) {
+        for(int i = 0; i< actualArray.size(); i++) {
+            PaletteColor color = actualArray.get(i);
             if (color != null) {
-                Assertions.assertTrue(expectedArray.contains(color));
+                Assertions.assertTrue(expectedArray.contains(color), ""+i);
             }
         }
 

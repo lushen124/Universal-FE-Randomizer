@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import javax.imageio.ImageIO;
@@ -65,10 +66,10 @@ public class GBAImageCodec {
                             // the byte that encodes both pixels has the red index in the least significant
                             // bits
                             // and the blue index in the most significant bits, or 0xA5.
-                            int firstColorIndex = indexOfColorInPalette(colorForInteger(image.getRGB(trueX, trueY)),
+                            int firstColorIndex = indexOfColorInPalette(new PaletteColor(image.getRGB(trueX, trueY)),
                                     palette);
                             int secondColorIndex = indexOfColorInPalette(
-                                    colorForInteger(image.getRGB(trueX + 1, trueY)), palette);
+                                    new PaletteColor(image.getRGB(trueX + 1, trueY)), palette);
                             if (firstColorIndex == -1 || secondColorIndex == -1) {
                                 return null;
                             }
@@ -239,8 +240,8 @@ public class GBAImageCodec {
                         // the byte that encodes both pixels has the red index in the least significant
                         // bits
                         // and the blue index in the most significant bits, or 0xA5.
-                        PaletteColor pixel1 = colorForInteger(image.getRGB(trueX, trueY));
-                        PaletteColor pixel2 = colorForInteger(image.getRGB(trueX + 1, trueY));
+                        PaletteColor pixel1 = new PaletteColor(image.getRGB(trueX, trueY));
+                        PaletteColor pixel2 = new PaletteColor(image.getRGB(trueX + 1, trueY));
 
                         byte a = (byte) indexOfColorInPalette(pixel1, palette);
                         byte b = (byte) indexOfColorInPalette(pixel2, palette);
@@ -258,6 +259,38 @@ public class GBAImageCodec {
         return result;
     }
 
+    public static PaletteColor[] collectPaletteForPicture(String picturePath) throws IOException {
+        // load the image
+        InputStream stream = getImageAsStream(picturePath);
+        if (stream == null) return null;
+        // load the image
+        BufferedImage read = ImageIO.read(stream);
+        PaletteColor bgColor;
+        List<PaletteColor> colors;
+        if (!PngUtil.isIndexBasedPng(stream, picturePath) || true) {
+            colors = new ArrayList<>(grabColorsFromPicture(read));
+        } else {
+            // Grab only the color of the first pixel, which is presumably the background color,
+            // so we can move the BackgroundColor to the front.
+            bgColor = new PaletteColor(read.getRGB(0,0));
+
+            // This is an index based PNG Image, so grab the colors from the metadata
+            colors = new ArrayList<>(PngUtil.grabColorsFromPNGMetaData(stream));
+            colors.get(colors.indexOf(bgColor)).setBackgroundColor(true);
+        }
+
+        // Sort the backgroundColor to the front, as GBAFE expects it at the front
+        colors.sort(PaletteColor.backgroundColorComparator);
+
+        // GBA FE can only handle 16 colors, so if there are more throw an exception
+        if (colors.size() > 16) {
+            throw new IllegalArgumentException(String.format("Palette for image %s couldn't be generated. The Picture contains %d colors rather than 16.", picturePath, colors.size()));
+        }
+
+        // Copy over the colors to an array, while making sure there are no null elements in here to prevent NPEs
+        return colors.toArray(new PaletteColor[colors.size()]);
+    }
+
     /**
      * Given an image it will grab upto 16 unique colors from that image and return them as a PaletteColor array,
      * to be used for importing images.
@@ -268,30 +301,21 @@ public class GBAImageCodec {
      * so unless we parse the pallet from the image metadata somehow,
      * it is preferable to have any users of his method ensure it can handle pallets < 16.
      */
-    public static PaletteColor[] collectPaletteForPicture(String picturePath) throws IOException {
-        // load the image
-        InputStream stream = getImageAsStream(picturePath);
-        if (stream == null) return null;
-        BufferedImage read = ImageIO.read(stream);
-        BufferedImage image = new BufferedImage(read.getWidth(), read.getHeight(), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D graphics = image.createGraphics();
-        graphics.drawImage(read, null, 0, 0);
-
+    public static Set<PaletteColor>  grabColorsFromPicture(BufferedImage image) throws IOException {
         // go through the image and collect all the unique colors
         Set<PaletteColor> colorSet = new HashSet<>(16);
+        boolean isBg = true;
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
-                colorSet.add(colorForInteger(image.getRGB(x, y)));
+                PaletteColor color = new PaletteColor(image.getRGB(x, y));
+                if (isBg) {
+                    color.setBackgroundColor(true);
+                    isBg = false;
+                }
+                colorSet.add(color);
             }
         }
-
-        // GBA FE can only handle 16 colors, so if there are more throw an exception
-        if (colorSet.size() > 16) {
-            throw new IllegalArgumentException(String.format("Palette for image %s couldn't be generated. The Picture contains %d colors rather than 16.", picturePath, colorSet.size()));
-        }
-
-        // Copy over the colors to an array, while making sure there are no null elements in here to prevent NPEs
-        return colorSet.toArray(new PaletteColor[colorSet.size()]);
+        return colorSet;
     }
 
     /**
@@ -339,13 +363,6 @@ public class GBAImageCodec {
         }
 
         return -1;
-    }
-
-    private static PaletteColor colorForInteger(int colorValue) {
-        int red = (colorValue & 0xFF0000) >> 16;
-        int green = (colorValue & 0xFF00) >> 8;
-        int blue = (colorValue & 0xFF);
-        return new PaletteColor(red, green, blue);
     }
 
 }
