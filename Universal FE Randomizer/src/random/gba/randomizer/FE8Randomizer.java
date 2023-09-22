@@ -99,8 +99,6 @@ public class FE8Randomizer extends AbstractGBARandomizer {
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE8, sourceFileHandler, charData, classData);
-		updateStatusString("Loading Statboost Data...");
-		
 		updateStatusString("Loading Summoner Module...");
 		updateProgress(0.35);
 		fe8_summonerModule = new FE8SummonerModule(sourceFileHandler);

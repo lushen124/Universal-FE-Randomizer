@@ -376,8 +376,9 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 		runRandomizationStep("bases", 50, () -> randomizeBasesIfNecessary());
 		runRandomizationStep("weapons", 55, () -> randomizeWeaponsIfNecessary());
 		runRandomizationStep("other character traits", 60, () -> randomizeOtherCharacterTraitsIfNecessary());
-		runRandomizationStep("growths", 65, () -> randomizeGrowthsIfNecessary());
-		runRandomizationStep("miscellaneous things", 70, () -> randomizeMiscellaneousThingsIfNecessary());
+		runRandomizationStep("Enemy buffing", 65, () -> buffEnemiesIfNecessary());
+		runRandomizationStep("growths", 70, () -> randomizeGrowthsIfNecessary());
+		runRandomizationStep("miscellaneous things", 75, () -> randomizeMiscellaneousThingsIfNecessary());
 	}
 
 	protected void randomizeRecruitmentIfNecessary() {
@@ -587,7 +588,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 		}
 	}
 
-	protected void buffEnemiesIfNecessary(String seed) {
+	protected void buffEnemiesIfNecessary() {
 		if (enemies == null) {
 			return;
 		}
@@ -602,7 +603,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 
 		if (enemies.improveMinionWeapons) {
 			updateStatusString("Upgrading enemy weapons...");
-			Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt));
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, EnemyBuffer.rngSalt));
 			EnemyBuffer.improveMinionWeapons(enemies.minionImprovementChance, charData, classData, chapterData,
 					itemData, rng);
 		}
@@ -617,7 +618,7 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 
 		if (enemies.improveBossWeapons) {
 			updateStatusString("Upgrading boss weapons...");
-			Random rng = new Random(SeedGenerator.generateSeedValue(seed, EnemyBuffer.rngSalt + 1));
+			Random rng = new Random(SeedGenerator.generateSeedValue(seedString, EnemyBuffer.rngSalt + 1));
 			EnemyBuffer.improveBossWeapons(enemies.bossImprovementChance, charData, classData, chapterData, itemData,
 					rng);
 		}
@@ -773,12 +774,15 @@ public abstract class AbstractGBARandomizer extends Randomizer {
 
 		tryRecordingCategory("Randomize Growths", growths);
 		tryRecordingCategory("Randomize Bases", bases);
+		tryRecordingCategory("Character Shuffling", shufflingOptions);
 		tryRecordingCategory("Weapons", weapons);
 		tryRecordingCategory("Classes", classes);
 		tryRecordingCategory("Enemies", enemies);
 		tryRecordingCategory("Misc", miscOptions);
 		tryRecordingCategory("Randomized Recruitment", recruitOptions);
 		tryRecordingCategory("Item Assignment", itemAssignmentOptions);
+
+		recordNotes();
 	}
 
 	/**

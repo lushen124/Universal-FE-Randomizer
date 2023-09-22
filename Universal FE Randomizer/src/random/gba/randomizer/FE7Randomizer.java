@@ -88,7 +88,6 @@ public class FE7Randomizer extends AbstractGBARandomizer {
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, sourceFileHandler, charData, classData);
-		updateStatusString("Loading Statboost Data...");
 
 		sourceFileHandler.clearAppliedDiffs();
 	}
