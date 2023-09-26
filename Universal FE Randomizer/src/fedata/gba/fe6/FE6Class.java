@@ -30,10 +30,7 @@ public class FE6Class extends GBAFEClassData {
 	}
 
 	public FE6Class(byte[] data, long originalOffset, GBAFEClassData demotedClass) {
-		super();
-		this.originalData = data;
-		this.data = data;
-		this.originalOffset = originalOffset;
+		super(data, originalOffset);
 
 		if (demotedClass != null) {
 			promoHP = getBaseHP() - demotedClass.getBaseHP();

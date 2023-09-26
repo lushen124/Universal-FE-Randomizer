@@ -17,9 +17,7 @@ public class FE8ChapterUnitMoveData extends AbstractGBAData {
 	
 	
 	public FE8ChapterUnitMoveData(long originalOffset, byte[] data) {
-		this.data = data;
-		this.originalData = data;
-		this.originalOffset = originalOffset;
+		super(data, originalOffset);
 	}
 	
 	public int getPostMoveX() {

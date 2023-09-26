@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEClassData;
-import fedata.gba.fe8.FE8Data;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
 import fedata.gba.general.WeaponType;
@@ -74,6 +73,10 @@ public class ClassDataLoader {
 		provider.prepareForClassRandomization(classMap);
 		
 		lastClassID = provider.numberOfClasses();
+	}
+
+	public Map<Integer, GBAFEClassData> getClassMap() {
+		return classMap;
 	}
 	
 	public GBAFEClassData createLordClassBasedOnClass(GBAFEClassData referenceClass) {

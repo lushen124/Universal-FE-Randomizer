@@ -7,11 +7,7 @@ import fedata.gba.GBAFECharacterData;
 public class FE6Character extends GBAFECharacterData {
 	
 	public FE6Character(byte[] data, long originalOffset, Boolean isClassRestricted) {
-		super();
-		this.originalData = data;
-		this.data = data;
-		this.originalOffset = originalOffset;
-		this.isClassRestricted = isClassRestricted;
+		super(data, originalOffset, isClassRestricted);
 	}
 	
 	public GBAFECharacterData createCopy(boolean useOriginalData) {

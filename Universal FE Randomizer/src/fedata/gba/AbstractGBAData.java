@@ -12,6 +12,15 @@ public abstract class AbstractGBAData implements FEModifiableData {
 	protected Boolean wasModified = false;
 	protected Boolean hasChanges = false;
 
+	public AbstractGBAData() {
+	}
+
+	public AbstractGBAData(byte[] data, long originalOffset) {
+		this.originalData = data;
+		this.data = data;
+		this.originalOffset = originalOffset;
+	}
+
 	public void resetData() {
 		data = originalData;
 		wasModified = false;
@@ -51,5 +60,16 @@ public abstract class AbstractGBAData implements FEModifiableData {
 	public void overrideAddress(long newAddress) {
 		addressOverride = newAddress;
 		wasModified = true;
+	}
+
+	protected long readPointerFromData(int startingIndex) {
+		return data[startingIndex] << 24 | data[startingIndex+1] << 16 | data[startingIndex+2] << 8 | data[startingIndex+3];
+	}
+
+	protected int asInt(byte b) {
+		return b & 0xFF;
+	}
+	protected byte asByte(int i) {
+		return (byte) (i & 0xFF);
 	}
 }

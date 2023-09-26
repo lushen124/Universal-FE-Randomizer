@@ -14,9 +14,7 @@ public class GBAFEPortraitData extends AbstractGBAData {
 	private byte[] newPalette;
 
 	public GBAFEPortraitData(byte[] originalData, long offset, int faceId, boolean separateMouthFrames) {
-		this.data = originalData;
-		this.originalData = originalData;
-		this.originalOffset = offset;
+		super(originalData, offset);
 		this.faceId = faceId;
 		this.separateMouthFrames = separateMouthFrames;
 	}

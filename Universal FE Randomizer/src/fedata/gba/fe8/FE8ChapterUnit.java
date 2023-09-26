@@ -10,10 +10,7 @@ public class FE8ChapterUnit extends GBAFEChapterUnitData {
 	List<FE8ChapterUnitMoveData> movements = new ArrayList<>();
 	
 	public FE8ChapterUnit(byte[] data, long originalOffset) {
-		super();
-		this.originalData = data;
-		this.data = data;
-		this.originalOffset = originalOffset;
+		super(data, originalOffset);
 	}
 	
 	@Override

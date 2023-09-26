@@ -30,41 +30,21 @@ import fedata.gba.fe8.FE8SpellAnimationCollection;
 import fedata.gba.fe8.FE8SummonerModule;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFEChapterMetadataData;
-import fedata.gba.general.GBAFEClass;
-import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
-import io.UPSPatcherStatusListener;
-import random.gba.loader.ChapterLoader;
-import random.gba.loader.CharacterDataLoader;
-import random.gba.loader.ClassDataLoader;
-import random.gba.loader.ItemDataLoader;
-import random.gba.loader.PaletteLoader;
-import random.gba.loader.PortraitDataLoader;
-import random.gba.loader.TextLoader;
+import random.gba.loader.*;
 import random.gba.randomizer.shuffling.CharacterShuffler;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.general.Randomizer;
-import ui.model.BaseOptions;
-import ui.model.CharacterShufflingOptions;
+import ui.model.*;
 import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
-import ui.model.ClassOptions;
-import ui.model.EnemyOptions;
-import ui.model.GrowthOptions;
-import ui.model.ItemAssignmentOptions;
-import ui.model.MiscellaneousOptions;
-import ui.model.MiscellaneousOptions.ExperienceRate;
-import ui.model.OtherCharacterOptions;
-import ui.model.RecruitmentOptions;
-import ui.model.WeaponOptions;
 import ui.model.EnemyOptions.BossStatMode;
 import ui.model.ItemAssignmentOptions.ShopAdjustment;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
-import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
@@ -94,6 +74,7 @@ public class GBARandomizer extends Randomizer {
 	private RecruitmentOptions recruitOptions;
 	private ItemAssignmentOptions itemAssignmentOptions;
 	private CharacterShufflingOptions shufflingOptions;
+	private TerrainOptions terrainOptions;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -102,6 +83,7 @@ public class GBARandomizer extends Randomizer {
 	private PaletteLoader paletteData;
 	private TextLoader textData;
 	private PortraitDataLoader portraitData;
+	private TerrainDataLoader terrainData;
 	
 	private boolean needsPaletteFix;
 	private Map<GBAFECharacterData, GBAFECharacterData> characterMap; // valid with random recruitment. Maps slots to reference character.
@@ -461,7 +443,13 @@ public class GBARandomizer extends Randomizer {
 			CharacterShuffler.shuffleCharacters(gameType, charData, textData, rng, handler, portraitData, freeSpace, chapterData, classData, shufflingOptions, itemAssignmentOptions, itemData);
 		}
 	}
-	
+	public void randomizeTerrainIfNecessary(String seed) {
+		if (terrainOptions != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, TerrainRandomizer.rngSalt));
+			new TerrainRandomizer(rng, terrainData, terrainOptions).randomize();
+		}
+	}
+
 	private void randomizeGrowthsIfNecessary(String seed) {
 		if (growths != null) {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));
