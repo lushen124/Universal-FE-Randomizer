@@ -5,50 +5,55 @@ public class TerrainOptions {
     /*
      * Healing Related Settings
      */
-    public final boolean randomizeHealing;
-    public final int healingChance;
-    public final MinMaxOption healingRange;
+    public boolean randomizeHealing = false;
+    public int healingChance = 0;
+    public MinMaxOption healingRange = null;
 
     /*
      * Status recovery Related Settings
      */
-    public final boolean randomizeStatusRecovery;
-    public final int statusRestoreChance;
+    public boolean randomizeStatusRecovery = false;
+    public int statusRestoreChance = 0;
 
     /*
      * avoid Related Settings
      */
-    public final boolean randomizeAvoid;
-    public final MinMaxOption avoidRange;
-    public final int avoidChance;
+    public boolean randomizeAvoid = false;
+    public MinMaxOption avoidRange = null;
+    public int avoidChance = 0;
 
     /*
      * Defense Related Settings
      */
-    public final boolean randomizeDef;
-    public final MinMaxOption defRange;
-    public final int defChance;
+    public boolean randomizeDef = false;
+    public MinMaxOption defRange = null;
+    public int defChance = 0;
     /*
      * Resistence Related Settings
      */
-    public final boolean randomizeRes;
-    public final MinMaxOption resRange;
-    public final int resChance;
+    public boolean randomizeRes = false;
+    public MinMaxOption resRange = null;
+    public int resChance = 0;
     /*
      * Movement Related Settings
      */
-    public final boolean randomizeMovementCost;
-    public final MinMaxOption movementCostRange;
+    public boolean randomizeMovementCost = false;
+    public MinMaxOption movementCostRange = null;
 
     /*
      * Flag to keep tiles that didn't use to have effects safe
      */
-    public final boolean keepSafeTiles;
+    public boolean keepSafeTiles = false;
 
     /*
      * Chance for a tile to get some kind of effect, otherwise it stays as it is in vanilla
      */
-    public final int effectChance;
+    public int effectChance = 0;
+
+    // Constructor for Tests
+    public TerrainOptions() {
+
+    }
 
     public TerrainOptions(boolean randomizeHealing, int healingChance, MinMaxOption healingRange,
                           boolean randomizeStatusRecovery, int statusRestoreChance,

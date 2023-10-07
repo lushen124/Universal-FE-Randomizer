@@ -1,7 +1,7 @@
 package random.gba.randomizer;
 
-import fedata.TerrainTable;
-import fedata.TerrainTable.TerrainTableType;
+import fedata.gba.general.TerrainTable;
+import fedata.gba.general.TerrainTable.TerrainTableType;
 import random.gba.loader.TerrainDataLoader;
 import ui.model.MinMaxOption;
 import ui.model.TerrainOptions;
@@ -36,7 +36,7 @@ public class TerrainRandomizer {
         determineSafeTiles();
         determineFlierOnlyTiles();
 
-        for (int i = 1; i < terrainData.dataLengthBytes - 1; i++) {
+        for (int i = 1; i < terrainData.dataLengthBytes; i++) {
             if (flierOnlyTiles.contains(i) || untraversableTiles.contains(i)) {
                 excludedTiles.add(i);
                 continue;
@@ -49,30 +49,30 @@ public class TerrainRandomizer {
 
     public void randomize() {
         if (options.randomizeMovementCost) {
-            handleTables(TerrainTableType.MOVEMENT, options.movementCostRange, true);
-            handleTables(TerrainTableType.MOVEMENT_RAIN, options.movementCostRange, true);
-            handleTables(TerrainTableType.MOVEMENT_SNOW, options.movementCostRange, true);
+            handleTable(TerrainTableType.MOVEMENT, options.movementCostRange, true);
+            handleTable(TerrainTableType.MOVEMENT_RAIN, options.movementCostRange, true);
+            handleTable(TerrainTableType.MOVEMENT_SNOW, options.movementCostRange, true);
         }
 
 
         if (options.randomizeHealing) {
-            handleTables(TerrainTableType.HEALING, options.healingRange, false, options.healingChance);
+            handleTable(TerrainTableType.HEALING, options.healingRange, false, options.healingChance);
         }
 
         if (options.randomizeStatusRecovery) {
-            handleTables(TerrainTableType.STATUS_RECOVERY, new MinMaxOption(0, 1), false, options.statusRestoreChance);
+            handleTable(TerrainTableType.STATUS_RECOVERY, new MinMaxOption(0, 1), false, options.statusRestoreChance);
         }
 
         if (options.randomizeAvoid) {
-            handleTables(TerrainTableType.AVOID, options.avoidRange, true, options.avoidChance);
+            handleTable(TerrainTableType.AVOID, options.avoidRange, true, options.avoidChance);
         }
 
         if (options.randomizeDef) {
-            handleTables(TerrainTableType.DEF, options.defRange, true, options.defChance);
+            handleTable(TerrainTableType.DEF, options.defRange, true, options.defChance);
         }
 
         if (options.randomizeRes) {
-            handleTables(TerrainTableType.RES, options.resRange, true, options.resChance);
+            handleTable(TerrainTableType.RES, options.resRange, true, options.resChance);
         }
     }
 
@@ -88,10 +88,10 @@ public class TerrainRandomizer {
             boolean isFlierOnly = true;
 
             for (TerrainTable table : nonFlierMovementTables) {
-                isFlierOnly &= table.tableType.isDisabled(table.getData()[i]);
+                isFlierOnly &= table.tableType.isDisabled(table.dataAtIndex(i));
             }
 
-            if (isFlierOnly) {
+            if (isFlierOnly && !untraversableTiles.contains(i)) {
                 this.flierOnlyTiles.add(i);
             }
         }
@@ -112,7 +112,7 @@ public class TerrainRandomizer {
         for (int i = 1; i < numberTiles; i++) {
             boolean hasEffect = false;
             for (TerrainTable table : tables) {
-                hasEffect |= table.tableType.isDisabled(table.getData()[i]);
+                hasEffect |= !table.tableType.isDisabled(table.dataAtIndex(i));
             }
             if (!hasEffect) {
                 this.safeTiles.add(i);
@@ -127,7 +127,7 @@ public class TerrainRandomizer {
             boolean isUntraversable = true;
 
             for (TerrainTable table : moveTables) {
-                isUntraversable &= table.tableType.isDisabled(table.getData()[i]);
+                isUntraversable &= table.tableType.isDisabled(table.dataAtIndex(i));
             }
 
             if (isUntraversable) {
@@ -136,19 +136,19 @@ public class TerrainRandomizer {
         }
     }
 
-    public void handleTables(TerrainTableType tableType, MinMaxOption minMax, boolean excludeFliers) {
-        handleTables(tableType, minMax, excludeFliers, -1);
+    public void handleTable(TerrainTableType tableType, MinMaxOption minMax, boolean excludeFliers) {
+        handleTable(tableType, minMax, excludeFliers, -1);
     }
 
-    public void handleTables(TerrainTableType tableType, MinMaxOption minMax, boolean excludeFliers, int chance) {
-        List<TerrainTable> avoidTable = terrainData.getTerrainTablesOfType(tableType);
-        for (TerrainTable tt : avoidTable) {
+    public void handleTable(TerrainTableType tableType, MinMaxOption minMax, boolean excludeFliers, int chance) {
+        List<TerrainTable> tablesOfType = terrainData.getTerrainTablesOfType(tableType);
+        for (TerrainTable table : tablesOfType) {
             // if the current Step is not applicable to fliers, then skip any table used by flier classes
-            if (excludeFliers && terrainData.isUsedByFliers(tt.getAddressOffset())) {
+            if (excludeFliers && terrainData.isUsedByFliers(table.getAddressOffset())) {
                 continue;
             }
-            for (int i = 1; i < tt.getData().length; i++) {
-                int oldValue = tt.getData()[i];
+            for (int i = 1; i < table.getData().length; i++) {
+                int oldValue = table.dataAtIndex(i);
                 if (untraversableTiles.contains(i) // never randomize completely untraversable Tiles
                         || (options.keepSafeTiles && safeTiles.contains(i)) // If the user chose, keep things such as roads / plains safe
                         || excludedTiles.contains(i) // Wether this tile was randomized to not have a change, skip it
@@ -158,8 +158,15 @@ public class TerrainRandomizer {
                 }
 
                 if (chance == -1 || rng.nextInt(100) < chance) {
-                    int newValue = rng.nextInt(minMax.maxValue - minMax.minValue) + minMax.minValue;
-                    tt.setAtIndex(i, newValue);
+                    int newValue;
+                    if (tableType.isToggle) {
+                        newValue = tableType.max;
+                    } else if (minMax.maxValue == minMax.minValue) {
+                        newValue = minMax.maxValue;
+                    } else {
+                        newValue = rng.nextInt(minMax.maxValue - minMax.minValue) + minMax.minValue;
+                    }
+                    table.setAtIndex(i, newValue);
                 }
             }
         }

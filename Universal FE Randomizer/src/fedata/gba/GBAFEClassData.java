@@ -1,10 +1,8 @@
 package fedata.gba;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
-import fedata.TerrainTable;
-import fedata.TerrainTable.TerrainTableType;
+import fedata.gba.general.TerrainTable.TerrainTableType;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;

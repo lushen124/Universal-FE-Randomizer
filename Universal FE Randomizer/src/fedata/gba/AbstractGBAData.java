@@ -2,6 +2,8 @@ package fedata.gba;
 
 import fedata.general.FEModifiableData;
 
+import java.util.Arrays;
+
 public abstract class AbstractGBAData implements FEModifiableData {
 	protected byte[] originalData;
 	protected byte[] data;
@@ -16,7 +18,7 @@ public abstract class AbstractGBAData implements FEModifiableData {
 	}
 
 	public AbstractGBAData(byte[] data, long originalOffset) {
-		this.originalData = data;
+		this.originalData = Arrays.copyOf(data, data.length);
 		this.data = data;
 		this.originalOffset = originalOffset;
 	}
@@ -39,6 +41,10 @@ public abstract class AbstractGBAData implements FEModifiableData {
 
 	public byte[] getData() {
 		return data;
+	}
+
+	public int dataAtIndex(int index) {
+		return asInt(data[index]);
 	}
 
 	public void markModified() {
@@ -66,10 +72,14 @@ public abstract class AbstractGBAData implements FEModifiableData {
 		return data[startingIndex] << 24 | data[startingIndex+1] << 16 | data[startingIndex+2] << 8 | data[startingIndex+3];
 	}
 
-	protected int asInt(byte b) {
+	public static int asInt(byte b) {
 		return b & 0xFF;
 	}
-	protected byte asByte(int i) {
+	public static byte asByte(int i) {
 		return (byte) (i & 0xFF);
+	}
+
+	public byte[] copyOriginalData() {
+		return Arrays.copyOf(originalData, originalData.length);
 	}
 }

@@ -1,4 +1,4 @@
-package fedata;
+package fedata.gba.general;
 
 import fedata.gba.AbstractGBAData;
 
@@ -33,7 +33,7 @@ public class TerrainTable extends AbstractGBAData {
         MOVEMENT_SNOW(1, 255, 255, true),
 
         /**
-         * The number of additional defense points the unit gets from standing on this tile
+         * The number of additional avoid points the unit gets from standing on this tile
          */
         AVOID(0, 255, 0, false),
         /**
@@ -54,7 +54,7 @@ public class TerrainTable extends AbstractGBAData {
         STATUS_RECOVERY(0, 1, 0, true),
         /**
          * INFO_DISPLAY decides if the attributes of a tile should be displayed in the GUI or not,
-         * but apparently is also used for Berserk AI? Doesn't seem like something that makes sense to.
+         * but apparently is also used for Berserk AI? Doesn't seem like something that makes sense to change.
          */
         /*INFO_DISPLAY*/;
 

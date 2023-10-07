@@ -1,8 +1,7 @@
 package random.gba.loader;
 
-import fedata.TerrainTable;
-import fedata.TerrainTable.TerrainTableType;
-import fedata.gba.AbstractGBAData;
+import fedata.gba.general.TerrainTable;
+import fedata.gba.general.TerrainTable.TerrainTableType;
 import fedata.gba.GBAFEClassData;
 import fedata.general.FEBase.GameType;
 import io.FileHandler;
@@ -81,9 +80,12 @@ public class TerrainDataLoader {
     /**
      * Returns true if during the generation of the TerrainTables we recognized that the given pointer is used by fliers.
      * This can be used to filter out tables that apply to fliers from randomization.
-     * An example use case is that in vanilla DEF / RES / Avoid don't apply to fliers.
+     * An example use case is that in vanilla DEF / RES / Avoid don't apply to fliers, but they still have tables for them.
      */
-    public boolean isUsedByFliers(long pointer) {
+    public boolean isUsedByFliers(Long pointer) {
+        if (!pointerUsedByFliers.containsKey(pointer)) {
+            throw new IllegalArgumentException(String.format("All the tables must have been mapped to if they are being used by fliers or not! But Pointer %d wasn't", pointer));
+        }
         return pointerUsedByFliers.get(pointer);
     }
 
