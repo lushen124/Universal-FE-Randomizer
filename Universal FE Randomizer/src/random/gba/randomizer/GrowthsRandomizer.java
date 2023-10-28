@@ -12,8 +12,17 @@ public class GrowthsRandomizer {
 	
 	public static void randomizeGrowthsByRedistribution(int variance, int min, int max, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
+		
+		// Commit anything outstanding first.
+		// In case any other randomization step modified characters, because we
+		// need to start from a clean slate.
+		charactersData.commit();
+		
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			
+			// Do not modify anything that was already modified.
+			// This is here because some characters are linked (for example, FE7 Lyn has two variants: Tutorial and Not Tutorial).
+			// If we generate growths for one, we apply it to all linked characters at the end of this loop.
 			if (character.wasModified()) {
 				continue;
 			}
@@ -118,6 +127,9 @@ public class GrowthsRandomizer {
 	
 	public static void randomizeGrowthsByRandomDelta(int maxDelta, int min, int max, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
+		
+		charactersData.commit();
+		
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			
 			if (character.wasModified()) {
@@ -191,6 +203,9 @@ public class GrowthsRandomizer {
 	
 	public static void fullyRandomizeGrowthsWithRange(int minGrowth, int maxGrowth, boolean adjustHP, CharacterDataLoader charactersData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
+		
+		charactersData.commit();
+		
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			
 			if (character.wasModified()) {

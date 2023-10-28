@@ -64,7 +64,7 @@ public class FE7Chapter implements GBAFEChapterData {
 	
 	private int maxEnemyClassLimit = 0;
 
-	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] targetedRecipientsToTrack, int[] blacklistedClassIDs, String friendlyName, Boolean simple) {
+	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] targetedRecipientsToTrack, int[] blacklistedClassIDs, String friendlyName, Boolean simple, CharacterNudge[] nudges) {
 		
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
@@ -80,6 +80,8 @@ public class FE7Chapter implements GBAFEChapterData {
 		// We need one jump.
 		long pointerTableOffset = FileReadHelper.readAddress(handler, pointer);
 		this.isClassSafe = isClassSafe;
+		
+		this.nudges = nudges;
 		
 		long currentOffset = pointerTableOffset;
 		turnBasedEventsOffset = FileReadHelper.readAddress(handler, currentOffset);
@@ -195,12 +197,29 @@ public class FE7Chapter implements GBAFEChapterData {
 	public void applyNudges() {
 		if (nudges == null) { return; }
 		for (CharacterNudge nudge : nudges) {
-			for (GBAFEChapterUnitData unit : allUnits()) {
-				if (unit.getCharacterNumber() == nudge.getCharacterID() && unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
-					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getStartingX() + ", " + unit.getStartingY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+			characterLoop : for (GBAFEChapterUnitData unit : allUnits()) {
+				if (unit.getCharacterNumber() != nudge.getCharacterID() ) {
+					continue;
+				}
+				if (unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character PreMove 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+					if (unit.getPostMoveX() == unit.getStartingX() && unit.getPostMoveY() == unit.getStartingY()) { 
+						unit.setPostMoveX(nudge.getNewX());
+						unit.setPostMoveY(nudge.getNewY());
+					}
 					unit.setStartingX(nudge.getNewX());
 					unit.setStartingY(nudge.getNewY());
+				} else if(unit.getPostMoveX() == nudge.getOldX() && unit.getPostMoveY() == nudge.getOldY()) {
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character PostMove 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
+					if (unit.getPostMoveX() == unit.getStartingX() && unit.getPostMoveY() == unit.getStartingY()) { 
+						unit.setStartingX(nudge.getNewX());
+						unit.setStartingX(nudge.getNewY());
+					}
+					unit.setPostMoveX(nudge.getNewX());
+					unit.setPostMoveY(nudge.getNewY());
 				}
+				
+				break characterLoop;
 			}
 		}
 	}
