@@ -33,6 +33,15 @@ public class GBACrossGameData {
 	public int mouthX;
 	public int mouthY;
 
+	/**
+	 * If this is a non-null value, it means that the user wants the character to be fixed in that slot.
+	 * If multiple characters reference the same fixed slot, only the first one will actually happen.
+	 */
+	public Integer forcedSlot;
+
+	/**
+	 * Constructor used for generating the files initially. No need to maintain this.
+	 */
 	public GBACrossGameData(String name, String portraitPath, String description1, String description2,
 			String paletteString, GBAFEClass characterClass, int level, GBAFEStatDto bases, GBAFEStatDto growths,
 			int[] weaponRanks, int constitution, byte[] facialFeatureCoordinates) {
