@@ -340,28 +340,12 @@ public class FE9ChapterArmy {
 		return unit.getStartingY();
 	}
 	
-	public void setStartingXForUnit(FE9ChapterUnit unit, int x) {
-		unit.setStartingX(x);
-	}
-	
-	public void setStartingYForUnit(FE9ChapterUnit unit, int y) {
-		unit.setStartingY(y);
-	}
-	
 	public int getEndingXForUnit(FE9ChapterUnit unit) {
 		return unit.getEndingX();
 	}
 	
 	public int getEndingYForUnit(FE9ChapterUnit unit) {
 		return unit.getEndingY();
-	}
-	
-	public void setEndingXForUnit(FE9ChapterUnit unit, int x) {
-		unit.setEndingX(x);
-	}
-	
-	public void setEndingYForUnit(FE9ChapterUnit unit, int y) {
-		unit.setEndingY(y);
 	}
 	
 	public String getSEQ1ForUnit(FE9ChapterUnit unit) {
