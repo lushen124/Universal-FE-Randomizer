@@ -97,10 +97,6 @@ public class PaletteLoader {
 				templatesV2.put(characterClass.ID, new PaletteV2(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID)));
 			}
 			
-			for (FE6Data.CharacterClass characterClass : FE6Data.CharacterClass.additionalClassesToPalletLoad) {
-				templatesV2.put(characterClass.ID, new PaletteV2(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID)));
-			}
-			
 			for (int i = FE6Data.Palette.maxUsedPaletteIndex() + 1; i < FE6Data.Palette.maxPaletteIndex(); i++) {
 				emptyPaletteIDs.add(i);
 			}
@@ -110,6 +106,11 @@ public class PaletteLoader {
 			for (int paletteID : paletteByPaletteIDV2.keySet()) {
 				mapper.registerPalette(paletteID, paletteByPaletteIDV2.get(paletteID).getOriginalCompressedLength(), paletteByPaletteIDV2.get(paletteID).getDestinationOffset());
 			}
+			
+			//These unpromoted bosses have palettes set in their promoted slots...
+//			mapper.setCharacterToUnpromotedOnlyClass(FE6Data.Character.ERIK.ID, FE6Data.CharacterClass.KNIGHT.ID, mapper.getPaletteLength(0x39));
+//			mapper.setCharacterToUnpromotedOnlyClass(FE6Data.Character.DORY.ID, FE6Data.CharacterClass.KNIGHT.ID, mapper.getPaletteLength(0x5A));
+//			mapper.setCharacterToUnpromotedOnlyClass(FE6Data.Character.DEVIAS.ID, FE6Data.CharacterClass.KNIGHT.ID, mapper.getPaletteLength(0x56));
 			
 			break;
 		case FE7:
@@ -210,12 +211,6 @@ public class PaletteLoader {
 			}
 			
 			for (FE8Data.CharacterClass characterClass : FE8Data.CharacterClass.allValidClasses) {
-				PaletteV2 classPalette = new PaletteV2(handler, FE8Data.Palette.defaultPaletteForClass(characterClass.ID));
-				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Registering palette for class " + characterClass.toString() + " (" + classPalette.getOriginalCompressedLength() + " bytes)");
-				DebugPrinter.log(DebugPrinter.Key.PALETTE, WhyDoesJavaNotHaveThese.displayStringForBytes(classPalette.getCompressedData()));
-				templatesV2.put(characterClass.ID, classPalette);
-			}
-			for (FE8Data.CharacterClass characterClass : FE8Data.CharacterClass.additionalClassesToPalletLoad) {
 				PaletteV2 classPalette = new PaletteV2(handler, FE8Data.Palette.defaultPaletteForClass(characterClass.ID));
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Registering palette for class " + characterClass.toString() + " (" + classPalette.getOriginalCompressedLength() + " bytes)");
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, WhyDoesJavaNotHaveThese.displayStringForBytes(classPalette.getCompressedData()));
@@ -412,10 +407,6 @@ public class PaletteLoader {
 	
 	private PaletteV2 v2PaletteForClass(int newClassID, PaletteV2[] referencePalettes, PaletteV2.PaletteType type, PaletteColor[] supplementalHairColors) {
 		PaletteV2 template = getV2TemplatePalette(newClassID);
-		if (template == null) {
-			DebugPrinter.log(DebugPrinter.Key.PALETTE, String.format("No Template Palette found for Class %d.", newClassID));
-			
-		}
 		PaletteV2 adapted = new PaletteV2(template);
 		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Adapting Palette using " + referencePalettes.length + " reference palettes.");
 		// We should just apply it to every allegiance. It'll cut down on compression space if they all match.
@@ -450,6 +441,7 @@ public class PaletteLoader {
 		
 		PaletteV2[] referencePalettes = getV2ReferencePalettesForCharacter(referenceID);
 		if (referencePalettes == null || referencePalettes.length == 0) {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Character has no reference palettes. Aborting.");
 			return; // If we have no references, this character probably has no palettes to begin with.
 		}
 		
@@ -522,8 +514,9 @@ public class PaletteLoader {
 					byte[] compressedBase = change.basePalette.getCompressedData();
 					assert compressedBase.length <= availableLength : "Insufficient Space to write palette.";
 					Long targetOffset = mapper.getPaletteOffset(unpromotedPaletteID);
+//					appendedPaletteIDsV2.put(unpromotedPaletteID, change.basePalette);//even this hack fix doesn't catch all of them
 					if (targetOffset == null) { 
-						targetOffset = freeSpace.reserveInternalSpace(compressedBase.length, "Palette 0x" + Integer.toHexString(unpromotedPaletteID), true);
+						targetOffset = freeSpace.reserveSpace(compressedBase.length, "Palette 0x" + Integer.toHexString(unpromotedPaletteID), true);
 						appendedPaletteIDsV2.put(unpromotedPaletteID, change.basePalette);
 					}
 					
@@ -538,9 +531,10 @@ public class PaletteLoader {
 					byte[] compressedPromotion = change.promotedPalette.getCompressedData();
 					assert compressedPromotion.length <= availableLength : "Insufficient Space to write palette.";
 					Long targetOffset = mapper.getPaletteOffset(promotedPaletteID);
+					appendedPaletteIDsV2.put(promotedPaletteID, change.promotedPalette);
 					if (targetOffset == null) {
-						targetOffset = freeSpace.reserveInternalSpace(compressedPromotion.length, "Palette 0x" + Integer.toHexString(promotedPaletteID), true);
-						appendedPaletteIDsV2.put(promotedPaletteID, change.promotedPalette);
+						targetOffset = freeSpace.reserveSpace(compressedPromotion.length, "Palette 0x" + Integer.toHexString(promotedPaletteID), true);
+//						appendedPaletteIDsV2.put(promotedPaletteID, change.promotedPalette);
 					}
 					
 					change.promotedPalette.overrideOffset(targetOffset);
@@ -577,8 +571,8 @@ public class PaletteLoader {
 			
 		} else {
 			for (Change change : queuedChanges) {
-				if (change.basePalette != null) { change.basePalette.commitPalette(compiler); }
-				if (change.promotedPalette != null) { change.promotedPalette.commitPalette(compiler); }
+				if (change.basePalette != null) { change.basePalette.commitPalette(compiler); /*appendedPaletteIDsV2.put(change.character.getUnpromotedPaletteIndex(), change.basePalette);*/ }
+				if (change.promotedPalette != null) { change.promotedPalette.commitPalette(compiler); /*appendedPaletteIDsV2.put(change.character.getPromotedPaletteIndex(), change.promotedPalette);*/ }
 			}
 			
 			// Write the pointers to any palettes we added.
@@ -587,11 +581,13 @@ public class PaletteLoader {
 			if (gameType == GameType.FE6) { baseOffset = FE6Data.PaletteTableOffset; entrySize = FE6Data.PaletteEntrySize; }
 			else if (gameType == GameType.FE7) { baseOffset = FE7Data.PaletteTableOffset; entrySize = FE7Data.PaletteEntrySize; }
 			else { return; }
+			
 			for (Integer appendedPaletteID : appendedPaletteIDsV2.keySet()) {
 				PaletteV2 appendedPalette = appendedPaletteIDsV2.get(appendedPaletteID);
 				long offsetToWriteTo = baseOffset + (appendedPaletteID * entrySize);
 				byte[] bytesToWrite = WhyDoesJavaNotHaveThese.bytesFromAddress(appendedPalette.getDestinationOffset());
-				compiler.addDiff(new Diff(offsetToWriteTo, bytesToWrite.length, bytesToWrite, new byte[] {0, 0, 0, 0}));
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Writing Pointer for Palette 0x" + Integer.toHexString(appendedPaletteID) + " to 0x" + Long.toHexString(appendedPalette.getDestinationOffset()));
+				compiler.addDiff(new Diff(offsetToWriteTo, bytesToWrite.length, bytesToWrite, null));
 			}
 		}
 	}
