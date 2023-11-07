@@ -454,10 +454,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		LORD_KNIGHT(0x07), BLADE_LORD(0x08), GREAT_LORD(0x09),
 		
-		MERCENARY(0x0A), MYRMIDON(0x0E), FIGHTER(0x12), KNIGHT(0x14), ARCHER(0x18), MONK(0x1C), MAGE(0x20), SHAMAN(0x24), CAVALIER(0x28), NOMAD(0x2E), WYVERNKNIGHT(0x34), SOLDIER(0x38),
+		MERCENARY(0x0A), MYRMIDON(0x0E), FIGHTER(0x12), KNIGHT(0x14), ARCHER(0x18), MONK(0x1C), MAGE(0x20), SHAMAN(0x24), CAVALIER(0x28), NOMAD(0x2E), WYVERN_RIDER(0x34), SOLDIER(0x38),
 		BRIGAND(0x39), PIRATE(0x3A), THIEF(0x3C), BARD(0x41), CORSAIR(0x50),
 		
-		ARCHER_F(0x19), CLERIC(0x1D), MAGE_F(0x21), TROUBADOUR(0x2C), PEGASUSKNIGHT(0x32), DANCER(0x40),
+		ARCHER_F(0x19), CLERIC(0x1D), MAGE_F(0x21), TROUBADOUR(0x2C), PEGASUS_KNIGHT(0x32), DANCER(0x40),
 		
 		MERCENARY_F(0x0B), // Doesn't exist naturally. May not work.
 		MYRMIDON_F(0x0F), // Doesn't exist naturally. May not work.
@@ -465,18 +465,18 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		SHAMAN_F(0x25), // Doesn't exist naturally. May not work.
 		CAVALIER_F(0x29), // Doesn't exist naturally. May not work.
 		NOMAD_F(0x2F), // Doesn't exist naturally. May not work.
-		WYVERNKNIGHT_F(0x35), // Doesn't exist naturally. May not work.
+		WYVERN_RIDER_F(0x35), // Doesn't exist naturally. May not work.
 		THIEF_F(0x3D), // Leila?
 		
-		HERO(0x0C), SWORDMASTER(0x10), WARRIOR(0x13), GENERAL(0x16), SNIPER(0x1A), BISHOP(0x1E), SAGE(0x22), DRUID(0x26), PALADIN(0x2A), NOMADTROOPER(0x30), WYVERNLORD(0x36), 
+		HERO(0x0C), SWORDMASTER(0x10), WARRIOR(0x13), GENERAL(0x16), SNIPER(0x1A), BISHOP(0x1E), SAGE(0x22), DRUID(0x26), PALADIN(0x2A), NOMAD_TROOPER(0x30), WYVERN_LORD(0x36), 
 		BERSERKER(0x3B), ASSASSIN(0x3E),
 		
-		SWORDMASTER_F(0x11), SNIPER_F(0x1B), BISHOP_F(0x1F), SAGE_F(0x23), PALADIN_F(0x2B), VALKYRIE(0x2D), FALCONKNIGHT(0x33), WYVERNLORD_F(0x37), 
+		SWORDMASTER_F(0x11), SNIPER_F(0x1B), BISHOP_F(0x1F), SAGE_F(0x23), PALADIN_F(0x2B), VALKYRIE(0x2D), FALCON_KNIGHT(0x33), WYVERN_LORD_F(0x37), 
 		
 		HERO_F(0x0D), // Doesn't exist naturally. May not work.
 		GENERAL_F(0x17), // Doesn't exist naturally. May not work.
 		DRUID_F(0x27), // Doesn't exist naturally. May not work.
-		NOMADTROOPER_F(0x31), // Doesn't exist naturally. May not work.
+		NOMAD_TROOPER_F(0x31), // Doesn't exist naturally. May not work.
 		
 		FIRE_DRAGON(0x46), // For dragon effectiveness.
 		UBER_SAGE(0x5A); // Limstella has higher DEF and RES caps.
@@ -511,28 +511,28 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public static Set<CharacterClass> allMaleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN, CAVALIER, NOMAD,
-				WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMADTROOPER, WYVERNLORD,
+				WYVERN_RIDER, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMAD_TROOPER, WYVERN_LORD,
 				BERSERKER, ASSASSIN, LORD_KNIGHT, GREAT_LORD));
-		public static Set<CharacterClass> allFemaleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
-				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, UBER_SAGE));
+		public static Set<CharacterClass> allFemaleClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUS_KNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
+				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCON_KNIGHT, WYVERN_LORD_F, UBER_SAGE));
 		public static Set<CharacterClass> allLordClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, LORD_KNIGHT, BLADE_LORD, GREAT_LORD));
 		public static Set<CharacterClass> allThiefClasses = new HashSet<CharacterClass>(Arrays.asList(THIEF, ASSASSIN));
 		public static Set<CharacterClass> allSpecialClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, BARD));
 		public static Set<CharacterClass> allUnpromotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_LYN, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN,
-				CAVALIER, NOMAD, WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER));
+				CAVALIER, NOMAD, WYVERN_RIDER, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUS_KNIGHT, DANCER));
 		public static Set<CharacterClass> allPromotedClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_KNIGHT, BLADE_LORD, GREAT_LORD, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID,
-				PALADIN, NOMADTROOPER, WYVERNLORD, BERSERKER, ASSASSIN, SWORDMASTER_F, SNIPER_F, BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, UBER_SAGE));
+				PALADIN, NOMAD_TROOPER, WYVERN_LORD, BERSERKER, ASSASSIN, SWORDMASTER_F, SNIPER_F, BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCON_KNIGHT, WYVERN_LORD_F, UBER_SAGE));
 		public static Set<CharacterClass> allPacifistClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, BARD, CLERIC, TROUBADOUR));
 		public static Set<CharacterClass> allMeleeLockedClasses = new HashSet<CharacterClass>(Arrays.asList(MYRMIDON, MERCENARY, LORD_LYN, LORD_ELIWOOD, THIEF));
 		
 		public static Set<CharacterClass> allValidClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, LORD_HECTOR, MERCENARY, MYRMIDON, FIGHTER, KNIGHT, ARCHER, MONK, MAGE, SHAMAN, CAVALIER, NOMAD,
-				WYVERNKNIGHT, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMADTROOPER, WYVERNLORD,
-				BERSERKER, ASSASSIN, LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUSKNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
-				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCONKNIGHT, WYVERNLORD_F, LORD_KNIGHT, GREAT_LORD, UBER_SAGE));
+				WYVERN_RIDER, SOLDIER, BRIGAND, PIRATE, THIEF, BARD, CORSAIR, HERO, SWORDMASTER, WARRIOR, GENERAL, SNIPER, BISHOP, SAGE, DRUID, PALADIN, NOMAD_TROOPER, WYVERN_LORD,
+				BERSERKER, ASSASSIN, LORD_LYN, BLADE_LORD, ARCHER_F, CLERIC, MAGE_F, TROUBADOUR, PEGASUS_KNIGHT, DANCER, SWORDMASTER_F, SNIPER_F,
+				BISHOP_F, SAGE_F, PALADIN_F, VALKYRIE, FALCON_KNIGHT, WYVERN_LORD_F, LORD_KNIGHT, GREAT_LORD, UBER_SAGE));
 		
 		public static Set<CharacterClass> allPlayerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, BARD));
 		
-		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERNKNIGHT, WYVERNLORD, PEGASUSKNIGHT, FALCONKNIGHT));
+		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, WYVERN_LORD, PEGASUS_KNIGHT, FALCON_KNIGHT));
 		
 		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, MERCENARY, MYRMIDON, THIEF, SWORDMASTER, ASSASSIN, LORD_LYN, SWORDMASTER_F));
 		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, NOMAD, SNIPER, ARCHER_F, SNIPER_F));
@@ -552,8 +552,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			map.put(MAGE, SAGE);
 			map.put(SHAMAN, DRUID);
 			map.put(CAVALIER, PALADIN);
-			map.put(NOMAD, NOMADTROOPER);
-			map.put(WYVERNKNIGHT, WYVERNLORD);
+			map.put(NOMAD, NOMAD_TROOPER);
+			map.put(WYVERN_RIDER, WYVERN_LORD);
 			map.put(SOLDIER, GENERAL);
 			map.put(BRIGAND, BERSERKER);
 			map.put(PIRATE, BERSERKER);
@@ -563,7 +563,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			map.put(CLERIC, BISHOP_F); 
 			map.put(MAGE_F, SAGE_F);
 			map.put(TROUBADOUR, VALKYRIE);
-			map.put(PEGASUSKNIGHT, FALCONKNIGHT);
+			map.put(PEGASUS_KNIGHT, FALCON_KNIGHT);
 			return map;
 		}
 		
@@ -597,7 +597,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			}
 			case KNIGHT:
 			case SOLDIER:
-			case PEGASUSKNIGHT: {
+			case PEGASUS_KNIGHT: {
 				classList.add(MYRMIDON);
 				classList.add(MERCENARY);
 				classList.add(SOLDIER);
@@ -632,7 +632,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			}
 			case ARCHER:
 			case ARCHER_F: {
-				classList.add(PEGASUSKNIGHT);
+				classList.add(PEGASUS_KNIGHT);
 				classList.add(SOLDIER);
 				break;
 			}
@@ -705,20 +705,20 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		private static Set<CharacterClass> limitedClassesForRandomization(CharacterClass sourceClass) {
 			switch(sourceClass) {
-			case WYVERNKNIGHT:
-			case PEGASUSKNIGHT:
-				return new HashSet<CharacterClass>(Arrays.asList(WYVERNKNIGHT, PEGASUSKNIGHT));
-			case WYVERNLORD:
-			case WYVERNLORD_F:
-			case FALCONKNIGHT:
-				return new HashSet<CharacterClass>(Arrays.asList(WYVERNLORD, WYVERNLORD_F, FALCONKNIGHT));
+			case WYVERN_RIDER:
+			case PEGASUS_KNIGHT:
+				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, PEGASUS_KNIGHT));
+			case WYVERN_LORD:
+			case WYVERN_LORD_F:
+			case FALCON_KNIGHT:
+				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_LORD, WYVERN_LORD_F, FALCON_KNIGHT));
 			case PIRATE:
 			case CORSAIR:
-				return new HashSet<CharacterClass>(Arrays.asList(PIRATE, CORSAIR, WYVERNKNIGHT, PEGASUSKNIGHT));
+				return new HashSet<CharacterClass>(Arrays.asList(PIRATE, CORSAIR, WYVERN_RIDER, PEGASUS_KNIGHT));
 			case BRIGAND:
-				return new HashSet<CharacterClass>(Arrays.asList(BRIGAND, WYVERNKNIGHT, PEGASUSKNIGHT));
+				return new HashSet<CharacterClass>(Arrays.asList(BRIGAND, WYVERN_RIDER, PEGASUS_KNIGHT));
 			case BERSERKER:
-				return new HashSet<CharacterClass>(Arrays.asList(BERSERKER, WYVERNLORD, WYVERNLORD_F, FALCONKNIGHT));
+				return new HashSet<CharacterClass>(Arrays.asList(BERSERKER, WYVERN_LORD, WYVERN_LORD_F, FALCON_KNIGHT));
 			default:
 				return null;
 			}
@@ -789,14 +789,14 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			case TROUBADOUR: return 0x6D;
 			case VALKYRIE: return 0x6F;
 			case NOMAD: return 0x73;
-			case NOMADTROOPER: return 0x76;
+			case NOMAD_TROOPER: return 0x76;
 			case THIEF: return 0x78;
 			case ASSASSIN: return 0x7E;
-			case PEGASUSKNIGHT: return 0x80;
-			case FALCONKNIGHT: return 0x83;
-			case WYVERNKNIGHT: return 0x85;
-			case WYVERNLORD_F:
-			case WYVERNLORD: return 0x87;
+			case PEGASUS_KNIGHT: return 0x80;
+			case FALCON_KNIGHT: return 0x83;
+			case WYVERN_RIDER: return 0x85;
+			case WYVERN_LORD_F:
+			case WYVERN_LORD: return 0x87;
 			case DANCER: return 0x8C;
 			case BARD: return 0x8D;
 			case BERSERKER: return 0x9C;
@@ -826,11 +826,11 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			case SOLDIER:
 			case KNIGHT:
 			case GENERAL:
-			case PEGASUSKNIGHT:
-			case FALCONKNIGHT:
-			case WYVERNKNIGHT:
-			case WYVERNLORD:
-			case WYVERNLORD_F:
+			case PEGASUS_KNIGHT:
+			case FALCON_KNIGHT:
+			case WYVERN_RIDER:
+			case WYVERN_LORD:
+			case WYVERN_LORD_F:
 				return "Lance";
 			case LORD_HECTOR:
 			case GREAT_LORD:
@@ -845,7 +845,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			case SNIPER:
 			case SNIPER_F:
 			case NOMAD:
-			case NOMADTROOPER:
+			case NOMAD_TROOPER:
 				return "Bow";
 			case MAGE:
 			case MAGE_F:
@@ -1896,7 +1896,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				break;
 			case CHAPTER_3:
 				map.put(CharacterClass.BRIGAND.ID, new ArrayList<Integer>(Arrays.asList(Character.MIGAL.ID)));
-				map.put(CharacterClass.PEGASUSKNIGHT.ID, new ArrayList<Integer>(Arrays.asList(Character.FLORINA.ID)));
+				map.put(CharacterClass.PEGASUS_KNIGHT.ID, new ArrayList<Integer>(Arrays.asList(Character.FLORINA.ID)));
 				break;
 			case CHAPTER_4:
 				map.put(CharacterClass.BRIGAND.ID, new ArrayList<Integer>(Arrays.asList(Character.CARJIGA.ID)));
@@ -1934,7 +1934,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				map.put(CharacterClass.ASSASSIN.ID, new ArrayList<Integer>(Arrays.asList(Character.JAFFAR.ID)));
 				break;
 			case CHAPTER_29:
-				map.put(CharacterClass.WYVERNKNIGHT.ID, new ArrayList<Integer>(Arrays.asList(Character.NONE.ID)));
+				map.put(CharacterClass.WYVERN_RIDER.ID, new ArrayList<Integer>(Arrays.asList(Character.NONE.ID)));
 				break;
 			default:
 				break;
@@ -2095,9 +2095,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		DRUID_CANAS(0x29, Character.CANAS.ID, CharacterClass.DRUID.ID, 0xFD9F08),
 		DRUID_TEODOR(0x2A, Character.TEODOR.ID, CharacterClass.DRUID.ID, 0xFD9F5C),
 		
-		FALCONKNIGHT_FARINA(0x2C, Character.FARINA.ID, CharacterClass.FALCONKNIGHT.ID, 0xFDA00C),
-		FALCONKNIGHT_FIORA(0x2D, Character.FIORA.ID, CharacterClass.FALCONKNIGHT.ID, 0xFDA07C),
-		FALCONKNIGHT_FLORINA(0x2E, Character.FLORINA.ID, CharacterClass.FALCONKNIGHT.ID, 0xFDA0EC),
+		FALCON_KNIGHT_FARINA(0x2C, Character.FARINA.ID, CharacterClass.FALCON_KNIGHT.ID, 0xFDA00C),
+		FALCON_KNIGHT_FIORA(0x2D, Character.FIORA.ID, CharacterClass.FALCON_KNIGHT.ID, 0xFDA07C),
+		FALCON_KNIGHT_FLORINA(0x2E, Character.FLORINA.ID, CharacterClass.FALCON_KNIGHT.ID, 0xFDA0EC),
 		
 		FIGHTER_BARTRE(0x2F, Character.BARTRE.ID, CharacterClass.FIGHTER.ID, 0xFDA15C),
 		FIGHTER_DORCAS(0x30, Character.DORCAS.ID, CharacterClass.FIGHTER.ID, 0xFDA1B4),
@@ -2145,8 +2145,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		NOMAD_RATH(0x41, Character.RATH.ID, CharacterClass.NOMAD.ID, 0xFDA89C),
 		NOMAD_SEALEN(0x42, Character.SEALEN.ID, CharacterClass.NOMAD.ID, 0xFDA910),
 		
-		NOMADTROOPER_RATH(0x43, Character.RATH.ID, CharacterClass.NOMADTROOPER.ID, 0xFDA984),
-		NOMADTROOPER_UHAI(0x44, Character.UHAI.ID, CharacterClass.NOMADTROOPER.ID, 0xFDAA14),
+		NOMAD_TROOPER_RATH(0x43, Character.RATH.ID, CharacterClass.NOMAD_TROOPER.ID, 0xFDA984),
+		NOMAD_TROOPER_UHAI(0x44, Character.UHAI.ID, CharacterClass.NOMAD_TROOPER.ID, 0xFDAA14),
 		
 		PALADIN_KENT(0x49, Character.KENT.ID, CharacterClass.PALADIN.ID, 0xFDAC6C),
 		PALADIN_LOWEN(0x4A, Character.LOWEN.ID, CharacterClass.PALADIN.ID, 0xFDACF8),
@@ -2161,9 +2161,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		PALADIN_ISADORA(0x45, Character.ISADORA.ID, CharacterClass.PALADIN_F.ID, 0xFDAA8C),
 		
-		PEGASUSKNIGHT_FARINA(0x4F, Character.FARINA.ID, CharacterClass.PEGASUSKNIGHT.ID, 0xFDAF8C),
-		PEGASUSKNIGHT_FIORA(0x50, Character.FIORA.ID, CharacterClass.PEGASUSKNIGHT.ID, 0xFDAFF8),
-		PEGASUSKNIGHT_FLORINA(0x51, Character.FLORINA.ID, CharacterClass.PEGASUSKNIGHT.ID, 0xFDB064),
+		PEGASUS_KNIGHT_FARINA(0x4F, Character.FARINA.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0xFDAF8C),
+		PEGASUS_KNIGHT_FIORA(0x50, Character.FIORA.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0xFDAFF8),
+		PEGASUS_KNIGHT_FLORINA(0x51, Character.FLORINA.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0xFDB064),
 		
 		PIRATE_DART(0x52, Character.DART.ID, CharacterClass.PIRATE.ID, 0xFDB0D4), // Needs hair override
 		
@@ -2205,10 +2205,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		WARRIOR_OLEG(0x75, Character.OLEG.ID, CharacterClass.WARRIOR.ID, 0xFDBE70), // Hair override
 		WARRIOR_PAUL(0x76, Character.PAUL.ID, CharacterClass.WARRIOR.ID, 0xFDBECC),
 		
-		WYVERNKNIGHT_HEATH(0x25, Character.HEATH.ID, CharacterClass.WYVERNKNIGHT.ID, 0xFD9D44), // May need hair override.
+		WYVERN_RIDER_HEATH(0x25, Character.HEATH.ID, CharacterClass.WYVERN_RIDER.ID, 0xFD9D44), // May need hair override.
 		
-		WYVERNLORD_HEATH(0x26, Character.HEATH.ID, CharacterClass.WYVERNLORD.ID, 0xFD9DB4),
-		WYVERNLORD_VAIDA(0x27, Character.VAIDA.ID, CharacterClass.WYVERNLORD_F.ID, 0xFD9E34), // Hair override
+		WYVERN_LORD_HEATH(0x26, Character.HEATH.ID, CharacterClass.WYVERN_LORD.ID, 0xFD9DB4),
+		WYVERN_LORD_VAIDA(0x27, Character.VAIDA.ID, CharacterClass.WYVERN_LORD_F.ID, 0xFD9E34), // Hair override
 		
 		GENERIC_ELIWOOD_LORD(0x0, Character.NONE.ID, CharacterClass.LORD_ELIWOOD.ID, 0xE07958),
 		GENERIC_LORD_KNIGHT(0x0, Character.NONE.ID, CharacterClass.LORD_KNIGHT.ID, 0xE10654),
@@ -2248,13 +2248,13 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		GENERIC_TROUBADOUR(0x0, Character.NONE.ID, CharacterClass.TROUBADOUR.ID, 0xF24490),
 		GENERIC_VALKYRIE(0x0, Character.NONE.ID, CharacterClass.VALKYRIE.ID, 0xF2817C),
 		GENERIC_NOMAD(0x0, Character.NONE.ID, CharacterClass.NOMAD.ID, 0xF2FF14),
-		GENERIC_NOMADTROOPER(0x0, Character.NONE.ID, CharacterClass.NOMADTROOPER.ID, 0xF39590),
+		GENERIC_NOMAD_TROOPER(0x0, Character.NONE.ID, CharacterClass.NOMAD_TROOPER.ID, 0xF39590),
 		GENERIC_THIEF(0x0, Character.NONE.ID, CharacterClass.THIEF.ID, 0xF3E024),
 		GENERIC_ASSASSIN(0x0, Character.NONE.ID, CharacterClass.ASSASSIN.ID, 0xF43390),
-		GENERIC_PEGASUSKNIGHT(0x0, Character.NONE.ID, CharacterClass.PEGASUSKNIGHT.ID, 0xF4BC70),
-		GENERIC_FALCONKNIGHT(0x0, Character.NONE.ID, CharacterClass.FALCONKNIGHT.ID, 0xF5A7E0),
-		GENERIC_WYVERNKNIGHT(0x0, Character.NONE.ID, CharacterClass.WYVERNKNIGHT.ID, 0xF64434),
-		GENERIC_WYVERNLORD(0x0, Character.NONE.ID, CharacterClass.WYVERNLORD.ID, 0xF718C8),
+		GENERIC_PEGASUS_KNIGHT(0x0, Character.NONE.ID, CharacterClass.PEGASUS_KNIGHT.ID, 0xF4BC70),
+		GENERIC_FALCON_KNIGHT(0x0, Character.NONE.ID, CharacterClass.FALCON_KNIGHT.ID, 0xF5A7E0),
+		GENERIC_WYVERN_RIDER(0x0, Character.NONE.ID, CharacterClass.WYVERN_RIDER.ID, 0xF64434),
+		GENERIC_WYVERN_LORD(0x0, Character.NONE.ID, CharacterClass.WYVERN_LORD.ID, 0xF718C8),
 		GENERIC_DANCER(0x0, Character.NONE.ID, CharacterClass.DANCER.ID, 0xF816D4),
 		GENERIC_BARD(0x0, Character.NONE.ID, CharacterClass.BARD.ID, 0xF83F80),
 		GENERIC_BERSERKER(0x0, Character.NONE.ID, CharacterClass.BERSERKER.ID, 0xFA106C)
@@ -2332,13 +2332,13 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			spritePalettesByClass.put(CharacterClass.TROUBADOUR.ID, GENERIC_TROUBADOUR.info);
 			spritePalettesByClass.put(CharacterClass.VALKYRIE.ID, GENERIC_VALKYRIE.info);
 			spritePalettesByClass.put(CharacterClass.NOMAD.ID, GENERIC_NOMAD.info);
-			spritePalettesByClass.put(CharacterClass.NOMADTROOPER.ID, GENERIC_NOMADTROOPER.info);
+			spritePalettesByClass.put(CharacterClass.NOMAD_TROOPER.ID, GENERIC_NOMAD_TROOPER.info);
 			spritePalettesByClass.put(CharacterClass.THIEF.ID, GENERIC_THIEF.info);
 			spritePalettesByClass.put(CharacterClass.ASSASSIN.ID, GENERIC_ASSASSIN.info);
-			spritePalettesByClass.put(CharacterClass.PEGASUSKNIGHT.ID, GENERIC_PEGASUSKNIGHT.info);
-			spritePalettesByClass.put(CharacterClass.FALCONKNIGHT.ID, GENERIC_FALCONKNIGHT.info);
-			spritePalettesByClass.put(CharacterClass.WYVERNKNIGHT.ID, GENERIC_WYVERNKNIGHT.info);
-			spritePalettesByClass.put(CharacterClass.WYVERNLORD.ID, GENERIC_WYVERNLORD.info);
+			spritePalettesByClass.put(CharacterClass.PEGASUS_KNIGHT.ID, GENERIC_PEGASUS_KNIGHT.info);
+			spritePalettesByClass.put(CharacterClass.FALCON_KNIGHT.ID, GENERIC_FALCON_KNIGHT.info);
+			spritePalettesByClass.put(CharacterClass.WYVERN_RIDER.ID, GENERIC_WYVERN_RIDER.info);
+			spritePalettesByClass.put(CharacterClass.WYVERN_LORD.ID, GENERIC_WYVERN_LORD.info);
 			spritePalettesByClass.put(CharacterClass.DANCER.ID, GENERIC_DANCER.info);
 			spritePalettesByClass.put(CharacterClass.BARD.ID, GENERIC_BARD.info);
 			spritePalettesByClass.put(CharacterClass.BERSERKER.ID, GENERIC_BERSERKER.info);
@@ -2363,7 +2363,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			defaultPaletteForClass.put(CharacterClass.MONK.ID, MONK_LUCIUS.info);
 			defaultPaletteForClass.put(CharacterClass.MYRMIDON.ID, MYRMIDON_GUY.info);
 			defaultPaletteForClass.put(CharacterClass.DRUID.ID, DRUID_CANAS.info);
-			defaultPaletteForClass.put(CharacterClass.FALCONKNIGHT.ID, FALCONKNIGHT_FLORINA.info);
+			defaultPaletteForClass.put(CharacterClass.FALCON_KNIGHT.ID, FALCON_KNIGHT_FLORINA.info);
 			defaultPaletteForClass.put(CharacterClass.GENERAL.ID, GENERAL_OSWIN.info);
 			defaultPaletteForClass.put(CharacterClass.HERO.ID, HERO_HARKEN.info);
 			defaultPaletteForClass.put(CharacterClass.GREAT_LORD.ID, GREAT_LORD_HECTOR.info);
@@ -2380,10 +2380,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			defaultPaletteForClass.put(CharacterClass.UBER_SAGE.ID, UBER_SAGE_LIMSTELLA.info);
 			defaultPaletteForClass.put(CharacterClass.MERCENARY.ID, MERCENARY_RAVEN.info);
 			defaultPaletteForClass.put(CharacterClass.NOMAD.ID, NOMAD_RATH.info);
-			defaultPaletteForClass.put(CharacterClass.NOMADTROOPER.ID, NOMADTROOPER_RATH.info);
+			defaultPaletteForClass.put(CharacterClass.NOMAD_TROOPER.ID, NOMAD_TROOPER_RATH.info);
 			defaultPaletteForClass.put(CharacterClass.PALADIN.ID, PALADIN_MARCUS.info);
 			defaultPaletteForClass.put(CharacterClass.PALADIN_F.ID, PALADIN_ISADORA.info);
-			defaultPaletteForClass.put(CharacterClass.PEGASUSKNIGHT.ID, PEGASUSKNIGHT_FLORINA.info);
+			defaultPaletteForClass.put(CharacterClass.PEGASUS_KNIGHT.ID, PEGASUS_KNIGHT_FLORINA.info);
 			defaultPaletteForClass.put(CharacterClass.PIRATE.ID, PIRATE_DART.info);
 			defaultPaletteForClass.put(CharacterClass.CORSAIR.ID, PIRATE_DART.info);
 			defaultPaletteForClass.put(CharacterClass.SHAMAN.ID, SHAMAN_CANAS.info);
@@ -2391,9 +2391,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			defaultPaletteForClass.put(CharacterClass.TROUBADOUR.ID, TROUBADOUR_PRISCILLA.info);
 			defaultPaletteForClass.put(CharacterClass.VALKYRIE.ID, VALKYRIE_PRISCILLA.info);
 			defaultPaletteForClass.put(CharacterClass.WARRIOR.ID, WARRIOR_DORCAS.info);
-			defaultPaletteForClass.put(CharacterClass.WYVERNKNIGHT.ID, WYVERNKNIGHT_HEATH.info);
-			defaultPaletteForClass.put(CharacterClass.WYVERNLORD.ID, WYVERNLORD_HEATH.info);
-			defaultPaletteForClass.put(CharacterClass.WYVERNLORD_F.ID, WYVERNLORD_VAIDA.info);
+			defaultPaletteForClass.put(CharacterClass.WYVERN_RIDER.ID, WYVERN_RIDER_HEATH.info);
+			defaultPaletteForClass.put(CharacterClass.WYVERN_LORD.ID, WYVERN_LORD_HEATH.info);
+			defaultPaletteForClass.put(CharacterClass.WYVERN_LORD_F.ID, WYVERN_LORD_VAIDA.info);
 		}
 		
 		private Palette(int paletteID, int charID, int classID, long offset) {
@@ -2920,7 +2920,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		case BISHOP_F: return FE7Data.CharacterClass.BISHOP;
 		case SAGE_F: return FE7Data.CharacterClass.SAGE;
 		case PALADIN_F: return FE7Data.CharacterClass.PALADIN;
-		case WYVERNLORD_F: return FE7Data.CharacterClass.WYVERNLORD;
+		case WYVERN_LORD_F: return FE7Data.CharacterClass.WYVERN_LORD;
 		case UBER_SAGE: return FE7Data.CharacterClass.SAGE;
 		default: return charClass;
 		}
@@ -2939,7 +2939,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		case BISHOP: return FE7Data.CharacterClass.BISHOP_F;
 		case SAGE: return FE7Data.CharacterClass.SAGE_F;
 		case PALADIN: return FE7Data.CharacterClass.PALADIN_F;
-		case WYVERNLORD: return FE7Data.CharacterClass.WYVERNLORD_F;
+		case WYVERN_LORD: return FE7Data.CharacterClass.WYVERN_LORD_F;
 		default: return charClass;
 		}
 	}
@@ -3126,10 +3126,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			break;
 		case KNIGHT:
 		case KNIGHT_F:
-		case WYVERNKNIGHT:
-		case WYVERNKNIGHT_F:
+		case WYVERN_RIDER:
+		case WYVERN_RIDER_F:
 		case SOLDIER:
-		case PEGASUSKNIGHT:
+		case PEGASUS_KNIGHT:
 			usableItems.addAll(Item.allLances);
 			break;
 		case ARCHER:
@@ -3175,9 +3175,9 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		case LORD_KNIGHT:
 		case CAVALIER:
 		case CAVALIER_F:
-		case FALCONKNIGHT:
-		case WYVERNLORD:
-		case WYVERNLORD_F:
+		case FALCON_KNIGHT:
+		case WYVERN_LORD:
+		case WYVERN_LORD_F:
 			usableItems.addAll(Item.allSwords);
 			usableItems.addAll(Item.allLances);
 			break;
@@ -3197,8 +3197,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			usableItems.addAll(Item.allAxes);
 			break;
 		case BLADE_LORD:
-		case NOMADTROOPER:
-		case NOMADTROOPER_F:
+		case NOMAD_TROOPER:
+		case NOMAD_TROOPER_F:
 			usableItems.addAll(Item.allSwords);
 			usableItems.addAll(Item.allBows);
 			break;
@@ -3376,8 +3376,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.GENERAL_F,
 				CharacterClass.NOMAD,
 				CharacterClass.NOMAD_F,
-				CharacterClass.NOMADTROOPER,
-				CharacterClass.NOMADTROOPER_F,
+				CharacterClass.NOMAD_TROOPER,
+				CharacterClass.NOMAD_TROOPER_F,
 				CharacterClass.TROUBADOUR,
 				CharacterClass.VALKYRIE,
 				CharacterClass.LORD_KNIGHT,
@@ -3411,8 +3411,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.PALADIN_F,
 				CharacterClass.NOMAD,
 				CharacterClass.NOMAD_F,
-				CharacterClass.NOMADTROOPER,
-				CharacterClass.NOMADTROOPER_F,
+				CharacterClass.NOMAD_TROOPER,
+				CharacterClass.NOMAD_TROOPER_F,
 				CharacterClass.TROUBADOUR,
 				CharacterClass.VALKYRIE,
 				CharacterClass.LORD_KNIGHT,
@@ -3426,10 +3426,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public List<GBAFEClass> dragonEffectivenessClasses() {
 		return new ArrayList<GBAFEClass>(Arrays.asList(
 				CharacterClass.FIRE_DRAGON,
-				CharacterClass.WYVERNKNIGHT,
-				CharacterClass.WYVERNKNIGHT_F,
-				CharacterClass.WYVERNLORD,
-				CharacterClass.WYVERNLORD_F,
+				CharacterClass.WYVERN_RIDER,
+				CharacterClass.WYVERN_RIDER_F,
+				CharacterClass.WYVERN_LORD,
+				CharacterClass.WYVERN_LORD_F,
 				CharacterClass.NONE,
 				CharacterClass.NONE,
 				CharacterClass.NONE,
@@ -3439,12 +3439,12 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	public List<GBAFEClass> flierEffectivenessClasses() {
 		return new ArrayList<GBAFEClass>(Arrays.asList(
-				CharacterClass.PEGASUSKNIGHT,
-				CharacterClass.FALCONKNIGHT,
-				CharacterClass.WYVERNKNIGHT,
-				CharacterClass.WYVERNKNIGHT_F,
-				CharacterClass.WYVERNLORD,
-				CharacterClass.WYVERNLORD_F,
+				CharacterClass.PEGASUS_KNIGHT,
+				CharacterClass.FALCON_KNIGHT,
+				CharacterClass.WYVERN_RIDER,
+				CharacterClass.WYVERN_RIDER_F,
+				CharacterClass.WYVERN_LORD,
+				CharacterClass.WYVERN_LORD_F,
 				CharacterClass.NONE,
 				CharacterClass.NONE,
 				CharacterClass.NONE,
