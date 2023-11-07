@@ -116,7 +116,6 @@ public class PaletteV2 {
 	}
 	
 	public void overrideOffset(long newOffset) {
-		//System.out.println("Overriding offset for palette " + Integer.toHexString(identifier));
 		destinationOffset = newOffset;
 	}
 	
@@ -307,7 +306,6 @@ public class PaletteV2 {
 			avgLum += PaletteColor.getLuminosity(color);
 		}
 		avgLum /= newPrimaryColor.length;
-//		System.out.println("Lum: " + avgLum);
 		if (avgLum > 0.51 && lastIndex > 1) {
 			PaletteColor newColor = PaletteColor.darkerColor(newPrimaryColor[lastIndex]);
 			for (int i = 0; i < lastIndex; i++) {
@@ -316,7 +314,6 @@ public class PaletteV2 {
 			newPrimaryColor[lastIndex] = newColor;
 			if (PaletteColor.getLuminosity(newPrimaryColor[lastIndex-2]) - PaletteColor.getLuminosity(newPrimaryColor[lastIndex-1]) > 0.5) {
 				newPrimaryColor[lastIndex-1] = PaletteColor.averageColorFromColors(new PaletteColor[] {newPrimaryColor[lastIndex-2], newColor});
-				//System.out.println("woah...");
 			}
 		}
 		
@@ -344,7 +341,6 @@ public class PaletteV2 {
 		}
 		avgLum /= newSecondaryColor.length;
 		if (avgLum > 0.55) {
-//			System.out.println("hwoar 2...");
 			PaletteColor newColor = PaletteColor.darkerColor(newSecondaryColor[lastIndex]);
 			for (int i = 0; i < lastIndex; i++) {
 				newSecondaryColor[i] = newSecondaryColor[i+1];
