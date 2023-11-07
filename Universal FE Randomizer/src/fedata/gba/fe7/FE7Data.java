@@ -459,24 +459,24 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		ARCHER_F(0x19), CLERIC(0x1D), MAGE_F(0x21), TROUBADOUR(0x2C), PEGASUS_KNIGHT(0x32), DANCER(0x40),
 		
-		MERCENARY_F(0x0B), // Doesn't exist naturally. May not work.
-		MYRMIDON_F(0x0F), // Doesn't exist naturally. May not work.
-		KNIGHT_F(0x15), // Doesn't exist naturally. May not work.
-		SHAMAN_F(0x25), // Doesn't exist naturally. May not work.
-		CAVALIER_F(0x29), // Doesn't exist naturally. May not work.
-		NOMAD_F(0x2F), // Doesn't exist naturally. May not work.
-		WYVERN_RIDER_F(0x35), // Doesn't exist naturally. May not work.
-		THIEF_F(0x3D), // Leila?
+		MERCENARY_F(0x0B), // Doesn't exist naturally. Dysfunctional map sprites. Uses male battle animations.
+		MYRMIDON_F(0x0F), // Doesn't exist naturally. Uses male battle animations.
+		KNIGHT_F(0x15), // Doesn't exist naturally.
+		SHAMAN_F(0x25), // Doesn't exist naturally. Uses male battle animations.
+		CAVALIER_F(0x29), // Doesn't exist naturally. uses male map sprites. Uses a mix of male Cavalier and Assassin(!) animations.
+		NOMAD_F(0x2F), // Uses male battle animations. 
+		WYVERN_RIDER_F(0x35), // Doesn't exist naturally.
+		THIEF_F(0x3D), // For Leila
 		
 		HERO(0x0C), SWORDMASTER(0x10), WARRIOR(0x13), GENERAL(0x16), SNIPER(0x1A), BISHOP(0x1E), SAGE(0x22), DRUID(0x26), PALADIN(0x2A), NOMAD_TROOPER(0x30), WYVERN_LORD(0x36), 
 		BERSERKER(0x3B), ASSASSIN(0x3E),
 		
 		SWORDMASTER_F(0x11), SNIPER_F(0x1B), BISHOP_F(0x1F), SAGE_F(0x23), PALADIN_F(0x2B), VALKYRIE(0x2D), FALCON_KNIGHT(0x33), WYVERN_LORD_F(0x37), 
 		
-		HERO_F(0x0D), // Doesn't exist naturally. May not work.
-		GENERAL_F(0x17), // Doesn't exist naturally. May not work.
-		DRUID_F(0x27), // Doesn't exist naturally. May not work.
-		NOMAD_TROOPER_F(0x31), // Doesn't exist naturally. May not work.
+		HERO_F(0x0D), // Doesn't exist naturally. Uses male Hero battle animations.
+		GENERAL_F(0x17), // Uses male General battle animations.
+		DRUID_F(0x27), // Uses male Druid battle animations.
+		NOMAD_TROOPER_F(0x31), // Doesn't exist naturally. Uses male Nomad Trooper battle animations.
 		
 		FIRE_DRAGON(0x46), // For dragon effectiveness.
 		UBER_SAGE(0x5A); // Limstella has higher DEF and RES caps.
