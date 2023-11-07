@@ -2404,7 +2404,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			if (charClass != null) {
 				switch (charClass) {
 				case SOLDIER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {}, new int[] {8, 9, 10});
 					break;
 				case BLADE_LORD:
 				case LORD_LYN:
@@ -2415,16 +2415,18 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					break;
 				case ARCHER:
 				case ARCHER_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {});
+					break;
 				case SNIPER:
 				case SNIPER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {}, new int[] {8, 9, 10});
 					break;
 				case ASSASSIN:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {5, 10});
 					break;
 				case BRIGAND:
 				case FIGHTER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {}, new int[] {8, 9, 10});
 					break;
 				case BARD:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {8, 9, 10, 4});
@@ -2433,7 +2435,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					if (charID == Character.HAWKEYE.ID) {
 						this.info = new PaletteInfo(classID, charID, offset, new int[] {4, 5, 6}, new int[] {12, 13, 14}, new int[] {});
 					} else {
-						this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {});
+						this.info = new PaletteInfo(classID, charID, offset, new int[] {8, 9, 10}, new int[] {12, 13, 14}, new int[] {});
 					}
 					break;
 				case BISHOP:
@@ -2447,7 +2449,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case CAVALIER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11}, new int[] {3, 5});
 					break;
 				case CLERIC:
 				case MONK: // May need to split out Lucius as a special case. This is assuming a Lucius sprite, which is unique from other monks.
@@ -2460,19 +2462,20 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 						this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {});
 					}
 					break;
-				case FALCONKNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10, 14}, new int[] {});
+				case FALCON_KNIGHT:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {11, 12, 9, 13, 10, 14}, new int[] {});
 					break;
 				case GENERAL:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {4, 5});
+				case GENERAL_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {4, 5}, new int[] {8, 9, 10});
 					break;
 				case HERO:
 				case LORD_HECTOR:
 				case GREAT_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13}, new int[] {}, new int[] {8, 9, 10});
 					break;
 				case KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 5, 3, 2, 1}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 2, 1}, new int[] {}, new int[] {9, 5, 3});
 					break;
 				case LORD_ELIWOOD:
 				case LORD_KNIGHT:
@@ -2497,16 +2500,16 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case NOMAD:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 4, 9, 5, 10, 11, 14}, new int[] {});
 					break;
-				case NOMADTROOPER:
+				case NOMAD_TROOPER:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 2, 9, 5, 10, 11}, new int[] {});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 7, 9, 10, 11}, new int[] {}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {}, new int[] {6, 7});
 					break;
 				case PALADIN_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {9, 10, 11}, new int[] {}); // Hair matches shield in the female.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11}, new int[] {}); // Hair matches shield in the female.
 					break;
-				case PEGASUSKNIGHT:
+				case PEGASUS_KNIGHT:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10}, new int[] {}, new int[] {});
 					break;
 				case CORSAIR:
@@ -2529,12 +2532,12 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case WARRIOR:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {7, 11}); // No Hair. Primary is pants/helmet color. Secondary is breastplate.
 					break;
-				case WYVERNKNIGHT:
+				case WYVERN_RIDER:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {3, 2}, new int[] {10, 11, 12, 13}, new int[] {9});
 					break;
-				case WYVERNLORD:
-				case WYVERNLORD_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {7, 8}, new int[] {10, 11, 12, 13}, new int[] {9});
+				case WYVERN_LORD:
+				case WYVERN_LORD_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {10, 11, 12, 13}, new int[] {7, 9, 8}, new int[] {}); // Primary is Wyvern body, secondary is armor/belly/wing
 					break;
 				default:
 					assert false: "Unable to create palette info.";
