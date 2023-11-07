@@ -528,7 +528,6 @@ public class PaletteLoader {
 					byte[] compressedBase = change.basePalette.getCompressedData();
 					assert compressedBase.length <= availableLength : "Insufficient Space to write palette.";
 					Long targetOffset = mapper.getPaletteOffset(unpromotedPaletteID);
-//					appendedPaletteIDsV2.put(unpromotedPaletteID, change.basePalette);//even this hack fix doesn't catch all of them
 					if (targetOffset == null) { 
 						targetOffset = freeSpace.reserveSpace(compressedBase.length, "Palette 0x" + Integer.toHexString(unpromotedPaletteID), true);
 						appendedPaletteIDsV2.put(unpromotedPaletteID, change.basePalette);
