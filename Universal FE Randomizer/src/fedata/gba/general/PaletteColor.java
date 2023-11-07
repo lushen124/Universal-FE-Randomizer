@@ -506,16 +506,16 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	}
 
 	@Override
-	public String toString() {
-		return String.format("PaletteCollor red: %d, green %d, blue %d, brightness %f", getRedValue(), getGreenValue(), getBlueValue(), getBrightness());
-	}
-
-	@Override
 	public int compareTo(PaletteColor arg0) {
 		// Return -1 if this is less than arg0, 1 if this is greater than arg0, and 0 if the two are the same.
 		// We just need to compare brightness for our purposes, so that when ordered, our colors go from brightest to darkest.
 		// So higher brightness values are "lower" for us.
 		// If our brightness value is lower, we are a darker color and therefore come later in the list. This means we are "greater" than the other color.
 		return brightness < arg0.brightness ? 1 : -1;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("PaletteCollor red: %d, green %d, blue %d, brightness %f", getRedValue(), getGreenValue(), getBlueValue(), getBrightness());
 	}
 }
