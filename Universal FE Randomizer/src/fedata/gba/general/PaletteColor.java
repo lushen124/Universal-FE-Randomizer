@@ -81,9 +81,51 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		
 		calculateValuesWithHSB();
 	}
-	
+	/**
+	 * 4 Hex Bytes per Color <br>
+	 * 1st Byte = 0-F -> GG GR <br>
+	 * 2nd Byte = 0-F -> RR RR <br>
+	 * 3rd Byte = 0-7 -> []B BB <br>
+	 * 4th Byte = 0-F -> B B GG <br>
+	 * 
+	 * Binary: (5 Bits each)<br>
+	 * 
+	 * G = 44|111 <br>
+	 * R = 1 |2222 <br>
+	 * B = 333 |44 <br>
+	 */
+	public PaletteColor(String colorString) {
+		// We get 4 Hex Numbers, put each into it's own int
+		int byte1 = Integer.parseInt(colorString.substring(0, 1), 16);
+		int byte2 = Integer.parseInt(colorString.substring(1, 2), 16);
+		int byte3 = Integer.parseInt(colorString.substring(2, 3), 16);
+		int byte4 = Integer.parseInt(colorString.substring(3, 4), 16);
+
+		// Get the values for each color based on the example in the method comment.
+		// Bits that are on the right side of the Byte can be filtered out with bitwise
+		// OR
+		String byte2R = Integer.toBinaryString(byte2);
+		String byte4G = Integer.toBinaryString(byte4 & 3);
+		String byte3B = Integer.toBinaryString(byte3 & 7);
+		// Bits that are on the right side of the Byte should be shifted left
+		String byte1G = Integer.toBinaryString(byte1 >>> 1);
+		String byte4B = Integer.toBinaryString(byte4 >>> 2);
+
+		String rByte = Integer.toBinaryString(byte1 & 1) + ("0000".substring(byte2R.length()) + byte2R);
+		String gByte = ("00".substring(byte4G.length()) + byte4G) + ("000".substring(byte1G.length()) + byte1G);
+		String bByte = ("000".substring(byte3B.length()) + byte3B) + ("00".substring(byte4B.length()) + byte4B);
+
+		red = (double) WhyDoesJavaNotHaveThese.clamp(8 * Integer.parseInt(rByte, 2), 0, 255) / 255.0;
+		green = (double) WhyDoesJavaNotHaveThese.clamp(8 * Integer.parseInt(gByte, 2), 0, 255) / 255.0;
+		blue = (double) WhyDoesJavaNotHaveThese.clamp(8 * Integer.parseInt(bByte, 2), 0, 255) / 255.0;
+	}
+
 	public boolean isSameAsColor(PaletteColor otherColor) {
 		return toHexString().equals(otherColor.toHexString());
+	}
+
+	public boolean isNoColor() {
+		return this.red == 0 && this.blue == 0 && this.green == 0 && this.brightness == 0 && this.hue == 0 && this.saturation == 0;
 	}
 	
 	public String toHexString() {
@@ -187,9 +229,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	private static PaletteColor[] reduceColors(PaletteColor[] colors, int numberOfColors) {
 		int numberOfColorsToRemove = colors.length - numberOfColors;
 		int indexDelta = colors.length / (numberOfColorsToRemove + 1);
-		//delta = 1
-		//start = 3
-		//remove 1 and 2
+
 		int currentIndex = colors.length - 1;
 		List<PaletteColor> result = new ArrayList<PaletteColor>(Arrays.asList(colors));
 		for (int i = 0; i < numberOfColorsToRemove; i++) {
@@ -463,6 +503,11 @@ public class PaletteColor implements Comparable<PaletteColor> {
 			else if (mul == 5) {	red = brightness;				green = dim;					blue = brightness; }
 			else if (mul < 6) { 	red = brightness;				green = dim;					blue = dim + pro * (6 - mul); }
 		}
+	}
+
+	@Override
+	public String toString() {
+		return String.format("PaletteCollor red: %d, green %d, blue %d, brightness %f", getRedValue(), getGreenValue(), getBlueValue(), getBrightness());
 	}
 
 	@Override
