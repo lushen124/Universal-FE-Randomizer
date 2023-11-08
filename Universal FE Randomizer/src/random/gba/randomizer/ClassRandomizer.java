@@ -1,15 +1,6 @@
 package random.gba.randomizer;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEChapterData;
@@ -18,7 +9,7 @@ import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
-import fedata.gba.general.GBAFEItemProvider.WeaponRanks;
+import fedata.gba.general.WeaponRanks;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase.GameType;
@@ -27,6 +18,7 @@ import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
+import random.gba.randomizer.service.GBASlotAdjustmentService;
 import random.general.PoolDistributor;
 import random.general.RelativeValueMapper;
 import ui.model.ClassOptions;
@@ -432,7 +424,7 @@ public class ClassRandomizer {
 		if (charData.isBossCharacterID(character.getID())) {
 			transferBossWeaponLevels(character, sourceClass, targetClass);
 		} else {
-			transferWeaponLevels(character, sourceClass, targetClass, itemData, rng);
+			GBASlotAdjustmentService.transferWeaponRanks(character, sourceClass, targetClass, rng);
 		}
 		switch (classOptions.basesTransfer) {
 		case ADJUST_TO_MATCH:
@@ -583,7 +575,7 @@ public class ClassRandomizer {
 	private static void updateMinionCharacterToClass(ItemAssignmentOptions inventoryOptions, GBAFEChapterUnitData chapterUnit, GBAFECharacterData minionCharacter, GBAFEClassData sourceClass, GBAFEClassData targetClass, ClassDataLoader classData, ItemDataLoader itemData, Random rng) {
 		// Write this into the character data.
 		minionCharacter.setClassID(targetClass.getID());
-		transferWeaponLevels(minionCharacter, sourceClass, targetClass, itemData, rng);
+		GBASlotAdjustmentService.transferWeaponRanks(minionCharacter, sourceClass, targetClass, rng);
 		chapterUnit.setStartingClass(targetClass.getID());
 		validateMinionInventory(inventoryOptions, chapterUnit, minionCharacter, classData, itemData, rng);
 	}
@@ -1156,194 +1148,17 @@ public class ClassRandomizer {
 	}
 	
 	private static void transferBossWeaponLevels(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass) {
-		int highestRank = 0;
-		// Start with the class defaults.
-		if (sourceClass.getSwordRank() > highestRank) { highestRank = sourceClass.getSwordRank(); }
-		if (sourceClass.getLanceRank() > highestRank) { highestRank = sourceClass.getLanceRank(); }
-		if (sourceClass.getAxeRank() > highestRank) { highestRank = sourceClass.getAxeRank(); }
-		if (sourceClass.getBowRank() > highestRank) { highestRank = sourceClass.getBowRank(); }
-		if (sourceClass.getAnimaRank() > highestRank) { highestRank = sourceClass.getAnimaRank(); }
-		if (sourceClass.getLightRank() > highestRank) { highestRank = sourceClass.getLightRank(); }
-		if (sourceClass.getDarkRank() > highestRank) { highestRank = sourceClass.getDarkRank(); }
-		if (sourceClass.getStaffRank() > highestRank) { highestRank = sourceClass.getStaffRank(); }
-		
-		// Overwrite with character values if they exist.
-		if (character.getSwordRank() > highestRank) { highestRank = character.getSwordRank(); }
-		if (character.getLanceRank() > highestRank) { highestRank = character.getLanceRank(); }
-		if (character.getAxeRank() > highestRank) { highestRank = character.getAxeRank(); }
-		if (character.getBowRank() > highestRank) { highestRank = character.getBowRank(); }
-		if (character.getAnimaRank() > highestRank) { highestRank = character.getAnimaRank(); }
-		if (character.getLightRank() > highestRank) { highestRank = character.getLightRank(); }
-		if (character.getDarkRank() > highestRank) { highestRank = character.getDarkRank(); }
-		if (character.getStaffRank() > highestRank) { highestRank = character.getStaffRank(); }
-		
-		// Bosses should just have all of their ranks set to the highest rank they normally have.
-		// This greatly simplifies weapon assignment.
-		if (targetClass.getSwordRank() > 0) { character.setSwordRank(highestRank); } else { character.setSwordRank(0); }
-		if (targetClass.getLanceRank() > 0) { character.setLanceRank(highestRank); } else { character.setLanceRank(0); }
-		if (targetClass.getAxeRank() > 0) { character.setAxeRank(highestRank); } else { character.setAxeRank(0); }
-		if (targetClass.getBowRank() > 0) { character.setBowRank(highestRank); } else { character.setBowRank(0); }
-		if (targetClass.getAnimaRank() > 0) { character.setAnimaRank(highestRank); } else { character.setAnimaRank(0); }
-		if (targetClass.getLightRank() > 0) { character.setLightRank(highestRank); } else { character.setLightRank(0); }
-		if (targetClass.getDarkRank() > 0) { character.setDarkRank(highestRank); } else { character.setDarkRank(0); }
-		if (targetClass.getStaffRank() > 0) { character.setStaffRank(highestRank); } else { character.setStaffRank(0); }
+		WeaponRanks ranks = new WeaponRanks(character, sourceClass);
+		Optional<WeaponRank> highestRank = ranks.asList().stream().max(WeaponRank::compare);
+
+		WeaponRanks targetRanks = targetClass.getWeaponRanks();
+		for (WeaponType weaponType : WeaponType.getWeaponTypes()) {
+			WeaponRank newRank = WeaponRank.NONE;
+			if (targetRanks.rankForType(weaponType).isHigherThan(WeaponRank.NONE)) {
+				newRank = highestRank.get();
+			}
+			character.setWeaponRank(weaponType, newRank);
+		}
 	}
 	
-	private static void transferWeaponLevels(GBAFECharacterData character, GBAFEClassData sourceClass, GBAFEClassData targetClass, ItemDataLoader itemData, Random rng) {
-		Map<WeaponType, Integer> rankMap = new HashMap<WeaponType, Integer>();
-		
-		// Start with the class defaults.
-		if (sourceClass.getSwordRank() > 0) { rankMap.put(WeaponType.SWORD, sourceClass.getSwordRank()); }
-		if (sourceClass.getLanceRank() > 0) { rankMap.put(WeaponType.LANCE, sourceClass.getLanceRank()); }
-		if (sourceClass.getAxeRank() > 0) { rankMap.put(WeaponType.AXE, sourceClass.getAxeRank()); }
-		if (sourceClass.getBowRank() > 0) { rankMap.put(WeaponType.BOW, sourceClass.getBowRank()); }
-		if (sourceClass.getAnimaRank() > 0) { rankMap.put(WeaponType.ANIMA, sourceClass.getAnimaRank()); }
-		if (sourceClass.getLightRank() > 0) { rankMap.put(WeaponType.LIGHT, sourceClass.getLightRank()); }
-		if (sourceClass.getDarkRank() > 0) { rankMap.put(WeaponType.DARK, sourceClass.getDarkRank()); }
-		if (sourceClass.getStaffRank() > 0) { rankMap.put(WeaponType.STAFF, sourceClass.getStaffRank()); }
-		
-		// Overwrite with character values if they exist.
-		if (character.getSwordRank() > 0) { rankMap.put(WeaponType.SWORD, character.getSwordRank()); }
-		if (character.getLanceRank() > 0) { rankMap.put(WeaponType.LANCE, character.getLanceRank()); }
-		if (character.getAxeRank() > 0) { rankMap.put(WeaponType.AXE, character.getAxeRank()); }
-		if (character.getBowRank() > 0) { rankMap.put(WeaponType.BOW, character.getBowRank()); }
-		if (character.getAnimaRank() > 0) { rankMap.put(WeaponType.ANIMA, character.getAnimaRank()); }
-		if (character.getLightRank() > 0) { rankMap.put(WeaponType.LIGHT, character.getLightRank()); }
-		if (character.getDarkRank() > 0) { rankMap.put(WeaponType.DARK, character.getDarkRank()); }
-		if (character.getStaffRank() > 0) { rankMap.put(WeaponType.STAFF, character.getStaffRank()); }
-
-		ArrayList<Integer> ranks = new ArrayList<Integer>(rankMap.values().stream().sorted(new Comparator<Integer>() {
-			@Override
-			public int compare(Integer arg0, Integer arg1) {
-				return Integer.compare(arg0, arg1);
-			}
-		}).collect(Collectors.toList()));
-		
-		Boolean applySwordRank = targetClass.getSwordRank() > 0;
-		Boolean applyLanceRank = targetClass.getLanceRank() > 0;
-		Boolean applyAxeRank = targetClass.getAxeRank() > 0;
-		Boolean applyBowRank = targetClass.getBowRank() > 0;
-		Boolean applyAnimaRank = targetClass.getAnimaRank() > 0;
-		Boolean applyLightRank = targetClass.getLightRank() > 0;
-		Boolean applyDarkRank = targetClass.getDarkRank() > 0;
-		Boolean applyStaffRank = targetClass.getStaffRank() > 0;
-		
-		int weaponUsageCount = 0;
-		if (applySwordRank) { weaponUsageCount++; }
-		if (applyLanceRank) { weaponUsageCount++; }
-		if (applyAxeRank) { weaponUsageCount++; }
-		if (applyBowRank) { weaponUsageCount++; }
-		if (applyAnimaRank) { weaponUsageCount++; }
-		if (applyLightRank) { weaponUsageCount++; }
-		if (applyDarkRank) { weaponUsageCount++; }
-		if (applyStaffRank) { weaponUsageCount++; }
-		
-		while (ranks.size() > weaponUsageCount) {
-			ranks.remove(0); // Remove the lowest rank if we have more ranks to work with than slots to fill
-		}
-		
-		int[] targetRanks = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-		
-		if (applySwordRank) {
-			int rankToApply = targetClass.getBaseRankValue();
-			if (ranks.size() > 0) {
-				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
-				if (rng.nextInt(2) == 0) {
-					ranks.remove(rankIndex);
-				}
-			}
-			targetRanks[0] = rankToApply;
-		}
-		if (applyLanceRank) {
-			int rankToApply = targetClass.getBaseRankValue();
-			if (ranks.size() > 0) {
-				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
-				if (rng.nextInt(2) == 0) {
-					ranks.remove(rankIndex);
-				}
-			}
-			targetRanks[1] = rankToApply;
-		}
-		if (applyAxeRank) {
-			int rankToApply = targetClass.getBaseRankValue();
-			if (ranks.size() > 0) {
-				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
-				if (rng.nextInt(2) == 0) {
-					ranks.remove(rankIndex);
-				}
-			}
-			targetRanks[2] = rankToApply;
-		}
-		if (applyBowRank) {
-			int rankToApply = targetClass.getBaseRankValue();
-			if (ranks.size() > 0) {
-				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
-				if (rng.nextInt(2) == 0) {
-					ranks.remove(rankIndex);
-				}
-			}
-			targetRanks[3] = rankToApply;
-		}
-		if (applyAnimaRank) {
-			int rankToApply = targetClass.getBaseRankValue();
-			if (ranks.size() > 0) {
-				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
-				if (rng.nextInt(2) == 0) {
-					ranks.remove(rankIndex);
-				}
-			}
-			targetRanks[4] = rankToApply;
-		}
-		if (applyLightRank) {
-			int rankToApply = targetClass.getBaseRankValue();
-			if (ranks.size() > 0) {
-				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
-				if (rng.nextInt(2) == 0) {
-					ranks.remove(rankIndex);
-				}
-			}
-			targetRanks[5] = rankToApply;
-		}
-		if (applyDarkRank) {
-			int rankToApply = targetClass.getBaseRankValue();
-			if (ranks.size() > 0) {
-				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
-				if (rng.nextInt(2) == 0) {
-					ranks.remove(rankIndex);
-				}
-			}
-			// Dark is a special case, since the lowest ranking tome is Flux, which is D rank.
-			if (rankToApply == itemData.weaponRankValueForRank(WeaponRank.E)) {
-				rankToApply = itemData.weaponRankValueForRank(WeaponRank.D);
-			}
-			targetRanks[6] = rankToApply;
-		}
-		if (applyStaffRank) {
-			int rankToApply = targetClass.getBaseRankValue();
-			if (ranks.size() > 0) {
-				int rankIndex = rng.nextInt(ranks.size());
-				rankToApply = Math.max(ranks.get(rankIndex), rankToApply);
-				if (rng.nextInt(2) == 0) {
-					ranks.remove(rankIndex);
-				}
-			}
-			targetRanks[7] = rankToApply;
-		}
-		
-		character.setSwordRank(targetRanks[0]);
-		character.setLanceRank(targetRanks[1]);
-		character.setAxeRank(targetRanks[2]);
-		character.setBowRank(targetRanks[3]);
-		character.setAnimaRank(targetRanks[4]);
-		character.setLightRank(targetRanks[5]);
-		character.setDarkRank(targetRanks[6]);
-		character.setStaffRank(targetRanks[7]);
-	}
 }

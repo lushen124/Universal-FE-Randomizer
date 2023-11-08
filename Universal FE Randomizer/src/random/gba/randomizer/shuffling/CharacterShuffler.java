@@ -183,7 +183,7 @@ public class CharacterShuffler {
                     targetClass, sourceClass, slotLevel);
             targetClassId = targetClass.getID();
 
-            updateWeaponRanks(linkedSlot, crossGameData, targetClass);
+            updateWeaponRanks(linkedSlot, crossGameData, sourceClass, targetClass, rng);
 
             // (f) Update the class for all the slots of the character
             updateUnitInChapter(linkedSlot, crossGameData, targetClassId);
@@ -203,33 +203,10 @@ public class CharacterShuffler {
     /**
      * Sets the configured Weapon ranks (clamped to ensure it's between 0 and 255) for the given character
      */
-    private void updateWeaponRanks(GBAFECharacterData character, GBACrossGameData crossGameData, GBAFEClassData targetClass) {
+    private void updateWeaponRanks(GBAFECharacterData character, GBACrossGameData crossGameData, GBAFEClassData sourceClass, GBAFEClassData targetClass, Random rng) {
         if (ShuffleLevelingMode.AUTOLEVEL.equals(options.getLevelingMode())) {
-            // If we auto level, then adjust the ranks down to the level of the char they replace.
-
-            // Get the total weapon ranks of the replaced char
-            long totalWeaponRanksSlot = character.getAllWeaponRanks().stream().mapToLong(num -> (long) num).sum();
-
-            // get the total Weapon ranks of the replacing char
-            long totalWeaponRanksFill = 0;
-            for (int i = 0; i < crossGameData.weaponRanks.length; i++) {
-                totalWeaponRanksFill += crossGameData.weaponRanks[i];
-            }
-
-            // map the Ranks by the ratio that they had for the original unit, so that characters still keep their Rank strengths
-            Map<Integer, Float> adjustedRanks = new HashMap<>();
-            for (int i = 0; i < crossGameData.weaponRanks.length; i++) {
-                adjustedRanks.put(i, ((float) crossGameData.weaponRanks[i]) / totalWeaponRanksFill * totalWeaponRanksSlot);
-            }
-
-            character.setSwordRank(targetClass.getSwordRank() != 0 ? WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(0)), 0, 255) : 0);
-            character.setLanceRank(targetClass.getLanceRank() != 0 ? WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(1)), 0, 255) : 0);
-            character.setAxeRank(targetClass.getAxeRank() != 0 ? WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(2)), 0, 255) : 0);
-            character.setBowRank(targetClass.getBowRank() != 0 ? WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(3)), 0, 255) : 0);
-            character.setStaffRank(targetClass.getStaffRank() != 0 ? WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(4)), 0, 255) : 0);
-            character.setAnimaRank(targetClass.getAnimaRank() != 0 ? WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(5)), 0, 255) : 0);
-            character.setLightRank(targetClass.getLightRank() != 0 ? WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(6)), 0, 255) : 0);
-            character.setDarkRank(targetClass.getDarkRank() != 0 ? WhyDoesJavaNotHaveThese.clamp(Math.round(adjustedRanks.get(7)), 0, 255) : 0);
+            // Adjust the weapon ranks to the new class
+            GBASlotAdjustmentService.transferWeaponRanks(character, sourceClass, targetClass, rng);
         } else {
             // If we don't auto level transfer 1 to 1 while making sure it doesn't over or underflow
             character.setSwordRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[0], 0, 255));
