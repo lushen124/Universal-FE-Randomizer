@@ -2504,7 +2504,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 2, 9, 5, 10, 11}, new int[] {});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {}, new int[] {6, 7});
+					//this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {}, new int[] {6, 7});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {6, 7}, new int[] {12, 13, 14}); // Secondary is shield (which is blended with white). Tertiary is horse body.
 					break;
 				case PALADIN_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11}, new int[] {}); // Hair matches shield in the female.
