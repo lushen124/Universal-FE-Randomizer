@@ -2357,7 +2357,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			defaultPaletteForClass.put(CharacterClass.SNIPER_F.ID, SNIPER_LOUISE.info);
 			defaultPaletteForClass.put(CharacterClass.BERSERKER.ID, BERSERKER_DART.info);
 			defaultPaletteForClass.put(CharacterClass.BISHOP.ID, BISHOP_RENAULT.info);
-			defaultPaletteForClass.put(CharacterClass.BISHOP_F.ID, BISHOP_LUCIUS.info);
+			defaultPaletteForClass.put(CharacterClass.BISHOP_F.ID, BISHOP_SERRA.info);
 			defaultPaletteForClass.put(CharacterClass.CAVALIER.ID, CAVALIER_SAIN.info);
 			defaultPaletteForClass.put(CharacterClass.CLERIC.ID, CLERIC_SERRA.info);
 			defaultPaletteForClass.put(CharacterClass.MONK.ID, MONK_LUCIUS.info);
