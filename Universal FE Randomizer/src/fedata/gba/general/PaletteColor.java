@@ -2,11 +2,16 @@ package fedata.gba.general;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import random.gba.randomizer.GrowthsRandomizer;
+import util.SeedGenerator;
 import util.WhyDoesJavaNotHaveThese;
 
 public class PaletteColor implements Comparable<PaletteColor> {
@@ -21,9 +26,26 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	public static final Comparator<PaletteColor> lowToHighBrightnessComparator = new Comparator<PaletteColor>() {
 		@Override
 		public int compare(PaletteColor o1, PaletteColor o2) {
-			return o1.brightness > o2.brightness ? WhyDoesJavaNotHaveThese.ComparatorResult.FIRST_GREATER.returnValue() : WhyDoesJavaNotHaveThese.ComparatorResult.SECOND_GREATER.returnValue();
+			//Calculating luminosty from simple brightness
+			double bright1 = getLuminosity(o1); double bright2 = getLuminosity(o2);
+			
+			return bright1 > bright2 ? WhyDoesJavaNotHaveThese.ComparatorResult.FIRST_GREATER.returnValue() : WhyDoesJavaNotHaveThese.ComparatorResult.SECOND_GREATER.returnValue();
 		}
 	};
+	
+	private static double linearizeColor(double color) {
+		if ( color <= 0.04045 ) {
+            return color / 12.92;
+		} else { return Math.pow((( color + 0.055)/1.055),2.4); }
+	}
+	
+	protected static double getLuminosity(PaletteColor color) {
+		double r = linearizeColor(color.red);
+		double g = linearizeColor(color.green);
+		double b = linearizeColor(color.blue);
+		
+		return (r* 0.2126) + (g * 0.71520) + (b * 0.0725);
+	}
 	
 	public PaletteColor(byte[] colorTuple) {
 		int colorValue = ((colorTuple[1] << 8) & 0xFF00) | (colorTuple[0] & 0xFF);
@@ -59,7 +81,6 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		
 		calculateValuesWithHSB();
 	}
-	
 	/**
 	 * 4 Hex Bytes per Color <br>
 	 * 1st Byte = 0-F -> GG GR <br>
@@ -98,11 +119,11 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		green = (double) WhyDoesJavaNotHaveThese.clamp(8 * Integer.parseInt(gByte, 2), 0, 255) / 255.0;
 		blue = (double) WhyDoesJavaNotHaveThese.clamp(8 * Integer.parseInt(bByte, 2), 0, 255) / 255.0;
 	}
-	
+
 	public boolean isSameAsColor(PaletteColor otherColor) {
 		return toHexString().equals(otherColor.toHexString());
 	}
-	
+
 	public boolean isNoColor() {
 		return this.red == 0 && this.blue == 0 && this.green == 0 && this.brightness == 0 && this.hue == 0 && this.saturation == 0;
 	}
@@ -126,7 +147,9 @@ public class PaletteColor implements Comparable<PaletteColor> {
 			colorsArray.add(color);
 		}
 					
-		if (colorsArray.size() == numberOfColors) { return colorsArray.toArray(new PaletteColor[colorsArray.size()]); }
+		if (colorsArray.size() == numberOfColors) {
+			return colorsArray.toArray(new PaletteColor[colorsArray.size()]);
+			}
 		else if (colorsArray.size() > numberOfColors) {
 			PaletteColor[] uniqueColorArray = colorsArray.toArray(new PaletteColor[colorsArray.size()]);
 			if (colorsArray.size() == numberOfColors) { return uniqueColorArray; }
@@ -146,6 +169,11 @@ public class PaletteColor implements Comparable<PaletteColor> {
 			}
 			else { return interpolateColors(colorsArray.toArray(new PaletteColor[colorsArray.size()]), numberOfColors); }
 		}
+	}
+	
+	public static PaletteColor[] adjustColorList(PaletteColor[] colors, boolean favorBrightness, boolean favorSaturation) {
+		List<PaletteColor> result = adjustColors(new ArrayList<PaletteColor>(Arrays.asList(colors)), favorBrightness, favorSaturation);
+		return result.toArray(new PaletteColor[colors.length]);
 	}
 	
 	// Will slightly shift all colors to yield different colors.
@@ -201,7 +229,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	private static PaletteColor[] reduceColors(PaletteColor[] colors, int numberOfColors) {
 		int numberOfColorsToRemove = colors.length - numberOfColors;
 		int indexDelta = colors.length / (numberOfColorsToRemove + 1);
-		
+
 		int currentIndex = colors.length - 1;
 		List<PaletteColor> result = new ArrayList<PaletteColor>(Arrays.asList(colors));
 		for (int i = 0; i < numberOfColorsToRemove; i++) {
@@ -209,14 +237,22 @@ public class PaletteColor implements Comparable<PaletteColor> {
 			result.remove(currentIndex);
 		}
 		
-		return result.toArray(new PaletteColor[result.size()]);
+		PaletteColor[] resultList = result.toArray(new PaletteColor[result.size()]);
+		if (numberOfColorsToRemove > 1) {
+			if (resultList.length == 2 &&
+					getLuminosity(resultList[0]) - getLuminosity(resultList[1]) > 0.65) {
+				resultList[0] = darkerColor(resultList[0]);
+			}
+		}
+		
+		return resultList;
 	}
 	
-	private static PaletteColor darkerColor(PaletteColor referenceColor) {
+	protected static PaletteColor darkerColor(PaletteColor referenceColor) {
 		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation - 0.1, 0.0), Math.max(referenceColor.brightness * 0.8, 0.0));
 	}
 	
-	private static PaletteColor lighterColor(PaletteColor referenceColor) {
+	protected static PaletteColor lighterColor(PaletteColor referenceColor) {
 		double distanceToMax = 1.0 - referenceColor.brightness;
 		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation + 0.1, 0.0), Math.max(referenceColor.brightness + distanceToMax * 0.2, 0.0));
 	}
@@ -224,7 +260,25 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	private static PaletteColor[] interpolateColors(PaletteColor[] colors, int numberOfColors) {
 		if (colors.length < 2) { return null; }
 		
+//		int lastIndex = colors.length - 1;
+//		if (colors[lastIndex].brightness > 0.5) {
+//			PaletteColor newColor = darkerColor(colors[lastIndex]);
+//			System.out.println("whoa");
+//			for (int i = 0; i < colors.length-1; i++) {
+//				colors[i] = colors[i+1];
+//			}
+//			colors[lastIndex] = newColor;
+//		}
+		
 		List<PaletteColor> result = new ArrayList<PaletteColor>(Arrays.asList(colors));
+		
+		int lastIndex = result.size() - 1;
+		if (result.get(lastIndex).brightness > 0.5) {
+			//System.out.println("whoa");
+			result.add(lastIndex+1, darkerColor(result.get(lastIndex)));
+		}
+		
+
 		
 		while (result.size() < numberOfColors) {
 			if (result.size() % 2 == 0) {
@@ -245,6 +299,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 					break;
 				}
 				int topHalfIndex = result.size() * 3 / 4;
+
 				PaletteColor topFirst = result.get(topHalfIndex - 1);
 				PaletteColor topSecond = result.get(topHalfIndex);
 				PaletteColor topInterpolated = averageColorFromColors(new PaletteColor[] {topFirst, topSecond});
@@ -458,7 +513,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		// If our brightness value is lower, we are a darker color and therefore come later in the list. This means we are "greater" than the other color.
 		return brightness < arg0.brightness ? 1 : -1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("PaletteCollor red: %d, green %d, blue %d, brightness %f", getRedValue(), getGreenValue(), getBlueValue(), getBrightness());
