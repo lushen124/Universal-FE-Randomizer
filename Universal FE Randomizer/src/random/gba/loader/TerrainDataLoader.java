@@ -1,10 +1,12 @@
 package random.gba.loader;
 
+import fedata.gba.GBAFEClassData;
 import fedata.gba.general.TerrainTable;
 import fedata.gba.general.TerrainTable.TerrainTableType;
-import fedata.gba.GBAFEClassData;
 import fedata.general.FEBase.GameType;
 import io.FileHandler;
+import util.Diff;
+import util.DiffCompiler;
 import util.FileReadHelper;
 
 import java.util.*;
@@ -37,8 +39,9 @@ public class TerrainDataLoader {
         dataLengthBytes = terrainDataLengthInBytes();
         for (TerrainTableType tableType : TerrainTableType.CLASS_BOUND) {
             List<TerrainTable> terrainDataOfType = allClasses.stream()
-                    .map(e -> e.getTerrainPointerByType(tableType)) // Map each class to it's pointer for the current type
+                    .map(e -> {System.out.println("Class : "+e.getID() + " TableType: "+ tableType.displayString); return e.getTerrainPointerByType(tableType);}) // Map each class to it's pointer for the current type
                     .distinct()// Filter out duplicates
+                    .filter(pointer -> pointer > 0 && pointer < 0x9000000)// Filter out non-valid pointers
                     .peek(pointer -> pointerUsedByFliers.put(pointer, isPointerUsedByFliers(classData, allClasses, tableType, pointer)))
                     .filter(pointer -> { // Filter out fliers if the Table Type isn't applicable to them (DEF, RES, AVOID)
                         // If it's applicable to fliers, we can keep all entries regardless
@@ -48,8 +51,9 @@ public class TerrainDataLoader {
                         // If it's not applicable to fliers, check if the current pointer is used by any flier, if so then remove them
                         return Boolean.FALSE.equals(pointerUsedByFliers.get(pointer));
                     })
-                    .map(pointer -> FileReadHelper.readAddress(handler, pointer))
-                    .map(offset -> new TerrainTable(offset, handler.readBytesAtOffset(offset, dataLengthBytes), tableType))// Create a TerrainData object for the current Pointer
+                    .map(offset -> {
+                        System.out.println(offset); return new TerrainTable(offset, handler.readBytesAtOffset(offset, dataLengthBytes), tableType);
+                    })// Create a TerrainData object for the current Pointer
                     .collect(Collectors.toList()); // Collect them to a list
             terrainDataMap.put(tableType, terrainDataOfType);
         }
@@ -58,6 +62,16 @@ public class TerrainDataLoader {
             TerrainTable terrainDataOfType = new TerrainTable(offset, handler.readBytesAtOffset(offset, dataLengthBytes), tableType);
             terrainDataMap.put(tableType, Arrays.asList(terrainDataOfType));
         }
+    }
+
+    public void compileDiffs(DiffCompiler diffCompiler) {
+        terrainDataMap.entrySet().stream().map(e -> e.getValue()).flatMap(e -> e.stream()).forEach(table -> {
+            if (!table.wasModified()) {
+                return;
+            }
+            System.out.println("Adding Terrain Diff at: " + table.getAddressOffset());
+            diffCompiler.addDiff(new Diff(table.getAddressOffset(), table.getData().length, table.getData(), null));
+        });
     }
 
     /**
@@ -82,11 +96,15 @@ public class TerrainDataLoader {
      * This can be used to filter out tables that apply to fliers from randomization.
      * An example use case is that in vanilla DEF / RES / Avoid don't apply to fliers, but they still have tables for them.
      */
-    public boolean isUsedByFliers(Long pointer) {
-        if (!pointerUsedByFliers.containsKey(pointer)) {
-            throw new IllegalArgumentException(String.format("All the tables must have been mapped to if they are being used by fliers or not! But Pointer %d wasn't", pointer));
+    public boolean isUsedByFliers(TerrainTable table) {
+        if (TerrainTableType.UNIVERSAL.contains(table.tableType)) {
+            return true;
         }
-        return pointerUsedByFliers.get(pointer);
+
+        if (!pointerUsedByFliers.containsKey(table.getAddressOffset())) {
+            throw new IllegalArgumentException(String.format("All the tables must have been mapped to if they are being used by fliers or not! But Pointer %d wasn't", table.getAddressOffset()));
+        }
+        return pointerUsedByFliers.get(table.getAddressOffset());
     }
 
     public List<TerrainTable> getMovementCostsForNonFliers() {

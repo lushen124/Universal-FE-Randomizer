@@ -1,6 +1,7 @@
 package fedata.gba;
 
 import fedata.general.FEModifiableData;
+import util.FileReadHelper;
 
 import java.util.Arrays;
 
@@ -69,7 +70,7 @@ public abstract class AbstractGBAData implements FEModifiableData {
 	}
 
 	protected long readPointerFromData(int startingIndex) {
-		return data[startingIndex] << 24 | data[startingIndex+1] << 16 | data[startingIndex+2] << 8 | data[startingIndex+3];
+		return FileReadHelper.wordValue(new byte[] {data[startingIndex], data[startingIndex+1],data[startingIndex+2],data[startingIndex+3]}, true);
 	}
 
 	public static int asInt(byte b) {

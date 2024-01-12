@@ -81,7 +81,7 @@ public class TerrainRandomizer {
      */
     private void determineFlierOnlyTiles() {
         List<TerrainTable> nonFlierMovementTables = terrainData.getTerrainTablesOfType(TerrainTableType.MOVEMENT).stream()
-                .filter(table -> !terrainData.isUsedByFliers(table.getAddressOffset()))
+                .filter(table -> !terrainData.isUsedByFliers(table))
                 .collect(Collectors.toList());
 
         for (int i = 1; i < numberTiles; i++) {
@@ -107,7 +107,7 @@ public class TerrainRandomizer {
         tables.addAll(terrainData.getTerrainTablesOfType(TerrainTableType.RES));
         tables.addAll(terrainData.getTerrainTablesOfType(TerrainTableType.HEALING));
         tables.addAll(terrainData.getTerrainTablesOfType(TerrainTableType.STATUS_RECOVERY));
-        tables.removeIf(table -> terrainData.isUsedByFliers(table.getAddressOffset()) && !table.tableType.isUniversal());
+        tables.removeIf(table -> terrainData.isUsedByFliers(table) && !table.tableType.isUniversal());
 
         for (int i = 1; i < numberTiles; i++) {
             boolean hasEffect = false;
@@ -142,22 +142,23 @@ public class TerrainRandomizer {
 
     public void handleTable(TerrainTableType tableType, MinMaxOption minMax, boolean excludeFliers, int chance) {
         List<TerrainTable> tablesOfType = terrainData.getTerrainTablesOfType(tableType);
+        System.out.println("Found " + tablesOfType.size() + " tables of type "+tableType);
         for (TerrainTable table : tablesOfType) {
             // if the current Step is not applicable to fliers, then skip any table used by flier classes
-            if (excludeFliers && terrainData.isUsedByFliers(table.getAddressOffset())) {
+            if (excludeFliers && terrainData.isUsedByFliers(table)) {
                 continue;
             }
             for (int i = 1; i < table.getData().length; i++) {
                 int oldValue = table.dataAtIndex(i);
                 if (untraversableTiles.contains(i) // never randomize completely untraversable Tiles
                         || (options.keepSafeTiles && safeTiles.contains(i)) // If the user chose, keep things such as roads / plains safe
-                        || excludedTiles.contains(i) // Wether this tile was randomized to not have a change, skip it
+                        || excludedTiles.contains(i) // if this tile was randomized to not have a change, skip it
                         || tableType.mayNotChange(oldValue) // Exclude all Untraversable Tiles
                 ) {
                     continue;
                 }
 
-                if (chance == -1 || rng.nextInt(100) < chance) {
+                if (chance == -1 || rng.nextInt(100) <= chance) {
                     int newValue;
                     if (tableType.isToggle) {
                         newValue = tableType.max;
@@ -167,7 +168,11 @@ public class TerrainRandomizer {
                         newValue = rng.nextInt(minMax.maxValue - minMax.minValue) + minMax.minValue;
                     }
                     table.setAtIndex(i, newValue);
+                    System.out.println("Table "+table.getAddressOffset()+" index"+i+" oldValue "+oldValue+" newValue"+newValue);
                 }
+            }
+            if (table.wasModified()) {
+                System.out.println("Modified table: " + table.getAddressOffset()+ ", for type " + tableType);
             }
         }
     }

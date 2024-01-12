@@ -37,8 +37,8 @@ public class TerrainOptions {
     /*
      * Movement Related Settings
      */
-    public boolean randomizeMovementCost = false;
-    public MinMaxOption movementCostRange = null;
+    public final boolean randomizeMovementCost = false;
+    public final MinMaxOption movementCostRange = null;
 
     /*
      * Flag to keep tiles that didn't use to have effects safe
@@ -50,18 +50,23 @@ public class TerrainOptions {
      */
     public int effectChance = 0;
 
+    public boolean enabled = false;
+
     // Constructor for Tests
     public TerrainOptions() {
 
     }
 
-    public TerrainOptions(boolean randomizeHealing, int healingChance, MinMaxOption healingRange,
+    /**
+     * Constructor for usage from the GUI.
+     */
+    public TerrainOptions(boolean enabled, boolean randomizeHealing, int healingChance, MinMaxOption healingRange,
                           boolean randomizeStatusRecovery, int statusRestoreChance,
                           boolean randomizeAvoid, MinMaxOption avoidRange, int avoidChance,
                           boolean randomizeDef, MinMaxOption defRange, int defChance,
                           boolean randomizeRes, MinMaxOption resRange, int resChance,
-                          boolean randomizeMovementCost, MinMaxOption movementCostRange,
                           boolean keepSafeTiles, int effectChance) {
+        this.enabled = enabled;
         this.randomizeHealing = randomizeHealing;
         this.healingChance = healingChance;
         this.healingRange = healingRange;
@@ -76,8 +81,6 @@ public class TerrainOptions {
         this.randomizeRes = randomizeRes;
         this.resRange = resRange;
         this.resChance = resChance;
-        this.randomizeMovementCost = randomizeMovementCost;
-        this.movementCostRange = movementCostRange;
         this.keepSafeTiles = keepSafeTiles;
         this.effectChance = effectChance;
     }
