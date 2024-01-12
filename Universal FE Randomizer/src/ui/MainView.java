@@ -133,7 +133,8 @@ public class MainView implements FileFlowDelegate {
 	private RecruitmentView recruitView;
 	private ItemAssignmentView itemAssignmentView;
 	private CharacterShufflingView characterShufflingView;
-	
+	private TerrainView terrainView;
+
 	// FE4
 	private SkillsView skillsView;
 	private HolyBloodView holyBloodView;
@@ -474,6 +475,7 @@ public class MainView implements FileFlowDelegate {
 				recruitView.setRecruitmentOptions(bundle.recruitmentOptions);
 				characterShufflingView.setShufflingOptions(bundle.characterShufflingOptions, type);
 				itemAssignmentView.setItemAssignmentOptions(bundle.itemAssignmentOptions);
+				terrainView.setTerrainOptions(bundle.terrainOptions);
 			}
 		} else if (type == GameType.FE9 && OptionRecorder.options.fe9 != null) {
 			FE9OptionBundle bundle = OptionRecorder.options.fe9;
@@ -784,11 +786,21 @@ public class MainView implements FileFlowDelegate {
 			itemAssignData.left = new FormAttachment(characterShufflingView, 0, SWT.LEFT);
 			itemAssignData.right = new FormAttachment(characterShufflingView, 0, SWT.RIGHT);
 			itemAssignmentView.setLayoutData(itemAssignData);
-			  
+
+			terrainView = new TerrainView(container, SWT.NONE, type);
+			terrainView.setSize(200, 200);
+			terrainView.setVisible(false);
+
+			FormData terrainViewData = new FormData();
+			terrainViewData.top = new FormAttachment(itemAssignmentView, 5);
+			terrainViewData.left = new FormAttachment(itemAssignmentView, 0, SWT.LEFT);
+			terrainViewData.right = new FormAttachment(itemAssignmentView, 0, SWT.RIGHT);
+			terrainView.setLayoutData(terrainViewData);
+
 			FormData randomizeData = new FormData();
-			randomizeData.top = new FormAttachment(itemAssignmentView, 5);
-			randomizeData.left = new FormAttachment(itemAssignmentView, 0, SWT.LEFT);
-			randomizeData.right = new FormAttachment(itemAssignmentView, 0, SWT.RIGHT);
+			randomizeData.top = new FormAttachment(terrainView, 5);
+			randomizeData.left = new FormAttachment(terrainView, 0, SWT.LEFT);
+			randomizeData.right = new FormAttachment(terrainView, 0, SWT.RIGHT);
 			randomizeData.bottom = new FormAttachment(100, -10);
 			randomizeButton.setLayoutData(randomizeData);
 		}
@@ -983,6 +995,7 @@ public class MainView implements FileFlowDelegate {
 			recruitView.setVisible(true);
 			itemAssignmentView.setVisible(true);
 			characterShufflingView.setVisible(true);
+			terrainView.setVisible(true);
 		}
 
 		
@@ -1062,6 +1075,7 @@ public class MainView implements FileFlowDelegate {
 								recruitView.getRecruitmentOptions(),
 								itemAssignmentView.getAssignmentOptions(),
 								characterShufflingView.getShufflingOptions(),
+								terrainView.getTerrainOptions(),
 								seedField.getText());
 						
 						OptionRecorder.recordGBAFEOptions(type, 
@@ -1075,6 +1089,7 @@ public class MainView implements FileFlowDelegate {
 								recruitView.getRecruitmentOptions(),
 								itemAssignmentView.getAssignmentOptions(),
 								characterShufflingView.getShufflingOptions(),
+								terrainView.getTerrainOptions(),
 								seedField.getText());
 					} else if (type.isSFC()) {
 						if (type == GameType.FE4) {

@@ -11,7 +11,15 @@ import fedata.general.FEPrintableData;
 import util.WhyDoesJavaNotHaveThese;
 
 public abstract class GBAFECharacterData extends AbstractGBAData implements FELockableData, FEPrintableData {
-	
+
+	public GBAFECharacterData() {
+	}
+
+	public GBAFECharacterData(byte[] data, long originalOffset, boolean isClassRestricted) {
+		super(data, originalOffset);
+		this.isClassRestricted = isClassRestricted;
+	}
+
 	protected Boolean isClassRestricted = false;
 	protected Boolean isReadOnly = false;
 	protected String debugString = "Uninitialized";

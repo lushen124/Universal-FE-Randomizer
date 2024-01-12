@@ -4,6 +4,13 @@ import java.util.ArrayList;
 
 public abstract class GBAFEChapterUnitData extends AbstractGBAData {
 
+	public GBAFEChapterUnitData() {
+	}
+
+	public GBAFEChapterUnitData(byte[] data, long originalOffset) {
+		super(data, originalOffset);
+	}
+
 	public int getCharacterNumber() {
 		return data[0] & 0xFF;
 	}

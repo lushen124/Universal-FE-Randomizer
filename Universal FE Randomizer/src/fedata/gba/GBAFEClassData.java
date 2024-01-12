@@ -1,8 +1,8 @@
 package fedata.gba;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
+import fedata.gba.general.TerrainTable.TerrainTableType;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
@@ -20,6 +20,13 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 			return Integer.compare(arg0.getID(), arg1.getID());
 		}
 	};
+
+	public GBAFEClassData() {
+	}
+
+	public GBAFEClassData(byte[] data, long originalOffset) {
+		super(data, originalOffset);
+	}
 	
 	// Info
 	
@@ -454,5 +461,40 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		data[42] &= 0xFE;
 		data[43] &= 0x0F;
 		wasModified = true;
+	}
+
+	public long getMoveCostPointer() {
+		return readPointerFromData(0x38);
+	}
+	public long getRainMoveCostPointer() {
+		return readPointerFromData(0x3C);
+	}
+
+	public long getSnowMoveCostPointer() {
+		return readPointerFromData(0x40);
+	}
+
+	public long getTerrainAvoidPointer() {
+		return readPointerFromData(0x44);
+	}
+
+	public long getTerrainDefPointer() {
+		return readPointerFromData(0x48);
+	}
+
+	public long getTerrainResPointer() {
+		return readPointerFromData(0x4C);
+	}
+
+	public long getTerrainPointerByType(TerrainTableType type) {
+		switch (type) {
+			case MOVEMENT: return getMoveCostPointer();
+			case MOVEMENT_RAIN: return getRainMoveCostPointer();
+			case MOVEMENT_SNOW: return getSnowMoveCostPointer();
+			case AVOID: return getTerrainAvoidPointer();
+			case DEF: return getTerrainDefPointer();
+			case RES: return getTerrainResPointer();
+		}
+		return 0;
 	}
 }

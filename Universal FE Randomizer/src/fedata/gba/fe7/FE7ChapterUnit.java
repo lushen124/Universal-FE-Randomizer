@@ -5,10 +5,7 @@ import fedata.gba.GBAFEChapterUnitData;
 public class FE7ChapterUnit extends GBAFEChapterUnitData {
 
 	public FE7ChapterUnit(byte[] data, long originalOffset) {
-		super();
-		this.originalData = data;
-		this.data = data;
-		this.originalOffset = originalOffset;
+		super(data, originalOffset);
 	}
 
 	@Override

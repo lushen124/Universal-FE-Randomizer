@@ -30,41 +30,21 @@ import fedata.gba.fe8.FE8SpellAnimationCollection;
 import fedata.gba.fe8.FE8SummonerModule;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFEChapterMetadataData;
-import fedata.gba.general.GBAFEClass;
-import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
-import io.UPSPatcherStatusListener;
-import random.gba.loader.ChapterLoader;
-import random.gba.loader.CharacterDataLoader;
-import random.gba.loader.ClassDataLoader;
-import random.gba.loader.ItemDataLoader;
-import random.gba.loader.PaletteLoader;
-import random.gba.loader.PortraitDataLoader;
-import random.gba.loader.TextLoader;
+import random.gba.loader.*;
 import random.gba.randomizer.shuffling.CharacterShuffler;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.general.Randomizer;
-import ui.model.BaseOptions;
-import ui.model.CharacterShufflingOptions;
+import ui.model.*;
 import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
-import ui.model.ClassOptions;
-import ui.model.EnemyOptions;
-import ui.model.GrowthOptions;
-import ui.model.ItemAssignmentOptions;
-import ui.model.MiscellaneousOptions;
-import ui.model.MiscellaneousOptions.ExperienceRate;
-import ui.model.OtherCharacterOptions;
-import ui.model.RecruitmentOptions;
-import ui.model.WeaponOptions;
 import ui.model.EnemyOptions.BossStatMode;
 import ui.model.ItemAssignmentOptions.ShopAdjustment;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
-import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
@@ -94,6 +74,7 @@ public class GBARandomizer extends Randomizer {
 	private RecruitmentOptions recruitOptions;
 	private ItemAssignmentOptions itemAssignmentOptions;
 	private CharacterShufflingOptions shufflingOptions;
+	private TerrainOptions terrainOptions;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -102,6 +83,7 @@ public class GBARandomizer extends Randomizer {
 	private PaletteLoader paletteData;
 	private TextLoader textData;
 	private PortraitDataLoader portraitData;
+	private TerrainDataLoader terrainData;
 	
 	private boolean needsPaletteFix;
 	private Map<GBAFECharacterData, GBAFECharacterData> characterMap; // valid with random recruitment. Maps slots to reference character.
@@ -122,7 +104,7 @@ public class GBARandomizer extends Randomizer {
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, String seed) {
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, TerrainOptions terrainOptions, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -140,6 +122,7 @@ public class GBARandomizer extends Randomizer {
 		recruitOptions = recruit;
 		itemAssignmentOptions = itemAssign;
 		this.shufflingOptions = shufflingOptions;
+		this.terrainOptions = terrainOptions;
 		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE, false, false); }
 		
 		this.gameType = gameType;
@@ -236,6 +219,8 @@ public class GBARandomizer extends Randomizer {
 		updateProgress(0.70);
 		try { randomizeOtherThingsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing miscellaneous settings.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; } // i.e. Miscellaneous options.
 		updateProgress(0.75);
+		try { randomizeTerrainIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing terrain bonuses.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; } // i.e. Miscellaneous options.
+		updateProgress(0.77);
 		try { randomizeGrowthsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing growths.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.90);
 		try { makeFinalAdjustments(seed); } catch (Exception e) { notifyError("Encountered error while making final adjustments.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
@@ -248,7 +233,8 @@ public class GBARandomizer extends Randomizer {
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
 		portraitData.compileDiffs(diffCompiler);
-		
+		terrainData.compileDiffs(diffCompiler);
+
 		if (gameType == GameType.FE8) {
 			fe8_paletteMapper.commitChanges(diffCompiler);
 			fe8_promotionManager.compileDiffs(diffCompiler);
@@ -369,6 +355,9 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler, charData, classData);
+		updateStatusString("Loading Palette Data...");
+		updateProgress(0.31);
+		terrainData = new TerrainDataLoader(FEBase.GameType.FE7, classData, handler);
 		
 		handler.clearAppliedDiffs();
 	}
@@ -404,7 +393,9 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler, charData, classData);
-		
+		updateStatusString("Loading Palette Data...");
+		updateProgress(0.31);
+		terrainData = new TerrainDataLoader(FEBase.GameType.FE6, classData, handler);
 		handler.clearAppliedDiffs();
 	}
 	
@@ -442,6 +433,9 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler, charData, classData);
+		updateStatusString("Loading Palette Data...");
+		updateProgress(0.31);
+		terrainData = new TerrainDataLoader(FEBase.GameType.FE8, classData, handler);
 		
 		updateStatusString("Loading Summoner Module...");
 		updateProgress(0.35);
@@ -461,7 +455,13 @@ public class GBARandomizer extends Randomizer {
 			CharacterShuffler.shuffleCharacters(gameType, charData, textData, rng, handler, portraitData, freeSpace, chapterData, classData, shufflingOptions, itemAssignmentOptions, itemData);
 		}
 	}
-	
+	public void randomizeTerrainIfNecessary(String seed) {
+		if (terrainOptions != null) {
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, TerrainRandomizer.rngSalt));
+			new TerrainRandomizer(rng, terrainData, terrainOptions).randomize();
+		}
+	}
+
 	private void randomizeGrowthsIfNecessary(String seed) {
 		if (growths != null) {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));

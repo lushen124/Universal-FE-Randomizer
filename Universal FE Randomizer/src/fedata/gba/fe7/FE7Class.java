@@ -14,10 +14,7 @@ public class FE7Class extends GBAFEClassData {
 	}
 
 	public FE7Class(byte[] data, long originalOffset) {
-		super();
-		this.originalData = data;
-		this.data = data;
-		this.originalOffset = originalOffset;
+		super(data, originalOffset);
 	}
 	
 
