@@ -5,11 +5,14 @@ import fedata.gba.general.TerrainTable.TerrainTableType;
 import random.gba.loader.TerrainDataLoader;
 import ui.model.MinMaxOption;
 import ui.model.TerrainOptions;
+import util.DebugPrinter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+
+import static util.DebugPrinter.Key.GBA_TERRAIN_RANDOMIZER;
 
 public class TerrainRandomizer {
 
@@ -168,11 +171,11 @@ public class TerrainRandomizer {
                         newValue = rng.nextInt(minMax.maxValue - minMax.minValue) + minMax.minValue;
                     }
                     table.setAtIndex(i, newValue);
-                    System.out.println("Table "+table.getAddressOffset()+" index"+i+" oldValue "+oldValue+" newValue"+newValue);
+                    DebugPrinter.log(GBA_TERRAIN_RANDOMIZER,"Table "+table.getAddressOffset()+" index"+i+" oldValue "+oldValue+" newValue "+newValue);
                 }
             }
             if (table.wasModified()) {
-                System.out.println("Modified table: " + table.getAddressOffset()+ ", for type " + tableType);
+                DebugPrinter.log(GBA_TERRAIN_RANDOMIZER,"Modified table: " + table.getAddressOffset()+ ", for type " + tableType);
             }
         }
     }

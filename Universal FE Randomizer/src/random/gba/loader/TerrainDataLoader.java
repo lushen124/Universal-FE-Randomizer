@@ -5,12 +5,15 @@ import fedata.gba.general.TerrainTable;
 import fedata.gba.general.TerrainTable.TerrainTableType;
 import fedata.general.FEBase.GameType;
 import io.FileHandler;
+import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static util.DebugPrinter.Key.GBA_TERRAIN_RANDOMIZER;
 
 /**
  *
@@ -39,7 +42,7 @@ public class TerrainDataLoader {
         dataLengthBytes = terrainDataLengthInBytes();
         for (TerrainTableType tableType : TerrainTableType.CLASS_BOUND) {
             List<TerrainTable> terrainDataOfType = allClasses.stream()
-                    .map(e -> {System.out.println("Class : "+e.getID() + " TableType: "+ tableType.displayString); return e.getTerrainPointerByType(tableType);}) // Map each class to it's pointer for the current type
+                    .map(e -> e.getTerrainPointerByType(tableType)) // Map each class to it's pointer for the current type
                     .distinct()// Filter out duplicates
                     .filter(pointer -> pointer > 0 && pointer < 0x9000000)// Filter out non-valid pointers
                     .peek(pointer -> pointerUsedByFliers.put(pointer, isPointerUsedByFliers(classData, allClasses, tableType, pointer)))
@@ -51,9 +54,9 @@ public class TerrainDataLoader {
                         // If it's not applicable to fliers, check if the current pointer is used by any flier, if so then remove them
                         return Boolean.FALSE.equals(pointerUsedByFliers.get(pointer));
                     })
-                    .map(offset -> {
-                        System.out.println(offset); return new TerrainTable(offset, handler.readBytesAtOffset(offset, dataLengthBytes), tableType);
-                    })// Create a TerrainData object for the current Pointer
+                    .map(offset ->
+                        new TerrainTable(offset, handler.readBytesAtOffset(offset, dataLengthBytes), tableType)
+                    )// Create a TerrainData object for the current Pointer
                     .collect(Collectors.toList()); // Collect them to a list
             terrainDataMap.put(tableType, terrainDataOfType);
         }
@@ -69,7 +72,7 @@ public class TerrainDataLoader {
             if (!table.wasModified()) {
                 return;
             }
-            System.out.println("Adding Terrain Diff at: " + table.getAddressOffset());
+            DebugPrinter.log(GBA_TERRAIN_RANDOMIZER,"Adding Terrain Diff at: " + table.getAddressOffset());
             diffCompiler.addDiff(new Diff(table.getAddressOffset(), table.getData().length, table.getData(), null));
         });
     }
