@@ -126,7 +126,8 @@ public class GBARandomizer extends Randomizer {
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, StatboosterOptions statboosterOptions, String seed) {
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign,  CharacterShufflingOptions shufflingOptions, 
+			StatboosterOptions statboosterOptions, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -226,9 +227,9 @@ public class GBARandomizer extends Randomizer {
 		makePreliminaryAdjustments();
 		
 		updateStatusString("Randomizing...");
-		try { shuffleCharactersIfNecessary(seed);} catch(Exception e) {notifyError("Encountered error while shuffling in Characters.\n\n" + e.getClass().getSimpleName() + "\n\nStackTrace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
-		updateProgress(0.40);
 		try { randomizeRecruitmentIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing recruitment.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.40);
+		try { shuffleCharactersIfNecessary(seed);} catch(Exception e) {notifyError("Encountered error while shuffling in Characters.\n\n" + e.getClass().getSimpleName() + "\n\nStackTrace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.45);
 		try { randomizeClassesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing classes.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; } 
 		updateProgress(0.50);
@@ -478,7 +479,8 @@ public class GBARandomizer extends Randomizer {
 	public void shuffleCharactersIfNecessary(String seed) {
 		if(shufflingOptions != null && shufflingOptions.isShuffleEnabled()) {
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, GrowthsRandomizer.rngSalt));
-			CharacterShuffler.shuffleCharacters(gameType, charData, textData, rng, handler, portraitData, freeSpace, chapterData, classData, shufflingOptions, itemAssignmentOptions, itemData);
+			CharacterShuffler shuffler = new CharacterShuffler(gameType, charData, textData, rng, handler, portraitData, freeSpace, chapterData, classData, shufflingOptions, itemAssignmentOptions, itemData);
+			shuffler.shuffleCharacters();
 			needsPaletteFix = true;
 		}
 	}

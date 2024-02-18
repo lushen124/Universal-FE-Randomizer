@@ -97,9 +97,9 @@
     "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
-    "mouthY": 6
+    "mouthY": 5
   },
   {
     "name": "Fae",
@@ -149,8 +149,8 @@
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 5,
-    "mouthX": 2,
-    "mouthY": 6
+    "mouthX": 3,
+    "mouthY": 7
   },
   {
     "name": "Sin",
@@ -198,7 +198,7 @@
     "constitution": 7,
     "affinity": "ice",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -250,7 +250,7 @@
     "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -301,7 +301,7 @@
     "affinity": "anima",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -402,7 +402,7 @@
     "constitution": 14,
     "affinity": "wind",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 2,
     "mouthX": 2,
     "mouthY": 4
@@ -456,7 +456,7 @@
     "eyeX": 3,
     "eyeY": 4,
     "mouthX": 2,
-    "mouthY": 5
+    "mouthY": 6
   },
   {
     "name": "Douglas",
@@ -709,7 +709,7 @@
     "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -811,7 +811,7 @@
     "affinity": "light",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1014,8 +1014,8 @@
     "constitution": 7,
     "affinity": "dark",
     "originGame": "FE6",
-    "eyeX": 3,
-    "eyeY": 4,
+    "eyeX": 2,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1270,7 +1270,7 @@
     "affinity": "anima",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1575,7 +1575,7 @@
     "constitution": 12,
     "affinity": "anima",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -1627,7 +1627,7 @@
     "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 2,
-    "eyeY": 3,
+    "eyeY": 2,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1780,7 +1780,7 @@
     "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1983,7 +1983,7 @@
     "constitution": 7,
     "affinity": "light",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -2289,8 +2289,8 @@
     "constitution": 3,
     "affinity": "dark",
     "originGame": "FE6",
-    "eyeX": 2,
-    "eyeY": 5,
+    "eyeX": 3,
+    "eyeY": 4,
     "mouthX": 2,
     "mouthY": 6
   },
@@ -2340,7 +2340,7 @@
     "constitution": 9,
     "affinity": "dark",
     "originGame": "FE6",
-    "eyeX": 3,
+    "eyeX": 4,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -2494,7 +2494,7 @@
     "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -2544,7 +2544,7 @@
     "constitution": 11,
     "affinity": "dark",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -2647,7 +2647,7 @@
     "affinity": "anima",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },

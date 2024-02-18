@@ -746,18 +746,8 @@ public class MainView implements FileFlowDelegate {
 			FormData classData = new FormData();
 			classData.top = new FormAttachment(weaponView, 0, SWT.TOP);
 			classData.left = new FormAttachment(weaponView, 5);
+			classData.bottom = new FormAttachment(100, -10);
 			classView.setLayoutData(classData);
-			
-			enemyView = new EnemyBuffsView(container, SWT.NONE);
-			enemyView.setSize(200, 200);
-			enemyView.setVisible(false);
-			  
-			FormData enemyData = new FormData();
-			enemyData.top = new FormAttachment(classView, 5);
-			enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
-			enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
-			enemyData.bottom = new FormAttachment(100, -10);
-			enemyView.setLayoutData(enemyData);
 			
 			recruitView = new RecruitmentView(container, SWT.NONE, type);
 			recruitView.setSize(200, 200);
@@ -768,7 +758,17 @@ public class MainView implements FileFlowDelegate {
 			recruitData.left = new FormAttachment(classView, 5);
 			recruitView.setLayoutData(recruitData);
 			
-<<<<<<< HEAD
+			enemyView = new EnemyBuffsView(container, SWT.NONE);
+			enemyView.setSize(200, 200);
+			enemyView.setVisible(false);
+			  
+			FormData enemyData = new FormData();
+			enemyData.top = new FormAttachment(recruitView, 5);
+			enemyData.left = new FormAttachment(recruitView, 0, SWT.LEFT);
+			enemyData.right = new FormAttachment(recruitView, 0, SWT.RIGHT);
+			enemyData.bottom = new FormAttachment(100, -10);
+			enemyView.setLayoutData(enemyData);
+			
 			statboosterView = new StatboosterView(container, SWT.NONE);
 			statboosterView.setSize(200, 200);
 			statboosterView.setVisible(false);
@@ -778,32 +778,25 @@ public class MainView implements FileFlowDelegate {
 			statboosterViewData.left = new FormAttachment(recruitView, 5);
 			statboosterViewData.right = new FormAttachment(100, 0);
 			statboosterView.setLayoutData(statboosterViewData);
-=======
+
 			characterShufflingView = new CharacterShufflingView(container, SWT.NONE, type);
 			characterShufflingView.setSize(200, 200);
 			characterShufflingView.setVisible(false);
 			
 			FormData characterShufflingData = new FormData();
-			characterShufflingData.top = new FormAttachment(recruitView, 0, SWT.TOP);
-			characterShufflingData.left = new FormAttachment(recruitView, 5);
+			characterShufflingData.top = new FormAttachment(statboosterView, 5);
+			characterShufflingData.left = new FormAttachment(statboosterView, 0, SWT.LEFT);
 			characterShufflingData.right = new FormAttachment(100, 0);
 			characterShufflingView.setLayoutData(characterShufflingData);
->>>>>>> upstream/master
 			
 			itemAssignmentView = new ItemAssignmentView(container, SWT.NONE, type);
 			itemAssignmentView.setSize(200, 200);
 			itemAssignmentView.setVisible(false);
 			
 			FormData itemAssignData = new FormData();
-<<<<<<< HEAD
-			itemAssignData.top = new FormAttachment(statboosterView, 5);
-			itemAssignData.left = new FormAttachment(statboosterView, 0, SWT.LEFT);
-			itemAssignData.right = new FormAttachment(statboosterView, 0, SWT.RIGHT);
-=======
 			itemAssignData.top = new FormAttachment(characterShufflingView, 5);
 			itemAssignData.left = new FormAttachment(characterShufflingView, 0, SWT.LEFT);
 			itemAssignData.right = new FormAttachment(characterShufflingView, 0, SWT.RIGHT);
->>>>>>> upstream/master
 			itemAssignmentView.setLayoutData(itemAssignData);
 			  
 			FormData randomizeData = new FormData();
@@ -1003,11 +996,8 @@ public class MainView implements FileFlowDelegate {
 			enemyView.setVisible(true);
 			recruitView.setVisible(true);
 			itemAssignmentView.setVisible(true);
-<<<<<<< HEAD
 			statboosterView.setVisible(true);
-=======
 			characterShufflingView.setVisible(true);
->>>>>>> upstream/master
 		}
 
 		
@@ -1085,13 +1075,9 @@ public class MainView implements FileFlowDelegate {
 								enemyView.getEnemyOptions(),
 								miscView.getMiscellaneousOptions(),
 								recruitView.getRecruitmentOptions(),
-<<<<<<< HEAD
 								itemAssignmentView.getAssignmentOptions(), 
-								statboosterView.getStatboosterOptions(),
-=======
-								itemAssignmentView.getAssignmentOptions(),
 								characterShufflingView.getShufflingOptions(),
->>>>>>> upstream/master
+								statboosterView.getStatboosterOptions(),
 								seedField.getText());
 						
 						OptionRecorder.recordGBAFEOptions(type, 
@@ -1104,11 +1090,8 @@ public class MainView implements FileFlowDelegate {
 								miscView.getMiscellaneousOptions(),
 								recruitView.getRecruitmentOptions(),
 								itemAssignmentView.getAssignmentOptions(),
-<<<<<<< HEAD
-								statboosterView.getStatboosterOptions(),
-=======
 								characterShufflingView.getShufflingOptions(),
->>>>>>> upstream/master
+								statboosterView.getStatboosterOptions(),
 								seedField.getText());
 					} else if (type.isSFC()) {
 						if (type == GameType.FE4) {

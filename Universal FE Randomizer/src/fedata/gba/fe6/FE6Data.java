@@ -17,21 +17,7 @@ import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.fe8.FE8Data.CharacterClass;
-import fedata.gba.general.CharacterNudge;
-import fedata.gba.general.GBAFEChapterMetadataChapter;
-import fedata.gba.general.GBAFECharacter;
-import fedata.gba.general.GBAFECharacterProvider;
-import fedata.gba.general.GBAFEClass;
-import fedata.gba.general.GBAFEClassProvider;
-import fedata.gba.general.GBAFEItem;
-import fedata.gba.general.GBAFEItemProvider;
-import fedata.gba.general.GBAFEPromotionItem;
-import fedata.gba.general.GBAFEStatboostProvider;
-import fedata.gba.general.GBAFETextProvider;
-import fedata.gba.general.PaletteColor;
-import fedata.gba.general.PaletteInfo;
-import fedata.gba.general.WeaponRank;
-import fedata.gba.general.WeaponType;
+import fedata.gba.general.*;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.gba.randomizer.shuffling.GBAFEShufflingDataProvider;
 import random.gba.randomizer.shuffling.data.FE6PortraitData;
@@ -40,7 +26,7 @@ import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
 public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider, GBAFEStatboostProvider {
-	public static final String FriendlyName = "ãƒ•ã‚¡ã‚¤ã‚¢ãƒ¼ã‚¨ãƒ ãƒ–ãƒ¬ãƒ ã€€å°�å�°ã�®å‰£";
+	public static final String FriendlyName = "ファイアーエムブレム　封印の剣";
 	public static final String GameCode = "AFEJ";
 
 	public static final long CleanCRC32 = 0xD38763E1L;

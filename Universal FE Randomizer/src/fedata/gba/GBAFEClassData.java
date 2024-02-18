@@ -5,6 +5,7 @@ import java.util.Comparator;
 
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.general.WeaponRank;
+import fedata.gba.general.WeaponRanks;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEPrintableData;
 import util.WhyDoesJavaNotHaveThese;
@@ -377,6 +378,10 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		int value = fe7Rank.value;
 		data[48] = (byte)(value & 0xFF);
 		wasModified = true;
+	}
+
+	public WeaponRanks getWeaponRanks() {
+		return new WeaponRanks(this);
 	}
 
 	public int getBaseRankValue() {

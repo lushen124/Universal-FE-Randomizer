@@ -19,7 +19,7 @@ import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEItem;
 import fedata.gba.general.GBAFEItemProvider;
-import fedata.gba.general.GBAFEItemProvider.WeaponRanks;
+import fedata.gba.general.WeaponRanks;
 import fedata.gba.general.GBAFEPromotionItem;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
@@ -349,11 +349,11 @@ public class ItemDataLoader {
 	}
 	
 	public WeaponRanks ranksForCharacter(GBAFECharacterData character, GBAFEClassData charClass) {
-		return new WeaponRanks(character, charClass, provider);
+		return new WeaponRanks(character, charClass);
 	}
 	
 	public WeaponRanks ranksForClass(GBAFEClassData charClass) {
-		return new WeaponRanks(charClass, provider);
+		return new WeaponRanks(charClass);
 	}
 	
 	public GBAFEItemData[] getAllWeapons() {
@@ -558,7 +558,7 @@ public class ItemDataLoader {
 			return null;
 		}
 		
-		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), new WeaponRanks(targetClass, provider), originalWeapon, strict);
+		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), new WeaponRanks(targetClass), originalWeapon, strict);
 		if (!includePromo) {
 			potentialItems.removeAll(provider.promoWeapons());
 		}
@@ -591,7 +591,7 @@ public class ItemDataLoader {
 			return null;
 		}
 		
-		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(character.getClassID(), new WeaponRanks(character, charClass, provider), originalWeapon, strict);
+		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(character.getClassID(), new WeaponRanks(character, charClass), originalWeapon, strict);
 		if (!includePromo) {
 			potentialItems.removeAll(provider.promoWeapons());
 		}
