@@ -1482,6 +1482,35 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			}
 		}
 		
+		public Character[] targetedRewardRecipientsToTrack() {
+			switch (this) {
+			case CHAPTER_8X:
+			case CHAPTER_12X:
+			case CHAPTER_14X:
+			case CHAPTER_16X:
+			case CHAPTER_20AX:
+			case CHAPTER_20BX:
+			case CHAPTER_21:
+			case CHAPTER_21X:
+				return new Character[] {Character.ROY};
+			case CHAPTER_10A:
+			case CHAPTER_11B:
+				return new Character[] {Character.ROY};
+			case CHAPTER_11A:
+			case CHAPTER_10B:
+				return new Character[] {Character.ROY, Character.KLEIN, Character.THITO};
+			case CHAPTER_13:
+			case CHAPTER_15:
+				return new Character[] {Character.PERCIVAL};
+			case CHAPTER_20A:
+				return new Character[] {Character.ROY};
+			default:
+				break;
+			}
+			
+			return new Character[] {};
+		}
+		
 		public CharacterNudge[] nudgesRequired() {
 			switch(this) {
 			case CHAPTER_6:
