@@ -86,6 +86,12 @@ public class FE9ClassRandomizer {
 				for (FE9Class charClass : possibleReplacements) {
 					DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "\t" + classData.getJIDForClass(charClass));
 				}
+				
+				if (rng.nextInt(4) == 0) {
+					possibleReplacements.removeIf(fe9Class -> {
+						return classData.isMountedClass(fe9Class);
+					});
+				}
 				if (possibleReplacements.isEmpty()) { continue; }
 				
 				if (assignEvenly) {
@@ -120,7 +126,7 @@ public class FE9ClassRandomizer {
 			}
 			
 			if (classData.isLaguzClass(newClass)) {
-				int startingGauge = rng.nextInt(20);
+				int startingGauge = rng.nextInt(15) + 5;
 				DebugPrinter.log(DebugPrinter.Key.FE9_RANDOM_CLASSES, "Set Laguz starting gauge to " + startingGauge);
 				charData.setLaguzStartingGaugeForCharacter(character, startingGauge);
 				if (classData.isLaguzClass(originalClass) && charData.getUnpromotedAIDForCharacter(character) != null) {
@@ -1271,7 +1277,8 @@ public class FE9ClassRandomizer {
 		
 		classChoices.retainAll(classData.allValidClasses());
 		
-		if (classData.isFlierClass(originalClass)) {
+		//don't let flying enemies become grounded
+		if (classData.isFlierClass(originalClass) && !forPlayerCharacter) {
 			classChoices.retainAll(classData.allFliers());
 		}
 		
