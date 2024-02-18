@@ -144,7 +144,7 @@ public class CharacterShuffler {
         DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, String.format("Shuffling Character %s into Slot %d, which was originally %s", crossGameData.name, slot.getID(), slot.displayString()));
 
         // (a) Get a valid class in the target game for what was configured for the character
-        int targetClassId = GBACrossGameData.getEquivalentClass(type, crossGameData).getID();
+        int targetClassId = GBACrossGameData.getEquivalentClass(type, crossGameData, classData).getID();
 
         if (targetClassId == 0) {
             DebugPrinter.error(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, String.format("Couldn't find an applicable class for character %s class %s%n", crossGameData.name,

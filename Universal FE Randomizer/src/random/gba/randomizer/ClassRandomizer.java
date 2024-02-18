@@ -11,7 +11,6 @@ import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.general.WeaponRanks;
 import fedata.gba.GBAFEStatDto;
-import fedata.gba.general.GBAFEItemProvider.WeaponRanks;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase.GameType;
