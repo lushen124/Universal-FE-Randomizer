@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import fedata.gba.GBAFECharacterData.Affinity;
 import fedata.gba.GBAFEStatDto;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
@@ -13,6 +14,7 @@ import fedata.gba.fe8.FE8Data;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
 import fedata.general.FEBase.GameType;
+import random.gba.loader.ClassDataLoader;
 import util.DebugPrinter;
 
 /**
@@ -25,25 +27,29 @@ public class GBACrossGameData {
 	public String paletteString;
 	public String description1;
 	public String description2;
+	public GBACrossGameDataBattlePalette battlePalette;
 	public String characterClass;
+	public boolean promoted;
 	public int level;
 	public GBAFEStatDto bases;
 	public GBAFEStatDto growths;
 	public int[] weaponRanks;
 	public int constitution;
+	public String affinity;
 	public String originGame;
 	public int eyeX;
 	public int eyeY;
 	public int mouthX;
 	public int mouthY;
 
-	public GBACrossGameData(String name, String portraitPath, String description1, String description2,
-			String paletteString, GBAFEClass characterClass, int level, GBAFEStatDto bases, GBAFEStatDto growths,
-			int[] weaponRanks, int constitution, byte[] facialFeatureCoordinates) {
+	public GBACrossGameData(String name, String portraitPath, String description1, String description2, GBACrossGameDataBattlePalette battlePalette,
+			String paletteString, GBAFEClass characterClass, boolean promoted, int level, GBAFEStatDto bases, GBAFEStatDto growths,
+			int[] weaponRanks, int constitution, String affinity, byte[] facialFeatureCoordinates) {
 		this.name = name;
 		this.portraitPath = portraitPath;
 		this.description1 = description1;
 		this.description2 = description2;
+		this.battlePalette = battlePalette;
 		this.characterClass = characterClass.name();
 		this.level = level;
 		this.bases = bases;
@@ -58,6 +64,7 @@ public class GBACrossGameData {
 			this.eyeX = facialFeatureCoordinates[2];
 			this.eyeY = facialFeatureCoordinates[3];
 		}
+		this.affinity = affinity;
 	}
 
 	/**
@@ -65,7 +72,7 @@ public class GBACrossGameData {
 	 * games, so find somewhat equivalent classes f.e. Paladin for Promoted Ephraim
 	 * Lord
 	 */
-	public static GBAFEClass getEquivalentClass(GameType targetGame, GBACrossGameData targetData) {
+	public static GBAFEClass getEquivalentClass(GameType targetGame, GBACrossGameData targetData, ClassDataLoader classData) {
 		if (classMap.isEmpty()) {
 			buildClassMap();
 		}
@@ -88,7 +95,7 @@ public class GBACrossGameData {
 		}
 		// Try to find the class in the targetGame by name
 		classOpt = getClassFromProviderByName(targetGameProvider, classToSubstitute);
-		if (classOpt.isPresent() && !isExceptionCase(targetGameProvider, classOpt)) {
+		if (classOpt.isPresent() && !isExceptionCase(targetGameProvider, classOpt) && classData.isValidClass(classOpt.get().getID())) {
 			DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING,
 					"Could find the class from a naive search of the name in the target game.");
 			return classOpt.get();
@@ -231,6 +238,9 @@ public class GBACrossGameData {
 		addEntry(GameType.FE6, FE6Data.CharacterClass.HERO_F, FE7Data.CharacterClass.HERO, FE8Data.CharacterClass.HERO);
 		addEntry(GameType.FE6, FE6Data.CharacterClass.KING, FE7Data.CharacterClass.GENERAL, FE8Data.CharacterClass.GENERAL);
 		addEntry(GameType.FE6, FE6Data.CharacterClass.WYVERN_KNIGHT, FE7Data.CharacterClass.WYVERNLORD, FE8Data.CharacterClass.WYVERN_LORD);
+		addEntry(GameType.FE6, FE6Data.CharacterClass.MANAKETE_F, FE7Data.CharacterClass.DANCER, FE8Data.CharacterClass.MANAKETE_F);
+		addEntry(GameType.FE6, FE6Data.CharacterClass.KNIGHT_F, FE7Data.CharacterClass.KNIGHT, FE8Data.CharacterClass.KNIGHT_F);
+		addEntry(GameType.FE6, FE6Data.CharacterClass.ARCHER, FE7Data.CharacterClass.ARCHER, FE8Data.CharacterClass.ARCHER);
 		
 		// FE7 Classes -> FE6 / FE8
 		addEntry(GameType.FE7, FE7Data.CharacterClass.LORD_LYN, FE6Data.CharacterClass.MYRMIDON_F, FE8Data.CharacterClass.MYRMIDON);
@@ -300,6 +310,7 @@ public class GBACrossGameData {
 		addEntry(GameType.FE8, FE8Data.CharacterClass.CLERIC, FE6Data.CharacterClass.CLERIC, FE7Data.CharacterClass.CLERIC);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.WYVERN_RIDER, FE6Data.CharacterClass.WYVERN_RIDER, FE7Data.CharacterClass.WYVERNKNIGHT);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.ROGUE, FE6Data.CharacterClass.SWORDMASTER, FE7Data.CharacterClass.ASSASSIN);
+		addEntry(GameType.FE8, FE8Data.CharacterClass.FALCON_KNIGHT, FE6Data.CharacterClass.FALCON_KNIGHT, FE7Data.CharacterClass.FALCONKNIGHT);
 	}
 
 	

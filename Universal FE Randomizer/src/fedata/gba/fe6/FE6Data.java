@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.Set;
 
 import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFECharacterData.Affinity;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
@@ -1617,6 +1618,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		LORD_ROY(0x01, Character.ROY.ID, CharacterClass.LORD.ID, 0x7FC800),
 		
+		SOLDIER_GENERIC(0x0, Character.NONE.ID, CharacterClass.SOLDIER.ID, 0x6E5238),
+		
 		ARCHER_WOLT(0x02, Character.WOLT.ID, CharacterClass.ARCHER.ID, 0x7FC858),
 		ARCHER_DOROTHY(0x03, Character.DOROTHY.ID, CharacterClass.ARCHER_F.ID, 0x7FC8B8),
 		
@@ -1795,7 +1798,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				palettesByID.put(palette.paletteID, palette);
 			}
 			
-			defaultPaletteForClass.put(CharacterClass.SOLDIER.ID, ARCHER_WOLT.info); // No idea.
+			defaultPaletteForClass.put(CharacterClass.SOLDIER.ID, SOLDIER_GENERIC.info); // Note: This isn't associated with any particular character and should not be written to.
 			defaultPaletteForClass.put(CharacterClass.ARCHER.ID, ARCHER_WOLT.info);
 			defaultPaletteForClass.put(CharacterClass.ARCHER_F.ID, ARCHER_DOROTHY.info);
 			defaultPaletteForClass.put(CharacterClass.BARD.ID, BARD_ELFIN.info);
@@ -1943,10 +1946,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {2, 5}, new int[] {8, 9, 10, 11});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10}, new int[] {}, new int[] {6, 7}); // No hair. Armor primary, shield tertiary.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {}, new int[] {6, 7}); // No hair. Armor primary, shield tertiary.
 					break;
 				case PEGASUS_KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10, 14}, new int[] {11, 12, 13}, new int[] {5, 3}); // Armor Primary, Wing Secondary, Mane tertiary
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10}, new int[] {}, new int[] {}); // Armor Primary, Wing Secondary, Mane tertiary
 					break;
 				case PIRATE:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {}); // Outfit/Bandana is the only color.
@@ -2203,6 +2206,19 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		return values;
+	}
+	
+	public int affinityValueForAffinity(GBAFECharacterData.Affinity affinity) {
+		switch (affinity) {
+		case FIRE: return FE6Character.Affinity.FIRE.value;
+		case THUNDER: return FE6Character.Affinity.THUNDER.value;
+		case WIND: return FE6Character.Affinity.WIND.value;
+		case WATER: return FE6Character.Affinity.WATER.value;
+		case DARK: return FE6Character.Affinity.DARK.value;
+		case ANIMA: return FE6Character.Affinity.ANIMA.value;
+		case LIGHT: return FE6Character.Affinity.LIGHT.value;
+		default: return FE6Character.Affinity.NONE.value;
+		}
 	}
 
 	public int canonicalID(int characterID) {

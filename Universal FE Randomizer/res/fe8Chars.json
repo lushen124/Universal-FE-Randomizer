@@ -5,15 +5,22 @@
     "paletteString": "344FDF6F3F477D2ED3252C2587206377A26245416261FE335B23BA105373FE7F",
     "description1": "The princess of the kingdom of",
     "description2": "Renais. She's elegant and kind.",
+    "battlePalette": {
+      "hair": ["#18d8e8", "#10a8c0", "#285080"],
+      "primary": ["#f0f860", "#d8d040"],
+      "secondary": ["#d02820"],
+      "tertiary": null
+    },
     "characterClass": "EIRIKA_LORD",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 0,
-      "spd": 0,
-      "def": 0,
-      "res": 0,
+      "hp": 16,
+      "str": 4,
+      "skl": 8,
+      "spd": 9,
+      "def": 3,
+      "res": 1,
       "lck": 5
     },
     "growths": {
@@ -35,7 +42,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -48,15 +56,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720570410004C0CEF662B468731FF275373FE7F",
     "description1": "A young commander of Renais.",
     "description2": "He's calm, composed, and skilled.",
+    "battlePalette": {
+      "hair": ["#b81008", "#800000", "#601018"],
+      "primary": ["#78b8c8", "#588888", "#386060"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "PALADIN",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 7,
-      "str": 7,
-      "skl": 9,
-      "spd": 5,
-      "def": 3,
-      "res": 5,
+      "hp": 30,
+      "str": 14,
+      "skl": 13,
+      "spd": 12,
+      "def": 11,
+      "res": 8,
       "lck": 13
     },
     "growths": {
@@ -78,7 +93,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 11,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -91,14 +107,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C25872010368C250921264AE12D412DFF275373FE7F",
     "description1": "An armored knight of Frelia.",
     "description2": "He's quiet yet dependable.",
+    "battlePalette": {
+      "hair": ["#808068", "#606048", "#484040"],
+      "primary": ["#308890", "#087858", "#085058"],
+      "secondary": ["#f8f848", "#f8d070", "#e89850"],
+      "tertiary": null
+    },
     "characterClass": "KNIGHT",
+    "promoted": false,
     "level": 4,
     "bases": {
-      "hp": 8,
-      "str": 4,
-      "skl": 4,
+      "hp": 25,
+      "str": 9,
+      "skl": 6,
       "spd": 3,
-      "def": 0,
+      "def": 9,
       "res": 3,
       "lck": 3
     },
@@ -121,7 +144,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 14,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -134,14 +158,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587205D1B9812B01D972BF30EEB09D14E0B36FE7F",
     "description1": "An earnest and compassionate",
     "description2": "cavalier from Renais.",
+    "battlePalette": {
+      "hair": ["#e8d030", "#c0a020", "#806838"],
+      "primary": ["#b8e050", "#98b818", "#587810"],
+      "secondary": ["#88b098", "#588068"],
+      "tertiary": null
+    },
     "characterClass": "CAVALIER",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 2,
-      "skl": 3,
-      "spd": 2,
-      "def": 0,
+      "hp": 20,
+      "str": 7,
+      "skl": 5,
+      "spd": 7,
+      "def": 6,
       "res": 1,
       "lck": 2
     },
@@ -164,7 +195,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -177,15 +209,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720361A900D0C11DE5F1853EF2D7815B0048B04",
     "description1": "A mature priest of Frelia. He's",
     "description2": "gentle and reassuring.",
+    "battlePalette": {
+      "hair": ["#b08830", "#806018", "#604020"],
+      "primary": ["#c05828", "#802808", "#582008"],
+      "secondary": ["#f0f0b8", "#c0c0a0", "#787858"],
+      "tertiary": null
+    },
     "characterClass": "PRIEST",
+    "promoted": false,
     "level": 3,
     "bases": {
-      "hp": 2,
-      "str": 3,
-      "skl": 5,
-      "spd": 7,
-      "def": 1,
-      "res": 0,
+      "hp": 20,
+      "str": 4,
+      "skl": 6,
+      "spd": 9,
+      "def": 2,
+      "res": 5,
       "lck": 1
     },
     "growths": {
@@ -207,7 +246,8 @@
       0,
       0
     ],
-    "constitution": 4,
+    "constitution": 9,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -220,15 +260,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720671FA51A871D9F193721776F6D52FF27FE7F",
     "description1": "A sincere, honest, and honorable",
     "description2": "pegasus knight of Frelia.",
+    "battlePalette": {
+      "hair": ["#38d838", "#28a830", "#386038"],
+      "primary": ["#f86030", "#b84840"],
+      "secondary": ["#f0f8f8", "#b8d8d8", "#6898a0"],
+      "tertiary": null
+    },
     "characterClass": "PEGASUS_KNIGHT",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 1,
-      "skl": 2,
-      "spd": 6,
-      "def": 3,
-      "res": 3,
+      "hp": 17,
+      "str": 5,
+      "skl": 7,
+      "spd": 11,
+      "def": 6,
+      "res": 5,
       "lck": 4
     },
     "growths": {
@@ -250,7 +297,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -263,14 +311,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720CE414A29EA2498193019626103453667FE7F",
     "description1": "A young villager. He longs to be a",
     "description2": "warrior, like his father.",
+    "battlePalette": {
+      "hair": ["#707080", "#505050", "#503848"],
+      "primary": ["#1058c0", "#184088"],
+      "secondary": ["#c06030", "#804830"],
+      "tertiary": null
+    },
     "characterClass": "TRAINEE",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 1,
-      "str": 2,
+      "hp": 15,
+      "str": 5,
       "skl": 2,
-      "spd": 2,
-      "def": 2,
+      "spd": 3,
+      "def": 3,
       "res": 0,
       "lck": 8
     },
@@ -293,7 +348,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 8,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -306,14 +362,21 @@
     "paletteString": "344FDF6F3F477D2ED3252C2587201D4D793CB1286A14D523D00EEB09FF27FE7F",
     "description1": "A childhood friend of Colm who",
     "description2": "hails from Renais. She cries a lot.",
+    "battlePalette": {
+      "hair": ["#e84098", "#c81878", "#882850"],
+      "primary": ["#c81878", "#882850", "#501828"],
+      "secondary": ["#a8f040", "#80b018", "#587810"],
+      "tertiary": null
+    },
     "characterClass": "ARCHER_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 1,
-      "skl": 2,
-      "spd": 2,
-      "def": 0,
+      "hp": 17,
+      "str": 4,
+      "skl": 5,
+      "spd": 6,
+      "def": 3,
       "res": 2,
       "lck": 4
     },
@@ -336,7 +399,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -349,14 +413,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720E2616149022D9819684DE72C714E5767FE7F",
     "description1": "A childhood friend of Neimi who",
     "description2": "hails from Renais. He can be snide.",
+    "battlePalette": {
+      "hair": ["#1078c0", "#085890", "#104058"],
+      "primary": ["#405898", "#383858", "#382040"],
+      "secondary": ["#b8d0c8", "#889898"],
+      "tertiary": null
+    },
     "characterClass": "THIEF",
+    "promoted": false,
     "level": 2,
     "bases": {
-      "hp": 2,
-      "str": 1,
-      "skl": 3,
-      "spd": 1,
-      "def": 1,
+      "hp": 18,
+      "str": 4,
+      "skl": 4,
+      "spd": 10,
+      "def": 3,
       "res": 1,
       "lck": 8
     },
@@ -379,7 +450,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -392,14 +464,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720CE414A29EA249819301962614F4A5767FE7F",
     "description1": "A villager from Renais. He was",
     "description2": "once a feared military leader.",
+    "battlePalette": {
+      "hair": ["#707080", "#505050", "#503848"],
+      "primary": ["#1058c0"],
+      "secondary": ["#e89850", "#c06030", "#804830"],
+      "tertiary": null
+    },
     "characterClass": "FIGHTER",
+    "promoted": false,
     "level": 4,
     "bases": {
-      "hp": 8,
-      "str": 3,
-      "skl": 5,
-      "spd": 3,
-      "def": 3,
+      "hp": 28,
+      "str": 8,
+      "skl": 7,
+      "spd": 7,
+      "def": 5,
       "res": 1,
       "lck": 3
     },
@@ -422,7 +501,8 @@
       0,
       0
     ],
-    "constitution": 3,
+    "constitution": 14,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -435,15 +515,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720174B703A6A25746FAC56C8418F55E93CFE7F",
     "description1": "The prince of Frelia. He's brash",
     "description2": "and arrogant, but good at heart.",
+    "battlePalette": {
+      "hair": ["#b8c090", "#809870", "#505848"],
+      "primary": ["#a0d8d8", "#60a8a8", "#407080"],
+      "secondary": ["#7860a8", "#483878", "#382040"],
+      "tertiary": null
+    },
     "characterClass": "SNIPER",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 10,
-      "str": 7,
-      "skl": 7,
-      "spd": 10,
-      "def": 5,
-      "res": 7,
+      "hp": 31,
+      "str": 14,
+      "skl": 13,
+      "spd": 15,
+      "def": 10,
+      "res": 9,
       "lck": 14
     },
     "growths": {
@@ -465,7 +552,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 9,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -478,15 +566,22 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720B66C7254AC345373825E2541FF271813FE7F",
     "description1": "A young mage of Renais. She",
     "description2": "believes she is a prodigy.",
+    "battlePalette": {
+      "hair": ["#b028d8", "#9018a8", "#602868"],
+      "primary": ["#b028d8", "#9018a8", "#602868"],
+      "secondary": ["#10a0b8", "#284880"],
+      "tertiary": null
+    },
     "characterClass": "MAGE_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 1,
-      "str": 5,
-      "skl": 3,
-      "spd": 5,
-      "def": 1,
-      "res": 1,
+      "hp": 17,
+      "str": 6,
+      "skl": 6,
+      "spd": 7,
+      "def": 3,
+      "res": 5,
       "lck": 8
     },
     "growths": {
@@ -508,7 +603,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 3,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -521,15 +617,22 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720FF335A2394168D19C37542616A395767FE7F",
     "description1": "A beautiful cleric from the Grado",
     "description2": "Empire. She's graceful and serious.",
+    "battlePalette": {
+      "hair": ["#f8f860", "#d0d040", "#a0a028"],
+      "primary": ["#f0f8f8", "#b8d0c8", "#505870"],
+      "secondary": ["#1870e8", "#1050c0"],
+      "tertiary": null
+    },
     "characterClass": "CLERIC",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 2,
-      "str": 1,
-      "skl": 2,
-      "spd": 6,
+      "hp": 18,
+      "str": 2,
+      "skl": 4,
+      "spd": 8,
       "def": 2,
-      "res": 0,
+      "res": 6,
       "lck": 6
     },
     "growths": {
@@ -551,7 +654,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 4,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -564,14 +668,21 @@
     "paletteString": "344F5F477D2EF725911D2C258720FF5F7B33B51ACE192A4E86390525766FFE7F",
     "description1": "A wyvern knight of Grado. A gentle",
     "description2": "man, but a ferocious warrior.",
+    "battlePalette": {
+      "hair": ["#f8f8b8", "#d8d860", "#a8a830"],
+      "primary": ["#508898", "#306070", "#284048"],
+      "secondary": ["#b0d8d8", "#508898"],
+      "tertiary": null
+    },
     "characterClass": "WYVERN_RIDER",
+    "promoted": false,
     "level": 9,
     "bases": {
-      "hp": 10,
-      "str": 7,
-      "skl": 6,
-      "spd": 5,
-      "def": 4,
+      "hp": 30,
+      "str": 14,
+      "skl": 9,
+      "spd": 10,
+      "def": 12,
       "res": 2,
       "lck": 4
     },
@@ -594,7 +705,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 11,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -607,14 +719,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720225B6252683983652241F47A2D662831FE7F",
     "description1": "The prince of Renais. He is a man",
     "description2": "of great honor and bravery.",
+    "battlePalette": {
+      "hair": ["#10c8b0", "#1098a0", "#405870"],
+      "primary": ["#1860c8", "#104880"],
+      "secondary": ["#a0b8f0", "#6888c8"],
+      "tertiary": null
+    },
     "characterClass": "EPHRAIM_LORD",
+    "promoted": false,
     "level": 4,
     "bases": {
-      "hp": 5,
-      "str": 2,
-      "skl": 3,
-      "spd": 4,
-      "def": 1,
+      "hp": 23,
+      "str": 8,
+      "skl": 9,
+      "spd": 11,
+      "def": 7,
       "res": 2,
       "lck": 8
     },
@@ -637,7 +756,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 8,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -650,14 +770,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587207D07D906F3151815B308AD08312FE80DFE7F",
     "description1": "A cavalier of Renais. He is skilled,",
     "description2": "but reckless. He's Franz's brother.",
+    "battlePalette": {
+      "hair": ["#e8d808", "#c8b008", "#987828"],
+      "primary": ["#c04028", "#982810", "#682810"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "CAVALIER",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 4,
-      "str": 2,
-      "skl": 6,
-      "spd": 3,
-      "def": 2,
+      "hp": 24,
+      "str": 7,
+      "skl": 8,
+      "spd": 8,
+      "def": 8,
       "res": 2,
       "lck": 7
     },
@@ -680,7 +807,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -693,14 +821,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720C3120106630D7232CB2548216725BF27FE7F",
     "description1": "A steadfast and honorable cavalier",
     "description2": "in sworn service to Renais.",
+    "battlePalette": {
+      "hair": ["#18b020", "#088008", "#185818"],
+      "primary": ["#909860", "#587048", "#405040"],
+      "secondary": ["#f8e848", "#e89850"],
+      "tertiary": null
+    },
     "characterClass": "CAVALIER",
+    "promoted": false,
     "level": 6,
     "bases": {
-      "hp": 5,
-      "str": 4,
-      "skl": 4,
-      "spd": 2,
-      "def": 3,
+      "hp": 25,
+      "str": 9,
+      "skl": 6,
+      "spd": 7,
+      "def": 9,
       "res": 1,
       "lck": 6
     },
@@ -723,7 +858,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 10,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -736,15 +872,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720DE1F1817101EFF353D0DD70C4736346BFE7F",
     "description1": "A young girl from a small village in",
     "description2": "Grado. She is honest and sincere.",
+    "battlePalette": {
+      "hair": ["#f0f038", "#c0c028", "#808038"],
+      "primary": ["#f87868", "#e84818", "#b83018"],
+      "secondary": ["#f0f8f8", "#a0c8d0"],
+      "tertiary": null
+    },
     "characterClass": "RECRUIT",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 1,
+      "hp": 16,
+      "str": 4,
       "skl": 3,
-      "spd": 3,
+      "spd": 4,
       "def": 2,
-      "res": 2,
+      "res": 3,
       "lck": 6
     },
     "growths": {
@@ -766,7 +909,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -779,15 +923,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587201F127911F108EE7F0C63C739714E5767FE7F",
     "description1": "A young monk from Renais. He is a",
     "description2": "very forthright and pious man.",
+    "battlePalette": {
+      "hair": ["#f88020", "#c85820", "#883810"],
+      "primary": ["#f0f8f8", "#b8d0c8", "#889898"],
+      "secondary": ["#70f8f8", "#60c0c0", "#387070"],
+      "tertiary": null
+    },
     "characterClass": "MONK",
+    "promoted": false,
     "level": 2,
     "bases": {
-      "hp": 1,
-      "str": 5,
-      "skl": 5,
-      "spd": 6,
-      "def": 1,
-      "res": 1,
+      "hp": 19,
+      "str": 6,
+      "skl": 6,
+      "spd": 8,
+      "def": 2,
+      "res": 6,
       "lck": 2
     },
     "growths": {
@@ -809,7 +960,8 @@
       1,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -822,14 +974,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720F30E2D0E6A05FE33D334AC20782A1463FE7F",
     "description1": "A mercenary leader from Jehanna. He's",
     "description2": "better known as the Desert Tiger.",
+    "battlePalette": {
+      "hair": ["#98b818", "#688818", "#505808"],
+      "primary": ["#983068", "#602840"],
+      "secondary": ["#c09850", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "MERCENARY",
+    "promoted": false,
     "level": 10,
     "bases": {
-      "hp": 14,
-      "str": 10,
-      "skl": 5,
-      "spd": 5,
-      "def": 6,
+      "hp": 32,
+      "str": 14,
+      "skl": 13,
+      "spd": 13,
+      "def": 10,
       "res": 4,
       "lck": 8
     },
@@ -852,7 +1011,8 @@
       0,
       0
     ],
-    "constitution": 4,
+    "constitution": 13,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 2,
@@ -865,15 +1025,22 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720FD14790C9008FF52FF31FF27AC20734E3567",
     "description1": "A beautiful and charming dancer",
     "description2": "from Jehanna.",
+    "battlePalette": {
+      "hair": ["#e83828", "#c81818", "#802010"],
+      "primary": ["#a8c8c8", "#989898"],
+      "secondary": ["#f8f848", "#e89858", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "DANCER",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 4,
-      "str": 0,
-      "skl": 0,
-      "spd": 5,
+      "hp": 18,
+      "str": 1,
+      "skl": 2,
+      "spd": 12,
       "def": 5,
-      "res": 3,
+      "res": 4,
       "lck": 10
     },
     "growths": {
@@ -895,7 +1062,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 5,
+    "affinity": "fire",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -908,15 +1076,22 @@
     "paletteString": "344FDF6F3F477D2ED3252C2587201F7E5A6D30457C0456040421FF275573FE7F",
     "description1": "An aloof sword fighter from Jehanna.",
     "description2": "She's known as the Crimson Flash.",
+    "battlePalette": {
+      "hair": ["#f880f8", "#d050d8", "#804888"],
+      "primary": ["#204040"],
+      "secondary": ["#e01808", "#b01008"],
+      "tertiary": null
+    },
     "characterClass": "MYRMIDON_F",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 8,
-      "str": 4,
-      "skl": 3,
-      "spd": 3,
-      "def": 3,
-      "res": 2,
+      "hp": 23,
+      "str": 7,
+      "skl": 12,
+      "spd": 13,
+      "def": 4,
+      "res": 3,
       "lck": 9
     },
     "growths": {
@@ -938,7 +1113,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "ice",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -951,15 +1127,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720554EB0352B2D984BB14AAA31591E5373FE7F",
     "description1": "A sage from the village Caer Pelyn.",
     "description2": "He's Ewan's solemn, but kind, teacher.",
+    "battlePalette": {
+      "hair": ["#a89098", "#806868", "#584858"],
+      "primary": ["#c0e090", "#88a890", "#506860"],
+      "secondary": ["#f8d070", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "SAGE",
+    "promoted": true,
     "level": 2,
     "bases": {
-      "hp": 10,
-      "str": 11,
-      "skl": 14,
-      "spd": 10,
-      "def": 3,
-      "res": 8,
+      "hp": 30,
+      "str": 16,
+      "skl": 18,
+      "spd": 14,
+      "def": 8,
+      "res": 13,
       "lck": 11
     },
     "growths": {
@@ -981,7 +1164,8 @@
       121,
       0
     ],
-    "constitution": 1,
+    "constitution": 8,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -994,15 +1178,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587203D15B90CB008087A6261357B4E6E8B3DFE7F",
     "description1": "A sage-in-training from Jehanna.",
     "description2": "He reveres his teacher, Saleh.",
+    "battlePalette": {
+      "hair": ["#e84828", "#c82818", "#802810"],
+      "primary": ["#a8c8f0", "#7090d8", "#586078"],
+      "secondary": ["#802810"],
+      "tertiary": null
+    },
     "characterClass": "PUPIL",
+    "promoted": false,
     "level": 2,
     "bases": {
-      "hp": 2,
-      "str": 2,
+      "hp": 15,
+      "str": 3,
       "skl": 2,
-      "spd": 4,
+      "spd": 5,
       "def": 0,
-      "res": 0,
+      "res": 3,
       "lck": 5
     },
     "growths": {
@@ -1024,7 +1215,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 5,
@@ -1037,15 +1229,22 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720D61710072D0E6A154948ED5DFF275573FE7F",
     "description1": "A young woman from Rausten. She",
     "description2": "fights for justice and order.",
+    "battlePalette": {
+      "hair": ["#b0f028", "#80c008", "#688818"],
+      "primary": ["#f0f8f8", "#a8d0e0", "#6878b8"],
+      "secondary": ["#481090"],
+      "tertiary": null
+    },
     "characterClass": "TROUBADOUR",
+    "promoted": false,
     "level": 3,
     "bases": {
-      "hp": 3,
-      "str": 5,
-      "skl": 5,
-      "spd": 7,
-      "def": 3,
-      "res": 3,
+      "hp": 18,
+      "str": 6,
+      "skl": 6,
+      "spd": 10,
+      "def": 5,
+      "res": 8,
       "lck": 12
     },
     "growths": {
@@ -1067,7 +1266,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "light",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -1080,14 +1280,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587204B2686150715BE21B808F110FF275373FE7F",
     "description1": "A berserker from Rausten. He's a",
     "description2": "hearty man with a thirst for life.",
+    "battlePalette": {
+      "hair": ["#589048", "#306028", "#384028"],
+      "primary": ["#f06840", "#c02810", "#883820"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "BERSERKER",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 19,
-      "str": 9,
-      "skl": 5,
-      "spd": 2,
-      "def": 5,
+      "hp": 43,
+      "str": 16,
+      "skl": 11,
+      "spd": 9,
+      "def": 11,
       "res": 6,
       "lck": 4
     },
@@ -1110,7 +1317,8 @@
       0,
       0
     ],
-    "constitution": 3,
+    "constitution": 16,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,
@@ -1123,14 +1331,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720D60D5109EB109819511D1B13C93C3667FE7F",
     "description1": "A lazy, greedy, but exceptional",
     "description2": "fighter from the Republic of Carcino.",
+    "battlePalette": {
+      "hair": ["#b07018", "#885010", "#583820"],
+      "primary": ["#483078", "#382040"],
+      "secondary": ["#c06030", "#885038"],
+      "tertiary": null
+    },
     "characterClass": "ROGUE",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 12,
-      "str": 7,
-      "skl": 15,
-      "spd": 8,
-      "def": 7,
+      "hp": 28,
+      "str": 10,
+      "skl": 16,
+      "spd": 17,
+      "def": 9,
       "res": 11,
       "lck": 5
     },
@@ -1153,7 +1368,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 7,
+    "affinity": "dark",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1166,15 +1382,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720F34D4D350925B710710CAC14B85A5B6BFE7F",
     "description1": "A courageous general in Grado's army.",
     "description2": "He's better known as Obsidian.",
+    "battlePalette": {
+      "hair": ["#c0a8b0", "#987898", "#685068"],
+      "primary": ["#b82820", "#881818", "#602828"],
+      "secondary": ["#d8d0d0", "#c0a8b0", "#987898"],
+      "tertiary": null
+    },
     "characterClass": "GREAT_KNIGHT",
+    "promoted": true,
     "level": 8,
     "bases": {
-      "hp": 20,
-      "str": 9,
-      "skl": 8,
-      "spd": 6,
-      "def": 6,
-      "res": 6,
+      "hp": 42,
+      "str": 17,
+      "skl": 12,
+      "spd": 12,
+      "def": 17,
+      "res": 10,
       "lck": 8
     },
     "growths": {
@@ -1196,7 +1419,8 @@
       0,
       0
     ],
-    "constitution": 2,
+    "constitution": 15,
+    "affinity": "anima",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1209,15 +1433,22 @@
     "paletteString": "344FDF6F3F477D2ED3252C2587202E55CB34FF23F8122D2A2E28BB0C7410FE7F",
     "description1": "A young, pure-hearted girl from",
     "description2": "Darkling Woods. She tends to be shy.",
+    "battlePalette": {
+      "hair": ["#7048a8", "#583068", "#382040"],
+      "primary": ["#d82818", "#a81820"],
+      "secondary": ["#f8f840", "#c0b820", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "MANAKETE_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
+      "hp": 15,
       "str": 3,
       "skl": 1,
-      "spd": 3,
-      "def": 0,
-      "res": 5,
+      "spd": 5,
+      "def": 2,
+      "res": 7,
       "lck": 3
     },
     "growths": {
@@ -1239,7 +1470,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 5,
@@ -1252,15 +1484,22 @@
     "paletteString": "344FFF6B7F37BD26D3252C258720B66E12564B416B45EA38C924554E1963FE7F",
     "description1": "One of Grado's royal mages. He knows",
     "description2": "the riddle of the Dark Stone.",
+    "battlePalette": {
+      "hair": ["#b0a8d8", "#9080a8", "#585080"],
+      "primary": ["#585888", "#503870", "#483048"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "SHAMAN",
+    "promoted": false,
     "level": 9,
     "bases": {
-      "hp": 5,
-      "str": 10,
-      "skl": 8,
-      "spd": 6,
-      "def": 0,
-      "res": 6,
+      "hp": 21,
+      "str": 12,
+      "skl": 9,
+      "spd": 8,
+      "def": 2,
+      "res": 10,
       "lck": 0
     },
     "growths": {
@@ -1282,7 +1521,8 @@
       0,
       71
     ],
-    "constitution": 0,
+    "constitution": 7,
+    "affinity": "dark",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1295,14 +1535,21 @@
     "paletteString": "344FFF635F3B7D2AD3252C2587207C0457046E0CAA3926294D39EA2C372AFE7F",
     "description1": "A wandering swordsman from Jehanna.",
     "description2": "He loves to gamble.",
+    "battlePalette": {
+      "hair": ["#e01808", "#b81008", "#701818"],
+      "primary": ["#506870", "#304850"],
+      "secondary": ["#b88850", "#987048"],
+      "tertiary": null
+    },
     "characterClass": "MYRMIDON",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 8,
-      "str": 4,
-      "skl": 4,
-      "spd": 5,
-      "def": 3,
+      "hp": 24,
+      "str": 8,
+      "skl": 13,
+      "spd": 14,
+      "def": 5,
       "res": 2,
       "lck": 7
     },
@@ -1325,7 +1572,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 8,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1338,15 +1586,22 @@
     "paletteString": "344FFF635F3B7D2AD3252C258720271F651A881D345BEC390619581E1963FE7F",
     "description1": "The dutiful commander of the 3rd",
     "description2": "battalion of Frelia's pegasus knights.",
+    "battlePalette": {
+      "hair": ["#38c838", "#289830", "#406038"],
+      "primary": ["#f0f8f8", "#a0c8b0", "#607870"],
+      "secondary": null,
+      "tertiary": null
+    },
     "characterClass": "FALCON_KNIGHT",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 7,
-      "str": 6,
-      "skl": 6,
-      "spd": 8,
-      "def": 5,
-      "res": 8,
+      "hp": 27,
+      "str": 12,
+      "skl": 13,
+      "spd": 15,
+      "def": 10,
+      "res": 12,
       "lck": 12
     },
     "growths": {
@@ -1368,7 +1623,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 7,
+    "affinity": "thunder",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 3,
@@ -1381,15 +1637,21 @@
     "paletteString": "344FDF6F3F477D2ED3252C258720AB5D654104253F193B08FF272B465373FE7F",
     "description1": "A young lady of Frelia. She is both",
     "description2": "cheery and sociable.",
+    "battlePalette": {
+      "hair": ["#5868b8", "#285880", "#204048"],
+      "primary": ["#f0f8f8", "#98d0e0", "#588888"],
+      "secondary": ["#f84830", "#d80810"],
+      "tertiary": null
+    },
     "characterClass": "PEGASUS_KNIGHT",
     "level": 4,
     "bases": {
-      "hp": 6,
-      "str": 3,
-      "skl": 4,
-      "spd": 8,
-      "def": 3,
-      "res": 5,
+      "hp": 20,
+      "str": 7,
+      "skl": 9,
+      "spd": 13,
+      "def": 6,
+      "res": 7,
       "lck": 8
     },
     "growths": {
@@ -1411,7 +1673,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "wind",
     "originGame": "FE8",
     "eyeX": 3,
     "eyeY": 4,

@@ -15,6 +15,7 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.gba.GBAFECharacterData.Affinity;
 import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
@@ -2936,6 +2937,19 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		return values;
+	}
+	
+	public int affinityValueForAffinity(GBAFECharacterData.Affinity affinity) {
+		switch (affinity) {
+		case FIRE: return FE8Character.Affinity.FIRE.value;
+		case THUNDER: return FE8Character.Affinity.THUNDER.value;
+		case WIND: return FE8Character.Affinity.WIND.value;
+		case WATER: return FE8Character.Affinity.WATER.value;
+		case LIGHT: return FE8Character.Affinity.LIGHT.value;
+		case DARK: return FE8Character.Affinity.DARK.value;
+		case ANIMA: return FE8Character.Affinity.ANIMA.value;
+		default: return FE8Character.Affinity.NONE.value;
+		}
 	}
 
 	public int canonicalID(int characterID) {

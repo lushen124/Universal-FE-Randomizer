@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import fedata.gba.fe7.FE7Data;
+import fedata.gba.general.PaletteColor;
 import fedata.general.FELockableData;
 import fedata.general.FEPrintableData;
 import util.WhyDoesJavaNotHaveThese;
@@ -38,11 +39,32 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		public static Affinity[] validAffinities() { 
 			return new Affinity[] {FIRE, THUNDER, WIND, WATER, DARK, LIGHT, ANIMA};
 		}
+		
+		public static Affinity affinityForString(String affinityString) {
+			String normalizedString = affinityString.toLowerCase();
+			
+			if (normalizedString.equals("fire")) { return FIRE; }
+			if (normalizedString.equals("thunder")) { return THUNDER; }
+			if (normalizedString.equals("wind")) { return WIND; }
+			if (normalizedString.equals("ice") || normalizedString.equals("water")) { return WATER; }
+			if (normalizedString.equals("dark")) { return DARK; }
+			if (normalizedString.equals("light")) { return LIGHT; }
+			if (normalizedString.equals("anima")) { return ANIMA; }
+			return NONE;
+		}
 	}
 	
 	public abstract GBAFECharacterData createCopy(boolean useOriginalData);
 	
+	public List<PaletteColor> overrideBattleHairColor = null;
+	public List<PaletteColor> overrideBattlePrimaryColor = null;
+	public List<PaletteColor> overrideBattleSecondaryColor = null;
+	public List<PaletteColor> overrideBattleTertiaryColor = null;
 	
+	// At a minimum, we need hair and primary color to work with.
+	public boolean hasBattlePaletteOverrides() {
+		return overrideBattleHairColor != null && overrideBattlePrimaryColor != null && !overrideBattleHairColor.isEmpty() && !overrideBattlePrimaryColor.isEmpty();
+	}
 	
 	public void initializeDisplayString(String debugString) {
 		this.debugString = debugString;
