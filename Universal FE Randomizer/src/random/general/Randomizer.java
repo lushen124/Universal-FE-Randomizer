@@ -3,8 +3,8 @@ package random.general;
 import org.eclipse.swt.widgets.Display;
 
 import util.DebugPrinter;
-import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.RecordKeeper;
+import util.recordkeeper.fe9.ChangelogBuilder;
 
 public abstract class Randomizer extends Thread {
 
