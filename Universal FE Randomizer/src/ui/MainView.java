@@ -746,18 +746,8 @@ public class MainView implements FileFlowDelegate {
 			FormData classData = new FormData();
 			classData.top = new FormAttachment(weaponView, 0, SWT.TOP);
 			classData.left = new FormAttachment(weaponView, 5);
+			classData.bottom = new FormAttachment(100, -10);
 			classView.setLayoutData(classData);
-			
-			enemyView = new EnemyBuffsView(container, SWT.NONE);
-			enemyView.setSize(200, 200);
-			enemyView.setVisible(false);
-			  
-			FormData enemyData = new FormData();
-			enemyData.top = new FormAttachment(classView, 5);
-			enemyData.left = new FormAttachment(classView, 0, SWT.LEFT);
-			enemyData.right = new FormAttachment(classView, 0, SWT.RIGHT);
-			enemyData.bottom = new FormAttachment(100, -10);
-			enemyView.setLayoutData(enemyData);
 			
 			recruitView = new RecruitmentView(container, SWT.NONE, type);
 			recruitView.setSize(200, 200);
@@ -767,6 +757,17 @@ public class MainView implements FileFlowDelegate {
 			recruitData.top = new FormAttachment(classView, 0, SWT.TOP);
 			recruitData.left = new FormAttachment(classView, 5);
 			recruitView.setLayoutData(recruitData);
+			
+			enemyView = new EnemyBuffsView(container, SWT.NONE);
+			enemyView.setSize(200, 200);
+			enemyView.setVisible(false);
+			  
+			FormData enemyData = new FormData();
+			enemyData.top = new FormAttachment(recruitView, 5);
+			enemyData.left = new FormAttachment(recruitView, 0, SWT.LEFT);
+			enemyData.right = new FormAttachment(recruitView, 0, SWT.RIGHT);
+			enemyData.bottom = new FormAttachment(100, -10);
+			enemyView.setLayoutData(enemyData);
 			
 			statboosterView = new StatboosterView(container, SWT.NONE);
 			statboosterView.setSize(200, 200);
@@ -783,8 +784,8 @@ public class MainView implements FileFlowDelegate {
 			characterShufflingView.setVisible(false);
 			
 			FormData characterShufflingData = new FormData();
-			characterShufflingData.top = new FormAttachment(statboosterView, 0, SWT.TOP);
-			characterShufflingData.left = new FormAttachment(statboosterView, 5);
+			characterShufflingData.top = new FormAttachment(statboosterView, 5);
+			characterShufflingData.left = new FormAttachment(statboosterView, 0, SWT.LEFT);
 			characterShufflingData.right = new FormAttachment(100, 0);
 			characterShufflingView.setLayoutData(characterShufflingData);
 			
