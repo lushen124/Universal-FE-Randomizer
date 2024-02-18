@@ -52,5 +52,12 @@ public abstract class AbstractGBAData implements FEModifiableData {
 		addressOverride = newAddress;
 		wasModified = true;
 	}
+	
+	protected int asInt(byte b) {
+		return b & 0xFF;
+	}
+	protected byte asByte(int i) {
+		return (byte) (i & 0xFF);
+	}
 }
 

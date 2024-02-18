@@ -25,6 +25,7 @@ import fedata.gba.general.GBAFEClassProvider;
 import fedata.gba.general.GBAFEItem;
 import fedata.gba.general.GBAFEItemProvider;
 import fedata.gba.general.GBAFEPromotionItem;
+import fedata.gba.general.GBAFEStatboostProvider;
 import fedata.gba.general.GBAFETextProvider;
 import fedata.gba.general.PaletteColor;
 import fedata.gba.general.PaletteInfo;
@@ -37,8 +38,8 @@ import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider {
-	public static final String FriendlyName = "ファイアーエムブレム　封印の剣";
+public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider, GBAFEStatboostProvider {
+	public static final String FriendlyName = "ãƒ•ã‚¡ã‚¤ã‚¢ãƒ¼ã‚¨ãƒ ãƒ–ãƒ¬ãƒ ã€€å°�å�°ã�®å‰£";
 	public static final String GameCode = "AFEJ";
 
 	public static final long CleanCRC32 = 0xD38763E1L;
@@ -102,6 +103,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	public static final GBAFEStatboostProvider statboostProvider = sharedInstance;
 	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
 	public static final GBAFETextProvider textProvider = sharedInstance;
 	
@@ -3031,5 +3033,22 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		indicies.add(0x742); // Killer Lance
 		
 		return indicies;
+	}
+	
+	@Override
+	public long getBaseAddress() {
+		return 0x662738;
+	}
+
+	private List<Integer> statboosterIndicies = Arrays.asList(11, 12, 13, 14, 15, 16, 17, 18, 19);
+	
+	@Override
+	public boolean isStatboosterIndex(int i) {
+		return statboosterIndicies.contains(i);
+	}
+
+	@Override
+	public int getNumberEntries() {
+		return 20;
 	}
 }
