@@ -6,7 +6,10 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import fedata.gba.fe7.FE7Data;
 import util.WhyDoesJavaNotHaveThese;
 
 public class PaletteColor implements Comparable<PaletteColor> {
@@ -17,6 +20,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	private double hue;
 	private double saturation;
 	private double brightness;
+	private boolean backgroundColor;
 	
 	public static final Comparator<PaletteColor> lowToHighBrightnessComparator = new Comparator<PaletteColor>() {
 		@Override
@@ -24,7 +28,13 @@ public class PaletteColor implements Comparable<PaletteColor> {
 			return o1.brightness > o2.brightness ? WhyDoesJavaNotHaveThese.ComparatorResult.FIRST_GREATER.returnValue() : WhyDoesJavaNotHaveThese.ComparatorResult.SECOND_GREATER.returnValue();
 		}
 	};
-	
+	public static final Comparator<PaletteColor> backgroundColorComparator = new Comparator<PaletteColor>() {
+		@Override
+		public int compare(PaletteColor o1, PaletteColor o2) {
+			return Boolean.compare(o1.isBackgroundColor(), o2.isBackgroundColor()) * -1;
+		}
+	};
+
 	public PaletteColor(byte[] colorTuple) {
 		int colorValue = ((colorTuple[1] << 8) & 0xFF00) | (colorTuple[0] & 0xFF);
 		
@@ -43,6 +53,9 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		calculateValuesWithRGB();
 	}
 	
+	public PaletteColor(int colorValue) {
+		this((colorValue & 0xFF0000) >> 16, (colorValue & 0xFF00) >> 8, (colorValue & 0xFF));
+	}
 	public PaletteColor(int r, int g, int b) {
 		red = (double)WhyDoesJavaNotHaveThese.clamp(r, 0, 255) / 255.0;
 		green = (double)WhyDoesJavaNotHaveThese.clamp(g, 0, 255) / 255.0;
@@ -102,7 +115,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	public boolean isSameAsColor(PaletteColor otherColor) {
 		return toHexString().equals(otherColor.toHexString());
 	}
-	
+
 	public boolean isNoColor() {
 		return this.red == 0 && this.blue == 0 && this.green == 0 && this.brightness == 0 && this.hue == 0 && this.saturation == 0;
 	}
@@ -113,7 +126,50 @@ public class PaletteColor implements Comparable<PaletteColor> {
 				getGreenValue() < 16 ? "0" + Integer.toHexString(getGreenValue()) : Integer.toHexString(getGreenValue()),
 						getBlueValue() < 16 ? "0" + Integer.toHexString(getBlueValue()) : Integer.toHexString(getBlueValue()));
 	}
-	
+
+	/**
+	 * 4 Hex Bytes per Color <br>
+	 * 1st Byte = 0-F -> GG GR <br>
+	 * 2nd Byte = 0-F -> RR RR <br>
+	 * 3rd Byte = 0-7 -> []B BB <br>
+	 * 4th Byte = 0-F -> B B GG <br>
+	 * <p>
+	 * Binary: (5 Bits each)<br>
+	 * <p>
+	 * G = 44 |111 <br>
+	 * R = 1 |2222 <br>
+	 * B = 333|44 <br>
+	 */
+	public String to4ByteHexString() {
+		// Divide by 8 as in the constructor we multiply by 8, but here we only have 5 bits of precision, so we want values 0-31
+		int r = (getRedValue() / 8) & 0x1F;
+		int g = (getGreenValue() / 8) & 0x1F;
+		int b = (getBlueValue() / 8) & 0x1F;
+
+		//
+		int b1 = ((g & 0x7) << 1 | (r & 0x10) >> 4);
+		int b2 = (r & 0xF);
+		int b3 = ((b & 0x1C) >> 2);
+		int b4 = ((b & 0x3) << 2 | (g & 0x18) >> 3);
+
+		String b1Hex = Integer.toHexString(b1);
+		String b2Hex = Integer.toHexString(b2);
+		String b3Hex = Integer.toHexString(b3);
+		String b4Hex = Integer.toHexString(b4);
+
+		String hex =  String.format("%s%s%s%s", b1Hex, b2Hex, b3Hex, b4Hex).toUpperCase();
+
+		return hex;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof PaletteColor) || obj == null)
+			return false;
+
+		return toHexString().equals(((PaletteColor)obj).toHexString());
+	}
+
 	public static PaletteColor[] coerceColors(PaletteColor[] colors, int numberOfColors) {
 		if (numberOfColors == 0) { return new PaletteColor[] {}; }
 		
@@ -458,9 +514,33 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		// If our brightness value is lower, we are a darker color and therefore come later in the list. This means we are "greater" than the other color.
 		return brightness < arg0.brightness ? 1 : -1;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("PaletteCollor red: %d, green %d, blue %d, brightness %f", getRedValue(), getGreenValue(), getBlueValue(), getBrightness());
+	}
+
+	@Override
+	public int hashCode() {
+		return toHexString().hashCode();
+	}
+
+	protected static String paletteStringForArray(PaletteColor[] palette) {
+		return Stream.of(palette)
+				.filter(o -> o != null)
+				.map(PaletteColor::to4ByteHexString)// Convert every color to a 4 byte hex
+				.collect(Collectors.joining()); // string them together
+	}
+
+	public static String arrayToString(PaletteColor[] palette) {
+		return String.format("%-64s",PaletteColor.paletteStringForArray(palette)).replace(" ", "0");
+	}
+
+	public boolean isBackgroundColor() {
+		return backgroundColor;
+	}
+
+	public void setBackgroundColor(boolean backgroundColor) {
+		this.backgroundColor = backgroundColor;
 	}
 }
