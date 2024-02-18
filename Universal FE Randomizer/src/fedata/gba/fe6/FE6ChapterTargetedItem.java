@@ -1,8 +1,8 @@
-package fedata.gba.fe7;
+package fedata.gba.fe6;
 
 import fedata.gba.GBAFEChapterTargetedItemData;
 
-public class FE7ChapterTargetedItem implements GBAFEChapterTargetedItemData {
+public class FE6ChapterTargetedItem implements GBAFEChapterTargetedItemData {
 
 	private byte[] originalData;
 	private byte[] data;
@@ -12,7 +12,7 @@ public class FE7ChapterTargetedItem implements GBAFEChapterTargetedItemData {
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
-	public FE7ChapterTargetedItem(byte[] data, long originalOffset) {
+	public FE6ChapterTargetedItem(byte[] data, long originalOffset) {
 		super();
 		this.originalData = data;
 		this.data = data;
@@ -56,9 +56,9 @@ public class FE7ChapterTargetedItem implements GBAFEChapterTargetedItemData {
 
 	@Override
 	public Type getRewardType() {
-		if (data[0] == 0x5C) { return Type.ITGC; }
+		if (data[0] == 0x27) { return Type.ITGC; }
 		
-		return data[0] == 0x5B ? Type.ITGV : Type.CHES;
+		return data[0] == 0x26 ? Type.ITGV : Type.CHES;
 	}
 	
 	public int getTargetID() {

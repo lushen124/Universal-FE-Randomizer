@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFECharacterData.Affinity;
 
 public interface GBAFECharacterProvider {
 	
@@ -38,6 +39,7 @@ public interface GBAFECharacterProvider {
 	public boolean isEnemyAtAnyPoint(int characterID);
 	
 	public int[] affinityValues();
+	public int affinityValueForAffinity(GBAFECharacterData.Affinity affinity);
 	
 	public int canonicalID(int characterID);
 	

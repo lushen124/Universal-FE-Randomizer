@@ -1,4 +1,4 @@
-package util.recordkeeper;
+package util.recordkeeper.fe9;
 
 public class Base64Asset {
 	String name;

@@ -15,6 +15,7 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.gba.GBAFECharacterData.Affinity;
 import fedata.gba.fe8.FE8Data.Character;
 import fedata.gba.general.*;
 import random.gba.loader.ItemDataLoader.AdditionalData;
@@ -23,7 +24,7 @@ import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider {
+public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider, GBAFEStatboostProvider {
 
 	public static final String FriendlyName = "Fire Emblem: Blazing Sword";
 	public static final String GameCode = "AE7E";
@@ -140,6 +141,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	public static final GBAFEStatboostProvider statboostProvider = sharedInstance;
 	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
 	public static final GBAFETextProvider textProvider = sharedInstance;
 	
@@ -2747,6 +2749,19 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		return values;
 	}
+	
+	public int affinityValueForAffinity(GBAFECharacterData.Affinity affinity) {
+		switch (affinity) {
+		case FIRE: return FE7Character.Affinity.FIRE.value;
+		case THUNDER: return FE7Character.Affinity.THUNDER.value;
+		case WIND: return FE7Character.Affinity.WIND.value;
+		case WATER: return FE7Character.Affinity.WATER.value;
+		case DARK: return FE7Character.Affinity.DARK.value;
+		case LIGHT: return FE7Character.Affinity.LIGHT.value;
+		case ANIMA: return FE7Character.Affinity.ANIMA.value;
+		default: return FE7Character.Affinity.NONE.value;
+		}
+	}
 
 	public int canonicalID(int characterID) {
 		return Character.canonicalIDForCharacterID(characterID);
@@ -3589,7 +3604,6 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 	private final Set<Integer> excludedIndicies = generateExcludedIndiciesSet();
 	
-	@Override
 	public Set<Integer> getExcludedIndiciesFromNameUpdate() {
 		return excludedIndicies;
 	}
@@ -3607,5 +3621,21 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		return indicies;
 	}
+	
+	@Override
+	public long getBaseAddress() {
+		return 0xC98F98;
+	}
 
+	private List<Integer> statboosterIndicies = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+	@Override
+	public boolean isStatboosterIndex(int i) {
+		return statboosterIndicies.contains(i);
+	}
+
+	@Override
+	public int getNumberEntries() {
+		return 16;
+	}
 }

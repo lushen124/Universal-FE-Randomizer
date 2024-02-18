@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFECharacterData;
+import fedata.gba.GBAFECharacterData.Affinity;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
@@ -34,6 +35,7 @@ public class CharacterDataLoader {
 	private Map<Integer, GBAFECharacterData> minionData = new HashMap<Integer, GBAFECharacterData>();
 	
 	public static final String RecordKeeperCategoryKey = "Characters";
+	public static final String RecordKeeperCategoryKeyBosses = "Characters - Bosses";
 	
 	public CharacterDataLoader(GBAFECharacterProvider provider, FileHandler handler) {
 		super();
@@ -162,6 +164,10 @@ public class CharacterDataLoader {
 		return provider.affinityValues();
 	}
 	
+	public int getAffinityValue(Affinity affinity) {
+		return provider.affinityValueForAffinity(affinity);
+	}
+	
 	public Boolean characterIDRequiresAttack(int characterID) {
 		return provider.characterWithID(characterID).requiresAttack();
 	}
@@ -249,14 +255,16 @@ public class CharacterDataLoader {
 
 	public void recordCharacters(RecordKeeper rk, Boolean isInitial, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
 		for (GBAFECharacterData character : playableCharacters()) {
-			recordCharacter(rk, character, isInitial, classData, itemData, textData);
+			recordCharacter(rk, character, isInitial, classData, itemData, textData, RecordKeeperCategoryKey);
 		}
+		rk.registerCategory(RecordKeeperCategoryKeyBosses);
 		for (GBAFECharacterData boss : bossCharacters()) {
-			recordCharacter(rk, boss, isInitial, classData, itemData, textData);
+			recordCharacter(rk, boss, isInitial, classData, itemData, textData, RecordKeeperCategoryKeyBosses);
 		}
+		rk.sortKeysInCategory(RecordKeeperCategoryKeyBosses);
 	}
-	
-	private void recordCharacter(RecordKeeper rk, GBAFECharacterData character, Boolean isInitial, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData) {
+
+	private void recordCharacter(RecordKeeper rk, GBAFECharacterData character, Boolean isInitial, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, String category) {
 		int nameIndex = character.getNameIndex();
 		int classID = character.getClassID();
 		GBAFEClassData charClass = classData.classForID(classID);
@@ -269,71 +277,72 @@ public class CharacterDataLoader {
 		
 		String classValue = className + " (0x" + Integer.toHexString(classID).toUpperCase() + ")";
 		if (isInitial) {
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Name", name);
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Class", classValue);
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Level", Integer.toString(character.getLevel()));
+			rk.recordOriginalEntry(category, internalName, "Name", name);
+			rk.recordOriginalEntry(category, internalName, "Class", classValue);
+			rk.recordOriginalEntry(category, internalName, "Level", Integer.toString(character.getLevel()));
 			
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "HP Growth", String.format("%d%%", character.getHPGrowth()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "STR/MAG Growth", String.format("%d%%", character.getSTRGrowth()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "SKL Growth", String.format("%d%%", character.getSKLGrowth()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "SPD Growth", String.format("%d%%", character.getSPDGrowth()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "LCK Growth", String.format("%d%%", character.getLCKGrowth()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "DEF Growth", String.format("%d%%", character.getDEFGrowth()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "RES Growth", String.format("%d%%", character.getRESGrowth()));
+			rk.recordOriginalEntry(category, internalName, "HP Growth", String.format("%d%%", character.getHPGrowth()));
+			rk.recordOriginalEntry(category, internalName, "STR/MAG Growth", String.format("%d%%", character.getSTRGrowth()));
+			rk.recordOriginalEntry(category, internalName, "SKL Growth", String.format("%d%%", character.getSKLGrowth()));
+			rk.recordOriginalEntry(category, internalName, "SPD Growth", String.format("%d%%", character.getSPDGrowth()));
+			rk.recordOriginalEntry(category, internalName, "LCK Growth", String.format("%d%%", character.getLCKGrowth()));
+			rk.recordOriginalEntry(category, internalName, "DEF Growth", String.format("%d%%", character.getDEFGrowth()));
+			rk.recordOriginalEntry(category, internalName, "RES Growth", String.format("%d%%", character.getRESGrowth()));
 			
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Base HP", Integer.toString(character.getBaseHP() + charClass.getBaseHP()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Base STR/MAG", Integer.toString(character.getBaseSTR() + charClass.getBaseSTR()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Base SKL", Integer.toString(character.getBaseSKL() + charClass.getBaseSKL()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Base SPD", Integer.toString(character.getBaseSPD() + charClass.getBaseSPD()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Base LCK", Integer.toString(character.getBaseLCK() + charClass.getBaseLCK()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Base DEF", Integer.toString(character.getBaseDEF() + charClass.getBaseDEF()));
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Base RES", Integer.toString(character.getBaseRES() + charClass.getBaseRES()));
+			rk.recordOriginalEntry(category, internalName, "Base HP", Integer.toString(character.getBaseHP() + charClass.getBaseHP()));
+			rk.recordOriginalEntry(category, internalName, "Base STR/MAG", Integer.toString(character.getBaseSTR() + charClass.getBaseSTR()));
+			rk.recordOriginalEntry(category, internalName, "Base SKL", Integer.toString(character.getBaseSKL() + charClass.getBaseSKL()));
+			rk.recordOriginalEntry(category, internalName, "Base SPD", Integer.toString(character.getBaseSPD() + charClass.getBaseSPD()));
+			rk.recordOriginalEntry(category, internalName, "Base LCK", Integer.toString(character.getBaseLCK() + charClass.getBaseLCK()));
+			rk.recordOriginalEntry(category, internalName, "Base DEF", Integer.toString(character.getBaseDEF() + charClass.getBaseDEF()));
+			rk.recordOriginalEntry(category, internalName, "Base RES", Integer.toString(character.getBaseRES() + charClass.getBaseRES()));
 			
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Base CON", Integer.toString(character.getConstitution() + charClass.getCON()));
+			rk.recordOriginalEntry(category, internalName, "Base CON", Integer.toString(character.getConstitution() + charClass.getCON()));
 			
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Sword Rank", itemData.rankForValue(character.getSwordRank()).displayString());
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Lance Rank", itemData.rankForValue(character.getLanceRank()).displayString());
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Axe Rank", itemData.rankForValue(character.getAxeRank()).displayString());
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Bow Rank", itemData.rankForValue(character.getBowRank()).displayString());
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Anima Rank", itemData.rankForValue(character.getAnimaRank()).displayString());
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Light Rank", itemData.rankForValue(character.getLightRank()).displayString());
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Dark Rank", itemData.rankForValue(character.getDarkRank()).displayString());
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Staff Rank", itemData.rankForValue(character.getStaffRank()).displayString());
+			rk.recordOriginalEntry(category, internalName, "Sword Rank", itemData.rankForValue(character.getSwordRank()).displayString());
+			rk.recordOriginalEntry(category, internalName, "Lance Rank", itemData.rankForValue(character.getLanceRank()).displayString());
+			rk.recordOriginalEntry(category, internalName, "Axe Rank", itemData.rankForValue(character.getAxeRank()).displayString());
+			rk.recordOriginalEntry(category, internalName, "Bow Rank", itemData.rankForValue(character.getBowRank()).displayString());
+			rk.recordOriginalEntry(category, internalName, "Anima Rank", itemData.rankForValue(character.getAnimaRank()).displayString());
+			rk.recordOriginalEntry(category, internalName, "Light Rank", itemData.rankForValue(character.getLightRank()).displayString());
+			rk.recordOriginalEntry(category, internalName, "Dark Rank", itemData.rankForValue(character.getDarkRank()).displayString());
+			rk.recordOriginalEntry(category, internalName, "Staff Rank", itemData.rankForValue(character.getStaffRank()).displayString());
 			
-			rk.recordOriginalEntry(RecordKeeperCategoryKey, internalName, "Affinity", character.getAffinityName() + " (0x" + Integer.toHexString(character.getAffinityValue()).toUpperCase() + ")");
+			rk.recordOriginalEntry(category, internalName, "Affinity", character.getAffinityName() + " (0x" + Integer.toHexString(character.getAffinityValue()).toUpperCase() + ")");
 		} else {
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Name", name);
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Class", classValue);
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Level", Integer.toString(character.getLevel()));
+			rk.recordUpdatedEntry(category, internalName, "Name", name);
+			rk.recordUpdatedEntry(category, internalName, "Class", classValue);
+			rk.recordUpdatedEntry(category, internalName, "Level", Integer.toString(character.getLevel()));
 			
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "HP Growth", String.format("%d%%", character.getHPGrowth()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "STR/MAG Growth", String.format("%d%%", character.getSTRGrowth()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "SKL Growth", String.format("%d%%", character.getSKLGrowth()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "SPD Growth", String.format("%d%%", character.getSPDGrowth()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "LCK Growth", String.format("%d%%", character.getLCKGrowth()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "DEF Growth", String.format("%d%%", character.getDEFGrowth()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "RES Growth", String.format("%d%%", character.getRESGrowth()));
+			rk.recordUpdatedEntry(category, internalName, "HP Growth", String.format("%d%%", character.getHPGrowth()));
+			rk.recordUpdatedEntry(category, internalName, "STR/MAG Growth", String.format("%d%%", character.getSTRGrowth()));
+			rk.recordUpdatedEntry(category, internalName, "SKL Growth", String.format("%d%%", character.getSKLGrowth()));
+			rk.recordUpdatedEntry(category, internalName, "SPD Growth", String.format("%d%%", character.getSPDGrowth()));
+			rk.recordUpdatedEntry(category, internalName, "LCK Growth", String.format("%d%%", character.getLCKGrowth()));
+			rk.recordUpdatedEntry(category, internalName, "DEF Growth", String.format("%d%%", character.getDEFGrowth()));
+			rk.recordUpdatedEntry(category, internalName, "RES Growth", String.format("%d%%", character.getRESGrowth()));
 			
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Base HP", Integer.toString(character.getBaseHP() + charClass.getBaseHP()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Base STR/MAG", Integer.toString(character.getBaseSTR() + charClass.getBaseSTR()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Base SKL", Integer.toString(character.getBaseSKL() + charClass.getBaseSKL()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Base SPD", Integer.toString(character.getBaseSPD() + charClass.getBaseSPD()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Base LCK", Integer.toString(character.getBaseLCK() + charClass.getBaseLCK()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Base DEF", Integer.toString(character.getBaseDEF() + charClass.getBaseDEF()));
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Base RES", Integer.toString(character.getBaseRES() + charClass.getBaseRES()));
+			rk.recordUpdatedEntry(category, internalName, "Base HP", Integer.toString(character.getBaseHP() + charClass.getBaseHP()));
+			rk.recordUpdatedEntry(category, internalName, "Base STR/MAG", Integer.toString(character.getBaseSTR() + charClass.getBaseSTR()));
+			rk.recordUpdatedEntry(category, internalName, "Base SKL", Integer.toString(character.getBaseSKL() + charClass.getBaseSKL()));
+			rk.recordUpdatedEntry(category, internalName, "Base SPD", Integer.toString(character.getBaseSPD() + charClass.getBaseSPD()));
+			rk.recordUpdatedEntry(category, internalName, "Base LCK", Integer.toString(character.getBaseLCK() + charClass.getBaseLCK()));
+			rk.recordUpdatedEntry(category, internalName, "Base DEF", Integer.toString(character.getBaseDEF() + charClass.getBaseDEF()));
+			rk.recordUpdatedEntry(category, internalName, "Base RES", Integer.toString(character.getBaseRES() + charClass.getBaseRES()));
 			
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Base CON", Integer.toString(character.getConstitution() + charClass.getCON()));
+			rk.recordUpdatedEntry(category, internalName, "Base CON", Integer.toString(character.getConstitution() + charClass.getCON()));
 			
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Sword Rank", itemData.rankForValue(character.getSwordRank()).displayString());
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Lance Rank", itemData.rankForValue(character.getLanceRank()).displayString());
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Axe Rank", itemData.rankForValue(character.getAxeRank()).displayString());
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Bow Rank", itemData.rankForValue(character.getBowRank()).displayString());
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Anima Rank", itemData.rankForValue(character.getAnimaRank()).displayString());
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Light Rank", itemData.rankForValue(character.getLightRank()).displayString());
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Dark Rank", itemData.rankForValue(character.getDarkRank()).displayString());
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Staff Rank", itemData.rankForValue(character.getStaffRank()).displayString());
+			rk.recordUpdatedEntry(category, internalName, "Sword Rank", itemData.rankForValue(character.getSwordRank()).displayString());
+			rk.recordUpdatedEntry(category, internalName, "Lance Rank", itemData.rankForValue(character.getLanceRank()).displayString());
+			rk.recordUpdatedEntry(category, internalName, "Axe Rank", itemData.rankForValue(character.getAxeRank()).displayString());
+			rk.recordUpdatedEntry(category, internalName, "Bow Rank", itemData.rankForValue(character.getBowRank()).displayString());
+			rk.recordUpdatedEntry(category, internalName, "Anima Rank", itemData.rankForValue(character.getAnimaRank()).displayString());
+			rk.recordUpdatedEntry(category, internalName, "Light Rank", itemData.rankForValue(character.getLightRank()).displayString());
+			rk.recordUpdatedEntry(category, internalName, "Dark Rank", itemData.rankForValue(character.getDarkRank()).displayString());
+			rk.recordUpdatedEntry(category, internalName, "Staff Rank", itemData.rankForValue(character.getStaffRank()).displayString());
 			
-			rk.recordUpdatedEntry(RecordKeeperCategoryKey, internalName, "Affinity", character.getAffinityName() + " (0x" + Integer.toHexString(character.getAffinityValue()).toUpperCase() + ")");
+			rk.recordUpdatedEntry(category, internalName, "Affinity", character.getAffinityName() + " (0x" + Integer.toHexString(character.getAffinityValue()).toUpperCase() + ")");
 		}
+		
 	}
 }

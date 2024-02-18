@@ -10,6 +10,8 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.general.WeaponRanks;
+import fedata.gba.GBAFEStatDto;
+import fedata.gba.general.GBAFEItemProvider.WeaponRanks;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase.GameType;
@@ -389,6 +391,13 @@ public class ClassRandomizer {
 						} else {
 							updateMinionToClass(inventoryOptions, chapterUnit, minionCharacterData, targetClass, classData, itemData, rng);
 						}
+						
+						// Issue#399 Certain Minions might have Negative Bases in the earlier game (f.e. Lyn Mode) 
+						// to make the game a bit easier, ensure that their stats don't underflow if we change their class.
+						GBAFEStatDto finalMinionStats = minionCharacterData.getBases().add(targetClass.getBases());
+						finalMinionStats = finalMinionStats.clamp(GBAFEStatDto.MINIMUM_STATS, targetClass.getCaps());
+						finalMinionStats.subtract(targetClass.getBases());
+						minionCharacterData.setBases(finalMinionStats);
 						
 						if (classData.isPromotedClass(targetClass.getID())) {
 							if (classData.isFlying(targetClass.getID())) {

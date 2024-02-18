@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -766,6 +767,17 @@ public class ItemDataLoader {
 			long targetOffset = promotionItemAddressPointers.get(promotionItemName);
 			compiler.addDiff(new Diff(targetOffset, addressByteArray.length, addressByteArray, null));
 		}
+	}
+	
+	public List<GBAFEItemData> itemsByStatboostAddress(long address){
+		List<GBAFEItemData> ret = new ArrayList<>();
+		
+		for (GBAFEItemData gbafeItemData : itemMap.values()) {
+			if (gbafeItemData.getStatBonusPointer() == address + 0x08000000) {
+				ret.add(gbafeItemData);
+			}
+		}
+		return ret;
 	}
 	
 	private GBAFEItemData[] feItemsFromItemSet(Set<GBAFEItem> itemSet) {
