@@ -46,6 +46,10 @@ public class DebugPrinter {
 		});
 	}
 	
+	public static void error(String output) {
+		System.err.println("[General Error] " + output);
+	}
+	
 	public static void error(Key label, String output) {
 		System.err.println("[" + label.label + "] " + output);
 	}
@@ -62,8 +66,8 @@ public class DebugPrinter {
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
 //		case MAIN:
-//		case FE9_DATA_FILE_HANDLER_V2:
-//			return true;
+		case PALETTE:
+			return true;
 		default:
 			return false;
 		}

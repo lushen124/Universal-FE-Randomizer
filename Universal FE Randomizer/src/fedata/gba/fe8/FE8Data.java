@@ -15,27 +15,15 @@ import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
-import fedata.gba.general.CharacterNudge;
-import fedata.gba.general.GBAFEChapterMetadataChapter;
-import fedata.gba.general.GBAFECharacter;
-import fedata.gba.general.GBAFECharacterProvider;
-import fedata.gba.general.GBAFEClass;
-import fedata.gba.general.GBAFEClassProvider;
-import fedata.gba.general.GBAFEItem;
-import fedata.gba.general.GBAFEItemProvider;
-import fedata.gba.general.GBAFEPromotionItem;
-import fedata.gba.general.GBAFETextProvider;
-import fedata.gba.general.PaletteColor;
-import fedata.gba.general.PaletteInfo;
-import fedata.gba.general.WeaponRank;
-import fedata.gba.general.WeaponType;
+import fedata.gba.general.*;
+import fedata.gba.GBAFECharacterData.Affinity;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.gba.randomizer.shuffling.GBAFEShufflingDataProvider;
 import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider {
+public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider, GBAFEStatboostProvider {
 	public static final String FriendlyName = "Fire Emblem: The Sacred Stones";
 	public static final String GameCode = "BE8E";
 
@@ -128,6 +116,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFECharacterProvider characterProvider = sharedInstance;
 	public static final GBAFEClassProvider classProvider = sharedInstance;
 	public static final GBAFEItemProvider itemProvider = sharedInstance;
+	public static final GBAFEStatboostProvider statboostProvider = sharedInstance;
 	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
 	public static final GBAFETextProvider textProvider = sharedInstance;
 	
@@ -2935,6 +2924,19 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		return values;
 	}
+	
+	public int affinityValueForAffinity(GBAFECharacterData.Affinity affinity) {
+		switch (affinity) {
+		case FIRE: return FE8Character.Affinity.FIRE.value;
+		case THUNDER: return FE8Character.Affinity.THUNDER.value;
+		case WIND: return FE8Character.Affinity.WIND.value;
+		case WATER: return FE8Character.Affinity.WATER.value;
+		case LIGHT: return FE8Character.Affinity.LIGHT.value;
+		case DARK: return FE8Character.Affinity.DARK.value;
+		case ANIMA: return FE8Character.Affinity.ANIMA.value;
+		default: return FE8Character.Affinity.NONE.value;
+		}
+	}
 
 	public int canonicalID(int characterID) {
 		return Character.canonicalIDForCharacterID(characterID);
@@ -3859,7 +3861,6 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new FE8SpellAnimationCollection(data, offset);
 	}
 
-	@Override
 	public long portraitDataTableAddress() {
 		return 0x8ACBC4;
 	}
@@ -3949,5 +3950,22 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		indicies.add(0x36F); // Killer Lance
 		
 		return indicies;
+	}
+	
+	@Override
+	public long getBaseAddress() {
+		return 0x8AEEC4;
+	}
+
+	private List<Integer> statboosterIndicies = Arrays.asList(2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+	@Override
+	public boolean isStatboosterIndex(int i) {
+		return statboosterIndicies.contains(i);
+	}
+
+	@Override
+	public int getNumberEntries() {
+		return 23;
 	}
 }

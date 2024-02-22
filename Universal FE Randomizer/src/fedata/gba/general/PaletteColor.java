@@ -25,6 +25,18 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		}
 	};
 	
+	public static PaletteColor colorFromHex(String hexString) {
+		if (hexString.startsWith("#")) {
+			hexString = hexString.substring(1);
+		}
+		
+	    int r = Integer.parseInt(hexString.substring(0, 2), 16);
+	    int g = Integer.parseInt(hexString.substring(2, 4), 16);
+	    int b = Integer.parseInt(hexString.substring(4, 6), 16);
+	    
+	    return new PaletteColor(r, g, b);
+	}
+	
 	public PaletteColor(byte[] colorTuple) {
 		int colorValue = ((colorTuple[1] << 8) & 0xFF00) | (colorTuple[0] & 0xFF);
 		
@@ -213,12 +225,12 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	}
 	
 	private static PaletteColor darkerColor(PaletteColor referenceColor) {
-		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation - 0.1, 0.0), Math.max(referenceColor.brightness * 0.8, 0.0));
+		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation - 0.1, 0.0), Math.max(referenceColor.brightness * 0.6, 0.0));
 	}
 	
 	private static PaletteColor lighterColor(PaletteColor referenceColor) {
 		double distanceToMax = 1.0 - referenceColor.brightness;
-		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation + 0.1, 0.0), Math.max(referenceColor.brightness + distanceToMax * 0.2, 0.0));
+		return new PaletteColor(referenceColor.hue, Math.max(referenceColor.saturation + 0.1, 0.0), Math.max(referenceColor.brightness + distanceToMax * 0.4, 0.0));
 	}
 	
 	private static PaletteColor[] interpolateColors(PaletteColor[] colors, int numberOfColors) {

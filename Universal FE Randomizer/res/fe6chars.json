@@ -5,14 +5,21 @@
     "paletteString": "344FFF6B7F479E2ED91D6E2D0B319F005B0CF324707F2B7E6969494DFF1FFF7F",
     "description1": "The next heir to Pherae.",
     "description2": "The protagonist of this story.",
+		"battlePalette": {
+			"hair": ["#f82000", "#d81018", "#983848"],
+			"primary": ["#5888f8", "#4858d0", "#485098"],
+			"secondary": ["#f8f838", "#f0a058", "#c87038"],
+			"tertiary": null
+		},
     "characterClass": "LORD",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 2,
-      "skl": 2,
-      "spd": 3,
-      "def": 0,
+      "hp": 18,
+      "str": 5,
+      "skl": 5,
+      "spd": 7,
+      "def": 5,
       "res": 0,
       "lck": 7
     },
@@ -35,7 +42,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
+    "affinity": "fire",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -48,15 +56,22 @@
     "paletteString": "344FFF777F57BD36D91D6F2D2B31FF2F7C1F771E17727461D2547954F872FF7F",
     "description1": "A self-centered lady of Etruria.",
     "description2": "Commander Klein's younger sister.",
+		"battlePalette": {
+			"hair": ["#f8f858", "#e0d838", "#b89838"],
+			"primary": ["#c818a8", "#a058c0", "#9030a8"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "TROUBADOUR",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 1,
-      "skl": 4,
-      "spd": 6,
-      "def": 0,
-      "res": 0,
+      "hp": 15,
+      "str": 2,
+      "skl": 5,
+      "spd": 9,
+      "def": 2,
+      "res": 5,
       "lck": 8
     },
     "growths": {
@@ -78,12 +93,13 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
-    "mouthY": 6
+    "mouthY": 5
   },
   {
     "name": "Fae",
@@ -91,15 +107,22 @@
     "paletteString": "344FFF777F53BD26F9216E2D0B311E59BA54B150DF331C1FF3152413CD47FF7F",
     "description1": "A young divine dragon",
     "description2": "from Nabata.",
+		"battlePalette": {
+			"hair": ["#f040b0", "#d028a8", "#8828a0"],
+			"primary": ["#f8f060", "#e0c038", "#987828"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "MANAKETE_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 4,
+      "hp": 16,
       "str": 2,
       "skl": 2,
-      "spd": 1,
-      "def": 1,
-      "res": 5,
+      "spd": 3,
+      "def": 2,
+      "res": 6,
       "lck": 7
     },
     "growths": {
@@ -121,12 +144,13 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 1,
+    "affinity": "light",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 5,
-    "mouthX": 2,
-    "mouthY": 6
+    "mouthX": 3,
+    "mouthY": 7
   },
   {
     "name": "Sin",
@@ -134,14 +158,21 @@
     "paletteString": "344FFF679F37BE26191E6E2D0B31C925672128218F2AED2D8B29B5197877FF7F",
     "description1": "A survivor of a Sacaen clan.",
     "description2": "Loyal to the Silver Wolf.",
+		"battlePalette": {
+			"hair": ["#487048", "#385840"],
+			"primary": ["#78a050", "#687858", "#586050"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "NOMAD",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 8,
-      "str": 2,
-      "skl": 4,
-      "spd": 5,
-      "def": 3,
+      "hp": 24,
+      "str": 7,
+      "skl": 8,
+      "spd": 10,
+      "def": 7,
       "res": 0,
       "lck": 6
     },
@@ -164,9 +195,10 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 7,
+    "affinity": "ice",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -177,14 +209,21 @@
     "paletteString": "344FFF639F37DE26F9216E2D0B312A2AAA296A259C08B504EE1894155577FF7F",
     "description1": "The granddaughter of the",
     "description2": "famed Silver Wolf of Sacae.",
+		"battlePalette": {
+			"hair": ["#508850", "#506850", "#505848"],
+			"primary": ["#e02010", "#a82808", "#703830"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "NOMAD_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 1,
-      "skl": 2,
-      "spd": 2,
-      "def": 2,
+      "hp": 18,
+      "str": 5,
+      "skl": 7,
+      "spd": 8,
+      "def": 5,
       "res": 0,
       "lck": 4
     },
@@ -207,10 +246,11 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -220,15 +260,22 @@
     "paletteString": "344FFF637F3BBD1EF81D6F290B31E8218825271D1D239822AF219411356FFF7F",
     "description1": "Known as the Silver Wolf.",
     "description2": "Chieftain of the Kutolah clan.",
+		"battlePalette": {
+			"hair": ["#407840", "#406048", "#384838"],
+			"primary": ["#e8c040", "#c0a040", "#786840"],
+			"secondary": ["#c07838", "#a06020", "#785850"],
+			"tertiary": null
+		},
     "characterClass": "NOMAD_TROOPER",
-    "level": 14,
+    "promoted": true,
+    "level": 12,
     "bases": {
-      "hp": 22,
-      "str": 7,
-      "skl": 10,
-      "spd": 13,
-      "def": 4,
-      "res": 9,
+      "hp": 43,
+      "str": 14,
+      "skl": 16,
+      "spd": 20,
+      "def": 10,
+      "res": 12,
       "lck": 12
     },
     "growths": {
@@ -250,12 +297,13 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 9,
+    "affinity": "anima",
     "originGame": "FE6",
-    "eyeX": 0,
-    "eyeY": 0,
+    "eyeX": 3,
+    "eyeY": 3,
     "mouthX": 2,
-    "mouthY": 4
+    "mouthY": 5
   },
   {
     "name": "Barthe",
@@ -263,14 +311,21 @@
     "paletteString": "344FDF577F3B5C22B7196E2D0B31F82A5426AE2D2B738B5A2B42A741BF43FF7F",
     "description1": "A knight serving Ostia.",
     "description2": "Humorless and severe.",
+		"battlePalette": {
+			"hair": ["#c0b850", "#a09048", "#706858"],
+			"primary": ["#58c8e0", "#58a0b0", "#588880"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "KNIGHT",
+    "promoted": false,
     "level": 9,
     "bases": {
-      "hp": 8,
-      "str": 5,
-      "skl": 4,
+      "hp": 25,
+      "str": 10,
+      "skl": 6,
       "spd": 5,
-      "def": 5,
+      "def": 14,
       "res": 1,
       "lck": 2
     },
@@ -293,7 +348,8 @@
       0,
       0
     ],
-    "constitution": 3,
+    "constitution": 16,
+    "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 2,
@@ -306,14 +362,21 @@
     "paletteString": "344FDF637F477D2AF7196E2D0B314B27AA26E8255D07BC06380AB215FF17FF7F",
     "description1": "A knight serving Ostia.",
     "description2": "Loyal and dutiful.",
+		"battlePalette": {
+			"hair": ["#58d048", "#50a848", "#407848"],
+			"primary": ["#e8d008", "#e0a808", "#c08810"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "KNIGHT",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 2,
-      "skl": 2,
+      "hp": 20,
+      "str": 7,
+      "skl": 4,
       "spd": 3,
-      "def": 2,
+      "def": 11,
       "res": 0,
       "lck": 4
     },
@@ -336,9 +399,10 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 14,
+    "affinity": "wind",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 2,
     "mouthX": 2,
     "mouthY": 4
@@ -349,15 +413,22 @@
     "paletteString": "344FFF675F3F7D2AD81D6E2D0B31FF6D9C5D15495F525D3D3A31131DFF1FFF7F",
     "description1": "A knight serving Ostia.",
     "description2": "Bors' younger sister.",
+		"battlePalette": {
+			"hair": ["#f878d8", "#e060b8", "#a84090"],
+			"primary": ["#f890a0", "#e85078", "#d04860"],
+			"secondary": ["#f8f838", "#e89850", "#c07038"],
+			"tertiary": null
+		},
     "characterClass": "KNIGHT_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 0,
-      "skl": 0,
-      "spd": 2,
-      "def": 0,
-      "res": 0,
+      "hp": 19,
+      "str": 4,
+      "skl": 3,
+      "spd": 3,
+      "def": 8,
+      "res": 1,
       "lck": 6
     },
     "growths": {
@@ -379,12 +450,13 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 10,
+    "affinity": "fire",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
     "mouthX": 2,
-    "mouthY": 5
+    "mouthY": 6
   },
   {
     "name": "Douglas",
@@ -392,15 +464,22 @@
     "paletteString": "344FFF635F439C22D81D6E2D0B31F4256E252C1D3D77545AD0418C397977FF7F",
     "description1": "The Great General of Etruria.",
     "description2": "A respected veteran.",
+		"battlePalette": {
+			"hair": ["#a07848", "#705848", "#604838"],
+			"primary": ["#a090b0", "#807080", "#606070"],
+			"secondary": ["#f8f8c0", "#e0a040", "#c07038"],
+			"tertiary": null
+		},
     "characterClass": "GENERAL",
+    "promoted": true,
     "level": 8,
     "bases": {
-      "hp": 25,
-      "str": 11,
-      "skl": 9,
-      "spd": 5,
-      "def": 7,
-      "res": 2,
+      "hp": 46,
+      "str": 19,
+      "skl": 13,
+      "spd": 8,
+      "def": 20,
+      "res": 5,
       "lck": 11
     },
     "growths": {
@@ -422,7 +501,8 @@
       0,
       0
     ],
-    "constitution": 2,
+    "constitution": 17,
+    "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -435,14 +515,21 @@
     "paletteString": "344FFF673F3F9E2ED81D6E2D0B31782FD436EF31AF794C51FF1B92629977FF7F",
     "description1": "An archer serving Pherae. Was",
     "description2": "raised like a brother to Roy.",
+		"battlePalette": {
+			"hair": ["#c0d858", "#a0b068", "#787860"],
+			"primary": ["#7868f0", "#6050a0", "#584060"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "ARCHER",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 1,
-      "spd": 2,
-      "def": 1,
+      "hp": 18,
+      "str": 4,
+      "skl": 4,
+      "spd": 5,
+      "def": 4,
       "res": 0,
       "lck": 2
     },
@@ -465,7 +552,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 7,
+    "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -478,14 +566,21 @@
     "paletteString": "344FDF6B7F3FBE36F9216E2D0B31992153252F29FF11BA11372AD321D26AFF7F",
     "description1": "A girl from Etruria in service",
     "description2": "to the St. Elimine Church.",
+		"battlePalette": {
+			"hair": ["#c86040", "#985048", "#784850"],
+			"primary": ["#f87820", "#d06820"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "ARCHER_F",
+    "promoted": false,
     "level": 3,
     "bases": {
-      "hp": 2,
-      "str": 2,
-      "skl": 3,
-      "spd": 2,
-      "def": 1,
+      "hp": 19,
+      "str": 5,
+      "skl": 6,
+      "spd": 6,
+      "def": 4,
       "res": 2,
       "lck": 3
     },
@@ -508,7 +603,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 7,
+    "affinity": "fire",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -521,15 +617,22 @@
     "paletteString": "344FFF6F7F477D2AD71D6E2D0B31FF2F7C1F771E15628E4D4B45B2627A7FFF7F",
     "description1": "An Etrurian commander and noble.",
     "description2": "Clarine's older brother.",
+		"battlePalette": {
+			"hair": ["#f8f858", "#e0d838", "#b89838"],
+			"primary": ["#a880c0", "#706098", "#585088"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "SNIPER",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 6,
-      "str": 6,
-      "skl": 7,
-      "spd": 6,
-      "def": 3,
-      "res": 4,
+      "hp": 27,
+      "str": 13,
+      "skl": 13,
+      "spd": 11,
+      "def": 8,
+      "res": 6,
       "lck": 10
     },
     "growths": {
@@ -551,7 +654,8 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 7,
+    "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -564,15 +668,22 @@
     "paletteString": "344FFF6B7F3F9D2EF81D6E2D0B31306DEC540A3D3A251421EB55CF6EB97FFF7F",
     "description1": "A traveling priest of the St. Elimine",
     "description2": "Church. On an important mission.",
+		"battlePalette": {
+			"hair": ["#8048d8", "#6038a8", "#504078"],
+			"primary": ["#c8e8f8", "#78b0d8", "#5878a8"],
+			"secondary": ["#d04848", "#a04040", "#705858"],
+			"tertiary": null
+		},
     "characterClass": "PRIEST",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 2,
-      "str": 3,
-      "skl": 5,
-      "spd": 8,
-      "def": 1,
-      "res": 0,
+      "hp": 20,
+      "str": 4,
+      "skl": 6,
+      "spd": 10,
+      "def": 2,
+      "res": 5,
       "lck": 2
     },
     "growths": {
@@ -594,10 +705,11 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 6,
+    "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -607,15 +719,22 @@
     "paletteString": "344FDF737F4F9E2AD81D6E2D0B3178113319ED184B676B4ACE49705A7B7BFF7F",
     "description1": "A young cleric serving Guinivere.",
     "description2": "Serene and gracious.",
+		"battlePalette": {
+			"hair": ["#c05820", "#984830", "#683830"],
+			"primary": ["f8f8f8", "#d8d8f0", "#8098b0"],
+			"secondary": ["#58d0c8", "#589890"],
+			"tertiary": null
+		},
     "characterClass": "CLERIC",
+    "promoted": false,
     "level": 2,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 4,
-      "spd": 6,
+      "hp": 16,
+      "str": 1,
+      "skl": 6,
+      "spd": 8,
       "def": 0,
-      "res": 0,
+      "res": 6,
       "lck": 8
     },
     "growths": {
@@ -637,7 +756,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 4,
+    "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -650,15 +770,22 @@
     "paletteString": "344FFF679F339B26D6156E2D0B319A7BB2720D628B4D493DF8467F27F46EFF7F",
     "description1": "A bishop of the St. Elimine Church",
     "description2": "who supports Roy's cause.",
+		"battlePalette": {
+			"hair": ["#f8f8f8", "#d0e0f0", "#90a8e0"],
+			"primary": ["#6880c0", "#586098", "#485078"],
+			"secondary": ["#f8d848", "#c0b888"],
+			"tertiary": null
+		},
     "characterClass": "BISHOP",
-    "level": 17,
+    "promoted": true,
+    "level": 20,
     "bases": {
-      "hp": 14,
-      "str": 15,
-      "skl": 14,
-      "spd": 10,
-      "def": 2,
-      "res": 22,
+      "hp": 35,
+      "str": 19,
+      "skl": 18,
+      "spd": 14,
+      "def": 5,
+      "res": 30,
       "lck": 11
     },
     "growths": {
@@ -680,10 +807,11 @@
       201,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
+    "affinity": "light",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -693,14 +821,21 @@
     "paletteString": "344FFF575F439E2AD81D6E2D0B315B33D62A1032DA21941D0E1546313673FF7F",
     "description1": "An orphan from the Lycian",
     "description2": "border to Bern.",
+		"battlePalette": {
+			"hair": ["#d8d060", "#b0b050", "#808060"],
+			"primary": ["#d07040", "#a06038", "#704028"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "THIEF",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 2,
-      "spd": 1,
-      "def": 0,
+      "hp": 16,
+      "str": 3,
+      "skl": 3,
+      "spd": 10,
+      "def": 2,
       "res": 0,
       "lck": 4
     },
@@ -723,7 +858,8 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 5,
+    "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -736,15 +872,22 @@
     "paletteString": "344FFF5F9F33BE2AD81D6E310B315542CF2D6C25AB594A45FF324B2D376BFF7F",
     "description1": "The famed Sword Saint.",
     "description2": "Known far and wide.",
+		"battlePalette": {
+			"hair": ["#a89080", "#787058", "#605848"],
+			"primary": ["#5868b0", "#505088"],
+			"secondary": ["#585058", "#584060"],
+			"tertiary": null
+		},
     "characterClass": "SWORDMASTER",
+    "promoted": true,
     "level": 19,
     "bases": {
-      "hp": 23,
-      "str": 14,
-      "skl": 17,
-      "spd": 13,
-      "def": 10,
-      "res": 11,
+      "hp": 44,
+      "str": 20,
+      "skl": 28,
+      "spd": 23,
+      "def": 15,
+      "res": 13,
       "lck": 18
     },
     "growths": {
@@ -766,7 +909,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
+    "affinity": "light",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -779,15 +923,22 @@
     "paletteString": "344FFF6F7F47DF2EF91D6E2D0B31544ED03D6C2D6A5F8946CB3D915A3773FF7F",
     "description1": "A girl traveling around Elibe",
     "description2": "to hone her sword skills.",
+		"battlePalette": {
+			"hair": ["#a09098", "#807078", "#605858"],
+			"primary": ["#50d8b8", "#48a088", "#587078"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "MYRMIDON_F",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 4,
-      "str": 3,
-      "skl": 0,
-      "spd": 0,
-      "def": 2,
-      "res": 0,
+      "hp": 19,
+      "str": 6,
+      "skl": 9,
+      "spd": 10,
+      "def": 3,
+      "res": 1,
       "lck": 3
     },
     "growths": {
@@ -809,7 +960,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "fire",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -822,14 +974,21 @@
     "paletteString": "344FFF639F4B9D26F8196E2D0B317B1AD721931D4F19D914131DEF209321FF7F",
     "description1": "A young man seeking revenge",
     "description2": "on Bern.",
+		"battlePalette": {
+			"hair": ["#d89830", "#b87040", "#785030"],
+			"primary": ["#c83028", "#984038", "#783840"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "MYRMIDON",
+    "promoted": false,
     "level": 4,
     "bases": {
-      "hp": 6,
-      "str": 3,
-      "skl": 3,
-      "spd": 4,
-      "def": 3,
+      "hp": 22,
+      "str": 7,
+      "skl": 12,
+      "spd": 13,
+      "def": 5,
       "res": 0,
       "lck": 2
     },
@@ -852,10 +1011,11 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 7,
+    "affinity": "dark",
     "originGame": "FE6",
-    "eyeX": 3,
-    "eyeY": 4,
+    "eyeX": 2,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -865,14 +1025,21 @@
     "paletteString": "344FFF639F3F9E2AD81D6E2D0B315257AD52EC35AC7E076287459D27D45EFF7F",
     "description1": "A former arena fighter from Etruria.",
     "description2": "Leads a band of mercenaries.",
+		"battlePalette": {
+			"hair": ["#90d0a8", "#68a8a0", "#607868"],
+			"primary": ["#60a8f8", "#3880c0", "#386088"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "MERCENARY",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 8,
-      "str": 5,
-      "skl": 4,
-      "spd": 2,
-      "def": 2,
+      "hp": 26,
+      "str": 9,
+      "skl": 12,
+      "spd": 10,
+      "def": 6,
       "res": 1,
       "lck": 5
     },
@@ -895,7 +1062,8 @@
       0,
       0
     ],
-    "constitution": 4,
+    "constitution": 13,
+    "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -908,14 +1076,21 @@
     "paletteString": "344FFF5F5F437D26B71D6E2D0B310C790B61293DFC0F3827EF2D9321F56EFF7F",
     "description1": "A mercenary hired into Ostia's",
     "description2": "service.",
+		"battlePalette": {
+			"hair": ["#6040f0", "#5840c0", "#484878"],
+			"primary": ["#e0f818", "#c0c848", "#787858"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "MERCENARY",
+    "promoted": false,
     "level": 3,
     "bases": {
-      "hp": 6,
-      "str": 3,
-      "skl": 2,
-      "spd": 1,
-      "def": 0,
+      "hp": 24,
+      "str": 7,
+      "skl": 10,
+      "spd": 9,
+      "def": 4,
       "res": 0,
       "lck": 6
     },
@@ -938,7 +1113,8 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 8,
+    "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -951,14 +1127,21 @@
     "paletteString": "344F1F339D26191AD61D6E2D0B31AD356B2D49295442D02D8D29FF1FF466FF7F",
     "description1": "A bandit from the Etrurian",
     "description2": "border.",
+		"battlePalette": {
+			"hair": ["#a09080", "#807058", "#686050"],
+			"primary": ["#585858", "#485050"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "BERSERKER",
-    "level": 2,
+    "promoted": true,
+    "level": 1,
     "bases": {
-      "hp": 25,
-      "str": 10,
-      "skl": 7,
-      "spd": 3,
-      "def": 3,
+      "hp": 49,
+      "str": 17,
+      "skl": 13,
+      "spd": 10,
+      "def": 9,
       "res": 4,
       "lck": 12
     },
@@ -981,7 +1164,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 13,
+    "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 2,
@@ -994,14 +1178,21 @@
     "paletteString": "344FFF5F5F437D26B81D6F2D0B319818F2200F251D007908112DFF1F5777FF7F",
     "description1": "A knight serving Pherae.",
     "description2": "Passionate and hot-headed.",
+		"battlePalette": {
+			"hair": ["#c02030", "#903840", "#784048"],
+			"primary": ["#e80000", "#c81810", "#884058"],
+			"secondary": ["#f8f838", "#e89848", "#c06838"],
+			"tertiary": null
+		},
     "characterClass": "CAVALIER",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 1,
-      "str": 2,
-      "skl": 2,
-      "spd": 1,
-      "def": 0,
+      "hp": 21,
+      "str": 7,
+      "skl": 4,
+      "spd": 6,
+      "def": 6,
       "res": 0,
       "lck": 3
     },
@@ -1024,7 +1215,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
+    "affinity": "fire",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -1037,14 +1229,21 @@
     "paletteString": "344FDF6B7F3F7D26D7196E2D0B31CC5B2A4F2B362D474B3EAA2DFF1F997BFF7F",
     "description1": "A knight serving Pherae.",
     "description2": "Calm and cool-headed.",
+		"battlePalette": {
+			"hair": ["#60f0b0", "#50c898", "#588868"],
+			"primary": ["#68c888", "#589078", "#506858"],
+			"secondary": ["#f8f838", "#e89848", "#b87030"],
+			"tertiary": null
+		},
     "characterClass": "CAVALIER",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 4,
-      "spd": 3,
-      "def": 0,
+      "hp": 20,
+      "str": 5,
+      "skl": 6,
+      "spd": 8,
+      "def": 6,
       "res": 0,
       "lck": 2
     },
@@ -1067,10 +1266,11 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
+    "affinity": "anima",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1080,15 +1280,22 @@
     "paletteString": "344FFF6F9F53DE32F9216E2D0B31DF333C1F771ECF216E4D2A399159D26AFF7B",
     "description1": "The Knight General of Etruria.",
     "description2": "An imposing man of great potential.",
+		"battlePalette": {
+			"hair": ["#f8f060", "#e0c838", "#b89838"],
+			"primary": ["#8860b0", "#705898", "#504870"],
+			"secondary": ["#f8f060", "#e0c838", "#c87840"],
+			"tertiary": null
+		},
     "characterClass": "PALADIN",
-    "level": 13,
+    "promoted": true,
+    "level": 5,
     "bases": {
-      "hp": 20,
-      "str": 10,
-      "skl": 9,
-      "spd": 11,
-      "def": 6,
-      "res": 8,
+      "hp": 43,
+      "str": 17,
+      "skl": 13,
+      "spd": 18,
+      "def": 14,
+      "res": 11,
       "lck": 12
     },
     "growths": {
@@ -1110,7 +1317,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 12,
+    "affinity": "dark",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1123,15 +1331,22 @@
     "paletteString": "344F5F3FBE263B1ED7216E2D0B31FF4B9C37F72A322AF519321DF9181F3BFF7F",
     "description1": "A sniper known as the Guardian",
     "description2": "of Nabata.",
+		"battlePalette": {
+			"hair": ["#f8f890", "#e0e068", "#b8b850"],
+			"primary": ["#c83830", "#904838"],
+			"secondary": ["#a87830", "#705858"],
+			"tertiary": null
+		},
     "characterClass": "SNIPER_F",
-    "level": 5,
+    "promoted": true,
+    "level": 1,
     "bases": {
-      "hp": 13,
-      "str": 10,
-      "skl": 12,
-      "spd": 8,
-      "def": 6,
-      "res": 7,
+      "hp": 32,
+      "str": 16,
+      "skl": 18,
+      "spd": 15,
+      "def": 11,
+      "res": 10,
       "lck": 9
     },
     "growths": {
@@ -1153,7 +1368,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 7,
+    "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -1166,15 +1382,22 @@
     "paletteString": "344FFF637F379C26D7196E2D0B319F7F1B6FF14D7865334D2C39BF13CB4DFF7F",
     "description1": "A veteran paladin serving Pherae.",
     "description2": "Roy's instructor in combat.",
+		"battlePalette": {
+			"hair": ["#f8e0f8", "#d8c0d8", "#887898"],
+			"primary": ["#c058c8", "#984898", "#604870"],
+			"secondary": ["#f8e820", "#e0a048", "#b87030"],
+			"tertiary": null
+		},
     "characterClass": "PALADIN",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 9,
-      "str": 2,
-      "skl": 10,
-      "spd": 4,
-      "def": 1,
-      "res": 5,
+      "hp": 32,
+      "str": 9,
+      "skl": 14,
+      "spd": 11,
+      "def": 9,
+      "res": 8,
       "lck": 10
     },
     "growths": {
@@ -1196,7 +1419,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 11,
+    "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1209,14 +1433,21 @@
     "paletteString": "344FFF579F3F7D26F71D6E2D0B311751F3400E353C1AB71530114F5A1677FF7B",
     "description1": "A spy serving Ostia.",
     "description2": "Surrounded in mystery.",
+		"battlePalette": {
+			"hair": ["#b840a0", "#983880", "#704068"],
+			"primary": ["#e08830", "#b86828", "#804820"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "THIEF",
+    "promoted": false,
     "level": 10,
     "bases": {
-      "hp": 9,
-      "str": 4,
-      "skl": 7,
-      "spd": 6,
-      "def": 5,
+      "hp": 25,
+      "str": 7,
+      "skl": 8,
+      "spd": 15,
+      "def": 7,
       "res": 3,
       "lck": 11
     },
@@ -1239,7 +1470,8 @@
       0,
       0
     ],
-    "constitution": 2,
+    "constitution": 8,
+    "affinity": "dark",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1252,14 +1484,21 @@
     "paletteString": "344FBF573F2F7E26D7196E2D0B31D71571150C15887D266DE55825413477FF7F",
     "description1": "A young man fighting alongside",
     "description2": "Dieck. Brash and impulsive.",
+		"battlePalette": {
+			"hair": ["#b87028", "#885828", "#604028"],
+			"primary": ["#4060f8", "#3048d8", "#2838b0"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "FIGHTER",
+    "promoted": false,
     "level": 2,
     "bases": {
-      "hp": 8,
-      "str": 3,
-      "skl": 1,
-      "spd": 1,
-      "def": 1,
+      "hp": 28,
+      "str": 8,
+      "skl": 3,
+      "spd": 5,
+      "def": 3,
       "res": 0,
       "lck": 4
     },
@@ -1282,7 +1521,8 @@
       0,
       0
     ],
-    "constitution": 2,
+    "constitution": 13,
+    "affinity": "fire",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1295,14 +1535,21 @@
     "paletteString": "344FDF535F2F9E26D8196E2D0B311D12B8097315723EEE2D6B2D4929166FFF7F",
     "description1": "A young man fighting alongside",
     "description2": "Dieck. Calculating and cautious.",
+		"battlePalette": {
+			"hair": ["#e88020", "#c06810", "#985828"],
+			"primary": ["#909878", "#707858", "#585858"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "FIGHTER",
+    "promoted": false,
     "level": 3,
     "bases": {
-      "hp": 9,
-      "str": 2,
-      "skl": 4,
-      "spd": 3,
-      "def": 2,
+      "hp": 29,
+      "str": 7,
+      "skl": 6,
+      "spd": 7,
+      "def": 4,
       "res": 1,
       "lck": 2
     },
@@ -1325,9 +1572,10 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 12,
+    "affinity": "anima",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -1338,14 +1586,21 @@
     "paletteString": "344FFF679F4BDE2EF9216E310B317726F21D6C216C5FCA4AEC41B15A3467FF7F",
     "description1": "A warrior who cares deeply",
     "description2": "for his daughter.",
+		"battlePalette": {
+			"hair": ["#b89848", "#907838", "#605840"],
+			"primary": ["#60d8b8", "#50b090", "#607880"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "WARRIOR",
-    "level": 1,
+    "promoted": true,
+    "level": 2,
     "bases": {
-      "hp": 20,
-      "str": 14,
-      "skl": 6,
-      "spd": 4,
-      "def": 5,
+      "hp": 48,
+      "str": 22,
+      "skl": 11,
+      "spd": 10,
+      "def": 10,
       "res": 3,
       "lck": 14
     },
@@ -1368,10 +1623,11 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 14,
+    "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 2,
-    "eyeY": 3,
+    "eyeY": 2,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1381,15 +1637,22 @@
     "paletteString": "344FFF6B7F47BE2ED91D6E2D0B31AF1F0B1F0B2ABF0BDB0E03528A6E7177FF7F",
     "description1": "A young mage. Grew up in an",
     "description2": "orphanage destroyed by Bern.",
+		"battlePalette": {
+			"hair": ["#78e838", "#58c038", "#588050"],
+			"primary": ["#f8e810", "#d8b018"],
+			"secondary": ["#50a0d8", "#1880a0"],
+			"tertiary": null
+		},
     "characterClass": "MAGE",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 3,
-      "skl": 3,
-      "spd": 3,
-      "def": 0,
-      "res": 2,
+      "hp": 16,
+      "str": 4,
+      "skl": 5,
+      "spd": 6,
+      "def": 3,
+      "res": 5,
       "lck": 5
     },
     "growths": {
@@ -1411,7 +1674,8 @@
       0,
       0
     ],
-    "constitution": -2,
+    "constitution": 4,
+    "affinity": "fire",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1424,15 +1688,22 @@
     "paletteString": "344FFF737F57BF32D81D6E2D0B31D07D6C716C495E04B908F130DF17167BFF7F",
     "description1": "The daughter of Marquess Ostia.",
     "description2": "Gentle and kind-hearted.",
+		"battlePalette": {
+			"hair": ["#8070f8", "#6058e0", "#605890"],
+			"primary": ["#f01008", "#c82810", "#883860"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "MAGE_F",
+    "promoted": false,
     "level": 1,
         "bases": {
-      "hp": 0,
-      "str": 4,
-      "skl": 2,
-      "spd": 2,
-      "def": 0,
-      "res": 3,
+      "hp": 16,
+      "str": 5,
+      "skl": 5,
+      "spd": 4,
+      "def": 2,
+      "res": 7,
       "lck": 4
     },
     "growths": {
@@ -1454,7 +1725,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 4,
+    "affinity": "light",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1467,15 +1739,22 @@
     "paletteString": "344FFF6F9F43BE2ED8196E2D0B317C751961F24890315247903ACC31186BFF7F",
     "description1": "A mage hired by Etruria.",
     "description2": "Desperate for money.",
+		"battlePalette": {
+			"hair": ["#e058e8", "#c840c0", "#903890"],
+			"primary": ["#90d088", "#80a070", "#607060"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "MAGE",
+    "promoted": false,
     "level": 15,
     "bases": {
-      "hp": 10,
-      "str": 12,
-      "skl": 9,
-      "spd": 9,
-      "def": 6,
-      "res": 6,
+      "hp": 26,
+      "str": 13,
+      "skl": 11,
+      "spd": 12,
+      "def": 9,
+      "res": 9,
       "lck": 10
     },
     "growths": {
@@ -1497,10 +1776,11 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 7,
+    "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -1510,15 +1790,22 @@
     "paletteString": "344FFF5F5F437C26B7196E2D0B31FD739967914EEE516A3D4931EC39F276FF7F",
     "description1": "The Mountain Hermit. Has devoted",
     "description2": "her life to research and study.",
+		"battlePalette": {
+			"hair": ["#e8f8e0", "#c8e0c8", "#88a098"],
+			"primary": ["#7078a0", "#505878", "#485060"],
+			"secondary": ["#f8f8b8", "#f8d080", "#b86830"],
+			"tertiary": null
+		},
     "characterClass": "DRUID_F",
-    "level": 17,
+    "promoted": true,
+    "level": 18,
     "bases": {
-      "hp": 8,
-      "str": 14,
-      "skl": 17,
-      "spd": 12,
-      "def": 2,
-      "res": 11,
+      "hp": 25,
+      "str": 21,
+      "skl": 20,
+      "spd": 16,
+      "def": 5,
+      "res": 18,
       "lck": 15
     },
     "growths": {
@@ -1540,7 +1827,8 @@
       0,
       201
     ],
-    "constitution": 0,
+    "constitution": 4,
+    "affinity": "anima",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 4,
@@ -1553,15 +1841,22 @@
     "paletteString": "344FFF6B7F47BE2ED91D6E2D0B31AF1F0B1F0B2A8E4D2B3D8F6D435E306BFF7F",
     "description1": "A young shaman traveling to perfect",
     "description2": "his dark magic.",
+		"battlePalette": {
+			"hair": ["#78e838", "#58c038", "#588050"],
+			"primary": ["#706098", "#584878"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "SHAMAN",
-    "level": 10,
+    "promoted": false,
+    "level": 12,
     "bases": {
-      "hp": 7,
-      "str": 10,
-      "skl": 8,
-      "spd": 7,
-      "def": 3,
-      "res": 6,
+      "hp": 23,
+      "str": 12,
+      "skl": 9,
+      "spd": 9,
+      "def": 5,
+      "res": 10,
       "lck": 6
     },
     "growths": {
@@ -1583,7 +1878,8 @@
       0,
       101
     ],
-    "constitution": -1,
+    "constitution": 4,
+    "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1596,15 +1892,22 @@
     "paletteString": "344FDF6F5F4F7D2AB7196E2D0B317F12FB097319491348167F0B3F765063DE77",
     "description1": "A young dancer helping the resistance",
     "description2": "on the Western Isles.",
+		"battlePalette": {
+			"hair": ["#f89820", "#d87810", "#985830"],
+			"primary": ["#48d020", "#409028"],
+			"secondary": ["#f888e8", "#b86830"],
+			"tertiary": null
+		},
     "characterClass": "Dancer",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 0,
-      "str": 0,
-      "skl": 0,
-      "spd": 4,
+      "hp": 14,
+      "str": 1,
+      "skl": 2,
+      "spd": 11,
       "def": 2,
-      "res": 3,
+      "res": 4,
       "lck": 9
     },
     "growths": {
@@ -1626,7 +1929,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 4,
+    "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1639,15 +1943,22 @@
     "paletteString": "344FFF737F579E2ED81D6E2D0B31587DF3700C49B166677E257107557A77FF7F",
     "description1": "A retired squad leader of the Ilian",
     "description2": "pegasus knights. Zelot's wife.",
+		"battlePalette": {
+			"hair": ["#c050f8", "#9838e0", "#604090"],
+			"primary": ["#3898f8", "#2848e0", "#3840a8"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "FALCON_KNIGHT",
+    "promoted": true,
     "level": 9,
     "bases": {
-      "hp": 13,
-      "str": 5,
-      "skl": 7,
-      "spd": 9,
-      "def": 3,
-      "res": 8,
+      "hp": 33,
+      "str": 11,
+      "skl": 14,
+      "spd": 16,
+      "def": 8,
+      "res": 12,
       "lck": 14
     },
     "growths": {
@@ -1669,9 +1980,10 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 7,
+    "affinity": "light",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -1682,15 +1994,22 @@
     "paletteString": "344FFF6B7F4F7D2AD81D6E2D0B314B73A85AC63DD26AE779046D05499A77FF7F",
     "description1": "The leader of a pegasus knight",
     "description2": "unit from Ilia.",
+		"battlePalette": {
+			"hair": ["#58d0e0", "#40a8b0", "#307078"],
+			"primary": ["#3878f0", "#2040d8", "#284090"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "PEGASUS_KNIGHT",
+    "promoted": false,
     "level": 8,
     "bases": {
-      "hp": 8,
-      "str": 2,
-      "skl": 3,
-      "spd": 6,
-      "def": 4,
-      "res": 4,
+      "hp": 22,
+      "str": 6,
+      "skl": 8,
+      "spd": 11,
+      "def": 7,
+      "res": 6,
       "lck": 3
     },
     "growths": {
@@ -1712,7 +2031,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1725,15 +2045,22 @@
     "paletteString": "344FDF6F7F4F7D2AD81D6E2D0B312E76A961474DB166677E6775464D9A77FF7F",
     "description1": "A pegasus knight in training. Traveling",
     "description2": "the world to hone her skills.",
+		"battlePalette": {
+			"hair": ["#7088e8", "#4868c0", "#385098"],
+			"primary": ["#3898f8", "#3858e8", "#305098"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "PEGASUS_KNIGHT",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 3,
-      "str": 0,
-      "skl": 1,
-      "spd": 7,
-      "def": 3,
-      "res": 3,
+      "hp": 17,
+      "str": 4,
+      "skl": 6,
+      "spd": 12,
+      "def": 6,
+      "res": 5,
       "lck": 5
     },
     "growths": {
@@ -1755,7 +2082,8 @@
       0,
       0
     ],
-    "constitution": -1,
+    "constitution": 4,
+    "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1768,14 +2096,21 @@
     "paletteString": "344FFF677F47BE2AF91D6E2D0B311D19F918111D2A39EF514B41FF3B9977FF7F",
     "description1": "A wyvern rider of Bern.",
     "description2": "Melady's brother.",
+		"battlePalette": {
+			"hair": ["#e84030", "#c83830", "#884038"],
+			"primary": ["#7878a0", "#585080", "#504870"],
+			"secondary": ["#f8f870", "#f8d888", "#f0a850"],
+			"tertiary": null
+		},
     "characterClass": "WYVERN_RIDER",
+    "promoted": false,
     "level": 7,
     "bases": {
-      "hp": 8,
-      "str": 7,
-      "skl": 6,
-      "spd": 3,
-      "def": 4,
+      "hp": 28,
+      "str": 14,
+      "skl": 9,
+      "spd": 8,
+      "def": 12,
       "res": 2,
       "lck": 6
     },
@@ -1798,7 +2133,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 10,
+    "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1811,14 +2147,21 @@
     "paletteString": "344FDF777F5F9D2AD81D6E2D2C31FF639C4718331032AE7A07627F0B576FFF7F",
     "description1": "A mysterious bard who supports the",
     "description2": "resistance on the Western Isles.",
+		"battlePalette": {
+			"hair": ["#f8f8c0", "#e0e088", "#c0c060"],
+			"primary": ["#70a8f0", "#3880c0"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "BARD",
+    "promoted": false,
     "level": 1,
     "bases": {
-      "hp": 1,
-      "str": 0,
-      "skl": 1,
-      "spd": 3,
-      "def": 3,
+      "hp": 15,
+      "str": 1,
+      "skl": 3,
+      "spd": 10,
+      "def": 4,
       "res": 1,
       "lck": 11
     },
@@ -1841,7 +2184,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
+    "affinity": "light",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -1854,15 +2198,22 @@
     "paletteString": "344FFF6B7F537D2AB8196E2D0B311F0EDC0D74158152C141D01BAB22366FFF7F",
     "description1": "A young thief who steals only",
     "description2": "from the rich.",
+		"battlePalette": {
+			"hair": ["#f88018", "#e07018", "#a05828"],
+			"primary": ["#08a0a0", "#087080"],
+			"secondary": ["#80f030", "#58a840"],
+			"tertiary": null
+		},
     "characterClass": "THIEF_F",
+    "promoted": false,
     "level": 5,
     "bases": {
-      "hp": 0,
-      "str": 2,
-      "skl": 6,
-      "spd": 4,
-      "def": 1,
-      "res": 0,
+      "hp": 16,
+      "str": 3,
+      "skl": 7,
+      "spd": 11,
+      "def": 2,
+      "res": 1,
       "lck": 8
     },
     "growths": {
@@ -1884,7 +2235,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 5,
+    "affinity": "anima",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 4,
@@ -1897,15 +2249,22 @@
     "paletteString": "344FFF7B7F5BBE36F9216E2D0B311E7F9A72D5699F2BB916D25D2E4D797FFF7F",
     "description1": "A shaman from Nabata who can",
     "description2": "predict the future.",
+		"battlePalette": {
+			"hair": ["#f0c0f8", "#d0a0e0", "#a870d0"],
+			"primary": ["#9070b8", "#704898", "#584060"],
+			"secondary": ["#f8e050", "#c8a828"],
+			"tertiary": null
+		},
     "characterClass": "SHAMAN_F",
+    "promoted": false,
     "level": 1,
         "bases": {
-      "hp": 0,
-      "str": 3,
-      "skl": 1,
-      "spd": 3,
-      "def": 0,
-      "res": 3,
+      "hp": 15,
+      "str": 6,
+      "skl": 2,
+      "spd": 4,
+      "def": 1,
+      "res": 8,
       "lck": 3
     },
     "growths": {
@@ -1927,10 +2286,11 @@
       101,
       0
     ],
-    "constitution": 0,
+    "constitution": 3,
+    "affinity": "dark",
     "originGame": "FE6",
-    "eyeX": 2,
-    "eyeY": 5,
+    "eyeX": 3,
+    "eyeY": 4,
     "mouthX": 2,
     "mouthY": 6
   },
@@ -1940,14 +2300,21 @@
     "paletteString": "344FFF735F539E2ED81D6E2D0B31D91CD31CEE20FF3FF81C1121151DD36AFF7F",
     "description1": "The leader of Guinivere's personal",
     "description2": "guard. Unbendingly loyal.",
+		"battlePalette": {
+			"hair": ["#c83038", "#983038", "#703840"],
+			"primary": ["#c03838", "#884040"],
+			"secondary": ["#f8f878", "#f0a058", "#c07038"],
+			"tertiary": null
+		},
     "characterClass": "WYVERN_RIDER_F",
+    "promoted": false,
     "level": 10,
     "bases": {
-      "hp": 11,
-      "str": 6,
-      "skl": 6,
-      "spd": 5,
-      "def": 6,
+      "hp": 30,
+      "str": 12,
+      "skl": 11,
+      "spd": 10,
+      "def": 13,
       "res": 3,
       "lck": 5
     },
@@ -1970,9 +2337,10 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
+    "affinity": "dark",
     "originGame": "FE6",
-    "eyeX": 3,
+    "eyeX": 4,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -1983,14 +2351,21 @@
     "paletteString": "344FBF5B3F2F9D1EF8296E2D0B31DB3A5626AF2591614B450839344F7977FF7F",
     "description1": "A brigand from the Western Isles.",
     "description2": "Uneducated but compassionate.",
+		"battlePalette": {
+			"hair": ["#d8b070", "#b09048", "#786848"],
+			"primary": ["#8860c0", "#585088", "#404070"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "BRIGAND",
-    "level": 11,
+    "promoted": false,
+    "level": 5,
     "bases": {
-      "hp": 16,
-      "str": 7,
-      "skl": 4,
-      "spd": 4,
-      "def": 3,
+      "hp": 36,
+      "str": 12,
+      "skl": 5,
+      "spd": 9,
+      "def": 6,
       "res": 0,
       "lck": 5
     },
@@ -2013,7 +2388,8 @@
       0,
       0
     ],
-    "constitution": 3,
+    "constitution": 15,
+    "affinity": "thunder",
     "originGame": "FE6",
     "eyeX": 2,
     "eyeY": 3,
@@ -2026,14 +2402,21 @@
     "paletteString": "344FFF677F439D26D81D6E2D0B31D63D51352C2DE865454D47395056376FFF7F",
     "description1": "A mercenary knight from Ilia.",
     "description2": "Lacks social skills.",
+		"battlePalette": {
+			"hair": ["#b07078", "#885068", "#705858"],
+			"primary": ["#4078c8", "#285098", "#385070"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "CAVALIER",
-    "level": 4,
+    "promoted": false,
+    "level": 7,
     "bases": {
-      "hp": 7,
-      "str": 3,
-      "skl": 5,
-      "spd": 4,
-      "def": 1,
+      "hp": 27,
+      "str": 8,
+      "skl": 7,
+      "spd": 9,
+      "def": 7,
       "res": 1,
       "lck": 6
     },
@@ -2056,7 +2439,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 10,
+    "affinity": "anima",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -2069,14 +2453,21 @@
     "paletteString": "344FFF5F7F437D26B71D6F2D0B31972213226E29E865454D47395056376FFF7F",
     "description1": "A mercenary knight from Ilia.",
     "description2": "Sleeping is his passion.",
+		"battlePalette": {
+			"hair": ["#b8a040", "#988040", "#705850"],
+			"primary": ["#4078c8", "#285098", "#385070"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "CAVALIER",
-    "level": 3,
+    "promoted": false,
+    "level": 4,
     "bases": {
-      "hp": 5,
-      "str": 3,
-      "skl": 4,
-      "spd": 2,
-      "def": 2,
+      "hp": 25,
+      "str": 8,
+      "skl": 6,
+      "spd": 7,
+      "def": 8,
       "res": 0,
       "lck": 5
     },
@@ -2099,10 +2490,11 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
+    "affinity": "wind",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -2112,15 +2504,22 @@
     "paletteString": "344FFF677F4BDD2AF91D6E2D0B31324ECE416C31344FDA7F0D5291625677FF7F",
     "description1": "The lord of Edessa. Leads the",
     "description2": "Ilian mercenary knights.",
+		"battlePalette": {
+			"hair": ["#908898", "#707080", "#605860"],
+			"primary": ["#d0f0f8", "#b0d0e8", "#88a0c0"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "PALADIN",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 12,
-      "str": 3,
-      "skl": 8,
-      "spd": 6,
-      "def": 3,
-      "res": 4,
+      "hp": 35,
+      "str": 10,
+      "skl": 12,
+      "spd": 13,
+      "def": 11,
+      "res": 7,
       "lck": 5
     },
     "growths": {
@@ -2142,9 +2541,10 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 11,
+    "affinity": "dark",
     "originGame": "FE6",
-    "eyeX": 2,
+    "eyeX": 3,
     "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
@@ -2155,15 +2555,22 @@
     "paletteString": "344FFF739F539E2ED81D2C25C928FC7F767BF26E0C5A894AE73D672D7319FF7F",
     "description1": "The leader of the resistance",
     "description2": "on the Western Isles.",
+		"battlePalette": {
+			"hair": ["#e0f8f8", "#b0d8f0", "#90b8d8"],
+			"primary": ["#48a090", "#387878", "#385858"],
+			"secondary": ["#c07038", "#985830", "#604848"],
+			"tertiary": null
+		},
     "characterClass": "HERO_F",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 13,
-      "str": 7,
-      "skl": 9,
-      "spd": 7,
-      "def": 2,
-      "res": 4,
+      "hp": 35,
+      "str": 13,
+      "skl": 19,
+      "spd": 18,
+      "def": 8,
+      "res": 7,
       "lck": 6
     },
     "growths": {
@@ -2185,7 +2592,8 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 9,
+    "affinity": "ice",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,
@@ -2198,15 +2606,22 @@
     "paletteString": "344FFF777F5BBF321A266E2D0B312A4FAB422B36AA31F96014510E457877FF7F",
     "description1": "The Mage General of Etruria.",
     "description2": "Roy's instructor in tactics.",
+		"battlePalette": {
+			"hair": ["#50c898", "#58a880", "#588868"],
+			"primary": ["#c838c0", "#a040a0", "#704088"],
+			"secondary": ["#f8f8f8", "#c0d8e8"],
+			"tertiary": ["#f8a860", "#d08048"]
+		},
     "characterClass": "VALKYRIE",
+    "promoted": true,
     "level": 1,
     "bases": {
-      "hp": 11,
-      "str": 7,
-      "skl": 4,
-      "spd": 5,
-      "def": 3,
-      "res": 5,
+      "hp": 30,
+      "str": 11,
+      "skl": 7,
+      "spd": 10,
+      "def": 7,
+      "res": 13,
       "lck": 10
     },
     "growths": {
@@ -2228,10 +2643,11 @@
       0,
       0
     ],
-    "constitution": 0,
+    "constitution": 6,
+    "affinity": "anima",
     "originGame": "FE6",
     "eyeX": 3,
-    "eyeY": 4,
+    "eyeY": 3,
     "mouthX": 2,
     "mouthY": 5
   },
@@ -2241,14 +2657,21 @@
     "paletteString": "344FBF5F3F3B7D32D71D6E2D0B317749323D0D39AE656C4DFE1F915A386FFF7F",
     "description1": "A pirate from the Western Isles",
     "description2": "seeking vengeance for his crew.",
+		"battlePalette": {
+			"hair": ["#b85890", "#904878", "#684070"],
+			"primary": ["#7068c8", "#605898"],
+			"secondary": null,
+			"tertiary": null
+		},
     "characterClass": "PIRATE",
+    "promoted": false,
     "level": 10,
     "bases": {
-      "hp": 14,
-      "str": 6,
-      "skl": 7,
-      "spd": 3,
-      "def": 5,
+      "hp": 33,
+      "str": 10,
+      "skl": 9,
+      "spd": 9,
+      "def": 8,
       "res": 0,
       "lck": 9
     },
@@ -2271,7 +2694,8 @@
       0,
       0
     ],
-    "constitution": 1,
+    "constitution": 11,
+    "affinity": "fire",
     "originGame": "FE6",
     "eyeX": 3,
     "eyeY": 3,

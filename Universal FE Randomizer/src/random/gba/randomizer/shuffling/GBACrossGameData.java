@@ -2,6 +2,7 @@ package random.gba.randomizer.shuffling;
 
 import java.util.*;
 
+import fedata.gba.GBAFECharacterData.Affinity;
 import fedata.gba.GBAFEStatDto;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe7.FE7Data;
@@ -9,6 +10,7 @@ import fedata.gba.fe8.FE8Data;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
 import fedata.general.FEBase.GameType;
+import random.gba.loader.ClassDataLoader;
 import util.DebugPrinter;
 
 /**
@@ -16,79 +18,93 @@ import util.DebugPrinter;
  * importing a character into another GBA Game
  */
 public class GBACrossGameData {
-    public String name;
-    public String portraitPath;
-    public String paletteString;
-    public String description1;
-    public String description2;
-    public String characterClass;
-    public int level;
-    public GBAFEStatDto bases;
-    public GBAFEStatDto growths;
-    public int[] weaponRanks;
-    public int constitution;
-    public String originGame;
-    public int eyeX;
-    public int eyeY;
-    public int mouthX;
-    public int mouthY;
+	public String name;
+	public String portraitPath;
+	public String paletteString;
+	public String description1;
+	public String description2;
+	public GBACrossGameDataBattlePalette battlePalette;
+	public String characterClass;
+	public boolean promoted;
+	public int level;
+	public GBAFEStatDto bases;
+	public GBAFEStatDto growths;
+	public int[] weaponRanks;
+	public int constitution;
+	public String affinity;
+	public String originGame;
+	public int eyeX;
+	public int eyeY;
+	public int mouthX;
+	public int mouthY;
+	
+	/**
+	 * If this is a non-null value, it means that the user wants the character to be fixed in that slot.
+	 * If multiple characters reference the same fixed slot, only the first one will actually happen.
+	 */
+	public Integer forcedSlot;
+	
+	/**
+	 * Constructor used for generating the files initially. No need to maintain this.
+	 */
+	public GBACrossGameData(String name, String portraitPath, String description1, String description2, GBACrossGameDataBattlePalette battlePalette,
+			String paletteString, GBAFEClass characterClass, boolean promoted, int level, GBAFEStatDto bases, GBAFEStatDto growths,
+			int[] weaponRanks, int constitution, String affinity, byte[] facialFeatureCoordinates) {
+		this.name = name;
+		this.portraitPath = portraitPath;
+		this.description1 = description1;
+		this.description2 = description2;
+		this.battlePalette = battlePalette;
+		this.characterClass = characterClass.name();
+		this.level = level;
+		this.bases = bases;
+		this.growths = growths;
+		this.weaponRanks = weaponRanks;
+		this.constitution = constitution;
+		this.paletteString = paletteString;
+		this.mouthX = facialFeatureCoordinates[0];
+		this.mouthY = facialFeatureCoordinates[1];
+		if (facialFeatureCoordinates.length == 4) {
 
-    public GBACrossGameData(String name, String portraitPath, String description1, String description2,
-                            String paletteString, GBAFEClass characterClass, int level, GBAFEStatDto bases, GBAFEStatDto growths,
-                            int[] weaponRanks, int constitution, byte[] facialFeatureCoordinates) {
-        this.name = name;
-        this.portraitPath = portraitPath;
-        this.description1 = description1;
-        this.description2 = description2;
-        this.characterClass = characterClass.name();
-        this.level = level;
-        this.bases = bases;
-        this.growths = growths;
-        this.weaponRanks = weaponRanks;
-        this.constitution = constitution;
-        this.paletteString = paletteString;
-        this.mouthX = facialFeatureCoordinates[0];
-        this.mouthY = facialFeatureCoordinates[1];
-        if (facialFeatureCoordinates.length == 4) {
+			this.eyeX = facialFeatureCoordinates[2];
+			this.eyeY = facialFeatureCoordinates[3];
+		}
+		this.affinity = affinity;
+	}
 
-            this.eyeX = facialFeatureCoordinates[2];
-            this.eyeY = facialFeatureCoordinates[3];
-        }
-    }
+	/**
+	 * I don't want to add classes such as Ephraim Master Lord back to the older
+	 * games, so find somewhat equivalent classes f.e. Paladin for Promoted Ephraim
+	 * Lord
+	 */
+	public static GBAFEClass getEquivalentClass(GameType targetGame, GBACrossGameData targetData, ClassDataLoader classData) {
+		if (classMap.isEmpty()) {
+			buildClassMap();
+		}
 
-    /**
-     * I don't want to add classes such as Ephraim Master Lord back to the older
-     * games, so find somewhat equivalent classes f.e. Paladin for Promoted Ephraim
-     * Lord
-     */
-    public static GBAFEClass getEquivalentClass(GameType targetGame, GBACrossGameData targetData) {
-        if (classMap.isEmpty()) {
-            buildClassMap();
-        }
-
-        Optional<GBAFEClass> classOpt;
-        // Find the appropriate Provider
-        GBAFEClassProvider sourceGameProvider = getProviderByGame(targetGame, targetData.originGame);
-        GBAFEClassProvider targetGameProvider = getProviderByGame(targetGame, "");
-        String classToSubstitute = targetData.characterClass;
-        // If the targetGame is the same as the source game (shouldn't really happen?)
-        // then just return the class
-        if (targetData.originGame.toUpperCase().equals(targetGame.name())) {
-            DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING,
-                    "The Charcter originates from the Target game, can just find the class by name.");
-            classOpt = getClassFromProviderByName(targetGameProvider, classToSubstitute);
-            if (classOpt.isPresent()) {
-                DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "The Charcters target class was found.");
-                return classOpt.get();
-            }
-        }
-        // Try to find the class in the targetGame by name
-        classOpt = getClassFromProviderByName(targetGameProvider, classToSubstitute);
-        if (classOpt.isPresent() && !isExceptionCase(targetGameProvider, classOpt)) {
-            DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING,
-                    "Could find the class from a naive search of the name in the target game.");
-            return classOpt.get();
-        }
+		Optional<GBAFEClass> classOpt;
+		// Find the appropriate Provider
+		GBAFEClassProvider sourceGameProvider = getProviderByGame(targetGame, targetData.originGame);
+		GBAFEClassProvider targetGameProvider = getProviderByGame(targetGame, "");
+		String classToSubstitute = targetData.characterClass;
+		// If the targetGame is the same as the source game (shouldn't really happen?)
+		// then just return the class
+		if (targetData.originGame.toUpperCase().equals(targetGame.name())) {
+			DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING,
+					"The Charcter originates from the Target game, can just find the class by name.");
+			classOpt = getClassFromProviderByName(targetGameProvider, classToSubstitute);
+			if (classOpt.isPresent()) {
+				DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "The Charcters target class was found.");
+				return classOpt.get();
+			}
+		}
+		// Try to find the class in the targetGame by name
+		classOpt = getClassFromProviderByName(targetGameProvider, classToSubstitute);
+		if (classOpt.isPresent() && !isExceptionCase(targetGameProvider, classOpt) && classData.isValidClass(classOpt.get().getID())) {
+			DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING,
+					"Could find the class from a naive search of the name in the target game.");
+			return classOpt.get();
+		}
 
         // Find the class in the origin game
         classOpt = getClassFromProviderByName(sourceGameProvider, classToSubstitute);
@@ -236,7 +252,10 @@ public class GBACrossGameData {
 		addEntry(GameType.FE6, FE6Data.CharacterClass.HERO_F, FE7Data.CharacterClass.HERO, FE8Data.CharacterClass.HERO);
 		addEntry(GameType.FE6, FE6Data.CharacterClass.KING, FE7Data.CharacterClass.GENERAL, FE8Data.CharacterClass.GENERAL);
 		addEntry(GameType.FE6, FE6Data.CharacterClass.WYVERN_KNIGHT, FE7Data.CharacterClass.WYVERNLORD, FE8Data.CharacterClass.WYVERN_LORD);
-
+		addEntry(GameType.FE6, FE6Data.CharacterClass.MANAKETE_F, FE7Data.CharacterClass.DANCER, FE8Data.CharacterClass.MANAKETE_F);
+		addEntry(GameType.FE6, FE6Data.CharacterClass.KNIGHT_F, FE7Data.CharacterClass.KNIGHT, FE8Data.CharacterClass.KNIGHT_F);
+		addEntry(GameType.FE6, FE6Data.CharacterClass.ARCHER, FE7Data.CharacterClass.ARCHER, FE8Data.CharacterClass.ARCHER);
+		
 		// FE7 Classes -> FE6 / FE8
 		addEntry(GameType.FE7, FE7Data.CharacterClass.LORD_LYN, FE6Data.CharacterClass.MYRMIDON_F, FE8Data.CharacterClass.MYRMIDON);
 		addEntry(GameType.FE7, FE7Data.CharacterClass.LORD_HECTOR, FE6Data.CharacterClass.KNIGHT, FE8Data.CharacterClass.KNIGHT);
@@ -305,30 +324,33 @@ public class GBACrossGameData {
 		addEntry(GameType.FE8, FE8Data.CharacterClass.CLERIC, FE6Data.CharacterClass.CLERIC, FE7Data.CharacterClass.CLERIC);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.WYVERN_RIDER, FE6Data.CharacterClass.WYVERN_RIDER, FE7Data.CharacterClass.WYVERNKNIGHT);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.ROGUE, FE6Data.CharacterClass.SWORDMASTER, FE7Data.CharacterClass.ASSASSIN);
+		addEntry(GameType.FE8, FE8Data.CharacterClass.FALCON_KNIGHT, FE6Data.CharacterClass.FALCON_KNIGHT, FE7Data.CharacterClass.FALCONKNIGHT);
 	}
 
 	//@formatter:on
 
-    /**
-     * Add an entry to the class map. the parameters must ensure that the passed to
-     * parameters are in game order, as we will infer the target game based on the
-     * position (using the sourceGameMap).
-     *
-     * @param sourceGame The game (of FE6,7,8) that the source class is from.
-     * @param source     the source class to put as a key in the map
-     * @param to1        the replacement class in the first other game (f.e. if the
-     *                   source class is FE6, this MUST be the FE7 equivalent or if
-     *                   Source is FE7 then this is FE6)
-     * @param to2        the replacement class in the second other game (f.e. if the
-     *                   source class is FE6, this MUST be the FE8 equivalent or if
-     *                   Source is FE8 then this is FE7)
-     */
-    private static void addEntry(GameType sourceGame, GBAFEClass source, GBAFEClass to1, GBAFEClass to2) {
-        List<GameType> sourceGames = sourceGameMap.get(sourceGame);
-        Map<GameType, GBAFEClass> inner = new HashMap<>();
-        inner.put(sourceGames.get(0), to1);
-        inner.put(sourceGames.get(1), to2);
-        classMap.put(source, inner);
-    }
+	/**
+	 * Add an entry to the class map. the parameters must ensure that the passed to
+	 * parameters are in game order, as we will infer the target game based on the
+	 * position (using the sourceGameMap).
+	 * 
+	 * @param sourceGame The game (of FE6,7,8) that the source class is from.
+	 * @param source     the source class to put as a key in the map
+	 * 
+	 * @param to1        the replacement class in the first other game (f.e. if the
+	 *                   source class is FE6, this MUST be the FE7 equivalent or if
+	 *                   Source is FE7 then this is FE6)
+	 * 
+	 * @param to2        the replacement class in the second other game (f.e. if the
+	 *                   source class is FE6, this MUST be the FE8 equivalent or if
+	 *                   Source is FE8 then this is FE7)
+	 */
+	private static void addEntry(GameType sourceGame, GBAFEClass source, GBAFEClass to1, GBAFEClass to2) {
+		List<GameType> sourceGames = sourceGameMap.get(sourceGame);
+		Map<GameType, GBAFEClass> inner = new HashMap<>();
+		inner.put(sourceGames.get(0), to1);
+		inner.put(sourceGames.get(1), to2);
+		classMap.put(source, Collections.unmodifiableMap(inner));
+	}
 
 }

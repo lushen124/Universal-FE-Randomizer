@@ -9,6 +9,7 @@ import ui.views.ItemAssignmentView;
 import ui.views.PrfView;
 import ui.views.RewardRandomizationView;
 import ui.views.WeaponsView;
+import ui.views.StatboosterView;
 import util.OptionRecorder;
 
 /**
@@ -28,6 +29,7 @@ public class GBAItemsTab extends YuneTabItem {
     private ItemAssignmentView itemAssignment;
     private RewardRandomizationView rewards;
     private PrfView prfs;
+    private StatboosterView statboosters;
 
     public GBAItemsTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
@@ -42,6 +44,8 @@ public class GBAItemsTab extends YuneTabItem {
         // these two views are located below the weapons view which has a colspan of two.
         // But since there is a margin of 5 pixels between the two, views, they would be a bit wider and so misaligned.
         // reduce each of these views by 5px to make sure they are properly aligned with the weapons view
+        statboosters = addView(new StatboosterView(container));
+        setViewData(statboosters, 1, 3);
         rewards = addView(new RewardRandomizationView(container, type), GuiUtil.defaultGridData(1, -5));
         prfs = addView(new PrfView(container), GuiUtil.defaultGridData(1, -5));
     }
@@ -58,7 +62,7 @@ public class GBAItemsTab extends YuneTabItem {
 
     @Override
     protected int numberColumns() {
-        return 2;
+        return 3;
     }
 
     @Override
@@ -67,6 +71,7 @@ public class GBAItemsTab extends YuneTabItem {
         this.itemAssignment.initialize(bundle.itemAssignmentOptions);
         this.rewards.initialize(bundle.rewards);
         this.prfs.initialize(bundle.prfs);
+        this.statboosters.initialize(bundle.statboosterOptions);
     }
 
     @Override
@@ -75,5 +80,6 @@ public class GBAItemsTab extends YuneTabItem {
         bundle.itemAssignmentOptions = itemAssignment.getOptions();
         bundle.rewards = rewards.getOptions();
         bundle.prfs = prfs.getOptions();
+        bundle.statboosterOptions = statboosters.getOptions();
     }
 }

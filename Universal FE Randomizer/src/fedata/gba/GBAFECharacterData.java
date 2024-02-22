@@ -6,6 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import fedata.gba.fe7.FE7Data;
+import fedata.gba.general.WeaponRank;
+import fedata.gba.general.WeaponRanks;
+import fedata.gba.general.WeaponType;
+import fedata.gba.general.PaletteColor;
+import fedata.general.FEBase.GameType;
 import fedata.general.FELockableData;
 import fedata.general.FEPrintableData;
 import util.WhyDoesJavaNotHaveThese;
@@ -15,6 +20,7 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 	protected Boolean isClassRestricted = false;
 	protected Boolean isReadOnly = false;
 	protected String debugString = "Uninitialized";
+	protected GameType gameType;
 
 	public enum Affinity {
 		NONE(0x00), FIRE(0x01), THUNDER(0x02), WIND(0x03), WATER(0x04), DARK(0x05), LIGHT(0x06), ANIMA(0x07);
@@ -38,11 +44,32 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		public static Affinity[] validAffinities() { 
 			return new Affinity[] {FIRE, THUNDER, WIND, WATER, DARK, LIGHT, ANIMA};
 		}
+		
+		public static Affinity affinityForString(String affinityString) {
+			String normalizedString = affinityString.toLowerCase();
+			
+			if (normalizedString.equals("fire")) { return FIRE; }
+			if (normalizedString.equals("thunder")) { return THUNDER; }
+			if (normalizedString.equals("wind")) { return WIND; }
+			if (normalizedString.equals("ice") || normalizedString.equals("water")) { return WATER; }
+			if (normalizedString.equals("dark")) { return DARK; }
+			if (normalizedString.equals("light")) { return LIGHT; }
+			if (normalizedString.equals("anima")) { return ANIMA; }
+			return NONE;
+		}
 	}
 	
 	public abstract GBAFECharacterData createCopy(boolean useOriginalData);
 	
+	public List<PaletteColor> overrideBattleHairColor = null;
+	public List<PaletteColor> overrideBattlePrimaryColor = null;
+	public List<PaletteColor> overrideBattleSecondaryColor = null;
+	public List<PaletteColor> overrideBattleTertiaryColor = null;
 	
+	// At a minimum, we need hair and primary color to work with.
+	public boolean hasBattlePaletteOverrides() {
+		return overrideBattleHairColor != null && overrideBattlePrimaryColor != null && !overrideBattleHairColor.isEmpty() && !overrideBattlePrimaryColor.isEmpty();
+	}
 	
 	public void initializeDisplayString(String debugString) {
 		this.debugString = debugString;
@@ -416,7 +443,35 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		data[24] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
-	
+
+	public void setWeaponRank(WeaponType weaponType, WeaponRank rank) {
+		switch (weaponType) {
+			case SWORD: setSwordRank(rank.rankValue(gameType)); break;
+			case LANCE: setLanceRank(rank.rankValue(gameType)); break;
+			case AXE: setAxeRank(rank.rankValue(gameType)); break;
+			case BOW: setBowRank(rank.rankValue(gameType)); break;
+			case ANIMA: setAnimaRank(rank.rankValue(gameType)); break;
+			case LIGHT: setLightRank(rank.rankValue(gameType)); break;
+			case DARK: setDarkRank(rank.rankValue(gameType)); break;
+			case STAFF: setStaffRank(rank.rankValue(gameType)); break;
+		}
+	}
+
+	public void setWeaponRanks(WeaponRanks ranks) {
+		setSwordRank(ranks.swordRank.rankValue(gameType));
+		setLanceRank(ranks.lanceRank.rankValue(gameType));
+		setAxeRank(ranks.axeRank.rankValue(gameType));
+		setStaffRank(ranks.bowRank.rankValue(gameType));
+		setAnimaRank(ranks.animaRank.rankValue(gameType));
+		setLightRank(ranks.lightRank.rankValue(gameType));
+		setDarkRank(ranks.darkRank.rankValue(gameType));
+		setStaffRank(ranks.staffRank.rankValue(gameType));
+	}
+
+	public WeaponRanks getWeaponRanks() {
+		return new WeaponRanks(this);
+	}
+
 	public List<Integer> getAllWeaponRanks(){
 		return Arrays.asList(getSwordRank(), getLanceRank(), getAxeRank(), getBowRank(), getStaffRank(), getAnimaRank(), getLightRank(), getDarkRank());
 	}

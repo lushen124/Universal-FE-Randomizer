@@ -352,12 +352,32 @@ public class FE9ChapterUnit implements FEModifiableData {
 		return data[0x5D];
 	}
 	
+	public void setStartingX(int newX) {
+		data[0x5C] = (byte)(newX & 0xFF);
+		wasModified = true;
+	}
+	
+	public void setStartingY(int newY) {
+		data[0x5D] = (byte)(newY & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getEndingX() {
 		return data[0x5E];
 	}
 	
 	public int getEndingY() {
 		return data[0x5F];
+	}
+	
+	public void setEndingX(int newX) {
+		data[0x5E] = (byte)(newX & 0xFF);
+		wasModified = true;
+	}
+	
+	public void setEndingY(int newY) {
+		data[0x5F] = (byte)(newY & 0xFF);
+		wasModified = true;
 	}
 	
 	public int getStartingLevel() {

@@ -1,7 +1,7 @@
 package random.general;
 
-import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.RecordKeeper;
+import util.recordkeeper.fe9.ChangelogBuilder;
 
 public interface RandomizerListener {
 	

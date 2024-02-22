@@ -29,8 +29,12 @@ import util.OptionRecorder.FE4OptionBundle;
 import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
 import util.SeedGenerator;
-import util.recordkeeper.ChangelogBuilder;
 import util.recordkeeper.RecordKeeper;
+import util.recordkeeper.fe9.ChangelogBuilder;
+import util.recordkeeper.fe9.ChangelogHeader;
+import util.recordkeeper.fe9.ChangelogSection;
+import util.recordkeeper.fe9.ChangelogTable;
+import util.recordkeeper.fe9.ChangelogHeader.HeaderLevel;
 
 import java.io.IOException;
 import java.util.*;

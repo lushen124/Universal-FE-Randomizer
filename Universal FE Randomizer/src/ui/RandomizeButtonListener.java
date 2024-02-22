@@ -21,7 +21,7 @@ import util.OptionRecorder;
 import util.OptionRecorder.FE4OptionBundle;
 import util.OptionRecorder.FE9OptionBundle;
 import util.OptionRecorder.GBAOptionBundle;
-import util.recordkeeper.ChangelogBuilder;
+import util.recordkeeper.fe9.*;
 import util.recordkeeper.RecordKeeper;
 
 import java.io.IOException;
@@ -97,7 +97,7 @@ public class RandomizeButtonListener implements Listener {
             GBAOptionBundle bundle = (GBAOptionBundle) baseBundle;
             // Update the Bundle in the Option Recorder
             OptionRecorder.recordGBAFEOptions(bundle, type);
-            randomizer = new GBARandomizer(sourceFile, writePath, type, compiler, bundle.growths, bundle.bases, bundle.classes, bundle.weapons, bundle.other, bundle.enemies, bundle.otherOptions, bundle.recruitmentOptions, bundle.itemAssignmentOptions, bundle.characterShufflingOptions, bundle.rewards, bundle.prfs, bundle.seed);
+            randomizer = new GBARandomizer(sourceFile, writePath, type, compiler, bundle.growths, bundle.bases, bundle.classes, bundle.weapons, bundle.other, bundle.enemies, bundle.otherOptions, bundle.recruitmentOptions, bundle.itemAssignmentOptions, bundle.characterShufflingOptions, bundle.statboosterOptions, bundle.rewards, bundle.prfs, bundle.seed);
         } else if (type.isSFC()) {
             // Update the Bundle in the Option Recorder
             FE4OptionBundle bundle = (FE4OptionBundle) baseBundle;

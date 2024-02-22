@@ -63,11 +63,15 @@ public class ChapterLoader {
 					for (int index = 0; index < chapter.blacklistedClasses().length; index++) {
 						classBlacklist[index] = chapter.blacklistedClasses()[index].ID;
 					}
+					int[] trackedRewardRecipients = new int[chapter.targetedRewardRecipientsToTrack().length];
+					for (int index = 0; index < chapter.targetedRewardRecipientsToTrack().length; index++) {
+						trackedRewardRecipients[index] = chapter.targetedRewardRecipientsToTrack()[index].ID;
+					}
 					
 					CharacterNudge[] nudges = chapter.nudgesRequired();
 					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE6Chapter fe6Chapter = new FE6Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.getMetadata().getFriendlyName(), chapter.shouldBeEasy(), nudges); 
+					FE6Chapter fe6Chapter = new FE6Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), trackedRewardRecipients, classBlacklist, chapter.getMetadata().getFriendlyName(), chapter.shouldBeEasy(), nudges); 
 					chapters[i++] = fe6Chapter;
 					mappedChapters.put(chapterID, fe6Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe6Chapter.allUnits().length + " characters and " + fe6Chapter.allRewards().length + " rewards");

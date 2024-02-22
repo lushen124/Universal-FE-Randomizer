@@ -18,8 +18,8 @@ import ui.model.*;
 import ui.model.fe9.FE9EnemyBuffOptions;
 import ui.model.fe9.FE9OtherCharacterOptions;
 import util.SeedGenerator;
-import util.recordkeeper.*;
-import util.recordkeeper.ChangelogHeader.HeaderLevel;
+import util.recordkeeper.fe9.*;
+import util.WhyDoesJavaNotHaveThese;
 
 import java.io.IOException;
 import java.util.*;
@@ -203,6 +203,10 @@ public class FE9Randomizer extends Randomizer {
 			
 			// The thief class actually already has too many skills to fit another in its class data. We'll have to assign these manually
 			// in the chapter unit data.
+			
+			// Additionally, remove promotion ban from the Thief class.
+			FE9Class thief = classData.classWithID(FE9Data.CharacterClass.THIEF.getJID());
+			classData.setSID4ForClass(thief, null);
 		}
 		
 		// FE9 routinely uses chapter unit data to modify boss units stats, which isn't accounted for in the
@@ -316,29 +320,15 @@ public class FE9Randomizer extends Randomizer {
 	}
 	
 	private void makePostRandomizationAdjustments(String seed) {
-		// Remove damage immunity from Ch. 27 BK and Ashnard.
-		// Unfortunately, this isn't a skill that is on the characters.
-		// The only thing we know is that weapons with the trait 'weakA' seem to be capable of bypassing this.
-		// So outside of removing what is giving them damage immunity, we allow some weapons to bypass it.
-		List<FE9Item> bypassBlessedArmorWeaponList = new ArrayList<FE9Item>();
-		bypassBlessedArmorWeaponList.addAll(itemData.allWeaponsOfRank(WeaponRank.S));
-		bypassBlessedArmorWeaponList.addAll(itemData.allWeaponsOfRank(WeaponRank.A));
-		for (FE9Item weapon : bypassBlessedArmorWeaponList) {
-			List<String> traits = new ArrayList<String>(Arrays.asList(itemData.getItemTraits(weapon)));
-			if (traits.contains(FE9Data.Item.WeaponTraits.BYPASS_BLESSED_ARMOR.getTraitString())) {
-				continue;
-			}
-			for (int i = 0; i < traits.size(); i++) {
-				String trait = traits.get(i);
-				if (trait == null || trait.length() == 0) {
-					traits.remove(i);
-					traits.add(i, FE9Data.Item.WeaponTraits.BYPASS_BLESSED_ARMOR.getTraitString());
-					break;
-				}
-			}
-			String[] traitsArray = traits.toArray(new String[traits.size()]);
-			itemData.setItemTraits(weapon, traitsArray);
-		}
+		
+		// Remove damage immunity from BK and Ashnard.
+		// This is controlled by SID_WEAK_A, which is King Daein's 5th skill and General (BK)'s 2nd.
+		FE9Class blackknight = classData.classWithID(FE9Data.CharacterClass.BLACK_KNIGHT.getJID());
+		FE9Class kingdaein = classData.classWithID(FE9Data.CharacterClass.KING_DAEIN.getJID());
+		
+		classData.setSID2ForClass(blackknight, null);
+		classData.setSID5ForClass(kingdaein, null);
+		
 		
 		// Update Regal Sword and Ragnell's weapon lock.
 		// The lock normally is tied directly to the protagonist by character, which means if Ike doesn't use swords
@@ -360,11 +350,13 @@ public class FE9Randomizer extends Randomizer {
 		FE9Class ranger = classData.classWithID(FE9Data.CharacterClass.RANGER.getJID());
 		FE9Class lord = classData.classWithID(FE9Data.CharacterClass.LORD.getJID());
 		
+		
 		// Give Ranger and Lord the Rolf Lock skill.
 		// Slot 1 is actually the same slot as the skill that forces Ike's promotion in Ch. 17, so this kills two birds with one stone.
 		classData.setSID1ForClass(ranger, FE9Data.Skill.EQUIP_A.getSID());
 		// Slot 1 for lord is SID_HIGHER, so we'll put this in slot 2.
 		classData.setSID2ForClass(lord, FE9Data.Skill.EQUIP_A.getSID());
+		
 		
 		// Update the promotion lock on the Ranger class to only be for Ike and not the class.
 		// Ranger has a special skill that prevents it from promoting naturally.
@@ -432,6 +424,49 @@ public class FE9Randomizer extends Randomizer {
 					//scene.commit();
 				}
 			}
+		}
+		
+		// Update Marcia and Jill's starting positions if class randomization is turned on and they are no longer flying classes.
+		
+		FE9Character jill = charData.characterWithID(FE9Data.Character.JILL.getPID());
+		String jillJID = charData.getJIDForCharacter(jill);
+		FE9Class jillClass = classData.classWithID(jillJID);
+		
+		FE9Character marcia = charData.characterWithID(FE9Data.Character.MARCIA.getPID());
+		String marciaJID = charData.getJIDForCharacter(marcia);
+		FE9Class marciaClass = classData.classWithID(marciaJID);
+		
+		if (classOptions.randomizePCs) {
+			if (!classData.isFlierClass(jillClass)) {
+				List<FE9ChapterArmy> c12Armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_12);
+				for (FE9ChapterArmy army : c12Armies) {
+					for (String unitID : army.getAllUnitIDs()) {
+						FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+						if (army.getPIDForUnit(unit).equals(FE9Data.Character.JILL.getPID())) {
+							army.setStartingXForUnit(unit, 0x15);
+							army.setEndingXForUnit(unit, 0x16);
+							army.setStartingYForUnit(unit, 0x10);
+							army.setEndingYForUnit(unit, 0x10);
+						}
+					}
+					army.commitChanges();	
+				}
+			}
+			
+			if (!classData.isFlierClass(marciaClass)) {
+				List<FE9ChapterArmy> c9Armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_9);
+				for (FE9ChapterArmy army : c9Armies) {
+					for (String unitID : army.getAllUnitIDs()) {
+						FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+						if (army.getPIDForUnit(unit).equals(FE9Data.Character.MARCIA.getPID())) {
+							army.setStartingXForUnit(unit, 0x18);
+							army.setEndingXForUnit(unit, 0x18);
+						}
+					}
+					army.commitChanges();
+				}
+			}
+			
 		}
 		
 		// There are a few cases where characters are assumed to be Laguz and are asked to transform.
@@ -758,6 +793,7 @@ public class FE9Randomizer extends Randomizer {
 			//scene.commit();
 		}
 		
+		
 		// PID_B_ZAKO is for Bengion generic soldiers. They, for some reason, have a hard-coded AID of a soldier, which can mess with their map models.
 		// Remove this AID and let the game handle it.
 		FE9Character bZako = charData.characterWithID("PID_B_ZAKO");
@@ -969,7 +1005,7 @@ public class FE9Randomizer extends Randomizer {
 	private void addRandomizationOptionsToChangelog(ChangelogBuilder changelogBuilder, String seed) {
 		// Randomization options.
 		ChangelogSection optionsSection = new ChangelogSection("options-section");
-		optionsSection.addElement(new ChangelogHeader(HeaderLevel.HEADING_2, "Randomization Options", "options-section-header"));
+		optionsSection.addElement(new ChangelogHeader(ChangelogHeader.HeaderLevel.HEADING_2, "Randomization Options", "options-section-header"));
 		
 		ChangelogTable table = new ChangelogTable(2, null, "options-table");
 		table.addRow(new String[] {"Game Title", FE9Data.FriendlyName});

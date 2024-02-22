@@ -37,6 +37,7 @@ public class LegacyViewContainer extends YuneViewContainer {
     private ItemAssignmentView itemAssignmentView;
     private CharacterShufflingView characterShufflingView;
     private PrfView prfView;
+    private StatboosterView statboosterView;
 
     // FE4
     private FE4SkillsView skillsView;
@@ -230,6 +231,15 @@ public class LegacyViewContainer extends YuneViewContainer {
         prfViewData.left = new FormAttachment(itemAssignmentView.group, 0, SWT.LEFT);
         prfViewData.right = new FormAttachment(itemAssignmentView.group, 0, SWT.RIGHT);
         prfView.group.setLayoutData(prfViewData);
+        
+        statboosterView = new StatboosterView(this, SWT.NONE);
+        statboosterView.setSize(200, 200);
+        
+        FormData statboosterData = new FormData();
+        statboosterData.top = new FormAttachment(prfView.group, 5);
+        statboosterData.left = new FormAttachment(prfView.group, 0, SWT.LEFT);
+        statboosterData.right = new FormAttachment(prfView.group, 0, SWT.RIGHT);
+        statboosterView.setLayoutData(statboosterData);
     }
 
     private void composeFE4() {

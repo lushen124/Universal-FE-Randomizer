@@ -3,6 +3,7 @@ package fedata.gba.fe6;
 import java.util.Arrays;
 
 import fedata.gba.GBAFECharacterData;
+import fedata.general.FEBase.GameType;
 
 public class FE6Character extends GBAFECharacterData {
 	
@@ -12,6 +13,8 @@ public class FE6Character extends GBAFECharacterData {
 		this.data = data;
 		this.originalOffset = originalOffset;
 		this.isClassRestricted = isClassRestricted;
+		this.gameType = GameType.FE6;
+
 	}
 	
 	public GBAFECharacterData createCopy(boolean useOriginalData) {
@@ -20,7 +23,7 @@ public class FE6Character extends GBAFECharacterData {
 		}
 		return new FE6Character(Arrays.copyOf(this.data, this.data.length), this.originalOffset, this.isClassRestricted);
 	}
-	
+
 	@Override
 	public void setIsLord(boolean isLord) {
 		assert !isReadOnly : "Attempted to modify a locked character.";

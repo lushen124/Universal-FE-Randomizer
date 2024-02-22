@@ -37,6 +37,7 @@ public class OptionRecorder {
         public RecruitmentOptions recruitmentOptions;
         public ItemAssignmentOptions itemAssignmentOptions;
         public CharacterShufflingOptions characterShufflingOptions;
+        public StatboosterOptions statboosterOptions;
         public PrfOptions prfs;
     }
 
@@ -311,7 +312,7 @@ public class OptionRecorder {
     }
 
     public static void recordGBAFEOptions(GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-                                          OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions, RewardOptions rewards, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, String seed) {
+                                          OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions, RewardOptions rewards, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, StatboosterOptions statboosterOptions, String seed) {
         GBAOptionBundle bundle = new GBAOptionBundle();
         bundle.growths = growths;
         bundle.bases = bases;
@@ -324,6 +325,7 @@ public class OptionRecorder {
         bundle.itemAssignmentOptions = itemAssignment;
         bundle.seed = seed;
         bundle.characterShufflingOptions = shufflingOptions;
+        bundle.statboosterOptions = statboosterOptions;
         bundle.rewards = rewards;
         recordGBAFEOptions(bundle, gameType);
     }
@@ -346,5 +348,4 @@ public class OptionRecorder {
 
         saveOptions(options);
     }
-
 }
