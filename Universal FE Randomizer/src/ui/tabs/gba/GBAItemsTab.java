@@ -46,8 +46,8 @@ public class GBAItemsTab extends YuneTabItem {
         // reduce each of these views by 5px to make sure they are properly aligned with the weapons view
         statboosters = addView(new StatboosterView(container));
         setViewData(statboosters, 1, 3);
-        rewards = addView(new RewardRandomizationView(container, type), GuiUtil.defaultGridData(1, -5));
-        prfs = addView(new PrfView(container), GuiUtil.defaultGridData(1, -5));
+        rewards = addView(new RewardRandomizationView(container, type));
+        prfs = addView(new PrfView(container));
     }
 
     @Override

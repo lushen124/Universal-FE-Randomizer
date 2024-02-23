@@ -6,6 +6,8 @@ import ui.MainView;
 
 public class Main {
 
+    public static final String versionId = "0.9.4";
+
     static Display mainDisplay;
     static MainView mainView;
 

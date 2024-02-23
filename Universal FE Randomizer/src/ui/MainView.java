@@ -2,45 +2,27 @@ package ui;
 
 import application.Main;
 import fedata.general.FEBase.GameType;
-import fedata.snes.fe4.FE4Data;
 import io.FileHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
-import random.gba.randomizer.GBARandomizer;
-import random.gcnwii.fe9.randomizer.FE9Randomizer;
-import random.general.Randomizer;
-import random.general.RandomizerListener;
-import random.snes.fe4.randomizer.FE4Randomizer;
 import ui.common.*;
-import ui.general.FileFlowDelegate;
-import ui.general.MessageModal;
-import ui.general.ModalButtonListener;
-import ui.general.ProgressModal;
+import ui.general.*;
 import util.Bundle;
-import util.DiffCompiler;
 import util.OptionRecorder;
-import util.OptionRecorder.FE4OptionBundle;
-import util.OptionRecorder.FE9OptionBundle;
-import util.OptionRecorder.GBAOptionBundle;
 import util.SeedGenerator;
-import util.recordkeeper.RecordKeeper;
-import util.recordkeeper.fe9.ChangelogBuilder;
-import util.recordkeeper.fe9.ChangelogHeader;
-import util.recordkeeper.fe9.ChangelogSection;
-import util.recordkeeper.fe9.ChangelogTable;
-import util.recordkeeper.fe9.ChangelogHeader.HeaderLevel;
 
 import java.io.IOException;
 import java.util.*;
 
 public class MainView implements FileFlowDelegate {
 
+    public static final int CLASSIC = 1;
+    public static final int TABBED = 2;
     public Shell mainShell;
 
     private ScrolledComposite scrollable;
@@ -72,7 +54,7 @@ public class MainView implements FileFlowDelegate {
      */
     public MainView(Display mainDisplay) {
         mainShell = new Shell(mainDisplay, SWT.SHELL_TRIM & ~SWT.MAX);
-        mainShell.setText("Yune: GUI Rework");
+        mainShell.setText(String.format("Yune: A Universal Fire Emblem Randomizer (%s)", Main.versionId));
         mainShell.setImage(new Image(mainDisplay, Main.class.getClassLoader().getResourceAsStream("YuneIcon.png")));
         mainShell.setLayout(new FillLayout());
 
@@ -96,6 +78,7 @@ public class MainView implements FileFlowDelegate {
 
         // Create the Rom Selection Group, so the user can select the initial rom
         romSelection = new RomSelectionGroup(mainContainer, this);
+        initializeMenu();
 
         // Start display
         resize();
@@ -116,10 +99,18 @@ public class MainView implements FileFlowDelegate {
      * </ul>
      */
     public void swapLayout(int newLayout) {
+        // If the user changed the layout before choosing a rom, just save the preference without changing the view container.
+        if (loadedGameType == null) {
+            currentLayout = newLayout;
+            OptionRecorder.setLayoutPreference(newLayout);
+            return;
+        }
+
         // Do nothing if the user pressed the combination for the current layout again, or there wasn't a layout initialized yet
         if (newLayout == currentLayout || viewContainer == null) {
             return;
         }
+
 
         // Create a new Bundle so we can transfer over the selections to the new Layout
         Bundle bundle = OptionRecorder.createBundle(loadedGameType);
@@ -142,10 +133,12 @@ public class MainView implements FileFlowDelegate {
         mainContainer.layout();
         int titleBarHeight = mainShell.getBounds().height - mainShell.getClientArea().height;
         Point containerSize = mainContainer.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+        int menuBarHeight = mainShell.getMenuBar() == null ? 0 : 20;
+
         // For some reason, in debug, everything works fine, but when exporting to JAR,
         // the right margin is off (maybe due to different JREs?) The +10 is to make sure the
         // JAR being run is shown correctly.
-        Point actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + titleBarHeight, screenHeight));
+        Point actualSize = new Point(containerSize.x + 10, Math.min(containerSize.y + titleBarHeight + menuBarHeight, screenHeight));
 
         final Point contentSize = actualSize;
 
@@ -217,16 +210,46 @@ public class MainView implements FileFlowDelegate {
         }
     }
 
+    private void initializeMenu() {
+        Menu menuBar = mainShell.getDisplay().getMenuBar();
+        if (menuBar == null) {
+            menuBar = new Menu(mainShell, SWT.BAR);
+            mainShell.setMenuBar(menuBar);
+        }
+
+        MenuItem file = new MenuItem(menuBar, SWT.CASCADE);
+        file.setText("Menu");
+        Menu dropdown = new Menu(menuBar);
+        file.setMenu(dropdown);
+
+        // Layout Selection
+        MenuItem classic = new MenuItem(dropdown, SWT.RADIO);
+        classic.setText("Classic Layout");
+        classic.setSelection(OptionRecorder.getLayoutPreference() == CLASSIC);
+        classic.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> swapLayout(CLASSIC)));
+        MenuItem tabbed = new MenuItem(dropdown, SWT.RADIO);
+        tabbed.setText("Tabbed Layout");
+        tabbed.setSelection(OptionRecorder.getLayoutPreference() == TABBED);
+        tabbed.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> swapLayout(TABBED)));
+
+        // About
+        MenuItem about = new MenuItem(dropdown, SWT.PUSH);
+        about.setText("About...");
+        about.addSelectionListener(SelectionListener.widgetSelectedAdapter(e -> new AboutDialog(mainShell).show()));
+
+    }
+
     private void createViewContainer(int newLayout) {
         if (viewContainer != null) {
             viewContainer.dispose();
         }
+
         // Construct the new View Container depending on the selection
         switch(newLayout) {
-            case 1:
+            case CLASSIC:
                 this.viewContainer = new LegacyViewContainer(mainContainer, loadedGameType);
                 break;
-            case 2:
+            case TABBED:
                 this.viewContainer = new TabbedViewContainer(mainContainer, loadedGameType);
                 break;
             default:
