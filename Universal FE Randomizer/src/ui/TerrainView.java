@@ -225,14 +225,22 @@ public class TerrainView extends Composite {
             enabledMap.get(STATUS_RECOVERY).setSelection(options.randomizeStatusRecovery);
 
             rangeMap.entrySet().forEach(e -> e.getValue().setEnabled(enabledMap.get(e.getKey()).getSelection()));
-            rangeMap.get(DEF).getMinSpinner().setSelection(options.defRange.minValue);
-            rangeMap.get(DEF).getMaxSpinner().setSelection(options.defRange.maxValue);
-            rangeMap.get(RES).getMinSpinner().setSelection(options.resRange.minValue);
-            rangeMap.get(RES).getMaxSpinner().setSelection(options.resRange.maxValue);
-            rangeMap.get(AVOID).getMinSpinner().setSelection(options.avoidRange.minValue);
-            rangeMap.get(AVOID).getMaxSpinner().setSelection(options.avoidRange.maxValue);
-            rangeMap.get(HEALING).getMinSpinner().setSelection(options.healingRange.minValue);
-            rangeMap.get(HEALING).getMaxSpinner().setSelection(options.healingRange.maxValue);
+            if (options.defRange != null) {
+                rangeMap.get(DEF).getMinSpinner().setSelection(options.defRange.minValue);
+                rangeMap.get(DEF).getMaxSpinner().setSelection(options.defRange.maxValue);
+            }
+            if (options.resRange != null) {
+                rangeMap.get(RES).getMinSpinner().setSelection(options.resRange.minValue);
+                rangeMap.get(RES).getMaxSpinner().setSelection(options.resRange.maxValue);
+            }
+            if (options.avoidRange != null) {
+                rangeMap.get(AVOID).getMinSpinner().setSelection(options.avoidRange.minValue);
+                rangeMap.get(AVOID).getMaxSpinner().setSelection(options.avoidRange.maxValue);
+            }
+            if (options.healingRange != null) {
+                rangeMap.get(HEALING).getMinSpinner().setSelection(options.healingRange.minValue);
+                rangeMap.get(HEALING).getMaxSpinner().setSelection(options.healingRange.maxValue);
+            }
 
             spinnerMap.entrySet().forEach(e -> e.getValue().setEnabled(enabledMap.get(e.getKey()).getSelection()));
             spinnerLabelMap.entrySet().forEach(e -> e.getValue().setEnabled(enabledMap.get(e.getKey()).getSelection()));
