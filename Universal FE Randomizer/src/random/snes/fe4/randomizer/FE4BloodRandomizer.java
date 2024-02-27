@@ -18,8 +18,8 @@ import random.general.WeightedDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
-import ui.fe4.HolyBloodOptions;
-import ui.fe4.HolyBloodOptions.STRMAGOptions;
+import ui.model.fe4.HolyBloodOptions;
+import ui.model.fe4.HolyBloodOptions.STRMAGOptions;
 
 public class FE4BloodRandomizer {
 	

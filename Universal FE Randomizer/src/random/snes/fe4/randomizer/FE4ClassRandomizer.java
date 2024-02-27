@@ -26,11 +26,11 @@ import random.general.PoolDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.HolyBloodLoader;
 import random.snes.fe4.loader.ItemMapper;
-import ui.fe4.FE4ClassOptions;
-import ui.fe4.FE4ClassOptions.BloodOptions;
-import ui.fe4.FE4ClassOptions.ChildOptions;
-import ui.fe4.FE4ClassOptions.ItemAssignmentOptions;
-import ui.fe4.FE4ClassOptions.ShopOptions;
+import ui.model.fe4.FE4ClassOptions;
+import ui.model.fe4.FE4ClassOptions.BloodOptions;
+import ui.model.fe4.FE4ClassOptions.ChildOptions;
+import ui.model.fe4.FE4ClassOptions.ItemAssignmentOptions;
+import ui.model.fe4.FE4ClassOptions.ShopOptions;
 
 public class FE4ClassRandomizer {
 	

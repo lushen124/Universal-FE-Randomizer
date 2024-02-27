@@ -37,12 +37,13 @@ public class GBACrossGameData {
 	public int eyeY;
 	public int mouthX;
 	public int mouthY;
+	
 	/**
 	 * If this is a non-null value, it means that the user wants the character to be fixed in that slot.
 	 * If multiple characters reference the same fixed slot, only the first one will actually happen.
 	 */
 	public Integer forcedSlot;
-
+	
 	/**
 	 * Constructor used for generating the files initially. No need to maintain this.
 	 */
@@ -105,104 +106,113 @@ public class GBACrossGameData {
 			return classOpt.get();
 		}
 
-		// Find the class in the origin game
-		classOpt = getClassFromProviderByName(sourceGameProvider, classToSubstitute);
+        // Find the class in the origin game
+        classOpt = getClassFromProviderByName(sourceGameProvider, classToSubstitute);
 
-		// try to find a fitting replacement if the origin class could be found
-		if (classOpt.isPresent()) {
-			GBAFEClass classToSub = classOpt.get();
-			GBAFEClass substituteClass = classMap.get(classToSub).get(targetGame);
-			if (substituteClass != null) {
-				return substituteClass;
-			} else {
-				DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING,
-						String.format("Couldn't find an equivalent for class %s in game %s.", classToSub.name(), targetGame));
-			}
-		}
+        // try to find a fitting replacement if the origin class could be found
+        if (classOpt.isPresent()) {
+            GBAFEClass classToSub = classOpt.get();
+            GBAFEClass substituteClass = classMap.get(classToSub).get(targetGame);
+            if (substituteClass != null) {
+                return substituteClass;
+            } else {
+                DebugPrinter.log(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING,
+                        String.format("Couldn't find an equivalent for class %s in game %s.", classToSub.name(), targetGame));
+            }
+        }
 
-		return FE6Data.CharacterClass.NONE;
-	}
+        return FE6Data.CharacterClass.NONE;
+    }
 
-	/**
-	 * Double check exceptional cases after Naive search.
-	 * 
-	 * F.e. FE8 has a bard class, but that one has no animations and as such isn't
-	 * usable (since it apparently might freeze), make sure not to give that one out
-	 * and instead give out Dancer in the fixed mapping.
-	 */
-	protected static boolean isExceptionCase(GBAFEClassProvider provider, Optional<GBAFEClass> classOpt) {
-		GBAFEClass chosenClass = classOpt.get();
-		if (provider instanceof FE8Data) {
-			return (Arrays.asList(FE8Data.CharacterClass.BARD, // Lack of Magic Animations?
-					// These following female classes are too much of a pain to make work.
-					// They have the same animation as the male one anyway, don't have Promo Bonuses
-					// either.
-					FE8Data.CharacterClass.WYVERN_RIDER_F, FE8Data.CharacterClass.WYVERN_LORD_F,
-					FE8Data.CharacterClass.HERO_F, FE8Data.CharacterClass.SHAMAN_F, FE8Data.CharacterClass.DRUID_F)
-					.contains(chosenClass));
-		} else if (provider instanceof FE7Data) {
-			return (Arrays.asList(FE7Data.CharacterClass.CAVALIER_F, // Not a useable class
-					FE7Data.CharacterClass.MERCENARY_F, // Not a useable class
-					// These following female classes are too much of a pain to make work.
-					// Also they have the same animation as the male one anyway, so it's not worth
-					// for just he map sprite, don't have Promo Bonuses either.
-					FE7Data.CharacterClass.SHAMAN_F, FE7Data.CharacterClass.MYRMIDON_F, FE7Data.CharacterClass.DRUID_F,
-					FE7Data.CharacterClass.HERO_F, FE7Data.CharacterClass.KNIGHT_F, FE7Data.CharacterClass.GENERAL_F,
-					FE7Data.CharacterClass.WYVERNKNIGHT_F, FE7Data.CharacterClass.NOMAD_F,
-					FE7Data.CharacterClass.NOMADTROOPER_F
+    /**
+     * Double check exceptional cases after Naive search.
+     * <p>
+     * F.e. FE8 has a bard class, but that one has no animations and as such isn't
+     * usable (since it apparently might freeze), make sure not to give that one out
+     * and instead give out Dancer in the fixed mapping.
+     */
+    protected static boolean isExceptionCase(GBAFEClassProvider provider, Optional<GBAFEClass> classOpt) {
+        GBAFEClass chosenClass = classOpt.get();
+        if (provider instanceof FE8Data) {
+            return (Arrays.asList(FE8Data.CharacterClass.BARD, // Lack of Magic Animations?
+                            // These following female classes are too much of a pain to make work.
+                            // They have the same animation as the male one anyway, don't have Promo Bonuses
+                            // either.
+                            FE8Data.CharacterClass.WYVERN_RIDER_F, FE8Data.CharacterClass.WYVERN_LORD_F,
+                            FE8Data.CharacterClass.HERO_F, FE8Data.CharacterClass.SHAMAN_F, FE8Data.CharacterClass.DRUID_F)
+                    .contains(chosenClass));
+        } else if (provider instanceof FE7Data) {
+            return (Arrays.asList(FE7Data.CharacterClass.CAVALIER_F, // Not a useable class
+                    FE7Data.CharacterClass.MERCENARY_F, // Not a useable class
+                    // These following female classes are too much of a pain to make work.
+                    // Also they have the same animation as the male one anyway, so it's not worth
+                    // for just he map sprite, don't have Promo Bonuses either.
+                    FE7Data.CharacterClass.SHAMAN_F, FE7Data.CharacterClass.MYRMIDON_F, FE7Data.CharacterClass.DRUID_F,
+                    FE7Data.CharacterClass.HERO_F, FE7Data.CharacterClass.KNIGHT_F, FE7Data.CharacterClass.GENERAL_F,
+                    FE7Data.CharacterClass.WYVERNKNIGHT_F, FE7Data.CharacterClass.NOMAD_F,
+                    FE7Data.CharacterClass.NOMADTROOPER_F
 
-			).contains(chosenClass));
+            ).contains(chosenClass));
 
-		} else if (provider instanceof FE6Data) {
-			return (Arrays.asList(FE6Data.CharacterClass.PALADIN_F, // Not a useable class
-					FE6Data.CharacterClass.CAVALIER_F, // Not a useable class
-					FE6Data.CharacterClass.MERCENARY_F // Not a useable class
-			).contains(chosenClass));
+        } else if (provider instanceof FE6Data) {
+            return (Arrays.asList(FE6Data.CharacterClass.PALADIN_F, // Not a useable class
+                    FE6Data.CharacterClass.CAVALIER_F, // Not a useable class
+                    FE6Data.CharacterClass.MERCENARY_F // Not a useable class
+            ).contains(chosenClass));
 
-		}
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Stream through the names of all the classes returned by the provider, and see
-	 * if any matches the targetClass Name, if so then return an optional of that
-	 * class
-	 */
-	protected static Optional<GBAFEClass> getClassFromProviderByName(GBAFEClassProvider provider, String className) {
-		List<GBAFEClass> allClassesList = Arrays.asList(provider.allClasses());
-		return allClassesList.stream().filter(c -> c.name().equals(className.toUpperCase())).findFirst();
-	}
+    /**
+     * Stream through the names of all the classes returned by the provider, and see
+     * if any matches the targetClass Name, if so then return an optional of that
+     * class
+     */
+    protected static Optional<GBAFEClass> getClassFromProviderByName(GBAFEClassProvider provider, String className) {
+        List<GBAFEClass> allClassesList = Arrays.asList(provider.allClasses());
+        return allClassesList.stream().filter(c -> c.name().equals(className.toUpperCase())).findFirst();
+    }
 
-	/**
-	 * Tries to find the GBAFEClassProvider of the given originGame, if this isn't
-	 * one of FE6, FE7 or FE8, then instead returns the classProvider for the given
-	 * TargetGame as a default.
-	 */
-	protected static GBAFEClassProvider getProviderByGame(GameType targetGame, String originGame) {
-		if (GameType.FE6.name().equals(originGame.toUpperCase())) {
-			return FE6Data.classProvider;
-		} else if (GameType.FE7.name().equals(originGame.toUpperCase())) {
-			return FE7Data.classProvider;
-		} else if (GameType.FE8.name().equals(originGame.toUpperCase())) {
-			return FE8Data.classProvider;
-		}
+    /**
+     * Tries to find the GBAFEClassProvider of the given originGame, if this isn't
+     * one of FE6, FE7 or FE8, then instead returns the classProvider for the given
+     * TargetGame as a default.
+     */
+    protected static GBAFEClassProvider getProviderByGame(GameType targetGame, String originGame) {
+        if (GameType.FE6.name().equals(originGame.toUpperCase())) {
+            return FE6Data.classProvider;
+        } else if (GameType.FE7.name().equals(originGame.toUpperCase())) {
+            return FE7Data.classProvider;
+        } else if (GameType.FE8.name().equals(originGame.toUpperCase())) {
+            return FE8Data.classProvider;
+        }
 
-		return getProviderByGame(null, targetGame.name());
-	}
+        return getProviderByGame(null, targetGame.name());
+    }
 
-	/**
-	 * Map used to decide which FE6/7/8 class will be replaced by which one in the
-	 * other games
-	 */
-	private static final Map<GBAFEClass, Map<GameType, GBAFEClass>> classMap = new HashMap<>();
+    /**
+     * Map used to decide which FE6/7/8 class will be replaced by which one in the
+     * other games
+     */
+    private static final Map<GBAFEClass, Map<GameType, GBAFEClass>> classMap = new HashMap<>();
 
-	/**
-	 * Builds the class Map, should only be done once when a replacement class is
-	 * requested for the first time.
-	 */
-	private static void buildClassMap() {
-		//@formatter:off
+    private static Map<GameType, List<GameType>> sourceGameMap =
+            Collections.unmodifiableMap(new HashMap() {{
+                put(GameType.FE6, Arrays.asList(GameType.FE7, GameType.FE8));
+                put(GameType.FE7, Arrays.asList(GameType.FE6, GameType.FE8));
+                put(GameType.FE8, Arrays.asList(GameType.FE6, GameType.FE7));
+            }});
+
+
+    /**
+     * Builds the class Map, should only be done once when a replacement class is
+     * requested for the first time.
+     */
+
+    private static void buildClassMap() {
+        //@formatter:off
 		// FE6 Classes -> FE7 / FE8
 		addEntry(GameType.FE6, FE6Data.CharacterClass.LORD, FE7Data.CharacterClass.LORD_ELIWOOD, FE8Data.CharacterClass.MERCENARY);
 		addEntry(GameType.FE6, FE6Data.CharacterClass.FIGHTER, FE7Data.CharacterClass.FIGHTER, FE8Data.CharacterClass.FIGHTER);
@@ -284,7 +294,7 @@ public class GBACrossGameData {
 		addEntry(GameType.FE7, FE7Data.CharacterClass.WARRIOR, FE6Data.CharacterClass.WARRIOR, FE8Data.CharacterClass.WARRIOR);
 		addEntry(GameType.FE7, FE7Data.CharacterClass.WYVERNLORD_F, FE6Data.CharacterClass.WYVERN_KNIGHT_F, FE8Data.CharacterClass.WYVERN_LORD);
 		addEntry(GameType.FE7, FE7Data.CharacterClass.HERO, FE6Data.CharacterClass.HERO, FE8Data.CharacterClass.HERO);
-		
+
 		// FE8 Classes -> FE6 / FE7
 		addEntry(GameType.FE8, FE8Data.CharacterClass.FIGHTER, FE6Data.CharacterClass.FIGHTER, FE7Data.CharacterClass.FIGHTER);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.TRAINEE, FE6Data.CharacterClass.FIGHTER, FE7Data.CharacterClass.FIGHTER);
@@ -317,16 +327,6 @@ public class GBACrossGameData {
 		addEntry(GameType.FE8, FE8Data.CharacterClass.FALCON_KNIGHT, FE6Data.CharacterClass.FALCON_KNIGHT, FE7Data.CharacterClass.FALCONKNIGHT);
 	}
 
-	
-	private static Map<GameType, List<GameType>> sourceGameMap = buildSourceGameMap();
-
-	private static Map<GameType, List<GameType>> buildSourceGameMap() {
-		Map<GameType, List<GameType>> map = new HashMap<>();
-		map.put(GameType.FE6, Arrays.asList(GameType.FE7, GameType.FE8));
-		map.put(GameType.FE7, Arrays.asList(GameType.FE6, GameType.FE8));
-		map.put(GameType.FE8, Arrays.asList(GameType.FE6, GameType.FE7));
-		return Collections.unmodifiableMap(map);
-	}
 	//@formatter:on
 
 	/**

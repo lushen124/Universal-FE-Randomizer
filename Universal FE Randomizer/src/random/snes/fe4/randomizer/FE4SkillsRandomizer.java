@@ -1,19 +1,16 @@
 package random.snes.fe4.randomizer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import fedata.snes.fe4.FE4Data;
-import fedata.snes.fe4.FE4StaticCharacter;
 import fedata.snes.fe4.FE4Data.Skill;
+import fedata.snes.fe4.FE4StaticCharacter;
 import random.general.PoolDistributor;
 import random.general.WeightedDistributor;
 import random.snes.fe4.loader.CharacterDataLoader;
-import ui.fe4.SkillsOptions;
+import ui.model.fe4.SkillsOptions;
+import ui.model.WeightedOptions;
 import util.DebugPrinter;
+
+import java.util.*;
 
 public class FE4SkillsRandomizer {
 	
@@ -385,49 +382,13 @@ public class FE4SkillsRandomizer {
 		WeightedDistributor<FE4Data.Skill> skillDistributor = new WeightedDistributor<FE4Data.Skill>();
 		int linearSlope = 1;
 		int linearOffset = 0;
-		if (options.skillWeights.adeptWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.ADEPT, options.skillWeights.adeptWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.astraWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.ASTRA, options.skillWeights.astraWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.bargainWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.BARGAIN, options.skillWeights.bargainWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.chargeWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.CHARGE, options.skillWeights.chargeWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.charmWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.CHARM, options.skillWeights.charmWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.criticalWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.CRITICAL, options.skillWeights.criticalWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.lunaWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.LUNA, options.skillWeights.lunaWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.miracleWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.MIRACLE, options.skillWeights.miracleWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.nihilWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.NIHIL, options.skillWeights.nihilWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.paragonWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.PARAGON, options.skillWeights.paragonWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.renewalWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.RENEWAL, options.skillWeights.renewalWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.solWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.SOL, options.skillWeights.solWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.vantageWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.VANTAGE, options.skillWeights.vantageWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
-		if (options.skillWeights.wrathWeight.enabled) {
-			skillDistributor.addItem(FE4Data.Skill.WRATH, options.skillWeights.wrathWeight.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
-		}
 		
+		for (FE4Data.Skill skill : FE4Data.Skill.values()) {
+			String skillName = skill.capitalizedName();
+			WeightedOptions weightedOptions = options.skillWeights.getWeightedOptionsByName(skillName);
+			skillDistributor.addItem(skill, weightedOptions.weight.integerWeightUsingLinearWeight(linearSlope, linearOffset));
+		}
+
 		return skillDistributor;
 	}
 	
@@ -439,8 +400,8 @@ public class FE4SkillsRandomizer {
 		if (numberOfSkills == 0) { return new ArrayList<FE4Data.Skill>(); }
 		
 		boolean assignPursuit = false;
-		if (options.skillWeights.pursuitChance > 0) {
-			assignPursuit = rng.nextInt(100) < options.skillWeights.pursuitChance;
+		if (options.skillWeights.getPursuitChance() > 0) {
+			assignPursuit = rng.nextInt(100) < options.skillWeights.getPursuitChance();
 		}
 	
 		WeightedDistributor<FE4Data.Skill> workingSkillDistributor = new WeightedDistributor<>(skillDistributor);

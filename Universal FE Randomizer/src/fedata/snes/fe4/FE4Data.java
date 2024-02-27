@@ -1,18 +1,10 @@
 package fedata.snes.fe4;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import fedata.snes.fe4.FE4Data.Item.ItemType;
 import fedata.snes.fe4.FE4Data.Item.WeaponRank;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FE4Data {
 	
@@ -3001,6 +2993,13 @@ public class FE4Data {
 			}
 			
 			return 0;
+		}
+
+		/**
+		 * Returns this Skills name with only the first letter capitalized
+		 */
+		public String capitalizedName() {
+			return name().substring(0,1) + name().substring(1).toLowerCase();
 		}
 	}
 	

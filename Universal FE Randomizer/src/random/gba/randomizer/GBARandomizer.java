@@ -1,81 +1,38 @@
 package random.gba.randomizer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
-
-import fedata.gba.GBAFEChapterData;
-import fedata.gba.GBAFEChapterItemData;
-import fedata.gba.GBAFEChapterUnitData;
-import fedata.gba.GBAFECharacterData;
-import fedata.gba.GBAFEClassData;
-import fedata.gba.GBAFEItemData;
-import fedata.gba.GBAFEWorldMapData;
-import fedata.gba.GBAFEWorldMapSpriteData;
+import fedata.gba.*;
 import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe6.FE6SpellAnimationCollection;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe7.FE7SpellAnimationCollection;
-import fedata.gba.fe8.FE8Data;
-import fedata.gba.fe8.FE8PaletteMapper;
-import fedata.gba.fe8.FE8PromotionManager;
-import fedata.gba.fe8.FE8SpellAnimationCollection;
-import fedata.gba.fe8.FE8SummonerModule;
+import fedata.gba.fe8.*;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFEChapterMetadataData;
-import fedata.gba.general.GBAFEClass;
-import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
+import random.gba.loader.*;
 import io.UPSPatcherStatusListener;
-import random.gba.loader.ChapterLoader;
-import random.gba.loader.CharacterDataLoader;
-import random.gba.loader.ClassDataLoader;
-import random.gba.loader.ItemDataLoader;
-import random.gba.loader.PaletteLoader;
-import random.gba.loader.StatboostLoader;
-import random.gba.loader.PortraitDataLoader;
-import random.gba.loader.TextLoader;
-import random.gba.randomizer.shuffling.CharacterShuffler;
 import random.gba.loader.ItemDataLoader.AdditionalData;
+import random.gba.randomizer.shuffling.CharacterShuffler;
 import random.general.Randomizer;
-import ui.model.BaseOptions;
-import ui.model.CharacterShufflingOptions;
+import ui.model.*;
 import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
-import ui.model.ClassOptions;
-import ui.model.EnemyOptions;
-import ui.model.GrowthOptions;
-import ui.model.ItemAssignmentOptions;
-import ui.model.MiscellaneousOptions;
-import ui.model.MiscellaneousOptions.ExperienceRate;
-import ui.model.OtherCharacterOptions;
-import ui.model.RecruitmentOptions;
-import ui.model.StatboosterOptions;
-import ui.model.WeaponOptions;
 import ui.model.EnemyOptions.BossStatMode;
 import ui.model.ItemAssignmentOptions.ShopAdjustment;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
-import util.DebugPrinter;
-import util.Diff;
-import util.DiffCompiler;
-import util.FileReadHelper;
-import util.FindAndReplace;
-import util.FreeSpaceManager;
-import util.GBAImageCodec;
-import util.SeedGenerator;
-import util.WhyDoesJavaNotHaveThese;
+import util.*;
 import util.recordkeeper.RecordKeeper;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GBARandomizer extends Randomizer {
 	
@@ -93,10 +50,12 @@ public class GBARandomizer extends Randomizer {
 	private OtherCharacterOptions otherCharacterOptions;
 	private StatboosterOptions statboosterOptions;
 	private EnemyOptions enemies;
-	private MiscellaneousOptions miscOptions;
+	private GameMechanicOptions miscOptions;
+	private RewardOptions rewardOptions;
 	private RecruitmentOptions recruitOptions;
 	private ItemAssignmentOptions itemAssignmentOptions;
 	private CharacterShufflingOptions shufflingOptions;
+	private PrfOptions prfs;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -125,9 +84,9 @@ public class GBARandomizer extends Randomizer {
 
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
-			OtherCharacterOptions other, EnemyOptions enemies, MiscellaneousOptions otherOptions,
-			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign,  CharacterShufflingOptions shufflingOptions, 
-			StatboosterOptions statboosterOptions, String seed) {
+			OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions,
+			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, StatboosterOptions statboosterOptions, 
+			RewardOptions rewards, PrfOptions prfs, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -146,6 +105,8 @@ public class GBARandomizer extends Randomizer {
 		itemAssignmentOptions = itemAssign;
 		this.statboosterOptions = statboosterOptions;
 		this.shufflingOptions = shufflingOptions;
+		this.rewardOptions = rewards;
+		this.prfs = prfs;
 		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE, false, false); }
 		
 		this.gameType = gameType;
@@ -632,14 +593,14 @@ public class GBARandomizer extends Randomizer {
 	}
 	
 	private void randomizeOtherThingsIfNecessary(String seed) {
-		if (miscOptions != null) {
-			if (miscOptions.randomizeRewards) {
+		if (rewardOptions != null) {
+			if (rewardOptions.randomizeRewards) {
 				updateStatusString("Randomizing rewards...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt));
 				RandomRandomizer.randomizeRewards(itemData, chapterData, itemAssignmentOptions.assignPromoWeapons, rng);
 			}
-			
-			if (miscOptions.enemyDropChance > 0) {
+
+			if (rewardOptions.enemyDropChance > 0) {
 				if (gameType == GameType.FE7) {
 					// Change the code at 0x17826 from
 					// 20 68 61 68 80 6A 89 6A 08 43 80 21 09 05 08 40
@@ -648,23 +609,24 @@ public class GBARandomizer extends Randomizer {
 					// This will allow us to set the 4th AI bit for units to drop the last item if
 					// the 0x40 bit is set.
 					diffCompiler.addDiff(new Diff(0x17826, 16,
-							new byte[] {(byte)0x20, (byte)0x1C, (byte)0x41, (byte)0x30,
-									(byte)0x00, (byte)0x78, (byte)0x40, (byte)0x21,
-									(byte)0x08, (byte)0x40, (byte)0x00, (byte)0x00,
-									(byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
-									
+							new byte[]{(byte) 0x20, (byte) 0x1C, (byte) 0x41, (byte) 0x30,
+									(byte) 0x00, (byte) 0x78, (byte) 0x40, (byte) 0x21,
+									(byte) 0x08, (byte) 0x40, (byte) 0x00, (byte) 0x00,
+									(byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+
 							},
-							new byte[] {(byte)0x20, (byte)0x68, (byte)0x61, (byte)0x68,
-									(byte)0x80, (byte)0x6A, (byte)0x89, (byte)0x6A,
-									(byte)0x08, (byte)0x43, (byte)0x80, (byte)0x21,
-									(byte)0x09, (byte)0x05, (byte)0x08, (byte)0x40
+							new byte[]{(byte) 0x20, (byte) 0x68, (byte) 0x61, (byte) 0x68,
+									(byte) 0x80, (byte) 0x6A, (byte) 0x89, (byte) 0x6A,
+									(byte) 0x08, (byte) 0x43, (byte) 0x80, (byte) 0x21,
+									(byte) 0x09, (byte) 0x05, (byte) 0x08, (byte) 0x40
 							}));
 				}
 				updateStatusString("Adding drops...");
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt + 1));
-				RandomRandomizer.addRandomEnemyDrops(miscOptions.enemyDropChance, charData, itemData, chapterData, rng);
+				RandomRandomizer.addRandomEnemyDrops(rewardOptions.enemyDropChance, charData, itemData, chapterData, rng);
 			}
-			
+		}
+		if (miscOptions != null) {
 			if (miscOptions.randomizeFogOfWar) {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, RandomRandomizer.rngSalt + 2));
 				for (GBAFEChapterMetadataChapter chapter : chapterData.getMetadataChapters()) {
@@ -1332,8 +1294,8 @@ public class GBARandomizer extends Randomizer {
 			}
 		}
 		
-		if ((classes != null && classes.createPrfs) || (recruitOptions != null && recruitOptions.createPrfs)) {
-			boolean unbreakablePrfs = ((classes != null && classes.unbreakablePrfs) || (recruitOptions != null && recruitOptions.unbreakablePrfs));
+		if (prfs != null && prfs.createPrfs) {
+			boolean unbreakablePrfs = prfs.unbreakablePrfs;
 
 			// Create new PRF weapons.
 			if (gameType == GameType.FE6) {
@@ -2566,13 +2528,15 @@ public class GBARandomizer extends Randomizer {
 				rk.addHeaderItem("Improve Boss Weapons", "NO");
 			}
 		}
-		if(miscOptions != null) {
-			if (miscOptions.randomizeRewards) {
+		if (rewardOptions != null) {
+			if (rewardOptions.randomizeRewards) {
 				rk.addHeaderItem("Randomize Rewards", "YES");
 			} else {
 				rk.addHeaderItem("Randomize Rewards", "NO");
 			}
-			
+		}
+		if(miscOptions != null) {
+
 			if (miscOptions.singleRNMode) {
 				rk.addHeaderItem("Enable Single RN", "YES");
 			} else {

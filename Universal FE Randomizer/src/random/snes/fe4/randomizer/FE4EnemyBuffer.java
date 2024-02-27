@@ -20,8 +20,8 @@ import fedata.snes.fe4.FE4StaticCharacter;
 import random.snes.fe4.loader.CharacterDataLoader;
 import random.snes.fe4.loader.ClassDataLoader;
 import random.snes.fe4.loader.ItemMapper;
-import ui.fe4.FE4EnemyBuffOptions;
-import ui.fe4.FE4EnemyBuffOptions.EnemyScalingOptions;
+import ui.model.fe4.FE4EnemyBuffOptions;
+import ui.model.fe4.FE4EnemyBuffOptions.EnemyScalingOptions;
 
 public class FE4EnemyBuffer {
 	

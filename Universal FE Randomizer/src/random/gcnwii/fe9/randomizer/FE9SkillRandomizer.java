@@ -6,22 +6,20 @@ import java.util.Random;
 import fedata.gcnwii.fe9.FE9ChapterArmy;
 import fedata.gcnwii.fe9.FE9ChapterUnit;
 import fedata.gcnwii.fe9.FE9Character;
-import fedata.gcnwii.fe9.FE9Class;
 import fedata.gcnwii.fe9.FE9Data;
 import fedata.gcnwii.fe9.FE9Skill;
 import random.gcnwii.fe9.loader.FE9ChapterDataLoader;
 import random.gcnwii.fe9.loader.FE9CharacterDataLoader;
-import random.gcnwii.fe9.loader.FE9ClassDataLoader;
 import random.gcnwii.fe9.loader.FE9SkillDataLoader;
 import random.general.WeightedDistributor;
-import ui.fe9.FE9SkillWeightOptions;
+import ui.model.SkillWeightOptions;
 import ui.model.WeightedOptions;
 
 public class FE9SkillRandomizer {
 	
 	static final int rngSalt = 21457;
 	
-	public static void randomizeExistingSkills(FE9SkillWeightOptions weights, FE9CharacterDataLoader charData, FE9SkillDataLoader skillData, Random rng) {
+	public static void randomizeExistingSkills(SkillWeightOptions weights, FE9CharacterDataLoader charData, FE9SkillDataLoader skillData, Random rng) {
 		WeightedDistributor<FE9Skill> distributor = weightedDistributorForOptions(weights, skillData);
 		
 		for (FE9Character character : charData.allPlayableCharacters()) {
@@ -60,7 +58,7 @@ public class FE9SkillRandomizer {
 		charData.commit();
 	}
 	
-	public static void fullyRandomizeSkills(int skillChance, FE9SkillWeightOptions weights, FE9CharacterDataLoader charData, FE9SkillDataLoader skillData, FE9ChapterDataLoader chapterData, Random rng) {
+	public static void fullyRandomizeSkills(int skillChance, SkillWeightOptions weights, FE9CharacterDataLoader charData, FE9SkillDataLoader skillData, FE9ChapterDataLoader chapterData, Random rng) {
 		WeightedDistributor<FE9Skill> distributor = weightedDistributorForOptions(weights, skillData);
 		
 		for (FE9Character character : charData.allPlayableCharacters()) {
@@ -123,7 +121,7 @@ public class FE9SkillRandomizer {
 		}
 	}
 
-	private static WeightedDistributor<FE9Skill> weightedDistributorForOptions(FE9SkillWeightOptions weights, FE9SkillDataLoader skillData) {
+	private static WeightedDistributor<FE9Skill> weightedDistributorForOptions(SkillWeightOptions weights, FE9SkillDataLoader skillData) {
 		WeightedDistributor<FE9Skill> distributor = new WeightedDistributor<FE9Skill>();
 		int linearSlope = 1;
 		int linearOffset = 0;
@@ -139,7 +137,7 @@ public class FE9SkillRandomizer {
 		return distributor;
 	}
 	
-	public static WeightedDistributor<String> weightedDistributorForOptions(FE9SkillWeightOptions weights) {
+	public static WeightedDistributor<String> weightedDistributorForOptions(SkillWeightOptions weights) {
 		WeightedDistributor<String> distributor = new WeightedDistributor<String>();
 		int linearSlope = 1;
 		int linearOffset = 0;

@@ -64,6 +64,8 @@ public class CharacterShuffler {
     private CharacterShufflingOptions options;
     private ItemAssignmentOptions inventoryOptions;
     private ItemDataLoader itemData;
+    
+    static final int rngSalt = 18489;
 
     public CharacterShuffler(GameType type, CharacterDataLoader characterData, TextLoader textData, Random rng,
                              FileHandler fileHandler, PortraitDataLoader portraitData, FreeSpaceManager freeSpace,
@@ -82,8 +84,6 @@ public class CharacterShuffler {
         this.inventoryOptions = inventoryOptions;
         this.itemData = itemData;
     }
-
-    static final int rngSalt = 18489;
 
     @SuppressWarnings("unused")
     public void shuffleCharacters() {
