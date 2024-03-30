@@ -2,6 +2,7 @@ package fedata.gba;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.general.WeaponRank;
@@ -136,6 +137,10 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 	
 	public GBAFEStatDto getGrowths() {
 		return new GBAFEStatDto(getHPGrowth(), getSTRGrowth(), getSKLGrowth(), getSPDGrowth(), getDEFGrowth(), getRESGrowth(), getLCKGrowth());
+	}
+	
+	public List<GBAFEStatDto.Stat> getGrowthStatOrder() {
+		return getGrowths().orderedStats();
 	}
 	
 	public int getBaseHP() {

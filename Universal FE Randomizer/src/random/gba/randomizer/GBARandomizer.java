@@ -462,6 +462,10 @@ public class GBARandomizer extends Randomizer {
 				updateStatusString("Randomizing growths...");
 				GrowthsRandomizer.fullyRandomizeGrowthsWithRange(growths.fullOption.minValue, growths.fullOption.maxValue, growths.adjustHP, charData, rng);
 				break;
+			case SMART:
+				updateStatusString("Smart Randomizing growths...");
+				GrowthsRandomizer.smartRandomizeGrowths(charData, classData, rng);
+				break;
 			}
 		}
 	}
@@ -2303,6 +2307,9 @@ public class GBARandomizer extends Randomizer {
 				break;
 			case FULL:
 				rk.addHeaderItem("Randomize Growths", "Full (" + growths.fullOption.minValue + "% ~ " + growths.fullOption.maxValue + "%)");	
+				break;
+			case SMART:
+				rk.addHeaderItem("Randomize Growths", "Smart");
 				break;
 			}
 			

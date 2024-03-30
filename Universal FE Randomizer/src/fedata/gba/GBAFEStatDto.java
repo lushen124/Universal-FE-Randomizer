@@ -1,6 +1,8 @@
 package fedata.gba;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import util.WhyDoesJavaNotHaveThese;
@@ -23,6 +25,9 @@ public class GBAFEStatDto {
 	public int res;
 	public int lck;
 	
+	public enum Stat {
+		HP, POW, SKL, SPD, DEF, RES, LCK
+	}
 	
 	/**
 	 * Empty default constructor 
@@ -65,6 +70,47 @@ public class GBAFEStatDto {
 		def = args[4];
 		res = args[5];
 		lck = args[6];
+	}
+	
+	/**
+	 * Returns a stat list that is ordered from the highest value to the lowest value.
+	 */
+	public List<Stat> orderedStats() {
+		List<Stat> list = new ArrayList<Stat>();
+		GBAFEStatDto workingDTO = new GBAFEStatDto(hp, str, skl, spd, def, res, lck);
+		for (int i = 0; i < 7; i++) {
+			Stat highest = workingDTO.highestStat();
+			if (highest == null) { break; }
+			list.add(highest);
+			workingDTO.invalidateStat(highest);
+		}
+		
+		return list;
+	}
+	
+	private void invalidateStat(Stat stat) {
+		switch (stat) {
+		case HP: hp = -1; break;
+		case POW: str = -1; break;
+		case SKL: skl = -1; break;
+		case SPD: spd = -1; break;
+		case LCK: lck = -1; break;
+		case DEF: def = -1; break;
+		case RES: res = -1; break;
+		}
+	}
+	
+	private Stat highestStat() {
+		List<Integer> list = asList();
+		int highest = Collections.max(list);
+		if (highest == hp) { return Stat.HP; }
+		else if (highest == str) { return Stat.POW; }
+		else if (highest == skl) { return Stat.SKL; }
+		else if (highest == spd) { return Stat.SPD; }
+		else if (highest == lck) { return Stat.LCK; }
+		else if (highest == def) { return Stat.DEF; }
+		else if (highest == res) { return Stat.RES; }
+		else { return null; }
 	}
 	
 	/**
