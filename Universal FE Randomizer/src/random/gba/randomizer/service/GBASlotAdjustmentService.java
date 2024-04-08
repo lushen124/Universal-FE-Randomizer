@@ -157,6 +157,7 @@ public class GBASlotAdjustmentService {
 		// initialize a new DAO with the original Bases
 		GBAFEStatDto newBases = new GBAFEStatDto(bases);
 		GBAFEStatDto classBases = targetClass.getBases();
+		newBases.add(classBases);
 		DebugPrinter.log(key, String.format("Original Bases: %s%n", newBases.toString()));
 		// Add all necessary promotion or demotions
 		if (!promoBonuses.isEmpty()) {
