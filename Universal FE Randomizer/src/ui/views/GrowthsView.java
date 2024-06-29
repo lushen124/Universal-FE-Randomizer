@@ -210,7 +210,7 @@ public class GrowthsView extends YuneView<GrowthOptions> {
 		
 		optionData = new FormData();
 		optionData.left = new FormAttachment(fullRandomOption, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(fullRandomOption, 0);
+		optionData.top = new FormAttachment(fullRandomOption, 10);
 		smartOption.setLayoutData(optionData);
 
 		adjustHPGrowths = new Button(group, SWT.CHECK);

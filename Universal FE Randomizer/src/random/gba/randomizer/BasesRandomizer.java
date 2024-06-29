@@ -4,6 +4,9 @@ import java.util.Random;
 
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEStatDto;
+import fedata.gba.general.GBAFEChapterMetadataData;
+import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
 import util.WhyDoesJavaNotHaveThese;
@@ -11,6 +14,29 @@ import util.WhyDoesJavaNotHaveThese;
 public class BasesRandomizer {
 	
 	public static int rngSalt = 9001;
+	
+	public static void smartRandomizeBases(CharacterDataLoader charactersData, ClassDataLoader classData, ChapterLoader chapterData, Random rng) {
+		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
+		// Character data contains a level, but it's also sometimes wrong compared to the chapter data's level, so we will use that instead.
+		for (GBAFECharacterData character : allPlayableCharacters) {
+			int startingLevel = chapterData.getStartingLevelForCharacter(character.getID());
+			if (startingLevel == 0) {
+				// In the rare case we can't find a level for the character, use the level on the character data.
+				startingLevel = character.getLevel();
+			}
+			
+			GBAFEClassData characterClass = classData.classForID(character.getClassID());
+			if (classData.isPromotedClass(character.getClassID())) {
+				// Promoted class bases are kind of bad, so add a few levels here.
+				startingLevel += 5;
+			}
+			GBAFEStatDto classBaseline = new GBAFEStatDto(characterClass.getBases());
+			// Use a mix of the class's bases and the character's bases (character bases are randomized before this step, so they may not be in line
+			// with the class).
+			GBAFEStatDto characterBaseline = GBAFEStatDto.expectedValueLevel(classBaseline, character.getGrowths(), startingLevel - 1, rng);
+			
+		}
+	}
 	
 	public static void randomizeBasesByRedistribution(int variance, CharacterDataLoader charactersData, ClassDataLoader classData, Random rng) {
 		GBAFECharacterData[] allPlayableCharacters = charactersData.playableCharacters();
