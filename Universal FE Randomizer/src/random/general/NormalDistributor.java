@@ -1,13 +1,21 @@
 package random.general;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import random.general.NormalDistributor.Bucket;
 
 // Extreme quotation marks around the "Normal" part, since we're
 // not going to be exact, but this is just a way to generate a random
 // number that we can qualify as good or bad, extreme or average.
 public class NormalDistributor {
+	
+	public static List<Bucket> topBuckets = Arrays.asList(Bucket.EXCELLENT, Bucket.GOOD, Bucket.AVERAGE);
+	public static List<Bucket> bottomBuckets = Arrays.asList(Bucket.ABYSMAL, Bucket.BAD, Bucket.AVERAGE, Bucket.GOOD);
+	public static List<Bucket> allBuckets = Arrays.asList(Bucket.EXCELLENT, Bucket.GOOD, Bucket.AVERAGE, Bucket.BAD, Bucket.ABYSMAL);
+	public static List<Bucket> notAbysmal = Arrays.asList(Bucket.EXCELLENT, Bucket.GOOD, Bucket.AVERAGE, Bucket.BAD);
 	
 	public enum Bucket {
 		ABYSMAL, // Bottom 5% (1 / 20)

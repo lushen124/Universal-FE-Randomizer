@@ -37,10 +37,6 @@ public class GrowthsRandomizer {
 		NormalDistributor defDistributor = new NormalDistributor(5, 50, 5);
 		NormalDistributor resDistributor = new NormalDistributor(5, 50, 5);
 		
-		List<Bucket> topBuckets = Arrays.asList(Bucket.EXCELLENT, Bucket.GOOD, Bucket.AVERAGE);
-		List<Bucket> bottomBuckets = Arrays.asList(Bucket.ABYSMAL, Bucket.BAD, Bucket.AVERAGE, Bucket.GOOD);
-		List<Bucket> allBuckets = Arrays.asList(Bucket.EXCELLENT, Bucket.GOOD, Bucket.AVERAGE, Bucket.BAD, Bucket.ABYSMAL);
-		
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			if (character.wasModified()) {
 				continue;
@@ -55,13 +51,13 @@ public class GrowthsRandomizer {
 			// The lowest two stats for the class cannot be excellent. (index 5 or 6)
 			statOrder.remove(Stat.HP); // HP excluded
 			
-			int newHPGrowth = hpDistributor.getRandomValue(rng, allBuckets);
-			int newSTRGrowth = powDistributor.getRandomValue(rng, statOrder.indexOf(Stat.POW) < 2 ? topBuckets : (statOrder.indexOf(Stat.POW) >= 5 ? bottomBuckets : allBuckets));
-			int newSKLGrowth = sklDistributor.getRandomValue(rng, statOrder.indexOf(Stat.SKL) < 2 ? topBuckets : (statOrder.indexOf(Stat.SKL) >= 5 ? bottomBuckets : allBuckets));
-			int newSPDGrowth = spdDistributor.getRandomValue(rng, statOrder.indexOf(Stat.SPD) < 2 ? topBuckets : (statOrder.indexOf(Stat.SPD) >= 5 ? bottomBuckets : allBuckets));
-			int newLCKGrowth = lckDistributor.getRandomValue(rng, statOrder.indexOf(Stat.LCK) < 2 ? topBuckets : (statOrder.indexOf(Stat.LCK) >= 5 ? bottomBuckets : allBuckets));
-			int newDEFGrowth = defDistributor.getRandomValue(rng, statOrder.indexOf(Stat.DEF) < 2 ? topBuckets : (statOrder.indexOf(Stat.DEF) >= 5 ? bottomBuckets : allBuckets));
-			int newRESGrowth = resDistributor.getRandomValue(rng, statOrder.indexOf(Stat.RES) < 2 ? topBuckets : (statOrder.indexOf(Stat.RES) >= 5 ? bottomBuckets : allBuckets));
+			int newHPGrowth = hpDistributor.getRandomValue(rng, NormalDistributor.allBuckets);
+			int newSTRGrowth = powDistributor.getRandomValue(rng, statOrder.indexOf(Stat.POW) < 2 ? NormalDistributor.topBuckets : (statOrder.indexOf(Stat.POW) >= 5 ? NormalDistributor.bottomBuckets : NormalDistributor.allBuckets));
+			int newSKLGrowth = sklDistributor.getRandomValue(rng, statOrder.indexOf(Stat.SKL) < 2 ? NormalDistributor.topBuckets : (statOrder.indexOf(Stat.SKL) >= 5 ? NormalDistributor.bottomBuckets : NormalDistributor.allBuckets));
+			int newSPDGrowth = spdDistributor.getRandomValue(rng, statOrder.indexOf(Stat.SPD) < 2 ? NormalDistributor.topBuckets : (statOrder.indexOf(Stat.SPD) >= 5 ? NormalDistributor.bottomBuckets : NormalDistributor.allBuckets));
+			int newLCKGrowth = lckDistributor.getRandomValue(rng, statOrder.indexOf(Stat.LCK) < 2 ? NormalDistributor.topBuckets : (statOrder.indexOf(Stat.LCK) >= 5 ? NormalDistributor.bottomBuckets : NormalDistributor.allBuckets));
+			int newDEFGrowth = defDistributor.getRandomValue(rng, statOrder.indexOf(Stat.DEF) < 2 ? NormalDistributor.topBuckets : (statOrder.indexOf(Stat.DEF) >= 5 ? NormalDistributor.bottomBuckets : NormalDistributor.allBuckets));
+			int newRESGrowth = resDistributor.getRandomValue(rng, statOrder.indexOf(Stat.RES) < 2 ? NormalDistributor.topBuckets : (statOrder.indexOf(Stat.RES) >= 5 ? NormalDistributor.bottomBuckets : NormalDistributor.allBuckets));
 			
 			GBAFEStatDto newGrowths = new GBAFEStatDto(newHPGrowth, newSTRGrowth, newSKLGrowth, newSPDGrowth, newDEFGrowth, newRESGrowth, newLCKGrowth);
 			character.setGrowths(newGrowths);

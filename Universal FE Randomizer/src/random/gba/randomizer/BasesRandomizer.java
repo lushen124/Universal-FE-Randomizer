@@ -1,14 +1,17 @@
 package random.gba.randomizer;
 
+import java.util.List;
 import java.util.Random;
 
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEStatDto;
+import fedata.gba.GBAFEStatDto.Stat;
 import fedata.gba.general.GBAFEChapterMetadataData;
 import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
+import random.general.NormalDistributor;
 import util.WhyDoesJavaNotHaveThese;
 
 public class BasesRandomizer {
@@ -26,16 +29,63 @@ public class BasesRandomizer {
 			}
 			
 			GBAFEClassData characterClass = classData.classForID(character.getClassID());
-			if (classData.isPromotedClass(character.getClassID())) {
+			Boolean isPromoted = classData.isPromotedClass(character.getClassID());
+			if (isPromoted) {
 				// Promoted class bases are kind of bad, so add a few levels here.
 				startingLevel += 5;
 			}
 			GBAFEStatDto classBaseline = new GBAFEStatDto(characterClass.getBases());
-			// Use a mix of the class's bases and the character's bases (character bases are randomized before this step, so they may not be in line
+			// Use a mix of the class's bases and the character's growths (character growths are randomized before this step, so they may not be in line
 			// with the class).
 			GBAFEStatDto characterBaseline = GBAFEStatDto.expectedValueLevel(classBaseline, character.getGrowths(), startingLevel - 1, rng);
 			
+			// Now we add a modifier based on how a character rolls.
+			// HP can range from the lower of -1 * the character's level or -3 up to the higher of the character's level or +3/
+			// So a level 1 character can go from -3 to +3 and a level 10 character can go from -10 to +10.
+			NormalDistributor hpDistributor = new NormalDistributor(Math.min(-1 * startingLevel,  -3), Math.max(startingLevel, 3), 1);
+			// Most normal stats can range from -4 to +4
+			NormalDistributor statDistributor = new NormalDistributor(-4, 4, 1);
+			// LCK is an absolute random.
+			// If the unit is unpromoted, this ranges from 0 to the higher of their level or 10.
+			// i.e. A level 1 unit will have LCK between 0 and 10.
+			//      A level 10 unit will have LCK between 0 and 10.
+			//      A level 15 unit will have LCK between 0 and 15.
+			// If the unit is promoted, this ranges from 2 to the higher of their level + 15 or 20.
+			// i.e. A level 1 promoted unit will have LCK between 2 and 20.
+			//      A level 10 promoted unit will have LCK between 2 and 25.
+			//      A level 15 promoted unit will have LCK between 2 and 30.
+			NormalDistributor lckDistributor = new NormalDistributor(isPromoted ? 2 : 0, Math.max(startingLevel + (isPromoted ? 5 : 0), (isPromoted ? 20 : 10)), 1);
+			
+			List<GBAFEStatDto.Stat> statOrder = characterClass.getGrowthStatOrder();
+			statOrder.remove(Stat.HP); // HP excluded
+			statOrder.remove(Stat.LCK); // LCK also excluded
+			
+			int hpOffset = hpDistributor.getRandomValue(rng, NormalDistributor.allBuckets);
+			// For most stats, a character can roll from all buckets except for the class's "best" stat, which cannot roll abysmal.
+			int strOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.POW) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+			int sklOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.SKL) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+			int spdOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.SPD) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+			int defOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.DEF) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+			int resOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.RES) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+			int totalLck = lckDistributor.getRandomValue(rng, NormalDistributor.allBuckets);
+			
+			// If our total offsets are too bad (mostly bad and abysmal) then reroll.
+			while (strOffset + sklOffset + spdOffset + defOffset + resOffset < -5) {
+				strOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.POW) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+				sklOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.SKL) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+				spdOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.SPD) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+				defOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.DEF) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+				resOffset = statDistributor.getRandomValue(rng, statOrder.indexOf(Stat.RES) == 0 ? NormalDistributor.notAbysmal : NormalDistributor.allBuckets);
+			}
+			
+			characterBaseline.add(new GBAFEStatDto(hpOffset, strOffset, sklOffset, spdOffset, defOffset, resOffset, 0));
+			characterBaseline.lck = totalLck;
+			characterBaseline.clamp(GBAFEStatDto.MINIMUM_STATS, characterClass.getCaps());
+			characterBaseline.subtract(characterClass.getBases());
+			character.setBases(characterBaseline);
 		}
+		
+		charactersData.commit();
 	}
 	
 	public static void randomizeBasesByRedistribution(int variance, CharacterDataLoader charactersData, ClassDataLoader classData, Random rng) {

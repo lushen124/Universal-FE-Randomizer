@@ -32,6 +32,8 @@ public class BasesView extends YuneView<BaseOptions> {
 	private Button byDeltaOption;
 	private Spinner deltaSpinner;
 	
+	private Button smartOption;
+	
 	private Button adjustSTRMAG;
 
 	public BasesView(Composite parent, GameType type) {
@@ -164,11 +166,32 @@ public class BasesView extends YuneView<BaseOptions> {
 			optionData.top = new FormAttachment(deltaParamContainer, 10);
 			adjustSTRMAG.setLayoutData(optionData);
 		}
+		
+		/////////////////////////////////////////////////////////////
+		
+		smartOption = new Button(group, SWT.RADIO);
+		smartOption.setText("Smart Randomize");
+		smartOption.setToolTipText("Attempts to set bases in a way that avoids extreme stats most of the time.");
+		smartOption.setEnabled(false);
+		smartOption.setSelection(false);
+		smartOption.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event arg0) {
+				setMode(BaseOptions.Mode.SMART);
+			}
+		});
+		
+		optionData = new FormData();
+		optionData.left = new FormAttachment(deltaParamContainer, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(deltaParamContainer, 0);
+		smartOption.setLayoutData(optionData);
+		
 	}
 	
 	private void setEnableBases(Boolean enabled) {
 		redistributeOption.setEnabled(enabled);
 		byDeltaOption.setEnabled(enabled);
+		smartOption.setEnabled(enabled);
 		varianceSpinner.setEnabled(enabled && currentMode == BaseOptions.Mode.REDISTRIBUTE);
 		deltaSpinner.setEnabled(enabled && currentMode == BaseOptions.Mode.DELTA);
 		if (adjustSTRMAG != null) { adjustSTRMAG.setEnabled(enabled); }
@@ -188,6 +211,10 @@ public class BasesView extends YuneView<BaseOptions> {
 				varianceSpinner.setEnabled(false);
 				deltaSpinner.setEnabled(true);
 				break;
+			case SMART:
+				varianceSpinner.setEnabled(false);
+				deltaSpinner.setEnabled(false);
+				break;
 			}
 		}
 	}
@@ -205,6 +232,8 @@ public class BasesView extends YuneView<BaseOptions> {
 			break;
 		case DELTA:
 			deltaOption = new VarOption(deltaSpinner.getSelection());
+			break;
+		default:
 			break;
 		}
 		
@@ -227,12 +256,19 @@ public class BasesView extends YuneView<BaseOptions> {
 			case REDISTRIBUTE:
 				redistributeOption.setSelection(true);
 				byDeltaOption.setSelection(false);
+				smartOption.setSelection(false);
 				varianceSpinner.setSelection(options.redistributionOption.variance);
 				break;
 			case DELTA:
 				redistributeOption.setSelection(false);
 				byDeltaOption.setSelection(true);
+				smartOption.setSelection(false);
 				deltaSpinner.setSelection(options.deltaOption.variance);
+				break;
+			case SMART:
+				redistributeOption.setSelection(false);
+				byDeltaOption.setSelection(false);
+				smartOption.setSelection(true);
 				break;
 			}
 			

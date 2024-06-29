@@ -482,6 +482,10 @@ public class GBARandomizer extends Randomizer {
 				updateStatusString("Applying random deltas to growths...");
 				BasesRandomizer.randomizeBasesByRandomDelta(bases.deltaOption.variance, charData, classData, rng);
 				break;
+			case SMART:
+				updateStatusString("Smart Randomizing bases...");
+				BasesRandomizer.smartRandomizeBases(charData, classData, chapterData, rng);
+				break;
 			}
 		}
 	}

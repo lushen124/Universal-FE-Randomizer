@@ -3,7 +3,7 @@ package ui.model;
 public class BaseOptions {
 	
 	public enum Mode {
-		REDISTRIBUTE, DELTA
+		REDISTRIBUTE, DELTA, SMART
 	}
 	
 	public final Mode mode;
