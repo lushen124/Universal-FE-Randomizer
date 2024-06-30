@@ -691,6 +691,7 @@ public class GBARandomizer extends Randomizer {
 		// Fix the palettes based on final classes.
 		if (needsPaletteFix) {
 			PaletteHelper.synchronizePalettes(gameType, recruitOptions != null ? recruitOptions.includeExtras : false, charData, classData, paletteData, characterMap, freeSpace);
+			charData.commit();
 		}
 		
 		// Fix promotions so that forcing a promoted unit to promote again doesn't demote them.
@@ -2329,6 +2330,9 @@ public class GBARandomizer extends Randomizer {
 				break;
 			case DELTA:
 				rk.addHeaderItem("Randomize Bases", "Delta (+/- " + bases.deltaOption.variance + ")");
+				break;
+			case SMART:
+				rk.addHeaderItem("Randomize Bases", "Smart");
 				break;
 			}
 		} else {

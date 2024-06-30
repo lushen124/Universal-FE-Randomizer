@@ -580,11 +580,13 @@ public class PaletteLoader {
 					Long targetOffset = mapper.getPaletteOffset(unpromotedPaletteID);
 					if (targetOffset == null) { 
 						targetOffset = freeSpace.reserveInternalSpace(compressedBase.length, "Palette 0x" + Integer.toHexString(unpromotedPaletteID), true);
+						DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Setting new target offset for palette ID 0x" + Integer.toHexString(unpromotedPaletteID) + " to 0x" + Long.toHexString(targetOffset));
 						appendedPaletteIDsV2.put(unpromotedPaletteID, change.basePalette);
 					}
 					
 					change.basePalette.overrideOffset(targetOffset);
 					change.basePalette.setIdentifier(unpromotedPaletteID);
+					charData.characterWithID(change.character.getID()).setUnpromotedPaletteIndex(unpromotedPaletteID);
 				}
 				
 				int promotedPaletteID = change.character.getPromotedPaletteIndex();
@@ -596,13 +598,16 @@ public class PaletteLoader {
 					Long targetOffset = mapper.getPaletteOffset(promotedPaletteID);
 					if (targetOffset == null) {
 						targetOffset = freeSpace.reserveInternalSpace(compressedPromotion.length, "Palette 0x" + Integer.toHexString(promotedPaletteID), true);
+						DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Setting new target offset for palette ID 0x" + Integer.toHexString(promotedPaletteID) + " to 0x" + Long.toHexString(targetOffset));
 						appendedPaletteIDsV2.put(promotedPaletteID, change.promotedPalette);
 					}
 					
 					change.promotedPalette.overrideOffset(targetOffset);
 					change.promotedPalette.setIdentifier(promotedPaletteID);
+					charData.characterWithID(change.character.getID()).setPromotedPaletteIndex(promotedPaletteID);
 				}
 			}
+			charData.commit();
 		}
 	}
 	
@@ -647,7 +652,8 @@ public class PaletteLoader {
 				PaletteV2 appendedPalette = appendedPaletteIDsV2.get(appendedPaletteID);
 				long offsetToWriteTo = baseOffset + (appendedPaletteID * entrySize);
 				byte[] bytesToWrite = WhyDoesJavaNotHaveThese.bytesFromAddress(appendedPalette.getDestinationOffset());
-				compiler.addDiff(new Diff(offsetToWriteTo, bytesToWrite.length, bytesToWrite, new byte[] {0, 0, 0, 0}));
+				compiler.addDiff(new Diff(offsetToWriteTo, bytesToWrite.length, bytesToWrite, null));
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "[Palette 0x" + Integer.toHexString(appendedPaletteID) + "] Writing bytes " + WhyDoesJavaNotHaveThese.displayStringForBytes(bytesToWrite) + " to offset 0x" + Long.toHexString(offsetToWriteTo));
 			}
 		}
 	}
