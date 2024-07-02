@@ -125,6 +125,12 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int LuciusEquipment1IDOffset = 0x7D0C2;
 	public static final int LuciusEquipment2IDOffset = 0x7D0D8;
 	
+	// Delphi Shield logic is a hard coded check against the effectiveness pointer of a weapon.
+	// This address it checks against is 0x8C97ED2, which can be found at the following offset
+	// and should be replaced if we create our own effectiveness pointers.
+	public static final long FlierEffectivenessPointer = 0x8C97ED2L;
+	public static final int DelphiShieldEffectivenessCheckPointer = 0x168A0;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();

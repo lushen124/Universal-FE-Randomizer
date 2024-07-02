@@ -101,6 +101,12 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int WorldMapEventItemSize = 4;
 	public static final int WorldMapEventCount = 58;
 	
+	// Fili Shield logic is a hard coded check against the effectiveness pointer of a weapon.
+	// This address it checks against is 0x88ADF2A, which can be found at the following offset
+	// and should be replaced if we create our own effectiveness pointers.
+	public static final long FlierEffectivenessPointer = 0x88ADF2AL;
+	public static final int FiliShieldEffectivenessCheckPointer = 0x16C74;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();

@@ -74,6 +74,12 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int PaletteEntryCount = 130;
 	public static final int PaletteEntrySize = 16;
 	
+	// Delphi Shield logic is a hard coded check against the effectiveness pointer of a weapon.
+	// This address it checks against is 0x86615DB, which can be found at the following offset
+	// and should be replaced if we create our own effectiveness pointers.
+	public static final long FlierEffectivenessPointer = 0x86615DBL;
+	public static final int DelphiShieldEffectivenessCheckPointer = 0x16A84;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	// These are only valid when patched. The JP ROM does *not* have these.
