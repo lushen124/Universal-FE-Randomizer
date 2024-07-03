@@ -32,7 +32,7 @@ public class BasesRandomizer {
 			Boolean isPromoted = classData.isPromotedClass(character.getClassID());
 			if (isPromoted) {
 				// Promoted class bases are kind of bad, so add a few levels here.
-				startingLevel += 5;
+				startingLevel += 10;
 			}
 			GBAFEStatDto classBaseline = new GBAFEStatDto(characterClass.getBases());
 			// Use a mix of the class's bases and the character's growths (character growths are randomized before this step, so they may not be in line
