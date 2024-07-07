@@ -40,9 +40,9 @@ public class BasesRandomizer {
 			GBAFEStatDto characterBaseline = GBAFEStatDto.expectedValueLevel(classBaseline, character.getGrowths(), startingLevel - 1, rng);
 			
 			// Now we add a modifier based on how a character rolls.
-			// HP can range from the lower of -1 * the character's level or -3 up to the higher of the character's level or +3/
-			// So a level 1 character can go from -3 to +3 and a level 10 character can go from -10 to +10.
-			NormalDistributor hpDistributor = new NormalDistributor(Math.min(-1 * startingLevel,  -3), Math.max(startingLevel, 3), 1);
+			// Class Base HP is pretty bad all around, so we'll skew this upward with a range between 0 and characters level or +5, whichever is greater.
+			// So a level 1 character will get a bonus of 0 ~ 5 and a level 10 character will get a bonus of 0 ~ 10
+			NormalDistributor hpDistributor = new NormalDistributor(0, Math.max(startingLevel, 5), 1);
 			// Most normal stats can range from -4 to +4
 			NormalDistributor statDistributor = new NormalDistributor(-4, 4, 1);
 			// LCK is an absolute random.

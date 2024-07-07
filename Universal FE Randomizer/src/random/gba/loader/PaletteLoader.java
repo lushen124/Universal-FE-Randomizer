@@ -179,6 +179,11 @@ public class PaletteLoader {
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe8char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe8class.toString() + "))");
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
 				}
+				// Special case: Pegasus Knights that have a Wyvern Knight promotion will have conflicting primary colors.
+				// If a character a Wyvern palette and a non-wyvern palette, drop the wyvern palette and let the other palette dictate primary color.
+				// This primarily affects Vanessa and Tana, which both have Wyvern Knight (F) so we can just remove that one kind of palette here.
+				referenceMap.remove(FE8Data.CharacterClass.WYVERN_KNIGHT_F.ID);
+				
 			}
 			for (FE8Data.Character character : FE8Data.Character.safeCreatureCampaignCharacters) {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(character.ID);
