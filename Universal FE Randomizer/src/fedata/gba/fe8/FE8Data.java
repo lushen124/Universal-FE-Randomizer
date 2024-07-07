@@ -2626,7 +2626,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					break;
 				case CAVALIER:
 				case CAVALIER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 3, 9, 5, 10, 11}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {});
 					break;
 				case PALADIN:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {}, new int[] {});

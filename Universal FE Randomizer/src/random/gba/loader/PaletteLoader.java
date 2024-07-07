@@ -183,6 +183,11 @@ public class PaletteLoader {
 				// If a character a Wyvern palette and a non-wyvern palette, drop the wyvern palette and let the other palette dictate primary color.
 				// This primarily affects Vanessa and Tana, which both have Wyvern Knight (F) so we can just remove that one kind of palette here.
 				referenceMap.remove(FE8Data.CharacterClass.WYVERN_KNIGHT_F.ID);
+				// Similarly, Amelia's Recruit class has a blue outfit by default when her primary color
+				// should be red. Remove Recruit as well.
+				referenceMap.remove(FE8Data.CharacterClass.RECRUIT.ID);
+				referenceMap.remove(FE8Data.CharacterClass.RECRUIT_2.ID);
+				referenceMap.remove(FE8Data.CharacterClass.SUPER_RECRUIT.ID);
 				
 			}
 			for (FE8Data.Character character : FE8Data.Character.safeCreatureCampaignCharacters) {
