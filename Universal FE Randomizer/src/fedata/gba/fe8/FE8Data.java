@@ -1939,6 +1939,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public CharacterClass[] blacklistedClasses() {
 			switch(this) {
+			case CHAPTER_2:
+				return new CharacterClass[] {CharacterClass.BRIGAND}; // Give Ross/Garcia a chance so that they don't get mobbed by fliers.
 			case CHAPTER_5X:
 				return new CharacterClass[] {CharacterClass.WYVERN_RIDER, CharacterClass.WYVERN_RIDER_F}; // The cutscene after the chapter has wyvern riders flying on screen. Keep those the same.
 			case CHAPTER_6:
@@ -2521,7 +2523,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EIRIKA_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EPHRAIM_LORD:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {12, 13, 14}, new int[] {9, 10}, new int[] {});

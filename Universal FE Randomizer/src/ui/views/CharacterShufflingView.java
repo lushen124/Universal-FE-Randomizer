@@ -245,6 +245,7 @@ public class CharacterShufflingView extends YuneView<CharacterShufflingOptions> 
 	@Override
 	public CharacterShufflingOptions getOptions() {
 		boolean isEnabled = enableButton.getSelection();
+		if (!isEnabled) { return null; }
 		ShuffleLevelingMode levelingMode = autoLevelingButton.getSelection() ? ShuffleLevelingMode.AUTOLEVEL : ShuffleLevelingMode.UNCHANGED;
 		int chance = shuffleChanceSpinner.getSelection();
 		List<String> shuffles = new ArrayList<>(includedShuffles);
