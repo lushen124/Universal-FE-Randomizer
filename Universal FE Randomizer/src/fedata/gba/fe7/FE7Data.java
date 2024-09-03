@@ -16,15 +16,29 @@ import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.GBAFECharacterData.Affinity;
-import fedata.gba.fe8.FE8Data.Character;
 import fedata.gba.general.*;
+import fedata.gba.fe6.FE6Data.Shops;
+import fedata.gba.general.GBAFEChapterMetadataChapter;
+import fedata.gba.general.GBAFECharacter;
+import fedata.gba.general.GBAFECharacterProvider;
+import fedata.gba.general.GBAFEClass;
+import fedata.gba.general.GBAFEClassProvider;
+import fedata.gba.general.GBAFEItem;
+import fedata.gba.general.GBAFEItemProvider;
+import fedata.gba.general.GBAFEPromotionItem;
+import fedata.gba.general.GBAFEShop;
+import fedata.gba.general.GBAFEShopProvider;
+import fedata.gba.general.PaletteColor;
+import fedata.gba.general.PaletteInfo;
+import fedata.gba.general.WeaponRank;
+import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.gba.randomizer.shuffling.GBAFEShufflingDataProvider;
 import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider, GBAFEStatboostProvider {
+public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider, GBAFEStatboostProvider, GBAFEShopProvider {
 
 	public static final String FriendlyName = "Fire Emblem: Blazing Sword";
 	public static final String GameCode = "AE7E";
@@ -2042,6 +2056,132 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 	}
 	
+	public enum Shops implements GBAFEShop {
+		
+		CHAPTER_3_ARMORY(0xCA8B98L, 0xCA6F3CL),
+		CHAPTER_5_ARMORY(0xCA0F38L, 0xCA6F42L),
+		CHAPTER_7_VENDOR(0xCA130CL, 0xCA6F4AL),
+		CHAPTER_8_ARMORY(0xCA1504L, 0xCA6F52L),
+		CHAPTER_10_ARMORY(0xCA187CL, 0xCA6F5CL),
+		CHAPTER_10_VENDOR(0xCA1888L, 0xCA6F66L),
+		CHAPTER_11_VENDOR(0xCA1958L, 0xCA6F72L),
+		CHAPTER_12_ARMORY(0xCA1B4CL, 0xCA6F76L),
+		CHAPTER_12_VENDOR(0xCA1B58L, 0xCA6F7AL),
+		CHAPTER_13_ARMORY(0xCA1D24L, 0xCA6F84L),
+		CHAPTER_13_VENDOR(0xCA1D30L, 0xCA6F8EL),
+		CHAPTER_14_ARMORY(0xCA218CL, 0xCA6F94L),
+		CHAPTER_14_VENDOR(0xCA2198L, 0xCA6F9EL),
+		CHAPTER_16_ARMORY_1(0xCA25C0L, 0xCA6FA6L),
+		CHAPTER_16_ARMORY_2(0xCA25CCL, 0xCA6FB4L),
+		CHAPTER_16_VENDOR(0xCA25D8L, 0xCA6FC2L),
+		CHAPTER_17X_VENDOR(0xCA2A24L, 0xCA6FCCL),
+		CHAPTER_18_ARMORY(0xCA2C64L, 0xCA6FD8L),
+		CHAPTER_18_VENDOR(0xCA2C70L, 0xCA6FEAL),
+		CHAPTER_20_SECRET_1(0xCA344CL, 0xCA6FFCL),
+		CHAPTER_20_SECRET_2(0xCA3458L, 0xCA700CL),
+		CHAPTER_21_ARMORY_1(0xCA374CL, 0xCA7022L),
+		CHAPTER_21_VENDOR_1(0xCA3764L, 0xCA703AL),
+		CHAPTER_21_ARMORY_2(0xCA3740L, 0xCA7018L),
+		CHAPTER_21_VENDOR_2(0xCA3758L, 0xCA7030L),
+		CHAPTER_22_SECRET(0xCA3764L, 0xCA703AL),
+		CHAPTER_24A_ARMORY_1(0xCA4214L, 0xCA7068L),
+		CHAPTER_24A_VENDOR_1(0xCA4220L, 0xCA7076L),
+		CHAPTER_24A_ARMORY_2(0xCA4208L, 0xCA7058L),
+		CHAPTER_24A_VENDOR_2(0xCA422CL, 0xCA7082L),
+		CHAPTER_24A_SECRET(0xCA4238L, 0xCA708CL),
+		CHAPTER_24B_ARMORY_1(0xCA4518L, 0xCA709AL),
+		CHAPTER_24B_VENDOR_1(0xCA4530L, 0xCA70B8L),
+		CHAPTER_24B_ARMORY_2(0xCA4524L, 0xCA70AAL),
+		CHAPTER_24B_VENDOR_2(0xCA453CL, 0xCA70C2L),
+		CHAPTER_24B_SECRET(0xCA4548L, 0xCA70CEL),
+		CHAPTER_25_ARMORY(0xCA471CL, 0xCA70DEL),
+		CHAPTER_25_VENDOR(0xCA4728L, 0xCA70E8L),
+		CHAPTER_26_ARMORY(0xCA4928L, 0xCA70F2L),
+		CHAPTER_26_VENDOR(0xCA4934L, 0xCA7100L),
+		CHAPTER_29_ARMORY(0xCA5A28L, 0xCA710CL),
+		CHAPTER_29_VENDOR(0xCA5A34L, 0xCA711EL),
+		CHAPTER_31_SECRET(0xCA5EA0L, 0xCA7130L),
+		CHAPTER_31X_ARMORY_1(0xCA601CL, 0xCA7168L),
+		CHAPTER_31X_VENDOR_1(0xCA6028L, 0xCA7176L),
+		CHAPTER_31X_VENDOR_2(0xCA6034L, 0xCA7186L),
+		CHAPTER_31X_ARMORY_2(0xCA5FF8L, 0xCA713CL),
+		CHAPTER_31X_ARMORY_3(0xCA6004L, 0xCA714AL),
+		CHAPTER_31X_ARMORY_4(0xCA6010L, 0xCA715AL),
+		CHAPTER_32_SECRET(0xCA63ACL, 0xCA7198L)
+		;
+		
+		long pointerOffset;
+		long originalShopAddress;
+		
+		private Shops(final long pointerOffset, final long originalShopList) {
+			this.pointerOffset = pointerOffset;
+			this.originalShopAddress = originalShopList;
+		}
+		
+		public static Set<Shops> allVendors() {
+			return new HashSet<Shops>(Arrays.asList(CHAPTER_7_VENDOR, CHAPTER_10_VENDOR, CHAPTER_11_VENDOR, CHAPTER_12_VENDOR, CHAPTER_13_VENDOR, CHAPTER_14_VENDOR, CHAPTER_16_VENDOR, CHAPTER_17X_VENDOR, CHAPTER_18_VENDOR, CHAPTER_21_VENDOR_1,
+					CHAPTER_21_VENDOR_2, CHAPTER_24A_VENDOR_1, CHAPTER_24A_VENDOR_2, CHAPTER_24B_VENDOR_1, CHAPTER_24B_VENDOR_2, CHAPTER_25_VENDOR, CHAPTER_26_VENDOR, CHAPTER_29_VENDOR, CHAPTER_31X_VENDOR_1, CHAPTER_31X_VENDOR_2));
+		}
+		
+		public static Set<Shops> allArmories() {
+			return new HashSet<Shops>(Arrays.asList(CHAPTER_3_ARMORY, CHAPTER_5_ARMORY, CHAPTER_8_ARMORY, CHAPTER_10_ARMORY, CHAPTER_12_ARMORY, CHAPTER_13_ARMORY, CHAPTER_14_ARMORY, CHAPTER_16_ARMORY_1, CHAPTER_16_ARMORY_2, CHAPTER_18_ARMORY,
+					CHAPTER_21_ARMORY_1, CHAPTER_21_ARMORY_2, CHAPTER_24A_ARMORY_1, CHAPTER_24A_ARMORY_2, CHAPTER_24B_ARMORY_1, CHAPTER_24B_ARMORY_2, CHAPTER_25_ARMORY, CHAPTER_26_ARMORY, CHAPTER_29_ARMORY, CHAPTER_31X_ARMORY_1, CHAPTER_31X_ARMORY_2,
+					CHAPTER_31X_ARMORY_3, CHAPTER_31X_ARMORY_4
+					));
+		}
+		
+		public static Set<Shops> allSecretShops() {
+			return new HashSet<Shops>(Arrays.asList(CHAPTER_20_SECRET_1, CHAPTER_20_SECRET_2, CHAPTER_22_SECRET, CHAPTER_24A_SECRET, CHAPTER_24B_SECRET, CHAPTER_31_SECRET, CHAPTER_32_SECRET));
+		}
+		
+		public Set<GBAFEShop> groupedShops() {
+			switch (this) {
+			case CHAPTER_16_ARMORY_1:
+			case CHAPTER_16_ARMORY_2:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_16_ARMORY_1, CHAPTER_16_ARMORY_2));
+			case CHAPTER_20_SECRET_1:
+			case CHAPTER_20_SECRET_2:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_20_SECRET_1, CHAPTER_20_SECRET_2));
+			case CHAPTER_21_ARMORY_1:
+			case CHAPTER_21_ARMORY_2:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_21_ARMORY_1, CHAPTER_21_ARMORY_2));
+			case CHAPTER_21_VENDOR_1:
+			case CHAPTER_21_VENDOR_2:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_21_VENDOR_1, CHAPTER_21_VENDOR_2));
+			case CHAPTER_24A_ARMORY_1:
+			case CHAPTER_24A_ARMORY_2:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24A_ARMORY_1, CHAPTER_24A_ARMORY_2));
+			case CHAPTER_24A_VENDOR_1:
+			case CHAPTER_24A_VENDOR_2:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24A_VENDOR_1, CHAPTER_24A_VENDOR_2));
+			case CHAPTER_24B_ARMORY_1:
+			case CHAPTER_24B_ARMORY_2:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24B_ARMORY_1, CHAPTER_24B_ARMORY_2));
+			case CHAPTER_24B_VENDOR_1:
+			case CHAPTER_24B_VENDOR_2:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24B_VENDOR_1, CHAPTER_24B_VENDOR_2));
+			case CHAPTER_31X_ARMORY_1:
+			case CHAPTER_31X_ARMORY_2:
+			case CHAPTER_31X_ARMORY_3:
+			case CHAPTER_31X_ARMORY_4:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_31X_ARMORY_1, CHAPTER_31X_ARMORY_2, CHAPTER_31X_ARMORY_3, CHAPTER_31X_ARMORY_4));
+			case CHAPTER_31X_VENDOR_1:
+			case CHAPTER_31X_VENDOR_2:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_31X_VENDOR_1, CHAPTER_31X_VENDOR_2));
+			default:
+				return null;
+			}
+		}
+		
+		public long getPointerOffset() {
+			return pointerOffset;
+		}
+		
+		public long getOriginalShopAddress() {
+			return originalShopAddress;
+		}
+	}
+	
 	public enum Palette {
 		
 		ARCHER_WIL(0x03, Character.WIL.ID, CharacterClass.ARCHER.ID, 0xFD90B4),
@@ -3637,5 +3777,21 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	@Override
 	public int getNumberEntries() {
 		return 16;
+	}
+	
+	public Set<GBAFEShop> allShops() {
+		return new HashSet<GBAFEShop>(Arrays.asList(Shops.values()));
+	}
+	
+	public Set<GBAFEShop> allVendors() {
+		return new HashSet<GBAFEShop>(Shops.allVendors());
+	}
+	
+	public Set<GBAFEShop> allArmories() {
+		return new HashSet<GBAFEShop>(Shops.allArmories());
+	}
+	
+	public Set<GBAFEShop> allSecretShops() {
+		return new HashSet<GBAFEShop>(Shops.allSecretShops());
 	}
 }
