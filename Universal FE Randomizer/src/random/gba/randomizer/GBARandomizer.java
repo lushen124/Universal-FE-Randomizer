@@ -2662,19 +2662,29 @@ public class GBARandomizer extends Randomizer {
 		
 
 		if(shufflingOptions != null) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(String.format("Leveling Mode: %s", shufflingOptions.getLevelingMode() == ShuffleLevelingMode.AUTOLEVEL ? "autolevel characters": "leave characters unchanged")).append("<br>");
-			sb.append(String.format("Shuffle chance: %d%%", shufflingOptions.getChance())).append("<br>");
-			sb.append(shufflingOptions.shouldChangeDescription() ? "Description will be changed" : "Description will be left unchanged").append("<br>");
-			sb.append("Included configurations:<br>");
-			for (String s : shufflingOptions.getIncludedShuffles()) {
-				sb.append(s).append("<br>");
+			if (shufflingOptions.isShuffleEnabled()) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(String.format("Leveling Mode: %s", shufflingOptions.getLevelingMode() == ShuffleLevelingMode.AUTOLEVEL ? "autolevel characters": "leave characters unchanged")).append("<br>");
+				sb.append(String.format("Shuffle chance: %d%%", shufflingOptions.getChance())).append("<br>");
+				sb.append(shufflingOptions.shouldChangeDescription() ? "Description will be changed" : "Description will be left unchanged").append("<br>");
+				sb.append("Included configurations:<br>");
+				for (String s : shufflingOptions.getIncludedShuffles()) {
+					sb.append(s).append("<br>");
+				}
+				rk.addHeaderItem("Character Shuffling", sb.toString());
+			} else {
+				rk.addHeaderItem("Character Shuffling", "NO");
 			}
-			rk.addHeaderItem("Character Shuffling", sb.toString());
 		}
 		
 		if (statboosterOptions != null) {
 			statboosterOptions.record(rk);
+		}
+		
+		if (shopOptions != null) {
+			rk.addHeaderItem("Randomize Shops", "YES (" + shopOptions.shopSize.minValue + " ~ " + shopOptions.shopSize.maxValue + " items)");
+		} else {
+			rk.addHeaderItem("Randomize Shops", "NO");
 		}
 		
 		return rk;
