@@ -276,6 +276,17 @@ public class FE8Item implements GBAFEItemData {
 		wasModified = true;
 	}
 	
+	public int getCostPerUse() {
+		return WhyDoesJavaNotHaveThese.intValueFromByteSubarray(data, 26, 2, true);
+	}
+	
+	public void setCostPerUse(int costPerUse) {
+		byte[] costData = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(costPerUse, true, 2);
+		data[26] = costData[0];
+		data[27] = costData[1];
+		wasModified = true;
+ 	}
+	
 	public void applyRandomEffect(WeightedDistributor<WeaponEffects> allowedEffects, ItemDataLoader itemData, TextLoader textData, GBAFESpellAnimationCollection spellAnimations, Random rng) {
 		if (getType() == WeaponType.NOT_A_WEAPON) {
 			return;

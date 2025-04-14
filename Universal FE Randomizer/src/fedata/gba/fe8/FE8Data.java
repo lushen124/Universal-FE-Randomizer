@@ -135,6 +135,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFEStatboostProvider statboostProvider = sharedInstance;
 	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
 	public static final GBAFETextProvider textProvider = sharedInstance;
+	public static final GBAFEShopProvider shopProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -1233,6 +1234,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allSteelWeapons = new HashSet<Item>(Arrays.asList(STEEL_SWORD, STEEL_LANCE, STEEL_AXE, STEEL_BOW, THUNDER));
 		public static Set<Item> allBasicThrownWeapons = new HashSet<Item>(Arrays.asList(JAVELIN, HAND_AXE));
 		
+		public static Set<Item> vendorItems = new HashSet<Item>(Arrays.asList(CHEST_KEY, DOOR_KEY, LOCKPICK, VULNERARY, PURE_WATER, ANTITOXIN, TORCH));
+		public static Set<Item> legendaryWeapons = new HashSet<Item>(Arrays.asList(AUDHULMA, VIDOFNIR, GARM, NIDHOGG, LATONA, EXCALIBUR, IVALDI, GLEIPNIR, NAGLFAR));
+		
 		public static Set<Item> basicItemsOfType(WeaponType type) {
 			Set<Item> set = new HashSet<Item>();
 			set.addAll(weaponsOfType(type));
@@ -2282,6 +2286,69 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					RAUSTEN_ARMORY, RAUSTEN_VENDOR, RAUSTEN_SECRET, SERAFEW_ARMORY, SERAFEW_VENDOR, TAIZEL_VENDOR));
 		}
 		
+		public static List<Shops> inOrderOfAppearance() {
+			return Arrays.asList(CHAPTER_2_ARMORY, IDE_ARMORY,
+					CHAPTER_5_ARMORY, CHAPTER_5_VENDOR, SERAFEW_ARMORY, SERAFEW_VENDOR,
+					CHAPTER_9A_ARMORY, CHAPTER_9A_VENDOR, PORT_KIRIS_ARMORY, PORT_KIRIS_VENDOR,
+					CHAPTER_10B_ARMORY, CHAPTER_10B_VENDOR, BETHROEN_ARMORY, BETHROEN_VENDOR,
+					CHAPTER_12A_VENDOR, CAER_PELYN_VENDOR,
+					CHAPTER_12B_VENDOR, TAIZEL_VENDOR,
+					CHAPTER_14A_SECRET, JEHANNA_SECRET,
+					CHAPTER_14B_SECRET, GRADO_SECRET,
+					CHAPTER_15A_VENDOR, CHAPTER_15B_VENDOR, JEHANNA_VENDOR,
+					CHAPTER_17A_ARMORY, CHAPTER_17B_ARMORY, CHAPTER_17A_VENDOR, CHAPTER_17B_VENDOR, NARUBE_RIVER_ARMORY, NARUBE_RIVER_VENDOR,
+					CHAPTER_19A_SECRET,
+					CHAPTER_19B_SECRET,
+					RAUSTEN_ARMORY,
+					RAUSTEN_VENDOR, RAUSTEN_SECRET);
+		}
+		
+		public GameStage getGameStage() {
+			switch (this) {
+			case CHAPTER_2_ARMORY:
+			case IDE_ARMORY:
+			case CHAPTER_5_ARMORY:
+			case CHAPTER_5_VENDOR:
+			case SERAFEW_ARMORY:
+			case SERAFEW_VENDOR:
+				return GameStage.EARLY;
+			case CHAPTER_9A_ARMORY:
+			case CHAPTER_9A_VENDOR:
+			case PORT_KIRIS_ARMORY:
+			case PORT_KIRIS_VENDOR:
+			case CHAPTER_10B_ARMORY:
+			case CHAPTER_10B_VENDOR:
+			case BETHROEN_ARMORY:
+			case BETHROEN_VENDOR:
+			case CHAPTER_12A_VENDOR:
+			case CAER_PELYN_VENDOR:
+			case CHAPTER_12B_VENDOR:
+			case TAIZEL_VENDOR:
+			case CHAPTER_14A_SECRET:
+			case JEHANNA_SECRET:
+			case CHAPTER_14B_SECRET:
+			case GRADO_SECRET:
+				return GameStage.MID;
+			case CHAPTER_15A_VENDOR:
+			case CHAPTER_15B_VENDOR:
+			case JEHANNA_VENDOR:
+			case CHAPTER_17A_ARMORY:
+			case CHAPTER_17B_ARMORY:
+			case CHAPTER_17A_VENDOR:
+			case CHAPTER_17B_VENDOR:
+			case NARUBE_RIVER_ARMORY:
+			case NARUBE_RIVER_VENDOR:
+			case CHAPTER_19A_SECRET:
+			case CHAPTER_19B_SECRET:
+			case RAUSTEN_ARMORY:
+			case RAUSTEN_VENDOR:
+			case RAUSTEN_SECRET:
+				return GameStage.LATE;
+			}
+			
+			return GameStage.LATE;
+		}
+		
 		public Set<GBAFEShop> groupedShops() {
 			switch (this) {
 			case BETHROEN_ARMORY:
@@ -2305,7 +2372,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			case RAUSTEN_SECRET:
 				return new HashSet<GBAFEShop>(Arrays.asList(JEHANNA_SECRET, GRADO_SECRET, RAUSTEN_SECRET));
 			default:
-				return null;
+				return new HashSet<GBAFEShop>(Arrays.asList(this));
 			}
 		}
 		
@@ -3376,6 +3443,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEItem>(equalRankWeapons);
 	}
 	
+	public Set<GBAFEItem> weaponsOfRank(WeaponRank rank) {
+		return new HashSet<GBAFEItem>(Item.weaponsOfRank(rank));
+	}
+	
 	public Set<GBAFEItem> healingStaves(WeaponRank maxRank) {
 		Set<Item> staves = Item.allHealingStaves;
 		return new HashSet<GBAFEItem>(staves);
@@ -3714,6 +3785,49 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> rareDrops() {
 		return new HashSet<GBAFEItem>(Item.rareDrops);
+	}
+	
+	public Set<GBAFEItem> vendorItems(boolean rare) {
+		Set<GBAFEItem> items = new HashSet<GBAFEItem>(Item.vendorItems);
+		if (rare) {
+			items.add(Item.ELIXIR);
+			items.add(Item.CHEST_KEY_5);
+		}
+		
+		return items;
+	}
+	
+	public Set<GBAFEItem> secretItems() {
+		Set<GBAFEItem> items = new HashSet<GBAFEItem>();
+		items.addAll(Item.allPromotionItems);
+		items.addAll(Item.killerSet);
+		items.addAll(Item.braveSet);
+		items.addAll(Item.reaverSet);
+		items.addAll(Item.allSiegeTomes);
+		items.add(Item.ELIXIR);
+		items.add(Item.RESCUE);
+		items.add(Item.FORTIFY);
+		items.add(Item.PHYSIC);
+		items.add(Item.RAPIER);
+		items.add(Item.REGINLEIF);
+		items.add(Item.WIND_SWORD);
+		items.add(Item.LIGHT_BRAND);
+		items.removeAll(Item.allMonsterWeapons);
+		return items;
+	}
+	
+	public Set<GBAFEItem> rareSecretItems() {
+		Set<GBAFEItem> items = new HashSet<GBAFEItem>();
+		items.addAll(Item.allStatBoosters);
+		items.add(Item.HAMMERNE);
+		items.add(Item.WARP);
+		items.add(Item.RUNE_SWORD);
+		items.removeAll(Item.allMonsterWeapons);
+		return items;
+	}
+	
+	public Set<GBAFEItem> disallowedWeaponsInShops() {
+		return new HashSet<GBAFEItem>(Item.legendaryWeapons);
 	}
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon) {
@@ -4104,5 +4218,13 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEShop> allSecretShops() {
 		return new HashSet<GBAFEShop>(Shops.allSecretShops());
+	}
+	
+	public List<GBAFEShop> orderedShops() {
+		return new ArrayList<GBAFEShop>(Shops.inOrderOfAppearance());
+	}
+	
+	public Boolean isMapShop(GBAFEShop shop) {
+		return Shops.allMapShops().contains(shop);
 	}
 }

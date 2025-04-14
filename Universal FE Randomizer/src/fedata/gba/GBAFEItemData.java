@@ -55,6 +55,9 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public int getMinRange();
 	public int getMaxRange();
 	
+	public int getCostPerUse();
+	public void setCostPerUse(int cost);
+	
 	public WeaponRank getWeaponRank();
 	
 	public boolean hasWeaponEffect();

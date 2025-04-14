@@ -8,6 +8,7 @@ import ui.common.YuneTabItem;
 import ui.views.ItemAssignmentView;
 import ui.views.PrfView;
 import ui.views.RewardRandomizationView;
+import ui.views.ShopView;
 import ui.views.WeaponsView;
 import ui.views.StatboosterView;
 import util.OptionRecorder;
@@ -30,6 +31,7 @@ public class GBAItemsTab extends YuneTabItem {
     private RewardRandomizationView rewards;
     private PrfView prfs;
     private StatboosterView statboosters;
+    private ShopView shops;
 
     public GBAItemsTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
@@ -38,16 +40,17 @@ public class GBAItemsTab extends YuneTabItem {
     @Override
     protected void compose() {
         weapons = addView(new WeaponsView(container, type, 2), GuiUtil.defaultGridData(2));
-        setViewData(weapons, 1, 3);
+        setViewData(weapons, 1, 4);
         itemAssignment = addView(new ItemAssignmentView(container, type));
 
         // these two views are located below the weapons view which has a colspan of two.
         // But since there is a margin of 5 pixels between the two, views, they would be a bit wider and so misaligned.
         // reduce each of these views by 5px to make sure they are properly aligned with the weapons view
         statboosters = addView(new StatboosterView(container));
-        setViewData(statboosters, 1, 3);
+        setViewData(statboosters, 1, 4);
         rewards = addView(new RewardRandomizationView(container, type));
         prfs = addView(new PrfView(container));
+        shops = addView(new ShopView(container));
     }
 
     @Override
@@ -72,6 +75,7 @@ public class GBAItemsTab extends YuneTabItem {
         this.rewards.initialize(bundle.rewards);
         this.prfs.initialize(bundle.prfs);
         this.statboosters.initialize(bundle.statboosterOptions);
+        this.shops.initialize(bundle.shopOptions);
     }
 
     @Override
@@ -81,5 +85,6 @@ public class GBAItemsTab extends YuneTabItem {
         bundle.rewards = rewards.getOptions();
         bundle.prfs = prfs.getOptions();
         bundle.statboosterOptions = statboosters.getOptions();
+        bundle.shopOptions = shops.getOptions();
     }
 }

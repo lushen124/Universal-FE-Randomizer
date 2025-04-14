@@ -205,6 +205,17 @@ public class FE7Item implements GBAFEItemData {
 	public int getMaxRange() {
 		return data[25] & 0x0F;
 	}
+	
+	public int getCostPerUse() {
+		return WhyDoesJavaNotHaveThese.intValueFromByteSubarray(data, 26, 2, true);
+	}
+	
+	public void setCostPerUse(int costPerUse) {
+		byte[] costData = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(costPerUse, true, 2);
+		data[26] = costData[0];
+		data[27] = costData[1];
+		wasModified = true;
+ 	}
 
 	public WeaponRank getWeaponRank() {
 		int rank = data[28] & 0xFF;

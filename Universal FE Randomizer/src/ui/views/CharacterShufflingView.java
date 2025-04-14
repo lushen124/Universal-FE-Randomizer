@@ -276,26 +276,27 @@ public class CharacterShufflingView extends YuneView<CharacterShufflingOptions> 
 			includeFE8Button.setEnabled(false);
 			selectFilesButton.setEnabled(false);
 		} else {
-			enableButton.setSelection(true);
+			boolean isEnabled = options.isShuffleEnabled();
+			enableButton.setSelection(isEnabled);
 			
-			modeContainer.setEnabled(true);
+			modeContainer.setEnabled(isEnabled);
 			
-			autoLevelingButton.setEnabled(true);
+			autoLevelingButton.setEnabled(isEnabled);
 			autoLevelingButton.setSelection(ShuffleLevelingMode.AUTOLEVEL.equals(options.getLevelingMode()));
 			
-			unchangedButton.setEnabled(true);
+			unchangedButton.setEnabled(isEnabled);
 			unchangedButton.setSelection(ShuffleLevelingMode.UNCHANGED.equals(options.getLevelingMode()));
 
-			shuffleChanceSpinner.setEnabled(true);
+			shuffleChanceSpinner.setEnabled(isEnabled);
 			shuffleChanceSpinner.setSelection(options.getChance());
 			
-			includeFE6Button.setEnabled(!GameType.FE6.equals(type));
+			includeFE6Button.setEnabled(!GameType.FE6.equals(type) && isEnabled);
 			includeFE6Button.setSelection(!GameType.FE6.equals(type) && options.getIncludedShuffles().contains("fe6chars.json"));
 			
-			includeFE7Button.setEnabled(!GameType.FE7.equals(type));
+			includeFE7Button.setEnabled(!GameType.FE7.equals(type) && isEnabled);
 			includeFE7Button.setSelection(!GameType.FE7.equals(type) && options.getIncludedShuffles().contains("fe7chars.json"));
 			
-			includeFE8Button.setEnabled(!GameType.FE8.equals(type));
+			includeFE8Button.setEnabled(!GameType.FE8.equals(type) && isEnabled);
 			includeFE8Button.setSelection(!GameType.FE8.equals(type) && options.getIncludedShuffles().contains("fe8chars.json"));
 		}
 	}

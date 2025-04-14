@@ -20,7 +20,7 @@ public class StatboosterRandomizer {
 	public static int SALT = 4831789;
 	
 	public static void randomize(StatboosterOptions options, StatboostLoader loader, ItemDataLoader itemData, TextLoader texts, Random rng) {
-		if (!options.enabled) {
+		if (options == null || !options.enabled) {
 			return;
 		}
 

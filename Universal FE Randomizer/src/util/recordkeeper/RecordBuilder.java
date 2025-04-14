@@ -32,7 +32,7 @@ public class RecordBuilder {
             if (currentColumn == 0)
                 output.append("<tr>\n");
 
-            output.append(String.format("<td><a href=\"#%s\">%s</a></td>\n", entry, entry));
+            output.append(String.format("<td><a href=\"#%s\">%s</a></td>\n", keyFromString(entry), entry));
             currentColumn += 1;
             if (currentColumn == columns) {
                 output.append("</tr>\n");

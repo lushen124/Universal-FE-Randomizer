@@ -38,6 +38,7 @@ public class LegacyViewContainer extends YuneViewContainer {
     private CharacterShufflingView characterShufflingView;
     private PrfView prfView;
     private StatboosterView statboosterView;
+    private ShopView shopView;
 
     // FE4
     private FE4SkillsView skillsView;
@@ -204,6 +205,15 @@ public class LegacyViewContainer extends YuneViewContainer {
         recruitData.top = new FormAttachment(classView.group, 0, SWT.TOP);
         recruitData.left = new FormAttachment(classView.group, 5);
         recruitView.group.setLayoutData(recruitData);
+        
+        shopView = new ShopView(this);
+        shopView.group.setSize(200, 200);
+        
+        FormData shopData = new FormData();
+        shopData.top = new FormAttachment(recruitView.group, 5);
+        shopData.left = new FormAttachment(recruitView.group, 0, SWT.LEFT);
+        shopData.right = new FormAttachment(recruitView.group, 0, SWT.RIGHT);
+        shopView.group.setLayoutData(shopData);
 
         characterShufflingView = new CharacterShufflingView(this, type);
         characterShufflingView.group.setSize(200, 200);
@@ -321,6 +331,7 @@ public class LegacyViewContainer extends YuneViewContainer {
         enemyView.initialize(bundle.enemies);
         miscView.initialize(bundle.otherOptions);
         rewardView.initialize(bundle.rewards);
+        shopView.initialize(bundle.shopOptions);
 
         // GBA Specific
         prfView.initialize(bundle.prfs);
@@ -339,6 +350,7 @@ public class LegacyViewContainer extends YuneViewContainer {
         bundle.classes = classView.getOptions();
         bundle.enemies = enemyView.getOptions();
         bundle.weapons = weaponView.getOptions();
+        bundle.shopOptions = shopView.getOptions();
 
         // GBA specific
         bundle.prfs = prfView.getOptions();

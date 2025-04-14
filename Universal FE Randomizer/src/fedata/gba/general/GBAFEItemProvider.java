@@ -32,6 +32,7 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> weaponsWithEffectiveness();
 	public Set<GBAFEItem> weaponsOfTypeUpToRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean requiresMelee);
 	public Set<GBAFEItem> weaponsOfTypeAndEqualRank(WeaponType type, WeaponRank rank, Boolean rangedOnly, Boolean requiresMelee, Boolean allowLower);
+	public Set<GBAFEItem> weaponsOfRank(WeaponRank rank);
 	public Set<GBAFEItem> healingStaves(WeaponRank maxRank);
 	public Set<GBAFEItem> prfWeaponsForClassID(int classID);
 	public Set<GBAFEItem> allPotentialChestRewards();
@@ -52,6 +53,21 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> commonDrops();
 	public Set<GBAFEItem> uncommonDrops();
 	public Set<GBAFEItem> rareDrops();
+	
+	public Set<GBAFEItem> disallowedWeaponsInShops();
+	
+	// Not sure if I want to define shop randomization pools explicitly or via rules using defined sets of items.
+	// For now, I've settled on defining early/mid/late using weapon ranks instead of being more specific. If it turns out
+	// we need more control, then we can re-introduce these.
+	
+//	public Set<GBAFEItem> earlyShops();
+//	public Set<GBAFEItem> midShops();
+//	public Set<GBAFEItem> lateShops();
+//	
+//	public Set<GBAFEItem> armoryItems();
+	public Set<GBAFEItem> vendorItems(boolean rare); // Rare items are less likely for early game.
+	public Set<GBAFEItem> secretItems(); // More interesting weapons and promotional items.
+	public Set<GBAFEItem> rareSecretItems(); // Should include things like statboosters or things that would be a bit much for normal secret shops.
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon);
 	public String effectivenessStringForWeapon(GBAFEItem weapon, Boolean shortString);

@@ -6,10 +6,13 @@ import java.util.stream.Collectors;
 public class RecordCategoryMap {
 	private boolean sorted = false;
 	private Map<String, RecordEntry> entries = new HashMap<>();
+	private List<String> orderedKeys = new ArrayList<String>();
 
 	public void addEntry(String key, RecordEntry entry) {
 		if (!entries.containsKey(key))
 			entries.put(key, entry);
+		
+		orderedKeys.add(key);
 	}
 
 	public RecordEntry getEntry(String key) {
@@ -21,11 +24,13 @@ public class RecordCategoryMap {
 	}
 
 	public List<String> getKeyList() {
-		List<RecordEntry> entryList = new ArrayList<>(entries.values());
 		if (sorted) {
+			List<RecordEntry> entryList = new ArrayList<>(entries.values());
 			Collections.sort(entryList, entryList.get(0).getComparator());
+			return entryList.stream().map(e -> e.entryKey).collect(Collectors.toList());
+		} else {
+			return orderedKeys;
 		}
-		return entryList.stream().map(e -> e.entryKey).collect(Collectors.toList());
 	}
 
 	public void setSorted() {

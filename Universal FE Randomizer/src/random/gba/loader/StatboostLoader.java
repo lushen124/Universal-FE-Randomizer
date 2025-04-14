@@ -56,6 +56,7 @@ public class StatboostLoader {
 	}
 	
 	public void recordInitial(RecordKeeper rk, ItemDataLoader itemData, StatboosterOptions options) {
+		if (options == null) { return; }
 		for (GBAFEStatboost boost : getStatboosters(options.includeMov, options.includeCon)) {
 			for (GBAFEItemData item : itemData.itemsByStatboostAddress(boost.getAddressOffset())) {
 				String name = item.displayString();
@@ -74,6 +75,7 @@ public class StatboostLoader {
 	}
 	
 	public void recordUpdated(RecordKeeper rk, ItemDataLoader itemData, StatboosterOptions options) {
+		if (options == null) { return; }
 		for (GBAFEStatboost boost : getStatboosters(options.includeMov, options.includeCon)) {
 			for (GBAFEItemData item : itemData.itemsByStatboostAddress(boost.getAddressOffset())) {
 				String name = item.displayString();

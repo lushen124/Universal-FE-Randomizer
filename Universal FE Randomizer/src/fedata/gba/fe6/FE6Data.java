@@ -107,6 +107,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFEStatboostProvider statboostProvider = sharedInstance;
 	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
 	public static final GBAFETextProvider textProvider = sharedInstance;
+	public static final GBAFEShopProvider shopProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -990,6 +991,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				HALBERD, TOMAHAWK, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, THUNDER, AIRCALIBUR, BOLTING, PURGE, NOSFERATU, ECLIPSE, PHYSIC, FORTIFY, RESTORE, WARP, RESCUE, TORCH_STAFF, HAMMERNE, UNLOCK, BARRIER,
 				SILENCE, SLEEP, BERSERK, HOLY_MAIDEN));
 		public static Set<Item> promoSet = new HashSet<Item>(Arrays.asList());
+		public static Set<Item> legendaryWeapons = new HashSet<Item>(Arrays.asList(DURANDAL, MALTET, ARMADS, MURGLEIS, FORBLAZE, APOCALYPSE, HOLY_MAIDEN, AUREOLA));
 		
 		public static Set<Item> playerOnlySet = new HashSet<Item>(Arrays.asList(TORCH_STAFF, UNLOCK, RESTORE, HAMMERNE, BARRIER, RESCUE, WARP, TINA_STAFF));
 		
@@ -1008,6 +1010,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allBasicWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, IRON_LANCE, IRON_AXE, IRON_BOW, FIRE, LIGHTNING, FLUX));
 		public static Set<Item> allSteelWeapons = new HashSet<Item>(Arrays.asList(STEEL_SWORD, STEEL_LANCE, STEEL_AXE, STEEL_BOW, THUNDER));
 		public static Set<Item> allBasicThrownWeapons = new HashSet<Item>(Arrays.asList(JAVELIN, HAND_AXE));
+		
+		public static Set<Item> vendorItems = new HashSet<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, VULNERARY, PURE_WATER, ANTITOXIN, TORCH));
 		
 		public static Set<Item> basicItemsOfType(WeaponType type) {
 			Set<Item> set = new HashSet<Item>();
@@ -1688,8 +1692,53 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			case CHAPTER_23_VENDOR_2:
 				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_23_VENDOR_1, CHAPTER_23_VENDOR_2));
 			default:
-				return null;
+				return new HashSet<GBAFEShop>(Arrays.asList(this));
 			}
+		}
+		
+		public GameStage getGameStage() {
+			switch (this) {
+			case CHAPTER_2_VENDOR:
+			case CHAPTER_2_ARMORY:
+			case CHAPTER_4_VENDOR:
+			case CHAPTER_4_ARMORY:
+			case CHAPTER_5_VENDOR:
+			case CHAPTER_7_VENDOR:
+			case CHAPTER_7_ARMORY_1:
+			case CHAPTER_7_ARMORY_2:
+				return GameStage.EARLY;
+			case CHAPTER_9_ARMORY:
+			case CHAPTER_9_VENDOR:
+			case CHAPTER_10B_ARMORY:
+			case CHAPTER_11A_ARMORY:
+			case CHAPTER_11A_VENDOR:
+			case CHAPTER_11B_VENDOR:
+			case CHAPTER_13_ARMORY:
+			case CHAPTER_13_VENDOR:
+			case CHAPTER_14_ARMORY:
+			case CHAPTER_14_VENDOR:
+			case CHAPTER_15_VENDOR:
+			case CHAPTER_16_SECRET:
+				return GameStage.MID;
+			case CHAPTER_17A_ARMORY:
+			case CHAPTER_17B_ARMORY:
+			case CHAPTER_18B_ARMORY:
+			case CHAPTER_18B_VENDOR:
+			case CHAPTER_19A_VENDOR:
+			case CHAPTER_19B_ARMORY:
+			case CHAPTER_19B_VENDOR:
+			case CHAPTER_20A_ARMORY:
+			case CHAPTER_20A_VENDOR:
+			case CHAPTER_21_ARMORY:
+			case CHAPTER_21_SECRET:
+			case CHAPTER_21_VENDOR:
+			case CHAPTER_23_ARMORY_2:
+			case CHAPTER_23_ARMORY_1:
+			case CHAPTER_23_VENDOR_1:
+			case CHAPTER_23_VENDOR_2:
+				return GameStage.LATE;
+			}
+			return GameStage.LATE;
 		}
 		
 		public long getPointerOffset() {
@@ -2615,6 +2664,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEItem>(equalRankWeapons);
 	}
 	
+	public Set<GBAFEItem> weaponsOfRank(WeaponRank rank) {
+		return new HashSet<GBAFEItem>(Item.weaponsOfRank(rank));
+	}
+	
 	public Set<GBAFEItem> healingStaves(WeaponRank maxRank) {
 		Set<Item> staves = Item.allHealingStaves;
 		return new HashSet<GBAFEItem>(staves);
@@ -2890,6 +2943,46 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> rareDrops() {
 		return new HashSet<GBAFEItem>(Item.rareDrops);
+	}
+	
+	public Set<GBAFEItem> vendorItems(boolean rare) {
+		Set<GBAFEItem> items = new HashSet<GBAFEItem>(Item.vendorItems);
+		if (rare) {
+			items.add(Item.ELIXIR);
+		}
+		
+		return items;
+	}
+	
+	public Set<GBAFEItem> secretItems() {
+		Set<GBAFEItem> items = new HashSet<GBAFEItem>();
+		items.addAll(Item.allPromotionItems);
+		items.addAll(Item.reaverSet);
+		items.addAll(Item.braveSet);
+		items.addAll(Item.killerSet);
+		items.addAll(Item.allSiegeTomes);
+		
+		items.add(Item.ELIXIR);
+		items.add(Item.PHYSIC);
+		items.add(Item.RESCUE);
+		items.add(Item.FORTIFY);
+		
+		items.add(Item.RAPIER);
+		items.add(Item.WO_DAO);
+		items.add(Item.LIGHT_BRAND);
+		return items;
+	}
+	public Set<GBAFEItem> rareSecretItems() {
+		Set<GBAFEItem> items = new HashSet<GBAFEItem>();
+		items.addAll(Item.allStatBoosters);
+		items.add(Item.HAMMERNE);
+		items.add(Item.WARP);
+		items.add(Item.RUNE_SWORD);
+		return items;
+	}
+	
+	public Set<GBAFEItem> disallowedWeaponsInShops() {
+		return new HashSet<GBAFEItem>(Item.legendaryWeapons);
 	}
 
 	public String statBoostStringForWeapon(GBAFEItem weapon) {
@@ -3170,4 +3263,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFEShop> allSecretShops() {
 		return new HashSet<GBAFEShop>(Shops.allSecretShops());
 	}
+	
+	public List<GBAFEShop> orderedShops() {
+		return new ArrayList<GBAFEShop>(Arrays.asList(Shops.values()));
+	}
+	
+	public Boolean isMapShop(GBAFEShop shop) { return false; }
 }
