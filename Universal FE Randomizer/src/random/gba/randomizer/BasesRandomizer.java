@@ -60,7 +60,7 @@ public class BasesRandomizer {
 			//      A level 15 promoted unit will have LCK between 2 and 30.
 			NormalDistributor lckDistributor = new NormalDistributor(isPromoted ? 2 : 0, Math.max(startingLevel + (isPromoted ? 5 : 0), (isPromoted ? 20 : 10)), 1);
 			
-			List<GBAFEStatDto.Stat> statOrder = characterClass.getGrowthStatOrder();
+			List<GBAFEStatDto.Stat> statOrder = characterClass.getGrowthStatOrder(true);
 			statOrder.remove(Stat.HP); // HP excluded
 			statOrder.remove(Stat.LCK); // LCK also excluded
 			

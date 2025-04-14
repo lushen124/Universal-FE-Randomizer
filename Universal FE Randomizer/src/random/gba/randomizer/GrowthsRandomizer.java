@@ -46,7 +46,7 @@ public class GrowthsRandomizer {
 			// They're low, but they should be relatively consistent to how the
 			// class behaves.
 			GBAFEClassData charClass = classData.classForID(character.getClassID());
-			List<GBAFEStatDto.Stat> statOrder = charClass.getGrowthStatOrder();
+			List<GBAFEStatDto.Stat> statOrder = charClass.getGrowthStatOrder(true);
 			// The highest two stats for the class are guaranteed to be at least average. (index 0 or 1)
 			// The lowest two stats for the class cannot be excellent. (index 5 or 6)
 			statOrder.remove(Stat.HP); // HP excluded
