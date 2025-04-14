@@ -79,8 +79,21 @@ public class PaletteMapper {
 				}
 			}
 			
+			// Since this is the last chance for palettes to be assigned, we will use any palette IDs that have been recycled and
+			// remap them to the end of the ROM.
 			if (paletteID == 0) {
-				System.err.println("No palettes available to fulfill palette.");
+				// Grab any palette ID that's not used. We will unregister the old address and write the new address (at the end of the ROM).
+				recycled = requestRecycledPaletteID(0);
+				if (recycled != null) {
+					paletteID = recycled;
+					DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Final recycling palette 0x" + Integer.toHexString(paletteID) + " for character 0x" + Integer.toHexString(queuedItem.character.getID()) + " (" + queuedItem.character.displayString() + ") of type: " + queuedItem.requiredType.name() + " actual size: " + queuedItem.sizeNeeded);
+					// Remove the old offset, since we won't need it anymore.
+					registeredPaletteOffsets.remove(paletteID);
+					// Set the new length to what we need.
+					registeredPaletteLengths.put(paletteID, queuedItem.sizeNeeded);
+				} else {
+					System.err.println("No palettes available to fulfill palette for character:" + queuedItem.character.displayString());
+				}
 			}
 			
 			GBAFECharacterData[] linked = charData.linkedCharactersForCharacter(queuedItem.character);

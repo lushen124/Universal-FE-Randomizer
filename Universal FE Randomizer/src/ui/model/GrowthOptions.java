@@ -3,7 +3,7 @@ package ui.model;
 public class GrowthOptions {
 	
 	public enum Mode {
-		REDISTRIBUTE, DELTA, FULL
+		REDISTRIBUTE, DELTA, FULL, SMART
 	}
 	
 	public final Mode mode;

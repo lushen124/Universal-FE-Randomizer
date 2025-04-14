@@ -179,6 +179,16 @@ public class PaletteLoader {
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe8char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe8class.toString() + "))");
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
 				}
+				// Special case: Pegasus Knights that have a Wyvern Knight promotion will have conflicting primary colors.
+				// If a character a Wyvern palette and a non-wyvern palette, drop the wyvern palette and let the other palette dictate primary color.
+				// This primarily affects Vanessa and Tana, which both have Wyvern Knight (F) so we can just remove that one kind of palette here.
+				referenceMap.remove(FE8Data.CharacterClass.WYVERN_KNIGHT_F.ID);
+				// Similarly, Amelia's Recruit class has a blue outfit by default when her primary color
+				// should be red. Remove Recruit as well.
+				referenceMap.remove(FE8Data.CharacterClass.RECRUIT.ID);
+				referenceMap.remove(FE8Data.CharacterClass.RECRUIT_2.ID);
+				referenceMap.remove(FE8Data.CharacterClass.SUPER_RECRUIT.ID);
+				
 			}
 			for (FE8Data.Character character : FE8Data.Character.safeCreatureCampaignCharacters) {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(character.ID);
@@ -580,11 +590,13 @@ public class PaletteLoader {
 					Long targetOffset = mapper.getPaletteOffset(unpromotedPaletteID);
 					if (targetOffset == null) { 
 						targetOffset = freeSpace.reserveInternalSpace(compressedBase.length, "Palette 0x" + Integer.toHexString(unpromotedPaletteID), true);
+						DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Setting new target offset for palette ID 0x" + Integer.toHexString(unpromotedPaletteID) + " to 0x" + Long.toHexString(targetOffset));
 						appendedPaletteIDsV2.put(unpromotedPaletteID, change.basePalette);
 					}
 					
 					change.basePalette.overrideOffset(targetOffset);
 					change.basePalette.setIdentifier(unpromotedPaletteID);
+					charData.characterWithID(change.character.getID()).setUnpromotedPaletteIndex(unpromotedPaletteID);
 				}
 				
 				int promotedPaletteID = change.character.getPromotedPaletteIndex();
@@ -596,13 +608,16 @@ public class PaletteLoader {
 					Long targetOffset = mapper.getPaletteOffset(promotedPaletteID);
 					if (targetOffset == null) {
 						targetOffset = freeSpace.reserveInternalSpace(compressedPromotion.length, "Palette 0x" + Integer.toHexString(promotedPaletteID), true);
+						DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Setting new target offset for palette ID 0x" + Integer.toHexString(promotedPaletteID) + " to 0x" + Long.toHexString(targetOffset));
 						appendedPaletteIDsV2.put(promotedPaletteID, change.promotedPalette);
 					}
 					
 					change.promotedPalette.overrideOffset(targetOffset);
 					change.promotedPalette.setIdentifier(promotedPaletteID);
+					charData.characterWithID(change.character.getID()).setPromotedPaletteIndex(promotedPaletteID);
 				}
 			}
+			charData.commit();
 		}
 	}
 	
@@ -647,7 +662,8 @@ public class PaletteLoader {
 				PaletteV2 appendedPalette = appendedPaletteIDsV2.get(appendedPaletteID);
 				long offsetToWriteTo = baseOffset + (appendedPaletteID * entrySize);
 				byte[] bytesToWrite = WhyDoesJavaNotHaveThese.bytesFromAddress(appendedPalette.getDestinationOffset());
-				compiler.addDiff(new Diff(offsetToWriteTo, bytesToWrite.length, bytesToWrite, new byte[] {0, 0, 0, 0}));
+				compiler.addDiff(new Diff(offsetToWriteTo, bytesToWrite.length, bytesToWrite, null));
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "[Palette 0x" + Integer.toHexString(appendedPaletteID) + "] Writing bytes " + WhyDoesJavaNotHaveThese.displayStringForBytes(bytesToWrite) + " to offset 0x" + Long.toHexString(offsetToWriteTo));
 			}
 		}
 	}

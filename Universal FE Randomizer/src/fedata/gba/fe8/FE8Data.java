@@ -117,6 +117,12 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int WorldMapEventItemSize = 4;
 	public static final int WorldMapEventCount = 58;
 	
+	// Fili Shield logic is a hard coded check against the effectiveness pointer of a weapon.
+	// This address it checks against is 0x88ADF2A, which can be found at the following offset
+	// and should be replaced if we create our own effectiveness pointers.
+	public static final long FlierEffectivenessPointer = 0x88ADF2AL;
+	public static final int FiliShieldEffectivenessCheckPointer = 0x16C74;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
@@ -1953,6 +1959,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public CharacterClass[] blacklistedClasses() {
 			switch(this) {
+			case CHAPTER_2:
+				return new CharacterClass[] {CharacterClass.BRIGAND}; // Give Ross/Garcia a chance so that they don't get mobbed by fliers.
 			case CHAPTER_5X:
 				return new CharacterClass[] {CharacterClass.WYVERN_RIDER, CharacterClass.WYVERN_RIDER_F}; // The cutscene after the chapter has wyvern riders flying on screen. Keep those the same.
 			case CHAPTER_6:
@@ -2703,13 +2711,13 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EIRIKA_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7, 8}, new int[] {9, 10, 11}, new int[] {12, 13, 14});
 					break;
 				case EPHRAIM_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {}, new int[] {9, 10}, new int[] {12, 13, 14});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7, 8}, new int[] {12, 13, 14}, new int[] {9, 10}, new int[] {});
 					break;
 				case EPHRAIM_MASTER_LORD:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {}, new int[] {9, 10}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {9, 10}, new int[] {});
 					break;
 				case TRAINEE:
 				case TRAINEE_2:
@@ -2784,13 +2792,15 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case SWORDMASTER:
 				case SWORDMASTER_F:
 				case ARCHER:
-				case ARCHER_F:
 				case SNIPER:
 				case SNIPER_F:
 				case MONK:
 				case PRIEST:
 				case CLERIC:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {});
+					break;
+				case ARCHER_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {8, 9});
 					break;
 				case FIGHTER:
 				case BRIGAND:
@@ -2806,10 +2816,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					break;
 				case CAVALIER:
 				case CAVALIER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 3, 9, 5, 10, 11}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {6, 7}, new int[] {5, 3, 4}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {}, new int[] {});
 					break;
 				case PALADIN_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {5, 3, 4}); // Hair also affects shield. Secondary is mane + shield crest.
@@ -2845,8 +2855,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10, 14}, new int[] {});
 					break;
 				case MAGE:
-				case MAGE_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {8, 9, 10});
+					break;
+				case MAGE_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {8, 9, 10});
 					break;
 				case SAGE:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {8, 9, 10});

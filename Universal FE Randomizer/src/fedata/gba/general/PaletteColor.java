@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
 
 public class PaletteColor implements Comparable<PaletteColor> {
@@ -131,10 +132,16 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		
 		// Remove dupes first, if any.
 		List<PaletteColor> colorsArray = new ArrayList<PaletteColor>();
-		Set<String> uniqueColors = new HashSet<String>();
 		for (PaletteColor color : colors) {
-			if (uniqueColors.contains(color.toHexString())) { continue; }
-			uniqueColors.add(color.toHexString());
+			// Consider any color where the difference between the individual R G B values between two colors is less than
+			// or equal to 24 (one tick of 8 on each channel) to be "identical".
+			if (colorsArray.stream().anyMatch(current -> 
+			(Math.abs(color.getRedValue() - current.getRedValue()) + 
+					Math.abs(color.getGreenValue() - current.getGreenValue()) + 
+					Math.abs(color.getBlueValue() - current.getBlueValue()) <= 24))) {
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Dropping color for being too similar to an existing color: " + color.toHexString());
+				continue;
+			}
 			colorsArray.add(color);
 		}
 					

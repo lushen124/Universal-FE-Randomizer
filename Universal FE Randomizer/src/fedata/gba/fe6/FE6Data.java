@@ -88,6 +88,12 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final int PaletteEntryCount = 130;
 	public static final int PaletteEntrySize = 16;
 	
+	// Delphi Shield logic is a hard coded check against the effectiveness pointer of a weapon.
+	// This address it checks against is 0x86615DB, which can be found at the following offset
+	// and should be replaced if we create our own effectiveness pointers.
+	public static final long FlierEffectivenessPointer = 0x86615DBL;
+	public static final int DelphiShieldEffectivenessCheckPointer = 0x16A84;
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	// These are only valid when patched. The JP ROM does *not* have these.
@@ -2025,7 +2031,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {8, 5, 6}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case CAVALIER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {3, 5});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {});
 					break;
 				case CLERIC:
 				case PRIEST:
