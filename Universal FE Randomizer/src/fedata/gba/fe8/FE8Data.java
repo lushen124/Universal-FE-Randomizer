@@ -17,13 +17,29 @@ import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.general.*;
 import fedata.gba.GBAFECharacterData.Affinity;
+import fedata.gba.fe7.FE7Data.Shops;
+import fedata.gba.general.CharacterNudge;
+import fedata.gba.general.GBAFEChapterMetadataChapter;
+import fedata.gba.general.GBAFECharacter;
+import fedata.gba.general.GBAFECharacterProvider;
+import fedata.gba.general.GBAFEClass;
+import fedata.gba.general.GBAFEClassProvider;
+import fedata.gba.general.GBAFEItem;
+import fedata.gba.general.GBAFEItemProvider;
+import fedata.gba.general.GBAFEPromotionItem;
+import fedata.gba.general.GBAFEShop;
+import fedata.gba.general.GBAFEShopProvider;
+import fedata.gba.general.PaletteColor;
+import fedata.gba.general.PaletteInfo;
+import fedata.gba.general.WeaponRank;
+import fedata.gba.general.WeaponType;
 import random.gba.loader.ItemDataLoader.AdditionalData;
 import random.gba.randomizer.shuffling.GBAFEShufflingDataProvider;
 import random.gba.randomizer.shuffling.data.GBAFEPortraitData;
 import util.AddressRange;
 import util.WhyDoesJavaNotHaveThese;
 
-public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider, GBAFEStatboostProvider {
+public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAFEItemProvider, GBAFEShufflingDataProvider, GBAFETextProvider, GBAFEStatboostProvider, GBAFEShopProvider {
 	public static final String FriendlyName = "Fire Emblem: The Sacred Stones";
 	public static final String GameCode = "BE8E";
 
@@ -119,6 +135,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final GBAFEStatboostProvider statboostProvider = sharedInstance;
 	public static final GBAFEShufflingDataProvider shufflingDataProvider = sharedInstance;
 	public static final GBAFETextProvider textProvider = sharedInstance;
+	public static final GBAFEShopProvider shopProvider = sharedInstance;
 	
 	public enum CharacterAndClassAbility1Mask {
 		USE_MOUNTED_AID(0x1), CANTO(0x2), STEAL(0x4), USE_LOCKPICKS(0x8),
@@ -1217,6 +1234,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allSteelWeapons = new HashSet<Item>(Arrays.asList(STEEL_SWORD, STEEL_LANCE, STEEL_AXE, STEEL_BOW, THUNDER));
 		public static Set<Item> allBasicThrownWeapons = new HashSet<Item>(Arrays.asList(JAVELIN, HAND_AXE));
 		
+		public static Set<Item> vendorItems = new HashSet<Item>(Arrays.asList(CHEST_KEY, DOOR_KEY, LOCKPICK, VULNERARY, PURE_WATER, ANTITOXIN, TORCH));
+		public static Set<Item> legendaryWeapons = new HashSet<Item>(Arrays.asList(AUDHULMA, VIDOFNIR, GARM, NIDHOGG, LATONA, EXCALIBUR, IVALDI, GLEIPNIR, NAGLFAR));
+		
 		public static Set<Item> basicItemsOfType(WeaponType type) {
 			Set<Item> set = new HashSet<Item>();
 			set.addAll(weaponsOfType(type));
@@ -2194,6 +2214,174 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			default:
 				return 0;
 			}
+		}
+	}
+	
+	public enum Shops implements GBAFEShop {
+		
+		CHAPTER_2_ARMORY(0x9E8884L, 0x9ED7CCL),
+		CHAPTER_5_ARMORY(0x9E8BB0L, 0x9ED7D8L),
+		CHAPTER_5_VENDOR(0x9E8BBCL, 0x9ED7EEL),
+		CHAPTER_9A_ARMORY(0x9E9108L, 0x9ED80EL),
+		CHAPTER_9A_VENDOR(0x9E90CCL, 0x9ED7F8L),
+		CHAPTER_10B_ARMORY(0x9EA434L, 0x9ED8CAL),
+		CHAPTER_10B_VENDOR(0x9EA440L, 0x9ED8E2L),
+		CHAPTER_12A_VENDOR(0x9E948CL, 0x9ED826L),
+		CHAPTER_12B_VENDOR(0x9EA67CL, 0x9ED8FAL),
+		CHAPTER_14A_SECRET(0x9E9730L, 0x9ED83EL),
+		CHAPTER_14B_SECRET(0x9EA9ECL, 0x9ED912L),
+		CHAPTER_15A_VENDOR(0x9E992CL, 0x9ED860L),
+		CHAPTER_15B_VENDOR(0x9EAC1CL, 0x9ED934L),
+		CHAPTER_17A_ARMORY(0x9E9C58L, 0x9ED894L),
+		CHAPTER_17A_VENDOR(0x9E9C4CL, 0x9ED87AL),
+		CHAPTER_17B_ARMORY(0x9EAF6CL, 0x9ED968L),
+		CHAPTER_17B_VENDOR(0x9EAF60L, 0x9ED94EL),
+		CHAPTER_19A_SECRET(0x9E9EB8L, 0x9ED8B8L),
+		CHAPTER_19B_SECRET(0x9EB1CCL, 0x9ED98CL),
+		
+		// Map Shops
+		BETHROEN_ARMORY(0x20629CL, 0xA3F00EL),
+		BETHROEN_VENDOR(0x2062A0L, 0xA3F0D2L),
+		CAER_PELYN_VENDOR(0x206220L, 0xA3F0B4L),
+		GRADO_SECRET(0x206324L, 0xA3F1B8L),
+		IDE_ARMORY(0x2060FCL, 0xA3EFB8L),
+		JEHANNA_SECRET(0x206304L, 0xA3F18EL),
+		JEHANNA_VENDOR(0x206320L, 0xA3F10AL),
+		NARUBE_RIVER_ARMORY(0x20635CL, 0xA3F032L),
+		NARUBE_RIVER_VENDOR(0x206360L, 0xA3F12AL),
+		PORT_KIRIS_ARMORY(0x2061DCL, 0xA3EFEAL),
+		PORT_KIRIS_VENDOR(0x2061E0L, 0xA3F096L),
+		RAUSTEN_ARMORY(0x20639CL, 0xA3F050L),
+		RAUSTEN_SECRET(0x2063A4L, 0xA3F1E8L),
+		RAUSTEN_VENDOR(0x2063A0L, 0xA3F144L),
+		SERAFEW_ARMORY(0x20615CL, 0xA3EFCEL),
+		SERAFEW_VENDOR(0x206160L, 0xA3F082L),
+		TAIZEL_VENDOR(0x2062C0L, 0xA3F0EEL)
+		;
+		
+		long pointerOffset;
+		long originalShopAddress;
+		
+		private Shops(final long pointerOffset, final long originalShopList) {
+			this.pointerOffset = pointerOffset;
+			this.originalShopAddress = originalShopList;
+		}
+		
+		public static Set<Shops> allVendors() {
+			return new HashSet<Shops>(Arrays.asList(CHAPTER_5_VENDOR, CHAPTER_9A_VENDOR, CHAPTER_10B_VENDOR, CHAPTER_12A_VENDOR, CHAPTER_12B_VENDOR, CHAPTER_15A_VENDOR, CHAPTER_15B_VENDOR, CHAPTER_17A_VENDOR, CHAPTER_17B_VENDOR,
+					BETHROEN_VENDOR, CAER_PELYN_VENDOR, JEHANNA_VENDOR, NARUBE_RIVER_VENDOR, PORT_KIRIS_VENDOR, RAUSTEN_VENDOR, SERAFEW_VENDOR, TAIZEL_VENDOR));
+		}
+		
+		public static Set<Shops> allArmories() {
+			return new HashSet<Shops>(Arrays.asList(CHAPTER_2_ARMORY, CHAPTER_5_ARMORY, CHAPTER_9A_ARMORY, CHAPTER_10B_ARMORY, CHAPTER_17A_ARMORY, CHAPTER_17B_ARMORY, BETHROEN_ARMORY, IDE_ARMORY, NARUBE_RIVER_ARMORY, PORT_KIRIS_ARMORY,
+					RAUSTEN_ARMORY, SERAFEW_ARMORY));
+		}
+		
+		public static Set<Shops> allSecretShops() {
+			return new HashSet<Shops>(Arrays.asList(CHAPTER_14A_SECRET, CHAPTER_14B_SECRET, CHAPTER_19A_SECRET, CHAPTER_19B_SECRET, GRADO_SECRET, JEHANNA_SECRET, RAUSTEN_SECRET));
+		}
+		
+		public static Set<Shops> allMapShops() {
+			return new HashSet<Shops>(Arrays.asList(BETHROEN_ARMORY, BETHROEN_VENDOR, CAER_PELYN_VENDOR, GRADO_SECRET, IDE_ARMORY, JEHANNA_SECRET, JEHANNA_VENDOR, NARUBE_RIVER_ARMORY, NARUBE_RIVER_VENDOR, PORT_KIRIS_ARMORY, PORT_KIRIS_VENDOR,
+					RAUSTEN_ARMORY, RAUSTEN_VENDOR, RAUSTEN_SECRET, SERAFEW_ARMORY, SERAFEW_VENDOR, TAIZEL_VENDOR));
+		}
+		
+		public static List<Shops> inOrderOfAppearance() {
+			return Arrays.asList(CHAPTER_2_ARMORY, IDE_ARMORY,
+					CHAPTER_5_ARMORY, CHAPTER_5_VENDOR, SERAFEW_ARMORY, SERAFEW_VENDOR,
+					CHAPTER_9A_ARMORY, CHAPTER_9A_VENDOR, PORT_KIRIS_ARMORY, PORT_KIRIS_VENDOR,
+					CHAPTER_10B_ARMORY, CHAPTER_10B_VENDOR, BETHROEN_ARMORY, BETHROEN_VENDOR,
+					CHAPTER_12A_VENDOR, CAER_PELYN_VENDOR,
+					CHAPTER_12B_VENDOR, TAIZEL_VENDOR,
+					CHAPTER_14A_SECRET, JEHANNA_SECRET,
+					CHAPTER_14B_SECRET, GRADO_SECRET,
+					CHAPTER_15A_VENDOR, CHAPTER_15B_VENDOR, JEHANNA_VENDOR,
+					CHAPTER_17A_ARMORY, CHAPTER_17B_ARMORY, CHAPTER_17A_VENDOR, CHAPTER_17B_VENDOR, NARUBE_RIVER_ARMORY, NARUBE_RIVER_VENDOR,
+					CHAPTER_19A_SECRET,
+					CHAPTER_19B_SECRET,
+					RAUSTEN_ARMORY,
+					RAUSTEN_VENDOR, RAUSTEN_SECRET);
+		}
+		
+		public GameStage getGameStage() {
+			switch (this) {
+			case CHAPTER_2_ARMORY:
+			case IDE_ARMORY:
+			case CHAPTER_5_ARMORY:
+			case CHAPTER_5_VENDOR:
+			case SERAFEW_ARMORY:
+			case SERAFEW_VENDOR:
+				return GameStage.EARLY;
+			case CHAPTER_9A_ARMORY:
+			case CHAPTER_9A_VENDOR:
+			case PORT_KIRIS_ARMORY:
+			case PORT_KIRIS_VENDOR:
+			case CHAPTER_10B_ARMORY:
+			case CHAPTER_10B_VENDOR:
+			case BETHROEN_ARMORY:
+			case BETHROEN_VENDOR:
+			case CHAPTER_12A_VENDOR:
+			case CAER_PELYN_VENDOR:
+			case CHAPTER_12B_VENDOR:
+			case TAIZEL_VENDOR:
+			case CHAPTER_14A_SECRET:
+			case JEHANNA_SECRET:
+			case CHAPTER_14B_SECRET:
+			case GRADO_SECRET:
+				return GameStage.MID;
+			case CHAPTER_15A_VENDOR:
+			case CHAPTER_15B_VENDOR:
+			case JEHANNA_VENDOR:
+			case CHAPTER_17A_ARMORY:
+			case CHAPTER_17B_ARMORY:
+			case CHAPTER_17A_VENDOR:
+			case CHAPTER_17B_VENDOR:
+			case NARUBE_RIVER_ARMORY:
+			case NARUBE_RIVER_VENDOR:
+			case CHAPTER_19A_SECRET:
+			case CHAPTER_19B_SECRET:
+			case RAUSTEN_ARMORY:
+			case RAUSTEN_VENDOR:
+			case RAUSTEN_SECRET:
+				return GameStage.LATE;
+			}
+			
+			return GameStage.LATE;
+		}
+		
+		public Set<GBAFEShop> groupedShops() {
+			switch (this) {
+			case BETHROEN_ARMORY:
+			case IDE_ARMORY:
+			case NARUBE_RIVER_ARMORY:
+			case PORT_KIRIS_ARMORY:
+			case RAUSTEN_ARMORY:
+			case SERAFEW_ARMORY:
+				return new HashSet<GBAFEShop>(Arrays.asList(BETHROEN_ARMORY, IDE_ARMORY, NARUBE_RIVER_ARMORY, PORT_KIRIS_ARMORY, RAUSTEN_ARMORY, SERAFEW_ARMORY));
+			case BETHROEN_VENDOR:
+			case CAER_PELYN_VENDOR:
+			case JEHANNA_VENDOR:
+			case NARUBE_RIVER_VENDOR:
+			case PORT_KIRIS_VENDOR:
+			case RAUSTEN_VENDOR:
+			case SERAFEW_VENDOR:
+			case TAIZEL_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(BETHROEN_VENDOR, CAER_PELYN_VENDOR, JEHANNA_VENDOR, NARUBE_RIVER_VENDOR, PORT_KIRIS_VENDOR, RAUSTEN_VENDOR, SERAFEW_VENDOR, TAIZEL_VENDOR));
+			case JEHANNA_SECRET:
+			case GRADO_SECRET:
+			case RAUSTEN_SECRET:
+				return new HashSet<GBAFEShop>(Arrays.asList(JEHANNA_SECRET, GRADO_SECRET, RAUSTEN_SECRET));
+			default:
+				return new HashSet<GBAFEShop>(Arrays.asList(this));
+			}
+		}
+		
+		public long getPointerOffset() {
+			return pointerOffset;
+		}
+		
+		public long getOriginalShopAddress() {
+			return originalShopAddress;
 		}
 	}
 	
@@ -3255,6 +3443,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		return new HashSet<GBAFEItem>(equalRankWeapons);
 	}
 	
+	public Set<GBAFEItem> weaponsOfRank(WeaponRank rank) {
+		return new HashSet<GBAFEItem>(Item.weaponsOfRank(rank));
+	}
+	
 	public Set<GBAFEItem> healingStaves(WeaponRank maxRank) {
 		Set<Item> staves = Item.allHealingStaves;
 		return new HashSet<GBAFEItem>(staves);
@@ -3593,6 +3785,49 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> rareDrops() {
 		return new HashSet<GBAFEItem>(Item.rareDrops);
+	}
+	
+	public Set<GBAFEItem> vendorItems(boolean rare) {
+		Set<GBAFEItem> items = new HashSet<GBAFEItem>(Item.vendorItems);
+		if (rare) {
+			items.add(Item.ELIXIR);
+			items.add(Item.CHEST_KEY_5);
+		}
+		
+		return items;
+	}
+	
+	public Set<GBAFEItem> secretItems() {
+		Set<GBAFEItem> items = new HashSet<GBAFEItem>();
+		items.addAll(Item.allPromotionItems);
+		items.addAll(Item.killerSet);
+		items.addAll(Item.braveSet);
+		items.addAll(Item.reaverSet);
+		items.addAll(Item.allSiegeTomes);
+		items.add(Item.ELIXIR);
+		items.add(Item.RESCUE);
+		items.add(Item.FORTIFY);
+		items.add(Item.PHYSIC);
+		items.add(Item.RAPIER);
+		items.add(Item.REGINLEIF);
+		items.add(Item.WIND_SWORD);
+		items.add(Item.LIGHT_BRAND);
+		items.removeAll(Item.allMonsterWeapons);
+		return items;
+	}
+	
+	public Set<GBAFEItem> rareSecretItems() {
+		Set<GBAFEItem> items = new HashSet<GBAFEItem>();
+		items.addAll(Item.allStatBoosters);
+		items.add(Item.HAMMERNE);
+		items.add(Item.WARP);
+		items.add(Item.RUNE_SWORD);
+		items.removeAll(Item.allMonsterWeapons);
+		return items;
+	}
+	
+	public Set<GBAFEItem> disallowedWeaponsInShops() {
+		return new HashSet<GBAFEItem>(Item.legendaryWeapons);
 	}
 	
 	public String statBoostStringForWeapon(GBAFEItem weapon) {
@@ -3967,5 +4202,29 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	@Override
 	public int getNumberEntries() {
 		return 23;
+	}
+	
+	public Set<GBAFEShop> allShops() {
+		return new HashSet<GBAFEShop>(Arrays.asList(Shops.values()));
+	}
+	
+	public Set<GBAFEShop> allVendors() {
+		return new HashSet<GBAFEShop>(Shops.allVendors());
+	}
+	
+	public Set<GBAFEShop> allArmories() {
+		return new HashSet<GBAFEShop>(Shops.allArmories());
+	}
+	
+	public Set<GBAFEShop> allSecretShops() {
+		return new HashSet<GBAFEShop>(Shops.allSecretShops());
+	}
+	
+	public List<GBAFEShop> orderedShops() {
+		return new ArrayList<GBAFEShop>(Shops.inOrderOfAppearance());
+	}
+	
+	public Boolean isMapShop(GBAFEShop shop) {
+		return Shops.allMapShops().contains(shop);
 	}
 }

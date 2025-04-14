@@ -56,6 +56,7 @@ public class GBARandomizer extends Randomizer {
 	private ItemAssignmentOptions itemAssignmentOptions;
 	private CharacterShufflingOptions shufflingOptions;
 	private PrfOptions prfs;
+	private ShopOptions shopOptions;
 	
 	private CharacterDataLoader charData;
 	private ClassDataLoader classData;
@@ -65,6 +66,7 @@ public class GBARandomizer extends Randomizer {
 	private PaletteLoader paletteData;
 	private TextLoader textData;
 	private PortraitDataLoader portraitData;
+	private ShopLoader shopData;
 	
 	private boolean needsPaletteFix;
 	private Map<GBAFECharacterData, GBAFECharacterData> characterMap; // valid with random recruitment. Maps slots to reference character.
@@ -86,7 +88,7 @@ public class GBARandomizer extends Randomizer {
 			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions,
 			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, StatboosterOptions statboosterOptions, 
-			RewardOptions rewards, PrfOptions prfs, String seed) {
+			RewardOptions rewards, PrfOptions prfs, ShopOptions shopOptions, String seed) {
 		super();
 		this.sourcePath = sourcePath;
 		this.targetPath = targetPath;
@@ -107,6 +109,7 @@ public class GBARandomizer extends Randomizer {
 		this.shufflingOptions = shufflingOptions;
 		this.rewardOptions = rewards;
 		this.prfs = prfs;
+		this.shopOptions = shopOptions;
 		if (itemAssignmentOptions == null) { itemAssignmentOptions = new ItemAssignmentOptions(WeaponReplacementPolicy.ANY_USABLE, ShopAdjustment.NO_CHANGE, false, false); }
 		
 		this.gameType = gameType;
@@ -180,7 +183,9 @@ public class GBARandomizer extends Randomizer {
 		charData.recordCharacters(recordKeeper, true, classData, itemData, textData);
 		classData.recordClasses(recordKeeper, true, classData, textData);
 		itemData.recordWeapons(recordKeeper, true, classData, textData, handler);
+		itemData.recordItems(recordKeeper, true, textData, handler);
 		chapterData.recordChapters(recordKeeper, true, charData, classData, itemData, textData);
+		shopData.recordShopData(recordKeeper, true, itemData, textData);
 		
 		paletteData.recordReferencePalettes(recordKeeper, charData, classData, textData);
 		statboostData.recordInitial(recordKeeper, itemData, statboosterOptions);
@@ -197,6 +202,8 @@ public class GBARandomizer extends Randomizer {
 		try { randomizeBasesIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing bases.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.55);
 		try { randomizeWeaponsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing weapons.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
+		updateProgress(0.58);
+		try { randomizeShopsIfNessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing shops.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n",  Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.60);
 		try { randomizeOtherCharacterTraitsIfNecessary(seed); } catch (Exception e) { notifyError("Encountered error while randomizing other character traits.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 		updateProgress(0.65);
@@ -215,6 +222,7 @@ public class GBARandomizer extends Randomizer {
 		chapterData.compileDiffs(diffCompiler);
 		classData.compileDiffs(diffCompiler, handler, freeSpace);
 		itemData.compileDiffs(diffCompiler, handler);
+		shopData.compileDiffs(diffCompiler);
 		paletteData.compileDiffs(diffCompiler);
 		textData.commitChanges(freeSpace, diffCompiler);
 		portraitData.compileDiffs(diffCompiler);
@@ -266,8 +274,10 @@ public class GBARandomizer extends Randomizer {
 		charData.recordCharacters(recordKeeper, false, classData, itemData, textData);
 		classData.recordClasses(recordKeeper, false, classData, textData);
 		itemData.recordWeapons(recordKeeper, false, classData, textData, targetFileHandler);
+		itemData.recordItems(recordKeeper, false, textData, targetFileHandler);
 		chapterData.recordChapters(recordKeeper, false, charData, classData, itemData, textData);
 		statboostData.recordUpdated(recordKeeper, itemData, statboosterOptions);
+		shopData.recordShopData(recordKeeper, false, itemData, textData);
 		
 		if (gameType == FEBase.GameType.FE8) {
 			paletteData.recordUpdatedFE8Palettes(recordKeeper, charData, classData, textData);
@@ -338,6 +348,9 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Loading Item Data...");
 		updateProgress(0.25);
 		itemData = new ItemDataLoader(FE7Data.itemProvider, handler, freeSpace);
+		updateStatusString("Loading Shop Data...");
+		updateProgress(0.27);
+		shopData = new ShopLoader(FE7Data.shopProvider, FE7Data.itemProvider, itemData, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE7, handler, charData, classData);
@@ -376,6 +389,9 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Loading Item Data...");
 		updateProgress(0.25);
 		itemData = new ItemDataLoader(FE6Data.itemProvider, handler, freeSpace);
+		updateStatusString("Loading Shop Data...");
+		updateProgress(0.27);
+		shopData = new ShopLoader(FE6Data.shopProvider, FE6Data.itemProvider, itemData, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE6, handler, charData, classData);
@@ -418,6 +434,9 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Loading Item Data...");
 		updateProgress(0.25);
 		itemData = new ItemDataLoader(FE8Data.itemProvider, handler, freeSpace);
+		updateStatusString("Loading Shop Data...");
+		updateProgress(0.27);
+		shopData = new ShopLoader(FE8Data.shopProvider, FE8Data.itemProvider, itemData, handler, freeSpace);
 		updateStatusString("Loading Palette Data...");
 		updateProgress(0.30);
 		paletteData = new PaletteLoader(FEBase.GameType.FE8, handler, charData, classData);
@@ -532,6 +551,14 @@ public class GBARandomizer extends Randomizer {
 				Random rng = new Random(SeedGenerator.generateSeedValue(seed, WeaponsRandomizer.rngSalt + 4));
 				WeaponsRandomizer.randomizeEffects(weapons.effectsList, itemData, textData, weapons.noEffectIronWeapons, weapons.noEffectSteelWeapons, weapons.noEffectThrownWeapons, weapons.effectChance, rng);
 			}
+		}
+	}
+	
+	private void randomizeShopsIfNessary(String seed) {
+		if (shopOptions != null) {
+			updateStatusString("Randomizing Shops...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, ShopRandomizer.rngSalt));
+			ShopRandomizer.randomizeShops(shopData, itemData, false, false, shopOptions.shopSize.minValue, shopOptions.shopSize.maxValue, rng);
 		}
 	}
 	
@@ -2635,19 +2662,29 @@ public class GBARandomizer extends Randomizer {
 		
 
 		if(shufflingOptions != null) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(String.format("Leveling Mode: %s", shufflingOptions.getLevelingMode() == ShuffleLevelingMode.AUTOLEVEL ? "autolevel characters": "leave characters unchanged")).append("<br>");
-			sb.append(String.format("Shuffle chance: %d%%", shufflingOptions.getChance())).append("<br>");
-			sb.append(shufflingOptions.shouldChangeDescription() ? "Description will be changed" : "Description will be left unchanged").append("<br>");
-			sb.append("Included configurations:<br>");
-			for (String s : shufflingOptions.getIncludedShuffles()) {
-				sb.append(s).append("<br>");
+			if (shufflingOptions.isShuffleEnabled()) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(String.format("Leveling Mode: %s", shufflingOptions.getLevelingMode() == ShuffleLevelingMode.AUTOLEVEL ? "autolevel characters": "leave characters unchanged")).append("<br>");
+				sb.append(String.format("Shuffle chance: %d%%", shufflingOptions.getChance())).append("<br>");
+				sb.append(shufflingOptions.shouldChangeDescription() ? "Description will be changed" : "Description will be left unchanged").append("<br>");
+				sb.append("Included configurations:<br>");
+				for (String s : shufflingOptions.getIncludedShuffles()) {
+					sb.append(s).append("<br>");
+				}
+				rk.addHeaderItem("Character Shuffling", sb.toString());
+			} else {
+				rk.addHeaderItem("Character Shuffling", "NO");
 			}
-			rk.addHeaderItem("Character Shuffling", sb.toString());
 		}
 		
 		if (statboosterOptions != null) {
 			statboosterOptions.record(rk);
+		}
+		
+		if (shopOptions != null) {
+			rk.addHeaderItem("Randomize Shops", "YES (" + shopOptions.shopSize.minValue + " ~ " + shopOptions.shopSize.maxValue + " items)");
+		} else {
+			rk.addHeaderItem("Randomize Shops", "NO");
 		}
 		
 		return rk;
