@@ -13,15 +13,15 @@ import random.general.NormalDistributor.Bucket;
 public class NormalDistributor {
 	
 	public static List<Bucket> topBuckets = Arrays.asList(Bucket.EXCELLENT, Bucket.GOOD, Bucket.AVERAGE);
-	public static List<Bucket> bottomBuckets = Arrays.asList(Bucket.ABYSMAL, Bucket.BAD, Bucket.AVERAGE, Bucket.GOOD);
+	public static List<Bucket> bottomBuckets = Arrays.asList(Bucket.ABYSMAL, Bucket.BAD, Bucket.AVERAGE);
 	public static List<Bucket> allBuckets = Arrays.asList(Bucket.EXCELLENT, Bucket.GOOD, Bucket.AVERAGE, Bucket.BAD, Bucket.ABYSMAL);
 	public static List<Bucket> notAbysmal = Arrays.asList(Bucket.EXCELLENT, Bucket.GOOD, Bucket.AVERAGE, Bucket.BAD);
 	
 	public enum Bucket {
 		ABYSMAL, // Bottom 5% (1 / 20)
-		BAD, // 5% - 35% (6 / 20)
-		AVERAGE, // 35% - 65% (6 / 20) (+ whatever remainder didn't sort evenly into the other buckets)
-		GOOD, // 65 - 95% (6 / 20)
+		BAD, // 5% - 30% (5 / 20)
+		AVERAGE, // 30% - 70% (8 / 20) (+ whatever remainder didn't sort evenly into the other buckets)
+		GOOD, // 70 - 95% (5 / 20)
 		EXCELLENT // Top 5% (1 / 20)
 	}
 	
@@ -57,18 +57,18 @@ public class NormalDistributor {
 		}
 		else {
 			float itemsPer5 = (float)size / 20f;
-			int itemsPerBucket = (int)Math.floor(itemsPer5 * 6);
+			int itemsPerGoodBadBucket = (int)Math.floor(itemsPer5 * 5);
 			int usedFrontIndex = 0;
 			int usedBackIndex = allValues.size();
-			int extremeCount = itemsPer5 < 1 ? 1 : (int)Math.floor(itemsPer5);
-			abysmalValues.addAll(allValues.subList(usedFrontIndex, extremeCount));
-			excellentValues.addAll(allValues.subList(usedBackIndex - extremeCount, usedBackIndex));
-			usedFrontIndex += extremeCount;
-			usedBackIndex -= extremeCount;
-			badValues.addAll(allValues.subList(usedFrontIndex, usedFrontIndex + itemsPerBucket));
-			goodValues.addAll(allValues.subList(usedBackIndex - itemsPerBucket, usedBackIndex));
-			usedFrontIndex += itemsPerBucket;
-			usedBackIndex -= itemsPerBucket;
+			int itemsPerExtremeBucket = itemsPer5 < 1 ? 1 : (int)Math.floor(itemsPer5 * 1);
+			abysmalValues.addAll(allValues.subList(usedFrontIndex, itemsPerExtremeBucket));
+			excellentValues.addAll(allValues.subList(usedBackIndex - itemsPerExtremeBucket, usedBackIndex));
+			usedFrontIndex += itemsPerExtremeBucket;
+			usedBackIndex -= itemsPerExtremeBucket;
+			badValues.addAll(allValues.subList(usedFrontIndex, usedFrontIndex + itemsPerGoodBadBucket));
+			goodValues.addAll(allValues.subList(usedBackIndex - itemsPerGoodBadBucket, usedBackIndex));
+			usedFrontIndex += itemsPerGoodBadBucket;
+			usedBackIndex -= itemsPerGoodBadBucket;
 			// Everything else goes into the average bucket.
 			averageValues.addAll(allValues.subList(usedFrontIndex, usedBackIndex));
 		}
@@ -81,14 +81,16 @@ public class NormalDistributor {
 			int randomNum = rng.nextInt(20); // 0 ~ 19
 			if (randomNum == 0 && allowedBuckets.contains(Bucket.ABYSMAL)) {
 				return getRandomValue(Bucket.ABYSMAL, rng);
-			} else if (randomNum <= 6 && allowedBuckets.contains(Bucket.BAD)) {
+			} else if (randomNum <= 5 && allowedBuckets.contains(Bucket.BAD)) {
 				return getRandomValue(Bucket.BAD, rng);
-			} else if (randomNum <= 12 && allowedBuckets.contains(Bucket.AVERAGE)) {
+			} else if (randomNum <= 13 && allowedBuckets.contains(Bucket.AVERAGE)) {
 				return getRandomValue(Bucket.AVERAGE, rng);
 			} else if (randomNum <= 18 && allowedBuckets.contains(Bucket.GOOD)) {
 				return getRandomValue(Bucket.GOOD, rng);
 			} else if (allowedBuckets.contains(Bucket.EXCELLENT)) {
 				return getRandomValue(Bucket.EXCELLENT, rng);
+			} else {
+				// They rolled excellent, but were banned from it. Just re-roll.
 			}
 		}
 	}

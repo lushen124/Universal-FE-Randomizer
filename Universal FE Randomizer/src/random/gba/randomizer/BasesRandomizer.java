@@ -43,7 +43,7 @@ public class BasesRandomizer {
 			// Class Base HP is pretty bad all around, so we'll skew this upward with a range between 0 and characters level or +5, whichever is greater.
 			// So a level 1 character will get a bonus of 0 ~ 5 and a level 10 character will get a bonus of 0 ~ 10
 			NormalDistributor hpDistributor = new NormalDistributor(0, Math.max(startingLevel, 5), 1);
-			// Most normal stats can range from +0 to +6
+			// Most normal stats can range from -2 to +4
 			NormalDistributor statDistributor = new NormalDistributor(-2, 4, 1);
 			if (isPromoted) {
 				// Promoted class bases are so bad, we are going to shift the stat distributor for most stats upward to compensate.

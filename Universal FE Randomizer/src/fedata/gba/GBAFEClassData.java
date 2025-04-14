@@ -139,8 +139,14 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		return new GBAFEStatDto(getHPGrowth(), getSTRGrowth(), getSKLGrowth(), getSPDGrowth(), getDEFGrowth(), getRESGrowth(), getLCKGrowth());
 	}
 	
-	public List<GBAFEStatDto.Stat> getGrowthStatOrder() {
-		return getGrowths().orderedStats();
+	// Defense growths are generally lower than offense growths, so this helps to adjust that slightly.
+	public List<GBAFEStatDto.Stat> getGrowthStatOrder(boolean adjustDefenses) {
+		GBAFEStatDto growths = getGrowths();
+		if (adjustDefenses) {
+			growths.def += 5;
+			growths.res += 5;
+		}
+		return growths.orderedStats();
 	}
 	
 	public int getBaseHP() {
