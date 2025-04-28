@@ -22,7 +22,17 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	public static final Comparator<PaletteColor> lowToHighBrightnessComparator = new Comparator<PaletteColor>() {
 		@Override
 		public int compare(PaletteColor o1, PaletteColor o2) {
-			return o1.brightness > o2.brightness ? WhyDoesJavaNotHaveThese.ComparatorResult.FIRST_GREATER.returnValue() : WhyDoesJavaNotHaveThese.ComparatorResult.SECOND_GREATER.returnValue();
+//			return o1.brightness > o2.brightness ? WhyDoesJavaNotHaveThese.ComparatorResult.FIRST_GREATER.returnValue() : WhyDoesJavaNotHaveThese.ComparatorResult.SECOND_GREATER.returnValue();
+			// Assuming we're dealing with similar hues, we can just sum up the channels and use that as a relative "brightness" value. The higher values are brighter.
+			return (o1.getRedValue() + o1.getGreenValue() + o1.getBlueValue()) - (o2.getRedValue() + o2.getGreenValue() + o2.getBlueValue());
+		}
+	};
+	
+	public static final Comparator<PaletteColor> highToLowBrightnessComparator = new Comparator<PaletteColor>() {
+		@Override
+		public int compare(PaletteColor o1, PaletteColor o2) {
+//			return o1.brightness < o2.brightness ? WhyDoesJavaNotHaveThese.ComparatorResult.FIRST_GREATER.returnValue() : WhyDoesJavaNotHaveThese.ComparatorResult.SECOND_GREATER.returnValue();
+			return (o2.getRedValue() + o2.getGreenValue() + o2.getBlueValue()) - (o1.getRedValue() + o1.getGreenValue() + o1.getBlueValue());
 		}
 	};
 	
@@ -110,6 +120,8 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		red = (double) WhyDoesJavaNotHaveThese.clamp(8 * Integer.parseInt(rByte, 2), 0, 255) / 255.0;
 		green = (double) WhyDoesJavaNotHaveThese.clamp(8 * Integer.parseInt(gByte, 2), 0, 255) / 255.0;
 		blue = (double) WhyDoesJavaNotHaveThese.clamp(8 * Integer.parseInt(bByte, 2), 0, 255) / 255.0;
+		
+		calculateValuesWithRGB();
 	}
 	
 	public boolean isSameAsColor(PaletteColor otherColor) {
@@ -127,7 +139,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 						getBlueValue() < 16 ? "0" + Integer.toHexString(getBlueValue()) : Integer.toHexString(getBlueValue()));
 	}
 	
-	public static PaletteColor[] coerceColors(PaletteColor[] colors, int numberOfColors) {
+	public static PaletteColor[] coerceColors(PaletteColor[] colors, int numberOfColors, boolean favorDarkerColors) {
 		if (numberOfColors == 0) { return new PaletteColor[] {}; }
 		
 		// Remove dupes first, if any.
@@ -144,12 +156,14 @@ public class PaletteColor implements Comparable<PaletteColor> {
 			}
 			colorsArray.add(color);
 		}
+		
+		colorsArray.sort(PaletteColor.highToLowBrightnessComparator);
 					
 		if (colorsArray.size() == numberOfColors) { return colorsArray.toArray(new PaletteColor[colorsArray.size()]); }
 		else if (colorsArray.size() > numberOfColors) {
 			PaletteColor[] uniqueColorArray = colorsArray.toArray(new PaletteColor[colorsArray.size()]);
 			if (colorsArray.size() == numberOfColors) { return uniqueColorArray; }
-			else if (colorsArray.size() > numberOfColors) { return reduceColors(uniqueColorArray, numberOfColors); }
+			else if (colorsArray.size() > numberOfColors) { return reduceColors(uniqueColorArray, numberOfColors, favorDarkerColors); }
 			else { 
 				if (colorsArray.isEmpty()) { return new PaletteColor[] {}; }
 				else if (colorsArray.size() == 1) {
@@ -217,18 +231,37 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		return newColors;
 	}
 	
-	private static PaletteColor[] reduceColors(PaletteColor[] colors, int numberOfColors) {
-		int numberOfColorsToRemove = colors.length - numberOfColors;
-		int indexDelta = colors.length / (numberOfColorsToRemove + 1);
+	private static PaletteColor[] reduceColors(PaletteColor[] colors, int numberOfColors, boolean favorDarkerColors) {
+//		int numberOfColorsToRemove = colors.length - numberOfColors;
+//		int indexDelta = colors.length / (numberOfColorsToRemove + 1);
+//		
+//		int currentIndex = colors.length - 1;
+//		List<PaletteColor> result = new ArrayList<PaletteColor>(Arrays.asList(colors));
+//		for (int i = 0; i < numberOfColorsToRemove; i++) {
+//			currentIndex -= indexDelta;
+//			result.remove(currentIndex);
+//		}
+//		
+//		return result.toArray(new PaletteColor[result.size()]);
 		
-		int currentIndex = colors.length - 1;
-		List<PaletteColor> result = new ArrayList<PaletteColor>(Arrays.asList(colors));
-		for (int i = 0; i < numberOfColorsToRemove; i++) {
-			currentIndex -= indexDelta;
-			result.remove(currentIndex);
+		// Just return the first n number of colors needed. This biases towards lighter colors.
+		// Should be ok if we've removed dupes before this step.
+		if (colors.length <= numberOfColors) {
+			return colors;
 		}
 		
-		return result.toArray(new PaletteColor[result.size()]);
+		PaletteColor[] newColors = new PaletteColor[numberOfColors];
+		if (favorDarkerColors) {
+			for (int i = 0; i < numberOfColors; i++) {
+				newColors[i] = colors[colors.length - 1 - i];
+			}
+		} else {
+			for (int i = 0; i < numberOfColors; i++) {
+				newColors[i] = colors[i];
+			}
+		}
+		
+		return newColors;
 	}
 	
 	private static PaletteColor darkerColor(PaletteColor referenceColor) {

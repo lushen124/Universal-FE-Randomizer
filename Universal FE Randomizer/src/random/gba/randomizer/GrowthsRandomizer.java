@@ -29,13 +29,22 @@ public class GrowthsRandomizer {
 		
 		charactersData.commit();
 		
-		NormalDistributor hpDistributor = new NormalDistributor(45, 100, 5);
-		NormalDistributor powDistributor = new NormalDistributor(20, 80, 5);
-		NormalDistributor sklDistributor = new NormalDistributor(20, 80, 5);
-		NormalDistributor spdDistributor = new NormalDistributor(20, 80, 5);
-		NormalDistributor lckDistributor = new NormalDistributor(20, 80, 5);
-		NormalDistributor defDistributor = new NormalDistributor(5, 50, 5);
-		NormalDistributor resDistributor = new NormalDistributor(5, 50, 5);
+		NormalDistributor unpromotedHpDistributor = new NormalDistributor(45, 100, 5);
+		NormalDistributor unpromotedPowDistributor = new NormalDistributor(15, 70, 5);
+		NormalDistributor unpromotedSklDistributor = new NormalDistributor(15, 70, 5);
+		NormalDistributor unpromotedSpdDistributor = new NormalDistributor(15, 70, 5);
+		NormalDistributor unpromotedLckDistributor = new NormalDistributor(15, 70, 5);
+		NormalDistributor unpromotedDefDistributor = new NormalDistributor(15, 45, 5);
+		NormalDistributor unpromotedResDistributor = new NormalDistributor(15, 45, 5);
+		
+		// Promoted units generally get less growths, so adjust that at the distributor level.
+		NormalDistributor promotedHpDistributor = new NormalDistributor(35, 80, 5);
+		NormalDistributor promotedPowDistributor = new NormalDistributor(10, 50, 5);
+		NormalDistributor promotedSklDistributor = new NormalDistributor(10, 50, 5);
+		NormalDistributor promotedSpdDistributor = new NormalDistributor(10, 50, 5);
+		NormalDistributor promotedLckDistributor = new NormalDistributor(10, 50, 5);
+		NormalDistributor promotedDefDistributor = new NormalDistributor(5, 30, 5);
+		NormalDistributor promotedResDistributor = new NormalDistributor(5, 30, 5);
 		
 		for (GBAFECharacterData character : allPlayableCharacters) {
 			if (character.wasModified()) {
@@ -46,9 +55,19 @@ public class GrowthsRandomizer {
 			// They're low, but they should be relatively consistent to how the
 			// class behaves.
 			GBAFEClassData charClass = classData.classForID(character.getClassID());
+
+			boolean isPromoted = classData.isPromotedClass(charClass.getID());
+			NormalDistributor hpDistributor = isPromoted ? promotedHpDistributor : unpromotedHpDistributor;
+			NormalDistributor powDistributor = isPromoted ? promotedPowDistributor : unpromotedPowDistributor;
+			NormalDistributor sklDistributor = isPromoted ? promotedSklDistributor : unpromotedSklDistributor;
+			NormalDistributor spdDistributor = isPromoted ? promotedSpdDistributor : unpromotedSpdDistributor;
+			NormalDistributor lckDistributor = isPromoted ? promotedLckDistributor : unpromotedLckDistributor;
+			NormalDistributor defDistributor = isPromoted ? promotedDefDistributor : unpromotedDefDistributor;
+			NormalDistributor resDistributor = isPromoted ? promotedResDistributor : unpromotedResDistributor;
+			
 			List<GBAFEStatDto.Stat> statOrder = charClass.getGrowthStatOrder(true);
 			// The highest two stats for the class are guaranteed to be at least average. (index 0 or 1)
-			// The lowest two stats for the class cannot be excellent. (index 5 or 6)
+			// The lowest two stats for the class cannot be excellent or good. (index 5 or 6)
 			statOrder.remove(Stat.HP); // HP excluded
 			
 			int newHPGrowth = hpDistributor.getRandomValue(rng, NormalDistributor.allBuckets);

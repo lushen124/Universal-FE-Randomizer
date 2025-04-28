@@ -9,6 +9,7 @@ import fedata.gba.GBAFEStatDto;
 import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponRanks;
 import fedata.gba.general.WeaponType;
+import fedata.general.FEBase.GameType;
 import random.gba.loader.ClassDataLoader;
 import random.gba.loader.ItemDataLoader;
 import random.gba.loader.TextLoader;
@@ -204,9 +205,9 @@ public class GBASlotAdjustmentService {
 	 * @param targetClass the targetClass that the character is now
 	 * @param rng rng to decide what rank will be chosen for which weapon type, assuming there is more than one option
 	 */
-	public static void transferWeaponRanks(GBAFECharacterData slot, GBAFEClassData sourceClass, GBAFEClassData targetClass, Random rng) {
+	public static void transferWeaponRanks(GBAFECharacterData slot, GBAFEClassData sourceClass, GBAFEClassData targetClass, GameType type, Random rng) {
 		WeaponRanks weaponRanks = new WeaponRanks(slot, sourceClass);
-		WeaponRanks targetClassRanks = targetClass.getWeaponRanks();
+		WeaponRanks targetClassRanks = targetClass.getWeaponRanks(true, type);
 
 		List<WeaponRank> rankValues = weaponRanks.asList().stream()
 				.filter(rank -> !WeaponRank.NONE.equals(rank))
@@ -218,7 +219,7 @@ public class GBASlotAdjustmentService {
 			return;
 		}
 
-		int targetWeaponUsage = targetClass.getWeaponRanks().getTypes().size();
+		int targetWeaponUsage = targetClass.getWeaponRanks(true, type).getTypes().size();
 
 		while (rankValues.size() > targetWeaponUsage) {
 			rankValues.remove(0); // Remove the lowest rank if we're filling less weapons than we have to work with.

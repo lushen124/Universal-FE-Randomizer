@@ -44,6 +44,10 @@ public class FE6Item implements GBAFEItemData {
 		this.originalOffset = originalOffset;
 	}
 	
+	public static int getIDFromItemData(byte[] itemData) {
+		return itemData[6] & 0xFF;
+	}
+	
 	public void initializeDisplayString(String debugString) {
 		this.debugString = debugString;
 	}
@@ -129,6 +133,23 @@ public class FE6Item implements GBAFEItemData {
 	public String getAbility4Description(String delimiter) {
 		return "N/A";
 	}
+	
+	public boolean hasAbilityOrEffect(String abilityEffectString) {
+		FE6Data.Item.Ability1Mask ability1Mask = FE6Data.Item.Ability1Mask.maskForDisplayString(abilityEffectString);
+		if (ability1Mask != null) {
+			return ((byte)getAbility1() & (byte)ability1Mask.ID) != 0;
+		}
+		FE6Data.Item.Ability2Mask ability2Mask = FE6Data.Item.Ability2Mask.maskForDisplayString(abilityEffectString);
+		if (ability2Mask != null) {
+			return ((byte)getAbility2() & (byte)ability2Mask.ID) != 0;
+		}
+		FE6Data.Item.WeaponEffect weaponEffect = FE6Data.Item.WeaponEffect.effectForDisplayString(abilityEffectString);
+		if (weaponEffect != null) {
+			return (byte)getWeaponEffect() == (byte)weaponEffect.ID;
+		}
+		
+		return false;
+	}
 
 	public long getStatBonusPointer() {
 		return (data[12] & 0xFF) | ((data[13] << 8) & 0xFF00) | ((data[14] << 16) & 0xFF0000) | ((data[15] << 24) & 0xFF000000) ;
@@ -212,6 +233,12 @@ public class FE6Item implements GBAFEItemData {
 				return WeaponRank.NONE;
 			}
 		}
+	}
+	
+	public void setWeaponRank(WeaponRank newRank) {
+		int rankValue = FE6Data.Item.FE6WeaponRank.rankFromGeneralRank(newRank).value;
+		data[28] = (byte)(rankValue & 0xFF);
+		wasModified = true;
 	}
 
 	public boolean hasWeaponEffect() {
@@ -569,7 +596,12 @@ public class FE6Item implements GBAFEItemData {
 			ability1 |= FE6Data.Item.Ability1Mask.UNBREAKABLE.ID;
 		}
 		data[8] = (byte)(ability1 & 0xFF);
-		data[9] = (byte)(FE6Data.Item.Ability2Mask.LORD_LOCK.ID & 0xFF);
+		// If the weapon is still a sword, then we need to use a different lock than the Rapier.
+		if (weaponType == WeaponType.SWORD) {
+			data[9] = (byte)(FE6Data.Item.Ability2Mask.KING_LOCK.ID & 0xFF);
+		} else {
+			data[9] = (byte)(FE6Data.Item.Ability2Mask.LORD_LOCK.ID & 0xFF);
+		}
 		// Null out stat bonuses.
 		setStatBonusPointer(0);
 		// Effectiveness. It should be effective against Knights and Cavs. If it's a bow, it also needs fliers.

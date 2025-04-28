@@ -57,7 +57,8 @@ public class PaletteLoader {
 		
 		switch (gameType) {
 		case FE6:
-			for (FE6Data.Character character : FE6Data.Character.allPlayableCharacters) {
+			List<FE6Data.Character> fe6CharList = FE6Data.Character.allPlayableCharacters.stream().sorted(FE6Data.Character.characterIDComparator()).collect(Collectors.toList()); 
+			for (FE6Data.Character character : fe6CharList) {
 				int charID = FE6Data.Character.canonicalIDForCharacterID(character.ID);
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
 				referencePalettesV2.put(charID, referenceMap);
@@ -75,7 +76,8 @@ public class PaletteLoader {
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe6char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe6class.toString() + "))");
 				}
 			}
-			for (FE6Data.Character boss : FE6Data.Character.allBossCharacters) {
+			fe6CharList = FE6Data.Character.allBossCharacters.stream().sorted(FE6Data.Character.characterIDComparator()).collect(Collectors.toList());
+			for (FE6Data.Character boss : fe6CharList) {
 				int charID = FE6Data.Character.canonicalIDForCharacterID(boss.ID);
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
 				referencePalettesV2.put(charID, referenceMap);
@@ -107,13 +109,15 @@ public class PaletteLoader {
 			
 			mapper = new PaletteMapper(charData, emptyPaletteIDs);
 			
-			for (int paletteID : paletteByPaletteIDV2.keySet()) {
+			List<Integer> paletteIDs = paletteByPaletteIDV2.keySet().stream().sorted().collect(Collectors.toList());
+			for (int paletteID : paletteIDs) {
 				mapper.registerPalette(paletteID, paletteByPaletteIDV2.get(paletteID).getOriginalCompressedLength(), paletteByPaletteIDV2.get(paletteID).getDestinationOffset());
 			}
 			
 			break;
 		case FE7:
-			for (FE7Data.Character character : FE7Data.Character.allPlayableCharacters) {
+			List<FE7Data.Character> fe7CharList = FE7Data.Character.allPlayableCharacters.stream().sorted(FE7Data.Character.characterIDComparator()).collect(Collectors.toList()); 
+			for (FE7Data.Character character : fe7CharList) {
 				int charID = FE7Data.Character.canonicalIDForCharacterID(character.ID);
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
 				referencePalettesV2.put(charID, referenceMap);
@@ -131,6 +135,7 @@ public class PaletteLoader {
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe7char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe7class.toString() + "))");
 				}
 			}
+			fe7CharList = FE7Data.Character.allBossCharacters.stream().sorted(FE7Data.Character.characterIDComparator()).collect(Collectors.toList());
 			for (FE7Data.Character boss : FE7Data.Character.allBossCharacters) {
 				int charID = FE7Data.Character.canonicalIDForCharacterID(boss.ID);
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
@@ -159,13 +164,15 @@ public class PaletteLoader {
 			
 			mapper = new PaletteMapper(charData, emptyPaletteIDs);
 			
-			for (int paletteID : paletteByPaletteIDV2.keySet()) {
+			paletteIDs = paletteByPaletteIDV2.keySet().stream().sorted().collect(Collectors.toList());
+			for (int paletteID : paletteIDs) {
 				mapper.registerPalette(paletteID, paletteByPaletteIDV2.get(paletteID).getOriginalCompressedLength(), paletteByPaletteIDV2.get(paletteID).getDestinationOffset());
 			}
 			
 			break;
 		case FE8:
-			for (FE8Data.Character character : FE8Data.Character.allPlayableCharacters) {
+			List<FE8Data.Character> fe8CharList = FE8Data.Character.allPlayableCharacters.stream().sorted(FE8Data.Character.characterIDComparator()).collect(Collectors.toList());
+			for (FE8Data.Character character : fe8CharList) {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(character.ID);
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
 				referencePalettesV2.put(charID, referenceMap);
@@ -190,7 +197,8 @@ public class PaletteLoader {
 				referenceMap.remove(FE8Data.CharacterClass.SUPER_RECRUIT.ID);
 				
 			}
-			for (FE8Data.Character character : FE8Data.Character.safeCreatureCampaignCharacters) {
+			fe8CharList = FE8Data.Character.safeCreatureCampaignCharacters.stream().sorted(FE8Data.Character.characterIDComparator()).collect(Collectors.toList());
+			for (FE8Data.Character character : fe8CharList) {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(character.ID);
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
 				referencePalettesV2.put(charID, referenceMap);
@@ -205,7 +213,8 @@ public class PaletteLoader {
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
 				}
 			}
-			for (FE8Data.Character boss : FE8Data.Character.allBossCharacters) {
+			fe8CharList = FE8Data.Character.allBossCharacters.stream().sorted(FE8Data.Character.characterIDComparator()).collect(Collectors.toList());
+			for (FE8Data.Character boss : fe8CharList) {
 				int charID = FE8Data.Character.canonicalIDForCharacterID(boss.ID);
 				Map<Integer, PaletteV2> referenceMap = new HashMap<Integer, PaletteV2>();
 				referencePalettesV2.put(charID, referenceMap);
@@ -502,9 +511,10 @@ public class PaletteLoader {
 		}
 		
 		if (isPromoted) {
-			int originalPaletteIndex = character.getPromotedPaletteIndex();
+			int originalPaletteIndex = reference.getPromotedPaletteIndex();
 			PaletteV2 originalPalette = paletteByPaletteIDV2.get(originalPaletteIndex);
-			if (originalPalette != null && originalPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides()) {
+			// Only skip if we haven't randomized recruitment order either, which relies on swapping data on the same "slot character".
+			if (originalPalette != null && originalPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides() && reference.getID() == character.getID()) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same promoted class found. Skipping adapting palette.");
 			} else {
 				PaletteV2 adaptedPromotion = v2PaletteForClass(targetClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));
@@ -518,9 +528,9 @@ public class PaletteLoader {
 				change.promotedPalette = adaptedPromotion;
 			}
 		} else if (!canPromote) {
-			int originalPaletteIndex = character.getUnpromotedPaletteIndex();
+			int originalPaletteIndex = reference.getUnpromotedPaletteIndex();
 			PaletteV2 originalPalette = paletteByPaletteIDV2.get(originalPaletteIndex);
-			if (originalPalette != null && originalPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides()) {
+			if (originalPalette != null && originalPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides() && character.getID() == reference.getID()) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same unpromoted class found. Skipping adapting palette.");
 			} else {
 				PaletteV2 adaptedBase = v2PaletteForClass(targetClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));
@@ -534,15 +544,15 @@ public class PaletteLoader {
 				change.basePalette = adaptedBase;
 			}
 		} else {
-			int unpromotedPaletteIndex = character.getUnpromotedPaletteIndex();
-			int promotedPaletteIndex = character.getPromotedPaletteIndex();
+			int unpromotedPaletteIndex = reference.getUnpromotedPaletteIndex();
+			int promotedPaletteIndex = reference.getPromotedPaletteIndex();
 			PaletteV2 unpromotedPalette = paletteByPaletteIDV2.get(unpromotedPaletteIndex);
 			PaletteV2 promotedPalette = paletteByPaletteIDV2.get(promotedPaletteIndex);
 			
 			int promotedClassID = classData.classForID(targetClassID).getTargetPromotionID();
 			
-			if ((unpromotedPalette != null && unpromotedPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides()) ||
-					(promotedPalette != null && promotedPalette.getClassID() == promotedClassID && !character.hasBattlePaletteOverrides())) {
+			if (((unpromotedPalette != null && unpromotedPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides()) ||
+					(promotedPalette != null && promotedPalette.getClassID() == promotedClassID && !character.hasBattlePaletteOverrides())) && character.getID() == reference.getID()) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same unpromoted class found. Skipping adapting palette.");
 			} else {
 				PaletteV2 adaptedBase = v2PaletteForClass(targetClassID, referencePalettes, PaletteType.PLAYER, supplementalHairColors.get(referenceID));

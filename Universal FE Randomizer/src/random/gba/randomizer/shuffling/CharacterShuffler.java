@@ -208,7 +208,7 @@ public class CharacterShuffler {
     private void updateWeaponRanks(GBAFECharacterData character, GBACrossGameData crossGameData, GBAFEClassData sourceClass, GBAFEClassData targetClass, Random rng) {
         if (ShuffleLevelingMode.AUTOLEVEL.equals(options.getLevelingMode())) {
             // Adjust the weapon ranks to the new class
-            GBASlotAdjustmentService.transferWeaponRanks(character, sourceClass, targetClass, rng);
+            GBASlotAdjustmentService.transferWeaponRanks(character, sourceClass, targetClass, type, rng);
         } else {
             // If we don't auto level transfer 1 to 1 while making sure it doesn't over or underflow
             character.setSwordRank(WhyDoesJavaNotHaveThese.clamp(crossGameData.weaponRanks[0], 0, 255));

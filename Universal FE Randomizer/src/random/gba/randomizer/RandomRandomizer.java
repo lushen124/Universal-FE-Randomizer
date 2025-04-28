@@ -25,7 +25,7 @@ public class RandomRandomizer {
 			GBAFEChapterItemData[] allRewards = chapter.allRewards();
 			for (GBAFEChapterItemData chapterItem : allRewards) {
 				int itemID = chapterItem.getItemID();
-				GBAFEItemData[] relatedItems = itemData.relatedItems(itemID);
+				GBAFEItemData[] relatedItems = itemData.relatedItems(itemID, true);
 				GBAFEItemData[] allPossibleItems = itemData.getChestRewards(includePromoWeapons);
 				
 				if (relatedItems.length == 0 && allPossibleItems.length == 0) {
@@ -62,7 +62,7 @@ public class RandomRandomizer {
 					if (rng.nextInt(100) < chance) {
 						unit.setUnitToDropLastItem(true);
 						if (rng.nextInt(4) != 0) {
-							unit.giveItem(firstQuarter.getRandomItem(rng).getID());
+							unit.giveItems(new int[] {firstQuarter.getRandomItem(rng).getID()}, itemData);
 						}
 					}
 				}
@@ -79,7 +79,7 @@ public class RandomRandomizer {
 					if (rng.nextInt(100) < chance) {
 						unit.setUnitToDropLastItem(true);
 						if (rng.nextInt(4) != 0) {
-							unit.giveItem(secondQuarter.getRandomItem(rng).getID());
+							unit.giveItems(new int[] {secondQuarter.getRandomItem(rng).getID()}, itemData);
 						}
 					}
 				}
@@ -97,7 +97,7 @@ public class RandomRandomizer {
 					if (rng.nextInt(100) < chance) {
 						unit.setUnitToDropLastItem(true);
 						if (rng.nextInt(4) != 0) {
-							unit.giveItem(thirdQuarter.getRandomItem(rng).getID());
+							unit.giveItems(new int[] {thirdQuarter.getRandomItem(rng).getID()}, itemData);
 						}
 					}
 				}
@@ -115,7 +115,7 @@ public class RandomRandomizer {
 					if (rng.nextInt(100) < chance) {
 						unit.setUnitToDropLastItem(true);
 						if (rng.nextInt(4) != 0) {
-							unit.giveItem(fourthQuarter.getRandomItem(rng).getID());
+							unit.giveItems(new int[] {fourthQuarter.getRandomItem(rng).getID()}, itemData);
 						}
 					}
 				}

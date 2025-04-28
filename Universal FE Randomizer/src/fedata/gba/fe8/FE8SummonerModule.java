@@ -1,6 +1,7 @@
 package fedata.gba.fe8;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -221,7 +222,16 @@ public class FE8SummonerModule {
 		if (needsRepoint) {
 			// We need free space.
 			long newTableOffset = 0;
-			for (int characterID : entriesByCharacterID.keySet()) {
+			List<Integer> charIDs = new ArrayList<Integer>(entriesByCharacterID.keySet());
+			charIDs.sort(new Comparator<Integer>() {
+				@Override
+				public int compare(Integer o1, Integer o2) {
+					// TODO Auto-generated method stub
+					return o1 - o2;
+				}
+				
+			});
+			for (int characterID : charIDs) {
 				SummonerEntry entry = entriesByCharacterID.get(characterID);
 				long offset = freeSpace.setValue(entry.getData(), "SUMMONER_0x" + Integer.toHexString(characterID));
 				if (newTableOffset == 0) { newTableOffset = offset; }

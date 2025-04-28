@@ -8,6 +8,7 @@ import fedata.gba.fe7.FE7SpellAnimationCollection;
 import fedata.gba.fe8.*;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFEChapterMetadataData;
+import fedata.gba.general.WeaponRank;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
@@ -755,21 +756,14 @@ public class GBARandomizer extends Randomizer {
 			emblemBow.setEffectivenessPointer(itemData.flierEffectPointer());
 		}
 		
+		// Allow FE6 to be able to use hard mode without needing clear data.
+		if (gameType == GameType.FE6) {
+			diffCompiler.addDiff(new Diff(FE6Data.HardModeHackOffset, FE6Data.HardModeHackNewData.length, FE6Data.HardModeHackNewData, FE6Data.HardModeHackOriginalData));
+		}
+		
 		// Hack in mode select without needing clear data for FE7.
 		if (gameType == GameType.FE7) {
-			try {
-				InputStream stream = UPSPatcher.class.getClassLoader().getResourceAsStream("FE7ClearSRAM.bin");
-				byte[] bytes = new byte[0x6F];
-				stream.read(bytes);
-				stream.close();
-				
-				long offset = freeSpace.setValue(bytes, "FE7 Hardcoded SRAM", true);
-				long pointer = freeSpace.setValue(WhyDoesJavaNotHaveThese.bytesFromAddress(offset), "FE7 Hardcoded SRAM Pointer", true);
-				diffCompiler.addDiff(new Diff(FE7Data.HardcodedSRAMHeaderOffset, 4, WhyDoesJavaNotHaveThese.bytesFromAddress(pointer), WhyDoesJavaNotHaveThese.bytesFromAddress(FE7Data.DefaultSRAMHeaderPointer)));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			diffCompiler.addDiff(new Diff(FE7Data.ModeSelectHackOffset, FE7Data.ModeSelectHackNewData.length, FE7Data.ModeSelectHackNewData, FE7Data.ModeSelectHackOriginalData));
 			
 			// Fix up the portraits in mode select, since they're hardcoded.
 			// Only necessary if we randomized recruitment.
@@ -888,7 +882,7 @@ public class GBARandomizer extends Randomizer {
 				for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
 					FE8Data.CharacterClass charClass = FE8Data.CharacterClass.valueOf(chapterUnit.getStartingClass());
 					if (FE8Data.CharacterClass.allTraineeClasses.contains(charClass)) {
-						chapterUnit.giveItems(new int[] {FE8Data.Item.HEAVEN_SEAL.ID});
+						chapterUnit.giveItems(new int[] {FE8Data.Item.HEAVEN_SEAL.ID}, itemData);
 					}
 				}
 			}
@@ -944,7 +938,7 @@ public class GBARandomizer extends Randomizer {
 							GBAFECharacterData character = charData.characterWithID(chapterUnit.getCharacterNumber());
 							GBAFEItemData healingStaff = itemData.getRandomHealingStaff(itemData.rankForValue(character.getStaffRank()), rng);
 							if (healingStaff != null) {
-								chapterUnit.giveItem(healingStaff.getID());
+								chapterUnit.giveItems(new int[] {healingStaff.getID()}, itemData);
 							}
 						}
 					}
@@ -1166,6 +1160,12 @@ public class GBARandomizer extends Randomizer {
 			
 			roy.setClassID(newRoyClass.getID());
 			
+			// We need to update the class lookup routine to take into account this new ID, since it's beyond
+			// the normal bounds of the IDs the game searches through during his promotion scene.
+			if (newRoyClass.getID() > (byte)0x3F) {
+				diffCompiler.addDiff(new Diff(FE6Data.ClassLookupMaxIndexOffset, 1, new byte[] { (byte)((newRoyClass.getID() + 1) & 0xFF) }, new byte[] { (byte)0x3F }));	
+			}
+			
 			// Add his new class to any effectiveness tables.
 			List<AdditionalData> effectivenesses = itemData.effectivenessArraysForClassID(oldRoyClassID);
 			for (AdditionalData effectiveness : effectivenesses) {
@@ -1173,6 +1173,15 @@ public class GBARandomizer extends Randomizer {
 			}
 			
 			// Incidentally, Roy doesn't need a promotion item, because his promotion is entirely scripted without any items.
+			// We do need to make sure the weapon that's forced on him during promotion is one he can use though. Otherwise, the game will crash.
+			GBAFEItemData bindingBlade = itemData.itemWithID(FE6Data.Item.BINDING_BLADE.ID);
+			if (newRoyClass.canUseWeapon(bindingBlade) == false) {
+				GBAFEItemData legendaryWeapon = itemData.legendaryWeaponForClass(newRoyClass, true, gameType);
+				if (legendaryWeapon == null) {
+					legendaryWeapon = itemData.basicItemOfType(newRoyClass.getWeaponRanks(true, gameType).getHighestRank());
+				}
+				diffCompiler.addDiff(new Diff(FE6Data.RoyPromotionForcedEquippedItemOffset, 1, new byte[] { (byte)(legendaryWeapon.getID()) }, new byte[] { (byte)0x0F} ));
+			}
 			
 			for (GBAFEChapterData chapter : chapterData.allChapters()) {
 				for (GBAFEChapterUnitData unit : chapter.allUnits()) {
@@ -1421,27 +1430,40 @@ public class GBARandomizer extends Randomizer {
 							break;
 						}
 						
-						// Make sure the old lord class, if anybody randomizes into it, can't use this weapon.
-						GBAFEClassData oldLordClass = classData.classForID(FE6Data.CharacterClass.LORD.ID);
-						oldLordClass.removeLordLocks();
-						GBAFEClassData oldPromotedLordClass = classData.classForID(FE6Data.CharacterClass.MASTER_LORD.ID);
-						oldPromotedLordClass.removeLordLocks();
+						if (selectedType == WeaponType.SWORD) {
+							// Make sure the old lord class, if anybody randomizes into it, can't use this weapon.
+							GBAFEClassData oldLordClass = classData.classForID(FE6Data.CharacterClass.LORD.ID);
+							oldLordClass.removeLordLocks();
+							GBAFEClassData oldPromotedLordClass = classData.classForID(FE6Data.CharacterClass.MASTER_LORD.ID);
+							oldPromotedLordClass.removeLordLocks();
+							
+							// Make sure Roy himself can.
+							// For FE6, use the Eckesachs lock. The rapier lock is still valid for the normal Roy Lord class.
+							// This is safe so long as we're not giving out Eckesachs to anybody randomly.
+							roy.enableWeaponLock(FE6Data.CharacterAndClassAbility3Mask.ECKESACHS_LOCK.ID);	
+						} else {
+							// There shouldn't be any need to remove the old lock since Lord is Sword-locked.
+							// So if this isn't a sword, then we can safely just use the same lock again.
+							// Do make sure Roy can use it though.
+							roy.enableWeaponLock(FE6Data.CharacterAndClassAbility3Mask.RAPIER_LOCK.ID);
+							// If we go down this route, Rapier must have a rank though.
+							GBAFEItemData bindingBlade = itemData.itemWithID(FE6Data.Item.BINDING_BLADE.ID); 
+							bindingBlade.setWeaponRank(WeaponRank.E);
+							bindingBlade.commitChanges();
+						}
 						
-						// Make sure Roy himself can.
-						roy.enableWeaponLock(FE6Data.CharacterAndClassAbility3Mask.RAPIER_LOCK.getValue());
 						
 						for (GBAFEChapterData chapter : chapterData.allChapters()) {
 							for (GBAFEChapterUnitData unit : chapter.allUnits()) {
 								// Give Roy the weapon when he shows up.
 								if (unit.getCharacterNumber() == roy.getID()) {
-									unit.giveItem(itemToReplace.getID());
+									unit.giveItems(new int[] {itemToReplace.getID()}, itemData);
 								}
 								
 								// Replace any Rapiers with iron swords, since we need to reuse the same lock.
 								if (unit.hasItem(FE6Data.Item.RAPIER.ID)) {
 									unit.removeItem(FE6Data.Item.RAPIER.ID);
-									unit.giveItem(FE6Data.Item.IRON_SWORD.ID);
-								}
+									unit.giveItems(new int[] {FE6Data.Item.IRON_SWORD.ID}, itemData);								}
 							}
 						}
 					}
@@ -1612,18 +1634,18 @@ public class GBARandomizer extends Randomizer {
 					if (lynSelectedType == WeaponType.SWORD) {
 						athosLockUsed = true;
 						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
-						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
-						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.ID);
+						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.ID);
 					} else if (lynSelectedType == WeaponType.BOW) {
 						eliwoodLockUsed = true;
 						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
-						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
-						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.ID);
+						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.ID);
 					} else {
 						lynLockUsed = true;
 						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
-						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
-						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+						lyn.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.ID);
+						lynTutorial.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.ID);
 					}
 					
 					itemData.addNewItem(newWeapon);
@@ -1668,7 +1690,7 @@ public class GBARandomizer extends Randomizer {
 						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
 							if (unit.getCharacterNumber() == lyn.getID()) {
 								unit.removeItem(referenceWeapon.getID());
-								unit.giveItem(newWeapon.getID());
+								unit.giveItems(new int[] {newWeapon.getID()}, itemData);
 							}
 						}
 					}
@@ -1693,47 +1715,47 @@ public class GBARandomizer extends Randomizer {
 						if (!athosLockUsed) {
 							athosLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
-							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.ID);
 						} else {
 							// We only have the unused lock left.
 							unusedLockUsed = true;
 							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
-							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.ID);
 						}
 					} else if (eliwoodSelectedType == WeaponType.LANCE) {
 						if (!lynLockUsed) {
 							lynLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
-							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.ID);
 						} else if (!athosLockUsed) {
 							athosLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
-							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.ID);
 						} else {
 							unusedLockUsed = true;
 							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
-							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.ID);
 						}
 					} else {
 						if (!eliwoodLockUsed) {
 							eliwoodLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
-							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.ID);
 						} else if (!lynLockUsed) {
 							lynLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
-							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.ID);
 						} else if (!athosLockUsed && // Athos lock cannot be used with any tome.
 								eliwoodSelectedType != WeaponType.ANIMA && 
 								eliwoodSelectedType != WeaponType.DARK && 
 								eliwoodSelectedType != WeaponType.LIGHT) {
 							athosLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
-							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.ID);
 						} else {
 							unusedLockUsed = true;
 							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
-							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+							eliwood.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.ID);
 						}
 					}
 					
@@ -1771,7 +1793,7 @@ public class GBARandomizer extends Randomizer {
 						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
 							if (unit.getCharacterNumber() == eliwood.getID()) {
 								unit.removeItem(referenceWeapon.getID());
-								unit.giveItem(newWeapon.getID());
+								unit.giveItems(new int[] {newWeapon.getID()}, itemData);
 							}
 						}
 					}
@@ -1796,38 +1818,38 @@ public class GBARandomizer extends Randomizer {
 						if (!athosLockUsed) {
 							athosLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
-							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.ID);
 						} else if (!unusedLockUsed) {
 							unusedLockUsed = true;
 							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
-							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.ID);
 						} else {
 							// GG. Just use Hector lock.
 							newWeapon.setAbility2(FE7Data.Item.Ability3Mask.HECTOR_LOCK.ID);
-							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.HECTOR_LOCK.getValue());
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.HECTOR_LOCK.ID);
 						}
 					} else if (hectorSelectedType == WeaponType.AXE) {
 						if (!lynLockUsed) {
 							lynLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.LYN_LOCK.ID);
-							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.getValue());
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.LYN_LOCK.ID);
 						} else if (!athosLockUsed) {
 							athosLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ATHOS_LOCK.ID);
-							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.getValue());
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ATHOS_LOCK.ID);
 						} else if (!eliwoodLockUsed) {
 							eliwoodLockUsed = true;
 							newWeapon.setAbility3(FE7Data.Item.Ability3Mask.ELIWOOD_LOCK.ID);
-							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.getValue());
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.ELIWOOD_LOCK.ID);
 						} else { // There's no way we used 4 locks with two characters.
 							unusedLockUsed = true;
 							newWeapon.setAbility2(FE7Data.Item.Ability2Mask.UNUSED_WEAPON_LOCK.ID);
-							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue());
+							hector.enableWeaponLock(FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.ID);
 						}
 					} else {
 						hectorLockUsed = true;
 						newWeapon.setAbility3(FE7Data.Item.Ability3Mask.HECTOR_LOCK.ID);
-						hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.HECTOR_LOCK.getValue());
+						hector.enableWeaponLock(FE7Data.CharacterAndClassAbility4Mask.HECTOR_LOCK.ID);
 					}
 					
 					itemData.addNewItem(newWeapon);
@@ -1864,7 +1886,7 @@ public class GBARandomizer extends Randomizer {
 						for (GBAFEChapterUnitData unit : chapter.allUnits()) {
 							if (unit.getCharacterNumber() == hector.getID()) {
 								unit.removeItem(referenceWeapon.getID());
-								unit.giveItem(newWeapon.getID());
+								unit.giveItems(new int[] {newWeapon.getID()}, itemData);
 							}
 						}
 					}
@@ -2008,8 +2030,8 @@ public class GBARandomizer extends Randomizer {
 					}
 					
 					// Make sure Eirika herself can. She'll use the unused Lyn Lock.
-					eirika.enableWeaponLock(FE8Data.CharacterAndClassAbility4Mask.EIRIKA_WEAPON_LOCK.getValue());
-					itemToReplace.setAbility3(FE8Data.Item.Ability3Mask.EIRIKA_LOCK.ID);
+					eirika.enableWeaponLock(FE8Data.CharacterAndClassAbility4Mask.UNUSED_LYN_LOCK.ID);
+					itemToReplace.setAbility3(FE8Data.Item.Ability3Mask.UNUSED_LYN_LOCK.ID);
 					
 					// Eirika will get her weapon from Seth.
 					GBAFEChapterData prologue = chapterData.chapterWithID(FE8Data.ChapterPointer.PROLOGUE.chapterID);
@@ -2063,7 +2085,7 @@ public class GBARandomizer extends Randomizer {
 					}
 					
 					// Make sure Ephraim himself can. He'll use the unused Athos Lock.
-					ephraim.enableWeaponLock(FE8Data.CharacterAndClassAbility4Mask.UNUSED_ATHOS_LOCK.getValue());
+					ephraim.enableWeaponLock(FE8Data.CharacterAndClassAbility4Mask.UNUSED_ATHOS_LOCK.ID);
 					itemToReplace.setAbility3(FE8Data.Item.Ability3Mask.UNUSED_WEAPON_LOCK.ID);
 					
 					// Ephraim starts with his weapon.
@@ -2071,7 +2093,7 @@ public class GBARandomizer extends Randomizer {
 					for (GBAFEChapterUnitData unit : ch5x.allUnits()) {
 						if (unit.getCharacterNumber() == ephraim.getID()) {
 							unit.removeItem(FE8Data.Item.REGINLEIF.ID);
-							unit.giveItem(itemToReplace.getID());
+							unit.giveItems(new int[] {itemToReplace.getID()}, itemData);
 						}
 					}
 				}

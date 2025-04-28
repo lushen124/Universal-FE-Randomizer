@@ -103,7 +103,7 @@ public class ItemDataView extends Composite {
 		FormData infoData = new FormData();
 		infoData.left = new FormAttachment(0, 0);
 		infoData.top = new FormAttachment(itemDropdown, 10);
-		infoData.width = 270;
+		infoData.width = 320;
 		infoGroup.setLayoutData(infoData);
 		
 		iid = new LabelFieldView(infoGroup, SWT.NONE);
@@ -187,7 +187,7 @@ public class ItemDataView extends Composite {
 		FormData traitData = new FormData();
 		traitData.left = new FormAttachment(infoGroup, 10);
 		traitData.top = new FormAttachment(itemDropdown, 10);
-		traitData.width = 270;
+		traitData.width = 320;
 		traitsGroup.setLayoutData(traitData);
 		
 		trait1 = new LabelFieldView(traitsGroup, SWT.NONE);
@@ -302,7 +302,7 @@ public class ItemDataView extends Composite {
 		FormData statData = new FormData();
 		statData.left = new FormAttachment(traitsGroup, 10);
 		statData.top = new FormAttachment(itemDropdown, 10);
-		statData.width = 250;
+		statData.width = 320;
 		statGroup.setLayoutData(statData);
 		
 		costPerUse = new LabelFieldView(statGroup, SWT.NONE);

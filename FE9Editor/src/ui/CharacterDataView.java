@@ -118,7 +118,7 @@ public class CharacterDataView extends Composite {
 		infoData.left = new FormAttachment(0, 0);
 		infoData.top = new FormAttachment(characterDropdown, 10);
 //		infoData.bottom = new FormAttachment(100, 0);
-		infoData.width = 250;
+		infoData.width = 300;
 		infoGroup.setLayoutData(infoData);
 		
 		pid = new LabelFieldView(infoGroup, SWT.NONE);
@@ -300,7 +300,7 @@ public class CharacterDataView extends Composite {
 		growthData.left = new FormAttachment(statsGroup, 10);
 		growthData.top = new FormAttachment(characterDropdown, 10);
 		//growthData.bottom = new FormAttachment(100, 0);
-		growthData.width = 100;
+		growthData.width = 150;
 		growthGroup.setLayoutData(growthData);
 		
 		hpGrowth = new LabelFieldView(growthGroup, SWT.NONE);
@@ -396,7 +396,7 @@ public class CharacterDataView extends Composite {
 		basesData.left = new FormAttachment(growthGroup, 10);
 		basesData.top = new FormAttachment(characterDropdown, 10);
 		//basesData.bottom = new FormAttachment(100, 0);
-		basesData.width = 100;
+		basesData.width = 150;
 		basesGroup.setLayoutData(basesData);
 		
 		hpBase = new LabelFieldView(basesGroup, SWT.NONE);

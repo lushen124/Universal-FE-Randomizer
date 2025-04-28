@@ -1,6 +1,13 @@
 package fedata.gba;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import random.gba.loader.ItemDataLoader;
 
 public abstract class GBAFEChapterUnitData extends AbstractGBAData {
 
@@ -53,6 +60,15 @@ public abstract class GBAFEChapterUnitData extends AbstractGBAData {
 	public boolean isAutolevel() {
 		int value = data[3] & 0xFF;
 		return (value & 0x1) != 0;
+	}
+	
+	public void setAutolevel(boolean enabled) {
+		if (enabled) {
+			data[3] |= 0x1;
+		} else {
+			data[3] &= ~0x1;
+		}
+		wasModified = true;
 	}
 	
 	public int getStartingX() {
@@ -129,7 +145,7 @@ public abstract class GBAFEChapterUnitData extends AbstractGBAData {
 	}
 
 
-	public void giveItems(int[] itemIDs) {
+	public void giveItems(int[] itemIDs, ItemDataLoader itemData) {
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
 		for (int i = 0; i < itemIDs.length; i++) {
 			if (getItem1() == itemIDs[i] || getItem2() == itemIDs[i] || getItem3() == itemIDs[i]
@@ -138,31 +154,78 @@ public abstract class GBAFEChapterUnitData extends AbstractGBAData {
 			}
 			workingIDs.add(itemIDs[i]);
 		}
+		
+		List<Integer> availableIndices = new ArrayList<Integer>();
+		Set<GBAFEItemData> itemsToRetain = new HashSet<GBAFEItemData>(Arrays.asList(itemData.specialItemsToRetain()));
+		
+		if (itemsToRetain.stream().anyMatch((item) -> item.getID() == getItem4()) == false) {
+			availableIndices.add(4);
+		}
+		if (itemsToRetain.stream().anyMatch((item) -> item.getID() == getItem3()) == false) {
+			availableIndices.add(3);
+		}
+		if (itemsToRetain.stream().anyMatch((item) -> item.getID() == getItem2()) == false) {
+			availableIndices.add(2);
+		}
+		if (itemsToRetain.stream().anyMatch((item) -> item.getID() == getItem1()) == false) {
+			availableIndices.add(1);
+		}
 
-		if (!workingIDs.isEmpty()) {
-			setItem4(workingIDs.remove(0));
-			if (!workingIDs.isEmpty()) {
-				setItem3(workingIDs.remove(0));
-				if (!workingIDs.isEmpty()) {
-					setItem2(workingIDs.remove(0));
-					if (!workingIDs.isEmpty()) {
-						setItem1(workingIDs.remove(0));
-					}
-				}
-			}
+		while (workingIDs.isEmpty() == false && availableIndices.isEmpty() == false) {
+			setItemSlot(availableIndices.remove(0), workingIDs.remove(0));
 		}
 
 		collapseItems();
 	}
-
-	public void giveItem(int itemID) {
-		if (getItem1() == 0) {
+	
+	public Integer getHighestRankItemID(ItemDataLoader itemData) {
+		List<Integer> currentIDs = new ArrayList<Integer>();
+		currentIDs.add(getItem1());
+		currentIDs.add(getItem2());
+		currentIDs.add(getItem3());
+		currentIDs.add(getItem4());
+		
+		GBAFEItemData highestRank = currentIDs.stream().map(itemID -> itemData.itemWithID(itemID)).filter(item -> item != null).max(new Comparator<GBAFEItemData>() {
+			@Override
+			public int compare(GBAFEItemData o1, GBAFEItemData o2) {
+				return o1.getWeaponRank().compare(o2.getWeaponRank());
+			}
+		}).orElse(null);
+		
+		if (highestRank == null) { return null; }
+		
+		return highestRank.getID();
+	}
+	
+	public boolean replaceItemIDWithItemID(int itemIDToReplace, int replacementID) {
+		if (getItem1() == itemIDToReplace) {
+			setItem1(replacementID);
+			return true;
+		}
+		if (getItem2() == itemIDToReplace) {
+			setItem2(replacementID);
+			return true;
+		}
+		if (getItem3() == itemIDToReplace) {
+			setItem3(replacementID);
+			return true;
+		}
+		if (getItem4() == itemIDToReplace) {
+			setItem4(replacementID);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private void setItemSlot(int slot, int itemID) {
+		if (slot == 1) {
 			setItem1(itemID);
-		} else if (getItem2() == 0) {
+		} else if (slot == 2) {
 			setItem2(itemID);
-		} else if (getItem3() == 0) {
+		} else if (slot == 3) {
 			setItem3(itemID);
-		} else {
+		} else if (slot == 4) {
 			setItem4(itemID);
 		}
 	}
@@ -228,7 +291,9 @@ public abstract class GBAFEChapterUnitData extends AbstractGBAData {
 		setItem4(items[3]);
 	}
 	
-	public abstract void setAIToHeal(Boolean allowAttack);
-	public abstract void setAIToOnlyAttack(Boolean allowAttack);
+	public abstract void setAIToHeal();
+	public abstract void removeHealingAI();
 	public abstract void setUnitToDropLastItem(boolean drop);
+	
+	public abstract boolean isAITargetingVillages();
 }

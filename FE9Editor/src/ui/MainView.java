@@ -21,13 +21,20 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
 import application.Main;
+import fedata.gba.fe6.FE6Data;
+import fedata.gba.fe7.FE7Data;
+import fedata.gba.fe8.FE8Data;
 import fedata.gcnwii.fe9.FE9Data;
+import fedata.general.FEBase.GameType;
 import io.FileHandler;
 import io.gcn.GCNDataFileHandler;
 import io.gcn.GCNDataFileHandlerV2;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
+import ui.gba.GBAClassDataView;
+import ui.gba.GBAItemDataView;
+import util.WhyDoesJavaNotHaveThese;
 
 public class MainView {
 	
@@ -38,6 +45,12 @@ public class MainView {
 	private Button browseButton;
 	
 	private TabFolder folder;
+	
+	private TabItem gbaItemTabItem;
+	private TabItem gbaClassTabItem;
+	
+	private Composite gbaItemComposite;
+	private Composite gbaClassComposite;
 	
 	private TabItem characterTabItem;
 	private TabItem classTabItem;
@@ -50,6 +63,7 @@ public class MainView {
 	private Composite chapterComposite;
 	
 	private GCNISOHandler isoHandler;
+	private FileHandler gbaFileHandler;
 	
 	public MainView(Display mainDisplay) {
 		super();
@@ -87,8 +101,8 @@ public class MainView {
 			@Override
 			public void handleEvent(Event event) {
 				FileDialog openDialog = new FileDialog(mainShell, SWT.OPEN);
-				openDialog.setFilterExtensions(new String[] {"*.iso", "*"});
-				openDialog.setFilterNames(new String[] {"*.iso", "All Files (*.*)"});
+				openDialog.setFilterExtensions(new String[] {"*.gba;*.smc;*.sfc;*.iso", "*"});
+				openDialog.setFilterNames(new String[] {"*.gba, *.smc, *.sfc, *.iso", "All Files (*.*)"});
 				onSelectedFile(openDialog.open());
 			}
 		});
@@ -113,7 +127,11 @@ public class MainView {
 		mainShell.setSize(computedSize);
 	}
 	
-	private void addTabFolder() throws GCNISOException {
+	private void addFE9TabFolder() throws GCNISOException {
+		if (folder != null) {
+			folder.dispose();
+			folder = null;
+		}
 		GCNFileHandler handler = isoHandler.handlerForFileWithName(FE9Data.CharacterDataFilename);
 		GCNDataFileHandlerV2 fe8databin;
 		assert (handler instanceof GCNDataFileHandler);
@@ -168,16 +186,83 @@ public class MainView {
 		chapterTabItem.setControl(chapterComposite);
 	}
 	
+	private void addGBATabFolder(GameType gameType) {
+		if (folder != null) {
+			folder.dispose();
+			folder = null;
+		}
+		FormData buttonData = new FormData();
+		buttonData.top = new FormAttachment(0, 0);
+		buttonData.left = new FormAttachment(filePathField, 10);
+		buttonData.right = new FormAttachment(100, 0);
+		browseButton.setLayoutData(buttonData);
+		
+		folder = new TabFolder(mainShell, SWT.BORDER);
+		
+		folder.addListener(SWT.Selection, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				resize();
+			}
+		});
+		
+		FormData folderData = new FormData();
+		folderData.left = new FormAttachment(0, 0);
+		folderData.right = new FormAttachment(100, 0);
+		folderData.bottom = new FormAttachment(100, 0);
+		folderData.top = new FormAttachment(browseButton, 10);
+		folder.setLayoutData(folderData);
+		
+		gbaClassTabItem = new TabItem(folder, SWT.NONE);
+		gbaClassTabItem.setText("Class Data");
+		
+		gbaClassComposite = new GBAClassDataView(folder, SWT.NONE, gameType, gbaFileHandler);
+		gbaClassTabItem.setControl(gbaClassComposite);
+		
+		gbaItemTabItem = new TabItem(folder, SWT.NONE);
+		gbaItemTabItem.setText("Item Data");
+		
+		gbaItemComposite = new GBAItemDataView(folder, SWT.NONE, gameType, gbaFileHandler);
+		gbaItemTabItem.setControl(gbaItemComposite);
+		
+		
+	}
+	
 	private void onSelectedFile(String path) {
+		if (path == null) {
+			return;
+		}
+		
 		filePathField.setText(path);
 		
-		try {
-			FileHandler fileHandler = new FileHandler(path);
-			isoHandler = new GCNISOHandler(fileHandler);
-			addTabFolder();
-		} catch (GCNISOException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (path.endsWith(".iso")) {
+			try {
+				FileHandler fileHandler = new FileHandler(path);
+				isoHandler = new GCNISOHandler(fileHandler);
+				addFE9TabFolder();
+			} catch (GCNISOException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (path.endsWith(".gba")) {
+			try {
+				FileHandler fileHandler = new FileHandler(path);
+				byte[] gameIDBytes = fileHandler.readBytesAtOffset(0xAC, 4);
+				String gameID = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(gameIDBytes);
+				if (gameID.equals(FE6Data.GameCode)) {
+					gbaFileHandler = fileHandler;
+					addGBATabFolder(GameType.FE6);
+				} else if (gameID.equals(FE7Data.GameCode)) {
+					gbaFileHandler = fileHandler;
+					addGBATabFolder(GameType.FE7);
+				} else if (gameID.equals(FE8Data.GameCode)) {
+					gbaFileHandler = fileHandler;
+					addGBATabFolder(GameType.FE8);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		resize();
 	}

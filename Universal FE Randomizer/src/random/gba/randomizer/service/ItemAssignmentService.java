@@ -33,7 +33,7 @@ public class ItemAssignmentService {
 				} else {
 					item = itemData.getRandomWeaponForCharacter(slot, false, false,
 							characterData.isEnemyAtAnyPoint(slot.getID()), inventoryOptions.assignPromoWeapons,
-							inventoryOptions.assignPoisonWeapons, rng);
+							inventoryOptions.assignPoisonWeapons, false, false, rng);
 				}
 
 				if (item != null) {
@@ -49,7 +49,7 @@ public class ItemAssignmentService {
 					ClassRandomizer.validateCharacterInventory(inventoryOptions, slot, targetClass, unit,
 							characterData.characterIDRequiresRange(slot.getID()),
 							characterData.characterIDRequiresMelee(slot.getID()), characterData, classData, itemData,
-							textData, false, rng);
+							textData, false, false, false, rng);
 					if (characterData.isThiefCharacterID(slot.getID())) {
 						ClassRandomizer.validateFormerThiefInventory(unit, itemData);
 					}

@@ -128,7 +128,7 @@ public class ClassDataView extends Composite {
 		infoData.left = new FormAttachment(0, 0);
 		infoData.top = new FormAttachment(classDropdown, 10);
 //		infoData.bottom = new FormAttachment(100, 0);
-		infoData.width = 270;
+		infoData.width = 320;
 		infoGroup.setLayoutData(infoData);
 		
 		jid = new LabelFieldView(infoGroup, SWT.NONE);
@@ -188,7 +188,7 @@ public class ClassDataView extends Composite {
 		viewData.left = new FormAttachment(0, 0);
 		viewData.top = new FormAttachment(promotedJid, 10);
 		viewData.right = new FormAttachment(100, 0);
-		viewData.bottom = new FormAttachment(100, 0);
+		viewData.bottom = new FormAttachment(100, -5);
 		defaultIid.setLayoutData(viewData);
 		
 		statsGroup = new Group(this, SWT.NONE);
@@ -203,7 +203,7 @@ public class ClassDataView extends Composite {
 		statsData.left = new FormAttachment(infoGroup, 10);
 		statsData.top = new FormAttachment(classDropdown, 10);
 		statsData.bottom = new FormAttachment(100, 0);
-		statsData.width = 220;
+		statsData.width = 280;
 		statsGroup.setLayoutData(statsData);
 		
 		weaponLevels = new LabelFieldView(statsGroup, SWT.NONE);
@@ -328,7 +328,7 @@ public class ClassDataView extends Composite {
 		FormData growthsData = new FormData();
 		growthsData.left = new FormAttachment(statsGroup, 10);
 		growthsData.top = new FormAttachment(classDropdown, 10);
-		growthsData.width = 100;
+		growthsData.width = 150;
 		growthGroup.setLayoutData(growthsData);
 		
 		hpGrowth = new LabelFieldView(growthGroup, SWT.NONE);
@@ -423,7 +423,7 @@ public class ClassDataView extends Composite {
 		FormData basesData = new FormData();
 		basesData.left = new FormAttachment(growthGroup, 10);
 		basesData.top = new FormAttachment(classDropdown, 10);
-		basesData.width = 100;
+		basesData.width = 150;
 		basesGroup.setLayoutData(basesData);
 		
 		hpBase = new LabelFieldView(basesGroup, SWT.NONE);
@@ -518,7 +518,7 @@ public class ClassDataView extends Composite {
 		FormData maxData = new FormData();
 		maxData.left = new FormAttachment(basesGroup, 10);
 		maxData.top = new FormAttachment(classDropdown, 10);
-		maxData.width = 100;
+		maxData.width = 150;
 		maxGroup.setLayoutData(maxData);
 		
 		hpMax = new LabelFieldView(maxGroup, SWT.NONE);

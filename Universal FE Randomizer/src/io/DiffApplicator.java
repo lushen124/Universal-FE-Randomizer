@@ -10,6 +10,7 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import fedata.gba.fe6.FE6Data;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;

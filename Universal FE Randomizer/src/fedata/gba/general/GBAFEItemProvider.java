@@ -36,7 +36,7 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> healingStaves(WeaponRank maxRank);
 	public Set<GBAFEItem> prfWeaponsForClassID(int classID);
 	public Set<GBAFEItem> allPotentialChestRewards();
-	public Set<GBAFEItem> relatedItemsToItem(GBAFEItemData item);
+	public Set<GBAFEItem> relatedItemsToItem(GBAFEItemData item, boolean excludeBasic);
 	public Set<GBAFEItem> weaponsLockedToClass(int classID);
 	public Set<GBAFEItem> weaponsForClass(int classID);
 	public Set<GBAFEItem> basicWeaponsForClass(int classID);
@@ -47,6 +47,8 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng);
 	public Set<GBAFEItem> playerOnlyWeapons();
 	
+	public GBAFEItem legendaryWeaponOfType(WeaponType type, boolean isLord);
+	
 	public Set<GBAFEItem> promoWeapons();
 	public Set<GBAFEItem> poisonWeapons();
 	
@@ -55,6 +57,12 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> rareDrops();
 	
 	public Set<GBAFEItem> disallowedWeaponsInShops();
+	
+	public List<String> itemAbility1Flags();
+	public List<String> itemAbility2Flags();
+	public List<String> itemAbility3Flags();
+	
+	public List<String> weaponEffectFlags();
 	
 	// Not sure if I want to define shop randomization pools explicitly or via rules using defined sets of items.
 	// For now, I've settled on defining early/mid/late using weapon ranks instead of being more specific. If it turns out
@@ -74,7 +82,7 @@ public interface GBAFEItemProvider {
 	
 	public AdditionalData effectivenessPointerType(long effectivenessPtr);
 	
-	public GBAFEItemData itemDataWithData(byte[] data, long offset, int itemID); // itemID is required for FE8
+	public GBAFEItemData itemDataWithData(byte[] data, long offset);
 	
 	public List<GBAFEClass> knightCavEffectivenessClasses();
 	public List<GBAFEClass> knightEffectivenessClasses();

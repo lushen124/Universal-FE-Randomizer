@@ -1,5 +1,6 @@
 package fedata.gba.general;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,6 +36,11 @@ public interface GBAFEClassProvider {
 	
 	public GBAFEClass[] promotedClass(GBAFEClass baseClass);
 	public GBAFEClass[] demotedClass(GBAFEClass promotedClass);
+	
+	public List<String> charClassAbility1Flags();
+	public List<String> charClassAbility2Flags();
+	public List<String> charClassAbility3Flags();
+	public List<String> charClassAbility4Flags();
 	
 	public boolean isFlier(GBAFEClass charClass);
 	

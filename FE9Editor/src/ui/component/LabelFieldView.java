@@ -59,19 +59,32 @@ public class LabelFieldView extends Composite {
 				labelData.width = computedLabelSize.x;
 				label.setLayoutData(labelData);	
 				
-				layout();
+				requestLayout();
 			}
 		});
 	}
 	
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		label.setEnabled(enabled);
+		field.setEnabled(enabled);
+	}
+	
 	public void setLabel(String text) {
 		label.setText(text);
-		layout();
+		Point computedLabelSize = label.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		FormData labelData = new FormData();
+		labelData.left = new FormAttachment(0, 0);
+		labelData.top = new FormAttachment(field, 0, SWT.CENTER);
+		labelData.width = computedLabelSize.x;
+		label.setLayoutData(labelData);	
+		requestLayout();
 	}
 
 	public void setField(String value) {
 		if (value == null) { value = "(null)"; }
 		field.setText(value);
-		layout();
+		requestLayout();
 	}
 }

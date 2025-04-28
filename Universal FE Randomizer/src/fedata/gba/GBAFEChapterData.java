@@ -25,4 +25,7 @@ public interface GBAFEChapterData {
 	public GBAFEChapterItemData chapterItemGivenToCharacter(int characterID);
 	
 	public int getMaxEnemyClassLimit();
+	
+	public boolean chapterHasChests();
+	public boolean chapterHasVillages();
 }

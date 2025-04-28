@@ -10,6 +10,7 @@ import java.util.Set;
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterItemData;
 import fedata.gba.GBAFEChapterUnitData;
+import fedata.gba.GBAFEChapterItemData.Type;
 import fedata.gba.general.CharacterNudge;
 import io.FileHandler;
 import util.DebugPrinter;
@@ -192,6 +193,14 @@ public class FE7Chapter implements GBAFEChapterData {
 	
 	public Boolean isClassSafe() {
 		return isClassSafe;
+	}
+	
+	public boolean chapterHasChests() {
+		return allChapterRewards.stream().anyMatch(reward -> reward.getRewardType() == Type.CHES);
+	}
+	
+	public boolean chapterHasVillages() {
+		return allChapterRewards.stream().anyMatch(reward -> reward.getRewardType() == Type.ITGV);
 	}
 	
 	public void applyNudges() {

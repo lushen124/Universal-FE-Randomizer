@@ -7,10 +7,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFEClassData;
+import fedata.gba.GBAFEItemData;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.general.GBAFEClass;
 import fedata.gba.general.GBAFEClassProvider;
@@ -34,9 +36,72 @@ public class ClassDataLoader {
 	private Map<Integer, GBAFEClassData> classMap = new HashMap<Integer, GBAFEClassData>();
 	private Map<Integer, GBAFEClassData> addedClasses = new HashMap<Integer, GBAFEClassData>();
 	
+	private List<GBAFEClassData> classList = new ArrayList<GBAFEClassData>();
+	
 	private int lastClassID = 0;
 	
 	public static final String RecordKeeperCategoryKey = "Classes";
+	
+	public static ClassDataLoader createReadOnlyClassDataLoader(GBAFEClassProvider provider, FileHandler handler) {
+		return new ClassDataLoader(provider, handler, true);
+	}
+	
+	private ClassDataLoader(GBAFEClassProvider provider, FileHandler handler, boolean parseTable) {
+		super();
+		this.provider = provider;
+		
+		long baseAddress = FileReadHelper.readAddress(handler, provider.classDataTablePointer());
+		long currentAddress = baseAddress;
+		int classID = -1;
+		List<Integer> processLaterIDs = new ArrayList<Integer>();
+		do {
+			byte[] classData = handler.readBytesAtOffset(currentAddress, provider.bytesPerClass());
+			GBAFEClassData charClass = provider.classDataWithData(classData, currentAddress, null);
+			classID = charClass.getID();
+			if (classID == 0x0 || classID == 0xFF) {
+				currentAddress += provider.bytesPerClass();
+				continue;
+			}
+			if (charClass.isPromotedClass()) {
+				GBAFEClassData demotedClass = null;
+				try {
+					demotedClass = classList.stream().filter(curr -> curr.getTargetPromotionID() == charClass.getID()).findFirst().get();
+				} catch (NoSuchElementException e) {}
+				if (demotedClass == null) {
+					// We need the demoted class first. process this later.
+					processLaterIDs.add(charClass.getID());
+					currentAddress += provider.bytesPerClass();
+					continue;
+				}
+				
+				GBAFEClassData finalClass = provider.classDataWithData(classData, currentAddress, demotedClass);
+				classMap.put(finalClass.getID(), finalClass);
+				classList.add(finalClass);
+			} else {
+				classMap.put(charClass.getID(), charClass);
+				classList.add(charClass);
+			}
+			
+			currentAddress += provider.bytesPerClass();
+		} while ((classID != 0 && classID != 0xFF) || classList.isEmpty());
+		
+		for (int deferredID : processLaterIDs) {
+			long address = baseAddress + (deferredID * provider.bytesPerClass());
+			byte[] classData = handler.readBytesAtOffset(address, provider.bytesPerClass());
+			GBAFEClassData demotedClass = null;
+			try {
+				demotedClass = classList.stream().filter(curr -> curr.getTargetPromotionID() == deferredID).findFirst().get();
+			} catch (NoSuchElementException e) {
+				System.err.println("Deferred Class ID still cannot be processed! Promotion Info may not be available for class with ID 0x" + Integer.toHexString(deferredID).toUpperCase());
+			}
+			
+			GBAFEClassData finalClass = provider.classDataWithData(classData, address, demotedClass);
+			classMap.put(finalClass.getID(), finalClass);
+			classList.add(finalClass);
+		}
+		
+		classList.sort(GBAFEClassData.defaultComparator);
+	}
 	
 	public ClassDataLoader(GBAFEClassProvider provider, FileHandler handler) {
 		super();
@@ -123,6 +188,10 @@ public class ClassDataLoader {
 		}
 	}
 	
+	public List<GBAFEClassData> getParsedClassList() {
+		return new ArrayList<GBAFEClassData>(classList);
+	}
+	
 	public String debugStringForClass(int classID) {
 		if (provider.classWithID(classID) != null) {
 			return provider.classWithID(classID).toString();
@@ -201,6 +270,11 @@ public class ClassDataLoader {
 	public Boolean isThief(int classID) {
 		GBAFEClass charClass = provider.classWithID(classID);
 		return charClass != null ? charClass.isThief() : false;
+	}
+	
+	public Boolean canDestroyVillages(int classID) {
+		GBAFEClass charClass = provider.classWithID(classID);
+		return charClass != null ? charClass.canDestroyVillages() : false;
 	}
 	
 	public Boolean isFemale(int classID) {
@@ -320,6 +394,26 @@ public class ClassDataLoader {
 	public Boolean canClassAttack(int classID) {
 		GBAFEClass charClass = provider.classWithID(classID);
 		return charClass != null ? charClass.canAttack() : false;
+	}
+	
+	public List<String> ability1Flags() {
+		return provider.charClassAbility1Flags();
+	}
+	
+	public List<String> ability2Flags() {
+		return provider.charClassAbility2Flags();
+	}
+	
+	public List<String> ability3Flags() {
+		return provider.charClassAbility3Flags();
+	}
+	
+	public List<String> ability4Flags() {
+		return provider.charClassAbility4Flags();
+	}
+	
+	public boolean classHasFlagByDisplayString(String displayString, GBAFEClassData charClass) {
+		return charClass.hasAbility(displayString);
 	}
 	
 	public List<WeaponType> usableTypesForClass(GBAFEClassData charClass) {

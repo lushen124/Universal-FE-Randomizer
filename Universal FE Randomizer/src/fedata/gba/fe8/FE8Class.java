@@ -73,8 +73,33 @@ public class FE8Class extends GBAFEClassData {
 
 	@Override
 	public void removeLordLocks() {
-		data[42] &= ~FE8Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue();
+		data[42] &= ~FE8Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.ID;
 		data[43] &= 0x0F;
 		wasModified = true;
+	}
+	
+	public boolean hasAbility(String abilityString) {
+		FE8Data.CharacterAndClassAbility1Mask ability1 = FE8Data.CharacterAndClassAbility1Mask.maskForDisplayString(abilityString);
+		if (ability1 != null) {
+			return ((byte)getAbility1() & (byte)ability1.ID) != 0;
+		}
+		FE8Data.CharacterAndClassAbility2Mask ability2 = FE8Data.CharacterAndClassAbility2Mask.maskForDisplayString(abilityString);
+		if (ability2 != null) {
+			return ((byte)getAbility2() & (byte)ability2.ID) != 0; 
+		}
+		FE8Data.CharacterAndClassAbility3Mask ability3 = FE8Data.CharacterAndClassAbility3Mask.maskForDisplayString(abilityString);
+		if (ability3 != null) {
+			return ((byte)getAbility3() & (byte)ability3.ID) != 0;
+		}
+		FE8Data.CharacterAndClassAbility4Mask ability4 = FE8Data.CharacterAndClassAbility4Mask.maskForDisplayString(abilityString);
+		if (ability4 != null) {
+			return ((byte)getAbility4() & (byte)ability4.ID) != 0;
+		}
+		
+		return false;
+	}
+	
+	public boolean isPromotedClass() {
+		return ((byte)getAbility2() & (byte)FE8Data.CharacterAndClassAbility2Mask.PROMOTED.ID) != 0;
 	}
 }

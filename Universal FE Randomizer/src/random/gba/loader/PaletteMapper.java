@@ -139,6 +139,10 @@ public class PaletteMapper {
 		switch (type) {
 		case UNPROMOTED:
 			int paletteID = character.getUnpromotedPaletteIndex();
+			if (paletteID == 0) {
+				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Can't recycle unpromoted palette ID 0. Ignoring...");
+				return;
+			}
 			if (paletteID != character.getPromotedPaletteIndex()) {
 				recyclePaletteID(paletteID);
 				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Recycling unpromoted palette 0x" + Integer.toHexString(paletteID) + " from character 0x" + Integer.toHexString(character.getID()) + " (" + charData.debugStringForCharacter(character.getID()) + ")");
@@ -152,6 +156,9 @@ public class PaletteMapper {
 			break;
 		case PROMOTED:
 			paletteID = character.getPromotedPaletteIndex();
+			if (paletteID == 0) {
+				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Can't recycle promoted palette with ID 0. Ignoring...");
+			}
 			if (paletteID != character.getUnpromotedPaletteIndex()) {
 				recyclePaletteID(paletteID);
 				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Recycling promoted palette 0x" + Integer.toHexString(paletteID) + " from character 0x" + Integer.toHexString(character.getID()) + " (" + charData.debugStringForCharacter(character.getID()) + ")");

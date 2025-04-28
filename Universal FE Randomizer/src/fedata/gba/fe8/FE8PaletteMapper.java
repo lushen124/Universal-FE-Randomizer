@@ -1,12 +1,14 @@
 package fedata.gba.fe8;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fedata.gba.fe8.FE8Data.Character;
 import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
@@ -312,7 +314,14 @@ public class FE8PaletteMapper {
 	public int[] getCharactersNeedingAdditionalPalettes() {
 		int[] charIDs = new int[charactersThatNeedPalettes.size()];
 		int index = 0;
-		for (FE8Data.Character character : charactersThatNeedPalettes.keySet()) {
+		List<FE8Data.Character> characterList = new ArrayList<FE8Data.Character>(charactersThatNeedPalettes.keySet());
+		characterList.sort(new Comparator<FE8Data.Character>() {
+			@Override
+			public int compare(Character o1, Character o2) {
+				return Integer.compare(o1.ID, o2.ID);
+			}
+		});
+		for (FE8Data.Character character : characterList) {
 			charIDs[index++] = character.ID;
 		}
 		

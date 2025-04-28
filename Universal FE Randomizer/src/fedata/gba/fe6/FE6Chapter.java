@@ -9,6 +9,7 @@ import java.util.Set;
 
 import fedata.gba.GBAFEChapterData;
 import fedata.gba.GBAFEChapterItemData;
+import fedata.gba.GBAFEChapterItemData.Type;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.general.CharacterNudge;
 import io.FileHandler;
@@ -160,6 +161,14 @@ public class FE6Chapter implements GBAFEChapterData {
 	@Override
 	public Boolean shouldCharacterBeUnarmed(int characterID) {
 		return false;
+	}
+	
+	public boolean chapterHasChests() {
+		return allChapterRewards.stream().anyMatch(reward -> reward.getRewardType() == Type.CHES);
+	}
+	
+	public boolean chapterHasVillages() {
+		return allChapterRewards.stream().anyMatch(reward -> reward.getRewardType() == Type.ITGV);
 	}
 	
 	public void applyNudges() {

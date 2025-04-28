@@ -394,7 +394,6 @@ public class LegacyViewContainer extends YuneViewContainer {
     public void preloadOptions(OptionRecorder.FE9OptionBundle bundle) {
         growthView.initialize(bundle.growths);
         baseView.initialize(bundle.bases);
-        miscView.initialize(bundle.mechanics);
         rewardView.initialize(bundle.rewards);
         weaponView.initialize(bundle.weapons);
 
@@ -410,7 +409,6 @@ public class LegacyViewContainer extends YuneViewContainer {
         bundle.growths = growthView.getOptions();
         bundle.bases = baseView.getOptions();
         bundle.weapons = weaponView.getOptions();
-        bundle.mechanics = miscView.getOptions();
         bundle.rewards = rewardView.getOptions();
 
         // FE9 specific

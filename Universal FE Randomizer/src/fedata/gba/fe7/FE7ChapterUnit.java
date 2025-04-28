@@ -12,14 +12,13 @@ public class FE7ChapterUnit extends GBAFEChapterUnitData {
 	}
 
 	@Override
-	public void setAIToHeal(Boolean allowAttack) {
-		data[12] = (byte) (allowAttack ? 0x0F : 0x0E);
+	public void setAIToHeal() {
+		data[12] = 0x0E;
 		wasModified = true;
 	}
 
-	@Override
-	public void setAIToOnlyAttack(Boolean allowMove) {
-		data[12] = (byte) (allowMove ? 0x00 : 0x03);
+	public void removeHealingAI() {
+		data[12] = 0x00;
 		wasModified = true;
 	}
 
@@ -32,5 +31,9 @@ public class FE7ChapterUnit extends GBAFEChapterUnitData {
 		}
 
 		wasModified = true;
+	}
+	
+	public boolean isAITargetingVillages() {
+		return data[13] == 0x04 || data[13] == 0x05;
 	}
 }

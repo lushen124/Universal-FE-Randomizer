@@ -4,7 +4,9 @@ import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public enum WeaponRank {
 	NONE(0,0), E(0x01, 0x01), D(0x33, 0x1F), C(0x65, 0x47), B(0x097,0x79), A(0xC9, 0xB5), S(0xFB, 0xFB), PRF(-1, -1);
@@ -93,6 +95,28 @@ public enum WeaponRank {
 			default:
 				return NONE;
 		}
+	}
+	
+	// excludes S and NONE by default. Passing in NONE results in an empty set.
+	// Passing in S results in S and A.
+	public static Set<WeaponRank> surroundingRanks(WeaponRank centerRank) {
+		Set<WeaponRank> ranks = new HashSet<WeaponRank>();
+		
+		if (centerRank == WeaponRank.NONE) {
+			return ranks;
+		}
+		
+		ranks.add(centerRank);
+		WeaponRank nextHigher = nextRankHigherThanRank(centerRank);
+		WeaponRank nextLower = nextRankLowerThanRank(centerRank);
+		if (nextHigher != WeaponRank.S && nextHigher != WeaponRank.NONE) {
+			ranks.add(nextHigher);
+		}
+		if (nextLower != WeaponRank.NONE && nextLower != WeaponRank.S) {
+			ranks.add(nextLower);
+		}
+		
+		return ranks;
 	}
 
 	public int compare(WeaponRank other) {

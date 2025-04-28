@@ -41,6 +41,8 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public int getAbility4();
 	public String getAbility4Description(String delimiter);
 	
+	public boolean hasAbilityOrEffect(String abilityEffectString);
+	
 	public long getStatBonusPointer();
 	public void setStatBonusPointer(long address);
 	public long getEffectivenessPointer();
@@ -59,6 +61,7 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public void setCostPerUse(int cost);
 	
 	public WeaponRank getWeaponRank();
+	public void setWeaponRank(WeaponRank newRank);
 	
 	public boolean hasWeaponEffect();
 	public int getWeaponEffect();

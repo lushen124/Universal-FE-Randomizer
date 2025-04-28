@@ -208,13 +208,27 @@ public class PaletteV2 {
 		List<PaletteColor> referenceTertiary = new ArrayList<PaletteColor>();
 		
 		for (PaletteV2 palette : referencePalettes) {
-			if (palette.hasHair()) { referenceHair.addAll(Arrays.asList(palette.getHairColors(paletteType))); }
-			if (palette.hasPrimary()) { referencePrimary.addAll(Arrays.asList(palette.getPrimaryColors(paletteType))); }
-			if (palette.hasSecondary()) { referenceSecondary.addAll(Arrays.asList(palette.getSecondaryColors(paletteType))); }
-			if (palette.hasTertiary()) { referenceTertiary.addAll(Arrays.asList(palette.getTertiaryColors(paletteType))); }
+			// Only pull colors if we don't already have any colors OR if the current palette has more colors to work with for a specific area.
+			if (palette.hasHair() && (referenceHair.isEmpty() || palette.getHairColors(paletteType).length > referenceHair.size())) {
+				referenceHair.clear();
+				referenceHair.addAll(Arrays.asList(palette.getHairColors(paletteType)));
+			}
+			if (palette.hasPrimary() && (referencePrimary.isEmpty() || palette.getPrimaryColors(paletteType).length > referencePrimary.size())) {
+				referencePrimary.clear();
+				referencePrimary.addAll(Arrays.asList(palette.getPrimaryColors(paletteType)));
+			}
+			if (palette.hasSecondary() && (referenceSecondary.isEmpty() || palette.getSecondaryColors(paletteType).length > referenceSecondary.size())) {
+				referenceSecondary.clear();
+				referenceSecondary.addAll(Arrays.asList(palette.getSecondaryColors(paletteType)));
+			}
+			if (palette.hasTertiary() && (referenceTertiary.isEmpty() || palette.getTertiaryColors(paletteType).length > referenceTertiary.size())) {
+				referenceTertiary.clear();
+				referenceTertiary.addAll(Arrays.asList(palette.getTertiaryColors(paletteType)));
+			}
 		}
 		
 		if (supplementalHairColors != null && supplementalHairColors.length > 0) {
+			referenceHair.clear();
 			referenceHair.addAll(Arrays.asList(supplementalHairColors));
 		}
 		
@@ -272,7 +286,7 @@ public class PaletteV2 {
 		
 		List<PaletteColor> sortedHair = referenceHair.stream().sorted(PaletteColor.lowToHighBrightnessComparator).collect(Collectors.toList());
 		Collections.reverse(sortedHair);
-		PaletteColor[] newHairColor = PaletteColor.coerceColors(sortedHair.toArray(new PaletteColor[sortedHair.size()]), info.hairColorOffsets.length);
+		PaletteColor[] newHairColor = PaletteColor.coerceColors(sortedHair.toArray(new PaletteColor[sortedHair.size()]), info.hairColorOffsets.length, false);
 		int newIndex = 0;
 		for (int colorIndex : info.hairColorOffsets) {
 			ColorSet set = colorArray[colorIndex];
@@ -288,7 +302,7 @@ public class PaletteV2 {
 		
 		List<PaletteColor> sortedPrimary = referencePrimary.stream().sorted(PaletteColor.lowToHighBrightnessComparator).collect(Collectors.toList());
 		Collections.reverse(sortedPrimary);
-		PaletteColor[] newPrimaryColor = PaletteColor.coerceColors(sortedPrimary.toArray(new PaletteColor[sortedPrimary.size()]), info.primaryColorOffsets.length);
+		PaletteColor[] newPrimaryColor = PaletteColor.coerceColors(sortedPrimary.toArray(new PaletteColor[sortedPrimary.size()]), info.primaryColorOffsets.length, false);
 		int newIndex = 0;
 		for (int colorIndex : info.primaryColorOffsets) {
 			ColorSet set = colorArray[colorIndex];
@@ -304,7 +318,7 @@ public class PaletteV2 {
 		
 		List<PaletteColor> sortedSecondary = referenceSecondary.stream().sorted(PaletteColor.lowToHighBrightnessComparator).collect(Collectors.toList());
 		Collections.reverse(sortedSecondary);
-		PaletteColor[] newSecondaryColor = PaletteColor.coerceColors(sortedSecondary.toArray(new PaletteColor[sortedSecondary.size()]), info.secondaryColorOffsets.length);
+		PaletteColor[] newSecondaryColor = PaletteColor.coerceColors(sortedSecondary.toArray(new PaletteColor[sortedSecondary.size()]), info.secondaryColorOffsets.length, false);
 		int newIndex = 0;
 		for (int colorIndex : info.secondaryColorOffsets) {
 			ColorSet set = colorArray[colorIndex];
@@ -320,7 +334,7 @@ public class PaletteV2 {
 		
 		List<PaletteColor> sortedTertiary = referenceTertiary.stream().sorted(PaletteColor.lowToHighBrightnessComparator).collect(Collectors.toList());
 		Collections.reverse(sortedTertiary);
-		PaletteColor[] newTertiaryColor = PaletteColor.coerceColors(sortedTertiary.toArray(new PaletteColor[sortedTertiary.size()]), info.tertiaryColorOffsets.length);
+		PaletteColor[] newTertiaryColor = PaletteColor.coerceColors(sortedTertiary.toArray(new PaletteColor[sortedTertiary.size()]), info.tertiaryColorOffsets.length, false);
 		int newIndex = 0;
 		for (int colorIndex : info.tertiaryColorOffsets) {
 			ColorSet set = colorArray[colorIndex];

@@ -456,6 +456,18 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 			case STAFF: setStaffRank(rank.rankValue(gameType)); break;
 		}
 	}
+	
+	// Weapon ranks will be inherited from the class data (or automatic if an enemy character).
+	public void clearAllWeaponRanks() {
+		setSwordRank(WeaponRank.NONE.rankValue(gameType));
+		setLanceRank(WeaponRank.NONE.rankValue(gameType));
+		setAxeRank(WeaponRank.NONE.rankValue(gameType));
+		setBowRank(WeaponRank.NONE.rankValue(gameType));
+		setAnimaRank(WeaponRank.NONE.rankValue(gameType));
+		setLightRank(WeaponRank.NONE.rankValue(gameType));
+		setDarkRank(WeaponRank.NONE.rankValue(gameType));
+		setStaffRank(WeaponRank.NONE.rankValue(gameType));
+	}
 
 	public void setWeaponRanks(WeaponRanks ranks) {
 		setSwordRank(ranks.swordRank.rankValue(gameType));
@@ -535,7 +547,7 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 
 	public void enableWeaponLock(int lockMask) {
 		assert !isReadOnly : "Attempted to modify a locked character.";
-		if (lockMask == FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.getValue()) {
+		if (lockMask == FE7Data.CharacterAndClassAbility3Mask.UNUSED_WEAPON_LOCK.ID) {
 			data[42] |= lockMask;
 		} else {
 			data[43] |= lockMask;

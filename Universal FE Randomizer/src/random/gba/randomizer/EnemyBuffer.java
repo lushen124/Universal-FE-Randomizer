@@ -95,9 +95,14 @@ public class EnemyBuffer {
 						continue;
 					}
 					
-					if (classData.isThief(originalClass.getID())) {
-						continue;
+					GBAFECharacterData minionCharacterData = charactersData.characterWithID(chapterUnit.getCharacterNumber());
+					boolean characterHasWeaponRanks = !itemData.ranksForCharacter(minionCharacterData, null).getTypes().isEmpty();
+					if (characterHasWeaponRanks) {
+						minionCharacterData.clearAllWeaponRanks();
+						minionCharacterData.commitChanges();
 					}
+					
+					chapterUnit.setAutolevel(true);
 					
 					if (rng.nextInt(100) < probability) {
 						upgradeWeapons(chapterUnit, classData, itemData, rng);
@@ -106,17 +111,17 @@ public class EnemyBuffer {
 			}
 		}
 		
-		GBAFEClassData[] allClasses = classData.allClasses();
-		for (GBAFEClassData currentClass : allClasses) {
-			if (currentClass.getSwordRank() > 0) { currentClass.setSwordRank(WeaponRank.A); }
-			if (currentClass.getLanceRank() > 0) { currentClass.setLanceRank(WeaponRank.A); }
-			if (currentClass.getAxeRank() > 0) { currentClass.setAxeRank(WeaponRank.A); }
-			if (currentClass.getBowRank() > 0) { currentClass.setBowRank(WeaponRank.A); }
-			if (currentClass.getAnimaRank() > 0) { currentClass.setAnimaRank(WeaponRank.A); }
-			if (currentClass.getDarkRank() > 0) { currentClass.setDarkRank(WeaponRank.A); }
-			if (currentClass.getLightRank() > 0) { currentClass.setLightRank(WeaponRank.A); }
-			if (currentClass.getStaffRank() > 0) { currentClass.setStaffRank(WeaponRank.A); }
-		}
+//		GBAFEClassData[] allClasses = classData.allClasses();
+//		for (GBAFEClassData currentClass : allClasses) {
+//			if (currentClass.getSwordRank() > 0) { currentClass.setSwordRank(WeaponRank.A); }
+//			if (currentClass.getLanceRank() > 0) { currentClass.setLanceRank(WeaponRank.A); }
+//			if (currentClass.getAxeRank() > 0) { currentClass.setAxeRank(WeaponRank.A); }
+//			if (currentClass.getBowRank() > 0) { currentClass.setBowRank(WeaponRank.A); }
+//			if (currentClass.getAnimaRank() > 0) { currentClass.setAnimaRank(WeaponRank.A); }
+//			if (currentClass.getDarkRank() > 0) { currentClass.setDarkRank(WeaponRank.A); }
+//			if (currentClass.getLightRank() > 0) { currentClass.setLightRank(WeaponRank.A); }
+//			if (currentClass.getStaffRank() > 0) { currentClass.setStaffRank(WeaponRank.A); }
+//		}
 	}
 	
 	public static void improveBossWeapons(int probability, CharacterDataLoader charactersData, 

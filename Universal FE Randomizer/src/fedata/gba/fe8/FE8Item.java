@@ -8,6 +8,7 @@ import java.util.Random;
 
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
+import fedata.gba.fe6.FE6Data;
 import fedata.gba.fe8.FE8Data.Item.Ability1Mask;
 import fedata.gba.fe8.FE8Data.Item.Ability2Mask;
 import fedata.gba.fe8.FE8Data.Item.FE8WeaponRank;
@@ -32,20 +33,21 @@ public class FE8Item implements GBAFEItemData {
 	
 	private long originalOffset;
 	
-	private int itemID;
-	
 	private Boolean wasModified = false;
 	private Boolean hasChanges = false;
 	
 	private String debugString = "Uninitialized";
 	
 	// FE8 items don't embed their item ID, so we need it passed in on creation.
-	public FE8Item(byte[] data, long originalOffset, int itemID) {
+	public FE8Item(byte[] data, long originalOffset) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
-		this.itemID = itemID;
+	}
+	
+	public static int getIDFromItemData(byte[] itemData) {
+		return itemData[6] & 0xFF;
 	}
 	
 	public void initializeDisplayString(String debugString) {
@@ -69,7 +71,7 @@ public class FE8Item implements GBAFEItemData {
 	}
 
 	public int getID() {
-		return itemID;
+		return data[6] & 0xFF;
 	}
 
 	public WeaponType getType() {
@@ -134,6 +136,27 @@ public class FE8Item implements GBAFEItemData {
 	
 	public String getAbility4Description(String delimiter) {
 		return "[0x" + Integer.toHexString(getAbility4()).toUpperCase() + "]";
+	}
+	
+	public boolean hasAbilityOrEffect(String abilityEffectString) {
+		FE8Data.Item.Ability1Mask ability1 = FE8Data.Item.Ability1Mask.maskForDisplayString(abilityEffectString);
+		if (ability1 != null) {
+			return ((byte)getAbility1() & (byte)ability1.ID) != 0;
+		}
+		FE8Data.Item.Ability2Mask ability2 = FE8Data.Item.Ability2Mask.maskForDisplayString(abilityEffectString);
+		if (ability2 != null) {
+			return ((byte)getAbility2() & (byte)ability2.ID) != 0; 
+		}
+		FE8Data.Item.Ability3Mask ability3 = FE8Data.Item.Ability3Mask.maskForDisplayString(abilityEffectString);
+		if (ability3 != null) {
+			return ((byte)getAbility3() & (byte)ability3.ID) != 0; 
+		}
+		FE8Data.Item.WeaponEffect effect = FE8Data.Item.WeaponEffect.effectForDisplayString(abilityEffectString);
+		if (effect != null) {
+			return ((byte)getWeaponEffect() == (byte)effect.ID);
+		}
+		
+		return false;
 	}
 
 	public long getStatBonusPointer() {
@@ -217,6 +240,12 @@ public class FE8Item implements GBAFEItemData {
 				return WeaponRank.NONE;
 			}
 		}
+	}
+	
+	public void setWeaponRank(WeaponRank newRank) {
+		int rankValue = FE8Data.Item.FE8WeaponRank.rankFromGeneralRank(newRank).value;
+		data[28] = (byte)(rankValue & 0xFF);
+		wasModified = true;
 	}
 	
 	public boolean hasWeaponEffect() {

@@ -203,16 +203,15 @@ public class FE8ChapterUnit extends GBAFEChapterUnitData {
 	}
 	
 
-	// TODO: Figure out FE8 AI flags.
 	@Override
-	public void setAIToHeal(Boolean allowAttack) {
-		data[17] = (byte) (allowAttack ? 0x0F : 0x0E);
+	public void setAIToHeal() {
+		data[17] = (byte) 0x0E;
 		wasModified = true;
 	}
 
 	@Override
-	public void setAIToOnlyAttack(Boolean allowMove) {
-		data[17] = (byte) (allowMove ? 0x00 : 0x03);
+	public void removeHealingAI() {
+		data[17] = (byte) 0x00;
 		wasModified = true;
 	}
 
@@ -225,4 +224,7 @@ public class FE8ChapterUnit extends GBAFEChapterUnitData {
 		}
 	}
 
+	public boolean isAITargetingVillages() {
+		return data[20] == 0x04 || data[20] == 0x05;
+	}
 }

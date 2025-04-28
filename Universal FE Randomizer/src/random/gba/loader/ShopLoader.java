@@ -41,7 +41,7 @@ public class ShopLoader {
 		itemMap = new HashMap<GBAFEShop, List<GBAFEItemData>>();
 		listAddressMap = new HashMap<GBAFEShop, Long>();
 		
-		for (GBAFEShop shop : provider.allShops()) {
+		for (GBAFEShop shop : provider.orderedShops()) {
 			long pointerOffset = shop.getPointerOffset();
 			long originalShopList = shop.getOriginalShopAddress();
 			

@@ -78,12 +78,14 @@ public class TextLoader {
 	// and vice versa. Instead, it will return the unchanged string.
 	public String getStringAtIndex(int index, boolean stripCodes) {
 		if (index > 0xFFFF) { return null; }
+		if (index > allStrings.length) { return null; }
 		
 		String replacement = replacementsWithCodes.get(index);
 		
 		String result = replacement != null ? replacement : allStrings[index];
 		if (result == null) { return ""; }
 		if (!stripCodes) { return result; }
+		result = result.replace("[0x1]", "\n");
 		return result.replaceAll("\\[[^\\[]*\\]", "");
 	}
 	

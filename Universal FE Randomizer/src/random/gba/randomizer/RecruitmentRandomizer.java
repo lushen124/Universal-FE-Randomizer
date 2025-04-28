@@ -218,7 +218,14 @@ public class RecruitmentRandomizer {
 		
 		// Process every mapped character.
 		// The fill should always be reference data, so it will not have changed from earlier substitutions.
-		for (GBAFECharacterData slot : characterMap.keySet()) {
+		List<GBAFECharacterData> orderedKeys = new ArrayList<GBAFECharacterData>(characterMap.keySet());
+		orderedKeys.sort(new Comparator<GBAFECharacterData>() {
+			@Override
+			public int compare(GBAFECharacterData o1, GBAFECharacterData o2) {
+				return o1.getID() < o2.getID() ? -1 : (o1.getID() > o2.getID() ? 1 : 0);
+			}
+		});
+		for (GBAFECharacterData slot : orderedKeys) {
 			GBAFECharacterData fill = characterMap.get(slot);
 			if (fill != null) {
 				// Track the text changes before we change anything.
@@ -445,7 +452,7 @@ public class RecruitmentRandomizer {
 			int levelsToAdd = adjustmentDAO.levelAdjustment;
 			promoBonuses =  adjustmentDAO.promoBonuses;
 			
-			setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, rng);
+			setSlotClass(inventoryOptions, linkedSlot, targetClass, characterData, classData, itemData, textData, chapterData, type, rng);
 			
 			GBAFEStatDto targetGrowths;
 			switch(options.growthMode) {
@@ -510,11 +517,11 @@ public class RecruitmentRandomizer {
 		}
 	}
 	
-	private static void setSlotClass(ItemAssignmentOptions inventoryOptions, GBAFECharacterData slot, GBAFEClassData targetClass, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, ChapterLoader chapterData, Random rng) {
+	private static void setSlotClass(ItemAssignmentOptions inventoryOptions, GBAFECharacterData slot, GBAFEClassData targetClass, CharacterDataLoader characterData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, ChapterLoader chapterData, GameType type, Random rng) {
 		int oldClassID = slot.getClassID();
 		GBAFEClassData originalClass = classData.classForID(oldClassID);
 		slot.setClassID(targetClass.getID());
-		GBASlotAdjustmentService.transferWeaponRanks(slot, originalClass, targetClass, rng);
+		GBASlotAdjustmentService.transferWeaponRanks(slot, originalClass, targetClass, type, rng);
 		ItemAssignmentService.assignNewItems(characterData, slot, targetClass, chapterData, inventoryOptions, rng, textData, classData, itemData);
 	}
 }
