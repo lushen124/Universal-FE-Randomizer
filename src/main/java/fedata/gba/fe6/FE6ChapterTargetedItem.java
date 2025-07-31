@@ -1,0 +1,78 @@
+package fedata.gba.fe6;
+
+import fedata.gba.GBAFEChapterTargetedItemData;
+
+public class FE6ChapterTargetedItem implements GBAFEChapterTargetedItemData {
+
+	private byte[] originalData;
+	private byte[] data;
+	
+	private long originalOffset;
+	
+	private Boolean wasModified = false;
+	private Boolean hasChanges = false;
+	
+	public FE6ChapterTargetedItem(byte[] data, long originalOffset) {
+		super();
+		this.originalData = data;
+		this.data = data;
+		this.originalOffset = originalOffset;
+	}
+
+	@Override
+	public void resetData() {
+		wasModified = false;
+		data = originalData;
+	}
+
+	@Override
+	public void commitChanges() {
+		if (wasModified) {
+			hasChanges = true;
+		}
+		
+		wasModified = false;
+	}
+
+	@Override
+	public byte[] getData() {
+		return data;
+	}
+
+	@Override
+	public Boolean hasCommittedChanges() {
+		return hasChanges;
+	}
+
+	@Override
+	public Boolean wasModified() {
+		return wasModified;
+	}
+
+	@Override
+	public long getAddressOffset() {
+		return originalOffset;
+	}
+
+	@Override
+	public Type getRewardType() {
+		if (data[0] == 0x27) { return Type.ITGC; }
+		
+		return data[0] == 0x26 ? Type.ITGV : Type.CHES;
+	}
+	
+	public int getTargetID() {
+		return data[4] & 0xFF;
+	}
+
+	@Override
+	public int getItemID() {
+		return data[8] & 0xFF;
+	}
+
+	@Override
+	public void setItemID(int newItemID) {
+		data[8] = (byte)(newItemID & 0xFF);
+		wasModified = true;
+	}
+}
