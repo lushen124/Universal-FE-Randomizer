@@ -133,7 +133,6 @@ public class GrowthsRandomizer {
 					int amount = Math.min(5,  growthTotal);
 					int increaseAmount = 0;
 					switch (randomNum) {
-					case 0:
 					case 1:
 						increaseAmount = Math.min(amount, max - newHPGrowth);
 						growthTotal -= increaseAmount;
@@ -165,7 +164,7 @@ public class GrowthsRandomizer {
 						newDEFGrowth += increaseAmount;
 						break;
 					case 7:
-						increaseAmount = Math.min(amount, max - newDEFGrowth);
+						increaseAmount = Math.min(amount, max - newRESGrowth);
 						growthTotal -= increaseAmount;
 						newRESGrowth += increaseAmount;
 						break;
