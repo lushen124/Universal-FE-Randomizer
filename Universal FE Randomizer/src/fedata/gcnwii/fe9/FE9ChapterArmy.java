@@ -339,11 +339,11 @@ public class FE9ChapterArmy {
 	public int getStartingYForUnit(FE9ChapterUnit unit) {
 		return unit.getStartingY();
 	}
-	
+
 	public void setStartingXForUnit(FE9ChapterUnit unit, int x) {
 		unit.setStartingX(x);
 	}
-	
+
 	public void setStartingYForUnit(FE9ChapterUnit unit, int y) {
 		unit.setStartingY(y);
 	}
@@ -359,10 +359,12 @@ public class FE9ChapterArmy {
 	public void setEndingXForUnit(FE9ChapterUnit unit, int x) {
 		unit.setEndingX(x);
 	}
-	
 	public void setEndingYForUnit(FE9ChapterUnit unit, int y) {
 		unit.setEndingY(y);
 	}
+
+
+	
 	
 	public String getSEQ1ForUnit(FE9ChapterUnit unit) {
 		if (unit == null) { return null; }

@@ -190,7 +190,7 @@ public class GBAClassDataView extends Composite {
 		infoGroup.setLayoutData(infoData);
 		
 		idField = new LabelFieldView(infoGroup, SWT.NONE);
-		idField.setLabel("Item ID: ");
+		idField.setLabel("Class ID: ");
 		idField.setField("(null)");
 		
 		FormData viewData = new FormData();

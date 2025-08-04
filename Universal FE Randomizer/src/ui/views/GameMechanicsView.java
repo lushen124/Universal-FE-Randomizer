@@ -24,7 +24,7 @@ public class GameMechanicsView extends YuneView<GameMechanicOptions> {
 	
 
 	private Button applyEnglishPatch; // pre-FE6 only
-	private Button tripleEffectiveness; // FE7 only
+	private Button tripleEffectiveness; // FE7 and FE9 only
 	
 
 	private GameMechanicOptions.ExperienceRate experienceRate;
@@ -88,10 +88,14 @@ public class GameMechanicsView extends YuneView<GameMechanicOptions> {
 			previousControl = applyEnglishPatch;
 		}
 		
-		if (type == GameType.FE7) {
+		if (type == GameType.FE7 || type == GameType.FE9) {
 			tripleEffectiveness = new Button(group, SWT.CHECK);
 			tripleEffectiveness.setText("Set Effectiveness to 3x");
-			tripleEffectiveness.setToolTipText("Reverts the weapon effectiveness to 3x like in the Japanese release, instead of 2x.");
+			if (type == GameType.FE7) {
+				tripleEffectiveness.setToolTipText("Reverts the weapon effectiveness to 3x like in the Japanese release, instead of 2x.");
+			} else {
+				tripleEffectiveness.setToolTipText("Changes the weapon effectiveness effect to 3x of weapon might, instead of 2x.");
+			}
 			
 			FormData effectivenessData = new FormData();
 			effectivenessData.left = new FormAttachment(0, 5);
@@ -331,6 +335,8 @@ public class GameMechanicsView extends YuneView<GameMechanicOptions> {
 			default:
 				return new GameMechanicOptions(false, false, false, false, 0, null, false, ExperienceRate.NORMAL);
 			}
+		} else if (type == GameType.FE9) {
+			return new GameMechanicOptions(tripleEffectiveness != null ? tripleEffectiveness.getSelection() : false);
 		}
 		return new GameMechanicOptions(false, false, false, false, 0, null, false, ExperienceRate.NORMAL);
 	}

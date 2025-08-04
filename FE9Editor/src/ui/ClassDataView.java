@@ -46,6 +46,8 @@ public class ClassDataView extends Composite {
 	private LabelFieldView sid1;
 	private LabelFieldView sid2;
 	private LabelFieldView sid3;
+	private LabelFieldView sid4;
+	private LabelFieldView sid5;
 	private LabelFieldView race;
 	private LabelFieldView trait;
 	private LabelFieldView build;
@@ -246,13 +248,33 @@ public class ClassDataView extends Composite {
 		viewData.right = new FormAttachment(100, 0);
 		sid3.setLayoutData(viewData);
 		
+		sid4 = new LabelFieldView(statsGroup, SWT.NONE);
+		sid4.setLabel("Skill 4: ");
+		sid4.setField("(null)");
+		
+		viewData = new FormData();
+		viewData.left = new FormAttachment(0, 0);
+		viewData.top = new FormAttachment(sid3, 10);
+		viewData.right = new FormAttachment(100, 0);
+		sid4.setLayoutData(viewData);
+		
+		sid5 = new LabelFieldView(statsGroup, SWT.NONE);
+		sid5.setLabel("Skill 5: ");
+		sid5.setField("(null)");
+		
+		viewData = new FormData();
+		viewData.left = new FormAttachment(0, 0);
+		viewData.top = new FormAttachment(sid4, 10);
+		viewData.right = new FormAttachment(100, 0);
+		sid5.setLayoutData(viewData);
+		
 		race = new LabelFieldView(statsGroup, SWT.NONE);
 		race.setLabel("Race: ");
 		race.setField("(null)");
 		
 		viewData = new FormData();
 		viewData.left = new FormAttachment(0, 0);
-		viewData.top = new FormAttachment(sid3, 10);
+		viewData.top = new FormAttachment(sid5, 10);
 		viewData.right = new FormAttachment(100, 0);
 		race.setLayoutData(viewData);
 		
@@ -654,9 +676,13 @@ public class ClassDataView extends Composite {
 		FE9Skill skill1 = skillData.getSkillWithSID(classData.getSID1ForClass(charClass));
 		FE9Skill skill2 = skillData.getSkillWithSID(classData.getSID2ForClass(charClass));
 		FE9Skill skill3 = skillData.getSkillWithSID(classData.getSID3ForClass(charClass));
+		FE9Skill skill4 = skillData.getSkillWithSID(classData.getSID4ForClass(charClass));
+		FE9Skill skill5 = skillData.getSkillWithSID(classData.getSID5ForClass(charClass));
 		sid1.setField(skill1 != null ? skillData.getSID(skill1) + " (" + skillData.displayNameForSkill(skill1) + ")" : "(null)");
 		sid2.setField(skill2 != null ? skillData.getSID(skill2) + " (" + skillData.displayNameForSkill(skill2) + ")" : "(null)");
 		sid3.setField(skill3 != null ? skillData.getSID(skill3) + " (" + skillData.displayNameForSkill(skill3) + ")" : "(null)");
+		sid4.setField(skill4 != null ? skillData.getSID(skill4) + " (" + skillData.displayNameForSkill(skill4) + ")" : "(null)");
+		sid5.setField(skill5 != null ? skillData.getSID(skill5) + " (" + skillData.displayNameForSkill(skill5) + ")" : "(null)");
 		race.setField(classData.getRaceForClass(charClass));
 		trait.setField(classData.getTraitForClass(charClass));
 		build.setField(Integer.toString(charClass.getBaseCON()));

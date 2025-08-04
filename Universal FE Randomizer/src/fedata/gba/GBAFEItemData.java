@@ -67,6 +67,8 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public int getWeaponEffect();
 	public String getWeaponEffectDescription();
 	
+	public int getWeaponExperience();
+	
 	public void setDurability(int durability);
 	public void setMight(int might);
 	public void setHit(int hit);

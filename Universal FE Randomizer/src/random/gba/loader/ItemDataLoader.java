@@ -761,7 +761,7 @@ public class ItemDataLoader {
 			return null;
 		}
 		
-		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), new WeaponRanks(targetClass, true, type), originalWeapon, strict);
+		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(targetClass.getID(), new WeaponRanks(targetClass, WeaponRank.A, type), originalWeapon, strict);
 		if (!includePromo) {
 			potentialItems.removeAll(provider.promoWeapons());
 		}
@@ -789,12 +789,16 @@ public class ItemDataLoader {
 		return itemMap.get(itemList.get(rng.nextInt(itemList.size())).getID());
 	}
 	
-	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEClassData charClass, GBAFEItemData originalWeapon, boolean isEnemy, boolean strict, boolean includePromo, boolean includePoison, boolean mustBeWeapon, Random rng) {
+	public GBAFEItemData getSidegradeWeapon(GBAFECharacterData character, GBAFEClassData charClass, GBAFEItemData originalWeapon, boolean isEnemy, boolean strict, boolean includePromo, boolean includePoison, boolean mustBeWeapon, boolean canUseAllRanks, GameType type, Random rng) {
 		if (!isWeapon(originalWeapon) && originalWeapon.getType() != WeaponType.STAFF) {
 			return null;
 		}
 		
-		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(character.getClassID(), new WeaponRanks(character, charClass), originalWeapon, strict);
+		WeaponRanks usableRanks = new WeaponRanks(character, charClass);
+		if (canUseAllRanks) {
+			usableRanks = new WeaponRanks(charClass, WeaponRank.A, type);
+		}
+		Set<GBAFEItem> potentialItems = provider.comparableWeaponsForClass(character.getClassID(), usableRanks, originalWeapon, strict);
 		if (!includePromo) {
 			potentialItems.removeAll(provider.promoWeapons());
 		}

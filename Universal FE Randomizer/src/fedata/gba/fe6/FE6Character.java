@@ -46,4 +46,25 @@ public class FE6Character extends GBAFECharacterData {
 		data[42] |= lockMask;
 		wasModified = true;
 	}
+	
+	public boolean hasAbility(String abilityString) {
+		FE6Data.CharacterAndClassAbility1Mask ability1 = FE6Data.CharacterAndClassAbility1Mask.maskForDisplayString(abilityString);
+		if (ability1 != null) {
+			return ((byte)getAbility1() & (byte)ability1.ID) != 0; 
+		}
+		FE6Data.CharacterAndClassAbility2Mask ability2 = FE6Data.CharacterAndClassAbility2Mask.maskForDisplayString(abilityString);
+		if (ability2 != null) {
+			return ((byte)getAbility2() & (byte)ability2.ID) != 0;
+		}
+		FE6Data.CharacterAndClassAbility3Mask ability3 = FE6Data.CharacterAndClassAbility3Mask.maskForDisplayString(abilityString);
+		if (ability3 != null) {
+			return ((byte)getAbility3() & (byte)ability3.ID) != 0; 
+		}
+		FE6Data.CharacterAndClassAbility4Mask ability4 = FE6Data.CharacterAndClassAbility4Mask.maskForDisplayString(abilityString);
+		if (ability4 != null) {
+			return ((byte)getAbility4() & (byte)ability4.ID) != 0;
+		}
+		
+		return false;
+	}
 }

@@ -270,7 +270,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static CharacterAndClassAbility2Mask maskForDisplayString(String displayString) {
 			CharacterAndClassAbility2Mask mask = null;
 			try {
-				mask = displayStrings.keySet().stream().filter(ability -> displayStrings.equals(displayStrings.get(ability))).findFirst().get();
+				mask = displayStrings.keySet().stream().filter(ability -> displayString.equals(displayStrings.get(ability))).findFirst().get();
 			} catch (NoSuchElementException e) {}
 			
 			return mask;
@@ -1069,7 +1069,9 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		GOLD_1(0x77), GOLD_1_AGAIN(0x9A), GOLD_5(0x9B), GOLD_10(0x9C), GOLD_50(0x9D), GOLD_100(0x9E), GOLD_3000(0x9F), GOLD_5000(0xA0),
 		
 		UNUSED_MANI_KATTI(0x0A), // Used for Eirika's Prf.
-		UNUSED_FORBLAZE(0x3D) // Used for Ephraim's Prf
+		UNUSED_FORBLAZE(0x3D), // Used for Ephraim's Prf
+		
+		JUNA_FRUIT(0xB7) // Normally inaccessible, but it sounds like it works? It lowers user's level by 1 - 5.
 		
 		;
 		public int ID;
@@ -1501,7 +1503,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allStatusStaves = new HashSet<Item>(Arrays.asList(SILENCE, SLEEP, BERSERK));
 		public static Set<Item> allStatBoosters = new HashSet<Item>(Arrays.asList(ANGELIC_ROBE, ENERGY_RING, SECRET_BOOK, SPEEDWINGS, GODDESS_ICON, DRAGONSHIELD, TALISMAN, BOOTS, BODY_RING));
 		public static Set<Item> allPromotionItems = new HashSet<Item>(Arrays.asList(HERO_CREST, KNIGHT_CREST, ORION_BOLT, ELYSIAN_WHIP, GUIDING_RING));
-		public static Set<Item> allSpecialItems = new HashSet<Item>(Arrays.asList(FILI_SHIELD, MEMBER_CARD, HOPLON_GUARD, SILVER_CARD, METIS_TOME));
+		public static Set<Item> allSpecialItems = new HashSet<Item>(Arrays.asList(FILI_SHIELD, MEMBER_CARD, HOPLON_GUARD, SILVER_CARD, METIS_TOME, JUNA_FRUIT));
 		public static Set<Item> allMoneyItems = new HashSet<Item>(Arrays.asList(WHITE_GEM, BLUE_GEM, RED_GEM, BLACK_GEM, GOLD_GEM));
 		public static Set<Item> usableItems = new HashSet<Item>(Arrays.asList(CHEST_KEY, CHEST_KEY_5, DOOR_KEY, LOCKPICK, VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH));
 		
@@ -1520,16 +1522,16 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				SILENCE, SLEEP, BERSERK,
 				ANGELIC_ROBE, ENERGY_RING, SECRET_BOOK, SPEEDWINGS, GODDESS_ICON, DRAGONSHIELD, TALISMAN, BOOTS, BODY_RING,
 				HERO_CREST, KNIGHT_CREST, ORION_BOLT, ELYSIAN_WHIP, GUIDING_RING,
-				FILI_SHIELD, MEMBER_CARD, HOPLON_GUARD, SILVER_CARD, METIS_TOME,
+				FILI_SHIELD, MEMBER_CARD, HOPLON_GUARD, SILVER_CARD, METIS_TOME, JUNA_FRUIT,
 				WHITE_GEM, BLUE_GEM, RED_GEM, BLACK_GEM, GOLD_GEM,
 				CHEST_KEY, CHEST_KEY_5, DOOR_KEY, LOCKPICK, VULNERARY, ELIXIR, PURE_WATER, ANTITOXIN, TORCH));
 		
 		public static Set<Item> commonDrops = new HashSet<Item>(Arrays.asList(VULNERARY, ELIXIR, ANTITOXIN, PURE_WATER, TORCH,
 				CHEST_KEY, DOOR_KEY, RED_GEM));
 		public static Set<Item> uncommonDrops = new HashSet<Item>(Arrays.asList(HERO_CREST, KNIGHT_CREST, ORION_BOLT,
-				ELYSIAN_WHIP, GUIDING_RING, MASTER_SEAL, CONQUORER_PROOF, METIS_TOME, BLUE_GEM));
+				ELYSIAN_WHIP, GUIDING_RING, MASTER_SEAL, CONQUORER_PROOF, BLUE_GEM));
 		public static Set<Item> rareDrops = new HashSet<Item>(Arrays.asList(ANGELIC_ROBE, ENERGY_RING, SECRET_BOOK, SPEEDWINGS,
-				GODDESS_ICON, DRAGONSHIELD, TALISMAN, BOOTS, BODY_RING, WHITE_GEM));
+				GODDESS_ICON, DRAGONSHIELD, TALISMAN, BOOTS, BODY_RING, METIS_TOME, JUNA_FRUIT, WHITE_GEM));
 		
 		public static Set<Item> allWeapons = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, POISON_SWORD, RAPIER,
 				BRAVE_SWORD, SHAMSHIR, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, ZANBATO, SHADOWKILLER, SIEGLINDE, AUDHULMA, WIND_SWORD,
@@ -3136,14 +3138,17 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case HERO:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13}, new int[] {});
 					break;
+				case SNIPER:
+				case SNIPER_F:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {}, new int[] {8, 9, 10});
+					break;
 				case MYRMIDON:
 				case MYRMIDON_F:
 				case SWORDMASTER:
 				case SWORDMASTER_F:
 				case ARCHER:
-				case SNIPER:
-				case SNIPER_F:
-				case MONK:
+				case ARCHER_F:
+        case MONK:
 				case PRIEST:
 				case CLERIC:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {});
@@ -3156,8 +3161,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {});
 					break;
 				case WARRIOR:
-				case BERSERKER:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {});
+					break;
+				case BERSERKER:
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {8, 9, 10});
 					break;
 				case RANGER:
 				case RANGER_F:
@@ -3165,27 +3172,25 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					break;
 				case CAVALIER:
 				case CAVALIER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11}, new int[] {3, 5});
 					break;
 				case PALADIN:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {6, 7}, new int[] {12, 13, 14}); // Secondary is shield (which is blended with white). Tertiary is mane + shield crest.
 					break;
 				case PALADIN_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10}, new int[] {5, 3, 4}); // Hair also affects shield. Secondary is mane + shield crest.
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11}, new int[] {}, new int[] {12, 13, 14}); // Hair also affects shield. Tertiary is horse/weapon colors
 					break;
 				case KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 5, 3, 2, 1}, new int[] {});
-					break;
 				case KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 2, 1}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 2, 1}, new int[] {}, new int[] {9, 5, 3});
 					break;
 				case GENERAL:
 				case GENERAL_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {4, 5, 7});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {4, 5, 7}, new int[] {8, 9, 10});
 					break;
 				case GREAT_KNIGHT:
 				case GREAT_KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {12, 13, 14}, new int[] {5, 6, 7, 8});
 					break;
 				case WYVERN_RIDER:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {3, 2}, new int[] {10, 11, 12, 13}, new int[] {9});
@@ -3198,10 +3203,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {9, 8, 7}, new int[] {10, 11, 12, 13}, new int[] {});
 					break;
 				case PEGASUS_KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10}, new int[] {11, 12, 13});
 					break;
 				case FALCON_KNIGHT:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {9, 10, 14}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 6}, new int[] {11, 12, 9, 13, 10, 14}, new int[] {});
 					break;
 				case MAGE:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {12, 13, 14}, new int[] {8, 9, 10});
@@ -3227,10 +3232,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {7, 8}, new int[] {12, 13, 14}, new int[] {9, 10, 11});
 					break;
 				case BISHOP:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {8, 13, 14}, new int[] {11, 12});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {8, 13, 14}, new int[] {11, 12}, new int[] {9, 10});
 					break;
 				case BISHOP_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {11, 12, 13, 14}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6}, new int[] {11, 12, 13, 14}, new int[] {}, new int[] {9, 10});
 					break;
 				case TROUBADOUR:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 9, 10, 11}, new int[] {});
@@ -3249,13 +3254,13 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {8, 9}, new int[] {12, 13, 14}, new int[] {5, 6, 7});
 					break;
 				case DANCER:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {12, 13, 14}, new int[] {8, 9, 10});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {8, 9, 10}, new int[] {12, 13, 14});
 					break;
 				case PIRATE:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {});
 					break;
 				case SOLDIER:
-					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {});
+					this.info = new PaletteInfo(classID, Character.NONE.ID, offset, new int[] {}, new int[] {11, 12, 13, 14}, new int[] {}, new int[] {8, 9, 10});
 					break;
 				default:
 					break;
@@ -4229,6 +4234,8 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		items.add(Item.HAMMERNE);
 		items.add(Item.WARP);
 		items.add(Item.RUNE_SWORD);
+		items.add(Item.METIS_TOME);
+		items.add(Item.JUNA_FRUIT);
 		items.removeAll(Item.allMonsterWeapons);
 		return items;
 	}

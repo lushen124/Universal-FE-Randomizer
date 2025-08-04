@@ -16,6 +16,7 @@ import ui.model.MinMaxVarOption;
 public class GrowthsView extends YuneView<GrowthOptions> {
 
 	private boolean hasSTRMAGSplit;
+	private boolean supportsSmartRandomization;
 
 	private Boolean isEnabled = false;
 	private GrowthOptions.Mode currentMode = GrowthOptions.Mode.REDISTRIBUTE;
@@ -39,10 +40,11 @@ public class GrowthsView extends YuneView<GrowthOptions> {
 	private Button adjustHPGrowths;
 	private Button adjustSTRMAGSplit;
 
-	public GrowthsView(Composite parent, boolean hasSTRMAGSplit) {
+	public GrowthsView(Composite parent, boolean hasSTRMAGSplit, boolean supportsSmartRandom) {
 		super();
 		createGroup(parent);
 		this.hasSTRMAGSplit = hasSTRMAGSplit;
+		supportsSmartRandomization = supportsSmartRandom;
 		compose();
 	}
 
@@ -197,21 +199,23 @@ public class GrowthsView extends YuneView<GrowthOptions> {
 		optionData.top = new FormAttachment(deltaParamContainer, 0);
 		fullRandomOption.setLayoutData(optionData);
 		
-		smartOption = new Button(modeContainer, SWT.RADIO);
-		smartOption.setText("Smart Randomize");
-		smartOption.setToolTipText("Attempts to generate growth rates that are randomized, but relatively normal looking.");
-		smartOption.setEnabled(false);
-		smartOption.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				setMode(GrowthOptions.Mode.SMART);
-			}
-		});
-		
-		optionData = new FormData();
-		optionData.left = new FormAttachment(fullRandomOption, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(fullRandomOption, 10);
-		smartOption.setLayoutData(optionData);
+		if (supportsSmartRandomization) {
+			smartOption = new Button(modeContainer, SWT.RADIO);
+			smartOption.setText("Smart Randomize");
+			smartOption.setToolTipText("Attempts to generate growth rates that are randomized, but relatively normal looking.");
+			smartOption.setEnabled(false);
+			smartOption.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+					setMode(GrowthOptions.Mode.SMART);
+				}
+			});
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(fullRandomOption, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(fullRandomOption, 10);
+			smartOption.setLayoutData(optionData);
+		}
 
 		adjustHPGrowths = new Button(group, SWT.CHECK);
 		adjustHPGrowths.setText("Adjust HP Growths");
@@ -299,7 +303,9 @@ public class GrowthsView extends YuneView<GrowthOptions> {
 		redistributeOption.setEnabled(enabled);
 		byDeltaOption.setEnabled(enabled);
 		fullRandomOption.setEnabled(enabled);
-		smartOption.setEnabled(enabled);
+		if (supportsSmartRandomization) {
+			smartOption.setEnabled(enabled);
+		}
 		varianceSpinner.setEnabled(enabled && currentMode == GrowthOptions.Mode.REDISTRIBUTE);
 		deltaSpinner.setEnabled(enabled && currentMode == GrowthOptions.Mode.DELTA);
 		growthRangeControl.setEnabled(enabled);
@@ -326,7 +332,9 @@ public class GrowthsView extends YuneView<GrowthOptions> {
 				redistributeOption.setSelection(true);
 				byDeltaOption.setSelection(false);
 				fullRandomOption.setSelection(false);
-				smartOption.setSelection(false);
+				if (supportsSmartRandomization) {
+					smartOption.setSelection(false);
+				}
 				varianceSpinner.setSelection(options.redistributionOption.variance);
 				if (options.redistributionOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
 					growthRangeControl.setMin(options.redistributionOption.minValue);
@@ -340,7 +348,9 @@ public class GrowthsView extends YuneView<GrowthOptions> {
 				redistributeOption.setSelection(false);
 				byDeltaOption.setSelection(true);
 				fullRandomOption.setSelection(false);
-				smartOption.setSelection(false);
+				if (supportsSmartRandomization) {
+					smartOption.setSelection(false);
+				}
 				deltaSpinner.setSelection(options.deltaOption.variance);
 				if (options.deltaOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
 					growthRangeControl.setMin(options.deltaOption.minValue);
@@ -354,7 +364,9 @@ public class GrowthsView extends YuneView<GrowthOptions> {
 				redistributeOption.setSelection(false);
 				byDeltaOption.setSelection(false);
 				fullRandomOption.setSelection(true);
-				smartOption.setSelection(false);
+				if (supportsSmartRandomization) {
+					smartOption.setSelection(false);
+				}
 				if (options.fullOption.minValue < growthRangeControl.getMinSpinner().getMaximum()) {
 					growthRangeControl.setMin(options.fullOption.minValue);
 					growthRangeControl.setMax(options.fullOption.maxValue);
@@ -367,7 +379,9 @@ public class GrowthsView extends YuneView<GrowthOptions> {
 				redistributeOption.setSelection(false);
 				byDeltaOption.setSelection(false);
 				fullRandomOption.setSelection(false);
-				smartOption.setSelection(true);
+				if (supportsSmartRandomization) {
+					smartOption.setSelection(true);
+				}
 				break;
 		}
 

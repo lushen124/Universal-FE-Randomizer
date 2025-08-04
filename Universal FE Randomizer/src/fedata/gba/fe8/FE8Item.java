@@ -448,6 +448,8 @@ public class FE8Item implements GBAFEItemData {
 			int ability1 = getAbility1();
 			ability1 |= FE8Data.Item.Ability1Mask.UNBREAKABLE.ID;
 			data[8] = (byte)(ability1 & 0xFF);
+			int currentCostPerUse = getCostPerUse();
+			setCostPerUse(currentCostPerUse * 64);
 			wasModified = true;
 			break;
 		case BRAVE:
@@ -502,6 +504,10 @@ public class FE8Item implements GBAFEItemData {
 		default:
 			// Do nothing.
 		}
+	}
+	
+	public int getWeaponExperience() {
+		return data[32] & 0xFF;
 	}
 	
 	private String ingameDescriptionString(ItemDataLoader itemData) {

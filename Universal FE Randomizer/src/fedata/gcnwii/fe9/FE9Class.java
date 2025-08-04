@@ -12,7 +12,6 @@ public class FE9Class implements FEModifiableData {
 	public static int ClassSkill3Offset = 0x20;
 	public static int ClassSkill4Offset = 0x24;
 	public static int ClassSkill5Offset = 0x28;
-	
 
 	private byte[] originalData;
 	private byte[] data;
@@ -141,27 +140,26 @@ public class FE9Class implements FEModifiableData {
 		}
 		return cachedSkill4Pointer;
 	}
-	
+
 	public void setSkill4Pointer(long ptr) {
 		cachedSkill4Pointer = ptr;
 		writePointerToOffset(ptr, FE9Class.ClassSkill4Offset);
 		wasModified = true;
 	}
-	
+
 	public long getSkill5Pointer() {
 		if (cachedSkill5Pointer == null) {
 			cachedSkill5Pointer = readPointerAtOffset(FE9Class.ClassSkill5Offset);
 		}
 		return cachedSkill5Pointer;
 	}
-	
+
 	public void setSkill5Pointer(long ptr) {
 		cachedSkill5Pointer = ptr;
 		writePointerToOffset(ptr, FE9Class.ClassSkill5Offset);
 		wasModified = true;
 	}
-	
-	
+
 	public long getRacePointer() {
 		if (cachedRacePointer == null) {
 			cachedRacePointer = readPointerAtOffset(0x2C);

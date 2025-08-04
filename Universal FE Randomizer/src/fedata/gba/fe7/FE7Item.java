@@ -343,6 +343,10 @@ public class FE7Item implements GBAFEItemData {
 		}
 	}
 	
+	public int getWeaponExperience() {
+		return data[32] & 0xFF;
+	}
+	
 	public void resetData() {
 		data = originalData;
 		wasModified = false;
@@ -453,6 +457,8 @@ public class FE7Item implements GBAFEItemData {
 			int ability1 = getAbility1();
 			ability1 |= FE7Data.Item.Ability1Mask.UNBREAKABLE.ID;
 			data[8] = (byte)(ability1 & 0xFF);
+			int currentCostPerUse = getCostPerUse();
+			setCostPerUse(currentCostPerUse * 64);
 			wasModified = true;
 			break;
 		case BRAVE:

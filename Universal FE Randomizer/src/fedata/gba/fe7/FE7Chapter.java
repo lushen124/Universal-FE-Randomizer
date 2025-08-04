@@ -64,9 +64,12 @@ public class FE7Chapter implements GBAFEChapterData {
 	private int probableBossID = 0;
 	
 	private int maxEnemyClassLimit = 0;
+	
+	private int chapterID;
 
-	public FE7Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] targetedRecipientsToTrack, int[] blacklistedClassIDs, String friendlyName, Boolean simple, CharacterNudge[] nudges) {
+	public FE7Chapter(FileHandler handler, int chapterID, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] targetedRecipientsToTrack, int[] blacklistedClassIDs, String friendlyName, Boolean simple, CharacterNudge[] nudges) {
 		
+		this.chapterID = chapterID;
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
 		for (int classID : blacklistedClassIDs) {
@@ -141,6 +144,11 @@ public class FE7Chapter implements GBAFEChapterData {
 	}
 	
 	public Boolean shouldCharacterBeUnarmed(int characterID) {
+		// Lucius gets his inventory set via ASM, so leave it clear during our weapon assignment. We'll update the ASM at the end.
+		if (chapterID == FE7Data.ChapterPointer.CHAPTER_17.chapterID) {
+			return characterID == FE7Data.Character.LUCIUS.ID;
+		}
+		
 		return false;
 	}
 

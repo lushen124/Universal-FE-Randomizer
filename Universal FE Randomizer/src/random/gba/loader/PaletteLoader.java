@@ -98,7 +98,7 @@ public class PaletteLoader {
 			for (FE6Data.CharacterClass characterClass : FE6Data.CharacterClass.allValidClasses) {
 				templatesV2.put(characterClass.ID, new PaletteV2(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID)));
 			}
-			
+
 			for (FE6Data.CharacterClass characterClass : FE6Data.CharacterClass.additionalClassesToPalletLoad) {
 				templatesV2.put(characterClass.ID, new PaletteV2(handler, FE6Data.Palette.defaultPaletteForClass(characterClass.ID)));
 			}
@@ -113,6 +113,11 @@ public class PaletteLoader {
 			for (int paletteID : paletteIDs) {
 				mapper.registerPalette(paletteID, paletteByPaletteIDV2.get(paletteID).getOriginalCompressedLength(), paletteByPaletteIDV2.get(paletteID).getDestinationOffset());
 			}
+			
+			//These unpromoted bosses have palettes set in their promoted slots...
+//			mapper.setCharacterToUnpromotedOnlyClass(FE6Data.Character.ERIK.ID, FE6Data.CharacterClass.KNIGHT.ID, mapper.getPaletteLength(0x39));
+//			mapper.setCharacterToUnpromotedOnlyClass(FE6Data.Character.DORY.ID, FE6Data.CharacterClass.KNIGHT.ID, mapper.getPaletteLength(0x5A));
+//			mapper.setCharacterToUnpromotedOnlyClass(FE6Data.Character.DEVIAS.ID, FE6Data.CharacterClass.KNIGHT.ID, mapper.getPaletteLength(0x56));
 			
 			break;
 		case FE7:
@@ -498,7 +503,7 @@ public class PaletteLoader {
 		boolean canPromote = classData.canClassPromote(targetClassID) && needsPromotion;
 		
 		int characterID = character.getID();
-		int referenceID = reference.getID();
+		int referenceID = canonicalCharacterID(reference.getID());
 		
 		DebugPrinter.log(DebugPrinter.Key.PALETTE, "Enqueuing change for character " + charData.debugStringForCharacter(characterID) + " to class " + classData.debugStringForClass(targetClassID) + " using reference " + charData.debugStringForCharacter(referenceID));
 		
@@ -507,6 +512,7 @@ public class PaletteLoader {
 		
 		PaletteV2[] referencePalettes = getV2ReferencePalettesForCharacter(referenceID);
 		if (referencePalettes == null || referencePalettes.length == 0) {
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Character has no reference palettes. Aborting.");
 			return; // If we have no references, this character probably has no palettes to begin with.
 		}
 		
@@ -599,8 +605,7 @@ public class PaletteLoader {
 					assert compressedBase.length <= availableLength : "Insufficient Space to write palette.";
 					Long targetOffset = mapper.getPaletteOffset(unpromotedPaletteID);
 					if (targetOffset == null) { 
-						targetOffset = freeSpace.reserveInternalSpace(compressedBase.length, "Palette 0x" + Integer.toHexString(unpromotedPaletteID), true);
-						DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Setting new target offset for palette ID 0x" + Integer.toHexString(unpromotedPaletteID) + " to 0x" + Long.toHexString(targetOffset));
+						targetOffset = freeSpace.reserveSpace(compressedBase.length, "Palette 0x" + Integer.toHexString(unpromotedPaletteID), true);
 						appendedPaletteIDsV2.put(unpromotedPaletteID, change.basePalette);
 					}
 					
@@ -616,10 +621,10 @@ public class PaletteLoader {
 					byte[] compressedPromotion = change.promotedPalette.getCompressedData();
 					assert compressedPromotion.length <= availableLength : "Insufficient Space to write palette.";
 					Long targetOffset = mapper.getPaletteOffset(promotedPaletteID);
+					appendedPaletteIDsV2.put(promotedPaletteID, change.promotedPalette);
 					if (targetOffset == null) {
-						targetOffset = freeSpace.reserveInternalSpace(compressedPromotion.length, "Palette 0x" + Integer.toHexString(promotedPaletteID), true);
-						DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Setting new target offset for palette ID 0x" + Integer.toHexString(promotedPaletteID) + " to 0x" + Long.toHexString(targetOffset));
-						appendedPaletteIDsV2.put(promotedPaletteID, change.promotedPalette);
+						targetOffset = freeSpace.reserveSpace(compressedPromotion.length, "Palette 0x" + Integer.toHexString(promotedPaletteID), true);
+//						appendedPaletteIDsV2.put(promotedPaletteID, change.promotedPalette);
 					}
 					
 					change.promotedPalette.overrideOffset(targetOffset);
@@ -658,8 +663,8 @@ public class PaletteLoader {
 			
 		} else {
 			for (Change change : queuedChanges) {
-				if (change.basePalette != null) { change.basePalette.commitPalette(compiler); }
-				if (change.promotedPalette != null) { change.promotedPalette.commitPalette(compiler); }
+				if (change.basePalette != null) { change.basePalette.commitPalette(compiler); /*appendedPaletteIDsV2.put(change.character.getUnpromotedPaletteIndex(), change.basePalette);*/ }
+				if (change.promotedPalette != null) { change.promotedPalette.commitPalette(compiler); /*appendedPaletteIDsV2.put(change.character.getPromotedPaletteIndex(), change.promotedPalette);*/ }
 			}
 			
 			// Write the pointers to any palettes we added.
@@ -668,12 +673,13 @@ public class PaletteLoader {
 			if (gameType == GameType.FE6) { baseOffset = FE6Data.PaletteTableOffset; entrySize = FE6Data.PaletteEntrySize; }
 			else if (gameType == GameType.FE7) { baseOffset = FE7Data.PaletteTableOffset; entrySize = FE7Data.PaletteEntrySize; }
 			else { return; }
+			
 			for (Integer appendedPaletteID : appendedPaletteIDsV2.keySet()) {
 				PaletteV2 appendedPalette = appendedPaletteIDsV2.get(appendedPaletteID);
 				long offsetToWriteTo = baseOffset + (appendedPaletteID * entrySize);
 				byte[] bytesToWrite = WhyDoesJavaNotHaveThese.bytesFromAddress(appendedPalette.getDestinationOffset());
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Writing Pointer for Palette 0x" + Integer.toHexString(appendedPaletteID) + " to 0x" + Long.toHexString(appendedPalette.getDestinationOffset()));
 				compiler.addDiff(new Diff(offsetToWriteTo, bytesToWrite.length, bytesToWrite, null));
-				DebugPrinter.log(DebugPrinter.Key.PALETTE, "[Palette 0x" + Integer.toHexString(appendedPaletteID) + "] Writing bytes " + WhyDoesJavaNotHaveThese.displayStringForBytes(bytesToWrite) + " to offset 0x" + Long.toHexString(offsetToWriteTo));
 			}
 		}
 	}
@@ -726,6 +732,20 @@ public class PaletteLoader {
 		for (GBAFECharacterData character : charData.canonicalPlayableCharacters(true)) {
 			String characterName = textData.getStringAtIndex(character.getNameIndex(), true);
 			Map<Integer, PaletteV2> palettesByClassID = referencePalettesV2.get(character.getID());
+			if (palettesByClassID == null) { continue; }
+			List<Integer> classIDs = palettesByClassID.keySet().stream().sorted().collect(Collectors.toList());
+			
+			for (int classID : classIDs) {
+				GBAFEClassData charClass = classData.classForID(classID);
+				String className = textData.getStringAtIndex(charClass.getNameIndex(), true);
+				boolean isFemale = classData.isFemale(classID);
+				if (isFemale) { className = className + " (F)"; }
+				rk.recordOriginalEntry(category, characterName, className, changelogStringForPalette(palettesByClassID.get(classID)));
+			}
+		}
+		for (GBAFECharacterData boss : charData.bossCharacters()) {
+			String characterName = textData.getStringAtIndex(boss.getNameIndex(), true);
+			Map<Integer, PaletteV2> palettesByClassID = referencePalettesV2.get(boss.getID());
 			if (palettesByClassID == null) { continue; }
 			List<Integer> classIDs = palettesByClassID.keySet().stream().sorted().collect(Collectors.toList());
 			

@@ -235,6 +235,11 @@ public class FE6Item implements GBAFEItemData {
 		}
 	}
 	
+	// FE6 doesn't have a weapon experience field.
+	public int getWeaponExperience() {
+		return 1;
+	}
+	
 	public void setWeaponRank(WeaponRank newRank) {
 		int rankValue = FE6Data.Item.FE6WeaponRank.rankFromGeneralRank(newRank).value;
 		data[28] = (byte)(rankValue & 0xFF);
@@ -439,6 +444,9 @@ public class FE6Item implements GBAFEItemData {
 			int ability1 = getAbility1();
 			ability1 |= FE6Data.Item.Ability1Mask.UNBREAKABLE.ID;
 			data[8] = (byte)(ability1 & 0xFF);
+			// Unbreakable weapons seem to already have a very high cost in this game, so we don't need to do this.
+//			int currentCostPerUse = getCostPerUse();
+//			setCostPerUse(currentCostPerUse * 64);
 			wasModified = true;
 			break;
 		case BRAVE:

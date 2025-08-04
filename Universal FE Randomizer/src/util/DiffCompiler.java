@@ -64,7 +64,7 @@ public class DiffCompiler {
 	
 	public void applyDiffs(byte[] byteArray, long startingOffset, long length) {
 		AddressRange range = new AddressRange(startingOffset, startingOffset + length);
-		//DebugPrinter.log(DebugPrinter.Key.DIFF, "Applying Diff to byte array starting from offset 0x" + Long.toHexString(startingOffset) + " for " + byteArray.length + " bytes.");
+		DebugPrinter.log(DebugPrinter.Key.DIFF, "Applying Diff to byte array starting from offset 0x" + Long.toHexString(startingOffset) + " for " + byteArray.length + " bytes.");
 		
 		for (Diff diff : diffArray) {
 			if (range.contains(diff.address) || range.contains(diff.address + diff.length)) {

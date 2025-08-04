@@ -8,6 +8,7 @@ import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFECharacterData;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
+import fedata.general.FEBase.GameType;
 import random.gba.loader.ChapterLoader;
 import random.gba.loader.CharacterDataLoader;
 import random.gba.loader.ClassDataLoader;
@@ -21,7 +22,7 @@ import ui.model.ItemAssignmentOptions;
 public class ItemAssignmentService {
 	
 	public static void assignNewItems(CharacterDataLoader characterData, GBAFECharacterData slot,
-			GBAFEClassData targetClass, ChapterLoader chapterData, ItemAssignmentOptions inventoryOptions, Random rng,
+			GBAFEClassData targetClass, ChapterLoader chapterData, ItemAssignmentOptions inventoryOptions, GameType type, Random rng,
 			TextLoader textData, ClassDataLoader classData, ItemDataLoader itemData) {
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			GBAFEChapterItemData reward = chapter.chapterItemGivenToCharacter(slot.getID());
@@ -46,10 +47,10 @@ public class ItemAssignmentService {
 					unit.setStartingClass(targetClass.getID());
 
 					// Set Inventory.
-					ClassRandomizer.validateCharacterInventory(inventoryOptions, slot, targetClass, unit,
+					ClassRandomizer.validateCharacterInventory(inventoryOptions, slot, targetClass, unit, chapter,
 							characterData.characterIDRequiresRange(slot.getID()),
 							characterData.characterIDRequiresMelee(slot.getID()), characterData, classData, itemData,
-							textData, false, false, false, rng);
+							textData, false, false, false, false, type, rng);
 					if (characterData.isThiefCharacterID(slot.getID())) {
 						ClassRandomizer.validateFormerThiefInventory(unit, itemData);
 					}

@@ -229,6 +229,13 @@ public abstract class GBAFEChapterUnitData extends AbstractGBAData {
 			setItem4(itemID);
 		}
 	}
+	
+	public void removeAllItems() {
+		setItem1(0);
+		setItem2(0);
+		setItem3(0);
+		setItem4(0);
+	}
 
 	public void removeItem(int itemID) {
 		if (getItem1() == itemID) {

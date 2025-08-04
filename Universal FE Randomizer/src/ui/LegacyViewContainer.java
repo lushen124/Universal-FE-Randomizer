@@ -60,7 +60,7 @@ public class LegacyViewContainer extends YuneViewContainer {
     @Override
     protected void compose() {
         this.setLayout(new FormLayout());
-        growthView = new GrowthsView(this, type.hasSTRMAGSplit());
+        growthView = new GrowthsView(this, type.hasSTRMAGSplit(), type.isGBA());
         growthView.group.setSize(200, 200);
 
         FormData growthData = new FormData();
@@ -104,6 +104,15 @@ public class LegacyViewContainer extends YuneViewContainer {
         rewardData.left = new FormAttachment(conAffinityView.group, 0, SWT.LEFT);
         rewardData.right = new FormAttachment(conAffinityView.group, 0, SWT.RIGHT);
         rewardView.group.setLayoutData(rewardData);
+        
+        miscView = new GameMechanicsView(this, type);
+        miscView.group.setSize(200, 200);
+        
+        FormData miscData = new FormData();
+        miscData.top = new FormAttachment(rewardView.group, 5);
+        miscData.left = new FormAttachment(rewardView.group, 0, SWT.LEFT);
+        miscData.right = new FormAttachment(rewardView.group, 0, SWT.RIGHT);
+        miscView.group.setLayoutData(miscData);
 
         List<String> skills = FE9Data.Skill.allValidSkills.stream().map(FE9Data.Skill::getDisplayString).collect(Collectors.toList());
         fe9SkillView = new FE9SkillView(this, skills, 1);
@@ -396,6 +405,7 @@ public class LegacyViewContainer extends YuneViewContainer {
         baseView.initialize(bundle.bases);
         rewardView.initialize(bundle.rewards);
         weaponView.initialize(bundle.weapons);
+        miscView.initialize(bundle.mechanics);
 
         // FE9 Specific
         conAffinityView.initialize(bundle.otherOptions);
@@ -410,6 +420,7 @@ public class LegacyViewContainer extends YuneViewContainer {
         bundle.bases = baseView.getOptions();
         bundle.weapons = weaponView.getOptions();
         bundle.rewards = rewardView.getOptions();
+        bundle.mechanics = miscView.getOptions();
 
         // FE9 specific
         bundle.enemyBuff = fe9EnemyView.getOptions();

@@ -191,7 +191,7 @@ public class CharacterShuffler {
             updateUnitInChapter(linkedSlot, crossGameData, targetClassId);
 
             // (g) give the Unit new items to use
-            ItemAssignmentService.assignNewItems(characterData, linkedSlot, targetClass, chapterData, inventoryOptions, rng, textData, classData, itemData);
+            ItemAssignmentService.assignNewItems(characterData, linkedSlot, targetClass, chapterData, inventoryOptions, type, rng, textData, classData, itemData);
         }
     }
 

@@ -522,6 +522,6 @@ public class RecruitmentRandomizer {
 		GBAFEClassData originalClass = classData.classForID(oldClassID);
 		slot.setClassID(targetClass.getID());
 		GBASlotAdjustmentService.transferWeaponRanks(slot, originalClass, targetClass, type, rng);
-		ItemAssignmentService.assignNewItems(characterData, slot, targetClass, chapterData, inventoryOptions, rng, textData, classData, itemData);
+		ItemAssignmentService.assignNewItems(characterData, slot, targetClass, chapterData, inventoryOptions, type, rng, textData, classData, itemData);
 	}
 }

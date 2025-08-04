@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Control;
 
 import fedata.general.FEBase.GameType;
 import ui.common.GuiUtil;
@@ -143,7 +144,6 @@ public class BasesView extends YuneView<BaseOptions> {
 		labelData.left = new FormAttachment(0, 5);
 		labelData.right = new FormAttachment(deltaSpinner, -5);
 		labelData.top = new FormAttachment(deltaSpinner, 0, SWT.CENTER);
-		deltaParamLabel.setLayoutData(labelData);
 		
 		spinnerData = new FormData();
 		spinnerData.right = new FormAttachment(100, -5);
@@ -155,6 +155,29 @@ public class BasesView extends YuneView<BaseOptions> {
 		paramContainerData.right = new FormAttachment(100, -5);
 		deltaParamContainer.setLayoutData(paramContainerData);
 		
+		Control previousView = deltaParamContainer;
+		
+		if (type.isGBA()) {
+			smartOption = new Button(group, SWT.RADIO);
+			smartOption.setText("Smart Randomize");
+			smartOption.setToolTipText("Attempts to set bases in a way that avoids extreme stats most of the time.");
+			smartOption.setEnabled(false);
+			smartOption.setSelection(false);
+			smartOption.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event arg0) {
+					setMode(BaseOptions.Mode.SMART);
+				}
+			});
+			
+			optionData = new FormData();
+			optionData.left = new FormAttachment(deltaParamContainer, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(deltaParamContainer, 0);
+			smartOption.setLayoutData(optionData);
+			
+			previousView = smartOption;
+		}
+		
 		if (type.hasSTRMAGSplit()) {
 			adjustSTRMAG = new Button(group, SWT.CHECK);
 			adjustSTRMAG.setText("Adjust STR/MAG by Class");
@@ -162,36 +185,21 @@ public class BasesView extends YuneView<BaseOptions> {
 			adjustSTRMAG.setEnabled(false);
 			
 			optionData = new FormData();
-			optionData.left = new FormAttachment(byDeltaOption, 0, SWT.LEFT);
-			optionData.top = new FormAttachment(deltaParamContainer, 10);
+			optionData.left = new FormAttachment(previousView, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(previousView, 10);
 			adjustSTRMAG.setLayoutData(optionData);
 		}
 		
 		/////////////////////////////////////////////////////////////
-		
-		smartOption = new Button(group, SWT.RADIO);
-		smartOption.setText("Smart Randomize");
-		smartOption.setToolTipText("Attempts to set bases in a way that avoids extreme stats most of the time.");
-		smartOption.setEnabled(false);
-		smartOption.setSelection(false);
-		smartOption.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event arg0) {
-				setMode(BaseOptions.Mode.SMART);
-			}
-		});
-		
-		optionData = new FormData();
-		optionData.left = new FormAttachment(deltaParamContainer, 0, SWT.LEFT);
-		optionData.top = new FormAttachment(deltaParamContainer, 0);
-		smartOption.setLayoutData(optionData);
 		
 	}
 	
 	private void setEnableBases(Boolean enabled) {
 		redistributeOption.setEnabled(enabled);
 		byDeltaOption.setEnabled(enabled);
-		smartOption.setEnabled(enabled);
+		if (type.isGBA()) {
+			smartOption.setEnabled(enabled);
+		}
 		varianceSpinner.setEnabled(enabled && currentMode == BaseOptions.Mode.REDISTRIBUTE);
 		deltaSpinner.setEnabled(enabled && currentMode == BaseOptions.Mode.DELTA);
 		if (adjustSTRMAG != null) { adjustSTRMAG.setEnabled(enabled); }
@@ -256,19 +264,25 @@ public class BasesView extends YuneView<BaseOptions> {
 			case REDISTRIBUTE:
 				redistributeOption.setSelection(true);
 				byDeltaOption.setSelection(false);
-				smartOption.setSelection(false);
+				if (type.isGBA()) {
+					smartOption.setSelection(false);
+				}
 				varianceSpinner.setSelection(options.redistributionOption.variance);
 				break;
 			case DELTA:
 				redistributeOption.setSelection(false);
 				byDeltaOption.setSelection(true);
-				smartOption.setSelection(false);
+				if (type.isGBA()) {
+					smartOption.setSelection(false);
+				}
 				deltaSpinner.setSelection(options.deltaOption.variance);
 				break;
 			case SMART:
 				redistributeOption.setSelection(false);
 				byDeltaOption.setSelection(false);
-				smartOption.setSelection(true);
+				if (type.isGBA()) {
+					smartOption.setSelection(true);
+				}
 				break;
 			}
 			

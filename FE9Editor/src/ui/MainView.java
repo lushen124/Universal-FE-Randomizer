@@ -32,6 +32,7 @@ import io.gcn.GCNDataFileHandlerV2;
 import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
+import ui.gba.GBACharacterDataView;
 import ui.gba.GBAClassDataView;
 import ui.gba.GBAItemDataView;
 import util.WhyDoesJavaNotHaveThese;
@@ -48,9 +49,11 @@ public class MainView {
 	
 	private TabItem gbaItemTabItem;
 	private TabItem gbaClassTabItem;
+	private TabItem gbaCharacterTabItem;
 	
 	private Composite gbaItemComposite;
 	private Composite gbaClassComposite;
+	private Composite gbaCharacterComposite;
 	
 	private TabItem characterTabItem;
 	private TabItem classTabItem;
@@ -212,6 +215,12 @@ public class MainView {
 		folderData.bottom = new FormAttachment(100, 0);
 		folderData.top = new FormAttachment(browseButton, 10);
 		folder.setLayoutData(folderData);
+		
+		gbaCharacterTabItem = new TabItem(folder, SWT.NONE);
+		gbaCharacterTabItem.setText("Character Data");
+		
+		gbaCharacterComposite = new GBACharacterDataView(folder, SWT.NONE, gameType, gbaFileHandler);
+		gbaCharacterTabItem.setControl(gbaCharacterComposite);
 		
 		gbaClassTabItem = new TabItem(folder, SWT.NONE);
 		gbaClassTabItem.setText("Class Data");

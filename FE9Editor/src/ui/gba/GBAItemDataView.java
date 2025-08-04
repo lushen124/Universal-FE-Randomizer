@@ -29,6 +29,8 @@ public class GBAItemDataView extends Composite {
 	
 	private FileHandler fileHandler;
 	
+	private GameType type;
+	
 	private ClassDataLoader classData;
 	private ItemDataLoader itemData;
 	private TextLoader textData;
@@ -52,6 +54,7 @@ public class GBAItemDataView extends Composite {
 	private LabelFieldView durabilityField;
 	private LabelFieldView rangeField;
 	private LabelFieldView costPerUseField;
+	private LabelFieldView weaponExperienceField;
 	
 	private Group attributeGroup;
 	private LabelFieldView rankField;
@@ -75,6 +78,7 @@ public class GBAItemDataView extends Composite {
 		textData = new TextLoader(type, type.textProvider(), handler);
 		itemData = ItemDataLoader.createReadDataLoader(type.itemProvider(), handler);
 		classData = new ClassDataLoader(type.classProvider(), handler);
+		this.type = type;
 		
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.marginWidth = 10;
@@ -268,8 +272,24 @@ public class GBAItemDataView extends Composite {
 		viewData.top = new FormAttachment(rangeField, 10);
 		viewData.left = new FormAttachment(0, 0);
 		viewData.right = new FormAttachment(100, 0);
-		viewData.bottom = new FormAttachment(100, 0);
 		costPerUseField.setLayoutData(viewData);
+		
+		if (type == GameType.FE6) {
+			// FE6 doesn't have this, so just ignore it.
+			viewData.bottom = new FormAttachment(100, 0);
+			costPerUseField.setLayoutData(viewData);
+		} else {
+			weaponExperienceField = new LabelFieldView(statsGroup, SWT.NONE);
+			weaponExperienceField.setLabel("Weapon Experience: ");
+			weaponExperienceField.setField("");
+			
+			viewData = new FormData();
+			viewData.top = new FormAttachment(costPerUseField, 10);
+			viewData.left = new FormAttachment(0, 0);
+			viewData.right = new FormAttachment(100, 0);
+			viewData.bottom = new FormAttachment(100, 0);
+			weaponExperienceField.setLayoutData(viewData);
+		}
 		
 		///////
 		
@@ -403,6 +423,10 @@ public class GBAItemDataView extends Composite {
 		durabilityField.setField(Integer.toString(item.getDurability()));
 		rangeField.setField(Integer.toString(item.getMinRange()) + " ~ " + Integer.toString(item.getMaxRange()));
 		costPerUseField.setField(Integer.toString(item.getCostPerUse()));
+		
+		if (type != GameType.FE6) {
+			weaponExperienceField.setField(Integer.toString(item.getWeaponExperience()));
+		}
 		
 		rankField.setField(item.getWeaponRank().displayString());
 		effectivenessPointerField.setField("0x" + Long.toHexString(item.getEffectivenessPointer()).toUpperCase());

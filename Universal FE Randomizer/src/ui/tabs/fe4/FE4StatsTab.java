@@ -33,7 +33,7 @@ public class FE4StatsTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        growths = addView(new GrowthsView(container, type.hasSTRMAGSplit()));
+        growths = addView(new GrowthsView(container, type.hasSTRMAGSplit(), false));
         holyBlood = addView(new HolyBloodView(container));
         setViewData(holyBlood, 1, 2);
         enemies = addView(new FE4EnemyBuffView(container));

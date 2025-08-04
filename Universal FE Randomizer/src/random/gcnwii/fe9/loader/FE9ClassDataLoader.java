@@ -37,7 +37,6 @@ public class FE9ClassDataLoader {
 	List<FE9Class> allLaguzClasses;
 	
 	List<FE9Class> allFliers;
-	List<FE9Class> allMounted;
 	List<FE9Class> allMaleClasses;
 	List<FE9Class> allFemaleClasses;
 	
@@ -66,7 +65,6 @@ public class FE9ClassDataLoader {
 		allPromotedClasses = new ArrayList<FE9Class>();
 		
 		allFliers = new ArrayList<FE9Class>();
-		allMounted = new ArrayList<FE9Class>();
 		allMaleClasses = new ArrayList<FE9Class>();
 		allFemaleClasses = new ArrayList<FE9Class>();
 		
@@ -116,10 +114,6 @@ public class FE9ClassDataLoader {
 			
 			if (fe9CharClass.isFlier()) {
 				allFliers.add(charClass);
-			}
-			
-			if (fe9CharClass.isMounted()) {
-				allMounted.add(charClass);
 			}
 			
 			if (fe9CharClass.isValidPlayerClass() && !fe9CharClass.isEnemyOnly()) {
@@ -194,10 +188,6 @@ public class FE9ClassDataLoader {
 	
 	public List<FE9Class> allFliers() {
 		return allFliers;
-	}
-	
-	public List<FE9Class> allMounted() {
-		return allMounted;
 	}
 	
 	public FE9Class classWithID(String jid) {
@@ -342,40 +332,6 @@ public class FE9ClassDataLoader {
 		charClass.setSkill3Pointer(fe8databin.pointerForString(sid));
 	}
 	
-	public String getSID4ForClass(FE9Class charClass) {
-		if (charClass == null) { return null; }
-		return fe8databin.stringForPointer(charClass.getSkill4Pointer());
-	}
-	
-	public void setSID4ForClass(FE9Class charClass, String sid) {
-		if (charClass == null) { return; }
-		if (sid == null) {
-			charClass.setSkill4Pointer(0);
-			return;
-		}
-		
-		fe8databin.addString(sid);
-		fe8databin.addPointerOffset(classDataSection, charClass.getAddressOffset() + FE9Class.ClassSkill4Offset);
-		charClass.setSkill4Pointer(fe8databin.pointerForString(sid));
-	}
-	
-	public String getSID5ForClass(FE9Class charClass) {
-		if (charClass == null) { return null; }
-		return fe8databin.stringForPointer(charClass.getSkill5Pointer());
-	}
-	
-	public void setSID5ForClass(FE9Class charClass, String sid) {
-		if (charClass == null) { return; }
-		if (sid == null) {
-			charClass.setSkill5Pointer(0);
-			return;
-		}
-		
-		fe8databin.addString(sid);
-		fe8databin.addPointerOffset(classDataSection, charClass.getAddressOffset() + FE9Class.ClassSkill5Offset);
-		charClass.setSkill5Pointer(fe8databin.pointerForString(sid));
-	}
-	
 	public String getWeaponLevelsForClass(FE9Class charClass) {
 		if (charClass == null) { return null; }
 		return fe8databin.stringForPointer(charClass.getWeaponLevelPointer());
@@ -490,11 +446,6 @@ public class FE9ClassDataLoader {
 	public boolean isFlierClass(FE9Class charClass) {
 		if (charClass == null) { return false; }
 		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isFlier();
-	}
-	
-	public boolean isMountedClass(FE9Class charClass) {
-		if (charClass == null) { return false; }
-		return FE9Data.CharacterClass.withJID(getJIDForClass(charClass)).isMounted();
 	}
 	
 	public boolean isAdvancedClass(FE9Class charClass) {

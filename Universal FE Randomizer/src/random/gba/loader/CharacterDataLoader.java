@@ -16,6 +16,7 @@ import fedata.gba.GBAFEClassData;
 import fedata.gba.general.GBAFECharacter;
 import fedata.gba.general.GBAFECharacterProvider;
 import io.FileHandler;
+import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
@@ -34,8 +35,34 @@ public class CharacterDataLoader {
 	// a more consistent change in determining minion classes.
 	private Map<Integer, GBAFECharacterData> minionData = new HashMap<Integer, GBAFECharacterData>();
 	
+	private List<GBAFECharacterData> charList = new ArrayList<GBAFECharacterData>();
+	
 	public static final String RecordKeeperCategoryKey = "Characters";
 	public static final String RecordKeeperCategoryKeyBosses = "Characters - Bosses";
+	
+	public static CharacterDataLoader createReadOnlyLoader(GBAFECharacterProvider provider, FileHandler handler) {
+		return new CharacterDataLoader(provider, handler, true);
+	}
+	
+	private CharacterDataLoader(GBAFECharacterProvider provider, FileHandler handler, boolean parseTable) {
+		super();
+		this.provider = provider;
+		long baseAddress = FileReadHelper.readAddress(handler, provider.characterDataTablePointer());
+		long currentAddress = baseAddress;
+		int charID = -1;
+		do {
+			byte[] charData = handler.readBytesAtOffset(currentAddress, provider.bytesPerCharacter());
+			GBAFECharacterData character = provider.characterDataWithData(charData, currentAddress, false);
+			charID = character.getID();
+			if (charID == 0x0 || charID == 0xFF) {
+				currentAddress += provider.bytesPerCharacter();
+				continue;
+			}
+			charList.add(character);
+			characterMap.put(character.getID(), character);
+			currentAddress += provider.bytesPerCharacter();
+		} while ((charID != 0 && charID != 0xFF) || charList.isEmpty());
+	}
 	
 	public CharacterDataLoader(GBAFECharacterProvider provider, FileHandler handler) {
 		super();
@@ -112,6 +139,15 @@ public class CharacterDataLoader {
 	
 	public GBAFECharacterData[] bossCharacters() {
 		return feCharactersFromSet(provider.allBossCharacters());
+	}
+	
+	public List<GBAFECharacterData> characterList() {
+		if (charList.isEmpty()) {
+			List<GBAFECharacterData> mapList = new ArrayList<GBAFECharacterData>();
+			mapList.addAll(characterMap.values());
+			return mapList;
+		}
+		return charList;
 	}
 	
 	public GBAFECharacterData minionCharacterWithID(int minionID) {
@@ -216,6 +252,10 @@ public class CharacterDataLoader {
 		return provider.canonicalID(character.getID());
 	}
 	
+	public boolean characterHasFlagsByDisplayString(String string, GBAFECharacterData character) {
+		return character.hasAbility(string);
+	}
+	
 	public void commit() {
 		for (GBAFECharacterData character : characterMap.values()) {
 			character.commitChanges();
@@ -224,6 +264,7 @@ public class CharacterDataLoader {
 	
 	public void compileDiffs(DiffCompiler compiler) {
 		for (GBAFECharacterData character : characterMap.values()) {
+			DebugPrinter.log(DebugPrinter.Key.DIFF, "Writing character data for character " + character.displayString());
 			character.commitChanges();
 			if (character.hasCommittedChanges()) {
 				Diff charDiff = new Diff(character.getAddressOffset(), character.getData().length, character.getData(), null);

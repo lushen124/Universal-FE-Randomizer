@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import io.FileHandler;
 import io.FileWriter;
 import util.DebugPrinter;
+import util.Diff;
 import util.DiffCompiler;
 import util.WhyDoesJavaNotHaveThese;
 
@@ -34,10 +36,14 @@ public class GCNISOHandler {
 	private long fstEntryCount;
 	private long fstStringTableOffset;
 	
+	private long bootDolOffset;
+	
 	private GCNFSTDirectoryEntry rootEntry;
 	private Map<String, GCNFSTEntry> fstLookup;
 	private Map<String, GCNFileHandler> cachedFileHandlers;
 	private List<GCNFSTEntry> entryList; // This will make recompilation easier.
+	
+	private List<Diff> executableDiffs;
 	
 	public GCNISOHandler(FileHandler fileHandler) throws GCNISOException {
 		this.handler = fileHandler;
@@ -57,6 +63,8 @@ public class GCNISOHandler {
 		// 0x3E0 characters, for some reason.
 		handler.setNextReadOffset(0x20);
 		gameName = WhyDoesJavaNotHaveThese.stringFromAsciiBytes(handler.continueReadingBytesUpToNextTerminator(0x3FF));
+		
+		bootDolOffset = WhyDoesJavaNotHaveThese.longValueFromByteArray(handler.readBytesAtOffset(0x420, 4), false);
 		
 		// fst.bin is the file that gives the metadata for the file system of the ISO.
 		// Its offset is located at 0x424 and is 4 bytes long.
@@ -158,6 +166,22 @@ public class GCNISOHandler {
 		
 		// Build the FST map.
 		populateFSTMap();
+		
+		executableDiffs = new ArrayList<Diff>();
+	}
+	
+	public void addExecutableDiff(Diff diff) {
+		if (diff.address <= (fstOffset - bootDolOffset) && diff.address + diff.length <= (fstOffset - bootDolOffset)) {
+			executableDiffs.add(diff);
+			executableDiffs.sort(new Comparator<Diff>() {
+				@Override
+				public int compare(Diff o1, Diff o2) {
+					return Long.compare(o1.address, o2.address);
+				}
+			});
+		} else {
+			System.err.println("Invalid executable diff added! Offset: 0x" + Long.toHexString(diff.address));
+		}
 	}
 	
 	public FileHandler getBackingHandler() {
@@ -311,7 +335,37 @@ public class GCNISOHandler {
 			if (delegate != null) { delegate.onProgressUpdate(0.3); delegate.onStatusUpdate("Writing Header..."); }
 			FileWriter writer = new FileWriter(destination);
 			InputStream stream = handler.getInputStream(0);
-			writer.copyFromStream(stream, (int)fstOffset);
+			// Write up to the boot.dol offset. We'll apply changes to boot.dol after that.
+			writer.copyFromStream(stream, (int)bootDolOffset);
+			long lastWrittenOffset = 0; // Offset relative to start of boot.dol, not the ISO.
+			// TODO: Test this logic with more than one diff.
+			for (Diff diff : executableDiffs) {
+				writer.copyFromStream(stream, (int)(diff.address - lastWrittenOffset));
+				lastWrittenOffset += (diff.address - lastWrittenOffset);
+				if (diff.requiredOldValues != null) {
+					byte[] oldValues = stream.readNBytes(diff.requiredOldValues.length);
+					if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(oldValues, diff.requiredOldValues)) {
+						writer.write(diff.changes);
+					} else {
+						System.err.println("Mismatched diff required old values! Dropping Diff at offset 0x" + Long.toHexString(diff.address));
+						writer.write(oldValues);
+					}
+					lastWrittenOffset += oldValues.length;
+				} else {
+					writer.write(diff.changes);
+					lastWrittenOffset += diff.changes.length;
+					stream.skipNBytes(diff.changes.length);
+				}
+			}
+			if (lastWrittenOffset + bootDolOffset < fstOffset) {
+				writer.copyFromStream(stream, (int)(fstOffset - bootDolOffset - lastWrittenOffset));
+			}
+			
+			// Sanity check.
+			if (writer.getBytesWritten() != fstOffset) {
+				System.err.println("Failed to write the correct number of bytes before the fst. Expected: " + fstOffset + " Actual: " + writer.getBytesWritten());
+			}
+			
 			stream.close();
 			
 			// Write the entries.

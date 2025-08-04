@@ -112,7 +112,7 @@ public class ChapterLoader {
 					CharacterNudge[] nudges = chapter.nudgesRequired();
 					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE7Chapter fe7Chapter = new FE7Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), trackedRewardRecipients, classBlacklist, chapter.getMetadata().getFriendlyName(), chapter.shouldBeEasy(), nudges); 
+					FE7Chapter fe7Chapter = new FE7Chapter(handler, chapter.chapterID, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), trackedRewardRecipients, classBlacklist, chapter.getMetadata().getFriendlyName(), chapter.shouldBeEasy(), nudges); 
 					chapters[i++] = fe7Chapter;
 					mappedChapters.put(chapterID, fe7Chapter);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Chapter " + chapter.toString() + " loaded " + fe7Chapter.allUnits().length + " characters and " + fe7Chapter.allRewards().length + " rewards");

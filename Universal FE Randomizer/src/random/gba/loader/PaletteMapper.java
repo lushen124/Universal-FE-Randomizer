@@ -69,7 +69,7 @@ public class PaletteMapper {
 			
 			int paletteID = 0;
 			
-			Integer recycled = requestRecycledPaletteID(queuedItem.sizeNeeded);
+			Integer recycled = requestRecycledPaletteID(queuedItem.sizeNeeded,true);
 			if (recycled != null) {
 				paletteID = recycled;
 			} else {
@@ -192,7 +192,7 @@ public class PaletteMapper {
 		int promotedPaletteID = character.getPromotedPaletteIndex();
 		Integer promotedLength = getPaletteLength(promotedPaletteID);
 		
-		if (type == ClassType.UNPROMOTED && unpromotedPaletteID != 0 && unpromotedLength != null) { 
+		if (type == ClassType.UNPROMOTED && unpromotedPaletteID != 0 && unpromotedLength != null) {
 			if (unpromotedPaletteID == promotedPaletteID) {
 				// These are awkward to deal with (Roy has this issue where promoted/unpromoted use the same palette, which works for Lord, but not for most other classes.)
 				// Go ahead and separate these now.
@@ -237,7 +237,7 @@ public class PaletteMapper {
 		
 		int paletteID = 0;
 		
-		Integer recycledPaletteID = requestRecycledPaletteID(size);
+		Integer recycledPaletteID = requestRecycledPaletteID(size,false);
 		if (recycledPaletteID != null) {
 			paletteID = recycledPaletteID;
 		} else {
@@ -295,16 +295,29 @@ public class PaletteMapper {
 		}
 	}
 
-	private Integer requestRecycledPaletteID(int sizeNeeded) {
+	private Integer requestRecycledPaletteID(int sizeNeeded, boolean forceAssign) {
 		if (recycledPaletteIDsBySize.keySet().stream().filter(length -> (length >= sizeNeeded)).min(WhyDoesJavaNotHaveThese.ascendingIntegerComparator).isPresent()) {
 			int bestFit = recycledPaletteIDsBySize.keySet().stream().filter(length -> (length >= sizeNeeded)).min(WhyDoesJavaNotHaveThese.ascendingIntegerComparator).get();
 			List<Integer> paletteIDs = recycledPaletteIDsBySize.get(bestFit);
 			if (paletteIDs.isEmpty()) {
 				recycledPaletteIDsBySize.remove(bestFit);
-				return requestRecycledPaletteID(sizeNeeded);
+				return requestRecycledPaletteID(sizeNeeded, forceAssign);
 			} else {
 				int paletteID = paletteIDs.remove(0);
 				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Recycled Palette ID 0x" + Integer.toHexString(paletteID) + " (Available Length: " + bestFit + " Requested Size: " + sizeNeeded + ")");
+				return paletteID;
+			}
+		} else if (recycledPaletteIDsBySize.size() > 0 && forceAssign == true) {
+			int smallest = recycledPaletteIDsBySize.keySet().stream().min(WhyDoesJavaNotHaveThese.ascendingIntegerComparator).get();
+			List<Integer> paletteIDs = recycledPaletteIDsBySize.get(smallest);
+			if (paletteIDs.isEmpty()) {
+				recycledPaletteIDsBySize.remove(smallest);
+				return requestRecycledPaletteID(sizeNeeded, forceAssign);
+			} else {
+				int paletteID = paletteIDs.remove(0);
+				DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Recycled Palette ID 0x" + Integer.toHexString(paletteID) + " (Repointing)");
+				registeredPaletteOffsets.remove(paletteID);
+				registeredPaletteLengths.put(paletteID, sizeNeeded);
 				return paletteID;
 			}
 		} else {

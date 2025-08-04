@@ -15,6 +15,7 @@ import ui.tabs.fe4.FE4SkillsTab;
 import ui.tabs.fe4.FE4StatsTab;
 import ui.tabs.fe9.FE9CharactersTab;
 import ui.tabs.fe9.FE9ItemsTab;
+import ui.tabs.fe9.FE9MiscTab;
 import ui.tabs.fe9.FE9SkillsTab;
 import ui.tabs.gba.GBACharactersTab;
 import ui.tabs.gba.GBAItemsTab;
@@ -63,6 +64,7 @@ public class TabbedViewContainer extends YuneViewContainer {
             addTab(new FE9CharactersTab(tabFolder));
             addTab(new FE9ItemsTab(tabFolder));
             addTab(new FE9SkillsTab(tabFolder));
+            addTab(new FE9MiscTab(tabFolder));
         }
 
         tabFolder.setSelection(0);

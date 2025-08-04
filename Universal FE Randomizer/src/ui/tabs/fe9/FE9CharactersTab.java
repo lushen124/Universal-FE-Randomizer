@@ -37,7 +37,7 @@ public class FE9CharactersTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        growths = addView(new GrowthsView(container, type.hasSTRMAGSplit()));
+        growths = addView(new GrowthsView(container, type.hasSTRMAGSplit(), false));
         setViewData(growths, 1, 2);
         bases = addView(new BasesView(container, type));
         classes = addView(new FE9ClassesView(container));

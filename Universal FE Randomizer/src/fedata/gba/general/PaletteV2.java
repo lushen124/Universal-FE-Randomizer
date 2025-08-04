@@ -239,14 +239,19 @@ public class PaletteV2 {
 		
 		// Primary usually exists.
 		
+		boolean filledSecondary = false;
 		if (referenceSecondary.isEmpty() && hasSecondary()) {
 			// Use primary color for secondary if we don't have secondary colors and need one.
 			referenceSecondary.addAll(PaletteColor.adjustColors(referencePrimary, false, false));
+			filledSecondary = true;
 		}
 		
 		if (referenceTertiary.isEmpty() && hasTertiary()) {
 			// Use primary again if tertiary is required.
+			if (filledSecondary == true) {
 			referenceTertiary.addAll(PaletteColor.adjustColors(referencePrimary, false, true));
+			}
+			else { referenceTertiary.addAll(PaletteColor.adjustColors(referenceSecondary, false, true)); }
 		}
 		
 		setHair(referenceHair, paletteType);
@@ -286,7 +291,17 @@ public class PaletteV2 {
 		
 		List<PaletteColor> sortedHair = referenceHair.stream().sorted(PaletteColor.lowToHighBrightnessComparator).collect(Collectors.toList());
 		Collections.reverse(sortedHair);
-		PaletteColor[] newHairColor = PaletteColor.coerceColors(sortedHair.toArray(new PaletteColor[sortedHair.size()]), info.hairColorOffsets.length, false);
+		PaletteColor[] newHairColor = PaletteColor.coerceColors(sortedHair.toArray(new PaletteColor[sortedHair.size()]), info.hairColorOffsets.length);
+		
+		int lastIndex = newHairColor.length - 1;
+		if (PaletteColor.getLuminosity(newHairColor[lastIndex]) > 0.7 && lastIndex > 0) {
+			PaletteColor newColor = PaletteColor.darkerColor(newHairColor[lastIndex]);
+			for (int i = 0; i < lastIndex; i++) {
+				newHairColor[i] = newHairColor[i+1];
+			}
+			newHairColor[newHairColor.length-1] = newColor;
+		}
+    
 		int newIndex = 0;
 		for (int colorIndex : info.hairColorOffsets) {
 			ColorSet set = colorArray[colorIndex];
@@ -302,7 +317,26 @@ public class PaletteV2 {
 		
 		List<PaletteColor> sortedPrimary = referencePrimary.stream().sorted(PaletteColor.lowToHighBrightnessComparator).collect(Collectors.toList());
 		Collections.reverse(sortedPrimary);
-		PaletteColor[] newPrimaryColor = PaletteColor.coerceColors(sortedPrimary.toArray(new PaletteColor[sortedPrimary.size()]), info.primaryColorOffsets.length, false);
+		PaletteColor[] newPrimaryColor = PaletteColor.coerceColors(sortedPrimary.toArray(new PaletteColor[sortedPrimary.size()]), info.primaryColorOffsets.length);
+		
+		//Some primary sets end up too bright - let's darken them a tad.
+		int lastIndex = newPrimaryColor.length - 1;
+		double avgLum = 0;
+		for (PaletteColor color : newPrimaryColor) {
+			avgLum += PaletteColor.getLuminosity(color);
+		}
+		avgLum /= newPrimaryColor.length;
+		if (avgLum > 0.51 && lastIndex > 1) {
+			PaletteColor newColor = PaletteColor.darkerColor(newPrimaryColor[lastIndex]);
+			for (int i = 0; i < lastIndex; i++) {
+				newPrimaryColor[i] = newPrimaryColor[i+1];
+			}
+			newPrimaryColor[lastIndex] = newColor;
+			if (PaletteColor.getLuminosity(newPrimaryColor[lastIndex-2]) - PaletteColor.getLuminosity(newPrimaryColor[lastIndex-1]) > 0.5) {
+				newPrimaryColor[lastIndex-1] = PaletteColor.averageColorFromColors(new PaletteColor[] {newPrimaryColor[lastIndex-2], newColor});
+			}
+		}
+
 		int newIndex = 0;
 		for (int colorIndex : info.primaryColorOffsets) {
 			ColorSet set = colorArray[colorIndex];
@@ -318,7 +352,21 @@ public class PaletteV2 {
 		
 		List<PaletteColor> sortedSecondary = referenceSecondary.stream().sorted(PaletteColor.lowToHighBrightnessComparator).collect(Collectors.toList());
 		Collections.reverse(sortedSecondary);
-		PaletteColor[] newSecondaryColor = PaletteColor.coerceColors(sortedSecondary.toArray(new PaletteColor[sortedSecondary.size()]), info.secondaryColorOffsets.length, false);
+		PaletteColor[] newSecondaryColor = PaletteColor.coerceColors(sortedSecondary.toArray(new PaletteColor[sortedSecondary.size()]), info.secondaryColorOffsets.length);
+		
+		int lastIndex = newSecondaryColor.length - 1;
+		double avgLum = 0;
+		for (PaletteColor color : newSecondaryColor) {
+			avgLum += PaletteColor.getLuminosity(color);
+		}
+		avgLum /= newSecondaryColor.length;
+		if (avgLum > 0.55) {
+			PaletteColor newColor = PaletteColor.darkerColor(newSecondaryColor[lastIndex]);
+			for (int i = 0; i < lastIndex; i++) {
+				newSecondaryColor[i] = newSecondaryColor[i+1];
+			}
+			newSecondaryColor[newSecondaryColor.length-1] = newColor;
+    }
 		int newIndex = 0;
 		for (int colorIndex : info.secondaryColorOffsets) {
 			ColorSet set = colorArray[colorIndex];

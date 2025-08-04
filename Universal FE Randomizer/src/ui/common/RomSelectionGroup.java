@@ -43,7 +43,7 @@ public class RomSelectionGroup extends YuneGroup {
         fieldData.left = new FormAttachment(romFileLabel, 5);
         fieldData.top = new FormAttachment(0, 5);
         fieldData.right = new FormAttachment(openSelectorButton, -5);
-        fieldData.width = 400;
+        fieldData.width = 500;
         selectedPath.setLayoutData(fieldData);
 
         FormData buttonData = new FormData();

@@ -45,6 +45,15 @@ public class FE9Data {
 	
 	public static final int ChapterUnitEntrySize = 0x6C;
 	
+	// There's a Gecko code from PRDX4 who found how to make the weapon effectiveness 3x.
+	// Based on that, the code it modifies is at 0x1A9084. Looking at the vanilla game,
+	// we can find the same string of code in boot.dol. Modifying that should modify it
+	// permanently, though I haven't figured out how to read Gamecube ASM yet.
+	// I'm guessing the code change was from a shift left to a multiply 3.
+	public static final long TripleEffectivenessOffset = 0x1A5FE4;
+	public static final byte[] TripleEffectivenessOldValues = new byte[] { (byte)0x54, (byte)0x00, (byte)0x08, (byte)0x3C };
+	public static final byte[] TripleEffectivenessNewValues = new byte[] { (byte)0x1C, (byte)0x00, (byte)0x00, (byte)0x03 };
+	
 	public enum Character {
 		
 		NONE(null),
@@ -322,10 +331,10 @@ public class FE9Data {
 				TITANIA_PALADIN, PEGASUS_KNIGHT, FALCON_KNIGHT, ELINCIA_FALCON_KNIGHT, WYVERN_RIDER_F, WYVERN_LORD_F, FIRE_MAGE_F, WIND_MAGE_F, THUNDER_MAGE_F, 
 				MAGE_F, FIRE_SAGE_F, WIND_SAGE_F, THUNDER_SAGE_F, SAGE_F, BISHOP_F, CLERIC, VALKYRIE, ASSASSIN_F, SAGE_STAFF, SAGE_KNIFE, SAGE_STAFF_F, 
 				SAGE_KNIFE_F));
+
 		public static Set<CharacterClass> allHorseClasses = new HashSet<CharacterClass>(Arrays.asList(SWORD_KNIGHT, LANCE_KNIGHT, AXE_KNIGHT, BOW_KNIGHT,
-				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F, BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F, 
+				SWORD_PALADIN, LANCE_PALADIN, AXE_PALADIN, BOW_PALADIN, SWORD_KNIGHT_F, LANCE_KNIGHT_F, AXE_KNIGHT_F, BOW_KNIGHT_F, SWORD_PALADIN_F, LANCE_PALADIN_F, AXE_PALADIN_F, BOW_PALADIN_F,
 				TITANIA_PALADIN));
-		
 		public static Set<CharacterClass> allLaguzClasses = new HashSet<CharacterClass>(Arrays.asList(LION, TIGER, CAT, BLACK_DRAGON, WHITE_DRAGON, RED_DRAGON,
 				HAWK, CROW, HERON, W_HERON, FERAL_LION, FERAL_TIGER, FERAL_CAT, FERAL_BLACK_DRAGON, FERAL_WHITE_DRAGON,
 				FERAL_RED_DRAGON, FERAL_HAWK, FERAL_CROW, FERAL_HERON, FERAL_W_HERON, TIBARN_HAWK, EVENT_TIBARN, 
@@ -406,7 +415,7 @@ public class FE9Data {
 		public boolean isPromotedClass() { return allPromotedClasses.contains(this); }
 		
 		public boolean isFemale() { return allFemaleClasses.contains(this); }
-		public boolean isMounted() {return allHorseClasses.contains(this); }//Valkyrie excepted; his is more a "isCavalier" bool
+		public boolean isMounted() {return allHorseClasses.contains(this); } // Valkyrie excepted; his is more a "isCavalier" bool
 		public boolean isFlier() { return allFlyingClasses.contains(this); }
 		
 		public boolean isPacifist() { return allPacifistClasses.contains(this); }
@@ -699,6 +708,9 @@ public class FE9Data {
 		// Sage added weapon disciplines
 		EQUIP_KNIFE("SID_EQUIPKNIFE"), EQUIP_STAFF("SID_EQRD"),
 		
+		// Unique to Reyson, which prevents him from using the Demi Band
+		DEMI_BAND_RESTRICTED("SID_EQREV_A"),
+		
 		// Normal Skills
 		PARAGON("SID_ELITE"), RENEWAL("SID_TURNREGENE"), CELERITY("SID_SWIFT"), RESOLVE("SID_BLAVE"), TEMPEST("SID_TEMPER"), SERENITY("SID_CALM"),
 		SAVIOR("SID_RESCUEP"), VANTAGE("SID_AMBUSH"), NIHIL("SID_GRASP"), WRATH("SID_ANGER"), GUARD("SID_DEFENCE"), MIRACLE("SID_PRAY"), 
@@ -990,7 +1002,7 @@ public class FE9Data {
 			FLUTTER("flutter"), // Seems to only be used for Vortex?
 			
 			// These are for the demi band. Not sure what each one does.
-			FORCE_LAGUZ_TRANSFORM("beastsamul"), STAT_REDUCTION("JH"), NON_ROYAL_LAGUZ_LOCK("eqrevA"),
+			FORCE_LAGUZ_TRANSFORM("beastsamul"), STAT_REDUCTION("JH"), DEMI_BAND_RESTRICTION("eqrevA"),
 			
 			MOVE_AGAIN("movtw"), HALVE_LAGUZ_DAMAGE("lycdamhalf"), IGNORE_LAGUZ_EFFECTIVENESS("lycsfxseal"), IGNORE_EFFECTIVE_DAMAGE("sfxseal"),
 			

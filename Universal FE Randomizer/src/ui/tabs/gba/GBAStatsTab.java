@@ -34,7 +34,7 @@ public class GBAStatsTab extends YuneTabItem {
 
     @Override
     protected void compose() {
-        growths = addView(new GrowthsView(container, type.hasSTRMAGSplit()));
+        growths = addView(new GrowthsView(container, type.hasSTRMAGSplit(), true));
         enemies = addView(new EnemyBuffsView(container));
         setViewData(enemies, 1, 2);
         movConAffinity = addView(new MOVCONAffinityView(container));

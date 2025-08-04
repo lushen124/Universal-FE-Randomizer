@@ -57,6 +57,20 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 			if (normalizedString.equals("anima")) { return ANIMA; }
 			return NONE;
 		}
+		
+		public String displayString() {
+			switch (this) {
+			case NONE: return "N/A";
+			case FIRE: return "Fire";
+			case THUNDER: return "Thunder";
+			case WIND: return "Wind";
+			case WATER: return "Ice";
+			case DARK: return "Dark";
+			case LIGHT: return "Light";
+			case ANIMA: return "Anima";
+			default: return "???";
+			}
+		}
 	}
 	
 	public abstract GBAFECharacterData createCopy(boolean useOriginalData);
@@ -370,6 +384,9 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 
 	public void setSwordRank(int rank) {
 		assert !isReadOnly : "Attempted to modify a locked character.";
+		if (isReadOnly) {
+			System.err.println("Attempted to modify a locked character.");
+		}
 		data[20] = (byte)(rank & 0xFF);
 		wasModified = true;
 	}
@@ -479,9 +496,13 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		setDarkRank(ranks.darkRank.rankValue(gameType));
 		setStaffRank(ranks.staffRank.rankValue(gameType));
 	}
-
+	
 	public WeaponRanks getWeaponRanks() {
-		return new WeaponRanks(this);
+		return new WeaponRanks(this, null);
+	}
+
+	public WeaponRanks getWeaponRanks(GameType type) {
+		return new WeaponRanks(this, null, true, type);
 	}
 
 	public List<Integer> getAllWeaponRanks(){
@@ -514,7 +535,7 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 	}
 
 	public String getAffinityName() {
-		return Affinity.affinityWithID(getAffinityValue()).toString();
+		return Affinity.affinityWithID(getAffinityValue()).displayString();
 	}
 
 	public int getUnpromotedPaletteIndex() {
@@ -536,6 +557,26 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 		data[36] = (byte)(newIndex & 0xFF);
 		wasModified = true;
 	}
+	
+	public int getCustomUnpromotedBattleSprite() {
+		return 0; // Only applicable for FE7.
+	}
+	
+	public int getCustomPromotedBattleSprite() {
+		return 0; // Only applicable for FE7.
+	}
+	
+	public void setCustomUnpromotedBattleSprite(int spriteID) {
+		// Only applicable for FE7.
+	}
+	
+	public void setCustomPromotedBattleSprite(int spriteID) {
+		// Only applicable for FE7.
+	}
+	
+	public long getSupportsDataPointer() {
+		return (data[44] & 0xFF) | ((data[45] << 8) & 0xFF00) | ((data[46] << 16) & 0xFF0000) | ((data[47] << 24) & 0xFF000000) ;
+	}
 
 	public void setIsLord(boolean isLord) {
 		assert !isReadOnly : "Attempted to modify a locked character.";
@@ -553,6 +594,22 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 			data[43] |= lockMask;
 		}
 		wasModified = true;
+	}
+	
+	public int getAbility1() {
+		return data[40] & 0xFF;
+	}
+	
+	public int getAbility2() {
+		return data[41] & 0xFF;
+	}
+	
+	public int getAbility3() {
+		return data[42] & 0xFF;
+	}
+	
+	public int getAbility4() {
+		return data[43] & 0xFF;
 	}
 
 	public void resetData() {
@@ -586,4 +643,6 @@ public abstract class GBAFECharacterData extends AbstractGBAData implements FELo
 	public void prepareForClassRandomization() {
 		// Nothing to do here
 	}
+	
+	public abstract boolean hasAbility(String abilityString);
 }

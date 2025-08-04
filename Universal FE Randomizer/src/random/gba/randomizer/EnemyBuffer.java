@@ -88,6 +88,10 @@ public class EnemyBuffer {
 			ClassDataLoader classData, ChapterLoader chapterData, ItemDataLoader itemData, Random rng) {
 		for (GBAFEChapterData chapter : chapterData.allChapters()) {
 			for (GBAFEChapterUnitData chapterUnit : chapter.allUnits()) {
+				if (charactersData.isBossCharacterID(chapterUnit.getCharacterNumber())) {
+					// Bosses get their own routine.
+					continue;
+				}
 				int leaderID = chapterUnit.getLeaderID();
 				if (charactersData.isBossCharacterID(leaderID) || (chapterUnit.isEnemy() && chapterUnit.isAutolevel())) {
 					GBAFEClassData originalClass = classData.classForID(chapterUnit.getStartingClass());
@@ -97,7 +101,8 @@ public class EnemyBuffer {
 					
 					GBAFECharacterData minionCharacterData = charactersData.characterWithID(chapterUnit.getCharacterNumber());
 					boolean characterHasWeaponRanks = !itemData.ranksForCharacter(minionCharacterData, null).getTypes().isEmpty();
-					if (characterHasWeaponRanks) {
+					// Recruitable enemies can get a weapon upgrade, but they should not clear their weapon ranks!
+					if (characterHasWeaponRanks && charactersData.isPlayableCharacterID(chapterUnit.getCharacterNumber()) == false) {
 						minionCharacterData.clearAllWeaponRanks();
 						minionCharacterData.commitChanges();
 					}

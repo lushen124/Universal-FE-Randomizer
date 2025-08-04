@@ -4,6 +4,7 @@ import fedata.gcnwii.fe9.*;
 import fedata.gcnwii.fe9.scripting.*;
 import io.FileHandler;
 import io.gcn.GCNCMBFileHandler;
+import io.gcn.GCNFileHandler;
 import io.gcn.GCNISOException;
 import io.gcn.GCNISOHandler;
 import io.gcn.GCNISOHandlerRecompilationDelegate;
@@ -17,6 +18,7 @@ import ui.model.fe9.FE9SkillsOptions;
 import ui.model.*;
 import ui.model.fe9.FE9EnemyBuffOptions;
 import ui.model.fe9.FE9OtherCharacterOptions;
+import util.Diff;
 import util.SeedGenerator;
 import util.recordkeeper.fe9.*;
 import util.WhyDoesJavaNotHaveThese;
@@ -147,6 +149,7 @@ public class FE9Randomizer extends Randomizer {
 			randomizeMiscellaneousIfNecessary(seed);
 			buffEnemiesIfNecessary(seed);
 			randomizeWeaponsIfNecessary(seed);
+			makeGameMechanicsChangesIfNecessary(seed);
 			
 			makePostRandomizationAdjustments(seed);
 			
@@ -203,10 +206,6 @@ public class FE9Randomizer extends Randomizer {
 			
 			// The thief class actually already has too many skills to fit another in its class data. We'll have to assign these manually
 			// in the chapter unit data.
-			
-			// Additionally, remove promotion ban from the Thief class.
-			FE9Class thief = classData.classWithID(FE9Data.CharacterClass.THIEF.getJID());
-			classData.setSID4ForClass(thief, null);
 		}
 		
 		// FE9 routinely uses chapter unit data to modify boss units stats, which isn't accounted for in the
@@ -319,154 +318,162 @@ public class FE9Randomizer extends Randomizer {
 		charData.setJIDForCharacter(balmer, FE9Data.CharacterClass.SAGE_STAFF.getJID());
 	}
 	
+	public void makeGameMechanicsChangesIfNecessary(String seed) {
+		if (miscOptions.tripleEffectiveness) {
+			handler.addExecutableDiff(new Diff(FE9Data.TripleEffectivenessOffset, FE9Data.TripleEffectivenessNewValues.length, FE9Data.TripleEffectivenessNewValues, FE9Data.TripleEffectivenessOldValues));
+		}
+	}
+	
 	private void makePostRandomizationAdjustments(String seed) {
-		
-		// Remove damage immunity from BK and Ashnard.
-		// This is controlled by SID_WEAK_A, which is King Daein's 5th skill and General (BK)'s 2nd.
-		FE9Class blackknight = classData.classWithID(FE9Data.CharacterClass.BLACK_KNIGHT.getJID());
-		FE9Class kingdaein = classData.classWithID(FE9Data.CharacterClass.KING_DAEIN.getJID());
-		
-		classData.setSID2ForClass(blackknight, null);
-		classData.setSID5ForClass(kingdaein, null);
-		
-		
-		// Update Regal Sword and Ragnell's weapon lock.
-		// The lock normally is tied directly to the protagonist by character, which means if Ike doesn't use swords
-		// those two weapons are useless. Change it to the class instead.
-		// Thankfully, we can cheat by recycling Rolf's lock, which is locked to a skill.
-		// FE9 does the same check as GBA where the type of weapon still matters even if the lock is for you.
-		FE9Item regalSword = itemData.itemWithIID(FE9Data.Item.REGAL_SWORD.getIID());
-		String[] weaponTraits = itemData.getItemTraits(regalSword);
-		// The lock is in the first slot.
-		weaponTraits[0] = FE9Data.Item.WeaponTraits.ROLF_LOCK.getTraitString();
-		itemData.setItemTraits(regalSword, weaponTraits);
-		
-		FE9Item ragnell = itemData.itemWithIID(FE9Data.Item.RAGNELL.getIID());
-		weaponTraits = itemData.getItemTraits(ragnell);
-		// Also in the first slot.
-		weaponTraits[0] = FE9Data.Item.WeaponTraits.ROLF_LOCK.getTraitString();
-		itemData.setItemTraits(ragnell, weaponTraits);
-		
-		FE9Class ranger = classData.classWithID(FE9Data.CharacterClass.RANGER.getJID());
-		FE9Class lord = classData.classWithID(FE9Data.CharacterClass.LORD.getJID());
-		
-		
-		// Give Ranger and Lord the Rolf Lock skill.
-		// Slot 1 is actually the same slot as the skill that forces Ike's promotion in Ch. 17, so this kills two birds with one stone.
-		classData.setSID1ForClass(ranger, FE9Data.Skill.EQUIP_A.getSID());
-		// Slot 1 for lord is SID_HIGHER, so we'll put this in slot 2.
-		classData.setSID2ForClass(lord, FE9Data.Skill.EQUIP_A.getSID());
-		
-		
-		// Update the promotion lock on the Ranger class to only be for Ike and not the class.
-		// Ranger has a special skill that prevents it from promoting naturally.
-		// Remove it from Ranger (so anybody else that becomes a Ranger can promote)
-		// and add it specifically to Ike (so Ike will always promote in the same chapter no matter his class).
-		// We already removed it from Ranger in the above fix for Regal Sword and Ragnell, so we just need to give it to Ike.
-		FE9Character ike = charData.characterWithID(FE9Data.Character.IKE.getPID());
-		// His first slot is always SID_HERO, which gives him seizing capabilities among other things.
-		if (charData.getSID2ForCharacter(ike) == null) {
-			charData.setSID2ForCharacter(ike, FE9Data.Skill.EVENT_CC.getSID());
-		} else if (charData.getSID3ForCharacter(ike) == null) {
-			charData.setSID3ForCharacter(ike, FE9Data.Skill.EVENT_CC.getSID());
-		} else {
-			// Try giving it to him in the prologue script.
-			List<FE9ChapterArmy> prologueArmies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
-			for (FE9ChapterArmy army : prologueArmies) {
-				for (String unitID : army.getAllUnitIDs()) {
-					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
-					if (army.getPIDForUnit(unit).equals(FE9Data.Character.IKE.getPID())) {
-						if (army.getSkill1ForUnit(unit) == null) {
-							army.setSkill1ForUnit(unit, FE9Data.Skill.EVENT_CC.getSID());
-						} else if (army.getSkill2ForUnit(unit) == null) {
-							army.setSkill2ForUnit(unit, FE9Data.Skill.EVENT_CC.getSID());
-						} else {
-							// We have nowhere else to put this. Even if slot 3 is used, force it here.
-							army.setSkill3ForUnit(unit, FE9Data.Skill.EVENT_CC.getSID());
-						}
-					}
-				}
-				army.commitChanges();
-			}
-		}
-		
-		// Only two classes in the game can "walk slowly" or at least have the animation for doing so: Ranger and Priest.
-		// Telling these characters to walk slowly can mess up animations and may be the reason why
-		// this doesn't work on real hardware. Disable this slow walk whenever it shows up.
-		for (FE9Data.Chapter chapter : FE9Data.Chapter.values()) {
-			GCNCMBFileHandler chapterScript = chapterData.getHandlerForScripts(chapter);
-			if (chapterScript == null) { continue; }
-			for (FE9ScriptScene scene : chapterScript.getScenes()) {
-				List<ScriptInstruction> instructions = scene.getInstructions();
-				boolean didChange = false;
-				for (int i = 0; i < instructions.size(); i++) {
-					ScriptInstruction instruction = instructions.get(i);
-					if (instruction instanceof CallSceneByNameInstruction && ((CallSceneByNameInstruction)instruction).getSceneName().equals("UnitWalkSlow")) {
-						// Get the previous instruction, which should be a PUSH_NUM_LITERAL_8 that pushes either 0 (to disable) or 1 (to enable).
-						// Make sure it's always 0.
-						ScriptInstruction previousInstruction = instructions.get(i - 1);
-						if (previousInstruction instanceof PushLiteralNum8Instruction) {
-							// Replace these instructions with NO-OPs.
-							instructions.remove(i - 1); // Push Literal
-							instructions.remove(i - 1); // Call UnitWalkSlow
-							instructions.remove(i - 1); // Discard Top
-							
-							instructions.add(i - 1, new NOPInstruction());
-							instructions.add(i - 1, new NOPInstruction());
-							instructions.add(i - 1, new NOPInstruction());
-							
-							didChange = true;
-						}
-					}
-				}
-				if (didChange) {
-					scene.setInstructions(instructions);
-					//scene.commit();
-				}
-			}
-		}
-		
-		// Update Marcia and Jill's starting positions if class randomization is turned on and they are no longer flying classes.
-		
-		FE9Character jill = charData.characterWithID(FE9Data.Character.JILL.getPID());
-		String jillJID = charData.getJIDForCharacter(jill);
-		FE9Class jillClass = classData.classWithID(jillJID);
-		
-		FE9Character marcia = charData.characterWithID(FE9Data.Character.MARCIA.getPID());
-		String marciaJID = charData.getJIDForCharacter(marcia);
-		FE9Class marciaClass = classData.classWithID(marciaJID);
-		
-		if (classOptions.randomizePCs) {
-			if (!classData.isFlierClass(jillClass)) {
-				List<FE9ChapterArmy> c12Armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_12);
-				for (FE9ChapterArmy army : c12Armies) {
-					for (String unitID : army.getAllUnitIDs()) {
-						FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
-						if (army.getPIDForUnit(unit).equals(FE9Data.Character.JILL.getPID())) {
-							army.setStartingXForUnit(unit, 0x15);
-							army.setEndingXForUnit(unit, 0x16);
-							army.setStartingYForUnit(unit, 0x10);
-							army.setEndingYForUnit(unit, 0x10);
-						}
-					}
-					army.commitChanges();	
-				}
-			}
+		if (classOptions.randomizePCs && classOptions.includeLords) {
+			// Remove damage immunity from BK and Ashnard.
+			// This is controlled by SID_WEAK_A, which is King Daein's 5th skill and General (BK)'s 2nd.
+			FE9Class blackknight = classData.classWithID(FE9Data.CharacterClass.BLACK_KNIGHT.getJID());
+			FE9Class kingdaein = classData.classWithID(FE9Data.CharacterClass.KING_DAEIN.getJID());
 			
-			if (!classData.isFlierClass(marciaClass)) {
-				List<FE9ChapterArmy> c9Armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_9);
-				for (FE9ChapterArmy army : c9Armies) {
+			classData.setSID2ForClass(blackknight, null);
+			classData.setSID5ForClass(kingdaein, null);
+		
+			// Update Regal Sword and Ragnell's weapon lock.
+			// The lock normally is tied directly to the protagonist by character, which means if Ike doesn't use swords
+			// those two weapons are useless. Change it to the class instead.
+			// Thankfully, we can cheat by recycling Rolf's lock, which is locked to a skill.
+			// FE9 does the same check as GBA where the type of weapon still matters even if the lock is for you.
+			FE9Item regalSword = itemData.itemWithIID(FE9Data.Item.REGAL_SWORD.getIID());
+			String[] weaponTraits = itemData.getItemTraits(regalSword);
+			// The lock is in the first slot.
+			weaponTraits[0] = FE9Data.Item.WeaponTraits.ROLF_LOCK.getTraitString();
+			itemData.setItemTraits(regalSword, weaponTraits);
+			
+			FE9Item ragnell = itemData.itemWithIID(FE9Data.Item.RAGNELL.getIID());
+			weaponTraits = itemData.getItemTraits(ragnell);
+			// Also in the first slot.
+			weaponTraits[0] = FE9Data.Item.WeaponTraits.ROLF_LOCK.getTraitString();
+			itemData.setItemTraits(ragnell, weaponTraits);
+			
+			FE9Class ranger = classData.classWithID(FE9Data.CharacterClass.RANGER.getJID());
+			FE9Class lord = classData.classWithID(FE9Data.CharacterClass.LORD.getJID());
+			
+			
+			// Give Ranger and Lord the Rolf Lock skill.
+			// Slot 1 is actually the same slot as the skill that forces Ike's promotion in Ch. 17, so this kills two birds with one stone.
+			classData.setSID1ForClass(ranger, FE9Data.Skill.EQUIP_A.getSID());
+			// Slot 1 for lord is SID_HIGHER, so we'll put this in slot 2.
+			classData.setSID2ForClass(lord, FE9Data.Skill.EQUIP_A.getSID());
+		
+		
+			// Update the promotion lock on the Ranger class to only be for Ike and not the class.
+			// Ranger has a special skill that prevents it from promoting naturally.
+			// Remove it from Ranger (so anybody else that becomes a Ranger can promote)
+			// and add it specifically to Ike (so Ike will always promote in the same chapter no matter his class).
+			// We already removed it from Ranger in the above fix for Regal Sword and Ragnell, so we just need to give it to Ike.
+			FE9Character ike = charData.characterWithID(FE9Data.Character.IKE.getPID());
+			// His first slot is always SID_HERO, which gives him seizing capabilities among other things.
+			if (charData.getSID2ForCharacter(ike) == null) {
+				charData.setSID2ForCharacter(ike, FE9Data.Skill.EVENT_CC.getSID());
+			} else if (charData.getSID3ForCharacter(ike) == null) {
+				charData.setSID3ForCharacter(ike, FE9Data.Skill.EVENT_CC.getSID());
+			} else {
+				// Try giving it to him in the prologue script.
+				List<FE9ChapterArmy> prologueArmies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
+				for (FE9ChapterArmy army : prologueArmies) {
 					for (String unitID : army.getAllUnitIDs()) {
 						FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
-						if (army.getPIDForUnit(unit).equals(FE9Data.Character.MARCIA.getPID())) {
-							army.setStartingXForUnit(unit, 0x18);
-							army.setEndingXForUnit(unit, 0x18);
+						if (army.getPIDForUnit(unit).equals(FE9Data.Character.IKE.getPID())) {
+							if (army.getSkill1ForUnit(unit) == null) {
+								army.setSkill1ForUnit(unit, FE9Data.Skill.EVENT_CC.getSID());
+							} else if (army.getSkill2ForUnit(unit) == null) {
+								army.setSkill2ForUnit(unit, FE9Data.Skill.EVENT_CC.getSID());
+							} else {
+								// We have nowhere else to put this. Even if slot 3 is used, force it here.
+								army.setSkill3ForUnit(unit, FE9Data.Skill.EVENT_CC.getSID());
+							}
 						}
 					}
 					army.commitChanges();
 				}
 			}
+		}
+		
+		if (classOptions.randomizePCs) {
+			// Only two classes in the game can "walk slowly" or at least have the animation for doing so: Ranger and Priest.
+			// Telling these characters to walk slowly can mess up animations and may be the reason why
+			// this doesn't work on real hardware. Disable this slow walk whenever it shows up.
+			for (FE9Data.Chapter chapter : FE9Data.Chapter.values()) {
+				GCNCMBFileHandler chapterScript = chapterData.getHandlerForScripts(chapter);
+				if (chapterScript == null) { continue; }
+				for (FE9ScriptScene scene : chapterScript.getScenes()) {
+					List<ScriptInstruction> instructions = scene.getInstructions();
+					boolean didChange = false;
+					for (int i = 0; i < instructions.size(); i++) {
+						ScriptInstruction instruction = instructions.get(i);
+						if (instruction instanceof CallSceneByNameInstruction && ((CallSceneByNameInstruction)instruction).getSceneName().equals("UnitWalkSlow")) {
+							// Get the previous instruction, which should be a PUSH_NUM_LITERAL_8 that pushes either 0 (to disable) or 1 (to enable).
+							// Make sure it's always 0.
+							ScriptInstruction previousInstruction = instructions.get(i - 1);
+							if (previousInstruction instanceof PushLiteralNum8Instruction) {
+								// Replace these instructions with NO-OPs.
+								instructions.remove(i - 1); // Push Literal
+								instructions.remove(i - 1); // Call UnitWalkSlow
+								instructions.remove(i - 1); // Discard Top
+								
+								instructions.add(i - 1, new NOPInstruction());
+								instructions.add(i - 1, new NOPInstruction());
+								instructions.add(i - 1, new NOPInstruction());
+								
+								didChange = true;
+							}
+						}
+					}
+					if (didChange) {
+						scene.setInstructions(instructions);
+						//scene.commit();
+					}
+				}
+			}
 			
+			// Update Marcia and Jill's starting positions if class randomization is turned on and they are no longer flying classes.
+			
+			FE9Character jill = charData.characterWithID(FE9Data.Character.JILL.getPID());
+			String jillJID = charData.getJIDForCharacter(jill);
+			FE9Class jillClass = classData.classWithID(jillJID);
+			
+			FE9Character marcia = charData.characterWithID(FE9Data.Character.MARCIA.getPID());
+			String marciaJID = charData.getJIDForCharacter(marcia);
+			FE9Class marciaClass = classData.classWithID(marciaJID);
+			
+			if (classOptions.randomizePCs) {
+				if (!classData.isFlierClass(jillClass)) {
+					List<FE9ChapterArmy> c12Armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_12);
+					for (FE9ChapterArmy army : c12Armies) {
+						for (String unitID : army.getAllUnitIDs()) {
+							FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+							if (army.getPIDForUnit(unit).equals(FE9Data.Character.JILL.getPID())) {
+								army.setStartingXForUnit(unit, 0x15);
+								army.setEndingXForUnit(unit, 0x16);
+								army.setStartingYForUnit(unit, 0x10);
+								army.setEndingYForUnit(unit, 0x10);
+							}
+						}
+						army.commitChanges();	
+					}
+				}
+				
+				if (!classData.isFlierClass(marciaClass)) {
+					List<FE9ChapterArmy> c9Armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_9);
+					for (FE9ChapterArmy army : c9Armies) {
+						for (String unitID : army.getAllUnitIDs()) {
+							FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+							if (army.getPIDForUnit(unit).equals(FE9Data.Character.MARCIA.getPID())) {
+								army.setStartingXForUnit(unit, 0x18);
+								army.setEndingXForUnit(unit, 0x18);
+							}
+						}
+						army.commitChanges();
+					}
+				}
+				
+			}
 		}
 		
 		// There are a few cases where characters are assumed to be Laguz and are asked to transform.
@@ -637,168 +644,172 @@ public class FE9Randomizer extends Randomizer {
 		}
 		
 		
-		
-		// Update Ike's starting inventory based on class (if necessary).
-		FE9Class ikeClass = classData.classWithID(charData.getJIDForCharacter(ike));
-		List<WeaponType> ikeWeaponTypes = classData.getUsableWeaponTypesForClass(ikeClass);
-		FE9Item basicWeapon = null;
-		if (!ikeWeaponTypes.isEmpty()) {
-			WeaponType selectedType = ikeWeaponTypes.get(0);
-			basicWeapon =  itemData.basicItemForType(selectedType);
-		}
-		
-		if (basicWeapon != null && !itemData.iidOfItem(basicWeapon).equals(FE9Data.Item.IRON_SWORD.getIID())) {
-			// In the script for Prologue, the game gives him one iron sword.
-			// In the script for Chapter 1, the game gives him three more iron swords.
-			// TODO: See what's calling the script in Chapter 1. Maybe we can get it to not do that.
-			GCNCMBFileHandler prologue = chapterData.getHandlerForScripts(FE9Data.Chapter.PROLOGUE);
-			FE9ScriptScene scene = prologue.getSceneWithIndex(0x13);
-			List<ScriptInstruction> instructions = scene.getInstructions();
-			for (int i = 0; i < instructions.size(); i++) {
-				ScriptInstruction instruction = instructions.get(i);
-				if (instruction instanceof PushLiteralString16Instruction && 
-						((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.IRON_SWORD.getIID())) {
-					instructions.remove(i);
-					instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(basicWeapon), prologue));
-					break;
-				}
-			}
-			scene.setInstructions(instructions);
-			//scene.commit();
-			
-			GCNCMBFileHandler chapter1 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_1);
-			scene = chapter1.getSceneWithIndex(0x1C);
-			instructions = scene.getInstructions();
-			for (int i = 0; i < instructions.size(); i++) {
-				ScriptInstruction instruction = instructions.get(i);
-				if (instruction instanceof PushLiteralString16Instruction &&
-					((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.IRON_SWORD.getIID())) {
-					instructions.remove(i);
-					instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(basicWeapon), chapter1));
-				}	
-			}
-			scene.setInstructions(instructions);
-			//scene.commit();
-		}
-		
-		// Just to be doubly sure, give Ike a Vulnerary in Prologue.
-		List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
-		for (FE9ChapterArmy army : armies) {
-			for (String unitID : army.getAllUnitIDs()) {
-				FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
-				if (army.getPIDForUnit(unit).equals(FE9Data.Character.IKE.getPID())) {
-					if (army.unitHasItem(unit, FE9Data.Item.VULNERARY.getIID()) || army.unitHasItem(unit, FE9Data.Item.ELIXIR.getIID())) { continue; }
-					army.setItem1ForUnit(unit, FE9Data.Item.VULNERARY.getIID());
-				}
-			}
-			army.commitChanges();
-		}
-		
-		// Update Gatrie's rejoin weapon in Chapter 13.
-		FE9Item replacement = null;
-		FE9Character gatrie = charData.characterWithID(FE9Data.Character.GATRIE.getPID());
-		FE9Class gatrieClass = classData.classWithID(charData.getJIDForCharacter(gatrie));
-		if (classData.isLaguzClass(gatrieClass)) {
-			replacement = itemData.laguzWeaponForJID(classData.getJIDForClass(gatrieClass));
-		} else {
-			List<WeaponType> weaponTypes = classData.getUsableWeaponTypesForClass(gatrieClass);
-			if (!weaponTypes.contains(WeaponType.LANCE)) {
-				for (WeaponType type : weaponTypes) {
-					List<FE9Item> items = itemData.weaponsOfRankAndType(WeaponRank.D, type);
-					if (items.size() > 0) {
-						Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
-						replacement = items.get(rng.nextInt(items.size()));
-						break;
-					}
-				}
-			}
-		}
-		
-		if (replacement != null) {
-			GCNCMBFileHandler chapter13 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_13);
-			FE9ScriptScene scene = chapter13.getSceneWithIndex(0x12);
-			List<ScriptInstruction> instructions = scene.getInstructions();
-			for (int i = 0; i < instructions.size(); i++) {
-				ScriptInstruction instruction = instructions.get(i);
-				if (instruction instanceof PushLiteralString16Instruction && 
-						((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.STEEL_LANCE.getIID())) {
-					instructions.remove(i);
-					instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(replacement), chapter13));
-				}
-			}
-			scene.setInstructions(instructions);
-			//scene.commit();
-		}
-		
-		// Update Shinon's rejoin weapon.
-		replacement = null;
-		FE9Character shinon = charData.characterWithID(FE9Data.Character.SHINON.getPID());
-		FE9Class shinonClass = classData.classWithID(charData.getJIDForCharacter(shinon));
-		boolean shouldDrop = true;
-		if (classData.isLaguzClass(shinonClass)) {
-			replacement = itemData.laguzWeaponForJID(classData.getJIDForClass(shinonClass));
-			shouldDrop = false;
-		} else {
-			List<WeaponType> weaponTypes = classData.getUsableWeaponTypesForClass(shinonClass);
-			if (!weaponTypes.contains(WeaponType.BOW)) {
-				weaponTypes.remove(WeaponType.STAFF);
-				for (WeaponType type : weaponTypes) {
-					List<FE9Item> items = itemData.weaponsOfRankAndType(WeaponRank.B, type);
-					if (items.size() > 0) {
-						Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
-						replacement = items.get(rng.nextInt(items.size()));
-						break;
-					}
-				}
-			}
-		}
-		
-		if (replacement != null) {
-			GCNCMBFileHandler chapter18 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_18);
-			FE9ScriptScene scene = chapter18.getSceneWithIndex(0xE);
-			List<ScriptInstruction> instructions = scene.getInstructions();
-			for (int i = 0; i < instructions.size(); i++) {
-				ScriptInstruction instruction = instructions.get(i);
-				if (instruction instanceof PushLiteralString16Instruction && 
-						((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.BRAVE_BOW.getIID())) {
-					instructions.remove(i);
-					instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(replacement), chapter18));
-				}
+		if (classOptions.randomizePCs && classOptions.includeLords) {
+			// Update Ike's starting inventory based on class (if necessary).
+			FE9Character ike = charData.characterWithID(FE9Data.Character.IKE.getPID());
+			FE9Class ikeClass = classData.classWithID(charData.getJIDForCharacter(ike));
+			List<WeaponType> ikeWeaponTypes = classData.getUsableWeaponTypesForClass(ikeClass);
+			FE9Item basicWeapon = null;
+			if (!ikeWeaponTypes.isEmpty()) {
+				WeaponType selectedType = ikeWeaponTypes.get(0);
+				basicWeapon =  itemData.basicItemForType(selectedType);
 			}
 			
-			if (!shouldDrop) {
-				// Don't drop laguz weapons in case he's a laguz unit.
+			if (basicWeapon != null && !itemData.iidOfItem(basicWeapon).equals(FE9Data.Item.IRON_SWORD.getIID())) {
+				// In the script for Prologue, the game gives him one iron sword.
+				// In the script for Chapter 1, the game gives him three more iron swords.
+				// TODO: See what's calling the script in Chapter 1. Maybe we can get it to not do that.
+				GCNCMBFileHandler prologue = chapterData.getHandlerForScripts(FE9Data.Chapter.PROLOGUE);
+				FE9ScriptScene scene = prologue.getSceneWithIndex(0x13);
+				List<ScriptInstruction> instructions = scene.getInstructions();
 				for (int i = 0; i < instructions.size(); i++) {
 					ScriptInstruction instruction = instructions.get(i);
-					if (instruction instanceof CallSceneByNameInstruction && 
-							((CallSceneByNameInstruction) instruction).getSceneName().equals("UnitItemSetDrop")) {
-						// There's four instructions to dummy out.
-						// PUSH_VAR_8 (0x0)
-						// PUSH_VAR_8 (0x1)
-						// CALL_SCENE_NAME ("UnitItemSetDrop", 2)
-						// DISCARD_TOP
-						instructions.remove(i + 1);
+					if (instruction instanceof PushLiteralString16Instruction && 
+							((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.IRON_SWORD.getIID())) {
 						instructions.remove(i);
-						instructions.remove(i - 1);
-						instructions.remove(i - 2);
-						
-						instructions.add(i - 2, new NOPInstruction());
-						instructions.add(i - 1, new NOPInstruction());
-						instructions.add(i, new NOPInstruction());
-						instructions.add(i + 1, new NOPInstruction());
+						instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(basicWeapon), prologue));
+						break;
+					}
+				}
+				scene.setInstructions(instructions);
+				//scene.commit();
+				
+				GCNCMBFileHandler chapter1 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_1);
+				scene = chapter1.getSceneWithIndex(0x1C);
+				instructions = scene.getInstructions();
+				for (int i = 0; i < instructions.size(); i++) {
+					ScriptInstruction instruction = instructions.get(i);
+					if (instruction instanceof PushLiteralString16Instruction &&
+						((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.IRON_SWORD.getIID())) {
+						instructions.remove(i);
+						instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(basicWeapon), chapter1));
+					}	
+				}
+				scene.setInstructions(instructions);
+				//scene.commit();
+			}
+			
+			// Just to be doubly sure, give Ike a Vulnerary in Prologue.
+			List<FE9ChapterArmy> armies = chapterData.armiesForChapter(FE9Data.Chapter.PROLOGUE);
+			for (FE9ChapterArmy army : armies) {
+				for (String unitID : army.getAllUnitIDs()) {
+					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+					if (army.getPIDForUnit(unit).equals(FE9Data.Character.IKE.getPID())) {
+						if (army.unitHasItem(unit, FE9Data.Item.VULNERARY.getIID()) || army.unitHasItem(unit, FE9Data.Item.ELIXIR.getIID())) { continue; }
+						army.setItem1ForUnit(unit, FE9Data.Item.VULNERARY.getIID());
+					}
+				}
+				army.commitChanges();
+			}
+		}
+		
+		if (classOptions.randomizePCs) {
+			// Update Gatrie's rejoin weapon in Chapter 13.
+			FE9Item replacement = null;
+			FE9Character gatrie = charData.characterWithID(FE9Data.Character.GATRIE.getPID());
+			FE9Class gatrieClass = classData.classWithID(charData.getJIDForCharacter(gatrie));
+			if (classData.isLaguzClass(gatrieClass)) {
+				replacement = itemData.laguzWeaponForJID(classData.getJIDForClass(gatrieClass));
+			} else {
+				List<WeaponType> weaponTypes = classData.getUsableWeaponTypesForClass(gatrieClass);
+				if (!weaponTypes.contains(WeaponType.LANCE)) {
+					for (WeaponType type : weaponTypes) {
+						List<FE9Item> items = itemData.weaponsOfRankAndType(WeaponRank.D, type);
+						if (items.size() > 0) {
+							Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
+							replacement = items.get(rng.nextInt(items.size()));
+							break;
+						}
 					}
 				}
 			}
-			scene.setInstructions(instructions);
-			//scene.commit();
+			
+			if (replacement != null) {
+				GCNCMBFileHandler chapter13 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_13);
+				FE9ScriptScene scene = chapter13.getSceneWithIndex(0x12);
+				List<ScriptInstruction> instructions = scene.getInstructions();
+				for (int i = 0; i < instructions.size(); i++) {
+					ScriptInstruction instruction = instructions.get(i);
+					if (instruction instanceof PushLiteralString16Instruction && 
+							((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.STEEL_LANCE.getIID())) {
+						instructions.remove(i);
+						instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(replacement), chapter13));
+					}
+				}
+				scene.setInstructions(instructions);
+				//scene.commit();
+			}
+			
+			// Update Shinon's rejoin weapon.
+			replacement = null;
+			FE9Character shinon = charData.characterWithID(FE9Data.Character.SHINON.getPID());
+			FE9Class shinonClass = classData.classWithID(charData.getJIDForCharacter(shinon));
+			boolean shouldDrop = true;
+			if (classData.isLaguzClass(shinonClass)) {
+				replacement = itemData.laguzWeaponForJID(classData.getJIDForClass(shinonClass));
+				shouldDrop = false;
+			} else {
+				List<WeaponType> weaponTypes = classData.getUsableWeaponTypesForClass(shinonClass);
+				if (!weaponTypes.contains(WeaponType.BOW)) {
+					weaponTypes.remove(WeaponType.STAFF);
+					for (WeaponType type : weaponTypes) {
+						List<FE9Item> items = itemData.weaponsOfRankAndType(WeaponRank.B, type);
+						if (items.size() > 0) {
+							Random rng = new Random(SeedGenerator.generateSeedValue(seed, 0));
+							replacement = items.get(rng.nextInt(items.size()));
+							break;
+						}
+					}
+				}
+			}
+			
+			if (replacement != null) {
+				GCNCMBFileHandler chapter18 = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_18);
+				FE9ScriptScene scene = chapter18.getSceneWithIndex(0xE);
+				List<ScriptInstruction> instructions = scene.getInstructions();
+				for (int i = 0; i < instructions.size(); i++) {
+					ScriptInstruction instruction = instructions.get(i);
+					if (instruction instanceof PushLiteralString16Instruction && 
+							((PushLiteralString16Instruction) instruction).getString().equals(FE9Data.Item.BRAVE_BOW.getIID())) {
+						instructions.remove(i);
+						instructions.add(i, new PushLiteralString16Instruction(itemData.iidOfItem(replacement), chapter18));
+					}
+				}
+				
+				if (!shouldDrop) {
+					// Don't drop laguz weapons in case he's a laguz unit.
+					for (int i = 0; i < instructions.size(); i++) {
+						ScriptInstruction instruction = instructions.get(i);
+						if (instruction instanceof CallSceneByNameInstruction && 
+								((CallSceneByNameInstruction) instruction).getSceneName().equals("UnitItemSetDrop")) {
+							// There's four instructions to dummy out.
+							// PUSH_VAR_8 (0x0)
+							// PUSH_VAR_8 (0x1)
+							// CALL_SCENE_NAME ("UnitItemSetDrop", 2)
+							// DISCARD_TOP
+							instructions.remove(i + 1);
+							instructions.remove(i);
+							instructions.remove(i - 1);
+							instructions.remove(i - 2);
+							
+							instructions.add(i - 2, new NOPInstruction());
+							instructions.add(i - 1, new NOPInstruction());
+							instructions.add(i, new NOPInstruction());
+							instructions.add(i + 1, new NOPInstruction());
+						}
+					}
+				}
+				scene.setInstructions(instructions);
+				//scene.commit();
+			}
 		}
 		
-		
-		// PID_B_ZAKO is for Bengion generic soldiers. They, for some reason, have a hard-coded AID of a soldier, which can mess with their map models.
-		// Remove this AID and let the game handle it.
-		FE9Character bZako = charData.characterWithID("PID_B_ZAKO");
-		charData.setUnpromotedAIDForCharacter(bZako, null);
-		
+		if (classOptions.randomizeMinions) {
+			// PID_B_ZAKO is for Bengion generic soldiers. They, for some reason, have a hard-coded AID of a soldier, which can mess with their map models.
+			// Remove this AID and let the game handle it.
+			FE9Character bZako = charData.characterWithID("PID_B_ZAKO");
+			charData.setUnpromotedAIDForCharacter(bZako, null);
+		}
 	}
 	
 	// If called more than once on the same script index, should be done in reverse order to make sure the index of occurence remains consistent.

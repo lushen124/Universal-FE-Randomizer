@@ -51,6 +51,35 @@ public class WeaponRanks {
             staffRank = WeaponRank.valueOf(character.getStaffRank()) == WeaponRank.NONE ? WeaponRank.valueOf(characterClass.getStaffRank()) : WeaponRank.valueOf(character.getStaffRank());
         }
     }
+    
+    public WeaponRanks(GBAFEClassData characterClass, WeaponRank upRank, GameType type) {
+    	WeaponRank sword = WeaponRank.roundToFullRank(characterClass.getSwordRank(), type);
+        WeaponRank lance = WeaponRank.roundToFullRank(characterClass.getLanceRank(), type);
+        WeaponRank axe = WeaponRank.roundToFullRank(characterClass.getAxeRank(), type);
+        WeaponRank bow = WeaponRank.roundToFullRank(characterClass.getBowRank(), type);
+        WeaponRank anima = WeaponRank.roundToFullRank(characterClass.getAnimaRank(), type);
+        WeaponRank light = WeaponRank.roundToFullRank(characterClass.getLightRank(), type);
+        WeaponRank dark = WeaponRank.roundToFullRank(characterClass.getDarkRank(), type);
+        WeaponRank staff = WeaponRank.roundToFullRank(characterClass.getStaffRank(), type);
+        
+        if (sword != WeaponRank.NONE) { sword = upRank; }
+        if (lance != WeaponRank.NONE) { lance = upRank; }
+        if (axe != WeaponRank.NONE) { axe = upRank; }
+        if (bow != WeaponRank.NONE) { bow = upRank; }
+        if (anima != WeaponRank.NONE) { anima = upRank; }
+        if (light != WeaponRank.NONE) { light = upRank; }
+        if (dark != WeaponRank.NONE) { dark = upRank; }
+        if (staff != WeaponRank.NONE) { staff = upRank; }
+        
+        swordRank = sword;
+        lanceRank = lance;
+        axeRank = axe;
+        bowRank = bow;
+        animaRank = anima;
+        lightRank = light;
+        darkRank = dark;
+        staffRank = staff;
+    }
 
     public WeaponRanks(GBAFEClassData characterClass, boolean roundToNearest, GameType type) {
         WeaponRank sword = WeaponRank.valueOf(characterClass.getSwordRank());
@@ -85,6 +114,59 @@ public class WeaponRanks {
     
     public WeaponRanks(GBAFECharacterData character) {
         this(character, null);
+    }
+    
+    public WeaponRanks(GBAFECharacterData character, GBAFEClassData charClass, boolean roundToNearest, GameType type) {
+    	WeaponRank sword = WeaponRank.valueOf(character.getSwordRank());
+        WeaponRank lance = WeaponRank.valueOf(character.getLanceRank());
+        WeaponRank axe = WeaponRank.valueOf(character.getAxeRank());
+        WeaponRank bow = WeaponRank.valueOf(character.getBowRank());
+        WeaponRank anima = WeaponRank.valueOf(character.getAnimaRank());
+        WeaponRank light = WeaponRank.valueOf(character.getLightRank());
+        WeaponRank dark = WeaponRank.valueOf(character.getDarkRank());
+        WeaponRank staff = WeaponRank.valueOf(character.getStaffRank());
+        
+        if (roundToNearest) {
+        	if (sword == null) { sword = WeaponRank.roundToFullRank(character.getSwordRank(), type); }
+        	if (lance == null) { lance = WeaponRank.roundToFullRank(character.getLanceRank(), type); }
+        	if (axe == null) { axe = WeaponRank.roundToFullRank(character.getAxeRank(), type); }
+        	if (bow == null) { bow = WeaponRank.roundToFullRank(character.getBowRank(), type); }
+        	if (anima == null) { anima = WeaponRank.roundToFullRank(character.getAnimaRank(), type); }
+        	if (light == null) { light = WeaponRank.roundToFullRank(character.getLightRank(), type); }
+        	if (dark == null) { dark = WeaponRank.roundToFullRank(character.getDarkRank(), type); }
+        	if (staff == null) { staff = WeaponRank.roundToFullRank(character.getStaffRank(), type); }
+        }
+        
+        if (charClass != null) {
+        	if (sword == null) { sword = WeaponRank.valueOf(charClass.getSwordRank()); }
+        	if (lance == null) { lance = WeaponRank.valueOf(charClass.getLanceRank()); }
+        	if (axe == null) { axe = WeaponRank.valueOf(charClass.getAxeRank()); }
+        	if (bow == null) { bow = WeaponRank.valueOf(charClass.getBowRank()); }
+        	if (anima == null) { anima = WeaponRank.valueOf(charClass.getAnimaRank()); }
+        	if (light == null) { light = WeaponRank.valueOf(charClass.getLightRank()); }
+        	if (dark == null) { dark = WeaponRank.valueOf(charClass.getDarkRank()); }
+        	if (staff == null) { staff = WeaponRank.valueOf(charClass.getStaffRank()); }
+        	
+        	if (roundToNearest) {
+            	if (sword == null) { sword = WeaponRank.roundToFullRank(charClass.getSwordRank(), type); }
+            	if (lance == null) { lance = WeaponRank.roundToFullRank(charClass.getLanceRank(), type); }
+            	if (axe == null) { axe = WeaponRank.roundToFullRank(charClass.getAxeRank(), type); }
+            	if (bow == null) { bow = WeaponRank.roundToFullRank(charClass.getBowRank(), type); }
+            	if (anima == null) { anima = WeaponRank.roundToFullRank(charClass.getAnimaRank(), type); }
+            	if (light == null) { light = WeaponRank.roundToFullRank(charClass.getLightRank(), type); }
+            	if (dark == null) { dark = WeaponRank.roundToFullRank(charClass.getDarkRank(), type); }
+            	if (staff == null) { staff = WeaponRank.roundToFullRank(charClass.getStaffRank(), type); }
+            }
+        }
+        
+        swordRank = sword;
+        lanceRank = lance;
+        axeRank = axe;
+        bowRank = bow;
+        animaRank = anima;
+        lightRank = light;
+        darkRank = dark;
+        staffRank = staff;
     }
 
     public List<WeaponType> getTypes() {

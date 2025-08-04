@@ -36,6 +36,12 @@ public enum WeaponRank {
 		assert(weaponRank != null);
 		return weaponRank;
 	}
+	
+	public static int offsetFromRoundedRank(int rankValue, GameType type) {
+    	WeaponRank rank = roundToFullRank(rankValue, type);
+    	int referenceValue = rank.rankValue(type);
+    	return rankValue - referenceValue;
+    }
 
 
 	/**
@@ -51,11 +57,11 @@ public enum WeaponRank {
 		} else if (rankVal >= D.rankValue(type) && rankVal < C.rankValue(type)) {
 			return D;
 		} else if (rankVal >= C.rankValue(type) && rankVal < B.rankValue(type)) {
-			return E;
+			return C;
 		} else if (rankVal >= B.rankValue(type) && rankVal < A.rankValue(type)) {
-			return E;
+			return B;
 		} else if (rankVal >= A.rankValue(type) && rankVal < S.rankValue(type)) {
-			return E;
+			return A;
 		} else if (rankVal >= S.rankValue(type)) {
 			return S;
 		}
@@ -133,6 +139,10 @@ public enum WeaponRank {
 
 	public int rankValue(GameType type){
 		return GameType.FE6.equals(type) ? this.fe6RankValue : this.fe78RankValue;
+	}
+	
+	public boolean equals(WeaponRank other) {
+		return this.isHigherThan(other) == false && this.isLowerThan(other) == false;
 	}
 
 	public String displayString() {
