@@ -69,7 +69,7 @@ public class PaletteMapper {
 			
 			int paletteID = 0;
 			
-			Integer recycled = requestRecycledPaletteID(queuedItem.sizeNeeded,true);
+			Integer recycled = requestRecycledPaletteID(queuedItem.sizeNeeded, true);
 			if (recycled != null) {
 				paletteID = recycled;
 			} else {
@@ -83,7 +83,7 @@ public class PaletteMapper {
 			// remap them to the end of the ROM.
 			if (paletteID == 0) {
 				// Grab any palette ID that's not used. We will unregister the old address and write the new address (at the end of the ROM).
-				recycled = requestRecycledPaletteID(0);
+				recycled = requestRecycledPaletteID(0, true);
 				if (recycled != null) {
 					paletteID = recycled;
 					DebugPrinter.log(DebugPrinter.Key.PALETTE_RECYCLER, "Final recycling palette 0x" + Integer.toHexString(paletteID) + " for character 0x" + Integer.toHexString(queuedItem.character.getID()) + " (" + queuedItem.character.displayString() + ") of type: " + queuedItem.requiredType.name() + " actual size: " + queuedItem.sizeNeeded);

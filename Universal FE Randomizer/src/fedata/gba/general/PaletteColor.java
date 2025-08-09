@@ -158,7 +158,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 						getBlueValue() < 16 ? "0" + Integer.toHexString(getBlueValue()) : Integer.toHexString(getBlueValue()));
 	}
 	
-	public static PaletteColor[] coerceColors(PaletteColor[] colors, int numberOfColors, boolean favorDarkerColors) {
+	public static PaletteColor[] coerceColors(PaletteColor[] colors, int numberOfColors) {
 		if (numberOfColors == 0) { return new PaletteColor[] {}; }
 		
 		// Remove dupes first, if any.
@@ -184,7 +184,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		else if (colorsArray.size() > numberOfColors) {
 			PaletteColor[] uniqueColorArray = colorsArray.toArray(new PaletteColor[colorsArray.size()]);
 			if (colorsArray.size() == numberOfColors) { return uniqueColorArray; }
-			else if (colorsArray.size() > numberOfColors) { return reduceColors(uniqueColorArray, numberOfColors, favorDarkerColors); }
+			else if (colorsArray.size() > numberOfColors) { return reduceColors(uniqueColorArray, numberOfColors); }
 			else { 
 				if (colorsArray.isEmpty()) { return new PaletteColor[] {}; }
 				else if (colorsArray.size() == 1) {

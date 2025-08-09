@@ -382,7 +382,7 @@ public class PaletteV2 {
 		
 		List<PaletteColor> sortedTertiary = referenceTertiary.stream().sorted(PaletteColor.lowToHighBrightnessComparator).collect(Collectors.toList());
 		Collections.reverse(sortedTertiary);
-		PaletteColor[] newTertiaryColor = PaletteColor.coerceColors(sortedTertiary.toArray(new PaletteColor[sortedTertiary.size()]), info.tertiaryColorOffsets.length, false);
+		PaletteColor[] newTertiaryColor = PaletteColor.coerceColors(sortedTertiary.toArray(new PaletteColor[sortedTertiary.size()]), info.tertiaryColorOffsets.length);
 		int newIndex = 0;
 		for (int colorIndex : info.tertiaryColorOffsets) {
 			ColorSet set = colorArray[colorIndex];

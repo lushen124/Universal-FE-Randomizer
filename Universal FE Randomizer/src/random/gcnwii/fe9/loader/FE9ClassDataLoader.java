@@ -332,6 +332,40 @@ public class FE9ClassDataLoader {
 		charClass.setSkill3Pointer(fe8databin.pointerForString(sid));
 	}
 	
+	public String getSID4ForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getSkill4Pointer());
+	}
+	
+	public void setSID4ForClass(FE9Class charClass, String sid) {
+		if (charClass == null) { return; }
+		if (sid == null) {
+			charClass.setSkill4Pointer(0);
+			return;
+		}
+		
+		fe8databin.addString(sid);
+		fe8databin.addPointerOffset(classDataSection, charClass.getAddressOffset() + FE9Class.ClassSkill4Offset);
+		charClass.setSkill4Pointer(fe8databin.pointerForString(sid));
+	}
+	
+	public String getSID5ForClass(FE9Class charClass) {
+		if (charClass == null) { return null; }
+		return fe8databin.stringForPointer(charClass.getSkill5Pointer());
+	}
+	
+	public void setSID5ForClass(FE9Class charClass, String sid) {
+		if (charClass == null) { return; }
+		if (sid == null) {
+			charClass.setSkill5Pointer(0);
+			return;
+		}
+		
+		fe8databin.addString(sid);
+		fe8databin.addPointerOffset(classDataSection, charClass.getAddressOffset() + FE9Class.ClassSkill5Offset);
+		charClass.setSkill5Pointer(fe8databin.pointerForString(sid));
+	}
+	
 	public String getWeaponLevelsForClass(FE9Class charClass) {
 		if (charClass == null) { return null; }
 		return fe8databin.stringForPointer(charClass.getWeaponLevelPointer());

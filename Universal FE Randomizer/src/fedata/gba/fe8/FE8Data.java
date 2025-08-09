@@ -3148,13 +3148,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case SWORDMASTER_F:
 				case ARCHER:
 				case ARCHER_F:
-        case MONK:
+				case MONK:
 				case PRIEST:
 				case CLERIC:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {});
-					break;
-				case ARCHER_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13, 14}, new int[] {8, 9});
 					break;
 				case FIGHTER:
 				case BRIGAND:

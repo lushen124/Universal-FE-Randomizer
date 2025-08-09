@@ -2401,10 +2401,6 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				case KNIGHT:
 				case KNIGHT_F:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 2, 1}, new int[] {}, new int[] {9, 5, 3});
-					break;
-				case KNIGHT_F:
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 2, 1}, new int[] {});
-					break;
 				case LORD:
 				case MASTER_LORD:
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 5, 7}, new int[] {11, 12, 13, 14}, new int[] {});
@@ -3518,8 +3514,6 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.WYVERN_RIDER_F,
 				CharacterClass.WYVERN_LORD,
 				CharacterClass.WYVERN_LORD_F,
-				CharacterClass.WYVERN_KNIGHT,
-				CharacterClass.WYVERN_KNIGHT_F,
 				CharacterClass.MANAKETE,
 				CharacterClass.MANAKETE_F,
 				CharacterClass.NONE,
