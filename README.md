@@ -66,12 +66,12 @@ java -jar 'Yune - GTK(x86_64).jar'
 
 ```
 
-...or something like that. Tested with Ubuntu 16.04.4.
+...or something like that. Tested with Ubuntu 16.04.4, and Debian 12
 
 Also, you may need to `chmod` it so that it's runnable. That can be done with
 
 ```
-chmod 777 'Yune\ -\ GTK(x86_64).jar'
+chmod 644 'Yune\ -\ GTK(x86_64).jar'
 ```
 
 # Usage
