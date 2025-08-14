@@ -237,14 +237,14 @@ public class GBAPromotionRandomizer {
      */
     public static boolean hasAnyMatchingWeaponType(GBAFEClassData baseClass, GBAFEClassData candidate) {
         boolean ret = false;
-        ret |= baseClass.getSwordRank() <= candidate.getSwordRank();
-        ret |= baseClass.getLanceRank() <= candidate.getLanceRank();
-        ret |= baseClass.getAxeRank() <= candidate.getAxeRank();
-        ret |= baseClass.getBowRank() <= candidate.getBowRank();
-        ret |= baseClass.getDarkRank() <= candidate.getDarkRank();
-        ret |= baseClass.getLightRank() <= candidate.getLightRank();
-        ret |= baseClass.getAnimaRank() <= candidate.getAnimaRank();
-        ret |= baseClass.getStaffRank() <= candidate.getStaffRank();
+        ret |= baseClass.getSwordRank() > 0 && baseClass.getSwordRank() <= candidate.getSwordRank();
+        ret |= baseClass.getLanceRank() > 0 && baseClass.getLanceRank() <= candidate.getLanceRank();
+        ret |= baseClass.getAxeRank() > 0 && baseClass.getAxeRank() <= candidate.getAxeRank();
+        ret |= baseClass.getBowRank() > 0 && baseClass.getBowRank() <= candidate.getBowRank();
+        ret |= baseClass.getDarkRank() > 0 && baseClass.getDarkRank() <= candidate.getDarkRank();
+        ret |= baseClass.getLightRank() > 0 && baseClass.getLightRank() <= candidate.getLightRank();
+        ret |= baseClass.getAnimaRank() > 0 && baseClass.getAnimaRank() <= candidate.getAnimaRank();
+        ret |= baseClass.getStaffRank() > 0 && baseClass.getStaffRank() <= candidate.getStaffRank();
         return ret;
     }
 
