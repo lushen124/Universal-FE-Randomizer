@@ -1,19 +1,14 @@
 package fedata.gba.general;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import random.gba.randomizer.GrowthsRandomizer;
-import util.SeedGenerator;
 import util.DebugPrinter;
 import util.WhyDoesJavaNotHaveThese;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PaletteColor implements Comparable<PaletteColor> {
 	private double red;
@@ -23,6 +18,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	private double hue;
 	private double saturation;
 	private double brightness;
+	private boolean backgroundColor;
 	
 	public static final Comparator<PaletteColor> lowToHighBrightnessComparator = new Comparator<PaletteColor>() {
 		@Override
@@ -31,6 +27,13 @@ public class PaletteColor implements Comparable<PaletteColor> {
 			double bright1 = getLuminosity(o1); double bright2 = getLuminosity(o2);
 			
 			return bright1 > bright2 ? WhyDoesJavaNotHaveThese.ComparatorResult.FIRST_GREATER.returnValue() : WhyDoesJavaNotHaveThese.ComparatorResult.SECOND_GREATER.returnValue();
+		}
+	};
+
+	public static final Comparator<PaletteColor> backgroundColorComparator = new Comparator<PaletteColor>() {
+		@Override
+		public int compare(PaletteColor o1, PaletteColor o2) {
+			return Boolean.compare(o1.isBackgroundColor(), o2.isBackgroundColor()) * -1;
 		}
 	};
 	
@@ -84,6 +87,10 @@ public class PaletteColor implements Comparable<PaletteColor> {
 		blue = blueValue / 255.0;
 		
 		calculateValuesWithRGB();
+	}
+
+	public PaletteColor(int colorValue) {
+		this((colorValue & 0xFF0000) >> 16, (colorValue & 0xFF00) >> 8, (colorValue & 0xFF));
 	}
 	
 	public PaletteColor(int r, int g, int b) {
@@ -427,7 +434,7 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	public double getBrightness() {
 		return brightness;
 	}
-	
+
 	public void setRed(int newRedValue) {
 		if (newRedValue >= 0 && newRedValue <= 255) {
 			red = newRedValue / 255.0;
@@ -548,5 +555,59 @@ public class PaletteColor implements Comparable<PaletteColor> {
 	@Override
 	public String toString() {
 		return String.format("PaletteCollor red: %d, green %d, blue %d, brightness %f", getRedValue(), getGreenValue(), getBlueValue(), getBrightness());
+	}
+
+	/**
+	 * 4 Hex Bytes per Color <br>
+	 * 1st Byte = 0-F -> GG GR <br>
+	 * 2nd Byte = 0-F -> RR RR <br>
+	 * 3rd Byte = 0-7 -> []B BB <br>
+	 * 4th Byte = 0-F -> B B GG <br>
+	 * <p>
+	 * Binary: (5 Bits each)<br>
+	 * <p>
+	 * G = 44 |111 <br>
+	 * R = 1 |2222 <br>
+	 * B = 333|44 <br>
+	 */
+	public String to4ByteHexString() {
+		// Divide by 8 as in the constructor we multiply by 8, but here we only have 5 bits of precision, so we want values 0-31
+		int r = (getRedValue() / 8) & 0x1F;
+		int g = (getGreenValue() / 8) & 0x1F;
+		int b = (getBlueValue() / 8) & 0x1F;
+
+		//
+		int b1 = ((g & 0x7) << 1 | (r & 0x10) >> 4);
+		int b2 = (r & 0xF);
+		int b3 = ((b & 0x1C) >> 2);
+		int b4 = ((b & 0x3) << 2 | (g & 0x18) >> 3);
+
+		String b1Hex = Integer.toHexString(b1);
+		String b2Hex = Integer.toHexString(b2);
+		String b3Hex = Integer.toHexString(b3);
+		String b4Hex = Integer.toHexString(b4);
+
+		String hex =  String.format("%s%s%s%s", b1Hex, b2Hex, b3Hex, b4Hex).toUpperCase();
+
+		return hex;
+	}
+
+	protected static String paletteStringForArray(PaletteColor[] palette) {
+		return Stream.of(palette)
+				.filter(o -> o != null)
+				.map(PaletteColor::to4ByteHexString)// Convert every color to a 4 byte hex
+				.collect(Collectors.joining()); // string them together
+	}
+
+	public static String arrayToString(PaletteColor[] palette) {
+		return String.format("%-64s",PaletteColor.paletteStringForArray(palette)).replace(" ", "0");
+	}
+
+	public boolean isBackgroundColor() {
+		return backgroundColor;
+	}
+
+	public void setBackgroundColor(boolean backgroundColor) {
+		this.backgroundColor = backgroundColor;
 	}
 }

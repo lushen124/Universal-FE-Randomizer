@@ -1,31 +1,10 @@
 package random.gba.randomizer.shuffling;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.BinaryOperator;
-import java.util.stream.Collectors;
-
-import javax.print.attribute.HashAttributeSet;
-
-import com.sun.jndi.ldap.pool.Pool;
-import fedata.gba.GBAFEChapterData;
-import fedata.gba.GBAFEChapterUnitData;
-import fedata.gba.GBAFECharacterData;
-import fedata.gba.GBAFEClassData;
-import fedata.gba.GBAFEStatDto;
-import fedata.gba.GBAFECharacterData.Affinity;
-import fedata.gba.fe6.FE6Data;
+import fedata.gba.*;
 import fedata.gba.general.PaletteColor;
 import fedata.general.FEBase.GameType;
 import io.FileHandler;
-import random.gba.loader.ChapterLoader;
-import random.gba.loader.CharacterDataLoader;
-import random.gba.loader.ClassDataLoader;
-import random.gba.loader.ItemDataLoader;
-import random.gba.loader.PortraitDataLoader;
-import random.gba.loader.TextLoader;
-import random.gba.randomizer.RecruitmentRandomizer;
+import random.gba.loader.*;
 import random.gba.randomizer.service.ClassAdjustmentDto;
 import random.gba.randomizer.service.GBASlotAdjustmentService;
 import random.gba.randomizer.service.GBATextReplacementService;
@@ -36,13 +15,12 @@ import random.general.PoolDistributor;
 import ui.model.CharacterShufflingOptions;
 import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
 import ui.model.ItemAssignmentOptions;
-import util.DebugPrinter;
-import util.FileReadHelper;
-import util.FreeSpaceManager;
-import util.GBAImageCodec;
-import util.LZ77;
-import util.PaletteUtil;
-import util.WhyDoesJavaNotHaveThese;
+import util.*;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * Randomizer that shuffles in characters from different games into the rom
