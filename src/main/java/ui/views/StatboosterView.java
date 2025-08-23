@@ -1,6 +1,7 @@
-package ui.views;
+package ui;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -13,14 +14,19 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
 
 import ui.general.MinMaxControl;
+import ui.model.GrowthOptions;
 import ui.model.MinMaxOption;
+import ui.model.MinMaxVarOption;
 import ui.model.StatboosterOptions;
 import ui.model.StatboosterOptions.StatboosterRandomizationModes;
+import ui.model.VarOption;
 
-public class StatboosterView extends YuneView<StatboosterOptions> {
-
+public class StatboosterView extends Composite {
+	
 	private Boolean isEnabled = false;
 	private StatboosterRandomizationModes currentMode = StatboosterRandomizationModes.SAME_STAT;
+	
+	private Group container;
 	
 	private Button enableButton;
 	private MinMaxControl boostRangeControl;
@@ -38,61 +44,25 @@ public class StatboosterView extends YuneView<StatboosterOptions> {
 
 	private Button includeBoots;
 	private Button includeBodyring;
-	
-	public StatboosterView(Composite parent) {
-		super(parent);
-	}
-	
-	@Override
-	public String getGroupTitle() {
-		return "Statboosters";
-	}
 
-	@Override
-	public void initialize(StatboosterOptions options) {
-		if (options == null) {
-			enableButton.setSelection(false);
-			enableChanged(false);
-		} else {
-			enableButton.setSelection(true);
-			enableChanged(true);
-			setMode(options.mode);
-			
-			boostRangeControl.setMin(options.boostStrengthMin);
-			boostRangeControl.setMax(options.boostStrengthMax);
-			
-			sameStatOption.setSelection(StatboosterRandomizationModes.SAME_STAT.equals(options.mode));
-			multipleBoostsOption.setSelection(StatboosterRandomizationModes.MULTIPLE_STATS.equals(options.mode));
-			if (StatboosterRandomizationModes.MULTIPLE_STATS.equals(options.mode)) {
-				multipleBoostsRangeControl.setEnabled(true);
-				multipleBoostsRangeControl.setMin(options.multipleStatsMin);
-				multipleBoostsRangeControl.setMax(options.multipleStatsMax);
-			}
-			shuffleOption.setSelection(StatboosterRandomizationModes.SHUFFLE.equals(options.mode));
-			
-			includeBodyring.setSelection(options.includeCon);
-			includeBoots.setSelection(options.includeMov);
-			
-			hpModifierButton.setSelection(options.applyHpModifier);
-			hpModifierSpinner.setSelection(options.hpModifier);
-			hpModifierSpinner.setEnabled(hpModifierButton.getSelection());
-		}
-	}
+	public StatboosterView(Composite parent, int style) {
+		super(parent, style);
 
-	@Override
-	public StatboosterOptions getOptions() {
-if (!isEnabled) { return null; }
+		FillLayout layout = new FillLayout();
+		setLayout(layout);
 		
-		MinMaxOption multipleStats = multipleBoostsRangeControl.getMinMaxOption();
-		MinMaxOption boostRange = boostRangeControl.getMinMaxOption();
+		container = new Group(this, SWT.NONE);
+		container.setText("Statboosters");
+		container.setToolTipText("Randomizes the boosts granted by the statboosting items in the game.");
 		
+		FormLayout mainLayout = new FormLayout();
+		mainLayout.marginLeft = 5;
+		mainLayout.marginTop = 5;
+		mainLayout.marginBottom = 5;
+		mainLayout.marginRight = 5;
+		container.setLayout(mainLayout);
 		
-		return new StatboosterOptions(true, currentMode,boostRange.minValue, boostRange.maxValue, multipleStats.minValue, multipleStats.maxValue, includeBoots.getSelection(), includeBodyring.getSelection(), hpModifierButton.getSelection(), hpModifierSpinner.getSelection());
-	}
-
-	@Override
-	protected void compose() {
-		enableButton = new Button(group, SWT.CHECK);
+		enableButton = new Button(container, SWT.CHECK);
 		enableButton.setText("Enable Statbooster Randomization");
 		enableButton.addListener(SWT.Selection, new Listener() {
 			@Override
@@ -101,7 +71,7 @@ if (!isEnabled) { return null; }
 			}
 		});
 		
-		boostRangeControl = new MinMaxControl(group, SWT.NONE, "Min Boost:", "Max Boost:");
+		boostRangeControl = new MinMaxControl(container, SWT.NONE, "Min Boost:", "Max Boost:");
 		boostRangeControl.getMinSpinner().setValues(1, 0, 20, 0, 1, 5);
 		boostRangeControl.getMaxSpinner().setValues(3, 0, 20, 0, 1, 5);
 		boostRangeControl.setEnabled(false);
@@ -112,7 +82,7 @@ if (!isEnabled) { return null; }
 		boostRangeData.right = new FormAttachment(100, -5);
 		boostRangeControl.setLayoutData(boostRangeData);
 		
-		modeContainer = new Group(group, SWT.NONE);
+		modeContainer = new Group(container, SWT.NONE);
 		modeContainer.setText("Mode");
 		
 		FormLayout modeLayout = new FormLayout();
@@ -211,7 +181,7 @@ if (!isEnabled) { return null; }
 		/////////////////////////////////////////////////////////////
 		
 		
-		Group hpModifierContainer = new Group(group, 0);
+		Group hpModifierContainer = new Group(container, 0);
 		hpModifierContainer.setText("Misc");
 		
 		FormLayout hpModContainerLayout = new FormLayout();
@@ -228,7 +198,7 @@ if (!isEnabled) { return null; }
 		
 		includeBoots = new Button(hpModifierContainer, SWT.CHECK);
 		includeBoots.setText("Include Boots");
-		includeBoots.setToolTipText("As you can't naturally level up move, randomizing the body ring is opt-in only.");
+		includeBoots.setToolTipText("As you can't naturally level up move, randomizing the boots is opt-in only.");
 		includeBoots.setEnabled(false);
 		
 		optionData = new FormData();
@@ -277,6 +247,18 @@ if (!isEnabled) { return null; }
 		spinnerData.top = new FormAttachment(hpModifierButton, 5);
 		spinnerData.right = new FormAttachment(100, -5);
 		hpModifierSpinner.setLayoutData(spinnerData);
+		
+	}
+	
+	private void enableChanged(Boolean enabled) {
+		sameStatOption.setEnabled(enabled);
+		multipleBoostsOption.setEnabled(enabled);
+		shuffleOption.setEnabled(enabled);
+		boostRangeControl.setEnabled(enabled);
+		hpModifierButton.setEnabled(enabled);
+		includeBodyring.setEnabled(enabled);
+		includeBoots.setEnabled(enabled);
+		isEnabled = enabled;
 	}
 
 	private void setMode(StatboosterRandomizationModes newMode) {
@@ -296,14 +278,43 @@ if (!isEnabled) { return null; }
 		}
 	}
 	
-	private void enableChanged(Boolean enabled) {
-		sameStatOption.setEnabled(enabled);
-		multipleBoostsOption.setEnabled(enabled);
-		shuffleOption.setEnabled(enabled);
-		boostRangeControl.setEnabled(enabled);
-		hpModifierButton.setEnabled(enabled);
-		includeBodyring.setEnabled(enabled);
-		includeBoots.setEnabled(enabled);
-		isEnabled = enabled;
+	public StatboosterOptions getStatboosterOptions() {
+		if (!isEnabled) { return null; }
+		
+		MinMaxOption multipleStats = multipleBoostsRangeControl.getMinMaxOption();
+		MinMaxOption boostRange = boostRangeControl.getMinMaxOption();
+		
+		
+		return new StatboosterOptions(true, currentMode,boostRange.minValue, boostRange.maxValue, multipleStats.minValue, multipleStats.maxValue, includeBoots.getSelection(), includeBodyring.getSelection(), hpModifierButton.getSelection(), hpModifierSpinner.getSelection());
+	}
+	
+	public void setGrowthOptions(StatboosterOptions options) {
+		if (options == null) {
+			enableButton.setSelection(false);
+			enableChanged(false);
+		} else {
+			enableButton.setSelection(true);
+			enableChanged(true);
+			setMode(options.mode);
+			
+			boostRangeControl.setMin(options.boostStrengthMin);
+			boostRangeControl.setMax(options.boostStrengthMax);
+			
+			sameStatOption.setSelection(StatboosterRandomizationModes.SAME_STAT.equals(options.mode));
+			multipleBoostsOption.setSelection(StatboosterRandomizationModes.MULTIPLE_STATS.equals(options.mode));
+			if (StatboosterRandomizationModes.MULTIPLE_STATS.equals(options.mode)) {
+				multipleBoostsRangeControl.setEnabled(true);
+				multipleBoostsRangeControl.setMin(options.multipleStatsMin);
+				multipleBoostsRangeControl.setMax(options.multipleStatsMax);
+			}
+			shuffleOption.setSelection(StatboosterRandomizationModes.SHUFFLE.equals(options.mode));
+			
+			includeBodyring.setSelection(options.includeCon);
+			includeBoots.setSelection(options.includeMov);
+			
+			hpModifierButton.setSelection(options.applyHpModifier);
+			hpModifierSpinner.setSelection(options.hpModifier);
+			hpModifierSpinner.setEnabled(hpModifierButton.getSelection());
+		}
 	}
 }
