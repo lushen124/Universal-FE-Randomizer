@@ -2449,7 +2449,6 @@ public class GBARandomizer extends Randomizer {
 
 		GBAFEItemData doorKey = itemData.getDoorKey();
 		doorKey.applyEffect(WeaponEffects.UNBREAKABLE, itemData, null, rng);
-		doorKey.setCostPerUse(0);
 	}
 	
 	private void syncWorldMapSpriteToCharacter(GBAFEWorldMapSpriteData sprite, int characterID) {
