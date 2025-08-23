@@ -6,10 +6,7 @@ import fedata.gba.fe6.FE6SpellAnimationCollection;
 import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe7.FE7SpellAnimationCollection;
 import fedata.gba.fe8.*;
-import fedata.gba.general.GBAFEChapterMetadataChapter;
-import fedata.gba.general.GBAFEChapterMetadataData;
-import fedata.gba.general.WeaponRank;
-import fedata.gba.general.WeaponType;
+import fedata.gba.general.*;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 import io.DiffApplicator;
@@ -2449,6 +2446,9 @@ public class GBARandomizer extends Randomizer {
 			}
 			break;
 		}
+
+		GBAFEItemData doorKey = itemData.getDoorKey();
+		doorKey.applyEffect(WeaponEffects.UNBREAKABLE, itemData, null, rng);
 	}
 	
 	private void syncWorldMapSpriteToCharacter(GBAFEWorldMapSpriteData sprite, int characterID) {

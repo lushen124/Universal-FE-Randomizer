@@ -18,13 +18,6 @@ import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
 import fedata.gba.general.*;
-import fedata.gba.GBAFECharacterData.Affinity;
-import fedata.gba.fe7.FE7Data.CharacterAndClassAbility1Mask;
-import fedata.gba.fe7.FE7Data.CharacterAndClassAbility2Mask;
-import fedata.gba.fe7.FE7Data.CharacterAndClassAbility3Mask;
-import fedata.gba.fe7.FE7Data.CharacterAndClassAbility4Mask;
-import fedata.gba.fe7.FE7Data.Item;
-import fedata.gba.fe7.FE7Data.Shops;
 import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFECharacter;
@@ -1602,7 +1595,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public static List<Item> formerThiefKit() {
-			return new ArrayList<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, DOOR_KEY));
+			return new ArrayList<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY));
 		}
 		
 		public static Set<Item> itemsToRemoveFromFormerThief() {
@@ -4155,7 +4148,7 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public Set<GBAFEItem> formerThiefInventory() {
-		return new HashSet<GBAFEItem>(Item.formerThiefKit());
+		return new HashSet<>(Item.formerThiefKit());
 	}
 
 	public Set<GBAFEItem> thiefItemsToRemove() {
@@ -4676,5 +4669,10 @@ public class FE8Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Boolean isMapShop(GBAFEShop shop) {
 		return Shops.allMapShops().contains(shop);
+	}
+
+	@Override
+	public GBAFEItem getDoorKey() {
+		return FE8Data.Item.DOOR_KEY;
 	}
 }

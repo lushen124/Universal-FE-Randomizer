@@ -22,7 +22,7 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public int getID();
 	
 	public WeaponType getType();
-	
+	void applyEffect(WeaponEffects effect, ItemDataLoader itemData, GBAFESpellAnimationCollection spellAnimations, Random rng);
 	public boolean hasAbility1();
 	public int getAbility1();
 	public String getAbility1Description(String delimiter);
