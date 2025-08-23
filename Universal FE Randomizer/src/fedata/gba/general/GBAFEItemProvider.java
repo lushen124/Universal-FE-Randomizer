@@ -1,12 +1,9 @@
 package fedata.gba.general;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import fedata.gba.GBAFECharacterData;
-import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
 import random.gba.loader.ItemDataLoader.AdditionalData;
@@ -100,5 +97,6 @@ public interface GBAFEItemProvider {
 	public int numberOfAnimations();
 	public int bytesPerAnimation();
 	public GBAFESpellAnimationCollection spellAnimationCollectionAtAddress(byte[] data, long offset);
+	GBAFEItem getDoorKey();
 
 }

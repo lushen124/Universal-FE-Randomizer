@@ -1,17 +1,6 @@
 package random.gba.loader;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.stream.Collector;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFECharacterData;
@@ -1003,6 +992,10 @@ public class ItemDataLoader {
 			}
 		}
 		return ret;
+	}
+
+	public GBAFEItemData getDoorKey() {
+		return itemWithID(provider.getDoorKey().getID());
 	}
 	
 	private GBAFEItemData[] feItemsFromItemSet(Set<GBAFEItem> itemSet) {

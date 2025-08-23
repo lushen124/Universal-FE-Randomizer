@@ -398,7 +398,7 @@ public class FE6Item implements GBAFEItemData {
 		}
 	}
 	
-	private void applyEffect(WeaponEffects effect, ItemDataLoader itemData, GBAFESpellAnimationCollection spellAnimations, Random rng) {
+	public void applyEffect(WeaponEffects effect, ItemDataLoader itemData, GBAFESpellAnimationCollection spellAnimations, Random rng) {
 		switch (effect) {
 		case STAT_BOOSTS:
 			long[] boosts = itemData.possibleStatBoostAddresses();

@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import fedata.gba.GBAFECharacterData;
-import fedata.gba.GBAFECharacterData.Affinity;
 import fedata.gba.GBAFEClassData;
 import fedata.gba.GBAFEItemData;
 import fedata.gba.GBAFESpellAnimationCollection;
@@ -1361,9 +1360,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		public static List<Item> formerThiefKit() {
-			return new ArrayList<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY, DOOR_KEY));
+			return new ArrayList<Item>(Arrays.asList(CHEST_KEY_5, DOOR_KEY));
 		}
-		
+
 		public static Set<Item> itemsToRemoveFromFormerThief() {
 			return new HashSet<Item>(Arrays.asList(LOCKPICK));
 		}
@@ -3315,7 +3314,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 
 	public Set<GBAFEItem> formerThiefInventory() {
-		return new HashSet<GBAFEItem>(Item.formerThiefKit());
+		return new HashSet<>(Item.formerThiefKit());
 	}
 
 	public Set<GBAFEItem> thiefItemsToRemove() {
@@ -3721,4 +3720,9 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public Boolean isMapShop(GBAFEShop shop) { return false; }
+
+	@Override
+	public GBAFEItem getDoorKey() {
+		return FE6Data.Item.DOOR_KEY;
+	}
 }
