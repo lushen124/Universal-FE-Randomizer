@@ -168,7 +168,7 @@ public class CharacterShuffler {
             // Due to Promotion / Demotion, the output of the targetClass might be different from what was passed into this method
             GBAFEClassData targetClassCurrentSlot = updateBases(linkedSlot, crossGameData, targetClassId,
                     targetClass, sourceClass, linkedSlot.getLevel());
-            int targetClassIdCurrentSlot = targetClass.getID();
+            int targetClassIdCurrentSlot = targetClassCurrentSlot.getID();
 
             updateWeaponRanks(linkedSlot, crossGameData, sourceClass, targetClassCurrentSlot, rng);
 
@@ -230,7 +230,7 @@ public class CharacterShuffler {
                     chara.level, shouldBePromoted, isPromoted, rng, classData, null, targetClass, slot,
                     sourceClass, null, textData, DebugPrinter.Key.GBA_CHARACTER_SHUFFLING);
             targetClass = adjustmentDAO.targetClass;
-            slot.setClassID(targetClassId);
+            slot.setClassID(targetClass.getID());
 
             // Calculate the auto leveled personal bases
             GBAFEStatDto newPersonalBases = GBASlotAdjustmentService.autolevel(chara.bases, chara.growths,
