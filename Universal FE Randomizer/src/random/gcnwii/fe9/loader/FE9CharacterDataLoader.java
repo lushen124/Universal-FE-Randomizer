@@ -130,6 +130,17 @@ public class FE9CharacterDataLoader {
 		}
 	}
 	
+	public boolean isClassValidForCharacter(FE9Character character, FE9Class charClass, FE9ClassDataLoader classData) {
+		if (character == null || charClass == null) { return false; }
+		FE9Data.Character fe9Char = FE9Data.Character.withPID(getPIDForCharacter(character));
+		FE9Data.CharacterClass fe9Class = FE9Data.CharacterClass.withJID(classData.getJIDForClass(charClass));
+		if (fe9Char.bannedClasses() != null) {
+			return fe9Char.bannedClasses().contains(fe9Class) == false;
+		}
+		
+		return true;
+	}
+	
 	public boolean isPlayableCharacter(FE9Character character) {
 		if (character == null) { return false; }
 		FE9Data.Character fe9Char = FE9Data.Character.withPID(fe8databin.stringForPointer(character.getCharacterIDPointer()));
@@ -781,7 +792,13 @@ public class FE9CharacterDataLoader {
 			characterDataTable.setContents(2, 2, className + " (" + jid + ")");
 		}
 		
-		int row = 3;
+		if (isOriginal) {
+			characterDataTable.addRow(new String[] {"Level", String.valueOf(character.getLevel()), ""});
+		} else {
+			characterDataTable.setContents(3, 2, String.valueOf(character.getLevel()));
+		}
+		
+		int row = 4;
 		
 		FE9Data.Affinity affinity = getAffinityForCharacter(character);
 		if (affinity != null) {

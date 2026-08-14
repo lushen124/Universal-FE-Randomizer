@@ -3,7 +3,7 @@ package ui.tabs.fe4;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.fe4.FE4EnemyBuffView;
 import ui.views.fe4.HolyBloodView;
 import ui.views.BasesView;
@@ -21,7 +21,7 @@ import util.OptionRecorder;
  *     <li>Enemy Buffs</li>
  * </ul>
  */
-public class FE4StatsTab extends YuneTabItem {
+public class FE4StatsTab extends YuneTabGridItem {
 
     private GrowthsView growths;
     private BasesView bases;
@@ -41,7 +41,7 @@ public class FE4StatsTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName(){
+    public String getTabName(){
         return "Stats";
     }
 

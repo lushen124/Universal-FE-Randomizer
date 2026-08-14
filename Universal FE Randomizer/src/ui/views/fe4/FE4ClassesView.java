@@ -4,7 +4,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import ui.common.GuiUtil;
-import ui.common.YuneGroup;
 import ui.model.fe4.FE4ClassOptions;
 import ui.model.fe4.FE4ClassOptions.BloodOptions;
 import ui.model.fe4.FE4ClassOptions.ChildOptions;

@@ -114,14 +114,75 @@ public class FE9Data {
 		public static Set<Character> requiresMelee = new HashSet<Character>(Arrays.asList());
 		
 		public static Set<Character> requiredFliers = new HashSet<Character>(Arrays.asList(JILL, HAAR, SEEKER));
-		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(IKE, BOYD));
+		public static Set<Character> requiredAttackers = new HashSet<Character>(Arrays.asList(IKE, BOYD, MARCIA));
 		
 		public static Set<Character> femaleSet = new HashSet<Character>(Arrays.asList(TITANIA, MIST, MIA, ELINCIA, LUCIA, CALILL, NEPHENEE, ILYANA, 
 				JILL, TANITH, MARCIA, ASTRID, ENA, LETHE));
 		
-		public static Set<Character> requiresPromotion = new HashSet<Character>(Arrays.asList(IKE));
+		public static Set<Character> requiresPromotion = new HashSet<Character>(Arrays.asList(IKE, VOLKE));
 		
 		public static Set<Character> allSpecial = new HashSet<Character>(Arrays.asList(REYSON));
+		
+		public String getDisplayName() {
+			switch (this) {
+			case IKE: return "Ike";
+			case BOYD: return "Boyd";
+			case TITANIA: return "Titania";
+			case OSCAR: return "Oscar";
+			case RHYS: return "Rhys";
+			case SHINON: return "Shinon";
+			case GATRIE: return "Gatrie";
+			case SOREN: return "Soren";
+			case MIA: return "Mia";
+			case ILYANA: return "Ilyana";
+			case MIST: return "Mist";
+			case ROLF: return "Rolf";
+			case MARCIA: return "Marcia";
+			case LETHE: return "Lethe";
+			case MORDECAI: return "Mordecai";
+			case VOLKE: return "Volke";
+			case KIERAN: return "Kieran";
+			case BROM: return "Brom";
+			case NEPHENEE: return "Nephenee";
+			case ZIHARK: return "Zihark";
+			case SOTHE: return "Sothe";
+			case JILL: return "Jill";
+			case ASTRID: return "Astrid";
+			case MAKALOV: return "Makalov";
+			case MUARIM: return "Muarim";
+			case TORMOD: return "Tormod";
+			case DEVDAN: return "Devdan";
+			case TANITH: return "Tanith";
+			case REYSON: return "Reyson";
+			case JANAFF: return "Janaff";
+			case ULKI: return "Ulki";
+			case TAURONEO: return "Tauroneo";
+			case CALILL: return "Calill";
+			case LARGO: return "Largo";
+			case HAAR: return "Haar";
+			case BASTIAN: return "Bastian";
+			case LUCIA: return "Lucia";
+			case GEOFFREY: return "Geoffrey";
+			case ELINCIA: return "Elincia";
+			case ENA: return "Ena";
+			case NASIR: return "Nasir";
+			case RANULF: return "Ranulf";
+			case STEFAN: return "Stefan";
+			default: return this.toString();
+			}
+		}
+		
+		public List<CharacterClass> bannedClasses() {
+			switch (this) {
+			
+			// These three start off in jail cells. Becoming a thief class will cause their AI to prematurely open cell doors.
+			case KIERAN:
+			case BROM:
+			case NEPHENEE:
+				return new ArrayList<CharacterClass>(List.of(CharacterClass.THIEF));
+			default: return null;
+			}
+		}
 		
 		public boolean isPlayable() {
 			return allPlayableCharacters.contains(this);
@@ -149,6 +210,10 @@ public class FE9Data {
 		
 		public boolean isFemale() {
 			return femaleSet.contains(this);
+		}
+		
+		public boolean isSpecial() {
+			return allSpecial.contains(this);
 		}
 		
 		public String getPID() {
@@ -395,6 +460,72 @@ public class FE9Data {
 		public static Set<CharacterClass> advancedClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, WYVERN_RIDER_F,
 				PEGASUS_KNIGHT));
 		
+		public String getDisplayName() {
+			switch (this) {
+			case LORD: return "Lord"; 
+			case RANGER: return "Ranger"; 
+			case MYRMIDON: return "Myrmidon (M)";
+			case SWORDMASTER: return "Swordmaster (M)"; 
+			case SOLDIER: return "Soldier (M)";
+			case HALBERDIER: return "Halberdier (M)";
+			case FIGHTER: return "Fighter";
+			case WARRIOR: return "Warrior";
+			case ARCHER: return "Archer";
+			case SNIPER: return "Sniper";
+			case KNIGHT: return "Armor Knight";
+			case GENERAL: return "General";
+			case SWORD_KNIGHT: return "Sword Cavalier";
+			case LANCE_KNIGHT: return "Lance Cavalier";
+			case AXE_KNIGHT: return "Axe Cavalier";
+			case BOW_KNIGHT: return "Bow Cavalier (M)";
+			case SWORD_PALADIN: return "Sword Paladin";
+			case LANCE_PALADIN: return "Lance Paladin";
+			case AXE_PALADIN: return "Axe Paladin";
+			case BOW_PALADIN: return "Bow Paladin (M)";
+			case WYVERN_RIDER: return "Wyvern Rider (M)";
+			case WYVERN_LORD: return "Wyvern Lord (M)"; 
+			case MAGE: return "Mage (M)";
+			case PRIEST: return "Priest";
+			case BISHOP: return "Bishop";
+			case THIEF: return "Thief";
+			case ASSASSIN: return "Assassin";
+			case BANDIT: return "Bandit";
+			case BERSERKER: return "Berserker";
+			case TIGER: return "Tiger";
+			case CAT: return "Cat (M)";
+			case WHITE_DRAGON: return "White Dragon";
+			case RED_DRAGON: return "Red Dragon";
+			case HAWK: return "Hawk";
+			case CROW: return "Crow";
+			case W_HERON: return "Heron";
+			case SAGE_STAFF: return "Sage (Staff) (M)";
+			case SAGE_KNIFE: return "Sage (Knife) (M)";
+			case MYRMIDON_F: return "Myrmidon (F)";
+			case SWORDMASTER_F: return "Swordmaster (F)";
+			case SOLDIER_F: return "Soldier (F)";
+			case HALBERDIER_F: return "Halberdier (F)"; 
+			case BOW_KNIGHT_F: return "Bow Cavalier (F)";
+			case SWORD_PALADIN_F: return "Sword Paladin (F)";
+			case LANCE_PALADIN_F: return "Lance Paladin (F)";
+			case AXE_PALADIN_F: return "Axe Paladin (F)";
+			case BOW_PALADIN_F: return "Bow Paladin (F)";
+			case TITANIA_PALADIN: return "Paladin (Titania)";
+			case PEGASUS_KNIGHT: return "Pegasus Knight";
+			case FALCON_KNIGHT: return "Falcon Knight";
+			case ELINCIA_FALCON_KNIGHT: return "Falcon Knight (Elincia)";
+			case WYVERN_RIDER_F: return "Wyvern Rider (F)";
+			case WYVERN_LORD_F: return "Wyvern Lord (F)"; 
+			case MAGE_F: return "Mage (F)";
+			case CLERIC: return "Cleric";
+			case VALKYRIE: return "Valkyrie";
+			case CAT_F: return "Cat (F)";
+			case RED_DRAGON_F: return "Red Dragon (F)";
+			case SAGE_STAFF_F: return "Sage (Staff) (F)";
+			case SAGE_KNIFE_F: return "Sage (Knife) (F)";
+			default: return this.toString();
+			}
+		}
+		
 		public boolean isLordClass() { return allLordClasses.contains(this); }
 		public boolean isThiefClass() { return allThiefClasses.contains(this); }
 		public boolean isSpecialClass() { return allSpecialClasses.contains(this); }
@@ -415,12 +546,13 @@ public class FE9Data {
 		public boolean isPromotedClass() { return allPromotedClasses.contains(this); }
 		
 		public boolean isFemale() { return allFemaleClasses.contains(this); }
-		public boolean isMounted() {return allHorseClasses.contains(this); } // Valkyrie excepted; his is more a "isCavalier" bool
+		public boolean isMounted() {return allHorseClasses.contains(this); } // Valkyrie excepted; this is more a "isCavalier" bool
 		public boolean isFlier() { return allFlyingClasses.contains(this); }
 		
 		public boolean isPacifist() { return allPacifistClasses.contains(this); }
 		public boolean isAdvanced() { return advancedClasses.contains(this); }
 		
+		// We're only concerned about player classes in this case. This won't be used for anything else.
 		public Set<CharacterClass> similarClasses() {
 			switch (this) {
 			case SWORD_KNIGHT:
@@ -470,6 +602,12 @@ public class FE9Data {
 			case CAT:
 			case CAT_F:
 				return new HashSet<CharacterClass>(Arrays.asList(CAT, CAT_F));
+			case WYVERN_RIDER:
+			case WYVERN_RIDER_F:
+				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, WYVERN_RIDER_F));
+			case WYVERN_LORD:
+			case WYVERN_LORD_F:
+				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_LORD, WYVERN_LORD_F));
 			default:
 				return new HashSet<CharacterClass>();
 			}
@@ -1545,4 +1683,6 @@ public class FE9Data {
 			return internalID;
 		}
 	}
+	
+	public enum StatArea { HP, STR, MAG, SKL, SPD, LCK, DEF, RES; }
 }

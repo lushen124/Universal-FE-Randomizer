@@ -4,7 +4,7 @@ import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import ui.common.GuiUtil;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.ItemAssignmentView;
 import ui.views.PrfView;
 import ui.views.RewardRandomizationView;
@@ -24,7 +24,7 @@ import util.OptionRecorder;
  * </ul>
  *
  */
-public class GBAItemsTab extends YuneTabItem {
+public class GBAItemsTab extends YuneTabGridItem {
 
     private WeaponsView weapons;
     private ItemAssignmentView itemAssignment;
@@ -54,7 +54,7 @@ public class GBAItemsTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName() {
+    public String getTabName() {
         return "Items";
     }
 

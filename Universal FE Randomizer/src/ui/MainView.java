@@ -204,7 +204,23 @@ public class MainView implements FileFlowDelegate {
         // (5) Add or update the randomize button listener
         if (randomizeListener == null) {
             randomizeListener = new RandomizeButtonListener(this, loadedGameType);
-            randomizeButton.addListener(SWT.Selection, randomizeListener);
+            randomizeButton.addListener(SWT.Selection, new Listener() {
+				@Override
+				public void handleEvent(Event arg0) {
+					if (viewContainer.validate() == false) {
+						String errorMessage = viewContainer.getValidationError();
+						if (errorMessage != null) {
+							MessageModal error = new MessageModal(mainShell, "Incompatible Settings", errorMessage);
+							error.show();
+						} else {
+							MessageModal error = new MessageModal(mainShell, "Incompatible Settings", "Some of the settings used are incompatible.");
+							error.show();
+						}
+					} else {
+						randomizeListener.handleEvent(arg0);
+					}
+				}
+            });
         } else {
             randomizeListener.updateGameType(loadedGameType);
         }
@@ -299,17 +315,16 @@ public class MainView implements FileFlowDelegate {
      * Read the saved
      */
     private void preloadOptions() {
-        // If no Options exist at all (f.e. first time user), then don't preload
-        if (OptionRecorder.options == null) {
-            return;
-        }
-
+    	// Some view initialization will require options to be loaded.
+    	// Even if those options are null, create an empty option bundle to load.
+        
         // Try to find the bundle for the currently selected game
-        final Bundle bundle = OptionRecorder.getBundle(loadedGameType);
-        // if there are options saved for the game, then we can load them
-        if (bundle != null) {
-            viewContainer.preloadOptions(bundle);
+        Bundle bundle = OptionRecorder.getBundle(loadedGameType);
+        if (bundle == null) {
+        	bundle = OptionRecorder.createBundle(loadedGameType);
         }
+           
+        viewContainer.preloadOptions(bundle);
     }
 
     @Override

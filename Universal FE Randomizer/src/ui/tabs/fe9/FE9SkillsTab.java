@@ -5,7 +5,7 @@ import fedata.general.FEBase.GameType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import ui.common.GuiUtil;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.fe9.FE9SkillView;
 import util.OptionRecorder;
 
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Tab for FE9 Skills.
  */
-public class FE9SkillsTab extends YuneTabItem {
+public class FE9SkillsTab extends YuneTabGridItem {
 
     private FE9SkillView skills;
 
@@ -30,7 +30,7 @@ public class FE9SkillsTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName() {
+    public String getTabName() {
         return "Skills";
     }
 

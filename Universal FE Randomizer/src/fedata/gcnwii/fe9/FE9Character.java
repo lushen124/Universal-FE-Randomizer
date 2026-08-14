@@ -179,6 +179,11 @@ public class FE9Character implements FEModifiableData {
 		return data[0x36];
 	}
 	
+	public void setLevel(int level) {
+		data[0x36] = (byte)(level & 0xFF);
+		wasModified = true;
+	}
+	
 	public int getBuild() {
 		return data[0x37];
 	}

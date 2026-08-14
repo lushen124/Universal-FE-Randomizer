@@ -5,7 +5,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import ui.common.GuiUtil;
 import ui.views.fe4.FE4ClassesView;
 import ui.views.fe4.FE4PromotionView;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import util.OptionRecorder;
 
 /**
@@ -17,7 +17,7 @@ import util.OptionRecorder;
  *     <li>Promotions</li>
  * </ul>
  */
-public class FE4ClassesTab extends YuneTabItem {
+public class FE4ClassesTab extends YuneTabGridItem {
 
     FE4ClassesView classes;
     FE4PromotionView promotions;
@@ -34,7 +34,7 @@ public class FE4ClassesTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName(){
+    public String getTabName(){
         return "Classes";
     }
 

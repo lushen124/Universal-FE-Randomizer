@@ -3,7 +3,7 @@ package ui.tabs.fe4;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.custom.CTabFolder;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.GameMechanicsView;
 import ui.views.RewardRandomizationView;
 import util.OptionRecorder;
@@ -11,7 +11,7 @@ import util.OptionRecorder;
 /**
  * Tab containing the GUI of the FE4 Misc Tab
  */
-public class FE4MiscTab extends YuneTabItem {
+public class FE4MiscTab extends YuneTabGridItem {
 
     private GameMechanicsView mechanics;
     private RewardRandomizationView rewards;
@@ -27,7 +27,7 @@ public class FE4MiscTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName() {
+    public String getTabName() {
         return "Misc.";
     }
 

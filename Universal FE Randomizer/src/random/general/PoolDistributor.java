@@ -36,8 +36,12 @@ public class PoolDistributor<T> {
 		if (item == null) {
 			return;
 		}
-		itemList.add(item);
+		
 		itemSet.add(item);
+		
+		for (int i = 0; i < count; i++) {
+			itemList.add(item);
+		}
 	}
 
 	public void removeItem(T itemToRemove, boolean allInstances) {

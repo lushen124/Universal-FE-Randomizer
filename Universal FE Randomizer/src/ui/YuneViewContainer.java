@@ -40,4 +40,8 @@ public abstract class YuneViewContainer extends Composite implements Preloadable
      * This method is called by the constructor to create and layout the different views within the View Container
      */
     protected abstract void compose();
+    
+    public abstract boolean validate();
+    
+    public abstract String getValidationError();
 }

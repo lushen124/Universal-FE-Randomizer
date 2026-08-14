@@ -74,6 +74,7 @@ public class FE9ChapterArmy {
 		DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "===Starting Army Data for " + chapterID + "===");
 		for (GCNDataFileDataSection section : handler.getSections()) {
 			if (section.identifier.contains("_date_")) { continue; }
+			DebugPrinter.log(DebugPrinter.Key.FE9_ARMY_LOADER, "**Processing Army section " + section.identifier + "**");
 			byte[] sectionHeader = section.getRawData(0, 4);
 			int count = (int)sectionHeader[0];
 			FE9ChapterArmySection armySection = new FE9ChapterArmySection(sectionHeader, section);
@@ -118,6 +119,18 @@ public class FE9ChapterArmy {
 	
 	public FE9ChapterUnit getUnitForUnitID(String unitID) {
 		return unitsByUniqueID.get(unitID);
+	}
+	
+	public List<FE9ChapterUnit> getAllUnitsWithPID(String pid) {
+		List<FE9ChapterUnit> result = new ArrayList<FE9ChapterUnit>();
+		
+		for (FE9ChapterUnit unit : allUnits) {
+			if (getPIDForUnit(unit) == pid) {
+				result.add(unit);
+			}
+		}
+		
+		return result;
 	}
 	
 	public FE9ChapterUnit getUnitForPID(String pid) {

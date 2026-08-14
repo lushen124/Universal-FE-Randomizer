@@ -2,7 +2,7 @@ package ui.tabs.gba;
 
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.custom.CTabFolder;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.BasesView;
 import ui.views.EnemyBuffsView;
 import ui.views.GrowthsView;
@@ -21,7 +21,7 @@ import util.OptionRecorder.GBAOptionBundle;
  *     <li>Enemy Buffs</li>
  * </ul>
  */
-public class GBAStatsTab extends YuneTabItem {
+public class GBAStatsTab extends YuneTabGridItem {
 
     private GrowthsView growths;
     private BasesView bases;
@@ -43,7 +43,7 @@ public class GBAStatsTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName(){
+    public String getTabName(){
         return "Stats";
     }
 

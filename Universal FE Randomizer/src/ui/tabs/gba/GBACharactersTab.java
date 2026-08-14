@@ -2,7 +2,7 @@ package ui.tabs.gba;
 
 import fedata.general.FEBase;
 import org.eclipse.swt.custom.CTabFolder;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.CharacterShufflingView;
 import ui.views.ClassesView;
 import ui.views.RecruitmentView;
@@ -19,7 +19,7 @@ import util.OptionRecorder.GBAOptionBundle;
  * </ul>
  *
  */
-public class GBACharactersTab extends YuneTabItem {
+public class GBACharactersTab extends YuneTabGridItem {
     public GBACharactersTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
     }
@@ -36,7 +36,7 @@ public class GBACharactersTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName() {
+    public String getTabName() {
         return "Characters";
     }
 

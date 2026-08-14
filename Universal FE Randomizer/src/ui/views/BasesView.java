@@ -89,7 +89,7 @@ public class BasesView extends YuneView<BaseOptions> {
 		redistParamContainer.setLayout(GuiUtil.formLayoutWithMargin());
 		
 		Label redistParamLabel = new Label(redistParamContainer, SWT.RIGHT);
-		redistParamLabel.setText("Growth Variance:");
+		redistParamLabel.setText("Base Variance:");
 		
 		varianceSpinner = new Spinner(redistParamContainer, SWT.NONE);
 		varianceSpinner.setValues(5, 0, 10, 0, 1, 1);
@@ -144,6 +144,7 @@ public class BasesView extends YuneView<BaseOptions> {
 		labelData.left = new FormAttachment(0, 5);
 		labelData.right = new FormAttachment(deltaSpinner, -5);
 		labelData.top = new FormAttachment(deltaSpinner, 0, SWT.CENTER);
+		deltaParamLabel.setLayoutData(labelData);
 		
 		spinnerData = new FormData();
 		spinnerData.right = new FormAttachment(100, -5);
@@ -180,8 +181,8 @@ public class BasesView extends YuneView<BaseOptions> {
 		
 		if (type.hasSTRMAGSplit()) {
 			adjustSTRMAG = new Button(group, SWT.CHECK);
-			adjustSTRMAG.setText("Adjust STR/MAG by Class");
-			adjustSTRMAG.setToolTipText("Ensures that characters that primarily use magic randomize a higher or equal magic base than strength and that\ncharacters that primarily use physical attacks randomize a higher or equal strength base than magic.\n\nCharacters that use both will not be weighted in either direction.");
+			adjustSTRMAG.setText("Bias Stats to Class");
+			adjustSTRMAG.setToolTipText("Applies a heavier weight to the stronger stats of the character's class.\n\nAlso ensures the higher of STR or MAG is applied appropriately to the class's primary attack stat.");
 			adjustSTRMAG.setEnabled(false);
 			
 			optionData = new FormData();
