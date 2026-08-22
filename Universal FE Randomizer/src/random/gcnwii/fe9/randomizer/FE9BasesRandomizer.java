@@ -1,5 +1,6 @@
 package random.gcnwii.fe9.randomizer;
 
+import java.util.List;
 import java.util.Random;
 
 import fedata.gcnwii.fe9.FE9Character;
@@ -15,86 +16,108 @@ public class FE9BasesRandomizer {
 	
 	static final int rngSalt = 7736;
 	
-	private enum StatArea { HP, STR, MAG, SKL, SPD, LCK, DEF, RES; }
-	
 	public static void randomizeBasesByRedistribution(int variance, boolean adjustSTRMAG, FE9CharacterDataLoader charData, FE9ClassDataLoader classData, Random rng) {
 		FE9Character[] characters = charData.allPlayableCharacters();
 		for (FE9Character character : characters) {
 			if (character.wasModified()) { continue; }
 			
-			int baseTotal = character.getBaseHP() + character.getBaseSTR() + character.getBaseMAG() + character.getBaseSKL() +
-					character.getBaseSPD() + character.getBaseLCK() + character.getBaseDEF() + character.getBaseRES();
-			
-			int randomNum = rng.nextInt(2);
-			if (randomNum == 0) {
-				baseTotal += rng.nextInt(variance + 1);
-			} else {
-				baseTotal -= rng.nextInt(variance + 1);
-			}
-			
-			int hpBase = 0;
-			int strBase = 0;
-			int magBase = 0;
-			int sklBase = 0;
-			int spdBase = 0;
-			int lckBase = 0;
-			int defBase = 0;
-			int resBase = 0;
-			
 			String classID = charData.getJIDForCharacter(character);
 			FE9Class charClass = classData.classWithID(classID);
-			StatBias bias = classData.statBiasForClass(charClass);
 			
-			WeightedDistributor<StatArea> distributor = new WeightedDistributor<StatArea>();
-			distributor.addItem(StatArea.HP, 20);
-			distributor.addItem(StatArea.SKL, 10);
-			distributor.addItem(StatArea.SPD, 10);
-			distributor.addItem(StatArea.LCK, 20);
-			distributor.addItem(StatArea.DEF, 10);
-			distributor.addItem(StatArea.RES, 10);
-			switch (bias) {
-			case NONE:
-				distributor.addItem(StatArea.STR, 10);
-				distributor.addItem(StatArea.MAG, 10);
-				break;
-			case LEAN_MAGICAL:
-				distributor.addItem(StatArea.STR, adjustSTRMAG ? 7 : 10);
-				distributor.addItem(StatArea.MAG, adjustSTRMAG ? 13 : 10);
-				break;
-			case LEAN_PHYSICAL:
-				distributor.addItem(StatArea.STR, adjustSTRMAG ? 13 : 10);
-				distributor.addItem(StatArea.MAG, adjustSTRMAG ? 7 : 10);
-				break;
-			case MAGICAL_ONLY:
-				distributor.addItem(StatArea.STR, adjustSTRMAG ? 5 : 10);
-				distributor.addItem(StatArea.MAG, adjustSTRMAG ? 15 : 10);
-				break;
-			case PHYSICAL_ONLY:
-				distributor.addItem(StatArea.STR, adjustSTRMAG ? 15 : 10);
-				distributor.addItem(StatArea.MAG, adjustSTRMAG ? 5 : 10);
-				break;
+			int charBaseTotal = character.getBaseHP() + character.getBaseSTR() + character.getBaseMAG() + character.getBaseSKL() +
+					character.getBaseSPD() + character.getBaseLCK() + character.getBaseDEF() + character.getBaseRES();
+			
+			int classBaseTotal = charClass.getBaseHP() + charClass.getBaseSTR() + charClass.getBaseMAG() + charClass.getBaseSKL() +
+					charClass.getBaseSPD() + charClass.getBaseLCK() + charClass.getBaseDEF() + charClass.getBaseRES();
+			
+			int baseTotal = charBaseTotal + classBaseTotal;
+			
+//			int randomNum = rng.nextInt(2);
+//			if (randomNum == 0) {
+				baseTotal += rng.nextInt(variance + 1);
+//			} else {
+//				baseTotal -= rng.nextInt(variance + 1);
+//			}
+			
+			int hp = 0;
+			int str = 0;
+			int mag = 0;
+			int skl = 0;
+			int spd = 0;
+			int lck = 0;
+			int def = 0;
+			int res = 0;
+			
+			// Randomize Luck first to remove it from the equation later, since that's hard to balance.
+			// Luck ranges from half of their level up to 3 higher than their level.
+			// Characters under level 5 are treated as if their level were 5.
+			// Promoted characters are treated as 12 + their current level for this.
+			boolean isPromoted = classData.isPromotedClass(classData.classWithID(charData.getJIDForCharacter(character)));
+			int effectiveLevel = character.getLevel();
+			if (isPromoted) { effectiveLevel += 12; }
+			else { effectiveLevel = Math.max(5, effectiveLevel); }
+			lck = rng.nextInt(effectiveLevel / 2, effectiveLevel + 3 + 1);
+			baseTotal -= lck;
+			
+			// HP is also hard to balance, so do that separately as well.
+			// HP can range from 15 up to 24 + unit level for unpromoted
+			// and 30 up to 40 + unit level for promoted.
+			if (isPromoted) {
+				hp = rng.nextInt(30, 40 + character.getLevel() + 1);
+			} else {
+				hp = rng.nextInt(15, 24 + character.getLevel() + 1);
+			}
+			baseTotal -= hp;
+			
+			WeightedDistributor<FE9Data.StatArea> distributor = new WeightedDistributor<FE9Data.StatArea>();
+			if (adjustSTRMAG) {
+				// Larger blunting factors will reduce the effect of the class growths on the stat distribution.
+				// For example: Knights have a 50% STR growth and 30% SPD growth by default.
+				// With no blunting factor and only these two growths in the pool, the STR chance would be 50 / 80 (62.5%) while SPD is 30 / 80 (37.5%).
+				// With a blunting factor of 50, this becomes 100 / 180 (55.5%) for STR and 80 / 180 (44.4%) for SPD.
+				// Negative blunting factors increase the correlation with the class growths.
+				int bluntingFactor = -10;
+				
+				distributor.addItem(FE9Data.StatArea.STR, Math.max(1, charClass.getSTRGrowth() + bluntingFactor));
+				distributor.addItem(FE9Data.StatArea.MAG, Math.max(1, charClass.getMAGGrowth() + bluntingFactor));
+				distributor.addItem(FE9Data.StatArea.SKL, Math.max(1, charClass.getSKLGrowth() + bluntingFactor));
+				distributor.addItem(FE9Data.StatArea.SPD, Math.max(1, charClass.getSPDGrowth() + bluntingFactor));
+				distributor.addItem(FE9Data.StatArea.DEF, Math.max(1, charClass.getDEFGrowth() + bluntingFactor));
+				distributor.addItem(FE9Data.StatArea.RES, Math.max(1, charClass.getRESGrowth() + bluntingFactor));
+			} else {
+				distributor.addItem(FE9Data.StatArea.SKL, 10);
+				distributor.addItem(FE9Data.StatArea.SPD, 10);
+				distributor.addItem(FE9Data.StatArea.STR, 10);
+				distributor.addItem(FE9Data.StatArea.MAG, 10);
+				distributor.addItem(FE9Data.StatArea.DEF, 10);
+				distributor.addItem(FE9Data.StatArea.RES, 10);
 			}
 			
-			int swingsAvailable = 3 + variance; // Allow us to go in the opposite direction at least three times for more potentially interesting results.
-			
-			while (baseTotal != 0) {
-				int delta = baseTotal > 0 ? 1 : -1;
-				if (swingsAvailable > 0 && rng.nextInt(5) == 0) { delta *= -1; swingsAvailable--; }
-				baseTotal -= delta;
+			while (baseTotal > 0) {
+				baseTotal -= 1;
 				
 				switch(distributor.getRandomItem(rng)) {
-				case HP: hpBase += delta; break;
-				case STR: strBase += delta; break;
-				case MAG: magBase += delta; break;
-				case SKL: sklBase += delta; break;
-				case SPD: spdBase += delta; break;
-				case LCK: lckBase += delta; break;
-				case DEF: defBase += delta; break;
-				case RES: resBase += delta; break;
+				case HP: hp += 1; break;
+				case STR: str += 1; break;
+				case MAG: mag += 1; break;
+				case SKL: skl += 1; break;
+				case SPD: spd += 1; break;
+				case LCK: lck += 1; break;
+				case DEF: def += 1; break;
+				case RES: res += 1; break;
 				}
 			}
 			
-			character.setBaseHP(WhyDoesJavaNotHaveThese.clamp(hpBase, charClass.getBaseHP() * -1, charClass.getMaxHP() - charClass.getBaseHP()));
+			int hpBase = hp - charClass.getBaseHP();
+			int strBase = str - charClass.getBaseSTR();
+			int magBase = mag - charClass.getBaseMAG();
+			int sklBase = skl - charClass.getBaseSKL();
+			int spdBase = spd - charClass.getBaseSPD();
+			int lckBase = lck - charClass.getBaseLCK();
+			int defBase = def - charClass.getBaseDEF();
+			int resBase = res - charClass.getBaseRES();
+			
+			character.setBaseHP(WhyDoesJavaNotHaveThese.clamp(hpBase, charClass.getBaseHP() * -1 + 1, charClass.getMaxHP() - charClass.getBaseHP()));
 			character.setBaseSTR(WhyDoesJavaNotHaveThese.clamp(strBase, charClass.getBaseSTR() * -1, charClass.getMaxSTR() - charClass.getBaseSTR()));
 			character.setBaseMAG(WhyDoesJavaNotHaveThese.clamp(magBase, charClass.getBaseMAG() * -1, charClass.getMaxMAG() - charClass.getBaseMAG()));
 			character.setBaseSKL(WhyDoesJavaNotHaveThese.clamp(sklBase, charClass.getBaseSKL() * -1, charClass.getMaxSKL() - charClass.getBaseSKL()));
@@ -162,6 +185,31 @@ public class FE9BasesRandomizer {
 			int randRES = character.getBaseRES() + (rng.nextInt(2) == 0 ? 1 : -1) * rng.nextInt(variance);
 			randRES = WhyDoesJavaNotHaveThese.clamp(randRES, minRES, maxRES);
 			character.setBaseRES(randRES);
+			
+			StatBias bias = classData.statBiasForClass(charClass);
+			
+			int characterSTR = character.getBaseSTR() + charClass.getBaseSTR();
+			int characterMAG = character.getBaseMAG() + charClass.getBaseMAG();
+			boolean swapSTRMAG = false;
+			switch (bias) {
+			case NONE:
+				break;
+			case LEAN_MAGICAL:
+			case MAGICAL_ONLY:
+				swapSTRMAG = characterSTR > characterMAG;
+				break;
+			case LEAN_PHYSICAL:
+			case PHYSICAL_ONLY:
+				swapSTRMAG = characterMAG > characterSTR;
+				break;
+			}
+			if (swapSTRMAG) {
+				int targetSTR = characterMAG;
+				int targetMAG = characterSTR;
+				
+				character.setBaseSTR(targetSTR - charClass.getBaseSTR());
+				character.setBaseMAG(targetMAG - charClass.getBaseMAG());
+			}
 		}
 		
 		charData.commit();

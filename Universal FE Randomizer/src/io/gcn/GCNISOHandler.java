@@ -334,6 +334,13 @@ public class GCNISOHandler {
 		try {
 			if (delegate != null) { delegate.onProgressUpdate(0.3); delegate.onStatusUpdate("Writing Header..."); }
 			FileWriter writer = new FileWriter(destination);
+			
+			FileWriter bootDolSideWriter = new FileWriter("/Users/shenlu/Desktop/GCN/boot.dol");
+			InputStream sideStream = handler.getInputStream(bootDolOffset);
+			bootDolSideWriter.copyFromStream(sideStream, (int)(fstOffset - bootDolOffset));
+			sideStream.close();
+			bootDolSideWriter.finish();
+			
 			InputStream stream = handler.getInputStream(0);
 			// Write up to the boot.dol offset. We'll apply changes to boot.dol after that.
 			writer.copyFromStream(stream, (int)bootDolOffset);

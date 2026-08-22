@@ -3,10 +3,12 @@ package util;
 import com.google.gson.Gson;
 import fedata.general.FEBase.GameType;
 import ui.model.fe4.*;
+import ui.model.fe9.FE9AdvancedClassOptions;
 import ui.model.fe9.FE9ClassOptions;
 import ui.model.fe9.FE9SkillsOptions;
 import ui.model.*;
 import ui.model.fe9.FE9EnemyBuffOptions;
+import ui.model.fe9.FE9EnemyClassOptions;
 import ui.model.fe9.FE9OtherCharacterOptions;
 
 import java.util.prefs.Preferences;
@@ -14,7 +16,7 @@ import java.util.prefs.Preferences;
 public class OptionRecorder {
     private static final Integer FE4OptionBundleVersion = 7;
     private static final Integer GBAOptionBundleVersion = 17;
-    private static final Integer FE9OptionBundleVersion = 15;
+    private static final Integer FE9OptionBundleVersion = 16;
 
     public static class AllOptions {
         public FE4OptionBundle fe4;
@@ -59,8 +61,9 @@ public class OptionRecorder {
         public BaseOptions bases;
         public FE9SkillsOptions skills;
         public FE9OtherCharacterOptions otherOptions;
+        public FE9EnemyClassOptions enemyClasses;
         public FE9EnemyBuffOptions enemyBuff;
-        public FE9ClassOptions classes;
+        public FE9AdvancedClassOptions pcClasses;
         public WeaponOptions weapons;
         public GameMechanicOptions mechanics;
         public RewardOptions rewards;
@@ -267,15 +270,16 @@ public class OptionRecorder {
     }
 
     public static void recordFE9Options(GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions,
-                                        FE9OtherCharacterOptions otherOptions, FE9EnemyBuffOptions buffOptions, FE9ClassOptions classOptions, WeaponOptions weaponOptions,
+                                        FE9OtherCharacterOptions otherOptions, FE9EnemyClassOptions enemyClassOptions, FE9EnemyBuffOptions buffOptions, FE9AdvancedClassOptions classOptions, WeaponOptions weaponOptions,
                                         GameMechanicOptions miscOptions, RewardOptions rewards, String seed) {
         FE9OptionBundle bundle = new FE9OptionBundle();
         bundle.growths = growthOptions;
         bundle.bases = baseOptions;
         bundle.skills = skillOptions;
         bundle.otherOptions = otherOptions;
+        bundle.enemyClasses = enemyClassOptions;
         bundle.enemyBuff = buffOptions;
-        bundle.classes = classOptions;
+        bundle.pcClasses = classOptions;
         bundle.weapons = weaponOptions;
         bundle.mechanics = miscOptions;
         bundle.rewards = rewards;

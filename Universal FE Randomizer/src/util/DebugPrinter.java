@@ -70,14 +70,7 @@ public class DebugPrinter {
 		case GBA_SHOP_LOADER:
 			return true;
 //		case MAIN:
-		case PALETTE_RECYCLER:
-		case PALETTE:
-		case RANDOM:
-		case CLASS_RANDOMIZER:
-		case GBA_RANDOM_RECRUITMENT:
-		case GBA_CHARACTER_SHUFFLING:
-		case CHAPTER_LOADER:
-		case STRICT_WEAPON_ASSIGNMENT:
+		case FE9_ARMY_LOADER:
 			return true;
 		default:
 			return false;

@@ -149,6 +149,10 @@ public class FE9SkillDataLoader {
 		return FE9Data.Skill.withSID(getSID(skill)).isModifiable();
 	}
 	
+	public boolean isParagon(FE9Skill skill) {
+		return FE9Data.Skill.withSID(getSID(skill)) == FE9Data.Skill.PARAGON;
+	}
+	
 	public boolean isOccultSkill(FE9Skill skill) {
 		return FE9Data.Skill.withSID(getSID(skill)).isOccult();
 	}

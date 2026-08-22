@@ -3,7 +3,7 @@ package ui.tabs.fe9;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.custom.CTabFolder;
 import ui.common.GuiUtil;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.RewardRandomizationView;
 import ui.views.WeaponsView;
 import util.OptionRecorder;
@@ -17,7 +17,7 @@ import util.OptionRecorder;
  *     <li>Rewards</li>
  * </ul>
  */
-public class FE9ItemsTab extends YuneTabItem {
+public class FE9ItemsTab extends YuneTabGridItem {
 
     private WeaponsView weapons;
     private RewardRandomizationView rewards;
@@ -33,7 +33,7 @@ public class FE9ItemsTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName() {
+    public String getTabName() {
         return "Items";
     }
 

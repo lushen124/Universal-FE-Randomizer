@@ -3,11 +3,11 @@ package ui.tabs.fe9;
 import org.eclipse.swt.custom.CTabFolder;
 
 import fedata.general.FEBase.GameType;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.GameMechanicsView;
 import util.OptionRecorder;
 
-public class FE9MiscTab extends YuneTabItem {
+public class FE9MiscTab extends YuneTabGridItem {
 	
 	private GameMechanicsView mechanics;
 	
@@ -21,7 +21,7 @@ public class FE9MiscTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName() {
+    public String getTabName() {
         return "Misc.";
     }
 

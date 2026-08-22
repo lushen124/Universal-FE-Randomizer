@@ -39,10 +39,16 @@ public abstract class YuneView<Options> extends YuneGroup {
      * Sets the current gameType before the {@link #compose()} method is called.
      */
     public YuneView(Composite parent, GameType type) {
+        this(parent, type, false);
+    }
+    
+    public YuneView(Composite parent, GameType type, boolean deferredCompose) {
         super();
         createGroup(parent);
         this.type = type;
-        compose();
+        if (deferredCompose == false) {
+        	compose();
+        }
     }
 
     /**
@@ -55,4 +61,19 @@ public abstract class YuneView<Options> extends YuneGroup {
      * F.e. when randomization starts, or the layout is swapped.
      */
     public abstract Options getOptions();
+    
+    /**
+     * Called when randomize button is pressed. Displays an error if validation fails.
+     * @return boolean - true if options selected are valid. false if invalid or incomplete options are selected.
+     */
+    public boolean validate() {
+    	return true;
+    }
+    
+    /**
+     * Called when validation fails. Return a user-facing descriptive error message to be displayed.
+     */
+    public String getValidationError() {
+    	return null;
+    }
 }

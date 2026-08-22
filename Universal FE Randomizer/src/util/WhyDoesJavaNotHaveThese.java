@@ -15,6 +15,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
+
+import random.general.PoolDistributor;
 
 public class WhyDoesJavaNotHaveThese {
 	
@@ -35,6 +38,13 @@ public class WhyDoesJavaNotHaveThese {
 		@Override
 		public int compare(Integer arg0, Integer arg1) {
 			return arg0 > arg1 ? ComparatorResult.FIRST_GREATER.returnValue() : (arg0 == arg1 ? ComparatorResult.EQUAL.returnValue() : ComparatorResult.SECOND_GREATER.returnValue());
+		}
+	};
+	
+	public static final Comparator<Integer> descendingIntegerComparator = new Comparator<Integer>() {
+		@Override
+		public int compare(Integer arg0, Integer arg1) {
+			return arg0 > arg1 ? ComparatorResult.SECOND_GREATER.returnValue() : (arg0 == arg1 ? ComparatorResult.EQUAL.returnValue() : ComparatorResult.FIRST_GREATER.returnValue());
 		}
 	};
 
@@ -323,5 +333,16 @@ public class WhyDoesJavaNotHaveThese {
 		}
 		
 		return -1;
+	}
+	
+	public static <T> void shuffleList(List<T> modifiableList, Random rng) {
+		PoolDistributor<T> distributor = new PoolDistributor<T>();
+		distributor.addAll(modifiableList);
+		
+		modifiableList.clear();
+		
+		while (distributor.possibleResults().isEmpty() == false) {
+			modifiableList.add(distributor.getRandomItem(rng, true));
+		}
 	}
 }

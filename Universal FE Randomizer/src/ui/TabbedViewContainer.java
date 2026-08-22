@@ -8,12 +8,14 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import ui.common.Preloadable;
+import ui.common.YuneTabGridItem;
 import ui.common.YuneTabItem;
 import ui.tabs.fe4.FE4ClassesTab;
 import ui.tabs.fe4.FE4MiscTab;
 import ui.tabs.fe4.FE4SkillsTab;
 import ui.tabs.fe4.FE4StatsTab;
 import ui.tabs.fe9.FE9CharactersTab;
+import ui.tabs.fe9.FE9EnemiesTab;
 import ui.tabs.fe9.FE9ItemsTab;
 import ui.tabs.fe9.FE9MiscTab;
 import ui.tabs.fe9.FE9SkillsTab;
@@ -26,6 +28,7 @@ import util.OptionRecorder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * View container which presents the Options in a tab based layout using {@link CTabFolder} and {@link CTabItem}.
@@ -62,6 +65,7 @@ public class TabbedViewContainer extends YuneViewContainer {
             addTab(new FE4MiscTab(tabFolder));
         } else if (type.isGCN()) {
             addTab(new FE9CharactersTab(tabFolder));
+            addTab(new FE9EnemiesTab(tabFolder));
             addTab(new FE9ItemsTab(tabFolder));
             addTab(new FE9SkillsTab(tabFolder));
             addTab(new FE9MiscTab(tabFolder));
@@ -71,7 +75,7 @@ public class TabbedViewContainer extends YuneViewContainer {
     }
 
     /**
-     * Adds the given {@link YuneTabItem} to the list of available Tabs.
+     * Adds the given {@link YuneTabGridItem} to the list of available Tabs.
      * Usually should be called directly with the output of a YuneTabItem constructor.
      *
      * @return Returns the parameter tabItem, so that you can assign it to a variable in addition to adding it to the list (if needed).
@@ -89,5 +93,24 @@ public class TabbedViewContainer extends YuneViewContainer {
     @Override
     public void updateOptionBundle(Bundle bundle) {
         this.availableTabs.forEach(tab -> tab.updateOptionBundle(bundle));
+    }
+    
+    @Override
+    public boolean validate() {
+    	return availableTabs.stream().filter(tab -> tab.validate() == false).count() == 0;
+    }
+    
+    @Override
+    public String getValidationError() {
+    	StringBuilder sb = new StringBuilder();
+    	
+    	Optional<YuneTabItem> erroredTab = availableTabs.stream().filter(tab -> tab.validate() == false).findFirst();
+    	if (erroredTab.isPresent()) {
+    		sb.append("Incompatible setting from " + erroredTab.get().getTabName() + " Tab");
+    		sb.append("\n\n");
+    		sb.append(erroredTab.get().getValidationError());
+    	}
+    	
+    	return sb.toString();
     }
 }

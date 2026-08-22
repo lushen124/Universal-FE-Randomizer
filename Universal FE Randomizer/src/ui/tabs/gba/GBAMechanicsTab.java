@@ -3,14 +3,14 @@ package ui.tabs.gba;
 import fedata.general.FEBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.GameMechanicsView;
 import util.OptionRecorder;
 
 /**
  * Tab containing the GUI of the GBA (and FE4) Misc Tab
  */
-public class GBAMechanicsTab extends YuneTabItem {
+public class GBAMechanicsTab extends YuneTabGridItem {
 
     private GameMechanicsView misc;
 
@@ -24,7 +24,7 @@ public class GBAMechanicsTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName() {
+    public String getTabName() {
         return "Misc.";
     }
 

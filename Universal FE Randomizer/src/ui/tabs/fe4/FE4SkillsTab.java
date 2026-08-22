@@ -3,14 +3,14 @@ package ui.tabs.fe4;
 import fedata.general.FEBase.GameType;
 import org.eclipse.swt.custom.CTabFolder;
 import ui.common.GuiUtil;
-import ui.common.YuneTabItem;
+import ui.common.YuneTabGridItem;
 import ui.views.fe4.FE4SkillsView;
 import util.OptionRecorder;
 
 /**
  * The Stats Tab for FE4.
  */
-public class FE4SkillsTab extends YuneTabItem {
+public class FE4SkillsTab extends YuneTabGridItem {
 
     private FE4SkillsView skills;
 
@@ -24,7 +24,7 @@ public class FE4SkillsTab extends YuneTabItem {
     }
 
     @Override
-    protected String getTabName() {
+    public String getTabName() {
         return "Skills";
     }
 

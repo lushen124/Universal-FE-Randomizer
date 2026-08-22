@@ -87,10 +87,6 @@ public class FE9EnemyBuffView extends YuneView<FE9EnemyBuffOptions> {
 		minionGroup.setText("Minions");
 		minionGroup.setLayout(GuiUtil.formLayoutWithMargin());
 		
-		FormData minionData = new FormData();
-		minionData.left = new FormAttachment(0, 0);
-		minionGroup.setLayoutData(minionData);
-		
 		buffMinionGrowthsButton = new Button(minionGroup, SWT.CHECK);
 		buffMinionGrowthsButton.setText("Buff Minion Growths");
 		buffMinionGrowthsButton.setToolTipText("Increases enemy growth rates.");
@@ -302,13 +298,23 @@ public class FE9EnemyBuffView extends YuneView<FE9EnemyBuffOptions> {
 		bossGroup.setText("Bosses");
 		bossGroup.setLayout(GuiUtil.formLayoutWithMargin());
 		
+		FormData minionData = new FormData();
+		minionData.top = new FormAttachment(0, 0);
+		minionData.left = new FormAttachment(0, 0);
+		
 		FormData bossData = new FormData();
 		if (horizontal) {
 			bossData.left = new FormAttachment(minionGroup, 5);
+			bossData.top = new FormAttachment(0, 0);
+			bossData.right = new FormAttachment(100, 0);
 		} else {
 			bossData.top = new FormAttachment(minionGroup, 5);
+			bossData.left = new FormAttachment(0, 0);
+			bossData.right = new FormAttachment(100, 0);
+			minionData.right = new FormAttachment(100, 0);
 		}
 		bossGroup.setLayoutData(bossData);
+		minionGroup.setLayoutData(minionData);
 		
 		buffBossStatButton = new Button(bossGroup, SWT.CHECK);
 		buffBossStatButton.setText("Buff Boss Stats");

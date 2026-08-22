@@ -13,10 +13,12 @@ import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponRank;
 import random.gcnwii.fe9.loader.FE9ItemDataLoader.WeaponType;
 import random.general.Randomizer;
 import random.general.WeightedDistributor;
+import ui.model.fe9.FE9AdvancedClassOptions;
 import ui.model.fe9.FE9ClassOptions;
 import ui.model.fe9.FE9SkillsOptions;
 import ui.model.*;
 import ui.model.fe9.FE9EnemyBuffOptions;
+import ui.model.fe9.FE9EnemyClassOptions;
 import ui.model.fe9.FE9OtherCharacterOptions;
 import util.Diff;
 import util.SeedGenerator;
@@ -42,7 +44,8 @@ public class FE9Randomizer extends Randomizer {
 	private RewardOptions rewardOptions;
 	private FE9OtherCharacterOptions otherCharOptions;
 	private FE9EnemyBuffOptions enemyBuffOptions;
-	private FE9ClassOptions classOptions;
+	private FE9AdvancedClassOptions classOptions;
+	private FE9EnemyClassOptions enemyClassOptions;
 	private WeaponOptions weaponOptions;
 	
 	FE9CommonTextLoader textData;
@@ -52,7 +55,7 @@ public class FE9Randomizer extends Randomizer {
 	FE9SkillDataLoader skillData;
 	FE9ChapterDataLoader chapterData;
 	
-	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, FE9EnemyBuffOptions enemyBuffOptions, FE9ClassOptions classOptions, WeaponOptions weaponOptions, GameMechanicOptions miscOptions, RewardOptions rewardOptions, String seed) {
+	public FE9Randomizer(String sourcePath, String targetPath, GrowthOptions growthOptions, BaseOptions baseOptions, FE9SkillsOptions skillOptions, FE9OtherCharacterOptions otherCharOptions, FE9EnemyClassOptions enemyClassOptions, FE9EnemyBuffOptions enemyBuffOptions, FE9AdvancedClassOptions classOptions, WeaponOptions weaponOptions, GameMechanicOptions miscOptions, RewardOptions rewardOptions, String seed) {
 		super();
 		
 		this.sourcePath = sourcePath;
@@ -63,6 +66,7 @@ public class FE9Randomizer extends Randomizer {
 		this.skillOptions = skillOptions;
 		this.otherCharOptions = otherCharOptions;
 		this.enemyBuffOptions = enemyBuffOptions;
+		this.enemyClassOptions = enemyClassOptions;
 		this.classOptions = classOptions;
 		this.weaponOptions = weaponOptions;
 		this.miscOptions = miscOptions;
@@ -197,7 +201,7 @@ public class FE9Randomizer extends Randomizer {
 	
 	private void makePreRandomizationAdjustments() {
 		// Remove KEY0 and KEY50 from Sothe and Volke, respectively, if randomize classes is enabled and thieves are also enabled.
-		if (classOptions.randomizePCs && classOptions.includeThieves) {
+		if (classOptions.randomizePlayerCharacters) {
 			FE9Character sothe = charData.characterWithID(FE9Data.Character.SOTHE.getPID());
 			//FE9Character volke = charData.characterWithID(FE9Data.Character.VOLKE.getPID());
 		
@@ -325,7 +329,7 @@ public class FE9Randomizer extends Randomizer {
 	}
 	
 	private void makePostRandomizationAdjustments(String seed) {
-		if (classOptions.randomizePCs && classOptions.includeLords) {
+		if (classOptions.randomizePlayerCharacters && classOptions.includeLords()) {
 			// Remove damage immunity from BK and Ashnard.
 			// This is controlled by SID_WEAK_A, which is King Daein's 5th skill and General (BK)'s 2nd.
 			FE9Class blackknight = classData.classWithID(FE9Data.CharacterClass.BLACK_KNIGHT.getJID());
@@ -395,7 +399,7 @@ public class FE9Randomizer extends Randomizer {
 			}
 		}
 		
-		if (classOptions.randomizePCs) {
+		if (classOptions.randomizePlayerCharacters) {
 			// Only two classes in the game can "walk slowly" or at least have the animation for doing so: Ranger and Priest.
 			// Telling these characters to walk slowly can mess up animations and may be the reason why
 			// this doesn't work on real hardware. Disable this slow walk whenever it shows up.
@@ -442,7 +446,7 @@ public class FE9Randomizer extends Randomizer {
 			String marciaJID = charData.getJIDForCharacter(marcia);
 			FE9Class marciaClass = classData.classWithID(marciaJID);
 			
-			if (classOptions.randomizePCs) {
+			if (classOptions.randomizePlayerCharacters) {
 				if (!classData.isFlierClass(jillClass)) {
 					List<FE9ChapterArmy> c12Armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_12);
 					for (FE9ChapterArmy army : c12Armies) {
@@ -539,7 +543,7 @@ public class FE9Randomizer extends Randomizer {
 		String reysonJID = charData.getJIDForCharacter(reyson);
 		FE9Class reysonClass = classData.classWithID(reysonJID);
 		
-		if (classOptions.randomizePCs && classOptions.mixPCRaces) {
+		if (classOptions.randomizePlayerCharacters && classOptions.allowCrossRace) {
 			if (!classData.isLaguzClass(ranulfClass)) { // Ch. 7 and Ch. 11
 				GCNCMBFileHandler ch7Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_7);
 				FE9ScriptScene scene = ch7Script.getSceneWithIndex(35);
@@ -632,7 +636,7 @@ public class FE9Randomizer extends Randomizer {
 			}
 		}
 		
-		if (classOptions.randomizeBosses && classOptions.mixBossRaces) {
+		if (enemyClassOptions.randomizeBosses && enemyClassOptions.allowCrossRaceBosses) {
 			if (!classData.isLaguzClass(seekerClass)) {
 				GCNCMBFileHandler ch12Script = chapterData.getHandlerForScripts(FE9Data.Chapter.CHAPTER_12);
 				FE9ScriptScene scene = ch12Script.getSceneWithIndex(6);
@@ -644,7 +648,7 @@ public class FE9Randomizer extends Randomizer {
 		}
 		
 		
-		if (classOptions.randomizePCs && classOptions.includeLords) {
+		if (classOptions.randomizePlayerCharacters && classOptions.includeLords()) {
 			// Update Ike's starting inventory based on class (if necessary).
 			FE9Character ike = charData.characterWithID(FE9Data.Character.IKE.getPID());
 			FE9Class ikeClass = classData.classWithID(charData.getJIDForCharacter(ike));
@@ -703,7 +707,7 @@ public class FE9Randomizer extends Randomizer {
 			}
 		}
 		
-		if (classOptions.randomizePCs) {
+		if (classOptions.randomizePlayerCharacters) {
 			// Update Gatrie's rejoin weapon in Chapter 13.
 			FE9Item replacement = null;
 			FE9Character gatrie = charData.characterWithID(FE9Data.Character.GATRIE.getPID());
@@ -804,11 +808,48 @@ public class FE9Randomizer extends Randomizer {
 			}
 		}
 		
-		if (classOptions.randomizeMinions) {
+		if (enemyClassOptions.randomizeMinions) {
 			// PID_B_ZAKO is for Bengion generic soldiers. They, for some reason, have a hard-coded AID of a soldier, which can mess with their map models.
 			// Remove this AID and let the game handle it.
 			FE9Character bZako = charData.characterWithID("PID_B_ZAKO");
 			charData.setUnpromotedAIDForCharacter(bZako, null);
+		}
+		
+		// For characters that lose Paragon, namely Astrid, that kind of defeats the entire point of their garbage stats, so give them a bit of a
+		// boost to compensate for that loss. 3 extra levels and +2 to all stats.
+		compensateForParagonLoss(FE9Data.Character.ASTRID.getPID());
+		compensateForParagonLoss(FE9Data.Character.GEOFFREY.getPID());
+	}
+	
+	private void compensateForParagonLoss(String pid) {
+		FE9Character character = charData.characterWithID(pid);
+		String skill1 = charData.getSID1ForCharacter(character);
+		String skill2 = charData.getSID2ForCharacter(character);
+		String skill3 = charData.getSID3ForCharacter(character);
+		boolean hasParagon = (skill1 != null && skill1.equals(FE9Data.Skill.PARAGON.getSID())) || 
+				(skill2 != null && skill2.equals(FE9Data.Skill.PARAGON.getSID())) || 
+				(skill3 != null && skill3.equals(FE9Data.Skill.PARAGON.getSID()));
+		if (hasParagon == false) {
+			List<FE9ChapterArmy> chapter13Armies = chapterData.armiesForChapter(FE9Data.Chapter.CHAPTER_13);
+			for (FE9ChapterArmy army : chapter13Armies) {
+				for (String unitID : army.getAllUnitIDs()) {
+					FE9ChapterUnit unit = army.getUnitForUnitID(unitID);
+					if (army.getPIDForUnit(unit).equals(pid)) {
+						army.setStartingLevelForUnit(unit, Math.min(20, army.getStartingLevelForUnit(unit) + 3));
+					}
+				}
+				army.commitChanges();
+			}
+		
+			character.setLevel(character.getLevel() + 3);
+			character.setBaseHP(character.getBaseHP() + 2);
+			character.setBaseSTR(character.getBaseSTR() + 2);
+			character.setBaseMAG(character.getBaseMAG() + 2);
+			character.setBaseSKL(character.getBaseSKL() + 2);
+			character.setBaseSPD(character.getBaseSPD() + 2);
+			character.setBaseLCK(character.getBaseLCK() + 2);
+			character.setBaseDEF(character.getBaseDEF() + 2);
+			character.setBaseRES(character.getBaseRES() + 2);
 		}
 	}
 	
@@ -966,27 +1007,30 @@ public class FE9Randomizer extends Randomizer {
 	}
 	
 	private void randomizeClassesIfNecessary(String seed) {
+		Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9ClassRandomizer.rngSalt));
 		if (classOptions != null) {
 			updateStatus(0.4, "Randomizing classes...");
-			Random rng = new Random(SeedGenerator.generateSeedValue(seed, FE9ClassRandomizer.rngSalt));
-			if (classOptions.randomizePCs) {
-				FE9ClassRandomizer.randomizePlayableCharacters(classOptions.includeLords, 
-						classOptions.includeThieves, 
-						classOptions.includeSpecial, 
-						classOptions.forceDifferent, 
-						classOptions.mixPCRaces, 
-						classOptions.allowCrossgender, 
-						classOptions.assignClassesEvenly,
+			if (classOptions.randomizePlayerCharacters) {
+				FE9ClassRandomizer.randomizePlayableCharacters(
+						classOptions.playerCharactersToRandomize, 
+						classOptions.playerTargetClasses, 
+						classOptions.treatSimilarAsSame,
+						classOptions.evenDistribution, 
+						classOptions.allowCrossRace, 
+						classOptions.forceChange, 
 						charData, classData, chapterData, skillData, itemData, rng);
 			}
-			if (classOptions.randomizeBosses) {
-				FE9ClassRandomizer.randomizeBossCharacters(classOptions.forceDifferent, 
-						classOptions.mixBossRaces, false, charData, classData, chapterData, skillData, itemData, rng);
+		}
+		
+		if (enemyClassOptions != null) {
+			if (enemyClassOptions.randomizeBosses) {
+				FE9ClassRandomizer.randomizeBossCharacters(enemyClassOptions.forceChange, 
+						enemyClassOptions.allowCrossRaceBosses, false, charData, classData, chapterData, skillData, itemData, rng);
 			}
-			if (classOptions.randomizeMinions) {
-				FE9ClassRandomizer.randomizeMinionCharacters(classOptions.minionRandomChance,
-						classOptions.forceDifferent, 
-						classOptions.mixMinionRaces, false, charData, classData, chapterData, skillData, itemData, rng);
+			
+			if (enemyClassOptions.randomizeMinions) {
+				FE9ClassRandomizer.randomizeMinionCharacters(enemyClassOptions.minionRandomizeChance,
+						true, enemyClassOptions.allowCrossRaceMinions, false, charData, classData, chapterData, skillData, itemData, rng);
 			}
 		}
 	}
@@ -1072,9 +1116,9 @@ public class FE9Randomizer extends Randomizer {
 			}).collect(Collectors.toList());
 			for (String skillName : skillNames) {
 				if (skillOptions.skillWeights.getWeightedOptionsByName(skillName).enabled) {
-					table.addRow(new String[] {skillName + " chance", skillOptions.skillWeights.getWeightedOptionsByName(skillName).weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(skillName) * 100)});
+					table.addRow(new String[] {"   " + skillName + " chance", skillOptions.skillWeights.getWeightedOptionsByName(skillName).weight.toString() + String.format(" (%.2f%%)", skillDistributor.chanceOfResult(skillName) * 100)});
 				} else {
-					table.addRow(new String[] {skillName + " chance", "Disabled"});
+					table.addRow(new String[] {"   " + skillName + " chance", "Disabled"});
 				}
 			}
 		} else {
@@ -1116,31 +1160,34 @@ public class FE9Randomizer extends Randomizer {
 			}
 		}
 		if (classOptions != null) {
-			if (classOptions.randomizePCs) {
+			if (classOptions.randomizePlayerCharacters) {
 				table.addRow(new String[] {"Randomize Playable Characters", "YES"});
-				table.addRow(new String[] {"Include Lords", classOptions.includeLords ? "YES" : "NO"});
-				table.addRow(new String[] {"Include Thieves", classOptions.includeThieves ? "YES" : "NO"});
-				table.addRow(new String[] {"Include Special", classOptions.includeSpecial ? "YES" : "NO"});
-				table.addRow(new String[] {"Mix Races for Playable Characters", classOptions.mixPCRaces ? "YES" : "NO"});
-				table.addRow(new String[] {"Allow Cross-gender Assignments", classOptions.allowCrossgender ? "YES" : "NO"});
-				table.addRow(new String[] {"Assign Classes Evenly", classOptions.assignClassesEvenly ? "YES" : "NO"});
+				table.addRow(new String[] {"Characters Randomized", String.join(", ", classOptions.playerCharactersToRandomize.stream().map(character -> character.getDisplayName()).toList())});
+				table.addRow(new String[] {"Allowed Classes", String.join(", ", classOptions.playerTargetClasses.stream().map(charClass -> charClass.getDisplayName()).toList())});
+				table.addRow(new String[] {"Mix Races for Playable Characters", classOptions.allowCrossRace ? "YES" : "NO"});
+				table.addRow(new String[] {"Assign Classes Evenly", classOptions.evenDistribution ? "YES" : "NO"});
+				table.addRow(new String[] {"Force Class Change", classOptions.forceChange ? "YES" : "NO"});
+				if (classOptions.evenDistribution || classOptions.forceChange) {
+					table.addRow(new String[] {"Treat Similar Classes as Same Class", classOptions.treatSimilarAsSame ? "YES" : "NO"});
+				}
 			} else {
 				table.addRow(new String[] {"Randomize Playable Characters", "NO"});
 			}
-			if (classOptions.randomizeBosses) {
+		}
+		if (enemyClassOptions != null) {
+			if (enemyClassOptions.randomizeBosses) {
 				table.addRow(new String[] {"Randomize Bosses", "YES"});
-				table.addRow(new String[] {"Mix Races for Bosses", classOptions.mixBossRaces ? "YES" : "NO"});
+				table.addRow(new String[] {"Mix Races for Bosses", enemyClassOptions.allowCrossRaceBosses ? "YES" : "NO"});
 			} else {
 				table.addRow(new String[] {"Randomize Bosses", "NO"});
 			}
-			if (classOptions.randomizeMinions) {
-				table.addRow(new String[] {"Randomize Minions", "YES (" + classOptions.minionRandomChance + "%)"});
-				table.addRow(new String[] {"Mix Races for Minions", classOptions.mixMinionRaces ? "YES" : "NO"});
+			if (enemyClassOptions.randomizeMinions) {
+				table.addRow(new String[] {"Randomize Minions", "YES (" + enemyClassOptions.minionRandomizeChance + "%)"});
 			} else {
 				table.addRow(new String[] {"Randomize Minions", "NO"});
 			}
-			if (classOptions.randomizePCs || classOptions.randomizeBosses || classOptions.randomizeMinions) {
-				table.addRow(new String[] {"Force Class Change", classOptions.forceDifferent ? "YES" : "NO"});
+			if (enemyClassOptions.randomizeBosses) {
+				table.addRow(new String[] {"Force Boss Class Change", enemyClassOptions.forceChange ? "YES" : "NO"});
 			}
 		}
 		if (enemyBuffOptions != null) {
@@ -1209,6 +1256,11 @@ public class FE9Randomizer extends Randomizer {
 		rule.addRule("width", "75%");
 		rule.addRule("margin-left", "auto");
 		rule.addRule("margin-right", "auto");
+		changelogBuilder.addStyle(rule);
+		
+		rule = new ChangelogStyleRule();
+		rule.setOverrideSelectorString("#options-table tr td:first-child");
+		rule.addRule("width", "25%");
 		changelogBuilder.addStyle(rule);
 	}
 }

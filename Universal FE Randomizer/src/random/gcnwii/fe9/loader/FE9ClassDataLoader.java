@@ -45,6 +45,11 @@ public class FE9ClassDataLoader {
 	
 	List<FE9Class> allPacifistClasses;
 	
+	List<FE9Class> allUnpromotedCavalryClasses;
+	List<FE9Class> allPromotedCavalryClasses;
+	
+	List<String> allCavalryJIDs;
+	
 	Map<String, FE9Class> idLookup;
 	
 	GCNDataFileHandlerV2 fe8databin;
@@ -72,6 +77,10 @@ public class FE9ClassDataLoader {
 		
 		playerEligibleClasses = new ArrayList<FE9Class>();
 		enemyEligibleClasses = new ArrayList<FE9Class>();
+		
+		allUnpromotedCavalryClasses = new ArrayList<FE9Class>();
+		allPromotedCavalryClasses = new ArrayList<FE9Class>();
+		allCavalryJIDs = new ArrayList<String>();
 		
 		idLookup = new HashMap<String, FE9Class>();
 		
@@ -126,6 +135,15 @@ public class FE9ClassDataLoader {
 			if (fe9CharClass.isPacifist()) {
 				allPacifistClasses.add(charClass);
 			}
+			
+			if (fe9CharClass.isMounted()) {
+				if (fe9CharClass.isPromotedClass()) {
+					allPromotedCavalryClasses.add(charClass);
+				} else {
+					allUnpromotedCavalryClasses.add(charClass);
+				}
+				allCavalryJIDs.add(jid);
+			}
 		}
 	}
 	
@@ -145,7 +163,7 @@ public class FE9ClassDataLoader {
 		if (class1 == null || class2 == null) { return false; }
 		FE9Data.CharacterClass charClass1 = fe9ClassForClass(class1);
 		FE9Data.CharacterClass charClass2 = fe9ClassForClass(class2);
-		return charClass1.similarClasses().contains(charClass2);
+		return charClass1.similarClasses().contains(charClass2) || getJIDForClass(class1).equals(getJIDForClass(class2));
 	}
 	
 	public List<FE9Class> allLaguzClasses() {
@@ -170,6 +188,18 @@ public class FE9ClassDataLoader {
 	
 	public List<FE9Class> allPacifistClasses() {
 		return allPacifistClasses;
+	}
+	
+	public List<FE9Class> allPromotedCavalryClasses() {
+		return allPromotedCavalryClasses;
+	}
+	
+	public List<FE9Class> allUnpromotedCavalryClasses() {
+		return allUnpromotedCavalryClasses;
+	}
+	
+	public List<String> allCavalryJIDs() {
+		return allCavalryJIDs;
 	}
 	
 	public List<FE9Class> allPlayerEligible(boolean includeLords, boolean includeThieves, boolean includeSpecial) {

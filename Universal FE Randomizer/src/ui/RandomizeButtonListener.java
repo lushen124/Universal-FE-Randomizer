@@ -108,7 +108,7 @@ public class RandomizeButtonListener implements Listener {
             // Update the Bundle in the Option Recorder
             FE9OptionBundle bundle = (FE9OptionBundle) baseBundle;
             OptionRecorder.recordFE9Options(bundle);
-            randomizer = new FE9Randomizer(sourceFile, writePath, bundle.growths, bundle.bases, bundle.skills, bundle.otherOptions, bundle.enemyBuff, bundle.classes, bundle.weapons, bundle.mechanics, bundle.rewards, bundle.seed);
+            randomizer = new FE9Randomizer(sourceFile, writePath, bundle.growths, bundle.bases, bundle.skills, bundle.otherOptions, bundle.enemyClasses, bundle.enemyBuff, bundle.pcClasses, bundle.weapons, bundle.mechanics, bundle.rewards, bundle.seed);
         }
 
         final String romPath = writePath;
