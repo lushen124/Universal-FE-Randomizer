@@ -15,6 +15,7 @@ import fedata.general.FEBase.GameType;
 import io.DiffApplicator;
 import io.FileHandler;
 import io.UPSPatcher;
+import io.gcn.GBAQoLPatcher;
 import random.gba.loader.*;
 import io.UPSPatcherStatusListener;
 import random.gba.loader.ItemDataLoader.AdditionalData;
@@ -127,9 +128,8 @@ public class GBARandomizer extends Randomizer {
 			notifyError("Failed to open source file.");
 			return;
 		}
-		
 		String tempPath = null;
-		
+
 		switch (gameType) {
 		case FE6:
 			// Apply patch first, if necessary.
@@ -163,11 +163,77 @@ public class GBARandomizer extends Randomizer {
 			updateProgress(0.1);
 			try { generateFE6DataLoaders(); } catch (Exception e) { notifyError("Encountered error while loading data.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
 			break;
-		case FE7:
-			updateStatusString("Loading Data...");
-			updateProgress(0.01);
-			try { generateFE7DataLoaders(); } catch (Exception e) { notifyError("Encountered error while loading data.\n\n" + e.getClass().getSimpleName() + "\n\nStack Trace:\n\n" + String.join("\n", Arrays.asList(e.getStackTrace()).stream().map(element -> (element.toString())).limit(5).collect(Collectors.toList()))); return; }
-			break;
+			case FE7:
+
+				// Apply QoL patch BEFORE loading/randomizing FE7.
+				updateStatusString("Applying FE7 QoL Patch...");
+				updateProgress(0.01);
+
+				tempPath = new String(targetPath).concat(".tmp");
+
+				try {
+					Boolean success = UPSPatcher.applyUPSPatch(
+							"QoL.PATCH.20250812170042.ups",
+							sourcePath,
+							tempPath,
+							null
+					);
+
+					if (!success) {
+						notifyError("Failed to apply FE7 QoL patch.");
+						return;
+					}
+
+				} catch (Exception e) {
+					notifyError(
+							"Encountered error while applying FE7 QoL patch.\n\n"
+									+ e.getClass().getSimpleName()
+									+ "\n\nStack Trace:\n\n"
+									+ String.join(
+									"\n",
+									Arrays.asList(e.getStackTrace())
+											.stream()
+											.map(element -> element.toString())
+											.limit(5)
+											.collect(Collectors.toList())
+							)
+					);
+					return;
+				}
+
+				// WILL WANT to add spot to check for a box that wants the QoL patch later
+				try {
+					handler = new FileHandler(tempPath);
+				} catch (IOException e) {
+					System.err.println("Unable to open post-patched FE7 file.");
+					e.printStackTrace();
+					notifyError("Failed to open QoL-patched FE7 ROM.");
+					return;
+				}
+
+				updateStatusString("Loading Data...");
+				updateProgress(0.01);
+
+				try {
+					generateFE7DataLoaders();
+				} catch (Exception e) {
+					notifyError(
+							"Encountered error while loading data.\n\n"
+									+ e.getClass().getSimpleName()
+									+ "\n\nStack Trace:\n\n"
+									+ String.join(
+									"\n",
+									Arrays.asList(e.getStackTrace())
+											.stream()
+											.map(element -> element.toString())
+											.limit(5)
+											.collect(Collectors.toList())
+							)
+					);
+					return;
+				}
+
+				break;
 		case FE8:
 			updateStatusString("Loading Data...");
 			updateProgress(0.01);
@@ -317,12 +383,11 @@ public class GBARandomizer extends Randomizer {
 		default:
 			break;
 		}
-		
 		updateStatusString("Done!");
 		updateProgress(1);
 		notifyCompletion(recordKeeper, null);
 	}
-	
+
 	private void generateFE7DataLoaders() {
 		handler.setAppliedDiffs(diffCompiler);
 		
@@ -704,7 +769,7 @@ public class GBARandomizer extends Randomizer {
 				
 			}
 		}
-		
+
 		// Some characters have discrepancies between character data and chapter data. We'll try to address that before we get to any modifications.
 		charData.applyLevelCorrectionsIfNecessary();
 		
@@ -1623,6 +1688,7 @@ public class GBARandomizer extends Randomizer {
 					
 					textData.setStringAtIndex(0x1225, lynWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.MANI_KATTI.ID);
+
 					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, 0x9F, 0x1225, 0x0, 
 							lynSelectedType, unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 
 							0xAD, itemData, freeSpace);
