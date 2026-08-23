@@ -198,6 +198,10 @@ public class WeaponRanks {
     }
     
     public WeaponType getHighestRank() {
+    	return getHighestRank(true);
+    }
+    
+    public WeaponType getHighestRank(boolean includeStaff) {
     	WeaponType type = null;
     	WeaponRank highestRank = null;
     	if (swordRank != WeaponRank.NONE && (highestRank == null || swordRank.isHigherThan(highestRank))) { highestRank = swordRank; type = WeaponType.SWORD; }
@@ -207,7 +211,7 @@ public class WeaponRanks {
     	if (lightRank != WeaponRank.NONE && (highestRank == null || lightRank.isHigherThan(highestRank))) { highestRank = lightRank; type = WeaponType.LIGHT; }
     	if (animaRank != WeaponRank.NONE && (highestRank == null || animaRank.isHigherThan(highestRank))) { highestRank = animaRank; type = WeaponType.ANIMA; }
     	if (darkRank != WeaponRank.NONE && (highestRank == null || darkRank.isHigherThan(highestRank))) { highestRank = darkRank; type = WeaponType.DARK; }
-    	if (staffRank != WeaponRank.NONE && (highestRank == null || staffRank.isHigherThan(highestRank))) { highestRank = staffRank; type = WeaponType.STAFF; }
+    	if (includeStaff && staffRank != WeaponRank.NONE && (highestRank == null || staffRank.isHigherThan(highestRank))) { highestRank = staffRank; type = WeaponType.STAFF; }
     	
     	return type;
     }

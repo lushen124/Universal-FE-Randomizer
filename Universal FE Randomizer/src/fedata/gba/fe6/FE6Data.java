@@ -110,6 +110,54 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long ClassLookupMaxIndexOffset = 0x408CL; // Normally 0x3F as the max class ID.
 	public static final long RoyPromotionForcedEquippedItemOffset = 0x6D0F0L; // Normally 0xF for Binding Blade.
 	
+	// While we have nudges to account for unit loading coordinates,
+	// that won't catch scripted movement. Those have to be updated manually.
+	
+	// Ch. 2 - Miledy flies off to the north over mountains. Have her to go the east side instead.
+	public static final long Ch2MiledyScriptedMoveCoordinateOffset = 0x66BA18L;
+	public static final byte[] Ch2MiledyScriptedMoveCoordinateOld = new byte[] { (byte)0x0D, (byte)0x00, (byte)0xFF, (byte)0xFF };
+	public static final byte[] Ch2MiledyScriptedMoveCoordinateNew = new byte[] { (byte)0x12, (byte)0x00, (byte)0xFF, (byte)0xFF };
+	// Ch. 4 - Narcian flies over northern mountains. Have him just exit left.
+	public static final long Ch4NarcianScriptedMoveCoordinateOffset = 0x66C398L;
+	public static final byte[] Ch4NarcianScriptedMoveCoordinateOld = new byte[] { (byte)0x0D, (byte)0x00, (byte)0xFF, (byte)0xFF };
+	public static final byte[] Ch4NarcianScriptedMoveCoordinateNew = new byte[] { (byte)0xFF, (byte)0xFF, (byte)0x0A, (byte)0x00 };
+	// Ch. 10B - Gale and Miledy need to fly off to a different location.
+	// Gale actually moves twice. Nop out the first one and use the second one to do the actual exit.
+	// See Character Nudges for more details on the changes.
+	public static final long Ch10BGaleScriptedMove1Offset = 0x672F1CL;
+	public static final byte[] Ch10BGaleScriptedMove1Old = new byte[] { 
+			(byte)0x0F, (byte)0x00, (byte)0x00, (byte)0x00,
+			(byte)0x33, (byte)0x00, (byte)0x00, (byte)0x00,
+			(byte)0x07, (byte)0x00, (byte)0x01, (byte)0x00,
+			(byte)0x14, (byte)0x00, (byte)0x00, (byte)0x00
+	};
+	public static final byte[] Ch10BGaleScriptedMove1New = new byte[] {
+			(byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00, 
+			(byte)0x08, (byte)0x00, (byte)0x00, (byte)0x00, // STAL 8
+			(byte)0x02, (byte)0x00, (byte)0x00, (byte)0x00, 
+			(byte)0x08, (byte)0x00, (byte)0x00, (byte)0x00 // STAL 8
+	};
+	// Gale actually already exits in the correct place. We just need to change Miledy's.
+	public static final long Ch10BMiledyScriptedMoveCoordinateOffset = 0x672F40L;
+	public static final byte[] Ch10BMiledyScriptedMoveCoordinateOld = new byte[] { (byte)0x0C, (byte)0x00, (byte)0xFF, (byte)0xFF };
+	public static final byte[] Ch10BMiledyScriptedMoveCoordinateNew = new byte[] { (byte)0x10, (byte)0x00, (byte)0xFF, (byte)0xFF };
+	
+	// Thea also has to move off and she happens to move off onto a cliff. Nudge her one space to the right.
+	public static final long Ch10BTheaScriptedMoveCoordinateOffset = 0x673084L;
+	public static final byte[] Ch10BTheaScriptedMoveCoordinateOld = new byte[] { (byte)0x11, (byte)0x00, (byte)0x20, (byte)0x00 };
+	public static final byte[] Ch10BTheaScriptedMoveCoordinateNew = new byte[] { (byte)0x12, (byte)0x00, (byte)0x20, (byte)0x00 };
+	
+	//Ch. 11A - Gale and Miledy fly off again, but on a different map.
+	// We've nudged their load coordinates, but their scripted move needs to be updated too.
+	public static final long Ch11AGaleScriptedMoveCoordinateOffset = 0x66E458L;
+	public static final byte[] Ch11AGaleScriptedMoveCoordinateOld = new byte[] { (byte)0x1E, (byte)0x00, (byte)0x12, (byte)0x00 };
+	public static final byte[] Ch11AGaleScriptedMoveCoordinateNew = new byte[] { (byte)0x17, (byte)0x00, (byte)0x00, (byte)0x00 };
+	
+	public static final long Ch11AMiledyScriptedMoveCoordinateOffset = 0x66E464L;
+	public static final byte[] Ch11AMiledyScriptedMoveCoordinateOld = new byte[] { (byte)0x1E, (byte)0x00, (byte)0x11, (byte)0x00 };
+	public static final byte[] Ch11AMiledyScriptedMoveCoordinateNew = new byte[] { (byte)0x17, (byte)0x00, (byte)0x00, (byte)0x00 };
+	
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	// These are only valid when patched. The JP ROM does *not* have these.
@@ -654,7 +702,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<CharacterClass> allPlayerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(BARD, DANCER));
 		
-		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_LORD, WYVERN_LORD_F, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
+		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_LORD, WYVERN_LORD_F, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT, FALCON_KNIGHT));
 		
 		// Includes most sword locks. Yes, they gain range with magic swords, but we're not going to assume they can use magic swords.
 		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(LORD, MERCENARY, MYRMIDON, SWORDMASTER, MASTER_LORD, MYRMIDON_F, THIEF, THIEF_F, SWORDMASTER_F, MANAKETE_F));
@@ -767,8 +815,8 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions, Boolean restrictGender) {
-			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass);
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isBoss, boolean isForMinion, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions, Boolean restrictGender) {
+			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass, isForMinion);
 			if (limited != null && applyRestrictions) {
 				return limited;
 			}
@@ -810,7 +858,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				classList.removeAll(allMeleeLockedClasses);
 			}
 			
-			if (isForEnemy) {
+			if (isBoss || isForMinion) {
 				classList.removeAll(allPlayerOnlyClasses);
 			}
 			
@@ -827,7 +875,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		private static Set<CharacterClass> limitedClassesForRandomization(CharacterClass sourceClass) {
+		private static Set<CharacterClass> limitedClassesForRandomization(CharacterClass sourceClass, boolean isForMinion) {
 			switch(sourceClass) {
 			case LORD: // Special case for Roy to be able to always use swords (and have promotions)
 				return new HashSet<CharacterClass>(Arrays.asList(LORD, MYRMIDON, MERCENARY, MYRMIDON_F, CAVALIER, PEGASUS_KNIGHT, NOMAD));
@@ -836,11 +884,19 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			case WYVERN_RIDER:
 			case WYVERN_RIDER_F:
 			case PEGASUS_KNIGHT:
-				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
+				if (isForMinion) {
+					return new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
+				} else {
+					return null;
+				}
 			case WYVERN_LORD:
 			case WYVERN_LORD_F:
 			case FALCON_KNIGHT:
-				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_LORD, WYVERN_LORD_F, FALCON_KNIGHT));
+				if (isForMinion) {
+					return new HashSet<CharacterClass>(Arrays.asList(WYVERN_LORD, WYVERN_LORD_F, FALCON_KNIGHT));
+				} else {
+					return null;
+				}
 			case PIRATE:
 				return new HashSet<CharacterClass>(Arrays.asList(PIRATE, WYVERN_RIDER, WYVERN_RIDER_F, PEGASUS_KNIGHT));
 			case BRIGAND:
@@ -874,6 +930,10 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean canAttack() {
 			return !CharacterClass.allPacifistClasses.contains(this);
+		}
+		
+		public boolean isFlier() {
+			return CharacterClass.flyingClasses.contains(this);
 		}
 	}
 	
@@ -1071,6 +1131,29 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					return WeaponType.STAFF;
 				default:
 					return WeaponType.NOT_A_WEAPON;
+				}
+			}
+			
+			public static FE6WeaponType fromGeneralType(WeaponType generalType) {
+				switch (generalType) {
+				case SWORD:
+					return FE6WeaponType.SWORD;
+				case LANCE:
+					return FE6WeaponType.LANCE;
+				case AXE:
+					return FE6WeaponType.AXE;
+				case BOW:
+					return FE6WeaponType.BOW;
+				case ANIMA:
+					return FE6WeaponType.ANIMA;
+				case LIGHT:
+					return FE6WeaponType.LIGHT;
+				case DARK:
+					return FE6WeaponType.DARK;
+				case STAFF:
+					return FE6WeaponType.STAFF;
+				default:
+					return null;
 				}
 			}
 		}
@@ -1858,15 +1941,59 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return new Character[] {};
 		}
 		
+		// This only accounts for character loading position nudges.
+		// Scripting movement needs to be handled separately.
 		public CharacterNudge[] nudgesRequired() {
 			switch(this) {
+			case CHAPTER_2:
+				// Shanna VERY briefly spawns over mountains.
+				return new CharacterNudge[] {
+					new CharacterNudge(Character.THANY.ID, CharacterNudge.Condition.ONLY_IF_NOT_FLIER, 
+							16, 18, 14, 17,
+							15, 18, 14, 17
+							)
+				};
 			case CHAPTER_6:
-				return new CharacterNudge[] {new CharacterNudge(Character.CASS.ID, 17, 23, 16, 23) }; // Cath spwans in a wall for some reason in vanilla. Move her out of the wall so she doesn't softlock the game.
+				// Cath briefly spawns in a wall.
+				return new CharacterNudge[] {
+					new CharacterNudge(Character.CASS.ID, CharacterNudge.Condition.ALWAYS, 
+							17, 23, 17, 23,
+							16, 23, 16, 23)
+				};
+			case CHAPTER_11A:
+				// Gale and Miledy talk on mountains. Ideally we'd only do this if Miledy wasn't flying, but
+				// it would be complicated to add a check for a different character in the nudge.
+				return new CharacterNudge[] {
+					new CharacterNudge(Character.GALE.ID, CharacterNudge.Condition.ALWAYS,
+							29, 14, 27, 13,
+							29, 5, 29, 5
+							),
+					new CharacterNudge(Character.MILEDY.ID, CharacterNudge.Condition.ALWAYS,
+							29, 8, 27, 12,
+							29, 4, 29, 4
+							)
+				};
 			case CHAPTER_10B:
-				return new CharacterNudge[] { // Thito (Thea) spawns on a mountain
-						new CharacterNudge(Character.THITO.ID, 12, 0, 16, 0), // Starting position 
-						new CharacterNudge(Character.THITO.ID, 12, 1, 16, 1)  // Post move position
-						}; 
+				// Miledy flies to Gale, who is over a mountain, to talk. (This requires scripting change too.)
+				// Additionally, Thea briefly spawns over a cliff.
+				return new CharacterNudge[] {
+					new CharacterNudge(Character.GALE.ID, CharacterNudge.Condition.ALWAYS,
+							6, 0, 6, 0,
+							22, 7, 22, 7
+							),
+					new CharacterNudge(Character.MILEDY.ID, CharacterNudge.Condition.ALWAYS,
+							20, 2, 6, 1,
+							20, 2, 22, 6
+							),
+					new CharacterNudge(Character.THITO.ID, CharacterNudge.Condition.ONLY_IF_NOT_FLIER,
+							17, 31, 20, 30,
+							18, 31, 20, 30
+							),
+					new CharacterNudge(Character.THITO.ID, CharacterNudge.Condition.ONLY_IF_NOT_FLIER,
+							12, 0, 12, 1,
+							16, 0, 16, 3
+							)
+				}; 
 			default:
 				return new CharacterNudge[] {};
 			}
@@ -2831,7 +2958,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.valueOf(winningClass.getID()), excludeLords, excludeThieves));
 	}
 
-	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isForEnemy, Map<String, Boolean> options) {
+	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isBoss, boolean isForMinion, Map<String, Boolean> options) {
 		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);
 		if (excludeLords == null) { excludeLords = false; }
 		Boolean excludeThieves = options.get(GBAFEClassProvider.optionKeyExcludeThieves);
@@ -2849,7 +2976,7 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Boolean restrictGender = options.get(GBAFEClassProvider.optionKeyRestrictGender);
 		if (restrictGender == null) { restrictGender = false; }
 		
-		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isForEnemy,
+		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isBoss, isForMinion,
 				excludeSource, excludeLords, excludeThieves, excludeSpecial, requireAttack, requiresRange, applyRestrictions, restrictGender));
 	}
 	

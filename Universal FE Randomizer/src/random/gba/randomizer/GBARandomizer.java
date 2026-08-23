@@ -9,6 +9,7 @@ import fedata.gba.fe8.*;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFEChapterMetadataData;
 import fedata.gba.general.WeaponRank;
+import fedata.gba.general.WeaponRanks;
 import fedata.gba.general.WeaponType;
 import fedata.general.FEBase;
 import fedata.general.FEBase.GameType;
@@ -140,7 +141,7 @@ public class GBARandomizer extends Randomizer {
 				tempPath = new String(targetPath).concat(".tmp");
 				
 				try {
-					Boolean success = UPSPatcher.applyUPSPatch("FE6Localization_v1.1.ups", sourcePath, tempPath, null);
+					Boolean success = UPSPatcher.applyUPSPatch("FE6Localization_v1.2.1.ups", sourcePath, tempPath, null);
 					if (!success) {
 						notifyError("Failed to apply translation patch.");
 						return;
@@ -220,7 +221,7 @@ public class GBARandomizer extends Randomizer {
 		updateStatusString("Compiling changes...");
 		updateProgress(0.95);
 		charData.compileDiffs(diffCompiler);
-		chapterData.compileDiffs(diffCompiler);
+		chapterData.compileDiffs(diffCompiler, freeSpace);
 		classData.compileDiffs(diffCompiler, handler, freeSpace);
 		itemData.compileDiffs(diffCompiler, handler);
 		shopData.compileDiffs(diffCompiler);
@@ -1439,6 +1440,13 @@ public class GBARandomizer extends Randomizer {
 			fe8_promotionManager.setFirstPromotionOptionForClass(newEphraimClass.getID(), fe8_promotionManager.getFirstPromotionOptionClassID(oldEphraimClass));
 			fe8_promotionManager.setSecondPromotionOptionForClass(newEphraimClass.getID(), fe8_promotionManager.getSecondPromotionOptionClassID(oldEphraimClass));
 			
+			byte newEirikaPromotedClassID = (byte)(fe8_promotionManager.getFirstPromotionOptionClassID(newEirikaClass.getID()) & 0xFF);
+			byte newEphraimPromotedClassID = (byte)(fe8_promotionManager.getFirstPromotionOptionClassID(newEphraimClass.getID()) & 0xFF);
+			
+			// Eirika's and Ephraim's scripted promotion will hard code their class to the old ones. Those also need to be replaced.
+			diffCompiler.addDiff(new Diff(FE8Data.EirikaScriptedPromotionClassOffset, 1, new byte[] { newEirikaPromotedClassID }, new byte[] { FE8Data.EirikaScriptedPromotionClassOld }));
+			diffCompiler.addDiff(new Diff(FE8Data.EphraimScriptedPromotionClassOffset, 1, new byte[] { newEphraimPromotedClassID }, new byte[] { FE8Data.EphraimScriptedPromotionClassOld }));
+			
 			// Palettes are also tied to class.
 			FE8PaletteMapper.ClassMapEntry eirikaPalette = fe8_paletteMapper.getEntryForCharacter(FE8Data.Character.EIRIKA);
 			FE8PaletteMapper.ClassMapEntry ephraimPalette = fe8_paletteMapper.getEntryForCharacter(FE8Data.Character.EPHRAIM);
@@ -2448,6 +2456,171 @@ public class GBARandomizer extends Randomizer {
 				break;
 			}
 			break;
+		}
+		
+		// Miscellaneous direct binary changes to update scripted movement.
+		switch (gameType) {
+		case FE6:
+			diffCompiler.addDiff(new Diff(FE6Data.Ch2MiledyScriptedMoveCoordinateOffset, 
+					FE6Data.Ch2MiledyScriptedMoveCoordinateNew.length, 
+					FE6Data.Ch2MiledyScriptedMoveCoordinateNew, 
+					FE6Data.Ch2MiledyScriptedMoveCoordinateOld));
+			diffCompiler.addDiff(new Diff(FE6Data.Ch4NarcianScriptedMoveCoordinateOffset, 
+					FE6Data.Ch4NarcianScriptedMoveCoordinateNew.length, 
+					FE6Data.Ch4NarcianScriptedMoveCoordinateNew,
+					FE6Data.Ch4NarcianScriptedMoveCoordinateOld));
+			diffCompiler.addDiff(new Diff(FE6Data.Ch10BGaleScriptedMove1Offset,
+					FE6Data.Ch10BGaleScriptedMove1New.length,
+					FE6Data.Ch10BGaleScriptedMove1New,
+					FE6Data.Ch10BGaleScriptedMove1Old));
+			diffCompiler.addDiff(new Diff(FE6Data.Ch10BMiledyScriptedMoveCoordinateOffset,
+					FE6Data.Ch10BMiledyScriptedMoveCoordinateNew.length,
+					FE6Data.Ch10BMiledyScriptedMoveCoordinateNew,
+					FE6Data.Ch10BMiledyScriptedMoveCoordinateOld));
+			diffCompiler.addDiff(new Diff(FE6Data.Ch10BTheaScriptedMoveCoordinateOffset,
+					FE6Data.Ch10BTheaScriptedMoveCoordinateNew.length,
+					FE6Data.Ch10BTheaScriptedMoveCoordinateNew,
+					FE6Data.Ch10BTheaScriptedMoveCoordinateOld));
+			diffCompiler.addDiff(new Diff(FE6Data.Ch11AGaleScriptedMoveCoordinateOffset,
+					FE6Data.Ch11AGaleScriptedMoveCoordinateNew.length,
+					FE6Data.Ch11AGaleScriptedMoveCoordinateNew,
+					FE6Data.Ch11AGaleScriptedMoveCoordinateOld));
+			diffCompiler.addDiff(new Diff(FE6Data.Ch11AMiledyScriptedMoveCoordinateOffset,
+					FE6Data.Ch11AMiledyScriptedMoveCoordinateNew.length,
+					FE6Data.Ch11AMiledyScriptedMoveCoordinateNew,
+					FE6Data.Ch11AMiledyScriptedMoveCoordinateOld));
+			break;
+		case FE7:
+			// Check if Vaida is flying. She has one small scripted move that we need to update if she's not flying.
+			GBAFECharacterData vaida = charData.characterWithID(FE7Data.Character.VAIDA.ID);
+			if (classData.isFlying(vaida.getClassID()) == false) {
+				diffCompiler.addDiff(new Diff(FE7Data.Ch26VaidaScriptedMoveOffset,
+						FE7Data.Ch26VaidaScriptedMoveNew.length,
+						FE7Data.Ch26VaidaScriptedMoveNew,
+						FE7Data.Ch26VaidaScriptedMoveOld));
+			}
+			break;
+		case FE8:
+			diffCompiler.addDiff(new Diff(FE8Data.SethValterPrologueScriptedFightOffset,
+					FE8Data.SethValterPrologueScriptedFightLength,
+					WhyDoesJavaNotHaveThese.byteArrayByRepeatingBytes(FE8Data.ScriptingStallInstructionBytes, FE8Data.SethValterPrologueScriptedFightLength),
+					null));
+			diffCompiler.addDiff(new Diff(FE8Data.ArturChapter4ScriptedFightOffset,
+					FE8Data.ArturChapter4ScriptedFightLength,
+					WhyDoesJavaNotHaveThese.byteArrayByRepeatingBytes(FE8Data.ScriptingStallInstructionBytes, FE8Data.ArturChapter4ScriptedFightLength),
+					null));
+			diffCompiler.addDiff(new Diff(FE8Data.GlenValterChapter11EirikaScriptedFightOffset,
+					FE8Data.GlenValterChapter11EirikaScriptedFightLength,
+					WhyDoesJavaNotHaveThese.byteArrayByRepeatingBytes(FE8Data.ScriptingStallInstructionBytes, FE8Data.GlenValterChapter11EirikaScriptedFightLength),
+					null));
+			
+			diffCompiler.addDiff(new Diff(FE8Data.Ch10EirValterCameraXOffset,
+					FE8Data.Ch10EirValterCameraNew.length,
+					FE8Data.Ch10EirValterCameraNew,
+					FE8Data.Ch10EirValterCameraOld));
+			diffCompiler.addDiff(new Diff(FE8Data.Ch10EirValterExitOffset,
+					FE8Data.Ch10EirValterExitNew.length,
+					FE8Data.Ch10EirValterExitNew,
+					FE8Data.Ch10EirValterExitOld));
+			diffCompiler.addDiff(new Diff(FE8Data.Ch10EirValterMinion1Exit1Offset,
+					FE8Data.Ch10EirValterMinion1Exit1New.length,
+					FE8Data.Ch10EirValterMinion1Exit1New,
+					FE8Data.Ch10EirValterMinion1Exit1Old));
+			diffCompiler.addDiff(new Diff(FE8Data.Ch10EirValterMinion1Exit2Offset,
+					FE8Data.Ch10EirValterMinion1Exit2New.length,
+					FE8Data.Ch10EirValterMinion1Exit2New,
+					FE8Data.Ch10EirValterMinion1Exit2Old));
+			diffCompiler.addDiff(new Diff(FE8Data.Ch10EirValterMinion2Exit1Offset,
+					FE8Data.Ch10EirValterMinion2Exit1New.length,
+					FE8Data.Ch10EirValterMinion2Exit1New,
+					FE8Data.Ch10EirValterMinion2Exit1Old));
+			diffCompiler.addDiff(new Diff(FE8Data.Ch10EirValterMinion2Exit2Offset,
+					FE8Data.Ch10EirValterMinion2Exit2New.length,
+					FE8Data.Ch10EirValterMinion2Exit2New,
+					FE8Data.Ch10EirValterMinion2Exit2Old));
+			diffCompiler.addDiff(new Diff(FE8Data.Ch10EphValterScriptedMovementOffset,
+					FE8Data.Ch10EphValterScriptedMovementNew.length,
+					FE8Data.Ch10EphValterScriptedMovementNew,
+					FE8Data.Ch10EphValterScriptedMovementOld));
+		}
+		
+		if (gameType == GameType.FE7) {
+			// Check if Matthew is a thief. For whatever reasons item drops do not work in Chapter 6. One of the enemies is scripted to drop a door key.
+			// This would normally make this chapter only require one door key from Matthew to make the chapter completable. For some reason,
+			// he will not drop it. Not sure if it's a hard mode only thing. Fill him up in Chapter 6 with door keys.
+			GBAFEChapterData ch6 = chapterData.chapterWithID(FE7Data.ChapterPointer.CHAPTER_6.chapterID);
+			List<GBAFEChapterUnitData> unitList = Arrays.asList(ch6.allUnits());
+			List<GBAFEChapterUnitData> matthewInstances = unitList.stream().filter(unit -> unit.getCharacterNumber() == FE7Data.Character.MATTHEW.ID).toList();
+			matthewInstances.forEach(matthew -> {
+				matthew.fillInventory(FE7Data.Item.DOOR_KEY.ID);
+			});
+			
+			// Change Vaida's Uber Spear to match her class, now that she can be non-flying.
+			GBAFECharacterData vaida = charData.characterWithID(FE7Data.Character.VAIDA_BOSS.ID);
+			WeaponRanks ranks = vaida.getWeaponRanks();
+			WeaponType highestType = ranks.getHighestRank(false);
+			GBAFEItemData uberSpear = itemData.itemWithID(FE7Data.Item.UBER_SPEAR.ID);
+			GBAFEItemData referenceWeapon = null;
+			switch (highestType) {
+			case SWORD:
+				referenceWeapon = itemData.itemWithID(FE7Data.Item.WIND_SWORD.ID);
+				break;
+			case LANCE:
+				// don't need to do anything in this case.
+				break;
+			case AXE:
+				referenceWeapon = itemData.itemWithID(FE7Data.Item.TOMAHAWK.ID);
+				break;
+			case BOW:
+				referenceWeapon = itemData.itemWithID(FE7Data.Item.SILVER_BOW.ID);
+				break;
+			case ANIMA:
+				referenceWeapon = itemData.itemWithID(FE7Data.Item.FIMBULVETR.ID);
+				break;
+			case LIGHT:
+				referenceWeapon = itemData.itemWithID(FE7Data.Item.DIVINE.ID);
+				break;
+			case DARK:
+				referenceWeapon = itemData.itemWithID(FE7Data.Item.FENRIR.ID);
+				break;
+			case STAFF:
+			case NOT_A_WEAPON:
+				// Shouldn't ever happen.
+				break;
+			}
+			
+			if (referenceWeapon != null) {
+				uberSpear.setNameIndex(referenceWeapon.getNameIndex());
+				uberSpear.setDescriptionIndex(referenceWeapon.getDescriptionIndex());
+				uberSpear.setUseDescriptionIndex(referenceWeapon.getUseDescriptionIndex());
+				uberSpear.setIconIndex(referenceWeapon.getIconIndex());
+				uberSpear.setType(referenceWeapon.getType());
+				uberSpear.setWeaponRank(ranks.rankForType(highestType));
+				uberSpear.setWeight(referenceWeapon.getWeight());
+				uberSpear.setHit(referenceWeapon.getHit());
+				uberSpear.setMight(referenceWeapon.getMight());
+				uberSpear.setMinRange(referenceWeapon.getMinRange());
+				uberSpear.setMaxRange(referenceWeapon.getMaxRange());
+				uberSpear.setDurability(referenceWeapon.getDurability());
+				uberSpear.setCritical(referenceWeapon.getCritical());
+				uberSpear.setAbility1(referenceWeapon.getAbility1());
+				uberSpear.setAbility2(referenceWeapon.getAbility2());
+				uberSpear.setAbility3(referenceWeapon.getAbility3());
+				uberSpear.setAbility4(referenceWeapon.getAbility4());
+				uberSpear.setEffectivenessPointer(referenceWeapon.getEffectivenessPointer());
+				
+				itemData.spellAnimations.setAnimationValueForID(uberSpear.getID(), itemData.spellAnimations.getAnimationValueForID(referenceWeapon.getID()));
+			}
+			
+			GBAFEChapterData ch26 = chapterData.chapterWithID(FE7Data.ChapterPointer.CHAPTER_26.chapterID);
+			for (GBAFEChapterUnitData unit : ch26.allUnits()) {
+				if (unit.getCharacterNumber() == FE7Data.Character.VAIDA_BOSS.ID) {
+					unit.removeAllWeapons(itemData);
+					if (unit.hasItem(uberSpear.getID()) == false) {
+						unit.insertItemAtTop(uberSpear.getID());
+					}
+				}
+			}
 		}
 	}
 	

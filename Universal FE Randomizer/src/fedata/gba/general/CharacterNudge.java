@@ -1,37 +1,41 @@
 package fedata.gba.general;
 
 public class CharacterNudge {
-	int characterID;
-	
-	int oldX;
-	int oldY;
-	
-	int newX;
-	int newY;
-	
-	int movementId;
-	
-	public CharacterNudge(int charID, int oldX, int oldY, int newX, int newY) {
-		characterID = charID;
-		this.oldX = oldX;
-		this.oldY = oldY;
-		this.newX = newX;
-		this.newY = newY;
-		this.movementId = -1;
-	}
-	public CharacterNudge(int charID, int oldX, int oldY, int newX, int newY, int movementId) {
-		characterID = charID;
-		this.oldX = oldX;
-		this.oldY = oldY;
-		this.newX = newX;
-		this.newY = newY;
-		this.movementId = movementId;
+	public enum Condition {
+		ALWAYS, ONLY_IF_NOT_FLIER
 	}
 	
-	public int getCharacterID() { return characterID; }
-	public int getOldX() { return oldX; }
-	public int getOldY() { return oldY; }
-	public int getNewX() { return newX; }
-	public int getNewY() { return newY; }
-	public int getMovementId() { return movementId; }
+	public final int characterID;
+	public final Condition nudgeCondition;
+	
+	// Optional (null if lazy), but serves as a safeguard to make sure we're changing the right values.
+	// Also useful if you're targeting specific enemies that have the same character ID. Their start/end positions
+	// would be different.
+	public final Integer originalStartingX;
+	public final Integer originalStartingY;
+	public final Integer originalEndingX;
+	public final Integer originalEndingY;
+	
+	// Null here means don't change that particular value from the original. All nulls is a no-op.
+	public final Integer newStartingX;
+	public final Integer newStartingY;
+	public final Integer newEndingX;
+	public final Integer newEndingY;
+	
+	public CharacterNudge(int charID, Condition nudgeCondition,
+			Integer originalStartX, Integer originalStartY, Integer originalEndX, Integer originalEndY, 
+			Integer newStartX, Integer newStartY, Integer newEndX, Integer newEndY) {
+		characterID = charID;
+		this.nudgeCondition = nudgeCondition;
+		
+		originalStartingX = originalStartX;
+		originalStartingY = originalStartY;
+		originalEndingX = originalEndX;
+		originalEndingY = originalEndY;
+		
+		newStartingX = newStartX;
+		newStartingY = newStartY;
+		newEndingX = newEndX;
+		newEndingY = newEndY;
+	}
 }

@@ -20,8 +20,10 @@ import fedata.gba.fe7.FE7Data;
 import fedata.gba.fe7.FE7WorldMapEvent;
 import fedata.gba.fe8.FE8Chapter;
 import fedata.gba.fe8.FE8ChapterUnit;
+import fedata.gba.fe8.FE8ChapterUnitMoveData;
 import fedata.gba.fe8.FE8Data;
 import fedata.gba.fe8.FE8WorldMapEvent;
+import fedata.gba.general.ChapterUnitClassOverride;
 import fedata.gba.general.CharacterNudge;
 import fedata.gba.general.GBAFEChapterMetadataChapter;
 import fedata.gba.general.GBAFEChapterMetadataData;
@@ -31,6 +33,7 @@ import util.DebugPrinter;
 import util.Diff;
 import util.DiffCompiler;
 import util.FileReadHelper;
+import util.FreeSpaceManager;
 import util.WhyDoesJavaNotHaveThese;
 import util.recordkeeper.RecordKeeper;
 
@@ -158,9 +161,10 @@ public class ChapterLoader {
 					}
 					
 					CharacterNudge[] nudges = chapter.nudgesRequired();
+					ChapterUnitClassOverride[] classOverrides = chapter.classOverridesRequired();
 					long chapterOffset = baseAddress + (4 * chapter.chapterID);
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loading " + chapter.toString());
-					FE8Chapter fe8Chapter = new FE8Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.getMetadata().getFriendlyName(), chapter.shouldBeEasy(), trackedRewardRecipients, unarmedCharacterIDs, chapter.additionalUnitOffsets(), nudges);
+					FE8Chapter fe8Chapter = new FE8Chapter(handler, chapterOffset, chapter.isClassSafe(), chapter.shouldRemoveFightScenes(), classBlacklist, chapter.getMetadata().getFriendlyName(), chapter.shouldBeEasy(), trackedRewardRecipients, unarmedCharacterIDs, chapter.additionalUnitOffsets(), nudges, classOverrides);
 					fe8Chapter.setMaxEnemyClassLimit(chapter.enemyClassLimit());
 					chapters[i++] = fe8Chapter;
 					mappedChapters.put(chapterID, fe8Chapter);
@@ -315,28 +319,51 @@ public class ChapterLoader {
 		}
 	}
 	
-	public void compileDiffs(DiffCompiler compiler) {
+	public void compileDiffs(DiffCompiler compiler, FreeSpaceManager freeSpace) {
 		for (GBAFEChapterData chapter : chapters) {
 			chapter.applyNudges();
 			GBAFEChapterUnitData[] units = chapter.allUnits();
 			for (GBAFEChapterUnitData unit : units) {
+				
+				// FE8 handles movement differently. Since we can potentially
+				// add movement where there wasn't one initially, we need to
+				// write that new data to some free space and then write the
+				// target offset for that new data to the unit before the unit
+				// commits its changes.
+				if (unit instanceof FE8ChapterUnit) {
+					FE8ChapterUnit fe8Unit = (FE8ChapterUnit)unit;
+					if (fe8Unit.hasMovement()) {
+						FE8ChapterUnitMoveData movementData = fe8Unit.getMovementData(0);
+						if (movementData.getAddressOffset() == -1) {
+							// This data needs to be appended.
+							int numberOfMovements = fe8Unit.getNumberMovements();
+							int bytesNeeded = 8 * numberOfMovements;
+							String key = "fe8chapterunitmove-" + chapter.toString() + "-" + unit.getAddressOffset();
+							long targetAddress = freeSpace.reserveInternalSpace(bytesNeeded, key, true);
+							fe8Unit.setMovementAddress(targetAddress);
+							for (int i = 0; i < numberOfMovements; i++) {
+								FE8ChapterUnitMoveData moveData = fe8Unit.getMovementData(i);
+								moveData.setOriginalOffset(targetAddress);
+								Diff movementDiff = new Diff(targetAddress, moveData.getData().length, moveData.getData(), null);
+								compiler.addDiff(movementDiff);
+								targetAddress += 8;
+							}
+						} else {
+							movementData.commitChanges();
+							if (movementData.hasCommittedChanges()) {
+								Diff movementDiff = new Diff(movementData.getAddressOffset(), movementData.getData().length, movementData.getData(), null);
+								compiler.addDiff(movementDiff);
+							}
+						}
+					}
+				}
+				
 				unit.commitChanges();
+				
 				if (unit.hasCommittedChanges()) {
 					byte[] unitData = unit.getData();
 					Diff unitDiff = new Diff(unit.getAddressOffset(), unitData.length, unitData, null);
 					compiler.addDiff(unitDiff);
-				}
-				// FE8 handles post move placements differently
-				if (unit instanceof FE8ChapterUnit) {
-					((FE8ChapterUnit)unit).getMovements().forEach(mvm -> {
-						mvm.commitChanges();
-						if(!mvm.hasCommittedChanges()) {
-							return;
-						}
-						byte[] movementData = mvm.getData();
-						Diff unitDiff = new Diff(mvm.getAddressOffset(), movementData.length, movementData, null);
-						compiler.addDiff(unitDiff);
-					});
 				}
 			}
 			

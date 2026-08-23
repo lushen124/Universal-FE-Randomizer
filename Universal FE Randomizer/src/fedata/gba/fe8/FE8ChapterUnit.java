@@ -4,16 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fedata.gba.GBAFEChapterUnitData;
+import io.FileHandler;
+import util.FileReadHelper;
+import util.WhyDoesJavaNotHaveThese;
 
 public class FE8ChapterUnit extends GBAFEChapterUnitData {
 	
 	List<FE8ChapterUnitMoveData> movements = new ArrayList<>();
+	boolean didAddMovement = false; // If we need to give a unit movement that didn't have one, this requires ROM expansion.
 	
-	public FE8ChapterUnit(byte[] data, long originalOffset) {
+	public FE8ChapterUnit(byte[] data, long originalOffset, FileHandler fileHandler) {
 		super();
 		this.originalData = data;
 		this.data = data;
 		this.originalOffset = originalOffset;
+		
+		// I'm not sure if number movements can ever be greater than 1, nor what that means.
+		// There's only space in the unit for 1 address to be listed. Not sure
+		// if this is some fancy waypoint system that you can specify.
+		if (getNumberMovements() > 0 && getMovementAddress() != 0) {
+			byte[] movementData = fileHandler.readBytesAtOffset(getMovementAddress(), 8);
+			movements.add(new FE8ChapterUnitMoveData(getMovementAddress(), movementData));
+		}
 	}
 	
 	@Override
@@ -109,59 +121,83 @@ public class FE8ChapterUnit extends GBAFEChapterUnitData {
 		return data[7] & 0xFF;
 	}
 	
-	@Override
-	public int getPostMoveX() {
-		if (this.movements.isEmpty()) {
-			return 0;
-		}
-
-		return getPostMoveXForMove(0);
-	}
-
-	@Override
-	public int getPostMoveY() {
-		if (this.movements.isEmpty()) {
-			return 0;
-		}
-		return getPostMoveYForMove(0);
-	}
-	
-	public int getPostMoveXForMove(int move) {
-		return movements.get(move).getPostMoveX();
-	}
-	
-	public int getPostMoveYForMove(int move) {
-		return movements.get(move).getPostMoveY();
-	}
-	
-	public void setPostMoveX(int newX) {
-		setPostMoveXForMove(0, newX);
-	}
-	public void setPostMoveXForMove(int move, int newX) {
-		this.movements.get(0).setPostMoveX(newX);
+	private void setNumberMovements(int newCount) {
+		data[7] = (byte)(newCount & 0xFF);
 		wasModified = true;
 	}
 	
-	public void setPostMoveY(int newY) {
-		setPostMoveXForMove(0, newY);
+	private void addMovement(int x, int y) {
+		if (!didAddMovement) {
+			didAddMovement = true;
+			// if we need to add movement, if there was existing movement data, the data must be repointed.
+			if (movements.isEmpty() == false) {
+				movements.getFirst().markAsNeedingRepointing();
+			}
+		}
+		
+		setNumberMovements(getNumberMovements() + 1);
+		movements.add(new FE8ChapterUnitMoveData(x, y, false, 0));
 	}
 	
-	public void setPostMoveYForMove(int move, int newY) {
-		this.movements.get(0).setPostMoveY(newY);
+	public long getMovementAddress() {
+		long address = WhyDoesJavaNotHaveThese.longValueFromByteArray(WhyDoesJavaNotHaveThese.subArray(data, 8, 4), true);
+		address -= 0x8000000L;
+		return address;
 	}
 	
-	public List<FE8ChapterUnitMoveData> getMovements() {
-		return this.movements;
+	public boolean hasMovement() {
+		return movements.isEmpty() == false;
 	}
 	
-	public boolean hasMovementToPosition(int x, int y) {
-		return this.movements.stream().anyMatch(mv -> mv.getPostMoveX() == x && mv.getPostMoveY() == y);
+	public FE8ChapterUnitMoveData getMovementData(int index) {
+		if (movements.isEmpty() || index >= movements.size()) { return null; }
+		return movements.get(index);
 	}
 	
-	public void addMovement(FE8ChapterUnitMoveData moveData) {
-		this.movements.add(moveData);
+	public void setMovementAddress(long newMovementAddress) {
+		if (newMovementAddress < 0x8000000L) {
+			newMovementAddress += 0x8000000L;
+		}
+		byte[] addressBytes = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(newMovementAddress, true, 4);
+		WhyDoesJavaNotHaveThese.copyBytesIntoByteArrayAtIndex(addressBytes, data, 8, 4);
+		wasModified = true;
 	}
 	
+	@Override
+	public int getPostMoveX() {
+		return getEndingX();
+	}
+	
+	@Override
+	public int getPostMoveY() {
+		return getEndingY();
+	}
+	
+	public int getEndingX() {
+		if (movements.isEmpty()) { return getStartingX(); }
+		return movements.getLast().getPostMoveX();
+	}
+	
+	public int getEndingY() {
+		if (movements.isEmpty()) { return getStartingY(); }
+		return movements.getLast().getPostMoveY();
+	}
+	
+	public void setEndingX(int newEndingX) {
+		if (movements.isEmpty() == false) {
+			movements.getLast().setPostMoveX(newEndingX);
+		} else {
+			addMovement(newEndingX, getStartingY());
+		}
+	}
+	
+	public void setEndingY(int newEndingY) {
+		if (movements.isEmpty() == false) {
+			movements.getLast().setPostMoveY(newEndingY);
+		} else {
+			addMovement(getStartingX(), newEndingY);
+		}
+	} 
 	
 	@Override
 	protected void collapseItems() {
@@ -205,26 +241,27 @@ public class FE8ChapterUnit extends GBAFEChapterUnitData {
 
 	@Override
 	public void setAIToHeal() {
-		data[17] = (byte) 0x0E;
+		data[16] = (byte) 0x0E;
 		wasModified = true;
 	}
 
 	@Override
 	public void removeHealingAI() {
-		data[17] = (byte) 0x00;
+		data[16] = (byte) 0x00;
 		wasModified = true;
 	}
 
 	@Override
 	public void setUnitToDropLastItem(boolean drop) {
 		if (drop) {
-			data[19] |= 0x40;
+			data[5] |= 0x20;
 		} else {
-			data[19] &= ~0x40;
+			data[5] &= ~0x20;
 		}
+		wasModified = true;
 	}
 
 	public boolean isAITargetingVillages() {
-		return data[20] == 0x04 || data[20] == 0x05;
+		return data[17] == 0x04 || data[17] == 0x05;
 	}
 }

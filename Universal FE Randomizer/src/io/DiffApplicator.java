@@ -53,6 +53,8 @@ public class DiffApplicator {
 		
 		RandomAccessFile resultFile = new RandomAccessFile(outputPath, "rw");
 		
+		long lastWriteAddress = 0;
+		
 		// Apply all the diffs.
 		for (int i = 0; i < compiler.diffArray.size(); i++) {
 			Diff currentDiff = compiler.diffArray.get(i);
@@ -77,9 +79,22 @@ public class DiffApplicator {
 				}
 				resultFile.seek(nextAddress);
 				resultFile.write(newValue);
+				if (resultFile.getFilePointer() > lastWriteAddress) {
+					lastWriteAddress = resultFile.getFilePointer();
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+		
+		try {
+			resultFile.seek(lastWriteAddress);
+			do {
+				resultFile.write(0);
+				lastWriteAddress = resultFile.getFilePointer();
+			} while (lastWriteAddress % 16 != 0);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
 		// Apply any find and replaces.

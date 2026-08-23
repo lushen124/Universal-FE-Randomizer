@@ -143,7 +143,16 @@ public abstract class GBAFEChapterUnitData extends AbstractGBAData {
 		data[11] = (byte)(itemID & 0xFF);
 		wasModified = true;
 	}
-
+	
+	// returns item ID of the last item that was bumped off, or 0 if no item needed to be bumped off.
+	public int insertItemAtTop(int itemID) {
+		int bumpedItem = getItem4();
+		setItem4(getItem3());
+		setItem3(getItem2());
+		setItem2(getItem1());
+		setItem1(itemID);
+		return bumpedItem;
+	}
 
 	public void giveItems(int[] itemIDs, ItemDataLoader itemData) {
 		ArrayList<Integer> workingIDs = new ArrayList<Integer>();
@@ -176,6 +185,27 @@ public abstract class GBAFEChapterUnitData extends AbstractGBAData {
 		}
 
 		collapseItems();
+	}
+	
+	public void removeAllWeapons(ItemDataLoader itemData) {
+		GBAFEItemData item1 = itemData.itemWithID(getItem1());
+		if (itemData.isWeapon(item1)) { setItem1(0); }
+		GBAFEItemData item2 = itemData.itemWithID(getItem2());
+		if (itemData.isWeapon(item2)) { setItem2(0); }
+		GBAFEItemData item3 = itemData.itemWithID(getItem3());
+		if (itemData.isWeapon(item3)) { setItem3(0); }
+		GBAFEItemData item4 = itemData.itemWithID(getItem4());
+		if (itemData.isWeapon(item4)) { setItem4(0); }
+		
+		collapseItems();
+	}
+	
+	public void fillInventory(int itemID) {
+		collapseItems();
+		if (getItem1() == 0) { setItem1(itemID); }
+		if (getItem2() == 0) { setItem2(itemID); }
+		if (getItem3() == 0) { setItem3(itemID); }
+		if (getItem4() == 0) { setItem4(itemID); }
 	}
 	
 	public Integer getHighestRankItemID(ItemDataLoader itemData) {

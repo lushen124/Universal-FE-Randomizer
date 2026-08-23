@@ -45,7 +45,7 @@ public interface GBAFEClassProvider {
 	public boolean isFlier(GBAFEClass charClass);
 	
 	public Set<GBAFEClass> classesThatLoseToClass(GBAFEClass sourceClass, GBAFEClass winningClass, Map<String, Boolean> options);
-	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isForEnemy, Map<String, Boolean> options);
+	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isBoss, boolean isForMinion, Map<String, Boolean> options);
 	
 	public GBAFEClass correspondingMaleClass(GBAFEClass charClass);
 	public GBAFEClass correspondingFemaleClass(GBAFEClass charClass);

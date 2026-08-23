@@ -287,6 +287,12 @@ public class FE8PaletteMapper {
 		}
 	}
 	
+	public boolean isPaletteIDInUse(int paletteID) {
+		if (recycledPaletteIDsByLength.values().stream().anyMatch(list -> list.contains(paletteID))) { return false; }
+		
+		return true;
+	}
+	
 	private Integer requestRecycledPaletteForSize(int paletteSize) {
 		if (recycledPaletteIDsByLength.keySet().stream().filter(size -> (size >= paletteSize)).min(WhyDoesJavaNotHaveThese.ascendingIntegerComparator).isPresent()) {
 			int length = recycledPaletteIDsByLength.keySet().stream().filter(size -> (size >= paletteSize)).min(WhyDoesJavaNotHaveThese.ascendingIntegerComparator).get();

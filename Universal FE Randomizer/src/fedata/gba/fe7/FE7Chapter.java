@@ -12,6 +12,7 @@ import fedata.gba.GBAFEChapterItemData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFEChapterItemData.Type;
 import fedata.gba.general.CharacterNudge;
+import fedata.gba.general.CharacterNudge.Condition;
 import io.FileHandler;
 import util.DebugPrinter;
 import util.FileReadHelper;
@@ -214,29 +215,36 @@ public class FE7Chapter implements GBAFEChapterData {
 	public void applyNudges() {
 		if (nudges == null) { return; }
 		for (CharacterNudge nudge : nudges) {
-			characterLoop : for (GBAFEChapterUnitData unit : allUnits()) {
-				if (unit.getCharacterNumber() != nudge.getCharacterID() ) {
+			boolean nudgeApplied = false;
+			for (GBAFEChapterUnitData unit : allUnits()) {
+				if (unit.getCharacterNumber() != nudge.characterID ) {
 					continue;
 				}
-				if (unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
-					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character PreMove 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
-					if (unit.getPostMoveX() == unit.getStartingX() && unit.getPostMoveY() == unit.getStartingY()) { 
-						unit.setPostMoveX(nudge.getNewX());
-						unit.setPostMoveY(nudge.getNewY());
+				if (unit.getStartingX() == nudge.originalStartingX && unit.getStartingY() == nudge.originalStartingY &&
+						unit.getPostMoveX() == nudge.originalEndingX && unit.getPostMoveY() == nudge.originalEndingY) {
+					
+					if (nudge.nudgeCondition == Condition.ONLY_IF_NOT_FLIER && FE7Data.CharacterClass.valueOf(unit.getStartingClass()).isFlier()) {
+						nudgeApplied = true;
+						// We can safely break in this condition because the same character should have the same class across all instances,
+						// so if they are a flier, we don't need to check any further.
+						break;
 					}
-					unit.setStartingX(nudge.getNewX());
-					unit.setStartingY(nudge.getNewY());
-				} else if(unit.getPostMoveX() == nudge.getOldX() && unit.getPostMoveY() == nudge.getOldY()) {
-					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character PostMove 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
-					if (unit.getPostMoveX() == unit.getStartingX() && unit.getPostMoveY() == unit.getStartingY()) { 
-						unit.setStartingX(nudge.getNewX());
-						unit.setStartingX(nudge.getNewY());
-					}
-					unit.setPostMoveX(nudge.getNewX());
-					unit.setPostMoveY(nudge.getNewY());
+					
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Applying nudge to character ID 0x" + Integer.toHexString(nudge.characterID));
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging from (" + unit.getStartingX() + ", " + unit.getStartingY() + ") -> (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ")");
+					unit.setStartingX(nudge.newStartingX);
+					unit.setStartingY(nudge.newStartingY);
+					unit.setPostMoveX(nudge.newEndingX);
+					unit.setPostMoveY(nudge.newEndingY);
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudged to (" + unit.getStartingX() + ", " + unit.getStartingY() + ") -> (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ")");
+					nudgeApplied = true;
+					unit.commitChanges();
+					//break; // Do not break here. There might be multiple instances of this character (in different difficulty modes, for example) and they all should update if they match the parameters.
 				}
-				
-				break characterLoop;
+			}
+			
+			if (nudgeApplied == false) {
+				DebugPrinter.error(DebugPrinter.Key.CHAPTER_LOADER, "Failed to apply nudge for character ID 0x" + Integer.toHexString(nudge.characterID));
 			}
 		}
 	}
@@ -414,11 +422,14 @@ public class FE7Chapter implements GBAFEChapterData {
 			if (WhyDoesJavaNotHaveThese.byteArraysAreEqual(commandWord, new byte[] {(byte)0x97, 0x00, 0x00, 0x00})) {
 				// FIGH - Always has command byte 0x97, and is always 20 length. The second word always contains attacker and defender IDs.
 				// They vary after that, but those aren't important.
-				long address = FileReadHelper.readAddress(handler, currentAddress + 12);
-				if (address != -1) {
+				
+				// This address doesn't always exist. It's not important anyway, it just holds the battle outcome if it's scripted.
+				// Without it, the battle resolves naturally. Don't make it a requirement to strip a forced fight scene.
+//				long address = FileReadHelper.readAddress(handler, currentAddress + 12);
+//				if (address != -1) {
 					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Found FIGH at 0x" + Long.toHexString(currentAddress));
 					fightEventOffsets.add(currentAddress);
-				}
+//				}
 				currentAddress += 16;
 			}
 			
@@ -442,7 +453,7 @@ public class FE7Chapter implements GBAFEChapterData {
 				currentAddress += 8;
 			} else if (commandWord[0] == 0x49) { // GOTO_IFAF has 12 bytes., The second word is occasionally 0xA or 0xB, leading us to exit prematurely.
 				currentAddress += 8;
-			}  else if (commandWord[0] == 0x4F || commandWord[0] == 0x50 || commandWord[0] == 0x52 || commandWord[0] == 0x53 || // GOTO_IFNHM, GOTO_IFNEM, GOTO_IFNO, GOTO_IFYES have 8 bytes. The second word can be 0xB.
+			}  else if (commandWord[0] == 0x4F || commandWord[0] == 0x50 || commandWord[0] == 0x51 || commandWord[0] == 0x52 || commandWord[0] == 0x53 || // GOTO_IFNHM, GOTO_IFNEM, GOTO_IFHARD, GOTO_IFNO, GOTO_IFYES have 8 bytes. The second word can be 0xB.
 					commandWord[0] == 0x54 || commandWord[0] == 0x56) { // GOTO_IFNTUTORIAL, GOTO_IFTU
 				currentAddress += 4;
 			} else if (commandWord[0] == (byte)0x84) { // LOMA, in the case that it loads a map that has the same hex as the commands above. 16 bytes total.

@@ -160,6 +160,18 @@ public class WhyDoesJavaNotHaveThese {
 		return result;
 	}
 	
+	public static byte[] byteArrayByRepeatingBytes(byte[] bytesToRepeat, int length) {
+		// Ideally this should only be used to evenly repeat bytes (i.e. the length should be divisble by the byte array size)
+		// It doesn't have to, but that seems like an unlikely use case.
+		assert length % bytesToRepeat.length == 0;
+		
+		byte[] byteBuffer = new byte[length];
+		for (int i = 0; i < length; i++) {
+			byteBuffer[i] = bytesToRepeat[i % bytesToRepeat.length];
+		}
+		return byteBuffer;
+	}
+	
 	// Copies x bytes from source array into an offset destination array.
 	public static void copyBytesIntoByteArrayAtIndex(byte[] source, byte[] destination, int destinationOffset, int copyLength) {
 		assert destination.length >= copyLength + destinationOffset : "Attempted to copy source into destination with insufficient space";

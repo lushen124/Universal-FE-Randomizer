@@ -14,7 +14,10 @@ import fedata.gba.GBAFEChapterItemData;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.GBAFEChapterItemData.Type;
 import fedata.gba.fe8.FE8ChapterUnitMoveData;
+import fedata.gba.general.ChapterUnitClassOverride;
+import fedata.gba.general.ChapterUnitClassOverride.OverrideCondition;
 import fedata.gba.general.CharacterNudge;
+import fedata.gba.general.CharacterNudge.Condition;
 import io.FileHandler;
 import util.DebugPrinter;
 import util.FileReadHelper;
@@ -58,11 +61,12 @@ public class FE8Chapter implements GBAFEChapterData {
 	@SuppressWarnings("unused")
 	private Set<Long> fightEventOffsets;
 	
+	private ChapterUnitClassOverride[] classOverrides;
 	private CharacterNudge[] nudges;
 	
 	private int maxEnemyClassLimit = 0;
 	
-	public FE8Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, int[] targetedRewardRecipientsToTrack, int[] unarmedCharacters, long[] additionalUnitOffsets, CharacterNudge[] nudgesRequired) {
+	public FE8Chapter(FileHandler handler, long pointer, Boolean isClassSafe, Boolean removeFightScenes, int[] blacklistedClassIDs, String friendlyName, Boolean simple, int[] targetedRewardRecipientsToTrack, int[] unarmedCharacters, long[] additionalUnitOffsets, CharacterNudge[] nudgesRequired, ChapterUnitClassOverride[] classOverrides) {
 		this.friendlyName = friendlyName;
 		this.blacklistedClassIDs = new HashSet<Integer>();
 		for (int classID : blacklistedClassIDs) {
@@ -109,6 +113,7 @@ public class FE8Chapter implements GBAFEChapterData {
 		fightEventOffsets = new HashSet<Long>();
 		
 		nudges = nudgesRequired;
+		this.classOverrides = classOverrides;
 		
 		loadUnits(handler);
 		loadRewards(handler);
@@ -190,33 +195,85 @@ public class FE8Chapter implements GBAFEChapterData {
 		return allChapterRewards.stream().anyMatch(reward -> reward.getRewardType() == Type.ITGV);
 	}
 	
+	// This also applies any necessary class overrides.
 	public void applyNudges() {
+		if (classOverrides != null) {
+			for (ChapterUnitClassOverride classOverride : classOverrides) {
+				for (GBAFEChapterUnitData unit : allUnits()) {
+					if (unit.getClass() != FE8ChapterUnit.class) {
+						DebugPrinter.error(DebugPrinter.Key.CHAPTER_LOADER, "Incorrect type of class for FE8ChapterUnit when applying nudges.");
+						break;
+					}
+					
+					FE8ChapterUnit fe8Unit = (FE8ChapterUnit)unit;
+					
+					// This unit is the wrong character.
+					if (fe8Unit.getCharacterNumber() != classOverride.characterNumber) {
+						continue;
+					}
+					
+					// A source class was specified and this instance of the character had a different class.
+					if (classOverride.oldClassID != null && fe8Unit.getStartingClass() != classOverride.oldClassID) {
+						continue;
+					}
+					
+					// Some movement coordinates were specified and didn't match this character's coordinates.
+					if ((classOverride.startX != null && fe8Unit.getStartingX() != classOverride.startX) ||
+							(classOverride.startY != null && fe8Unit.getStartingY() != classOverride.startY) ||
+							(classOverride.endX != null && fe8Unit.getEndingX() != classOverride.endX)||
+							(classOverride.endY != null && fe8Unit.getEndingY() != classOverride.endY)) {
+						continue;
+					}
+					
+					// This override should only apply if not a flier, and the character is a flying class.
+					if (classOverride.condition == OverrideCondition.ONLY_IF_NOT_FLIER && FE8Data.CharacterClass.valueOf(fe8Unit.getStartingClass()).isFlier()) {
+						continue;
+					}
+					
+					fe8Unit.setStartingClass(classOverride.newClassID);
+				}
+			}
+		}
+		
 		if (nudges == null || nudges.length == 0) { return; }
 		for (CharacterNudge nudge : nudges) {
-			characterLoop : for (GBAFEChapterUnitData unit : allUnits()) {
+			boolean nudgeApplied = false;
+			for (GBAFEChapterUnitData unit : allUnits()) {
+				if (unit.getClass() != FE8ChapterUnit.class) {
+					DebugPrinter.error(DebugPrinter.Key.CHAPTER_LOADER, "Incorrect type of class for FE8ChapterUnit when applying nudges.");
+					break;
+				}
+				
+				FE8ChapterUnit fe8Unit = (FE8ChapterUnit)unit;
+				
 				// If the nudge isn't for the current character, just continue
-				if (unit.getCharacterNumber() != nudge.getCharacterID()) {
+				if (fe8Unit.getCharacterNumber() != nudge.characterID) {
 					continue;
 				}
 				
-				// Check if the nudge is for the current instance of the character
-				if (unit.getStartingX() != nudge.getOldX() || unit.getStartingY() != nudge.getOldY()) {
-					continue;
+				if (fe8Unit.getStartingX() == nudge.originalStartingX && fe8Unit.getStartingY() == nudge.originalStartingY &&
+						fe8Unit.getPostMoveX() == nudge.originalEndingX && fe8Unit.getPostMoveY() == nudge.originalEndingY) {
+					
+					if (nudge.nudgeCondition == Condition.ONLY_IF_NOT_FLIER && FE8Data.CharacterClass.valueOf(fe8Unit.getStartingClass()).isFlier()) {
+						nudgeApplied = true;
+						break;
+					}
+					
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Applying nudge to character ID 0x" + Integer.toHexString(nudge.characterID));
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging from (" + fe8Unit.getStartingX() + ", " + fe8Unit.getStartingY() + ") -> (" + fe8Unit.getPostMoveX() + ", " + fe8Unit.getPostMoveY() + ")");
+					fe8Unit.setStartingX(nudge.newStartingX);
+					fe8Unit.setStartingY(nudge.newStartingY);
+					fe8Unit.setEndingX(nudge.newEndingX);
+					fe8Unit.setEndingY(nudge.newEndingY);
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudged to (" + fe8Unit.getStartingX() + ", " + fe8Unit.getStartingY() + ") -> (" + fe8Unit.getPostMoveX() + ", " + fe8Unit.getPostMoveY() + ")");
+					nudgeApplied = true;
+					fe8Unit.commitChanges();
+					break;
 				}
-				
-				DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
-				// Movement Id -1 implies it's the starting position
-				if (nudge.getMovementId() == -1) {
-					unit.setStartingX(nudge.getNewX());
-					unit.setStartingY(nudge.getNewY());
-				} else {
-					// Movement Ids other than -1 should be in the movements list
-					((FE8ChapterUnit) unit).getMovements().get(nudge.getMovementId()).setPostMoveX(nudge.getNewX());
-					((FE8ChapterUnit) unit).getMovements().get(nudge.getMovementId()).setPostMoveY(nudge.getNewY());
-				} 
-				
-				// The nudge was applied successfully, break out of the character loop.
-				break characterLoop;
+			}
+			
+			if (nudgeApplied == false) {
+				DebugPrinter.error(DebugPrinter.Key.CHAPTER_LOADER, "Failed to apply nudge for character ID 0x" + Integer.toHexString(nudge.characterID));
 			}
 		}
 	}
@@ -364,7 +421,8 @@ public class FE8Chapter implements GBAFEChapterData {
 	}
 	
 	private void recordFightAddressesFromEventBlob(FileHandler handler, long eventAddress) {
-		// TODO
+		// FE8's scripted fights are bit more involved as they involve several instructions to set up the
+		// results of the fight. Instead of scanning for these, we will disable these manually.
 	}
 	
 	private Set<Long> unitAddressesFromEventBlob(FileHandler handler, long eventAddress) {
@@ -501,18 +559,7 @@ public class FE8Chapter implements GBAFEChapterData {
 		byte[] unitData = handler.readBytesAtOffset(currentOffset, FE8Data.BytesPerChapterUnit);
 		while (unitData[0] != 0x00) {
 			DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Loaded unit with data " + WhyDoesJavaNotHaveThese.displayStringForBytes(unitData));
-			FE8ChapterUnit unit = new FE8ChapterUnit(unitData, currentOffset);
-			
-			
-			// If the unit has movements, load them.
-			if (unit.getNumberMovements() != 0) {
-				long movementsPointer = FileReadHelper.readAddress(handler, currentOffset + 8);
-				for (int i = 0; i < unit.getNumberMovements(); i++) {
-					long originalOffset = movementsPointer + i * 8;
-					byte[] bytes = handler.readBytesAtOffset(originalOffset, 8);
-					unit.addMovement(new FE8ChapterUnitMoveData(originalOffset, bytes));
-				}
-			}
+			FE8ChapterUnit unit = new FE8ChapterUnit(unitData, currentOffset, handler);
 			
 			if (!blacklistedClassIDs.contains(unit.getStartingClass())) { // Remove any characters starting as a blacklisted class from consideration.
 				allChapterUnits.add(unit);

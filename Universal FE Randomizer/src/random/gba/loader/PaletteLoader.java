@@ -189,7 +189,7 @@ public class PaletteLoader {
 					FE8Data.CharacterClass fe8class = FE8Data.CharacterClass.valueOf(classID);
 					FE8Data.Character fe8char = FE8Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe8char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe8class.toString() + "))");
-					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette ID: 0x" + Integer.toHexString(paletteInfo.getPaletteID()) + ", size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
 				}
 				// Special case: Pegasus Knights that have a Wyvern Knight promotion will have conflicting primary colors.
 				// If a character a Wyvern palette and a non-wyvern palette, drop the wyvern palette and let the other palette dictate primary color.
@@ -215,7 +215,7 @@ public class PaletteLoader {
 					FE8Data.CharacterClass fe8class = FE8Data.CharacterClass.valueOf(classID);
 					FE8Data.Character fe8char = FE8Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Character 0x" + Integer.toHexString(charID) + " (" + fe8char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()) + " (Class: " + Integer.toHexString(classID) + " (" + fe8class.toString() + "))");
-					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette ID: 0x" + Integer.toHexString(paletteInfo.getPaletteID()) + ", size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
 				}
 			}
 			fe8CharList = FE8Data.Character.allBossCharacters.stream().sorted(FE8Data.Character.characterIDComparator()).collect(Collectors.toList());
@@ -229,7 +229,7 @@ public class PaletteLoader {
 					referenceMap.put(paletteInfo.getClassID(), new PaletteV2(handler, paletteInfo));
 					FE8Data.Character fe8char = FE8Data.Character.valueOf(charID);
 					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Initializing Boss 0x" + Integer.toHexString(charID) + " (" + fe8char.toString() + ")" + " with palette at offset 0x" + Long.toHexString(paletteInfo.getOffset()));
-					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Palette ID: 0x" + Integer.toHexString(paletteInfo.getPaletteID()) + ", size: " + Integer.toString(palette.getOriginalCompressedLength()) + " bytes");
 				}
 			}
 			
@@ -270,7 +270,9 @@ public class PaletteLoader {
 		fe8Promotions = promotionManager;
 		// We need to tell it about lengths too, in case we try to use a palette that won't fit the old slot.
 		for (int paletteID : paletteByPaletteIDV2.keySet()) {
-			fe8Mapper.registerPaletteID(paletteID, paletteByPaletteIDV2.get(paletteID).getOriginalCompressedLength(), paletteByPaletteIDV2.get(paletteID).getDestinationOffset());
+			PaletteV2 palette = paletteByPaletteIDV2.get(paletteID);
+			DebugPrinter.log(DebugPrinter.Key.PALETTE, "Registering palette id 0x" + Integer.toHexString(paletteID) + " with length " + palette.getOriginalCompressedLength() + " at offset 0x" + Long.toHexString(palette.getDestinationOffset()));
+			fe8Mapper.registerPaletteID(paletteID, palette.getOriginalCompressedLength(), palette.getDestinationOffset());
 		}
 		return fe8Mapper;
 	}
@@ -557,7 +559,7 @@ public class PaletteLoader {
 			
 			int promotedClassID = classData.classForID(targetClassID).getTargetPromotionID();
 			
-			if (((unpromotedPalette != null && unpromotedPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides()) ||
+			if (((unpromotedPalette != null && unpromotedPalette.getClassID() == targetClassID && !character.hasBattlePaletteOverrides()) &&
 					(promotedPalette != null && promotedPalette.getClassID() == promotedClassID && !character.hasBattlePaletteOverrides())) && character.getID() == reference.getID()) {
 				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Same unpromoted class found. Skipping adapting palette.");
 			} else {
@@ -594,6 +596,7 @@ public class PaletteLoader {
 				assert newOffset != 0 : "Insufficient internal space for palette.";
 				palette.overrideOffset(newOffset);
 				appendedPaletteIDsV2.put(paletteID, palette);
+				DebugPrinter.log(DebugPrinter.Key.PALETTE, "Set palette 0x" + Integer.toHexString(paletteID) + " to be written to offset 0x" + Long.toHexString(newOffset));
 			}
 		} else {
 			for (Change change : queuedChanges) {
@@ -647,8 +650,13 @@ public class PaletteLoader {
 	
 	public void compileDiffs(DiffCompiler compiler) {
 		if (gameType == GameType.FE8) {
-			for (PaletteV2 palette : paletteByPaletteIDV2.values()) {
-				palette.commitPalette(compiler);
+			for (PaletteV2 palette : paletteByPaletteIDV2.values().stream().sorted((p1, p2) -> Integer.compare(p1.getPaletteID(), p2.getPaletteID())).toList()) {
+				// We should make sure these palettes are actually still in use before overwriting data.
+				if (fe8Mapper.isPaletteIDInUse(palette.getPaletteID())) {
+					palette.commitPalette(compiler);
+				} else {
+					DebugPrinter.log(DebugPrinter.Key.PALETTE, "Skipping palette 0x" + Integer.toHexString(palette.getPaletteID()) + " since it is no longer in use.");
+				}
 			}
 			
 			long baseOffset = FE8Data.PaletteTableOffset;
@@ -659,6 +667,7 @@ public class PaletteLoader {
 				long offsetToWriteTo = baseOffset + (appendedPaletteID * entrySize);
 				byte[] bytesToWrite = WhyDoesJavaNotHaveThese.bytesFromAddress(appendedPalette.getDestinationOffset());
 				compiler.addDiff(new Diff(offsetToWriteTo, bytesToWrite.length, bytesToWrite, new byte[] {0, 0, 0, 0}));
+				appendedPalette.commitPalette(compiler);
 			}
 			
 		} else {

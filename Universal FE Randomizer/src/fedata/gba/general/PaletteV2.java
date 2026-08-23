@@ -103,6 +103,10 @@ public class PaletteV2 {
 		identifier = other.identifier;
 	}
 	
+	public int getPaletteID() {
+		return identifier;
+	}
+	
 	public int getNumColors() {
 		return 16;
 	}

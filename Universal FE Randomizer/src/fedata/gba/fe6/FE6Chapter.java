@@ -12,6 +12,7 @@ import fedata.gba.GBAFEChapterItemData;
 import fedata.gba.GBAFEChapterItemData.Type;
 import fedata.gba.GBAFEChapterUnitData;
 import fedata.gba.general.CharacterNudge;
+import fedata.gba.general.CharacterNudge.Condition;
 import io.FileHandler;
 import util.DebugPrinter;
 import util.FileReadHelper;
@@ -132,20 +133,23 @@ public class FE6Chapter implements GBAFEChapterData {
 
 	@Override
 	public long[] getFightAddresses() {
-		// TODO Auto-generated method stub
-		return null;
+		return fightEventOffsets.stream().mapToLong(Long::longValue).toArray();
 	}
 
 	@Override
 	public int fightCommandLength() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 20;
 	}
 
 	@Override
 	public byte[] fightReplacementBytes() {
-		// TODO Auto-generated method stub
-		return null;
+		// This is really only used to remove Cecilia's scripted fight with Zephiel.
+		// STAL exists, but takes 8 bytes and we need to fill 20 bytes worth of space.
+		// CMOF is used in its place, since it uses 4-bytes. It disables camera following
+		// but there's no camera following in this event and it's re-enabled when needed later.
+		return new byte[] {0x02, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, // STAL 8
+				0x02, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, // STAL 8
+				0x16, 0x00, 0x00, 0x00 }; // CMOF
 	}
 
 	@Override
@@ -174,30 +178,35 @@ public class FE6Chapter implements GBAFEChapterData {
 	public void applyNudges() {
 		if (nudges == null) { return; }
 		for (CharacterNudge nudge : nudges) {
-			characterLoop : for (GBAFEChapterUnitData unit : allUnits()) {
-				if (unit.getCharacterNumber() != nudge.getCharacterID() ) {
+			boolean nudgeApplied = false;
+			for (GBAFEChapterUnitData unit : allUnits()) {
+				if (unit.getCharacterNumber() != nudge.characterID ) {
 					continue;
 				}
-				if (unit.getStartingX() == nudge.getOldX() && unit.getStartingY() == nudge.getOldY()) {
-					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character PreMove 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
-					if (unit.getPostMoveX() == unit.getStartingX() && unit.getPostMoveY() == unit.getStartingY()) { 
-						unit.setPostMoveX(nudge.getNewX());
-						unit.setPostMoveY(nudge.getNewY());
+				if (unit.getStartingX() == nudge.originalStartingX && unit.getStartingY() == nudge.originalStartingY && 
+						unit.getPostMoveX() == nudge.originalEndingX && unit.getPostMoveY() == nudge.originalEndingY) {
+					
+					if (nudge.nudgeCondition == Condition.ONLY_IF_NOT_FLIER && FE6Data.CharacterClass.valueOf(unit.getStartingClass()).isFlier()) {
+						// Treat this as already been applied in this case and break out of the loop with no error.
+						// No change needs to be done in this case.
+						nudgeApplied = true;
+						break;
 					}
-					unit.setStartingX(nudge.getNewX());
-					unit.setStartingY(nudge.getNewY());
-					break characterLoop;
-				} else if(unit.getPostMoveX() == nudge.getOldX() && unit.getPostMoveY() == nudge.getOldY()) {
-					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging character PostMove 0x" + Integer.toHexString(unit.getCharacterNumber()) + " from (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ") to (" + nudge.getNewX() + ", " + nudge.getNewY() + ")");
-					if (unit.getPostMoveX() == unit.getStartingX() && unit.getPostMoveY() == unit.getStartingY()) { 
-						unit.setStartingX(nudge.getNewX());
-						unit.setStartingX(nudge.getNewY());
-					}
-					unit.setPostMoveX(nudge.getNewX());
-					unit.setPostMoveY(nudge.getNewY());
-					break characterLoop;
+					
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Applying nudge to character ID 0x" + Integer.toHexString(nudge.characterID));
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudging from (" + unit.getStartingX() + ", " + unit.getStartingY() + ") -> (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ")");
+					unit.setStartingX(nudge.newStartingX);
+					unit.setStartingY(nudge.newStartingY);
+					unit.setPostMoveX(nudge.newEndingX);
+					unit.setPostMoveY(nudge.newEndingY);
+					DebugPrinter.log(DebugPrinter.Key.CHAPTER_LOADER, "Nudged to (" + unit.getStartingX() + ", " + unit.getStartingY() + ") -> (" + unit.getPostMoveX() + ", " + unit.getPostMoveY() + ")");
+					nudgeApplied = true;
+					unit.commitChanges();
+					break;
 				}
-				
+			}
+			if (nudgeApplied == false) {
+				DebugPrinter.error(DebugPrinter.Key.CHAPTER_LOADER, "Failed to apply nudge for character ID 0x" + Integer.toHexString(nudge.characterID));
 			}
 		}
 	}

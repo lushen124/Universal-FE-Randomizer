@@ -67,11 +67,14 @@ public class DebugPrinter {
 	
 	private static Boolean shouldPrintLabel(Key label) {
 		switch (label) {
-		case GBA_SHOP_LOADER:
+//		case LZ77:
+//		case PALETTE:
+//		case PALETTE_RECYCLER:
+		case CHAPTER_LOADER:
 			return true;
 //		case MAIN:
-		case FE9_ARMY_LOADER:
-			return true;
+//		case FE9_ARMY_LOADER:
+//			return true;
 		default:
 			return false;
 		}

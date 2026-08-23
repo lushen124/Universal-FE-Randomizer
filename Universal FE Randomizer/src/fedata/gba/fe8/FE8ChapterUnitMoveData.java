@@ -22,48 +22,46 @@ public class FE8ChapterUnitMoveData extends AbstractGBAData {
 		this.originalOffset = originalOffset;
 	}
 	
+	public FE8ChapterUnitMoveData(int postMoveX, int postMoveY, boolean isHeavySteps, int followingID) {
+		originalOffset = -1;
+		data = new byte[] {0, 0, isHeavySteps ? (byte)0x1 : (byte)0x0, (byte)(followingID & 0xFF), (byte)0xFF, (byte)0xFF, 0, 0};
+		setPostMoveX(postMoveX);
+		setPostMoveY(postMoveY);
+		originalData = data;
+	}
+	
+	public void markAsNeedingRepointing() {
+		originalOffset = -1;
+	}
+	
 	public int getPostMoveX() {
 		return data[0] & 0x3F;
 	}
 	
 	
 	public void setPostMoveX(int newX) {
-		// Discard anything but the last byte
-		newX = newX & 0xFF;
-		
-		// Get the Y portion of the current byte
-		int startingY = getPostMoveY();
-		
-		int ySubvalue = startingY & 0x00F;
-		int xSubvalue = newX;
-		
-		int positionData = (ySubvalue << 6) | xSubvalue; 
-		data[0] = (byte) positionData;
+		// This holds at most 6 bits, so mask it to that.
+		assert newX <= 0x3F: "Post move X is out of bounds (maximum value is " + 0x3f + ", but received " + newX + ")";
+		if (newX > 0x3F) { return; }
+		data[0] = (byte)((byte)(newX & 0x3F) | (byte)(data[0] & 0xC0));
 		wasModified = true;
 	}
 	
 	public int getPostMoveY() {
-		int part1 = (data[1] & 0x0F) ;
-		int part2 = ((data[0] & 0xC0) >> 6);
-		return (( part1 | part2) ) & 0xFFF;
+		int upper4Bits = ((data[1] & 0x0F) << 2) ;
+		int lower2Bits = ((data[0] & 0xC0) >> 6);
+		return (( upper4Bits | lower2Bits) ) & 0xFFF;
 	}
 
 	public void setPostMoveY(int newY) {
-		// Save the Special Data, we don't currently edit this
-		int specialData = getPostMoveY() & 0xF0;
-
-		// Change Byte 2
-		// take bits 3-6
-		int ySubvalueByte2 = (newY & 0x3C) >> 2;
-		// prefix the Y Value with the special data
-		int positionDataByte2 = ((specialData << 4) | ySubvalueByte2) & 0xFF;
-		data[1] = (byte) positionDataByte2;
-
-		// Change Byte 1
-		int xSubvalueByte1 = getPostMoveX() & 0x3F;
-		int ySubvalueByte1 = newY & 0x03;
-		int positionDataByte1 = ((ySubvalueByte1 << 6) | xSubvalueByte1) & 0xFF;
-		data[0] = (byte) (positionDataByte1 & 0xFF);
+		// This holds at most 6 bits.
+		assert newY <= 0x3F: "Post move Y is out of bounds (maximum value is " + 0x3f + ", but received " + newY + ")";
+		if (newY > 0x3F) { return; }
+		// The upper 4 bits are part of byte 1, while the bottom 2 bits are part of byte 0.
+		byte upper4Bits = (byte)((newY & 0x3C) >> 2);
+		byte lower2Bits = (byte)((newY & 0x3) << 6);
+		data[0] = (byte)((data[0] & 0x3F) | lower2Bits);
+		data[1] = (byte)((data[1] & 0xF0) | upper4Bits);
 		wasModified = true;
 	}
 	

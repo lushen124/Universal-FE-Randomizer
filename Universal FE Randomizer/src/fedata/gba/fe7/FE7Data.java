@@ -143,6 +143,13 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public static final long FlierEffectivenessPointer = 0x8C97ED2L;
 	public static final int DelphiShieldEffectivenessCheckPointer = 0x168A0;
 	
+	// Small scripted change for Vaida if she's not a flying unit.
+	// We can tackle most of it via the unit load movement, but she does have a scripted movement back on the montain.
+	// Shift that slightly if she's not mounted.
+	public static final long Ch26VaidaScriptedMoveOffset = 0xCB86FCL;
+	public static final byte[] Ch26VaidaScriptedMoveOld = new byte[] { (byte)0x06, (byte)0x00, (byte)0x07, (byte)0x00 };
+	public static final byte[] Ch26VaidaScriptedMoveNew = new byte[] { (byte)0x05, (byte)0x00, (byte)0x08, (byte)0x00 };
+	
 	// These are spaces confirmed free inside the natural ROM size (0xFFFFFF).
 	// It's somewhat limited, so let's not use these unless we absolutely have to (like for palettes).
 	public static final List<AddressRange> InternalFreeRange = createFreeRangeList();
@@ -733,7 +740,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public static Set<CharacterClass> allPlayerOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(DANCER, BARD));
 		
-		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, WYVERN_LORD, PEGASUS_KNIGHT, FALCON_KNIGHT));
+		public static Set<CharacterClass> flyingClasses = new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, WYVERN_LORD, WYVERN_LORD_F, PEGASUS_KNIGHT, FALCON_KNIGHT));
 		
 		public static Set<CharacterClass> meleeOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(LORD_ELIWOOD, MERCENARY, MYRMIDON, THIEF, SWORDMASTER, ASSASSIN, LORD_LYN, SWORDMASTER_F));
 		public static Set<CharacterClass> rangedOnlyClasses = new HashSet<CharacterClass>(Arrays.asList(ARCHER, NOMAD, SNIPER, ARCHER_F, SNIPER_F));
@@ -844,8 +851,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return classList;
 		}
 		
-		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions, Boolean restrictGender) {
-			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass);
+		public static Set<CharacterClass> targetClassesForRandomization(CharacterClass sourceClass, boolean isBoss, boolean isForMinion, Boolean excludeSource, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean requireAttack, Boolean requiresRange, Boolean applyRestrictions, Boolean restrictGender) {
+			Set<CharacterClass> limited = limitedClassesForRandomization(sourceClass, isForMinion);
 			if (limited != null && applyRestrictions) {
 				return limited;
 			}
@@ -897,22 +904,30 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			
 			classList.retainAll(allValidClasses);
 			
-			if (isForEnemy) {
+			if (isBoss || isForMinion) {
 				classList.removeAll(allPlayerOnlyClasses);
 			}
 			
 			return classList;
 		}
 		
-		private static Set<CharacterClass> limitedClassesForRandomization(CharacterClass sourceClass) {
+		private static Set<CharacterClass> limitedClassesForRandomization(CharacterClass sourceClass, boolean isForEnemy) {
 			switch(sourceClass) {
 			case WYVERN_RIDER:
 			case PEGASUS_KNIGHT:
-				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, PEGASUS_KNIGHT));
+				if (isForEnemy) {
+					return new HashSet<CharacterClass>(Arrays.asList(WYVERN_RIDER, PEGASUS_KNIGHT));
+				} else {
+					return null;
+				}
 			case WYVERN_LORD:
 			case WYVERN_LORD_F:
 			case FALCON_KNIGHT:
-				return new HashSet<CharacterClass>(Arrays.asList(WYVERN_LORD, WYVERN_LORD_F, FALCON_KNIGHT));
+				if (isForEnemy) {
+					return new HashSet<CharacterClass>(Arrays.asList(WYVERN_LORD, WYVERN_LORD_F, FALCON_KNIGHT));
+				} else {
+					return null;
+				}
 			case PIRATE:
 			case CORSAIR:
 				return new HashSet<CharacterClass>(Arrays.asList(PIRATE, CORSAIR, WYVERN_RIDER, PEGASUS_KNIGHT));
@@ -951,6 +966,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 		public Boolean canAttack() {
 			return !CharacterClass.allPacifistClasses.contains(this);
+		}
+		
+		public boolean isFlier() {
+			return CharacterClass.flyingClasses.contains(this);
 		}
 		
 		public int animationID() {
@@ -1263,6 +1282,20 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					return WeaponType.NOT_A_WEAPON;
 				}
 			}
+			
+			public static FE7WeaponType fromGeneralType(WeaponType generalType) {
+				switch (generalType) {
+				case SWORD: return FE7WeaponType.SWORD;
+				case LANCE: return FE7WeaponType.LANCE;
+				case AXE: return FE7WeaponType.AXE;
+				case BOW: return FE7WeaponType.BOW;
+				case ANIMA: return FE7WeaponType.ANIMA;
+				case LIGHT: return FE7WeaponType.LIGHT;
+				case DARK: return FE7WeaponType.DARK;
+				case STAFF: return FE7WeaponType.STAFF;
+				default: return null;
+				}
+			}
 		}
 		
 		public enum Ability1Mask {
@@ -1521,7 +1554,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		public static Set<Item> allSwords = new HashSet<Item>(Arrays.asList(IRON_SWORD, SLIM_SWORD, STEEL_SWORD, SILVER_SWORD, IRON_BLADE, STEEL_BLADE, SILVER_BLADE, POISON_SWORD, RAPIER, MANI_KATTI, BRAVE_SWORD,
 				WO_DAO, KILLING_EDGE, ARMORSLAYER, WYRMSLAYER, LIGHT_BRAND, RUNE_SWORD, LANCEREAVER, LONGSWORD, EMBLEM_SWORD, DURANDAL, SOL_KATTI, REGAL_BLADE, WIND_SWORD));
 		public static Set<Item> allLances = new HashSet<Item>(Arrays.asList(IRON_LANCE, SLIM_LANCE, STEEL_LANCE, SILVER_LANCE, POISON_LANCE, BRAVE_LANCE, KILLER_LANCE, HORSESLAYER, JAVELIN, SPEAR, AXEREAVER,
-				EMBLEM_LANCE, REX_HASTA, HEAVY_SPEAR, SHORT_SPEAR, UBER_SPEAR));
+				EMBLEM_LANCE, REX_HASTA, HEAVY_SPEAR, SHORT_SPEAR));
 		public static Set<Item> allAxes = new HashSet<Item>(Arrays.asList(IRON_AXE, STEEL_AXE, SILVER_AXE, POISON_AXE, BRAVE_AXE, KILLER_AXE, HALBERD, HAMMER, DEVIL_AXE, HAND_AXE, TOMAHAWK, SWORDREAVER,
 				SWORDSLAYER, DRAGON_AXE, EMBLEM_AXE, ARMADS, WOLF_BEIL, BASILIKOS));
 		public static Set<Item> allBows = new HashSet<Item>(Arrays.asList(IRON_BOW, STEEL_BOW, SILVER_BOW, POISON_BOW, KILLER_BOW, BRAVE_BOW, SHORT_BOW, LONGBOW, EMBLEM_BOW, RIENFLECHE));
@@ -1575,7 +1608,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				SHORT_BOW, LONGBOW, STEEL_BOW, THUNDER, SHINE, FLUX, MEND, TORCH_STAFF, UNLOCK));
 		public static Set<Item> allCRank = new HashSet<Item>(Arrays.asList(STEEL_BLADE, KILLING_EDGE, WYRMSLAYER, LIGHT_BRAND, LANCEREAVER, SHORT_SPEAR, KILLER_LANCE, AXEREAVER, DRAGON_AXE, KILLER_AXE, SWORDREAVER, 
 				SWORDSLAYER, KILLER_BOW, ELFIRE, DIVINE, LUNA, NOSFERATU, RECOVER, RESTORE, HAMMERNE, BARRIER));
-		public static Set<Item> allBRank = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, WIND_SWORD, BRAVE_LANCE, SPEAR, UBER_SPEAR, BRAVE_AXE, BRAVE_BOW, BOLTING, PURGE, ECLIPSE, PHYSIC, SILENCE, SLEEP, BERSERK, RESCUE));
+		public static Set<Item> allBRank = new HashSet<Item>(Arrays.asList(BRAVE_SWORD, WIND_SWORD, BRAVE_LANCE, SPEAR, BRAVE_AXE, BRAVE_BOW, BOLTING, PURGE, ECLIPSE, PHYSIC, SILENCE, SLEEP, BERSERK, RESCUE));
 		public static Set<Item> allARank = new HashSet<Item>(Arrays.asList(SILVER_SWORD, SILVER_BLADE, RUNE_SWORD, SILVER_LANCE, TOMAHAWK, SILVER_AXE, SILVER_BOW, FIMBULVETR, AURA, FENRIR, FORTIFY, WARP));
 		public static Set<Item> allSRank = new HashSet<Item>(Arrays.asList(REGAL_BLADE, REX_HASTA, BASILIKOS, RIENFLECHE, EXCALIBUR, LUCE, GESPENST, AUREOLA));
 		public static Set<Item> allPrfRank = new HashSet<Item>(Arrays.asList(MANI_KATTI, RAPIER, DURANDAL, SOL_KATTI, WOLF_BEIL, ARMADS, FORBLAZE));
@@ -2145,8 +2178,42 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public CharacterNudge[] nudgesRequired() {
 			switch(this) {
+			case CHAPTER_19:
+				// Fiora spawns over water.
+				return new CharacterNudge[] {
+					new CharacterNudge(Character.FIORA.ID, CharacterNudge.Condition.ONLY_IF_NOT_FLIER,
+							3, 0, 3, 5,
+							0, 5, 3, 5
+							)	
+				};
 			case CHAPTER_25:
-				return new CharacterNudge[] {new CharacterNudge(Character.FARINA.ID, 20, 19, 18, 19) }; // Farina flies onscreen and stays on a mountain.
+				// Farina spawns over mountains.
+				return new CharacterNudge[] {
+						new CharacterNudge(Character.FARINA.ID, CharacterNudge.Condition.ONLY_IF_NOT_FLIER,
+								20, 20, 20, 19,
+								18, 20, 18, 19
+								)
+						};
+			case CHAPTER_26:
+				// Vaida spwans over one of two mountains, depending on Eliwood or Hector mode.
+				// She also flies over a mountain on the opening scene. Change that too.
+				return new CharacterNudge[] {
+						// Eliwood mode
+						new CharacterNudge(Character.VAIDA_BOSS.ID, CharacterNudge.Condition.ONLY_IF_NOT_FLIER,
+								2, 2, 2, 2,
+								0, 2, 0, 2
+								),
+						// Hector mode
+						new CharacterNudge(Character.VAIDA_BOSS.ID, CharacterNudge.Condition.ONLY_IF_NOT_FLIER,
+								17, 2, 17, 2,
+								18, 2, 18, 2
+								),
+						// Opening Scene
+						new CharacterNudge(Character.VAIDA_BOSS.ID, CharacterNudge.Condition.ONLY_IF_NOT_FLIER,
+								0, 1, 6, 7,
+								0, 1, 4, 10
+								)
+				};
 			
 			default:
 				return new CharacterNudge[] {};
@@ -2165,6 +2232,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Boolean shouldRemoveFightScenes() {
 			switch (this) {
+			case CHAPTER_5:
+			case CHAPTER_6:
 			case CHAPTER_21:
 				return true;
 			default:
@@ -3012,8 +3081,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					this.info = new PaletteInfo(classID, charID, offset, new int[] {5, 6, 7}, new int[] {11, 12, 13}, new int[] {}, new int[] {8, 9, 10});
 					break;
 				case KNIGHT:
-//					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {4, 2, 5, 3, 1}, new int[] {});
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {6, 4, 2, 1}, new int[] {}, new int[] {9, 5, 3});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {4, 2, 5, 3, 1}, new int[] {});
 					break;
 				case LORD_ELIWOOD:
 				case LORD_KNIGHT:
@@ -3040,7 +3108,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 					break;
 				case NOMAD_TROOPER:
 //					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {9, 10, 11}, new int[] {});
-					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {8, 2, 9, 5, 10, 11}, new int[] {});
+					this.info = new PaletteInfo(classID, charID, offset, new int[] {6, 7}, new int[] {2, 5}, new int[] {});
 					break;
 				case PALADIN:
 					//this.info = new PaletteInfo(classID, charID, offset, new int[] {}, new int[] {8, 9, 10, 11}, new int[] {}, new int[] {6, 7});
@@ -3459,7 +3527,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 				CharacterClass.valueOf(winningClass.getID()), excludeLords, excludeThieves));
 	}
 
-	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isForEnemy, Map<String, Boolean> options) {
+	public Set<GBAFEClass> targetClassesForRandomization(GBAFEClass sourceClass, boolean isBoss, boolean isForMinion, Map<String, Boolean> options) {
 		Boolean excludeLords = options.get(GBAFEClassProvider.optionKeyExcludeLords);
 		if (excludeLords == null) { excludeLords = false; }
 		Boolean excludeThieves = options.get(GBAFEClassProvider.optionKeyExcludeThieves);
@@ -3477,7 +3545,7 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Boolean restrictGender = options.get(GBAFEClassProvider.optionKeyRestrictGender);
 		if (restrictGender == null) { restrictGender = false; }
 		
-		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isForEnemy,
+		return new HashSet<GBAFEClass>(CharacterClass.targetClassesForRandomization(CharacterClass.valueOf(sourceClass.getID()), isBoss, isForMinion,
 				excludeSource, excludeLords, excludeThieves, excludeSpecial, requireAttack, requiresRange, applyRestrictions, restrictGender));
 	}
 	

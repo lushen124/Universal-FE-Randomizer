@@ -292,11 +292,11 @@ public class ClassDataLoader {
 		return classForID(correspondingClass.getID());
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, ClassOptions.GenderRestrictionOption restrictGender, GBAFEClassData mustLoseToClass) {
-		return potentialClasses(sourceClass, isForEnemy, excludeLords, excludeThieves, excludeSpecial, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, restrictGender, mustLoseToClass);
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isBoss, Boolean isForMinion, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, ClassOptions.GenderRestrictionOption restrictGender, GBAFEClassData mustLoseToClass) {
+		return potentialClasses(sourceClass, isBoss, isForMinion, excludeLords, excludeThieves, excludeSpecial, false, excludeSource, requireAttack, requireRange, requireMelee, applyRestrictions, restrictGender, mustLoseToClass);
 	}
 	
-	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isForEnemy, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, ClassOptions.GenderRestrictionOption restrictGender, GBAFEClassData mustLoseToClass) {
+	public GBAFEClassData[] potentialClasses(GBAFEClassData sourceClass, Boolean isBoss, Boolean isForMinion, Boolean excludeLords, Boolean excludeThieves, Boolean excludeSpecial, Boolean separateMonsters, Boolean excludeSource, Boolean requireAttack, Boolean requireRange, Boolean requireMelee, Boolean applyRestrictions, ClassOptions.GenderRestrictionOption restrictGender, GBAFEClassData mustLoseToClass) {
 		GBAFEClass sourceCharClass = provider.classWithID(sourceClass.getID());
 		Set<GBAFEClass> targetClasses = null;
 		
@@ -317,7 +317,7 @@ public class ClassDataLoader {
 		}
 		
 		if (targetClasses == null || targetClasses.size() == 0) {
-			targetClasses = provider.targetClassesForRandomization(sourceCharClass, isForEnemy, options);
+			targetClasses = provider.targetClassesForRandomization(sourceCharClass, isBoss, isForMinion, options);
 		}
 		
 		return feClassesFromSet(targetClasses);

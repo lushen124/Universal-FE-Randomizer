@@ -16,16 +16,21 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	
 	// Info
 	public int getNameIndex();
+	public void setNameIndex(int newNameIndex);
 	public int getDescriptionIndex();
+	public void setDescriptionIndex(int newDescriptionIndex);
 	public int getUseDescriptionIndex();
+	public void setUseDescriptionIndex(int newUseIndex);
 	
 	public int getID();
 	
 	public WeaponType getType();
+	public void setType(WeaponType type);
 	
 	public boolean hasAbility1();
 	public int getAbility1();
 	public String getAbility1Description(String delimiter);
+	public void setAbility1(int ability);
 	
 	public boolean hasAbility2();
 	public int getAbility2();
@@ -40,6 +45,7 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public boolean hasAbility4();
 	public int getAbility4();
 	public String getAbility4Description(String delimiter);
+	public void setAbility4(int ability);
 	
 	public boolean hasAbilityOrEffect(String abilityEffectString);
 	
@@ -47,6 +53,9 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public void setStatBonusPointer(long address);
 	public long getEffectivenessPointer();
 	public void setEffectivenessPointer(long address);
+	
+	public int getIconIndex();
+	public void setIconIndex(int newIcon);
 	
 	public int getDurability();
 	public int getMight();
@@ -56,6 +65,8 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	
 	public int getMinRange();
 	public int getMaxRange();
+	public void setMinRange(int newMin);
+	public void setMaxRange(int newMax);
 	
 	public int getCostPerUse();
 	public void setCostPerUse(int cost);
@@ -73,6 +84,7 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	public void setMight(int might);
 	public void setHit(int hit);
 	public void setWeight(int weight);
+	public void setCritical(int crit);
 	
 	public void applyRandomEffect(WeightedDistributor<WeaponEffects> allowedEffects, ItemDataLoader itemData, TextLoader textData, GBAFESpellAnimationCollection spellAnimations, Random rng);
 
