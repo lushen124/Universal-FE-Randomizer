@@ -1,11 +1,18 @@
 package ui.tabs.gba;
 
 import fedata.general.FEBase;
+
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+
+import ui.common.YuneTabFormItem;
 import ui.common.YuneTabGridItem;
 import ui.views.CharacterShufflingView;
 import ui.views.ClassesView;
 import ui.views.RecruitmentView;
+import ui.views.gba.GBAAdvancedClassesView;
 import util.OptionRecorder.GBAOptionBundle;
 
 /**
@@ -19,20 +26,34 @@ import util.OptionRecorder.GBAOptionBundle;
  * </ul>
  *
  */
-public class GBACharactersTab extends YuneTabGridItem {
+public class GBACharactersTab extends YuneTabFormItem {
     public GBACharactersTab(CTabFolder parent, FEBase.GameType type) {
         super(parent, type);
     }
 
     private RecruitmentView recruitment;
     private CharacterShufflingView shuffling;
-    private ClassesView classes;
+    private GBAAdvancedClassesView classes;
 
     @Override
     protected void compose() {
-        classes = addView(new ClassesView(container, type));
-        recruitment = addView(new RecruitmentView(container, type));
-        shuffling = addView(new CharacterShufflingView(container, type));
+    	FormData containerData = new FormData();
+    	containerData.left = new FormAttachment(0, 10);
+    	containerData.top = new FormAttachment(0, 10);
+   
+        classes = addView(new GBAAdvancedClassesView(container, type, SWT.HORIZONTAL), containerData);
+        
+        containerData = new FormData();
+        containerData.top = new FormAttachment(0, 10);
+        containerData.left = new FormAttachment(classes.group, 10);
+        
+        recruitment = addView(new RecruitmentView(container, type), containerData);
+        
+        containerData = new FormData();
+        containerData.top = new FormAttachment(0, 10);
+        containerData.left = new FormAttachment(recruitment.group, 10);
+        
+        shuffling = addView(new CharacterShufflingView(container, type), containerData);
     }
 
     @Override
@@ -43,11 +64,6 @@ public class GBACharactersTab extends YuneTabGridItem {
     @Override
     protected String getTabTooltip() {
         return "This tab contains all settings that are related to the character Slots. Such as shuffling in characters from configuration or randomizing the recruitment order.";
-    }
-
-    @Override
-    protected int numberColumns() {
-        return 3;
     }
 
     @Override

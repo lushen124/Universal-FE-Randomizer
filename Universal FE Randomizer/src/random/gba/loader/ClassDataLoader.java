@@ -396,6 +396,13 @@ public class ClassDataLoader {
 		return charClass != null ? charClass.canAttack() : false;
 	}
 	
+	public boolean areClassesSimilar(GBAFEClassData class1, GBAFEClassData class2) {
+		if (class1.getID() == class2.getID()) { return true; }
+		GBAFEClass charClass1 = provider.classWithID(class1.getID());
+		GBAFEClass charClass2 = provider.classWithID(class2.getID());
+		return provider.similarClassesTo(charClass1).contains(charClass2);
+	}
+	
 	public List<String> ability1Flags() {
 		return provider.charClassAbility1Flags();
 	}

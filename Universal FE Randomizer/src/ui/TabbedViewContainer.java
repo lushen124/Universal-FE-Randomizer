@@ -20,6 +20,7 @@ import ui.tabs.fe9.FE9ItemsTab;
 import ui.tabs.fe9.FE9MiscTab;
 import ui.tabs.fe9.FE9SkillsTab;
 import ui.tabs.gba.GBACharactersTab;
+import ui.tabs.gba.GBAEnemiesTab;
 import ui.tabs.gba.GBAItemsTab;
 import ui.tabs.gba.GBAMechanicsTab;
 import ui.tabs.gba.GBAStatsTab;
@@ -56,6 +57,7 @@ public class TabbedViewContainer extends YuneViewContainer {
         if (type.isGBA()) {
             addTab(new GBAStatsTab(tabFolder, type));
             addTab(new GBACharactersTab(tabFolder, type));
+            addTab(new GBAEnemiesTab(tabFolder, type));
             addTab(new GBAItemsTab(tabFolder, type));
             addTab(new GBAMechanicsTab(tabFolder, type));
         } else if (type.isSFC()) {

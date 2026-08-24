@@ -16,6 +16,7 @@ public interface GBAFECharacterProvider {
 	public Map<Integer, GBAFECharacter> counters();
 	
 	public Set<GBAFECharacter> allPlayableCharacters();
+	public Set<GBAFECharacter> allCanonicalPlayableCharacters(); // Same as above, but doesn't include duplicates/variants (e.g. LYN_TUTORIAL vs LYN).
 	public Set<GBAFECharacter> extraCharacters();
 	public Set<GBAFECharacter> allBossCharacters();
 	public Set<GBAFECharacter> linkedCharacters(int characterID);
@@ -34,6 +35,7 @@ public interface GBAFECharacterProvider {
 	
 	public GBAFECharacter characterWithID(int characterID);
 	public boolean isValidCharacter(GBAFECharacter character);
+	public boolean canModifyCharacter(GBAFECharacter character);
 	public GBAFECharacter nullCharacter();
 	
 	public boolean isEnemyAtAnyPoint(int characterID);

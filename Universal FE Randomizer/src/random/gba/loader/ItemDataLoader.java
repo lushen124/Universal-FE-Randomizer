@@ -71,6 +71,8 @@ public class ItemDataLoader {
 	private Map<String, List<Byte>> promotionClassLists;
 	private Map<Integer, List<GBAFEPromotionItem>> promotionItemsForClassIDs;
 	
+	private int nextAppendedItemID;
+	
 	public static final String RecordKeeperCategoryWeaponKey = "Weapons";
 	public static final String RecordKeeperCategoryItemKey = "Items";
 	
@@ -202,6 +204,12 @@ public class ItemDataLoader {
 			promotionClassLists.put(promotionItem.itemName(), idList);
 			promotionItemAddressPointers.put(promotionItem.itemName(), promotionItemOffset);
 		}
+		
+		nextAppendedItemID = provider.numberOfItems();
+	}
+	
+	public int consumeAppendedItemID() {
+		return nextAppendedItemID++;
 	}
 	
 	public void prepareForRandomization(GameType type, DiffCompiler diffCompiler) {

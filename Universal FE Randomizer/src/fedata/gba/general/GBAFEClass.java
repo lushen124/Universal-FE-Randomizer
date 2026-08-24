@@ -2,7 +2,9 @@ package fedata.gba.general;
 
 import java.util.Comparator;
 
-public interface GBAFEClass {
+import ui.views.components.ListDisplayable;
+
+public interface GBAFEClass extends ListDisplayable {
 	
 	public static Comparator<GBAFEClass> idComparator = new Comparator<GBAFEClass>() {
 		@Override
@@ -20,4 +22,10 @@ public interface GBAFEClass {
 	public Boolean isPromoted();
 	public Boolean canAttack();
 	public String name();
+	
+	public String displayName();
+	
+	default String displayString() {
+		return displayName();
+	}
 }

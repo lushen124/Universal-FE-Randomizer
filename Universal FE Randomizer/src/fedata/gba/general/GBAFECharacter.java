@@ -2,7 +2,9 @@ package fedata.gba.general;
 
 import java.util.Comparator;
 
-public interface GBAFECharacter {
+import ui.views.components.ListDisplayable;
+
+public interface GBAFECharacter extends ListDisplayable {
 
 	public int getID();
 	
@@ -18,6 +20,8 @@ public interface GBAFECharacter {
 	public Boolean requiresAttack();
 	public Boolean canBuff();
 	
+	public String displayName();
+	
 	public String toString();
 	
 	public static Comparator<GBAFECharacter> getIDComparator() {
@@ -27,5 +31,9 @@ public interface GBAFECharacter {
 				return Integer.compare(o1.getID(), o2.getID());
 			}
 		};
+	}
+	
+	default String displayString() {
+		return displayName();
 	}
 }

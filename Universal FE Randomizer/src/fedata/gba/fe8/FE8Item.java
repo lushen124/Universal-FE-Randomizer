@@ -91,6 +91,11 @@ public class FE8Item implements GBAFEItemData {
 	public int getID() {
 		return data[6] & 0xFF;
 	}
+	
+	public void setID(int newID) {
+		data[6] = (byte)(newID & 0xFF);
+		wasModified = true;
+	}
 
 	public WeaponType getType() {
 		FE8WeaponType type = FE8WeaponType.valueOf(data[7] & 0xFF);

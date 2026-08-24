@@ -6,6 +6,8 @@ import ui.model.fe4.*;
 import ui.model.fe9.FE9AdvancedClassOptions;
 import ui.model.fe9.FE9ClassOptions;
 import ui.model.fe9.FE9SkillsOptions;
+import ui.model.gba.AdvancedPlayerClassOptions;
+import ui.model.gba.EnemyClassOptions;
 import ui.model.*;
 import ui.model.fe9.FE9EnemyBuffOptions;
 import ui.model.fe9.FE9EnemyClassOptions;
@@ -15,7 +17,7 @@ import java.util.prefs.Preferences;
 
 public class OptionRecorder {
     private static final Integer FE4OptionBundleVersion = 7;
-    private static final Integer GBAOptionBundleVersion = 17;
+    private static final Integer GBAOptionBundleVersion = 19;
     private static final Integer FE9OptionBundleVersion = 16;
 
     public static class AllOptions {
@@ -30,7 +32,8 @@ public class OptionRecorder {
     public static class GBAOptionBundle extends Bundle {
         public GrowthOptions growths;
         public BaseOptions bases;
-        public ClassOptions classes;
+        public AdvancedPlayerClassOptions classes;
+        public EnemyClassOptions enemyClasses;
         public WeaponOptions weapons;
         public OtherCharacterOptions other;
         public EnemyOptions enemies;
@@ -316,7 +319,7 @@ public class OptionRecorder {
         saveOptions(options);
     }
 
-    public static void recordGBAFEOptions(GameType gameType, GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
+    public static void recordGBAFEOptions(GameType gameType, GrowthOptions growths, BaseOptions bases, AdvancedPlayerClassOptions classes, EnemyClassOptions enemyClasses, WeaponOptions weapons,
                                           OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions, RewardOptions rewards, RecruitmentOptions recruitment, ItemAssignmentOptions itemAssignment, CharacterShufflingOptions shufflingOptions, StatboosterOptions statboosterOptions, ShopOptions shopOptions, String seed) {
         GBAOptionBundle bundle = new GBAOptionBundle();
         bundle.growths = growths;
@@ -324,6 +327,7 @@ public class OptionRecorder {
         bundle.classes = classes;
         bundle.weapons = weapons;
         bundle.other = other;
+        bundle.enemyClasses = enemyClasses;
         bundle.enemies = enemies;
         bundle.otherOptions = otherOptions;
         bundle.recruitmentOptions = recruitment;

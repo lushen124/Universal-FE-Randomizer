@@ -65,8 +65,9 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	
 	public int getMinRange();
 	public int getMaxRange();
-	public void setMinRange(int newMin);
-	public void setMaxRange(int newMax);
+	
+	public void setMinRange(int minRange);
+	public void setMaxRange(int maxRange);
 	
 	public int getCostPerUse();
 	public void setCostPerUse(int cost);

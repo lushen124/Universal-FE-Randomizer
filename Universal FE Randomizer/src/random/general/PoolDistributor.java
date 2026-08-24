@@ -58,6 +58,11 @@ public class PoolDistributor<T> {
 			}
 		}
 	}
+	
+	public void removeAll() {
+		itemList.clear();
+		itemSet.clear();
+	}
 
 	public T getRandomItem(Random rng, boolean removeItem) {
 		if (itemList.isEmpty()) {

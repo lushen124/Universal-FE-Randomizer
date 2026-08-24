@@ -478,6 +478,54 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return ID;
 		}
 		
+		public String displayName() {
+			switch (this) {
+			case ELIWOOD: return "Eliwood";
+			case HECTOR: return "Hector";
+			case RAVEN: return "Raven";
+			case GEITZ: return "Geitz";
+			case GUY: return "Guy";
+			case KAREL: return "Karel";
+			case DORCAS: return "Dorcas";
+			case BARTRE: return "Bartre";
+			case OSWIN: return "Oswin";
+			case REBECCA: return "Rebecca";
+			case LOUISE: return "Louise";
+			case LUCIUS: return "Lucius";
+			case SERRA: return "Serra";
+			case RENAULT: return "Renault";
+			case ERK: return "Erk";
+			case NINO: return "Nino";
+			case PENT: return "Pent";
+			case CANAS: return "Canas";
+			case LOWEN: return "Lowen";
+			case MARCUS: return "Marcus";
+			case PRISCILLA: return "Priscilla";
+			case FIORA: return "Fiora"; 
+			case FARINA: return "Farina";
+			case HEATH: return "Heath";
+			case VAIDA: return "Vaida";
+			case HAWKEYE: return "Hawkeye";
+			case MATTHEW: return "Matthew";
+			case JAFFAR: return "Jaffar";
+			case NINIAN: return "Ninian";
+			case NILS: return "Nils";
+			case WALLACE: return "Wallace";
+			case LYN: return "Lyn"; 
+			case WIL: return "Wil";
+			case KENT: return "Kent";
+			case SAIN: return "Sain";
+			case FLORINA: return "Florina"; 
+			case RATH: return "Rath";
+			case DART: return "Dart";
+			case ISADORA: return "Isadora";
+			case LEGAULT: return "Legault";
+			case KARLA: return "Karla";
+			case HARKEN: return "Harken";
+			default: return toString();
+			}
+		}
+		
 		public static Comparator<Character> characterIDComparator() {
 			return new Comparator<Character>() { public int compare(Character o1, Character o2) { return Integer.compare(o1.ID, o2.ID); } };
 		}
@@ -713,6 +761,45 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 			return idArray;
 		}
 		
+		public Set<GBAFEClass> similarClasses() {
+			switch (this) {
+			case ARCHER:
+			case ARCHER_F:
+				return new HashSet<GBAFEClass>(Arrays.asList(ARCHER, ARCHER_F));
+			case MAGE:
+			case MAGE_F:
+				return new HashSet<GBAFEClass>(Arrays.asList(MAGE, MAGE_F));
+			case BRIGAND:
+			case PIRATE:
+			case CORSAIR:
+				return new HashSet<GBAFEClass>(Arrays.asList(BRIGAND, PIRATE));
+			case SWORDMASTER:
+			case SWORDMASTER_F:
+				return new HashSet<GBAFEClass>(Arrays.asList(SWORDMASTER, SWORDMASTER_F));
+			case SNIPER:
+			case SNIPER_F:
+				return new HashSet<GBAFEClass>(Arrays.asList(SNIPER, SNIPER_F));
+			case BISHOP:
+			case BISHOP_F:
+				return new HashSet<GBAFEClass>(Arrays.asList(BISHOP, BISHOP_F));
+			case SAGE:
+			case SAGE_F:
+			case UBER_SAGE:
+				return new HashSet<GBAFEClass>(Arrays.asList(SAGE, SAGE_F, UBER_SAGE));
+			case PALADIN:
+			case PALADIN_F:
+				return new HashSet<GBAFEClass>(Arrays.asList(PALADIN, PALADIN_F));
+			case WYVERN_LORD:
+			case WYVERN_LORD_F:
+				return new HashSet<GBAFEClass>(Arrays.asList(WYVERN_LORD, WYVERN_LORD_F));
+			case BARD:
+			case DANCER:
+				return new HashSet<GBAFEClass>(Arrays.asList(BARD, DANCER));
+			default:
+				return new HashSet<GBAFEClass>(Arrays.asList(this));
+			}
+		}
+		
 		public static Comparator<CharacterClass> classIDComparator() {
 			return new Comparator<CharacterClass>() { public int compare(CharacterClass o1, CharacterClass o2) { return Integer.compare(o1.ID, o2.ID); } };
 		}
@@ -942,6 +1029,63 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 
 		public int getID() {
 			return ID;
+		}
+		
+		public String displayName() {
+			switch (this) {
+			case LORD_ELIWOOD: return "Lord (Eliwood)";
+			case LORD_HECTOR: return "Lord (Hector)";
+			case MERCENARY: return "Mercenary";
+			case MYRMIDON: return "Myrmidon";
+			case FIGHTER: return "Fighter";
+			case KNIGHT: return "Knight";
+			case ARCHER: return "Archer";
+			case MONK: return "Monk";
+			case MAGE: return "Mage";
+			case SHAMAN: return "Shaman";
+			case CAVALIER: return "Cavalier";
+			case NOMAD: return "Nomad";
+			case WYVERN_RIDER: return "Wyvern Rider";
+			case SOLDIER: return "Soldier";
+			case BRIGAND: return "Brigand";
+			case PIRATE: return "Pirate";
+			case THIEF: return "Thief";
+			case BARD: return "Bard";
+			case CORSAIR: return "Corsair";
+			case HERO: return "Hero";
+			case SWORDMASTER: return "Swordmaster";
+			case WARRIOR: return "Warrior";
+			case GENERAL: return "General";
+			case SNIPER: return "Sniper";
+			case BISHOP: return "Bishop";
+			case SAGE: return "Sage";
+			case DRUID: return "Druid";
+			case PALADIN: return "Paladin";
+			case NOMAD_TROOPER: return "Nomad Trooper";
+			case WYVERN_LORD: return "Wyvern Lord";
+			case BERSERKER: return "Berserker";
+			case ASSASSIN: return "Assassin";
+			case LORD_LYN: return "Lord (Lyn)";
+			case BLADE_LORD: return "Blade Lord";
+			case ARCHER_F: return "Archer (F)";
+			case CLERIC: return "Cleric";
+			case MAGE_F: return "Mage (F)";
+			case TROUBADOUR: return "Troubadour";
+			case PEGASUS_KNIGHT: return "Pegasus Knight";
+			case DANCER: return "Dancer";
+			case SWORDMASTER_F: return "Swordmaster (F)";
+			case SNIPER_F: return "Sniper (F)";
+			case BISHOP_F: return "Bishop (F)";
+			case SAGE_F: return "Sage (F)";
+			case PALADIN_F: return "Paladin (F)";
+			case VALKYRIE: return "Valkyrie";
+			case FALCON_KNIGHT: return "Falcon Knight";
+			case WYVERN_LORD_F: return "Wyvern Lord (F)";
+			case LORD_KNIGHT: return "Lord Knight";
+			case GREAT_LORD: return "Great Lord";
+			case UBER_SAGE: return "Sage (F) (Uber)";
+			default: return toString();
+			}
 		}
 
 		public Boolean isLord() {
@@ -3250,6 +3394,12 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	public Set<GBAFECharacter> allPlayableCharacters() {
 		return new HashSet<GBAFECharacter>(Character.allPlayableCharacters);
 	}
+	
+	public Set<GBAFECharacter> allCanonicalPlayableCharacters() {
+		return new HashSet<GBAFECharacter>(allPlayableCharacters().stream().filter(character -> {
+			return Character.canonicalIDForCharacterID(character.getID()) == character.getID();
+		}).toList());
+	}
 
 	public Set<GBAFECharacter> allBossCharacters() {
 		return new HashSet<GBAFECharacter>(Character.allBossCharacters);
@@ -3356,6 +3506,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public boolean isValidCharacter(GBAFECharacter character) {
 		return character != Character.NONE;
+	}
+	
+	public boolean canModifyCharacter(GBAFECharacter character) {
+		return character.canChange();
 	}
 	
 	public GBAFECharacter nullCharacter() {
@@ -3470,6 +3624,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		Set<GBAFEClass> classes = new HashSet<GBAFEClass>(CharacterClass.allPlayerOnlyClasses);
 		return classes;
 	}
+	
+	public Set<GBAFEClass> disabledByDefaultClasses() {
+		return new HashSet<GBAFEClass>();
+	}
 
 	public GBAFEClass classWithID(int classID) {
 		return CharacterClass.valueOf(classID);
@@ -3483,6 +3641,10 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		
 		return false;
+	}
+	
+	public boolean isClassPromoted(GBAFEClass charClass) {
+		return CharacterClass.allPromotedClasses.contains(charClass);
 	}
 	
 	public boolean canClassPromote(GBAFEClass charClass) {
@@ -4134,6 +4296,18 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		}
 		return item;
 	}
+	
+	public GBAFEItemData duplicateItem(GBAFEItemData originalItem, int newID) {
+		if (originalItem.getClass() == FE7Item.class) {
+			FE7Item duplicated = new FE7Item(originalItem.getData(), -1);
+			duplicated.setID(newID);
+			duplicated.initializeDisplayString("[DUPLICATED] " + Item.valueOf(duplicated.getID()).toString());
+			return duplicated;
+		} else {
+			System.err.println("Attempted to duplicate FE7Item with non-FE7 item.");
+			return null;
+		}
+	}
 
 	public List<GBAFEClass> knightCavEffectivenessClasses() {
 		return new ArrayList<GBAFEClass>(Arrays.asList(
@@ -4432,4 +4606,8 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	}
 	
 	public Boolean isMapShop(GBAFEShop shop) { return false; }
+
+	public Set<GBAFEClass> similarClassesTo(GBAFEClass charClass) {
+		return ((CharacterClass)charClass).similarClasses();
+	}
 }

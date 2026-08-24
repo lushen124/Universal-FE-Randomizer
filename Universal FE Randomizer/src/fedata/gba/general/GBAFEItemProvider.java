@@ -83,6 +83,7 @@ public interface GBAFEItemProvider {
 	public AdditionalData effectivenessPointerType(long effectivenessPtr);
 	
 	public GBAFEItemData itemDataWithData(byte[] data, long offset);
+	public GBAFEItemData duplicateItem(GBAFEItemData originalItem, int newID);
 	
 	public List<GBAFEClass> knightCavEffectivenessClasses();
 	public List<GBAFEClass> knightEffectivenessClasses();
@@ -100,5 +101,4 @@ public interface GBAFEItemProvider {
 	public int numberOfAnimations();
 	public int bytesPerAnimation();
 	public GBAFESpellAnimationCollection spellAnimationCollectionAtAddress(byte[] data, long offset);
-
 }

@@ -26,6 +26,9 @@ import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
 import ui.model.EnemyOptions.BossStatMode;
 import ui.model.ItemAssignmentOptions.ShopAdjustment;
 import ui.model.ItemAssignmentOptions.WeaponReplacementPolicy;
+import ui.model.gba.AdvancedPlayerClassOptions;
+import ui.model.gba.EnemyClassOptions;
+import ui.views.components.ListDisplayable;
 import util.*;
 import util.recordkeeper.RecordKeeper;
 
@@ -47,7 +50,8 @@ public class GBARandomizer extends Randomizer {
 	
 	private GrowthOptions growths;
 	private BaseOptions bases;
-	private ClassOptions classes;
+	private AdvancedPlayerClassOptions playerClasses;
+	private EnemyClassOptions enemyClasses;
 	private WeaponOptions weapons;
 	private OtherCharacterOptions otherCharacterOptions;
 	private StatboosterOptions statboosterOptions;
@@ -87,7 +91,7 @@ public class GBARandomizer extends Randomizer {
 	private boolean fe8_walkingSoundFixApplied = false;
 
 	public GBARandomizer(String sourcePath, String targetPath, FEBase.GameType gameType, DiffCompiler diffs, 
-			GrowthOptions growths, BaseOptions bases, ClassOptions classes, WeaponOptions weapons,
+			GrowthOptions growths, BaseOptions bases, AdvancedPlayerClassOptions playerClasses, EnemyClassOptions enemyClasses, WeaponOptions weapons,
 			OtherCharacterOptions other, EnemyOptions enemies, GameMechanicOptions otherOptions,
 			RecruitmentOptions recruit, ItemAssignmentOptions itemAssign, CharacterShufflingOptions shufflingOptions, StatboosterOptions statboosterOptions, 
 			RewardOptions rewards, PrfOptions prfs, ShopOptions shopOptions, String seed) {
@@ -100,7 +104,8 @@ public class GBARandomizer extends Randomizer {
 		
 		this.growths = growths;
 		this.bases = bases;
-		this.classes = classes;
+		this.playerClasses = playerClasses;
+		this.enemyClasses = enemyClasses;
 		this.weapons = weapons;
 		otherCharacterOptions = other;
 		this.enemies = enemies;
@@ -512,23 +517,25 @@ public class GBARandomizer extends Randomizer {
 	}
 	
 	private void randomizeClassesIfNecessary(String seed) {
-		if (classes != null) {
-			if (classes.randomizePCs) {
-				updateStatusString("Randomizing player classes...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 1));
-				ClassRandomizer.randomizePlayableCharacterClasses(classes, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, textData, rng);
-				needsPaletteFix = true;
-			}
-			if (classes.randomizeEnemies) {
-				updateStatusString("Randomizing minions...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 2));
-				ClassRandomizer.randomizeMinionClasses(classes, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, rng);
-			}
-			if (classes.randomizeBosses) {
+		if (playerClasses != null && playerClasses.randomizePlayableCharacters) {
+			updateStatusString("Randomizing player classes...");
+			Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 4));
+			ClassRandomizer.randomizePlayableCharacterClasses(playerClasses, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, textData, rng);
+			needsPaletteFix = true;
+		}
+		
+		if (enemyClasses != null) {
+			if (enemyClasses.randomizeBosses) {
 				updateStatusString("Randomizing boss classes...");
-				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 3));
-				ClassRandomizer.randomizeBossCharacterClasses(classes, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, textData, rng);
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 5));
+				ClassRandomizer.randomizeBossCharacterClasses(enemyClasses, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, textData, rng);
 				needsPaletteFix = true;
+			}
+			
+			if (enemyClasses.randomizeMinions) {
+				updateStatusString("Randomizing minions...");
+				Random rng = new Random(SeedGenerator.generateSeedValue(seed, ClassRandomizer.rngSalt + 6));
+				ClassRandomizer.randomizeMinionClasses(null, itemAssignmentOptions, gameType, charData, classData, chapterData, itemData, rng);
 			}
 		}
 	}
@@ -908,7 +915,8 @@ public class GBARandomizer extends Randomizer {
 			// Fix up the portraits in mode select, since they're hardcoded.
 			// Only necessary if we randomized recruitment.
 			// All of the data should have been commited at this point, so asking for Lyn will get you the Lyn replacement.
-			if ((recruitOptions != null && recruitOptions.includeLords) || (classes != null && classes.includeLords)) {
+			if ((recruitOptions != null && recruitOptions.includeLords) || 
+					(playerClasses != null && playerClasses.randomizedCharacterIDs.stream().anyMatch(characterID -> charData.isLordCharacterID(characterID)))) {
 				GBAFECharacterData lyn = charData.characterWithID(FE7Data.Character.LYN.ID);
 				GBAFECharacterData eliwood = charData.characterWithID(FE7Data.Character.ELIWOOD.ID);
 				GBAFECharacterData hector = charData.characterWithID(FE7Data.Character.HECTOR.ID);
@@ -1610,7 +1618,8 @@ public class GBARandomizer extends Randomizer {
 								// Replace any Rapiers with iron swords, since we need to reuse the same lock.
 								if (unit.hasItem(FE6Data.Item.RAPIER.ID)) {
 									unit.removeItem(FE6Data.Item.RAPIER.ID);
-									unit.giveItems(new int[] {FE6Data.Item.IRON_SWORD.ID}, itemData);								}
+									unit.giveItems(new int[] {FE6Data.Item.IRON_SWORD.ID}, itemData);
+								}
 							}
 						}
 					}
@@ -1770,7 +1779,7 @@ public class GBARandomizer extends Randomizer {
 					
 					textData.setStringAtIndex(0x1225, lynWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.MANI_KATTI.ID);
-					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, 0x9F, 0x1225, 0x0, 
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, itemData.consumeAppendedItemID(), 0x1225, 0x0, 
 							lynSelectedType, unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 
 							0xAD, itemData, freeSpace);
 					
@@ -1852,7 +1861,7 @@ public class GBARandomizer extends Randomizer {
 					
 					textData.setStringAtIndex(0x1227, eliwoodWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.RAPIER.ID);
-					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, 0xA0, 0x1227, 0x0, 
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, itemData.consumeAppendedItemID(), 0x1227, 0x0, 
 							eliwoodSelectedType, unbreakablePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 
 							0xAE, itemData, freeSpace);
 					
@@ -1955,7 +1964,7 @@ public class GBARandomizer extends Randomizer {
 					
 					textData.setStringAtIndex(0x1229, hectorWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.WOLF_BEIL.ID);
-					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, 0xA1, 0x1229, 0x0, 
+					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, itemData.consumeAppendedItemID(), 0x1229, 0x0, 
 							hectorSelectedType, unbreakablePrfs, hectorClass.getCON() + hector.getConstitution(), 
 							0xAF, itemData, freeSpace);
 					
@@ -2779,89 +2788,63 @@ public class GBARandomizer extends Randomizer {
 				rk.addHeaderItem("Add Random Effects", "NO");
 			}
 		}
-		if(classes != null) {
-			if (classes.randomizePCs) {
-				StringBuilder sb = new StringBuilder();
+		if (playerClasses != null) {
+			if (playerClasses.randomizePlayableCharacters) {
+				rk.addHeaderItem("Randomize Playable Character Classes", "YES");
 				
-				if (classes.includeLords) {
-					sb.append("Include Lords<br>");
-				}
-				if (classes.includeThieves) {
-					sb.append("Include Thieves<br>");
-				}
-				if (classes.includeSpecial) {
-					sb.append("Include Special Classes<br>");
-				}
-				if (classes.assignEvenly) {
-					sb.append("Assign Evenly<br>");
-				}
-				if (sb.length() > 4) {
-					sb.delete(sb.length() - 4, sb.length());
-				}
-				if (sb.length() == 0) { sb.append("YES"); }
-				rk.addHeaderItem("Randomize Playable Character Classes", sb.toString());
+				List<String> randomizedCharacters = playerClasses.randomizedCharacterIDs.stream()
+						.map(characterID -> gameType.charProvider().characterWithID(characterID).displayName())
+						.sorted(String.CASE_INSENSITIVE_ORDER)
+						.toList();
+				rk.addHeaderItem("Randomized Characters", String.join(", ", randomizedCharacters));
 				
-				switch (classes.growthOptions) {
+				List<String> allowedClasses = playerClasses.allowedClassIDs.stream()
+						.map(classID -> gameType.classProvider().classWithID(classID).displayName())
+						.sorted(String.CASE_INSENSITIVE_ORDER)
+						.toList();
+				rk.addHeaderItem("Allowed Classes", String.join(", ", allowedClasses));
+				
+				rk.addHeaderItem("Distribute Classes Evenly", playerClasses.assignEvenly ? "YES" : "NO");
+				rk.addHeaderItem("Force Class Change", playerClasses.forceChange ? "YES" : "NO");
+				if (playerClasses.assignEvenly || playerClasses.forceChange) {
+					rk.addHeaderItem("Treat Similar Classes as Same", playerClasses.treatSimilarAsSame ? "YES": "NO");
+				}
+				switch (playerClasses.growthAdjustments) {
 				case NO_CHANGE:
-					rk.addHeaderItem("Growth Transfer Option", "No Change");
+					rk.addHeaderItem("Randomize Classes: Growth Adjustment", "No Adjustment");
 					break;
 				case TRANSFER_PERSONAL_GROWTHS:
-					rk.addHeaderItem("Growth Transfer Option", "Transfer Personal Growths");
-					break;
-				case CLASS_RELATIVE_GROWTHS:
-					rk.addHeaderItem("Growth Transfer Option", "Class Relative Growths");
+					rk.addHeaderItem("Randomize Classes: Growth Adjustment", "Transfer Personal Growths");
 					break;
 				}
-			} else {
-				rk.addHeaderItem("Randomize Playable Character Classes", "NO");
-			}
-			if (classes.randomizeBosses) {
-				rk.addHeaderItem("Randomize Boss Classes", "YES");
-			} else {
-				rk.addHeaderItem("Randomize Boss Classes", "NO");
-			}
-			if (classes.randomizeEnemies) {
-				rk.addHeaderItem("Randomize Minions", "YES");
-			} else {
-				rk.addHeaderItem("Randomize Minions", "NO");
-			}
-			if (classes.randomizePCs || classes.randomizeBosses) {
-				switch (classes.basesTransfer) {
+				switch (playerClasses.transferBases) {
 				case NO_CHANGE:
-					rk.addHeaderItem("Base Stats Transfer Mode", "Retain Personal Bases");
+					rk.addHeaderItem("Randomize Classes: Bases Transfer", "Retain Personal Bases");
 					break;
 				case ADJUST_TO_MATCH:
-					rk.addHeaderItem("Base Stats Transfer Mode", "Retain Final Bases");
+					rk.addHeaderItem("Randomize Classes: Bases Transfer", "Retain Final Bases");
 					break;
 				case ADJUST_TO_CLASS:
-					rk.addHeaderItem("Base Stats Transfer Mode", "Adjust to Class");
+					rk.addHeaderItem("Randomize Classes: Bases Transfer", "Adjust to Class");
 					break;
 				}
-			}
-			if (classes.forceChange) {
-				rk.addHeaderItem("Force Class Change", "YES");
-			} else {
-				rk.addHeaderItem("Force Class Change", "NO");
-			}
-			switch (classes.genderOption) {
-			case NONE:
-				rk.addHeaderItem("Gender Restriction", "None");
-				break;
-			case LOOSE:
-				rk.addHeaderItem("Gender Restriction", "Loose");
-				break;
-			case STRICT:
-				rk.addHeaderItem("Gender Restriction", "Strict");
-				break;
-			}
-			if (gameType == GameType.FE8) {
-				if (classes.separateMonsters) {
-					rk.addHeaderItem("Mix Monster and Human Classes", "NO");
-				} else {
-					rk.addHeaderItem("Mix Monster and Human Classes", "YES");
+				switch (playerClasses.restrictGender) {
+				case NONE:
+					rk.addHeaderItem("Randomize Classes: Gender Restrictions", "No Restriction");
+					break;
+				case LOOSE:
+					rk.addHeaderItem("Randomize Classes: Gender Restrictions", "Loose Restriction");
+					break;
+				case STRICT:
+					rk.addHeaderItem("Randomize Classes: Gender Restrictions", "Strict Restriction");
+					break;
 				}
+				
 			}
-			
+		}
+		if (enemyClasses != null) {
+			rk.addHeaderItem("Randomize Boss Classes", enemyClasses.randomizeBosses ? "YES" : "NO");
+			rk.addHeaderItem("Randomize Minion Classes", enemyClasses.randomizeMinions ? "YES (" + enemyClasses.minionChance + "%)" : "NO");
 		}
 		if(enemies != null) {
 			switch (enemies.minionMode) {
