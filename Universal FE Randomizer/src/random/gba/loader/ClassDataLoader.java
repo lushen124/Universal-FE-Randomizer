@@ -257,6 +257,9 @@ public class ClassDataLoader {
 				freeSpace.setValue(charClass.getData(), "Added Class Data for Class 0x" + Integer.toHexString(charClass.getID()));
 			}
 			
+			// Add one empty separator item
+			freeSpace.setValue(WhyDoesJavaNotHaveThese.byteArrayByRepeatingBytes(new byte[] {0x00}, provider.bytesPerClass()), "ClassRepointBuffer");
+			
 			// Update the pointers to this table.
 			compiler.findAndReplace(new FindAndReplace(WhyDoesJavaNotHaveThese.gbaAddressFromOffset(startingOffset), WhyDoesJavaNotHaveThese.gbaAddressFromOffset(newStartingOffset), true));
 		}

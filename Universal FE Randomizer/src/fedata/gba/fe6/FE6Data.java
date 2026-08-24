@@ -84,6 +84,13 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
     //public static final long DefaultChapterMetadataArrayOffset = 0x6637A4;
     public static final int BytesPerChapterMetadata = 68;
 
+    // We're using the unused Demon Stone object to implement the Personal lord weapon.
+    // This is the only item we have that is unused, but still has spell animations enabled in all cases.
+    // Downside is that Thieves will steal this (with a pretty high priority too).
+    // We need to remove this item from their steal priority.
+    // Each entry is 2 bytes long with the first byte being the item ID (and the second being 00s).
+    // Remove the Demon Stone and shift everything up. The terminal item is FF FF.
+    public static final long ThiefAIStealableTableOffset = 0x5C8834L;
 	
 	public static final long PromotionItemTablePointer = 0x237AC; // Hero's Crest (0), Knights Crest (1), Orion Bolt (2), Elysian Whip (3), Guiding Ring (8)
 	
@@ -1145,11 +1152,11 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		HEAL(0x43), MEND(0x44), RECOVER(0x45), PHYSIC(0x46), FORTIFY(0x47), WARP(0x48), RESCUE(0x49), RESTORE(0x4A), SILENCE(0x4B), SLEEP(0x4C),
 		TORCH_STAFF(0x4D), HAMMERNE(0x4E), BERSERK(0x50), UNLOCK(0x51), BARRIER(0x52), TINA_STAFF(0x76), HOLY_MAIDEN(0x77),
 		
-		UNUSED_WATCH_STAFF(0x4F), // Will be used for lord weapon, if necessary.
-		UNUSED_DEMON_STONE(0x55),
-		UNUSED_BRIDGE_KEY(0x66),
+		UNUSED_WATCH_STAFF(0x4F), // Spell Animation won't work sometimes
+		UNUSED_DEMON_STONE(0x55), // Will be used for lord weapon, if necessary. Stealable by default, so we have to update the steal AI table.
+		UNUSED_BRIDGE_KEY(0x66), // Spell Animation won't work
 		
-		FIRE_DRAGON_STONE(0x53), DIVINE_DRAGON_STONE(0x54), MAGIC_DRAGON_STONE(0x55),
+		FIRE_DRAGON_STONE(0x53), DIVINE_DRAGON_STONE(0x54), /*MAGIC_DRAGON_STONE(0x55),*/
 		
 		SECRET_BOOK(0x56), GODDESS_ICON(0x57), ANGELIC_ROBE(0x58), DRAGON_SHIELD(0x59), ENERGY_RING(0x5A), SPEEDWING(0x5B), TALISMAN(0x5C), BOOTS(0x5D), BODY_RING(0x5E),
 		

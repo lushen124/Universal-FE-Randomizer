@@ -26,7 +26,6 @@ public class GBAStatsTab extends YuneTabGridItem {
     private GrowthsView growths;
     private BasesView bases;
     private MOVCONAffinityView movConAffinity;
-    private EnemyBuffsView enemies;
 
     public GBAStatsTab(CTabFolder parent, GameType type) {
         super(parent, type);
@@ -35,11 +34,9 @@ public class GBAStatsTab extends YuneTabGridItem {
     @Override
     protected void compose() {
         growths = addView(new GrowthsView(container, type.hasSTRMAGSplit(), true));
-        enemies = addView(new EnemyBuffsView(container));
-        setViewData(enemies, 1, 2);
+        bases = addView(new BasesView(container, type));
         movConAffinity = addView(new MOVCONAffinityView(container));
         setViewData(movConAffinity, 1, 2);
-        bases = addView(new BasesView(container, type));
     }
 
     @Override
@@ -62,7 +59,6 @@ public class GBAStatsTab extends YuneTabGridItem {
         growths.initialize(bundle.growths);
         bases.initialize(bundle.bases);
         movConAffinity.initialize(bundle.other);
-        enemies.initialize(bundle.enemies);
     }
 
     @Override
@@ -70,6 +66,5 @@ public class GBAStatsTab extends YuneTabGridItem {
         bundle.growths = growths.getOptions();
         bundle.bases = bases.getOptions();
         bundle.other = movConAffinity.getOptions();
-        bundle.enemies = enemies.getOptions();
     }
 }

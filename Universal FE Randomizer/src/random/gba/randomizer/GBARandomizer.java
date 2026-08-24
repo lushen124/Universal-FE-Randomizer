@@ -1546,14 +1546,34 @@ public class GBARandomizer extends Randomizer {
 						if (iconData == null) {
 							notifyError("Invalid image data for icon " + iconName);
 						}
-						diffCompiler.addDiff(new Diff(0xFC400, iconData.length, iconData, null));
+						diffCompiler.addDiff(new Diff(0xFC700, iconData.length, iconData, null));
 						
 						// We're going to reuse some indices already used by the watch staff. While the name's index isn't available, both its
 						// description and use item description are available.
 						textData.setStringAtIndex(0x5FE, weaponName + "[X]");
 						// TODO: Maybe give it a description string?
 						
-						GBAFEItemData itemToReplace = itemData.itemWithID(FE6Data.Item.UNUSED_WATCH_STAFF.ID);
+						// Remove this item from the thief AI steal table.
+						List<Byte> stealData = new ArrayList<Byte>();
+						handler.setNextReadOffset(FE6Data.ThiefAIStealableTableOffset);
+						byte[] currentItem;
+						do {
+							currentItem = handler.continueReadingBytes(2);
+							if (currentItem[0] == (byte)FE6Data.Item.UNUSED_DEMON_STONE.ID) {
+								// Skip this item.
+							} else {
+								stealData.add(currentItem[0]);
+								stealData.add(currentItem[1]);
+							}
+						} while (currentItem[0] != (byte)0xFF && currentItem[1] != (byte)0xFF);
+						byte[] newStealData = new byte[stealData.size()];
+						for (int i = 0; i < stealData.size(); i++) {
+							newStealData[i] = stealData.get(i);
+						}
+						diffCompiler.addDiff(new Diff(FE6Data.ThiefAIStealableTableOffset, newStealData.length, newStealData, null));
+						
+						
+						GBAFEItemData itemToReplace = itemData.itemWithID(FE6Data.Item.UNUSED_DEMON_STONE.ID);
 						itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, unbreakablePrfs, royClass.getCON() + roy.getConstitution(), 
 								itemData.itemWithID(FE6Data.Item.RAPIER.ID), itemData, freeSpace);
 						

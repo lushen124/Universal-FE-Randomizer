@@ -151,7 +151,7 @@ public class ClassRandomizer {
 			
 			if (classPool.possibleResults().stream().anyMatch(charClass -> isClassValidForCharacter(character, originalClass, charClass, charactersData, classData, finalOptions)) == false) {
 				if (isPromoted) { classPool.addAll(promotedClassList); }
-				else { classPool.addAll(promotedClassList); }
+				else { classPool.addAll(unpromotedClassList); }
 			}
 			
 			GBAFEClassData targetClass = null;

@@ -58,7 +58,7 @@ public class DualListSelectionView<T extends ListDisplayable> extends Composite 
 		leftData.sort((i1, i2) -> i1.displayString().compareTo(i2.displayString()));
 		rightData.sort((i1, i2) -> i1.displayString().compareTo(i2.displayString()));
 		
-		leftList = new List(this, SWT.SINGLE);
+		leftList = new List(this, SWT.SINGLE | SWT.V_SCROLL);
 		leftData.forEach(item -> leftList.add(item.displayString()));
 		leftList.addSelectionListener(new SelectionListener() {
 			@Override
@@ -77,7 +77,7 @@ public class DualListSelectionView<T extends ListDisplayable> extends Composite 
 		listData.height = 150;
 		leftList.setLayoutData(listData);
 		
-		rightList = new List(this, SWT.SINGLE);
+		rightList = new List(this, SWT.SINGLE | SWT.V_SCROLL);
 		rightData.forEach(item -> rightList.add(item.displayString()));
 		rightList.addSelectionListener(new SelectionListener() {
 			@Override

@@ -420,8 +420,8 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		});
 		
 		FormData buttonData = new FormData();
-		buttonData.left = new FormAttachment(0, 0);
-		buttonData.top = new FormAttachment(0, 0);
+		buttonData.left = new FormAttachment(0, 5);
+		buttonData.top = new FormAttachment(0, 5);
 		evenDistribution.setLayoutData(buttonData);
 		
 		forceChange = new Button(otherOptionsComposite, SWT.CHECK);
@@ -435,7 +435,7 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		});
 		
 		buttonData = new FormData();
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.left = new FormAttachment(0, 5);
 		buttonData.top = new FormAttachment(evenDistribution, 10);
 		forceChange.setLayoutData(buttonData);
 		
@@ -444,7 +444,7 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		treatSimilarAsSame.setToolTipText("Classes of different gender (e.g. Male vs. Female Archers) are treated as the same class.\nThis only has an effect when forcing class changes or distributing classes evenly.");
 		
 		buttonData = new FormData();
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.left = new FormAttachment(0, 5);
 		buttonData.top = new FormAttachment(forceChange, 10);
 		treatSimilarAsSame.setLayoutData(buttonData);
 		
@@ -465,8 +465,8 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		growthNoAdjustments.setSelection(true);
 		
 		buttonData = new FormData();
-		buttonData.top = new FormAttachment(0, 0);
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.top = new FormAttachment(0, 5);
+		buttonData.left = new FormAttachment(0, 5);
 		growthNoAdjustments.setLayoutData(buttonData);
 		
 		growthTransferPersonalGrowths = new Button(growthOptions, SWT.RADIO);
@@ -475,7 +475,8 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		
 		buttonData = new FormData();
 		buttonData.top = new FormAttachment(growthNoAdjustments, 5);
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.left = new FormAttachment(0, 5);
+		buttonData.bottom = new FormAttachment(100, -5);
 		growthTransferPersonalGrowths.setLayoutData(buttonData);
 		
 		Group basesOptionsGroup = new Group(otherOptionsComposite, SWT.SHADOW_ETCHED_IN);
@@ -494,8 +495,8 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		basesRetainPersonal.setToolTipText("Do not modify personal bases. Character's base stats will change depending on the difference between old and new class's base stats.");
 		
 		buttonData = new FormData();
-		buttonData.top = new FormAttachment(0, 0);
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.top = new FormAttachment(0, 5);
+		buttonData.left = new FormAttachment(0, 5);
 		basesRetainPersonal.setLayoutData(buttonData);
 		
 		basesRetainFinal = new Button(basesOptions, SWT.RADIO);
@@ -505,7 +506,7 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		
 		buttonData = new FormData();
 		buttonData.top = new FormAttachment(basesRetainPersonal, 5);
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.left = new FormAttachment(0, 5);
 		basesRetainFinal.setLayoutData(buttonData);
 		
 		basesAdjustToClass = new Button(basesOptions, SWT.RADIO);
@@ -514,7 +515,8 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		
 		buttonData = new FormData();
 		buttonData.top = new FormAttachment(basesRetainFinal, 5);
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.left = new FormAttachment(0, 5);
+		buttonData.bottom = new FormAttachment(100, -5);
 		basesAdjustToClass.setLayoutData(buttonData);
 		
 		Group genderGroup = new Group(otherOptionsComposite, SWT.SHADOW_ETCHED_IN);
@@ -526,6 +528,7 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		compositeData.top = new FormAttachment(basesOptions, 10);
 		compositeData.left = new FormAttachment(0, 5);
 		compositeData.right = new FormAttachment(100, -5);
+		compositeData.bottom = new FormAttachment(100, -5);
 		genderOptions.setLayoutData(compositeData);
 		
 		genderNoRestriction = new Button(genderOptions, SWT.RADIO);
@@ -534,8 +537,8 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		genderNoRestriction.setSelection(true);
 		
 		buttonData = new FormData();
-		buttonData.top = new FormAttachment(0, 0);
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.top = new FormAttachment(0, 5);
+		buttonData.left = new FormAttachment(0, 5);
 		genderNoRestriction.setLayoutData(buttonData);
 		
 		genderLoose = new Button(genderOptions, SWT.RADIO);
@@ -544,7 +547,7 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		
 		buttonData = new FormData();
 		buttonData.top = new FormAttachment(genderNoRestriction, 5);
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.left = new FormAttachment(0, 5);
 		genderLoose.setLayoutData(buttonData);
 		
 		genderStrict = new Button(genderOptions, SWT.RADIO);
@@ -553,7 +556,8 @@ public class GBAAdvancedClassesView extends YuneView<AdvancedPlayerClassOptions>
 		
 		buttonData = new FormData();
 		buttonData.top = new FormAttachment(genderLoose, 5);
-		buttonData.left = new FormAttachment(0, 0);
+		buttonData.left = new FormAttachment(0, 5);
+		buttonData.bottom = new FormAttachment(100, -5);
 		genderStrict.setLayoutData(buttonData);
 	}
 }
