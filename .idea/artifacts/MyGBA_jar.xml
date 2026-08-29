@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact name="MyGBA:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MyGBA_jar</output-path>
+    <root id="root">
+      <element id="archive" name="MyGBA.jar">
+        <element id="module-output" name="MyGBA" />
+      </element>
+      <element id="library" level="project" name="Maven: org.eclipse.platform:org.eclipse.swt:3.129.0" />
+      <element id="library" level="project" name="Maven: com.google.errorprone:error_prone_annotations:2.38.0" />
+      <element id="library" level="project" name="Maven: com.google.code.gson:gson:2.13.1" />
+      <element id="library" level="project" name="Maven: org.eclipse.platform:org.eclipse.swt.gtk.linux.x86_64:3.129.0" />
+    </root>
+  </artifact>
+</component>

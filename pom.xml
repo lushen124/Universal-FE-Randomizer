@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.github.lushen124</groupId>
+    <artifactId>universal-fe-randomizer</artifactId>
+    <version>0.9.21</version>
+
+    <name>Universal FE Randomizer</name>
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <repositories>
+    <repository>
+        <id>jboss-maven2</id>
+        <name>JBoss Repository</name>
+        <url>https://maven.artifacts.atlassian.com/</url>
+    </repository>
+        <repository>
+            <id>eclipse-p2</id>
+            <url>https://download.eclipse.org/releases/latest</url>
+        </repository>
+    </repositories>
+
+<!--    <dependencies>-->
+<!--        <dependency>-->
+<!--            <groupId>org.eclipse.swt</groupId>-->
+<!--            <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>-->
+<!--            <version>4.3</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.eclipse.platform</groupId>-->
+<!--            <artifactId>org.eclipse.swt</artifactId>-->
+<!--            <version>3.129.0</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.google.code.gson</groupId>-->
+<!--            <artifactId>gson</artifactId>-->
+<!--            <version>2.13.1</version>-->
+<!--        </dependency>-->
+<!--    </dependencies>-->
+    <dependencies>
+        <dependency>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+            <version>3.129.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.13.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>--add-exports</arg>
+                        <arg>java.naming/com.sun.jndi.ldap.pool=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                    <fork>true</fork>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: application.Main
+Class-Path: org.eclipse.swt-3.129.0.jar error_prone_annotations-2.38.0.j
+ ar gson-2.13.1.jar org.eclipse.swt.gtk.linux.x86_64-3.129.0.jar
+
