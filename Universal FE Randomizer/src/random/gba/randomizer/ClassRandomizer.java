@@ -1389,6 +1389,57 @@ public class ClassRandomizer {
 		item3 = itemData.itemWithID(chapterUnit.getItem3());
 		item4 = itemData.itemWithID(chapterUnit.getItem4());
 		
+		// Verify ranks. Increase ranks as needed if not specified.
+		WeaponRanks characterRanks = character.getWeaponRanks();
+		boolean didUpdateRanks = false;
+		if (characterRanks.getHighestRank() != null) {
+			if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
+				WeaponType weaponType = item1.getType();
+				WeaponRank weaponRank = item1.getWeaponRank();
+				
+				WeaponRank typeRank = characterRanks.rankForType(weaponType);
+				if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
+					characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
+					didUpdateRanks = true;
+				}
+			}
+			if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
+				WeaponType weaponType = item2.getType();
+				WeaponRank weaponRank = item2.getWeaponRank();
+				
+				WeaponRank typeRank = characterRanks.rankForType(weaponType);
+				if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
+					characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
+					didUpdateRanks = true;
+				}
+			}
+			if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
+				WeaponType weaponType = item3.getType();
+				WeaponRank weaponRank = item3.getWeaponRank();
+				
+				WeaponRank typeRank = characterRanks.rankForType(weaponType);
+				if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
+					characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
+					didUpdateRanks = true;
+				}
+			}
+			if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
+				WeaponType weaponType = item4.getType();
+				WeaponRank weaponRank = item4.getWeaponRank();
+				
+				WeaponRank typeRank = characterRanks.rankForType(weaponType);
+				if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
+					characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
+					didUpdateRanks = true;
+				}
+			}
+			
+			if (didUpdateRanks) {
+				DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Updated character " + character.displayString() + "'s weapon ranks from " + character.getWeaponRanks().debugString() + " to " + characterRanks.debugString());
+				character.setWeaponRanks(characterRanks);
+			}
+		}
+		
 		DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Final Inventory: [0x" + Integer.toHexString(newItem1ID) + (item1 == null ? "" : " (" + textData.getStringAtIndex(item1.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(newItem2ID) + (item2 == null ? "" : " (" + textData.getStringAtIndex(item2.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(newItem3ID) + (item3 == null ? "" : " (" + textData.getStringAtIndex(item3.getNameIndex(), true) + ")") + ", 0x" + Integer.toHexString(newItem4ID) + (item4 == null ? "" : " (" + textData.getStringAtIndex(item4.getNameIndex(), true) + ")") + "]");
 	}
 	

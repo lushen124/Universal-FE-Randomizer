@@ -37,17 +37,25 @@ public class BasesRandomizer {
 			GBAFEStatDto classBaseline = new GBAFEStatDto(characterClass.getBases());
 			// Use a mix of the class's bases and the character's growths (character growths are randomized before this step, so they may not be in line
 			// with the class).
-			GBAFEStatDto characterBaseline = GBAFEStatDto.expectedValueLevel(classBaseline, character.getGrowths(), startingLevel - 1, rng);
+			// Add some phantom levels in so your starting units at level 1 aren't guaranteed class bases.
+			// The range of this decreases as the starting level increases.
+			// At level 1 - 5, they can receive between 2 and 4 levels.
+			// At level 6 - 10, they can receive between 1 and 3 levels.
+			// Beyond that, they can receive between 0 and 2 levels.
+			int phantomLevels = rng.nextInt(2, 5);
+			if (startingLevel > 10) { phantomLevels -= 2; }
+			else if (startingLevel > 5) { phantomLevels -= 1; }
+			GBAFEStatDto characterBaseline = GBAFEStatDto.expectedValueLevel(classBaseline, character.getGrowths(), startingLevel - 1 + phantomLevels, rng);
 			
 			// Now we add a modifier based on how a character rolls.
 			// Class Base HP is pretty bad all around, so we'll skew this upward with a range between 0 and characters level or +5, whichever is greater.
 			// So a level 1 character will get a bonus of 0 ~ 5 and a level 10 character will get a bonus of 0 ~ 10
 			NormalDistributor hpDistributor = new NormalDistributor(0, Math.max(startingLevel, 5), 1);
-			// Most normal stats can range from -2 to +4
-			NormalDistributor statDistributor = new NormalDistributor(-2, 4, 1);
+			// The other stats can vary between -2 through to +6.
+			NormalDistributor statDistributor = new NormalDistributor(-2, 6, 1);
 			if (isPromoted) {
 				// Promoted class bases are so bad, we are going to shift the stat distributor for most stats upward to compensate.
-				statDistributor = new NormalDistributor(2, 8, 1);
+				statDistributor = new NormalDistributor(2, 10, 1);
 			}
 			// LCK is an absolute random.
 			// If the unit is unpromoted, this ranges from 0 to the higher of their level or 10.

@@ -162,6 +162,11 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		
 		return baseHP;
 	}
+	
+	public void setBaseHP(int newBaseHP) {
+		data[11] = (byte)(newBaseHP & 0xFF);
+		wasModified = true;
+	}
 
 	public int getBaseSTR() {
 		int baseSTR = data[12] & 0xFF;
@@ -170,6 +175,11 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		}
 		
 		return baseSTR;
+	}
+	
+	public void setBaseSTR(int newBaseSTR) {
+		data[12] = (byte)(newBaseSTR & 0xFF);
+		wasModified = true;
 	}
 
 	public int getBaseSKL() {
@@ -180,6 +190,11 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		
 		return baseSKL;
 	}
+	
+	public void setBaseSKL(int newBaseSKL) {
+		data[13] = (byte)(newBaseSKL & 0xFF);
+		wasModified = true;
+	}
 
 	public int getBaseSPD() {
 		int baseSPD = data[14] & 0xFF;
@@ -188,6 +203,11 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		}
 		
 		return baseSPD;
+	}
+	
+	public void setBaseSPD(int newBaseSPD) {
+		data[14] = (byte)(newBaseSPD & 0xFF);
+		wasModified = true;
 	}
 
 	public int getBaseDEF() {
@@ -198,6 +218,11 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		
 		return baseDEF;
 	}
+	
+	public void setBaseDEF(int newBaseDEF) {
+		data[15] = (byte)(newBaseDEF & 0xFF);
+		wasModified = true;
+	}
 
 	public int getBaseRES() {
 		int baseRES = data[16] & 0xFF;
@@ -207,6 +232,11 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		
 		return baseRES;
 	}
+	
+	public void setBaseRES(int newBaseRES) {
+		data[16] = (byte)(newBaseRES & 0xFF);
+		wasModified = true;
+	}
 
 	public int getBaseLCK() {
 		return 0;
@@ -215,6 +245,18 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 	
 	public GBAFEStatDto getBases() {
 		return new GBAFEStatDto(getBaseHP(), getBaseSTR(), getBaseSKL(), getBaseSPD(), getBaseDEF(), getBaseRES(), getBaseLCK());
+	}
+	
+	public void setBases(GBAFEStatDto newBases) {
+		if (newBases != null) {
+			setBaseHP(newBases.hp);
+			setBaseSTR(newBases.str);
+			setBaseSKL(newBases.skl);
+			setBaseSPD(newBases.spd);
+			setBaseDEF(newBases.def);
+			setBaseRES(newBases.res);
+			// Classes have no base luck.
+		}
 	}
 
 	public int getMaxHP() {

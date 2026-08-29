@@ -470,6 +470,15 @@ public class ClassDataLoader {
 		if (isFemale) { name = name + " (F)"; }
 		
 		if (isInitial) {
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Base HP", Integer.toString(charClass.getBaseHP()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Base STR/MAG", Integer.toString(charClass.getBaseSTR()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Base SKL", Integer.toString(charClass.getBaseSKL()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Base SPD", Integer.toString(charClass.getBaseSPD()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Base LCK", Integer.toString(charClass.getBaseLCK()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Base DEF", Integer.toString(charClass.getBaseDEF()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Base RES", Integer.toString(charClass.getBaseRES()));
+			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Base CON", Integer.toString(charClass.getCON()));
+			
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "HP Growth", String.format("%d%%", charClass.getHPGrowth()));
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "STR/MAG Growth", String.format("%d%%", charClass.getSTRGrowth()));
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "SKL Growth", String.format("%d%%", charClass.getSKLGrowth()));
@@ -480,6 +489,15 @@ public class ClassDataLoader {
 			
 			rk.recordOriginalEntry(RecordKeeperCategoryKey, name, "Movement Range", Integer.toString(charClass.getMOV()));
 		} else {
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Base HP", Integer.toString(charClass.getBaseHP()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Base STR/MAG", Integer.toString(charClass.getBaseSTR()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Base SKL", Integer.toString(charClass.getBaseSKL()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Base SPD", Integer.toString(charClass.getBaseSPD()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Base LCK", Integer.toString(charClass.getBaseLCK()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Base DEF", Integer.toString(charClass.getBaseDEF()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Base RES", Integer.toString(charClass.getBaseRES()));
+			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "Base CON", Integer.toString(charClass.getCON()));
+			
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "HP Growth", String.format("%d%%", charClass.getHPGrowth()));
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "STR/MAG Growth", String.format("%d%%", charClass.getSTRGrowth()));
 			rk.recordUpdatedEntry(RecordKeeperCategoryKey, name, "SKL Growth", String.format("%d%%", charClass.getSKLGrowth()));

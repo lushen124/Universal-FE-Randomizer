@@ -716,6 +716,23 @@ public class GBARandomizer extends Randomizer {
 		// Some characters have discrepancies between character data and chapter data. We'll try to address that before we get to any modifications.
 		charData.applyLevelCorrectionsIfNecessary();
 		
+		// At least for FE7 (need to double check other games), the promoted lord classes have really bad bases (the same kind of bases as unpromoted classes).
+		// Adjust for this by "autoleveling" the class bases by a few levels.
+		// No character naturally starts as these classes, so we don't need to account for any changes to named characters.
+		if (gameType == GameType.FE7) {
+			List<GBAFEClassData> classBasesToAutolevel = new ArrayList<GBAFEClassData>(List.of(
+					classData.classForID(FE7Data.CharacterClass.LORD_KNIGHT.ID),
+					classData.classForID(FE7Data.CharacterClass.BLADE_LORD.ID),
+					classData.classForID(FE7Data.CharacterClass.GREAT_LORD.ID)
+					));
+			classBasesToAutolevel.forEach(charClass -> {
+				GBAFEStatDto bases = charClass.getBases();
+				GBAFEStatDto classGrowths = charClass.getGrowths();
+				GBAFEStatDto newBases = GBAFEStatDto.expectedValueLevel(bases, classGrowths, 10, null);
+				charClass.setBases(newBases);	
+			});
+		}
+		
 		itemData.prepareForRandomization(gameType, diffCompiler);
 	}
 	

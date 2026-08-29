@@ -116,6 +116,17 @@ public class WeaponRanks {
         this(character, null);
     }
     
+    public WeaponRanks(WeaponRanks reference, WeaponType typeToOverride, WeaponRank rankToSet) {
+    	swordRank = typeToOverride == WeaponType.SWORD ? rankToSet : reference.swordRank;
+    	lanceRank = typeToOverride == WeaponType.LANCE ? rankToSet : reference.lanceRank;
+    	axeRank = typeToOverride == WeaponType.AXE ? rankToSet : reference.axeRank;
+    	bowRank = typeToOverride == WeaponType.BOW ? rankToSet : reference.bowRank;
+    	animaRank = typeToOverride == WeaponType.ANIMA ? rankToSet : reference.animaRank;
+    	lightRank = typeToOverride == WeaponType.LIGHT ? rankToSet : reference.lightRank;
+    	darkRank = typeToOverride == WeaponType.DARK ? rankToSet : reference.darkRank;
+    	staffRank = typeToOverride == WeaponType.STAFF ? rankToSet : reference.staffRank;
+    }
+    
     public WeaponRanks(GBAFECharacterData character, GBAFEClassData charClass, boolean roundToNearest, GameType type) {
     	WeaponRank sword = WeaponRank.valueOf(character.getSwordRank());
         WeaponRank lance = WeaponRank.valueOf(character.getLanceRank());

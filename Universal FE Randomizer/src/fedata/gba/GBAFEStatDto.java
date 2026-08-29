@@ -295,18 +295,21 @@ public class GBAFEStatDto {
 	 * If leveling up by 3, then the cumulative growth is 75%, so the result is +0 with a 75% chance of +1.
 	 * If leveling up by 5, then the cumulative growth is 125%, so the result is +1 with a 25% chance of +2.
 	 * If leveling up by 10, then the cumulative growth is 250%, so the result is +2 with a 50% chance of +3.
+	 * 
+	 * Alternatively, passing in a null Random object will cause this roll to always fail, essentially
+	 * "rounding down" the expected value.
 	 */
 	public static GBAFEStatDto expectedValueLevel(GBAFEStatDto bases, GBAFEStatDto growths, int numberOfLevels, Random rng) {
 		GBAFEStatDto cumulativeGrowths = growths.multipliedBy(numberOfLevels);
 		GBAFEStatDto workingStats = bases.addedWith(cumulativeGrowths.dividedBy(100, false));
 		GBAFEStatDto remainderGrowths = growths.remainderFor(100);
-		if (rng.nextInt(100) < remainderGrowths.hp) { workingStats.hp += 1; }
-		if (rng.nextInt(100) < remainderGrowths.str) { workingStats.str += 1; }
-		if (rng.nextInt(100) < remainderGrowths.skl) { workingStats.skl += 1; }
-		if (rng.nextInt(100) < remainderGrowths.spd) { workingStats.spd += 1; }
-		if (rng.nextInt(100) < remainderGrowths.def) { workingStats.def += 1; }
-		if (rng.nextInt(100) < remainderGrowths.res) { workingStats.res += 1; }
-		if (rng.nextInt(100) < remainderGrowths.lck) { workingStats.lck += 1; }
+		if (rng != null && rng.nextInt(100) < remainderGrowths.hp) { workingStats.hp += 1; }
+		if (rng != null && rng.nextInt(100) < remainderGrowths.str) { workingStats.str += 1; }
+		if (rng != null && rng.nextInt(100) < remainderGrowths.skl) { workingStats.skl += 1; }
+		if (rng != null && rng.nextInt(100) < remainderGrowths.spd) { workingStats.spd += 1; }
+		if (rng != null && rng.nextInt(100) < remainderGrowths.def) { workingStats.def += 1; }
+		if (rng != null && rng.nextInt(100) < remainderGrowths.res) { workingStats.res += 1; }
+		if (rng != null && rng.nextInt(100) < remainderGrowths.lck) { workingStats.lck += 1; }
 		return workingStats;
 	}
 	

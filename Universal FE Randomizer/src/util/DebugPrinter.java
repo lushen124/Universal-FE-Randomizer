@@ -70,7 +70,8 @@ public class DebugPrinter {
 //		case LZ77:
 //		case PALETTE:
 //		case PALETTE_RECYCLER:
-		case CHAPTER_LOADER:
+//		case CHAPTER_LOADER:
+		case CLASS_RANDOMIZER:
 			return true;
 //		case MAIN:
 //		case FE9_ARMY_LOADER:
