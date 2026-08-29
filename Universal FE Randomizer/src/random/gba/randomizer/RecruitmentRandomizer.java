@@ -431,7 +431,9 @@ public class RecruitmentRandomizer {
 			
 			// First, replace the description, and face
 			// The name is unnecessary because there's a text find/replace that we apply later.
-			linkedSlot.setDescriptionIndex(fill.getDescriptionIndex());
+			if (!options.keepDescriptions) {
+				linkedSlot.setDescriptionIndex(fill.getDescriptionIndex());
+			}
 			linkedSlot.setFaceID(fill.getFaceID());
 			
 			linkedSlot.setIsLord(characterData.isLordCharacterID(slotReference.getID()));

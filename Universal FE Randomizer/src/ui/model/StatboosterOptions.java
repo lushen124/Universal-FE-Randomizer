@@ -21,11 +21,12 @@ public class StatboosterOptions {
 	
 	public final boolean applyHpModifier;
 	public final int hpModifier;
+	public final boolean excludeMovConRandomization;
 	
 	
 	public StatboosterOptions(boolean enabled, StatboosterRandomizationModes mode,
 			int boostStrengthMin, int boostStrengthMax, int multipleStatsMin, int multipleStatsMax, boolean includeMov,
-			boolean includeCon, boolean applyHpModifier, int hpModifier) {
+			boolean includeCon, boolean applyHpModifier, int hpModifier, boolean excludeMovConRandomization) {
 		this.enabled = enabled;
 		this.mode = mode;
 		this.boostStrengthMin = boostStrengthMin;
@@ -36,6 +37,7 @@ public class StatboosterOptions {
 		this.includeCon = includeCon;
 		this.applyHpModifier = applyHpModifier;
 		this.hpModifier = hpModifier;
+		this.excludeMovConRandomization = excludeMovConRandomization;
 	}
 	
 	public void record(RecordKeeper rk) {

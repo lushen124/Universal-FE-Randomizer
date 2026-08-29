@@ -45,6 +45,7 @@ public class RecruitmentView extends YuneView<RecruitmentOptions> {
 	private Button specialButton;
 	
 	private Button crossGenderButton;
+	private Button keepDescriptions;
 	private Button includeExtras;
 	
 	public RecruitmentView(Composite parent, GameType type) {
@@ -91,6 +92,7 @@ public class RecruitmentView extends YuneView<RecruitmentOptions> {
 				
 				fillClassButton.setEnabled(enableButton.getSelection());
 				slotClassButton.setEnabled(enableButton.getSelection());
+				keepDescriptions.setEnabled(enableButton.getSelection());
 				
 				if (includeExtras != null) {
 					includeExtras.setEnabled(enableButton.getSelection());
@@ -328,7 +330,18 @@ public class RecruitmentView extends YuneView<RecruitmentOptions> {
 		optionData.left = new FormAttachment(specialButton, 0, SWT.LEFT);
 		optionData.top = new FormAttachment(specialButton, 5);
 		crossGenderButton.setLayoutData(optionData);
-		
+
+		keepDescriptions = new Button(group, SWT.CHECK);
+		keepDescriptions.setText("Keep descriptions");
+		keepDescriptions.setToolTipText("When selected the character descriptions will be left unchanged.");
+		keepDescriptions.setEnabled(false);
+		keepDescriptions.setSelection(false);
+
+		optionData = new FormData();
+		optionData.left = new FormAttachment(crossGenderButton, 0, SWT.LEFT);
+		optionData.top = new FormAttachment(crossGenderButton, 5);
+		keepDescriptions.setLayoutData(optionData);
+
 		if (type == GameType.FE8) {
 			// Option to include Creature Campaign
 			includeExtras = new Button(group, SWT.CHECK);
@@ -338,8 +351,8 @@ public class RecruitmentView extends YuneView<RecruitmentOptions> {
 			includeExtras.setSelection(false);
 			
 			optionData = new FormData();
-			optionData.left = new FormAttachment(crossGenderButton, 0, SWT.LEFT);
-			optionData.top = new FormAttachment(crossGenderButton, 5);
+			optionData.left = new FormAttachment(keepDescriptions, 0, SWT.LEFT);
+			optionData.top = new FormAttachment(keepDescriptions, 5);
 			includeExtras.setLayoutData(optionData);
 		}
 	}
@@ -368,7 +381,7 @@ public class RecruitmentView extends YuneView<RecruitmentOptions> {
 		if (slotClassButton.getSelection()) { classMode = ClassMode.USE_SLOT; }
 		
 		if (isEnabled && basesMode != null && growthMode != null) {
-			return new RecruitmentOptions(growthMode, basesMode, autolevel, classMode, lordsButton.getSelection(), thievesButton.getSelection(), specialButton.getSelection(), crossGenderButton.getSelection(), extras);
+			return new RecruitmentOptions(growthMode, basesMode, autolevel, classMode, lordsButton.getSelection(), thievesButton.getSelection(), specialButton.getSelection(), crossGenderButton.getSelection(), extras, keepDescriptions.getSelection());
 		} else {
 			return null;
 		}
@@ -401,6 +414,7 @@ public class RecruitmentView extends YuneView<RecruitmentOptions> {
 		thievesButton.setEnabled(optionsAvailable);
 		specialButton.setEnabled(optionsAvailable);
 		crossGenderButton.setEnabled(optionsAvailable);
+		keepDescriptions.setEnabled(optionsAvailable);
 
 		// This button might be null as FE7 for example doesn't have extras
 		if (includeExtras != null) {
@@ -429,7 +443,7 @@ public class RecruitmentView extends YuneView<RecruitmentOptions> {
 			thievesButton.setSelection(options.includeThieves);
 			specialButton.setSelection(options.includeSpecial);
 			crossGenderButton.setSelection(options.allowCrossGender);
-			
+			keepDescriptions.setEnabled(options.keepDescriptions);
 			if (includeExtras != null) {
 				includeExtras.setSelection(options.includeExtras);
 			}

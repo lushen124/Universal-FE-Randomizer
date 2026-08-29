@@ -274,14 +274,14 @@ public class LegacyViewContainer extends YuneViewContainer {
         prfViewData.right = new FormAttachment(itemAssignmentView.group, 0, SWT.RIGHT);
         prfView.group.setLayoutData(prfViewData);
         
-        statboosterView = new StatboosterView(this, SWT.NONE);
-        statboosterView.setSize(200, 200);
+        statboosterView = new StatboosterView(this);
+        statboosterView.group.setSize(200, 200);
         
         FormData statboosterData = new FormData();
         statboosterData.top = new FormAttachment(prfView.group, 5);
         statboosterData.left = new FormAttachment(prfView.group, 0, SWT.LEFT);
         statboosterData.right = new FormAttachment(prfView.group, 0, SWT.RIGHT);
-        statboosterView.setLayoutData(statboosterData);
+        statboosterView.group.setLayoutData(statboosterData);
     }
 
     private void composeFE4() {

@@ -1,31 +1,10 @@
 package random.gba.randomizer.shuffling;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.BinaryOperator;
-import java.util.stream.Collectors;
-
-import javax.print.attribute.HashAttributeSet;
-
-import com.sun.jndi.ldap.pool.Pool;
-import fedata.gba.GBAFEChapterData;
-import fedata.gba.GBAFEChapterUnitData;
-import fedata.gba.GBAFECharacterData;
-import fedata.gba.GBAFEClassData;
-import fedata.gba.GBAFEStatDto;
-import fedata.gba.GBAFECharacterData.Affinity;
-import fedata.gba.fe6.FE6Data;
+import fedata.gba.*;
 import fedata.gba.general.PaletteColor;
 import fedata.general.FEBase.GameType;
 import io.FileHandler;
-import random.gba.loader.ChapterLoader;
-import random.gba.loader.CharacterDataLoader;
-import random.gba.loader.ClassDataLoader;
-import random.gba.loader.ItemDataLoader;
-import random.gba.loader.PortraitDataLoader;
-import random.gba.loader.TextLoader;
-import random.gba.randomizer.RecruitmentRandomizer;
+import random.gba.loader.*;
 import random.gba.randomizer.service.ClassAdjustmentDto;
 import random.gba.randomizer.service.GBASlotAdjustmentService;
 import random.gba.randomizer.service.GBATextReplacementService;
@@ -36,13 +15,12 @@ import random.general.PoolDistributor;
 import ui.model.CharacterShufflingOptions;
 import ui.model.CharacterShufflingOptions.ShuffleLevelingMode;
 import ui.model.ItemAssignmentOptions;
-import util.DebugPrinter;
-import util.FileReadHelper;
-import util.FreeSpaceManager;
-import util.GBAImageCodec;
-import util.LZ77;
-import util.PaletteUtil;
-import util.WhyDoesJavaNotHaveThese;
+import util.*;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * Randomizer that shuffles in characters from different games into the rom
@@ -64,7 +42,8 @@ public class CharacterShuffler {
     private CharacterShufflingOptions options;
     private ItemAssignmentOptions inventoryOptions;
     private ItemDataLoader itemData;
-    
+    private boolean somethingShuffled;
+
     static final int rngSalt = 18489;
 
     public CharacterShuffler(GameType type, CharacterDataLoader characterData, TextLoader textData, Random rng,
@@ -99,7 +78,9 @@ public class CharacterShuffler {
             shuffleByForcedSlot(forcedSlotMapping);
             shuffleRandomly(partitions.get(false), forcedSlotMapping.keySet());
 
-            GBATextReplacementService.applyChanges(textData);
+            if (somethingShuffled) {
+                GBATextReplacementService.applyChanges(textData);
+            }
         }
     }
 
@@ -159,7 +140,9 @@ public class CharacterShuffler {
 
         // (c) Insert the portrait for the current character into the rom and repoint the Portrait Data
         try {
-            changePortrait(slot, crossGameData);
+            if (!changePortrait(slot, crossGameData)) {
+                return;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -176,23 +159,26 @@ public class CharacterShuffler {
         }
 
         for (GBAFECharacterData linkedSlot : characterData.linkedCharactersForCharacter(slot)) {
+            linkedSlot.prepareForClassRandomization();
             linkedSlot.setGrowths(crossGameData.growths);
             linkedSlot.setConstitution(crossGameData.constitution);
+            linkedSlot.setIsLord(characterData.isLordCharacterID(slot.getID()));
 
             // (e) Update the bases, and potentially auto level the Character to the level of the slot.
             // Due to Promotion / Demotion, the output of the targetClass might be different from what was passed into this method
-            targetClass = updateBases(linkedSlot, crossGameData, targetClassId,
-                    targetClass, sourceClass, slotLevel);
-            targetClassId = targetClass.getID();
+            GBAFEClassData targetClassCurrentSlot = updateBases(linkedSlot, crossGameData, targetClassId,
+                    targetClass, sourceClass, linkedSlot.getLevel());
+            int targetClassIdCurrentSlot = targetClassCurrentSlot.getID();
 
-            updateWeaponRanks(linkedSlot, crossGameData, sourceClass, targetClass, rng);
+            updateWeaponRanks(linkedSlot, crossGameData, sourceClass, targetClassCurrentSlot, rng);
 
             // (f) Update the class for all the slots of the character
-            updateUnitInChapter(linkedSlot, crossGameData, targetClassId);
+            updateUnitInChapter(linkedSlot, crossGameData, targetClassIdCurrentSlot);
 
             // (g) give the Unit new items to use
             ItemAssignmentService.assignNewItems(characterData, linkedSlot, targetClass, chapterData, inventoryOptions, type, rng, textData, classData, itemData);
         }
+        somethingShuffled = true;
     }
 
 
@@ -244,7 +230,7 @@ public class CharacterShuffler {
                     chara.level, shouldBePromoted, isPromoted, rng, classData, null, targetClass, slot,
                     sourceClass, null, textData, DebugPrinter.Key.GBA_CHARACTER_SHUFFLING);
             targetClass = adjustmentDAO.targetClass;
-            slot.setClassID(targetClassId);
+            slot.setClassID(targetClass.getID());
 
             // Calculate the auto leveled personal bases
             GBAFEStatDto newPersonalBases = GBASlotAdjustmentService.autolevel(chara.bases, chara.growths,
@@ -288,20 +274,33 @@ public class CharacterShuffler {
      *                     replaced
      * @param chara        - the Character that will get randomized into the rom
      */
-    private void changePortrait(GBAFECharacterData character, GBACrossGameData chara) throws IOException {
+    private boolean changePortrait(GBAFECharacterData character, GBACrossGameData chara) throws IOException {
         // Grab the Portrait Data (Pointers)
         GBAFEPortraitData characterPortraitData = portraitData.getPortraitDataByFaceId(character.getFaceID());
 
         // Get the Portrait Format depending on the game
         PortraitFormat targetFormat = PortraitFormat.getPortraitFormatForGame(type);
 
-        // Get the Palette from the Json
-        PaletteColor[] palette = GBAImageCodec.getArrayFromPaletteString(chara.paletteString);
+        // Get the Palette from the Json or automatically grab it from image metadata if none was provided
+        String paletteString = chara.paletteString;
+        PaletteColor[] palette;
+        if (paletteString == null || paletteString.isEmpty()) {
+            palette = GBAImageCodec.collectPaletteForPicture(chara.portraitPath);
+            paletteString = PaletteColor.arrayToString(palette);
+        } else {
+            palette = GBAImageCodec.getArrayFromPaletteString(paletteString);
+        }
 
         // Insert and repoint Main Portrait
         byte[] mainPortrait = GBAImageCodec.getGBAPortraitGraphicsDataForImage(chara.portraitPath, palette,
                 targetFormat.getMainPortraitChunks(), targetFormat.getMainPortraitSize(),
                 targetFormat.getMainPortraitPrefix());
+
+        if (mainPortrait == null) {
+            DebugPrinter.error(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING, "Main Portrait for Character " + chara.name + " couldn't be loaded.");
+            return false;
+        }
+
         if (targetFormat.isMainPortraitCompressed()) {
             mainPortrait = LZ77.compress(mainPortrait);
         }
@@ -313,6 +312,10 @@ public class CharacterShuffler {
         // Insert and repoint Mini Portrait
         byte[] miniPortrait = GBAImageCodec.getGBAPortraitGraphicsDataForImage(chara.portraitPath, palette,
                 targetFormat.getMiniPortraitChunks(), targetFormat.getMiniPortraitSize());
+        if (miniPortrait == null) {
+            DebugPrinter.error(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING,"Mini Portrait for Character " + chara.name + " couldn't be loaded.");
+            return false;
+        }
         if (targetFormat.isMiniCompressed()) {
             miniPortrait = LZ77.compress(miniPortrait);
         }
@@ -324,6 +327,10 @@ public class CharacterShuffler {
         if (targetFormat.getMouthChunksSize() != null) {
             byte[] mouthFrames = GBAImageCodec.getGBAPortraitGraphicsDataForImage(chara.portraitPath, palette,
                     targetFormat.getMouthChunks(), targetFormat.getMouthChunksSize());
+            if (mouthFrames == null) {
+                DebugPrinter.error(DebugPrinter.Key.GBA_CHARACTER_SHUFFLING,"Mouth Frames for Character " + chara.name + " couldn't be loaded.");
+                return false;
+            }
             long mouthFramesAddress = freeSpace.setValue(mouthFrames, character.getFaceID() + "_MouthFramesPortrait", true);
             characterPortraitData.setMouthFramesPointer(WhyDoesJavaNotHaveThese.bytesFromAddress(mouthFramesAddress));
         }
@@ -340,8 +347,8 @@ public class CharacterShuffler {
         characterPortraitData.setFacialFeatureCoordinates(facialFeaturesCoordinates);
 
         // Write the Palette of the image
-        characterPortraitData.setNewPalette(PaletteUtil.getByteArrayFromString(chara.paletteString));
-
+        characterPortraitData.setNewPalette(PaletteUtil.getByteArrayFromString(paletteString));
+        return true;
     }
 
 }

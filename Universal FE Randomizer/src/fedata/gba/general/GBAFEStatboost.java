@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import fedata.gba.AbstractGBAData;
 import fedata.gba.GBAFEStatDto;
@@ -26,13 +25,18 @@ public class GBAFEStatboost extends AbstractGBAData {
 		
 		public int statIndex;
 		
-		private BoostedStat(int index) {
+		BoostedStat(int index) {
 			this.statIndex = index;
 		}
 		
-		public static PoolDistributor<BoostedStat> getPool(){
+		public static PoolDistributor<BoostedStat> getPool(boolean excludeMovCon){
 			PoolDistributor<BoostedStat> pool = new PoolDistributor<>();
 			pool.addAll(values());
+			if (excludeMovCon) {
+				pool.removeItem(MOV, true);
+				pool.removeItem(CON, true);
+			}
+
 			return pool;
 		}
 		

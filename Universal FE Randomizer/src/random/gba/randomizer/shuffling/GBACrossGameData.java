@@ -306,7 +306,9 @@ public class GBACrossGameData {
 		addEntry(GameType.FE8, FE8Data.CharacterClass.CAVALIER, FE6Data.CharacterClass.CAVALIER, FE7Data.CharacterClass.CAVALIER);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.CAVALIER_F, FE6Data.CharacterClass.CAVALIER, FE7Data.CharacterClass.CAVALIER);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.GREAT_KNIGHT, FE6Data.CharacterClass.GENERAL, FE7Data.CharacterClass.GENERAL);
+		addEntry(GameType.FE8, FE8Data.CharacterClass.GREAT_KNIGHT_F, FE6Data.CharacterClass.GENERAL_F, FE7Data.CharacterClass.GENERAL);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.KNIGHT, FE6Data.CharacterClass.KNIGHT, FE7Data.CharacterClass.KNIGHT);
+		addEntry(GameType.FE8, FE8Data.CharacterClass.KNIGHT_F, FE6Data.CharacterClass.KNIGHT_F, FE7Data.CharacterClass.KNIGHT);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.MERCENARY, FE6Data.CharacterClass.MERCENARY, FE7Data.CharacterClass.MERCENARY);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.MERCENARY_F, FE6Data.CharacterClass.MERCENARY, FE7Data.CharacterClass.MERCENARY);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.MYRMIDON, FE6Data.CharacterClass.MYRMIDON, FE7Data.CharacterClass.MYRMIDON);
@@ -318,9 +320,13 @@ public class GBACrossGameData {
 		addEntry(GameType.FE8, FE8Data.CharacterClass.MONK, FE6Data.CharacterClass.PRIEST, FE7Data.CharacterClass.MONK);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.TROUBADOUR, FE6Data.CharacterClass.TROUBADOUR, FE7Data.CharacterClass.TROUBADOUR);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.SAGE, FE6Data.CharacterClass.SAGE, FE7Data.CharacterClass.SAGE);
+		addEntry(GameType.FE8, FE8Data.CharacterClass.SAGE_F, FE6Data.CharacterClass.SAGE_F, FE7Data.CharacterClass.SAGE_F);
+		addEntry(GameType.FE8, FE8Data.CharacterClass.MAGE_KNIGHT, FE6Data.CharacterClass.VALKYRIE, FE7Data.CharacterClass.VALKYRIE);
+		addEntry(GameType.FE8, FE8Data.CharacterClass.MAGE_KNIGHT_F, FE6Data.CharacterClass.VALKYRIE, FE7Data.CharacterClass.VALKYRIE);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.SNIPER, FE6Data.CharacterClass.SNIPER, FE7Data.CharacterClass.SNIPER);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.ARCHER_F, FE6Data.CharacterClass.ARCHER_F, FE7Data.CharacterClass.ARCHER_F);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.SHAMAN, FE6Data.CharacterClass.SHAMAN, FE7Data.CharacterClass.SHAMAN);
+		addEntry(GameType.FE8, FE8Data.CharacterClass.SUMMONER, FE6Data.CharacterClass.DRUID, FE7Data.CharacterClass.DRUID);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.CLERIC, FE6Data.CharacterClass.CLERIC, FE7Data.CharacterClass.CLERIC);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.WYVERN_RIDER, FE6Data.CharacterClass.WYVERN_RIDER, FE7Data.CharacterClass.WYVERN_LORD);
 		addEntry(GameType.FE8, FE8Data.CharacterClass.ROGUE, FE6Data.CharacterClass.SWORDMASTER, FE7Data.CharacterClass.ASSASSIN);

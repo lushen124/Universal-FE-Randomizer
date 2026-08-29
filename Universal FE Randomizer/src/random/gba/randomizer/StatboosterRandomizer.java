@@ -79,7 +79,7 @@ public class StatboosterRandomizer {
 	 * stabooster boosts. Makes sure that there is still a statbooster for each
 	 */
 	private static void randomizeShuffle(StatboosterOptions options, StatboostLoader loader, Random rng) {
-		PoolDistributor<BoostedStat> distributor = BoostedStat.getPool();
+		PoolDistributor<BoostedStat> distributor = BoostedStat.getPool(options.excludeMovConRandomization);
 
 		for (GBAFEStatboost boost : loader.getStatboosters(options.includeMov, options.includeCon)) {
 			// Get the DAO which contains the stat values
@@ -100,14 +100,14 @@ public class StatboosterRandomizer {
 	 */
 	private static void randomizeMultipleStats(StatboosterOptions options, StatboostLoader loader, Random rng) {
 		for (GBAFEStatboost boost : loader.getStatboosters(options.includeMov, options.includeCon)) {
-			PoolDistributor<BoostedStat> distributor = BoostedStat.getPool();
+			PoolDistributor<BoostedStat> distributor = BoostedStat.getPool(options.excludeMovConRandomization);
 			// Get the DAO which contains the stat values
 			GBAFEStatboostDao dao = boost.dao;
 			// subtract the boosts from itself to remove the vanilla boost.
 			dao.subtract(dao);
 
-			int numberStats = options.multipleStatsMin + rng.nextInt(options.multipleStatsMax-options.multipleStatsMin);
-			for (int i = 0; i < numberStats; i++) {
+			int numberStats = getNumberInMinMaxSafe(options.multipleStatsMin, options.multipleStatsMax, rng);
+			for (int i = 0; i < numberStats && !distributor.possibleResults().isEmpty(); i++) {
 				// Randomize the new Stat boost to add.
 				BoostedStat selectedStat = distributor.getRandomItem(rng, true);
 				randomizeStatImpl(options, selectedStat, dao, rng);
@@ -121,7 +121,7 @@ public class StatboosterRandomizer {
 	 */
 	private static void randomizeStatImpl(StatboosterOptions options, BoostedStat index, GBAFEStatboostDao dao, Random rng) {
 		// randomize the new boost within the bounds
-		int newBoost = options.boostStrengthMin + rng.nextInt(options.boostStrengthMax - options.boostStrengthMin);
+		int newBoost = getNumberInMinMaxSafe(options.boostStrengthMin, options.boostStrengthMax, rng);
 
 		// If this stat is HP, and the user selected to apply an HP Modifier to keep it
 		// higher than other stats (like in vanilla) then apply it.
@@ -131,5 +131,13 @@ public class StatboosterRandomizer {
 
 		// write the changes.
 		dao.setStatAtIndex(index, newBoost);
+	}
+
+	private static int getNumberInMinMaxSafe(int min, int max, Random rng) {
+		if (min == max)  {
+			return min;
+		}
+
+		return rng.nextInt(max - min) + min;
 	}
 }
