@@ -2340,15 +2340,45 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Set<GBAFEShop> groupedShops() {
 			switch(this) {
+			case CHAPTER_2_VENDOR:
+			case CHAPTER_2_ARMORY:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_2_VENDOR, CHAPTER_2_ARMORY));
+			case CHAPTER_4_ARMORY:
+			case CHAPTER_4_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_4_VENDOR, CHAPTER_4_ARMORY));
 			case CHAPTER_7_ARMORY_1:
 			case CHAPTER_7_ARMORY_2:
 				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_7_ARMORY_1, CHAPTER_7_ARMORY_2));
+			case CHAPTER_9_ARMORY:
+			case CHAPTER_9_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_9_ARMORY, CHAPTER_9_VENDOR));
+			case CHAPTER_11A_ARMORY:
+			case CHAPTER_11A_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_11A_ARMORY, CHAPTER_11A_VENDOR));
+			case CHAPTER_13_ARMORY:
+			case CHAPTER_13_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_13_ARMORY, CHAPTER_13_VENDOR));
+			case CHAPTER_14_ARMORY:
+			case CHAPTER_14_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_14_ARMORY, CHAPTER_14_VENDOR));
+			case CHAPTER_18B_ARMORY:
+			case CHAPTER_18B_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_18B_ARMORY, CHAPTER_18B_VENDOR));
+			case CHAPTER_19B_ARMORY:
+			case CHAPTER_19B_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_19B_ARMORY, CHAPTER_19B_VENDOR));
+			case CHAPTER_20A_ARMORY:
+			case CHAPTER_20A_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_20A_ARMORY, CHAPTER_20A_VENDOR));
+			case CHAPTER_21_ARMORY:
+			case CHAPTER_21_SECRET:
+			case CHAPTER_21_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_21_ARMORY, CHAPTER_21_SECRET, CHAPTER_21_VENDOR));
 			case CHAPTER_23_ARMORY_1:
 			case CHAPTER_23_ARMORY_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_23_ARMORY_1, CHAPTER_23_ARMORY_2));
 			case CHAPTER_23_VENDOR_1:
 			case CHAPTER_23_VENDOR_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_23_VENDOR_1, CHAPTER_23_VENDOR_2));
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_23_VENDOR_1, CHAPTER_23_VENDOR_2, CHAPTER_23_ARMORY_1, CHAPTER_23_ARMORY_2));
 			default:
 				return new HashSet<GBAFEShop>(Arrays.asList(this));
 			}
@@ -3670,6 +3700,14 @@ public class FE6Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> playerOnlyWeapons() {
 		return new HashSet<GBAFEItem>(Item.playerOnlySet);
+	}
+	
+	public Set<Integer> restrictedClassIDsForWeapon(GBAFEItem weapon) {
+		if (weapon == Item.WO_DAO) {
+			return new HashSet<Integer>(Arrays.asList(CharacterClass.MYRMIDON.ID, CharacterClass.MYRMIDON_F.ID, CharacterClass.SWORDMASTER.ID, CharacterClass.SWORDMASTER_F.ID));
+		}
+		
+		return new HashSet<Integer>();
 	}
 	
 	public Set<GBAFEItem> promoWeapons() {

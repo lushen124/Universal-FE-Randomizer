@@ -641,7 +641,7 @@ public class FE7Item implements GBAFEItemData {
 
 	@Override
 	public void turnIntoLordWeapon(int lordID, int nameIndex, int descriptionIndex, WeaponType weaponType,
-			boolean isUnbreakable, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData,
+			boolean isUnbreakable, boolean isEffective, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData,
 			FreeSpaceManager freeSpace) {
 		// We don't really use this for FE7, but if we need it, we can implement it.
 		
@@ -649,7 +649,7 @@ public class FE7Item implements GBAFEItemData {
 
 	@Override
 	public GBAFEItemData createLordWeapon(int lordID, int newItemID, int nameIndex, int descriptionIndex, WeaponType weaponType,
-			boolean isUnbreakable, int targetWeaponWeight, int iconIndex, ItemDataLoader itemData, FreeSpaceManager freeSpace) {
+			boolean isUnbreakable, boolean isEffective, int targetWeaponWeight, int iconIndex, ItemDataLoader itemData, FreeSpaceManager freeSpace) {
 		
 		FE7Item newItem = new FE7Item();
 		
@@ -697,28 +697,32 @@ public class FE7Item implements GBAFEItemData {
 		// No need for stat bonuses.
 		newItem.setStatBonusPointer(0);
 		// Effectiveness. It should be effective against Knights and Cavs. If it's a bow, it also needs fliers.
-		long knightCavClassOffsets = itemData.offsetForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
-		if (weaponType == WeaponType.BOW) {
-			String effectivenessKey = "Knights, Cavs, and Flier Effectiveness";
-			long effectivenessPointer = freeSpace.getOffsetForKey(effectivenessKey);
-			if (effectivenessPointer != -1) {
-				newItem.setEffectivenessPointer(effectivenessPointer);
+		if (isEffective) {
+			long knightCavClassOffsets = itemData.offsetForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
+			if (weaponType == WeaponType.BOW) {
+				String effectivenessKey = "Knights, Cavs, and Flier Effectiveness";
+				long effectivenessPointer = freeSpace.getOffsetForKey(effectivenessKey);
+				if (effectivenessPointer != -1) {
+					newItem.setEffectivenessPointer(effectivenessPointer);
+				} else {
+					byte[] flierClassIDs = itemData.bytesForAdditionalData(AdditionalData.FLIERS_EFFECT);
+					byte[] knightCavClassIDs = itemData.bytesForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
+					ByteArrayBuilder newClassIDs = new ByteArrayBuilder();
+					newClassIDs.appendBytes(knightCavClassIDs);
+					if (newClassIDs.getLastByteWritten() == 0) {
+						newClassIDs.deleteLastByte();
+					}
+					newClassIDs.appendBytes(flierClassIDs);
+					if (newClassIDs.getLastByteWritten() != 0) {
+						newClassIDs.appendByte((byte)0);
+					}
+					newItem.setEffectivenessPointer(freeSpace.setValue(newClassIDs.toByteArray(), effectivenessKey));
+				}
 			} else {
-				byte[] flierClassIDs = itemData.bytesForAdditionalData(AdditionalData.FLIERS_EFFECT);
-				byte[] knightCavClassIDs = itemData.bytesForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
-				ByteArrayBuilder newClassIDs = new ByteArrayBuilder();
-				newClassIDs.appendBytes(knightCavClassIDs);
-				if (newClassIDs.getLastByteWritten() == 0) {
-					newClassIDs.deleteLastByte();
-				}
-				newClassIDs.appendBytes(flierClassIDs);
-				if (newClassIDs.getLastByteWritten() != 0) {
-					newClassIDs.appendByte((byte)0);
-				}
-				newItem.setEffectivenessPointer(freeSpace.setValue(newClassIDs.toByteArray(), effectivenessKey));
+				newItem.setEffectivenessPointer(knightCavClassOffsets);
 			}
 		} else {
-			newItem.setEffectivenessPointer(knightCavClassOffsets);
+			newItem.setEffectivenessPointer(0);
 		}
 		
 		// Weapon stats are copied from the base weapon (this).

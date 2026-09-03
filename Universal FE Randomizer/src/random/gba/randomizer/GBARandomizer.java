@@ -575,7 +575,7 @@ public class GBARandomizer extends Randomizer {
 		if (shopOptions != null) {
 			updateStatusString("Randomizing Shops...");
 			Random rng = new Random(SeedGenerator.generateSeedValue(seed, ShopRandomizer.rngSalt));
-			ShopRandomizer.randomizeShops(shopData, itemData, false, false, shopOptions.shopSize.minValue, shopOptions.shopSize.maxValue, rng);
+			ShopRandomizer.randomizeShops(shopData, itemData, false, false, shopOptions, rng);
 		}
 	}
 	
@@ -1513,6 +1513,7 @@ public class GBARandomizer extends Randomizer {
 		
 		if (prfs != null && prfs.createPrfs) {
 			boolean unbreakablePrfs = prfs.unbreakablePrfs;
+			boolean effectivePrfs = prfs.effectivePrfs;
 
 			// Create new PRF weapons.
 			if (gameType == GameType.FE6) {
@@ -1591,7 +1592,7 @@ public class GBARandomizer extends Randomizer {
 						
 						
 						GBAFEItemData itemToReplace = itemData.itemWithID(FE6Data.Item.UNUSED_DEMON_STONE.ID);
-						itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, unbreakablePrfs, royClass.getCON() + roy.getConstitution(), 
+						itemToReplace.turnIntoLordWeapon(roy.getID(), 0x5FE, 0x0, selectedType, unbreakablePrfs, effectivePrfs, royClass.getCON() + roy.getConstitution(), 
 								itemData.itemWithID(FE6Data.Item.RAPIER.ID), itemData, freeSpace);
 						
 						switch (selectedType) {
@@ -1817,7 +1818,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x1225, lynWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.MANI_KATTI.ID);
 					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.LYN.ID, itemData.consumeAppendedItemID(), 0x1225, 0x0, 
-							lynSelectedType, unbreakablePrfs, lynClass.getCON() + lyn.getConstitution(), 
+							lynSelectedType, unbreakablePrfs, effectivePrfs, lynClass.getCON() + lyn.getConstitution(), 
 							0xAD, itemData, freeSpace);
 					
 					// Lyn's the first, so all weapon locks are unused.
@@ -1899,7 +1900,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x1227, eliwoodWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.RAPIER.ID);
 					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.ELIWOOD.ID, itemData.consumeAppendedItemID(), 0x1227, 0x0, 
-							eliwoodSelectedType, unbreakablePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 
+							eliwoodSelectedType, unbreakablePrfs, effectivePrfs, eliwoodClass.getCON() + eliwood.getConstitution(), 
 							0xAE, itemData, freeSpace);
 					
 					// Eliwood only has to take into account the locks that could have already be used (Athos, Eliwood, or Lyn).
@@ -2002,7 +2003,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x1229, hectorWeaponName + "[X]");
 					GBAFEItemData referenceWeapon = itemData.itemWithID(FE7Data.Item.WOLF_BEIL.ID);
 					GBAFEItemData newWeapon = referenceWeapon.createLordWeapon(FE7Data.Character.HECTOR.ID, itemData.consumeAppendedItemID(), 0x1229, 0x0, 
-							hectorSelectedType, unbreakablePrfs, hectorClass.getCON() + hector.getConstitution(), 
+							hectorSelectedType, unbreakablePrfs, effectivePrfs, hectorClass.getCON() + hector.getConstitution(), 
 							0xAF, itemData, freeSpace);
 					
 					// We've avoided using Hector lock the entire time, so we just need to account for swords and axes.
@@ -2191,7 +2192,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x3B, " [.][X]");
 					
 					GBAFEItemData itemToReplace = itemData.itemWithID(FE8Data.Item.UNUSED_MANI_KATTI.ID);
-					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3A, 0x3B, eirikaSelectedType, unbreakablePrfs, eirikaClass.getCON() + eirika.getConstitution(), 
+					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3A, 0x3B, eirikaSelectedType, unbreakablePrfs, effectivePrfs, eirikaClass.getCON() + eirika.getConstitution(), 
 							itemData.itemWithID(FE8Data.Item.RAPIER.ID), itemData, freeSpace);
 					
 					switch (eirikaSelectedType) {
@@ -2246,7 +2247,7 @@ public class GBARandomizer extends Randomizer {
 					textData.setStringAtIndex(0x3D, " [.][X]");
 					
 					GBAFEItemData itemToReplace = itemData.itemWithID(FE8Data.Item.UNUSED_FORBLAZE.ID);
-					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3C, 0x3D, ephraimSelectedType, unbreakablePrfs, ephraimClass.getCON() + ephraim.getConstitution(), 
+					itemToReplace.turnIntoLordWeapon(eirika.getID(), 0x3C, 0x3D, ephraimSelectedType, unbreakablePrfs, effectivePrfs, ephraimClass.getCON() + ephraim.getConstitution(), 
 							itemData.itemWithID(FE8Data.Item.REGINLEIF.ID), itemData, freeSpace);
 					
 					switch (ephraimSelectedType) {

@@ -47,6 +47,8 @@ public interface GBAFEItemProvider {
 	public Set<GBAFEItem> itemKitForSpecialClass(int classID, Random rng);
 	public Set<GBAFEItem> playerOnlyWeapons();
 	
+	public Set<Integer> restrictedClassIDsForWeapon(GBAFEItem item);
+	
 	public GBAFEItem legendaryWeaponOfType(WeaponType type, boolean isLord);
 	
 	public Set<GBAFEItem> promoWeapons();

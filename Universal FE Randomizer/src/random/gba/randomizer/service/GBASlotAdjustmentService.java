@@ -233,6 +233,14 @@ public class GBASlotAdjustmentService {
 			WeaponRank randomRank = rankValues.get(rng.nextInt(rankValues.size()));
 			if (rankValues.size() > 1) {
 				rankValues.remove(randomRank);
+			} else {
+				WeaponRank rank = rankValues.removeFirst();
+				WeaponRank oneRankDown = WeaponRank.nextRankLowerThanRank(rank);
+				if (oneRankDown == WeaponRank.NONE) {
+					rankValues.add(rank);
+				} else {
+					rankValues.add(oneRankDown);
+				}
 			}
 
 			// The lowest rank dark tome is D, so make sure to round up

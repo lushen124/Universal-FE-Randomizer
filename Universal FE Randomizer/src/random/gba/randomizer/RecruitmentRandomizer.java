@@ -431,7 +431,10 @@ public class RecruitmentRandomizer {
 			
 			// First, replace the description, and face
 			// The name is unnecessary because there's a text find/replace that we apply later.
-			linkedSlot.setDescriptionIndex(fill.getDescriptionIndex());
+			// It's probably better if we don't swap the descriptions since it can give a hint on who
+			// the slot character was after replacement and makes more sense, technically.
+//			linkedSlot.setDescriptionIndex(fill.getDescriptionIndex());
+			
 			linkedSlot.setFaceID(fill.getFaceID());
 			
 			linkedSlot.setIsLord(characterData.isLordCharacterID(slotReference.getID()));

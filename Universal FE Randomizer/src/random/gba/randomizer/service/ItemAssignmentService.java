@@ -50,7 +50,7 @@ public class ItemAssignmentService {
 					ClassRandomizer.validateCharacterInventory(inventoryOptions, slot, targetClass, unit, chapter,
 							characterData.characterIDRequiresRange(slot.getID()),
 							characterData.characterIDRequiresMelee(slot.getID()), characterData, classData, itemData,
-							textData, false, false, false, false, type, rng);
+							textData, false, false, false, false, false, type, rng);
 					if (characterData.isThiefCharacterID(slot.getID())) {
 						ClassRandomizer.validateFormerThiefInventory(unit, itemData);
 					}

@@ -739,6 +739,15 @@ public class ItemDataLoader {
 		return provider.rankWithValue(rankValue);
 	}
 	
+	public Boolean canCharacterClassUseWeapon(int classID, GBAFEItemData weapon) {
+		GBAFEItem item = provider.itemWithID(weapon.getID());
+		Set<Integer> classIDs = provider.restrictedClassIDsForWeapon(item);
+		if (classIDs.isEmpty()) { return true; }
+		else {
+			return classIDs.contains(classID);
+		}
+	}
+	
 	public GBAFEItemData getRandomHealingStaff(WeaponRank maxRank, Random rng) {
 		List<GBAFEItem> healingStaves = new ArrayList<GBAFEItem>(provider.healingStaves(maxRank));
 		healingStaves.sort(new Comparator<GBAFEItem>() {

@@ -238,7 +238,7 @@ public class LegacyViewContainer extends YuneViewContainer {
         recruitData.left = new FormAttachment(enemyClassView.group, 5);
         recruitView.group.setLayoutData(recruitData);
         
-        shopView = new ShopView(this);
+        shopView = new ShopView(this, type);
         shopView.group.setSize(200, 200);
         
         FormData shopData = new FormData();

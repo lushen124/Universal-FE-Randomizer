@@ -1,5 +1,6 @@
 package fedata.gba;
 
+import java.util.Comparator;
 import java.util.Random;
 
 import fedata.gba.general.WeaponEffects;
@@ -13,6 +14,13 @@ import random.general.WeightedDistributor;
 import util.FreeSpaceManager;
 
 public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
+	
+	public static Comparator<GBAFEItemData> idComparator = new Comparator<GBAFEItemData>() {
+		@Override
+		public int compare(GBAFEItemData o1, GBAFEItemData o2) {
+			return Integer.compare(o1.getID(), o2.getID());
+		}
+	};
 	
 	// Info
 	public int getNameIndex();
@@ -89,7 +97,7 @@ public interface GBAFEItemData extends FEModifiableData, FEPrintableData {
 	
 	public void applyRandomEffect(WeightedDistributor<WeaponEffects> allowedEffects, ItemDataLoader itemData, TextLoader textData, GBAFESpellAnimationCollection spellAnimations, Random rng);
 
-	public void turnIntoLordWeapon(int lordID, int nameIndex, int descriptionIndex, WeaponType weaponType, boolean isUnbreakable, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData, FreeSpaceManager freeSpace);
+	public void turnIntoLordWeapon(int lordID, int nameIndex, int descriptionIndex, WeaponType weaponType, boolean isUnbreakable, boolean isEffective, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData, FreeSpaceManager freeSpace);
 	
-	public GBAFEItemData createLordWeapon(int lordID, int newItemID, int nameIndex, int descriptionIndex, WeaponType weaponType, boolean isUnbreakable, int targetWeaponWeight, int iconIndex, ItemDataLoader itemData, FreeSpaceManager freeSpace);
+	public GBAFEItemData createLordWeapon(int lordID, int newItemID, int nameIndex, int descriptionIndex, WeaponType weaponType, boolean isUnbreakable, boolean isEffective, int targetWeaponWeight, int iconIndex, ItemDataLoader itemData, FreeSpaceManager freeSpace);
 }

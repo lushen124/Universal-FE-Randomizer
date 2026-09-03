@@ -12,6 +12,7 @@ import ui.model.PrfOptions;
 public class PrfView extends YuneView<PrfOptions> {
     Button createPrfsButton;
     Button unbreakablePrfsButton;
+    Button effectivePrfsButton;
 
     public PrfView(Composite parent) {
         super(parent);
@@ -26,7 +27,7 @@ public class PrfView extends YuneView<PrfOptions> {
     protected void compose() {
         createPrfsButton = new Button(group, SWT.CHECK);
         createPrfsButton.setText("Create Matching Prf Weapons");
-        createPrfsButton.setToolTipText("If enabled, the randomizer will ensure that the Lord Character(s) have prf weapons which they can use.");
+        createPrfsButton.setToolTipText("If enabled, the randomizer will create Prf weapons for Lord characters based on their previously unique starting weapon.");
 
         FormData prfWeaponsData = new FormData();
         prfWeaponsData.left = new FormAttachment(0, 0);
@@ -35,19 +36,32 @@ public class PrfView extends YuneView<PrfOptions> {
 
         unbreakablePrfsButton = new Button(group, SWT.CHECK);
         unbreakablePrfsButton.setText("Make Prf Weapons Unbreakable");
-        unbreakablePrfsButton.setToolTipText("If enabled, newly created Prf weapons will have infinite durability.");
+        unbreakablePrfsButton.setToolTipText("Created Prf weapons will never break.");
         unbreakablePrfsButton.setEnabled(false);
 
         FormData unbreakablePrfData = new FormData();
         unbreakablePrfData.left = new FormAttachment(createPrfsButton, 10, SWT.LEFT);
         unbreakablePrfData.top = new FormAttachment(createPrfsButton, 5);
         unbreakablePrfsButton.setLayoutData(unbreakablePrfData);
-        createPrfsButton.addListener(SWT.Selection, event -> unbreakablePrfsButton.setEnabled(createPrfsButton.getSelection()));
+        createPrfsButton.addListener(SWT.Selection, event -> {
+        	unbreakablePrfsButton.setEnabled(createPrfsButton.getSelection());
+        	effectivePrfsButton.setEnabled(createPrfsButton.getSelection());
+        });
+        
+        effectivePrfsButton = new Button(group, SWT.CHECK);
+        effectivePrfsButton.setText("Make Prf Weapons Effective");
+        effectivePrfsButton.setToolTipText("Created Prf weapons will be effective against Armor and Cavalry.");
+        effectivePrfsButton.setEnabled(false);
+        
+        FormData buttonData = new FormData();
+        buttonData.top = new FormAttachment(unbreakablePrfsButton, 5);
+        buttonData.left = new FormAttachment(createPrfsButton, 10, SWT.LEFT);
+        effectivePrfsButton.setLayoutData(buttonData);
     }
 
     @Override
     public PrfOptions getOptions() {
-        return new PrfOptions(createPrfsButton.getSelection(), unbreakablePrfsButton.getSelection());
+        return new PrfOptions(createPrfsButton.getSelection(), unbreakablePrfsButton.getSelection(), effectivePrfsButton.getSelection());
     }
 
     @Override
@@ -55,6 +69,8 @@ public class PrfView extends YuneView<PrfOptions> {
         if (options == null) return;
         this.createPrfsButton.setSelection(options.createPrfs);
         this.unbreakablePrfsButton.setEnabled(options.createPrfs);
+        effectivePrfsButton.setEnabled(options.createPrfs);
         this.unbreakablePrfsButton.setSelection(options.createPrfs && options.unbreakablePrfs);
+        effectivePrfsButton.setSelection(options.createPrfs && options.effectivePrfs);
     }
 }

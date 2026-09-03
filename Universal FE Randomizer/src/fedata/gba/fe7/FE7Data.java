@@ -2694,38 +2694,61 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 		
 		public Set<GBAFEShop> groupedShops() {
 			switch (this) {
+			case CHAPTER_10_ARMORY:
+			case CHAPTER_10_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_10_VENDOR, CHAPTER_10_ARMORY));
+			case CHAPTER_12_ARMORY:
+			case CHAPTER_12_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_12_ARMORY, CHAPTER_12_VENDOR));
+			case CHAPTER_13_ARMORY:
+			case CHAPTER_13_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_13_ARMORY, CHAPTER_13_VENDOR));
+			case CHAPTER_14_ARMORY:
+			case CHAPTER_14_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_14_ARMORY, CHAPTER_14_VENDOR));
 			case CHAPTER_16_ARMORY_1:
 			case CHAPTER_16_ARMORY_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_16_ARMORY_1, CHAPTER_16_ARMORY_2));
+			case CHAPTER_16_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_16_ARMORY_1, CHAPTER_16_ARMORY_2, CHAPTER_16_VENDOR));
+			case CHAPTER_18_ARMORY:
+			case CHAPTER_18_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_18_ARMORY, CHAPTER_18_VENDOR));
 			case CHAPTER_20_SECRET_1:
 			case CHAPTER_20_SECRET_2:
 				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_20_SECRET_1, CHAPTER_20_SECRET_2));
 			case CHAPTER_21_ARMORY_1:
 			case CHAPTER_21_ARMORY_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_21_ARMORY_1, CHAPTER_21_ARMORY_2));
 			case CHAPTER_21_VENDOR_1:
 			case CHAPTER_21_VENDOR_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_21_VENDOR_1, CHAPTER_21_VENDOR_2));
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_21_VENDOR_1, CHAPTER_21_VENDOR_2, CHAPTER_21_ARMORY_1, CHAPTER_21_ARMORY_2));
 			case CHAPTER_24A_ARMORY_1:
 			case CHAPTER_24A_ARMORY_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24A_ARMORY_1, CHAPTER_24A_ARMORY_2));
 			case CHAPTER_24A_VENDOR_1:
 			case CHAPTER_24A_VENDOR_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24A_VENDOR_1, CHAPTER_24A_VENDOR_2));
+			case CHAPTER_24A_SECRET:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24A_VENDOR_1, CHAPTER_24A_VENDOR_2, CHAPTER_24A_ARMORY_1, CHAPTER_24A_ARMORY_2, CHAPTER_24A_SECRET));
 			case CHAPTER_24B_ARMORY_1:
 			case CHAPTER_24B_ARMORY_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24B_ARMORY_1, CHAPTER_24B_ARMORY_2));
 			case CHAPTER_24B_VENDOR_1:
 			case CHAPTER_24B_VENDOR_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24B_VENDOR_1, CHAPTER_24B_VENDOR_2));
+			case CHAPTER_24B_SECRET:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_24B_VENDOR_1, CHAPTER_24B_VENDOR_2, CHAPTER_24B_ARMORY_1, CHAPTER_24B_ARMORY_2, CHAPTER_24B_SECRET));
+			case CHAPTER_25_ARMORY:
+			case CHAPTER_25_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_25_ARMORY, CHAPTER_25_VENDOR));
+			case CHAPTER_26_ARMORY:
+			case CHAPTER_26_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_26_ARMORY, CHAPTER_26_VENDOR));
+			case CHAPTER_29_ARMORY:
+			case CHAPTER_29_VENDOR:
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_29_ARMORY, CHAPTER_29_VENDOR));
 			case CHAPTER_31X_ARMORY_1:
 			case CHAPTER_31X_ARMORY_2:
 			case CHAPTER_31X_ARMORY_3:
 			case CHAPTER_31X_ARMORY_4:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_31X_ARMORY_1, CHAPTER_31X_ARMORY_2, CHAPTER_31X_ARMORY_3, CHAPTER_31X_ARMORY_4));
 			case CHAPTER_31X_VENDOR_1:
 			case CHAPTER_31X_VENDOR_2:
-				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_31X_VENDOR_1, CHAPTER_31X_VENDOR_2));
+				return new HashSet<GBAFEShop>(Arrays.asList(CHAPTER_31X_VENDOR_1, CHAPTER_31X_VENDOR_2, CHAPTER_31X_ARMORY_1, CHAPTER_31X_ARMORY_2, CHAPTER_31X_ARMORY_3, CHAPTER_31X_ARMORY_4));
 			default:
 				return new HashSet<GBAFEShop>(Arrays.asList(this));
 			}
@@ -4160,6 +4183,14 @@ public class FE7Data implements GBAFECharacterProvider, GBAFEClassProvider, GBAF
 	
 	public Set<GBAFEItem> playerOnlyWeapons() {
 		return new HashSet<GBAFEItem>();
+	}
+	
+	public Set<Integer> restrictedClassIDsForWeapon(GBAFEItem weapon) {
+		if (weapon == Item.WO_DAO) {
+			return new HashSet<Integer>(Arrays.asList(CharacterClass.MYRMIDON.ID, CharacterClass.MYRMIDON_F.ID, CharacterClass.SWORDMASTER.ID, CharacterClass.SWORDMASTER_F.ID, CharacterClass.LORD_LYN.ID, CharacterClass.BLADE_LORD.ID));
+		}
+		
+		return new HashSet<Integer>();
 	}
 	
 	public Set<GBAFEItem> promoWeapons() {

@@ -50,7 +50,7 @@ public class GBAItemsTab extends YuneTabGridItem {
         setViewData(statboosters, 1, 4);
         rewards = addView(new RewardRandomizationView(container, type));
         prfs = addView(new PrfView(container));
-        shops = addView(new ShopView(container));
+        shops = addView(new ShopView(container, type));
     }
 
     @Override

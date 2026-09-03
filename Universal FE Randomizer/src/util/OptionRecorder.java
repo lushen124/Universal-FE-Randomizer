@@ -17,7 +17,7 @@ import java.util.prefs.Preferences;
 
 public class OptionRecorder {
     private static final Integer FE4OptionBundleVersion = 7;
-    private static final Integer GBAOptionBundleVersion = 19;
+    private static final Integer GBAOptionBundleVersion = 20;
     private static final Integer FE9OptionBundleVersion = 16;
 
     public static class AllOptions {

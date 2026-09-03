@@ -72,6 +72,7 @@ public class DebugPrinter {
 //		case PALETTE_RECYCLER:
 //		case CHAPTER_LOADER:
 		case CLASS_RANDOMIZER:
+		case GBA_RANDOM_RECRUITMENT:
 			return true;
 //		case MAIN:
 //		case FE9_ARMY_LOADER:

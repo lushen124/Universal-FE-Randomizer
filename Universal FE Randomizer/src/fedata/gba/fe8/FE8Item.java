@@ -636,7 +636,7 @@ public class FE8Item implements GBAFEItemData {
 
 	@Override
 	public void turnIntoLordWeapon(int lordID, int nameIndex, int descriptionIndex, WeaponType weaponType,
-			boolean isUnbreakable, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData,
+			boolean isUnbreakable, boolean isEffective, int targetWeaponWeight, GBAFEItemData referenceItem, ItemDataLoader itemData,
 			FreeSpaceManager freeSpace) {
 		// Update name and description pointers.
 		byte[] nameData = WhyDoesJavaNotHaveThese.byteArrayFromLongValue(nameIndex, true, 2);
@@ -672,23 +672,27 @@ public class FE8Item implements GBAFEItemData {
 		data[11] = 0; // Byte 4 looks to be unused?
 		// Null out stat bonuses.
 		setStatBonusPointer(0);
-		// Effectiveness. It should be effective against Knights and Cavs. If it's a bow, it also needs fliers.
-		long knightCavClassOffsets = itemData.offsetForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
-		if (weaponType == WeaponType.BOW) {
-			byte[] flierClassIDs = itemData.bytesForAdditionalData(AdditionalData.FLIERS_EFFECT);
-			byte[] knightCavClassIDs = itemData.bytesForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
-			ByteArrayBuilder newClassIDs = new ByteArrayBuilder();
-			newClassIDs.appendBytes(knightCavClassIDs);
-			if (newClassIDs.getLastByteWritten() == 0) {
-				newClassIDs.deleteLastByte();
+		if (isEffective) {
+			// Effectiveness. It should be effective against Knights and Cavs. If it's a bow, it also needs fliers.
+			long knightCavClassOffsets = itemData.offsetForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
+			if (weaponType == WeaponType.BOW) {
+				byte[] flierClassIDs = itemData.bytesForAdditionalData(AdditionalData.FLIERS_EFFECT);
+				byte[] knightCavClassIDs = itemData.bytesForAdditionalData(AdditionalData.KNIGHTCAV_EFFECT);
+				ByteArrayBuilder newClassIDs = new ByteArrayBuilder();
+				newClassIDs.appendBytes(knightCavClassIDs);
+				if (newClassIDs.getLastByteWritten() == 0) {
+					newClassIDs.deleteLastByte();
+				}
+				newClassIDs.appendBytes(flierClassIDs);
+				if (newClassIDs.getLastByteWritten() != 0) {
+					newClassIDs.appendByte((byte)0);
+				}
+				setEffectivenessPointer(freeSpace.setValue(newClassIDs.toByteArray(), "Knights, Cavs, and Flier Effectiveness"));
+			} else {
+				setEffectivenessPointer(knightCavClassOffsets);
 			}
-			newClassIDs.appendBytes(flierClassIDs);
-			if (newClassIDs.getLastByteWritten() != 0) {
-				newClassIDs.appendByte((byte)0);
-			}
-			setEffectivenessPointer(freeSpace.setValue(newClassIDs.toByteArray(), "Knights, Cavs, and Flier Effectiveness"));
 		} else {
-			setEffectivenessPointer(knightCavClassOffsets);
+			setEffectivenessPointer(0);
 		}
 		
 		setDurability(referenceItem.getDurability());
@@ -712,7 +716,7 @@ public class FE8Item implements GBAFEItemData {
 
 	@Override
 	public GBAFEItemData createLordWeapon(int lordID, int newItemID, int nameIndex, int descriptionIndex,
-			WeaponType weaponType, boolean isUnbreakable, int targetWeaponWeight, int iconIndex,
+			WeaponType weaponType, boolean isUnbreakable, boolean isEffective, int targetWeaponWeight, int iconIndex,
 			ItemDataLoader itemData, FreeSpaceManager freeSpace) {
 		// TODO Auto-generated method stub
 		return null;

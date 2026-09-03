@@ -650,7 +650,7 @@ public class ClassRandomizer {
 						}
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
-					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, chapter, ranged, melee, charData, classData, itemData, textData, forceBasicWeapons, excludeBasicWeapons, highestRankMustBeWeapon, false, type, rng);
+					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, chapter, ranged, melee, charData, classData, itemData, textData, forceBasicWeapons, excludeBasicWeapons, highestRankMustBeWeapon, false, false, type, rng);
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
@@ -697,7 +697,7 @@ public class ClassRandomizer {
 						}
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
-					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, chapter, ranged, melee, charData, classData, itemData, textData, forceBasicWeapons, excludeBasicWeapons, highestRankMustBeWeapon, true, type, rng);
+					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, chapter, ranged, melee, charData, classData, itemData, textData, forceBasicWeapons, excludeBasicWeapons, highestRankMustBeWeapon, true, true, type, rng);
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
@@ -787,7 +787,7 @@ public class ClassRandomizer {
 						}
 					}
 					chapterUnit.setStartingClass(targetClass.getID());
-					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, chapter, ranged, melee, charData, classData, itemData, textData, forceBasicWeapons, excludeBasicWeapons, highestRankMustBeWeapon, isBoss, type, rng);
+					validateCharacterInventory(inventoryOptions, character, targetClass, chapterUnit, chapter, ranged, melee, charData, classData, itemData, textData, forceBasicWeapons, excludeBasicWeapons, highestRankMustBeWeapon, isBoss, isBoss, type, rng);
 					if (classData.isThief(sourceClass.getID())) {
 						validateFormerThiefInventory(chapterUnit, itemData);
 					}
@@ -1218,7 +1218,7 @@ public class ClassRandomizer {
 		return replacementItem;
 	}
 	
-	public static void validateCharacterInventory(ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData charClass, GBAFEChapterUnitData chapterUnit, GBAFEChapterData chapterData, Boolean ranged, Boolean melee, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, boolean excludeBasic, boolean highestRankMustBeWeapon, boolean canUseAnyWeapon, GameType type, Random rng) {
+	public static void validateCharacterInventory(ItemAssignmentOptions inventoryOptions, GBAFECharacterData character, GBAFEClassData charClass, GBAFEChapterUnitData chapterUnit, GBAFEChapterData chapterData, Boolean ranged, Boolean melee, CharacterDataLoader charData, ClassDataLoader classData, ItemDataLoader itemData, TextLoader textData, Boolean forceBasic, boolean excludeBasic, boolean highestRankMustBeWeapon, boolean canUseAnyWeapon, boolean upgradeRanksIfNeeded, GameType type, Random rng) {
 		if (chapterData.shouldCharacterBeUnarmed(character.getID())) {
 			DebugPrinter.log(DebugPrinter.Key.CLASS_RANDOMIZER, "Chapter unit should be unarmed. Removing all items for character 0x" + Integer.toHexString(character.getID()) + " (" + character.displayString() + ") in chapter " + chapterData.getFriendlyName() + "");
 			chapterUnit.removeAllItems();
@@ -1390,47 +1390,49 @@ public class ClassRandomizer {
 		item4 = itemData.itemWithID(chapterUnit.getItem4());
 		
 		// Verify ranks. Increase ranks as needed if not specified.
-		WeaponRanks characterRanks = character.getWeaponRanks();
-		boolean didUpdateRanks = false;
-		if (characterRanks.getHighestRank() != null) {
-			if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
-				WeaponType weaponType = item1.getType();
-				WeaponRank weaponRank = item1.getWeaponRank();
-				
-				WeaponRank typeRank = characterRanks.rankForType(weaponType);
-				if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
-					characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
-					didUpdateRanks = true;
+		if (upgradeRanksIfNeeded) {
+			WeaponRanks characterRanks = character.getWeaponRanks();
+			boolean didUpdateRanks = false;
+			if (characterRanks.getHighestRank() != null) {
+				if (item1 != null && item1.getType() != WeaponType.NOT_A_WEAPON) {
+					WeaponType weaponType = item1.getType();
+					WeaponRank weaponRank = item1.getWeaponRank();
+					
+					WeaponRank typeRank = characterRanks.rankForType(weaponType);
+					if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
+						characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
+						didUpdateRanks = true;
+					}
 				}
-			}
-			if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
-				WeaponType weaponType = item2.getType();
-				WeaponRank weaponRank = item2.getWeaponRank();
-				
-				WeaponRank typeRank = characterRanks.rankForType(weaponType);
-				if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
-					characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
-					didUpdateRanks = true;
+				if (item2 != null && item2.getType() != WeaponType.NOT_A_WEAPON) {
+					WeaponType weaponType = item2.getType();
+					WeaponRank weaponRank = item2.getWeaponRank();
+					
+					WeaponRank typeRank = characterRanks.rankForType(weaponType);
+					if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
+						characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
+						didUpdateRanks = true;
+					}
 				}
-			}
-			if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
-				WeaponType weaponType = item3.getType();
-				WeaponRank weaponRank = item3.getWeaponRank();
-				
-				WeaponRank typeRank = characterRanks.rankForType(weaponType);
-				if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
-					characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
-					didUpdateRanks = true;
+				if (item3 != null && item3.getType() != WeaponType.NOT_A_WEAPON) {
+					WeaponType weaponType = item3.getType();
+					WeaponRank weaponRank = item3.getWeaponRank();
+					
+					WeaponRank typeRank = characterRanks.rankForType(weaponType);
+					if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
+						characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
+						didUpdateRanks = true;
+					}
 				}
-			}
-			if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
-				WeaponType weaponType = item4.getType();
-				WeaponRank weaponRank = item4.getWeaponRank();
-				
-				WeaponRank typeRank = characterRanks.rankForType(weaponType);
-				if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
-					characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
-					didUpdateRanks = true;
+				if (item4 != null && item4.getType() != WeaponType.NOT_A_WEAPON) {
+					WeaponType weaponType = item4.getType();
+					WeaponRank weaponRank = item4.getWeaponRank();
+					
+					WeaponRank typeRank = characterRanks.rankForType(weaponType);
+					if (typeRank.isLowerThan(weaponRank) && typeRank != WeaponRank.NONE) {
+						characterRanks = new WeaponRanks(characterRanks, weaponType, weaponRank);
+						didUpdateRanks = true;
+					}
 				}
 			}
 			
@@ -1458,6 +1460,10 @@ public class ClassRandomizer {
 	}
 	
 	private static Boolean canCharacterUseItem(GBAFECharacterData character, GBAFEItemData weapon, ItemDataLoader itemData) {
+		if (itemData.canCharacterClassUseWeapon(character.getClassID(), weapon) == false) {
+			return false;
+		}
+		
 		int weaponRankValue = itemData.weaponRankValueForRank(weapon.getWeaponRank());
 		if ((weapon.getType() == WeaponType.SWORD && character.getSwordRank() >= weaponRankValue) ||
 				(weapon.getType() == WeaponType.LANCE && character.getLanceRank() >= weaponRankValue) ||

@@ -2,6 +2,7 @@ package random.gba.randomizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -14,78 +15,84 @@ import random.gba.loader.ItemDataLoader;
 import random.gba.loader.ShopLoader;
 import random.general.PoolDistributor;
 import random.general.WeightedDistributor;
+import ui.model.ShopOptions;
 
 public class ShopRandomizer {
 	
 	public static int rngSalt = 8480;
 	
 	private enum ItemQuality {
-		EARLY, MID, LATE, SECRET, SUPER_SECRET;
+		ANY, EARLY, MID, LATE, SECRET, SUPER_SECRET;
 	}
 
-	public static void randomizeShops(ShopLoader shopData, ItemDataLoader itemData, boolean includePromoWeapons, boolean includePoisonWeapons, int minimumItemsPerShop, int maximumItemsPerShop, Random rng) {
+	public static void randomizeShops(ShopLoader shopData, ItemDataLoader itemData, boolean includePromoWeapons, boolean includePoisonWeapons, ShopOptions options, Random rng) {
 		List<GBAFEShop> allShops = shopData.getAllShops();
 		for (GBAFEShop shop : allShops) {
 			if (shopData.shopWasUpdated(shop)) { continue; }
+			if (shopData.isMapShop(shop) && options.randomizeMapShops == false) { continue; }
 			
 			List<GBAFEShop> linked = new ArrayList<GBAFEShop>(shop.groupedShops());
+			linked.sort(new Comparator<GBAFEShop>() {
+				@Override
+				public int compare(GBAFEShop o1, GBAFEShop o2) {
+					return Integer.compare(allShops.indexOf(o1), allShops.indexOf(o2));
+				}
+			});
 			Set<GBAFEItemData> sharedItemList = new HashSet<GBAFEItemData>();
 			
 			for (GBAFEShop currentShop : linked) {
+				if (shopData.isMapShop(currentShop) && options.randomizeMapShops == false) { continue; }
 				WeightedDistributor<ItemQuality> distributor = new WeightedDistributor<ItemQuality>();
 				
-				switch (currentShop.getGameStage()) {
-				case EARLY:
-					// 80% early, 15% mid, 4% late, 1% secret
-					distributor.addItem(ItemQuality.EARLY, 80);
-					distributor.addItem(ItemQuality.MID, 15);
-					distributor.addItem(ItemQuality.LATE, 4);
-					distributor.addItem(ItemQuality.SECRET, 1);
-					break;
-				case MID:
-					// 15% early, 60% mid, 20% late, 4% secret, 1% rare secret
-					distributor.addItem(ItemQuality.EARLY, 15);
-					distributor.addItem(ItemQuality.MID, 60);
-					distributor.addItem(ItemQuality.LATE, 20);
-					distributor.addItem(ItemQuality.SECRET, 4);
-					distributor.addItem(ItemQuality.SUPER_SECRET, 1);
-					break;
-				case LATE:
-					// 10% early, 30% mid, 50% late, 8% secret, 2% rare secret
-					distributor.addItem(ItemQuality.EARLY, 10);
-					distributor.addItem(ItemQuality.MID, 30);
-					distributor.addItem(ItemQuality.LATE, 50);
-					distributor.addItem(ItemQuality.SECRET, 8);
-					distributor.addItem(ItemQuality.SUPER_SECRET, 2);
-					break;
+				if (options.useProgressionWeights) {
+					switch (currentShop.getGameStage()) {
+					case EARLY:
+						// 70% early, 20% mid, 9% late, 1% secret
+						distributor.addItem(ItemQuality.EARLY, 70);
+						distributor.addItem(ItemQuality.MID, 20);
+						distributor.addItem(ItemQuality.LATE, 9);
+						distributor.addItem(ItemQuality.SECRET, 1);
+						break;
+					case MID:
+						// 25% early, 50% mid, 15% late, 8% secret, 2% rare secret
+						distributor.addItem(ItemQuality.EARLY, 25);
+						distributor.addItem(ItemQuality.MID, 50);
+						distributor.addItem(ItemQuality.LATE, 15);
+						distributor.addItem(ItemQuality.SECRET, 8);
+						distributor.addItem(ItemQuality.SUPER_SECRET, 2);
+						break;
+					case LATE:
+						// 10% early, 25% mid, 45% late, 16% secret, 4% rare secret
+						distributor.addItem(ItemQuality.EARLY, 10);
+						distributor.addItem(ItemQuality.MID, 25);
+						distributor.addItem(ItemQuality.LATE, 45);
+						distributor.addItem(ItemQuality.SECRET, 16);
+						distributor.addItem(ItemQuality.SUPER_SECRET, 4);
+						break;
+					}
+				} else {
+					distributor.addItem(ItemQuality.ANY, 1);
 				}
 				
-				PoolDistributor<GBAFEItemData> earlyPool = new PoolDistributor<GBAFEItemData>();
-				PoolDistributor<GBAFEItemData> midPool = new PoolDistributor<GBAFEItemData>();
-				PoolDistributor<GBAFEItemData> latePool = new PoolDistributor<GBAFEItemData>();
-				PoolDistributor<GBAFEItemData> secretPool = new PoolDistributor<GBAFEItemData>();
-				PoolDistributor<GBAFEItemData> superSecretPool = new PoolDistributor<GBAFEItemData>();
+				PoolDistributor<GBAFEItemData> earlyPool = new PoolDistributor<GBAFEItemData>(false);
+				PoolDistributor<GBAFEItemData> midPool = new PoolDistributor<GBAFEItemData>(false);
+				PoolDistributor<GBAFEItemData> latePool = new PoolDistributor<GBAFEItemData>(false);
+				PoolDistributor<GBAFEItemData> secretPool = new PoolDistributor<GBAFEItemData>(false);
+				PoolDistributor<GBAFEItemData> superSecretPool = new PoolDistributor<GBAFEItemData>(false);
 				
 				if (shopData.isArmory(currentShop)) {
-					earlyPool.addAll(itemData.earlyGameArmory());
-					midPool.addAll(itemData.midGameArmory());
-					latePool.addAll(itemData.lateGameArmory());
-					List<GBAFEItemData> secretItems = itemData.secretItems();
-					secretItems.removeIf(item -> item.getType() == WeaponType.NOT_A_WEAPON || item.getType() == WeaponType.STAFF || item.getType() == WeaponType.ANIMA || item.getType() == WeaponType.DARK || item.getType() == WeaponType.LIGHT);
-					secretPool.addAll(secretItems);
-					List<GBAFEItemData> superSecretItems = itemData.rareSecretItems();
-					superSecretItems.removeIf(item -> item.getType() == WeaponType.NOT_A_WEAPON || item.getType() == WeaponType.STAFF || item.getType() == WeaponType.ANIMA || item.getType() == WeaponType.DARK || item.getType() == WeaponType.LIGHT);
-					superSecretPool.addAll(superSecretItems);
+					addArmoryToPools(itemData, earlyPool, midPool, latePool, secretPool, superSecretPool);
+					if (options.mixArmoryVendor) {
+						addVendorToPools(itemData, earlyPool, midPool, latePool, secretPool, superSecretPool);
+						if (options.mixSecretVendor) {
+							addSecretToPools(itemData, secretPool, superSecretPool);
+						}
+					}
 				} else if (shopData.isVendor(currentShop)) {
-					earlyPool.addAll(itemData.earlyGameVendor());
-					midPool.addAll(itemData.midGameVendor());
-					latePool.addAll(itemData.lateGameVendor());
-					List<GBAFEItemData> secretItems = itemData.secretItems();
-					secretItems.removeIf(item -> item.getType() == WeaponType.SWORD || item.getType() == WeaponType.LANCE || item.getType() == WeaponType.AXE || item.getType() == WeaponType.BOW);
-					secretPool.addAll(secretItems);
-					List<GBAFEItemData> superSecretItems = itemData.rareSecretItems();
-					superSecretItems.removeIf(item -> item.getType() == WeaponType.SWORD || item.getType() == WeaponType.LANCE || item.getType() == WeaponType.AXE || item.getType() == WeaponType.BOW);
-					superSecretPool.addAll(superSecretItems);
+					addVendorToPools(itemData, earlyPool, midPool, latePool, secretPool, superSecretPool);
+					if (options.mixSecretVendor) {
+						addSecretToPools(itemData, secretPool, superSecretPool);
+					}
 				} else { // Secret shops.
 					distributor = new WeightedDistributor<ItemQuality>();
 					switch (currentShop.getGameStage()) {
@@ -106,10 +113,7 @@ public class ShopRandomizer {
 						break;
 					}
 					
-					List<GBAFEItemData> secretItems = itemData.secretItems();
-					secretPool.addAll(secretItems);
-					List<GBAFEItemData> superSecretItems = itemData.rareSecretItems();
-					superSecretPool.addAll(superSecretItems);
+					addSecretToPools(itemData, secretPool, superSecretPool);
 				}
 				
 				if (includePoisonWeapons == false) {
@@ -136,13 +140,34 @@ public class ShopRandomizer {
 					}
 				}
 				
+				PoolDistributor<GBAFEItemData> anyPool = new PoolDistributor<GBAFEItemData>();
+				anyPool.addAll(earlyPool.possibleResults());
+				anyPool.addAll(midPool.possibleResults());
+				anyPool.addAll(latePool.possibleResults());
+				anyPool.addAll(secretPool.possibleResults());
+				anyPool.addAll(superSecretPool.possibleResults());
+				
 				List<GBAFEItemData> newShopList = new ArrayList<GBAFEItemData>();
-				int range = maximumItemsPerShop - minimumItemsPerShop;
-				int numberOfItems = rng.nextInt(range) + minimumItemsPerShop;
-				while (newShopList.size() < numberOfItems && distributor.possibleResults().isEmpty() == false) {
+				int range = options.shopSize.maxValue - options.shopSize.minValue;
+				int numberOfItems = rng.nextInt(range + 1) + options.shopSize.minValue;
+				if (shopData.isMapShop(currentShop)) {
+					numberOfItems = Math.max(options.shopSize.maxValue, shopData.getItemsInShop(currentShop).size());
+				}
+				while (newShopList.size() < numberOfItems) {
+					if (distributor.possibleResults().isEmpty()) {
+						distributor.addItem(ItemQuality.ANY, 1);
+					}
 					ItemQuality quality = distributor.getRandomItem(rng);
 					GBAFEItemData addedItem = null;
 					switch (quality) {
+					case ANY:
+						addedItem = addRandomElement(newShopList, sharedItemList, anyPool, rng, false);
+						if (addedItem == null) {
+							assert sharedItemList.size() >= anyPool.possibleResults().size(): "No items remaining for this group of shops, but we haven't exhausted all items yet somehow.";
+							sharedItemList.clear();
+							continue;
+						}
+						break;
 					case EARLY:
 						addedItem = addRandomElement(newShopList, sharedItemList, earlyPool, rng, false);
 						if (addedItem == null) {
@@ -185,9 +210,53 @@ public class ShopRandomizer {
 					}
 				}
 				
+				newShopList.sort(GBAFEItemData.idComparator);
 				shopData.setItemsInShop(currentShop, newShopList);
 			}
 		}
+	}
+	
+	private static void addArmoryToPools(ItemDataLoader itemData,
+			PoolDistributor<GBAFEItemData> early, 
+			PoolDistributor<GBAFEItemData> mid, 
+			PoolDistributor<GBAFEItemData> late, 
+			PoolDistributor<GBAFEItemData> secret, 
+			PoolDistributor<GBAFEItemData> superSecret) {
+		early.addAll(itemData.earlyGameArmory());
+		mid.addAll(itemData.midGameArmory());
+		late.addAll(itemData.lateGameArmory());
+		List<GBAFEItemData> secretItems = itemData.secretItems();
+		secretItems.removeIf(item -> item.getType() == WeaponType.NOT_A_WEAPON || item.getType() == WeaponType.STAFF || item.getType() == WeaponType.ANIMA || item.getType() == WeaponType.DARK || item.getType() == WeaponType.LIGHT);
+		secret.addAll(secretItems);
+		List<GBAFEItemData> superSecretItems = itemData.rareSecretItems();
+		superSecretItems.removeIf(item -> item.getType() == WeaponType.NOT_A_WEAPON || item.getType() == WeaponType.STAFF || item.getType() == WeaponType.ANIMA || item.getType() == WeaponType.DARK || item.getType() == WeaponType.LIGHT);
+		superSecret.addAll(superSecretItems);
+	}
+	
+	private static void addVendorToPools(ItemDataLoader itemData,
+			PoolDistributor<GBAFEItemData> early, 
+			PoolDistributor<GBAFEItemData> mid, 
+			PoolDistributor<GBAFEItemData> late, 
+			PoolDistributor<GBAFEItemData> secret, 
+			PoolDistributor<GBAFEItemData> superSecret) {
+		early.addAll(itemData.earlyGameVendor());
+		mid.addAll(itemData.midGameVendor());
+		late.addAll(itemData.lateGameVendor());
+		List<GBAFEItemData> secretItems = itemData.secretItems();
+		secretItems.removeIf(item -> item.getType() == WeaponType.SWORD || item.getType() == WeaponType.LANCE || item.getType() == WeaponType.AXE || item.getType() == WeaponType.BOW);
+		secret.addAll(secretItems);
+		List<GBAFEItemData> superSecretItems = itemData.rareSecretItems();
+		superSecretItems.removeIf(item -> item.getType() == WeaponType.SWORD || item.getType() == WeaponType.LANCE || item.getType() == WeaponType.AXE || item.getType() == WeaponType.BOW);
+		superSecret.addAll(superSecretItems);
+	}
+	
+	private static void addSecretToPools(ItemDataLoader itemData,
+			PoolDistributor<GBAFEItemData> secret, 
+			PoolDistributor<GBAFEItemData> superSecret) {
+		List<GBAFEItemData> secretItems = itemData.secretItems();
+		secret.addAll(secretItems);
+		List<GBAFEItemData> superSecretItems = itemData.rareSecretItems();
+		superSecret.addAll(superSecretItems);
 	}
 	
 	private static GBAFEItemData addRandomElement(List<GBAFEItemData> destination, Set<GBAFEItemData> excludeSet, PoolDistributor<GBAFEItemData> pool, Random rng, boolean deprioritizeWeapons) {

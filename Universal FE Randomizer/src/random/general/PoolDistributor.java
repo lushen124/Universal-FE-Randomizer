@@ -1,6 +1,7 @@
 package random.general;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -10,10 +11,19 @@ public class PoolDistributor<T> {
 
 	List<T> itemList;
 	Set<T> itemSet;
+	
+	boolean allowDuplicates;
 
 	public PoolDistributor() {
 		itemList = new ArrayList<T>();
 		itemSet = new HashSet<T>();
+		allowDuplicates = true;
+	}
+	
+	public PoolDistributor(boolean allowDuplicates) {
+		itemList = new ArrayList<T>();
+		itemSet = new HashSet<T>();
+		this.allowDuplicates = allowDuplicates;
 	}
 
 	public void addAll(T... items) {
@@ -22,7 +32,7 @@ public class PoolDistributor<T> {
 		}
 	}
 
-	public void addAll(List<T> items) {
+	public void addAll(Collection<T> items) {
 		for (T item : items) {
 			addItem(item, 1);
 		}
@@ -34,6 +44,10 @@ public class PoolDistributor<T> {
 
 	public void addItem(T item, int count) {
 		if (item == null) {
+			return;
+		}
+		
+		if (allowDuplicates == false && itemSet.contains(item)) {
 			return;
 		}
 		
