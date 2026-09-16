@@ -1,0 +1,32 @@
+OnlyShowWeaponRanksForRankedWeapons: Has a dependacy on MeleeAndMagicFix. This allows for custom classes and cause bugs is Magic showing instead of strength and possiably cause issues with Magic Seals
+
+LeadAI1Fix: Fix the bug of AI1 "0x0D Attack if enemy is in the range of commander". If the leader is defeated, change his men to charge assault AI (00 = Chance of Action 100%)
+
+FasterDangerSquares: Seems like a small improvement.
+
+RNGRandomizer: Even if resetting and re-operation do not get the same result. (Lyn tutoial is hard coded)
+
+Maybe try and get this UPS downloaded as well
+ https://feuniverse.us/t/fe8-allow-forced-units-to-change-their-starting-position/4664
+
+FimbulverGlitchFix: Fimbulvetr Glitch occurs because drawing a lot of animation of a snowstorm causes the Procs area to be exhausted.This patch reduces the amount of snow and makes bugs less likely to occur. The more you reduce it, the safer it is, but the amount of snowstorm decreases.
+
+FixGenerateBestMovementScriptGlitch: Fixed a bug that would cause a hang when trying to move to a tile that cannot be moved. When trying to move GBAFE to a tile that cannot be moved, such as inside a wall, the image hangs with vertical lines. This patch fixes that issue. What you have to be careful about is that this patch only prevents it from hanging up, and if you move it to unreasonable coordinates that are not originally intended for movement, it will look quite strange.
+
+Allow Forced Units to change starting positions: https://feuniverse.us/t/fe7-fe8-allow-forced-units-to-change-their-starting-position/4664
+At 0x33750 and 0x9543E, the game branches to 0x953F0 (which eventually branches to 0x84800 to check the current chapter’s forced units list). The branch done at 0x9543E seems to be for checking if a starting position should show up as blue (an allowed starting position), while the branch done at 0x33750 is for checking if the unit that is swapping (or is being swapped with) can change their position.
+
+Writing 0x00 0x20 0x00 0x00 at 0x33750 and 0x9543E will allow forced units to swap with other deployed player units, and also allow other player units to swap to those forced unit positions.
+
+This works for FE7 and FE8 here are the locations for that data for different versions of the game. (not sure if we can detect that, or are going to support other versions).
+
+FE7J
+30C6C and 8E7B6
+
+FE7U
+30780 and 8DE8A
+
+FE8J
+33660 and 9771E
+
+In FE 7, the values to be written are the same. 0x00 0x20 0x00 0x00
