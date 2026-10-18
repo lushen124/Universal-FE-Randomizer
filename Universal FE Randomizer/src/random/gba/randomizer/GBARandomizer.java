@@ -708,6 +708,7 @@ public class GBARandomizer extends Randomizer {
 				diffCompiler.addDiff(new Diff(0x78d78, fixData.length, fixData, null));
 				
 				fe8_walkingSoundFixApplied = true;
+
 			} catch (Exception e) {
 				
 			}
@@ -789,7 +790,11 @@ public class GBARandomizer extends Randomizer {
 			GBAFECharacterData lucius = charData.characterWithID(FE7Data.Character.LUCIUS.ID);
 			GBAFEItemData luciusItem = itemData.getBasicWeaponForCharacter(lucius, false, false, rng);
 			// This byte lives at 0x7d0c2, which in ASM is a MOV constant into r0. Normally it's 0x3E (which is Lightning).
+			/*
+			COMMENTED OUT DUE TO BUG IF LUCIUS BECOMES A BARD
 			diffCompiler.addDiff(new Diff(0x7D0C2L, 1, new byte[] {(byte)luciusItem.getID()}, new byte[] {0x3E}));
+			*/
+
 			// In case it's useful, he also gets a Vulnerary that's set at 0x7D0D8, which is normally 0x6B for a Vulnerary.
 		}
 
@@ -1051,8 +1056,12 @@ public class GBARandomizer extends Randomizer {
 					}
 				}
 			}
+			//Will need to see if monsters are in the randomizer pool
+			if(gameType == GameType.FE8){
+				updatePromotionItemsForMonstersFE8();
+			}
 		}
-		
+
 		// Make sure no non-playable non-thief units have lock picks, as they will softlock the game when the AI gets a hold of them.
 		if (gameType == GameType.FE6) {
 			for (GBAFEChapterData chapter : chapterData.allChapters()) {
@@ -3058,5 +3067,117 @@ public class GBARandomizer extends Randomizer {
 		}
 		
 		return rk;
+	}
+	private void updatePromotionItemsForMonstersFE8(){
+
+			int[] monsterPromotionItems = {FE8Data.Item.KNIGHT_CREST.getID(),FE8Data.Item.HERO_CREST.getID(), FE8Data.Item.ORION_BOLT.getID(),FE8Data.Item.ELYSIAN_WHIP.getID(), FE8Data.Item.GUIDING_RING.getID()};
+			for(int promotionItem : monsterPromotionItems){
+				String newPromoItemText;
+				String itemName;
+				//will want another run with this again i updated the wrong one. Still may need the patch
+
+				switch (promotionItem){
+					case 0x64 -> {
+						itemName = "Hero Crest:";
+						newPromoItemText = "For mercenary, myrmidon,[0x1]" +
+								"fighter, revenant, bonewalker,[0x1]" +
+								"and doog Lv. 10 and up.";
+
+						GBAFEItemData item = itemData.itemWithID(promotionItem);
+						int descriptionIndex = item.getDescriptionIndex();
+
+						DebugPrinter.log(
+								DebugPrinter.Key.MISC,
+								itemName + " description updated to: " + newPromoItemText
+						);
+
+						textData.setStringAtIndex(
+								descriptionIndex,
+								newPromoItemText + "[X]"
+						);
+					}
+					case 0x65 -> {
+						itemName = "Knight's Crest:";
+						newPromoItemText = "For knights, cavaliers,[0x1]" +
+								"tarvos and bael[0x1]" +
+								"Lv. 10 and up.";
+
+						GBAFEItemData item = itemData.itemWithID(promotionItem);
+						int descriptionIndex = item.getDescriptionIndex();
+
+						DebugPrinter.log(
+								DebugPrinter.Key.MISC,
+								itemName + " description updated to: " + newPromoItemText
+						);
+
+						textData.setStringAtIndex(
+								descriptionIndex,
+								newPromoItemText + "[X]"
+						);
+					}
+					case 0x66 -> {
+						itemName = "Orion's Bolt:";
+
+						newPromoItemText =
+								"For archers[0x1]"
+										+ "and bow bonewalkers[0x1]"
+										+ "Lv. 10 and up.";
+
+						GBAFEItemData item = itemData.itemWithID(promotionItem);
+						int descriptionIndex = item.getDescriptionIndex();
+
+						DebugPrinter.log(
+								DebugPrinter.Key.MISC,
+								itemName + " description updated to: " + newPromoItemText
+						);
+
+						textData.setStringAtIndex(
+								descriptionIndex,
+								newPromoItemText + "[X]"
+						);
+					}
+					case 0x67 -> {
+						itemName = "Elysian Whip:";
+						newPromoItemText = "For pegasus knights,[0x1]" +
+								"wyvern riders, and gargoyles [0x1]" +
+								"Lv. 10 and up.";
+
+						GBAFEItemData item = itemData.itemWithID(promotionItem);
+						int descriptionIndex = item.getDescriptionIndex();
+
+						DebugPrinter.log(
+								DebugPrinter.Key.MISC,
+								itemName + " description updated to: " + newPromoItemText
+						);
+
+						textData.setStringAtIndex(
+								descriptionIndex,
+								newPromoItemText + "[X]"
+						);
+					}
+					case 0x68 -> {
+						itemName = "Guiding Ring:";
+						newPromoItemText = "For magic wielders,[0x1]" +
+								"troubadours, and mogall[0x1]" +
+								"Lv. 10 and up.";
+
+						GBAFEItemData item = itemData.itemWithID(promotionItem);
+						int descriptionIndex = item.getDescriptionIndex();
+
+						DebugPrinter.log(
+								DebugPrinter.Key.MISC,
+								itemName + " description updated to: " + newPromoItemText
+						);
+
+						textData.setStringAtIndex(
+								descriptionIndex,
+								newPromoItemText + "[X]"
+						);;
+					}
+					default -> {
+						return;
+					}
+				}
+			}
 	}
 }
