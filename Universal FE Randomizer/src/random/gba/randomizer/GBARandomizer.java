@@ -1057,6 +1057,7 @@ public class GBARandomizer extends Randomizer {
 				}
 			}
 			//Will need to see if monsters are in the randomizer pool
+
 			if(gameType == GameType.FE8){
 				updatePromotionItemsForMonstersFE8();
 			}
@@ -3070,114 +3071,78 @@ public class GBARandomizer extends Randomizer {
 	}
 	private void updatePromotionItemsForMonstersFE8(){
 
-			int[] monsterPromotionItems = {FE8Data.Item.KNIGHT_CREST.getID(),FE8Data.Item.HERO_CREST.getID(), FE8Data.Item.ORION_BOLT.getID(),FE8Data.Item.ELYSIAN_WHIP.getID(), FE8Data.Item.GUIDING_RING.getID()};
-			for(int promotionItem : monsterPromotionItems){
-				String newPromoItemText;
-				String itemName;
-				//will want another run with this again i updated the wrong one. Still may need the patch
+		int[] monsterPromotionItems = {FE8Data.Item.KNIGHT_CREST.getID(),FE8Data.Item.HERO_CREST.getID(), FE8Data.Item.ORION_BOLT.getID(),FE8Data.Item.ELYSIAN_WHIP.getID(), FE8Data.Item.GUIDING_RING.getID()};
 
-				switch (promotionItem){
-					case 0x64 -> {
-						itemName = "Hero Crest:";
-						newPromoItemText = "For mercenary, myrmidon,[0x1]" +
-								"fighter, revenant, bonewalker,[0x1]" +
-								"and doog Lv. 10 and up.";
+		for(int promotionItem : monsterPromotionItems){
+			String newPromoItemText;
+			String itemName;
 
-						GBAFEItemData item = itemData.itemWithID(promotionItem);
-						int descriptionIndex = item.getDescriptionIndex();
+			switch (promotionItem){
+				case 0x64 -> {
+					itemName = "Hero Crest:";
+					newPromoItemText = "For mercenary, myrmidon,[0x1]" +
+						"fighter, revenant, bonewalker,[0x1]" +
+						"and doog Lv. 10 and up.";
 
-						DebugPrinter.log(
-								DebugPrinter.Key.MISC,
-								itemName + " description updated to: " + newPromoItemText
-						);
+					GBAFEItemData item = itemData.itemWithID(promotionItem);
+					int descriptionIndex = item.getDescriptionIndex();
 
-						textData.setStringAtIndex(
-								descriptionIndex,
-								newPromoItemText + "[X]"
-						);
-					}
-					case 0x65 -> {
-						itemName = "Knight's Crest:";
-						newPromoItemText = "For knights, cavaliers,[0x1]" +
-								"tarvos and bael[0x1]" +
-								"Lv. 10 and up.";
+					DebugPrinter.log(DebugPrinter.Key.MISC, itemName + " description updated to: " + newPromoItemText);
+					textData.setStringAtIndex(descriptionIndex,newPromoItemText + "[X]");
+				}
+				case 0x65 -> {
+					itemName = "Knight's Crest:";
+					newPromoItemText = "For knights, cavaliers,[0x1]" +
+						"tarvos and bael[0x1]" +
+						"Lv. 10 and up.";
 
-						GBAFEItemData item = itemData.itemWithID(promotionItem);
-						int descriptionIndex = item.getDescriptionIndex();
+					GBAFEItemData item = itemData.itemWithID(promotionItem);
+					int descriptionIndex = item.getDescriptionIndex();
 
-						DebugPrinter.log(
-								DebugPrinter.Key.MISC,
-								itemName + " description updated to: " + newPromoItemText
-						);
+					DebugPrinter.log(DebugPrinter.Key.MISC,itemName + " description updated to: " + newPromoItemText);
+					textData.setStringAtIndex(descriptionIndex,newPromoItemText + "[X]");
+				}
+				case 0x66 -> {
+					itemName = "Orion's Bolt:";
+					newPromoItemText =
+						"For archers[0x1]"
+							+ "and bow bonewalkers[0x1]"
+							+ "Lv. 10 and up.";
 
-						textData.setStringAtIndex(
-								descriptionIndex,
-								newPromoItemText + "[X]"
-						);
-					}
-					case 0x66 -> {
-						itemName = "Orion's Bolt:";
+					GBAFEItemData item = itemData.itemWithID(promotionItem);
+					int descriptionIndex = item.getDescriptionIndex();
 
-						newPromoItemText =
-								"For archers[0x1]"
-										+ "and bow bonewalkers[0x1]"
-										+ "Lv. 10 and up.";
+					DebugPrinter.log(DebugPrinter.Key.MISC,itemName + " description updated to: " + newPromoItemText);
+					textData.setStringAtIndex(descriptionIndex, newPromoItemText + "[X]");
+				}
+				case 0x67 -> {
+					itemName = "Elysian Whip:";
+					newPromoItemText = "For pegasus knights,[0x1]" +
+						"wyvern riders, and gargoyles [0x1]" +
+						"Lv. 10 and up.";
 
-						GBAFEItemData item = itemData.itemWithID(promotionItem);
-						int descriptionIndex = item.getDescriptionIndex();
+					GBAFEItemData item = itemData.itemWithID(promotionItem);
+					int descriptionIndex = item.getDescriptionIndex();
 
-						DebugPrinter.log(
-								DebugPrinter.Key.MISC,
-								itemName + " description updated to: " + newPromoItemText
-						);
+					DebugPrinter.log(DebugPrinter.Key.MISC,itemName + " description updated to: " + newPromoItemText);
+					textData.setStringAtIndex(descriptionIndex, newPromoItemText + "[X]");
+				}
+				case 0x68 -> {
+					itemName = "Guiding Ring:";
+					newPromoItemText = "For magic wielders,[0x1]" +
+						"troubadours, and mogalls[0x1]" +
+						"Lv. 10 and up.";
 
-						textData.setStringAtIndex(
-								descriptionIndex,
-								newPromoItemText + "[X]"
-						);
-					}
-					case 0x67 -> {
-						itemName = "Elysian Whip:";
-						newPromoItemText = "For pegasus knights,[0x1]" +
-								"wyvern riders, and gargoyles [0x1]" +
-								"Lv. 10 and up.";
+					GBAFEItemData item = itemData.itemWithID(promotionItem);
+					int descriptionIndex = item.getDescriptionIndex();
 
-						GBAFEItemData item = itemData.itemWithID(promotionItem);
-						int descriptionIndex = item.getDescriptionIndex();
-
-						DebugPrinter.log(
-								DebugPrinter.Key.MISC,
-								itemName + " description updated to: " + newPromoItemText
-						);
-
-						textData.setStringAtIndex(
-								descriptionIndex,
-								newPromoItemText + "[X]"
-						);
-					}
-					case 0x68 -> {
-						itemName = "Guiding Ring:";
-						newPromoItemText = "For magic wielders,[0x1]" +
-								"troubadours, and mogall[0x1]" +
-								"Lv. 10 and up.";
-
-						GBAFEItemData item = itemData.itemWithID(promotionItem);
-						int descriptionIndex = item.getDescriptionIndex();
-
-						DebugPrinter.log(
-								DebugPrinter.Key.MISC,
-								itemName + " description updated to: " + newPromoItemText
-						);
-
-						textData.setStringAtIndex(
-								descriptionIndex,
-								newPromoItemText + "[X]"
-						);;
-					}
-					default -> {
-						return;
-					}
+					DebugPrinter.log(DebugPrinter.Key.MISC, itemName + " description updated to: " + newPromoItemText);
+					textData.setStringAtIndex(descriptionIndex, newPromoItemText + "[X]");
+				}
+				default -> {
+					return;
 				}
 			}
+		}
 	}
 }
