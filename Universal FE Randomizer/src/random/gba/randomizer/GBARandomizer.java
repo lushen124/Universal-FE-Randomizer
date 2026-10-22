@@ -3070,79 +3070,82 @@ public class GBARandomizer extends Randomizer {
 		return rk;
 	}
 	private void updatePromotionItemsForMonstersFE8(){
+		Set<Integer> randomizedClassIDs = new HashSet<>(playerClasses.allowedClassIDs);
 
-		int[] monsterPromotionItems = {FE8Data.Item.KNIGHT_CREST.getID(),FE8Data.Item.HERO_CREST.getID(), FE8Data.Item.ORION_BOLT.getID(),FE8Data.Item.ELYSIAN_WHIP.getID(), FE8Data.Item.GUIDING_RING.getID()};
+		Map<Integer, List<String>> monsterPromotionItems = Map.of(
+				FE8Data.Item.HERO_CREST.getID(), List.of("82:revenant", "84:bonewalker", "91:doog"),
+				FE8Data.Item.KNIGHT_CREST.getID(), List.of("93:tarvos", "88:bael"),
+				FE8Data.Item.ORION_BOLT.getID(), List.of("85:bow bonewalkers"),
+				FE8Data.Item.ELYSIAN_WHIP.getID(), List.of("99:gargoyles"),
+				FE8Data.Item.GUIDING_RING.getID(), List.of("95:mogalls")
+		);
 
-		for(int promotionItem : monsterPromotionItems){
-			String newPromoItemText;
-			String itemName;
+		Map<Integer, String> baseDescriptions = Map.of(
+				FE8Data.Item.HERO_CREST.getID(), "For mercenary, myrmidon,[0x1]fighter",
+				FE8Data.Item.KNIGHT_CREST.getID(), "For knights, cavaliers",
+				FE8Data.Item.ORION_BOLT.getID(), "For archers",
+				FE8Data.Item.ELYSIAN_WHIP.getID(), "For pegasus knights,[0x1]wyvern riders",
+				FE8Data.Item.GUIDING_RING.getID(), "For magic wielders,[0x1]troubadours"
+		);
 
-			switch (promotionItem){
-				case 0x64 -> {
-					itemName = "Hero Crest:";
-					newPromoItemText = "For mercenary, myrmidon,[0x1]" +
-						"fighter, revenant, bonewalker,[0x1]" +
-						"and doog Lv. 10 and up.";
+		Map<Integer, String> itemNames = Map.of(
+				FE8Data.Item.HERO_CREST.getID(), "Hero Crest",
+				FE8Data.Item.KNIGHT_CREST.getID(), "Knight's Crest",
+				FE8Data.Item.ORION_BOLT.getID(), "Orion's Bolt",
+				FE8Data.Item.ELYSIAN_WHIP.getID(), "Elysian Whip",
+				FE8Data.Item.GUIDING_RING.getID(), "Guiding Ring"
+		);
 
-					GBAFEItemData item = itemData.itemWithID(promotionItem);
-					int descriptionIndex = item.getDescriptionIndex();
+		for (int itemID : monsterPromotionItems.keySet()) {
+			String baseDescription = baseDescriptions.get(itemID);
 
-					DebugPrinter.log(DebugPrinter.Key.MISC, itemName + " description updated to: " + newPromoItemText);
-					textData.setStringAtIndex(descriptionIndex,newPromoItemText + "[X]");
+			// Preserve the original line breaks and collect randomized monsters.
+			String[] baseLines = baseDescription.split("\\[0x1\\]", -1);
+			List<String> randomizedMonsters = new ArrayList<>();
+
+			for (String monster : monsterPromotionItems.get(itemID)) {
+				String[] parts = monster.split(":", 2);
+				int classID = Integer.parseInt(parts[0]);
+
+				if (randomizedClassIDs.contains(classID)) {
+					randomizedMonsters.add(parts[1]);
 				}
-				case 0x65 -> {
-					itemName = "Knight's Crest:";
-					newPromoItemText = "For knights, cavaliers,[0x1]" +
-						"tarvos and bael[0x1]" +
-						"Lv. 10 and up.";
+			}
 
-					GBAFEItemData item = itemData.itemWithID(promotionItem);
-					int descriptionIndex = item.getDescriptionIndex();
+			StringBuilder combined = new StringBuilder();
+			appendMonsterNames(combined, baseLines, randomizedMonsters,itemID);
+			combined.append("[0x1]Lv. 10 and up.");
 
-					DebugPrinter.log(DebugPrinter.Key.MISC,itemName + " description updated to: " + newPromoItemText);
-					textData.setStringAtIndex(descriptionIndex,newPromoItemText + "[X]");
+			GBAFEItemData item = itemData.itemWithID(itemID);
+			int descriptionIndex = item.getDescriptionIndex();
+
+			String newText = combined.toString();
+
+			DebugPrinter.log(DebugPrinter.Key.MISC, itemNames.get(itemID) + " description updated to: " + newText);
+			textData.setStringAtIndex(descriptionIndex, newText + "[X]");
+		}
+	}
+	private void appendMonsterNames(StringBuilder combined,String[] baseLines, List<String> randomizedMonsters, int itemID){
+		for (int i = 0; i < baseLines.length; i++) {
+			if (i > 0) {combined.append("[0x1]");}
+			combined.append(baseLines[i]);
+
+			if (i == baseLines.length - 1 && !randomizedMonsters.isEmpty()) {
+				if (itemID == FE8Data.Item.KNIGHT_CREST.getID()) {
+					combined.append(", ");
+				} else if (itemID == FE8Data.Item.ORION_BOLT.getID()) {
+					combined.append(" ");
+				} else if (baseLines.length > 1) {
+					combined.append(", ");
 				}
-				case 0x66 -> {
-					itemName = "Orion's Bolt:";
-					newPromoItemText =
-						"For archers[0x1]"
-							+ "and bow bonewalkers[0x1]"
-							+ "Lv. 10 and up.";
 
-					GBAFEItemData item = itemData.itemWithID(promotionItem);
-					int descriptionIndex = item.getDescriptionIndex();
-
-					DebugPrinter.log(DebugPrinter.Key.MISC,itemName + " description updated to: " + newPromoItemText);
-					textData.setStringAtIndex(descriptionIndex, newPromoItemText + "[X]");
-				}
-				case 0x67 -> {
-					itemName = "Elysian Whip:";
-					newPromoItemText = "For pegasus knights,[0x1]" +
-						"wyvern riders, and gargoyles [0x1]" +
-						"Lv. 10 and up.";
-
-					GBAFEItemData item = itemData.itemWithID(promotionItem);
-					int descriptionIndex = item.getDescriptionIndex();
-
-					DebugPrinter.log(DebugPrinter.Key.MISC,itemName + " description updated to: " + newPromoItemText);
-					textData.setStringAtIndex(descriptionIndex, newPromoItemText + "[X]");
-				}
-				case 0x68 -> {
-					itemName = "Guiding Ring:";
-					newPromoItemText = "For magic wielders,[0x1]" +
-						"troubadours, and mogalls[0x1]" +
-						"Lv. 10 and up.";
-
-					GBAFEItemData item = itemData.itemWithID(promotionItem);
-					int descriptionIndex = item.getDescriptionIndex();
-
-					DebugPrinter.log(DebugPrinter.Key.MISC, itemName + " description updated to: " + newPromoItemText);
-					textData.setStringAtIndex(descriptionIndex, newPromoItemText + "[X]");
-				}
-				default -> {
-					return;
+				if (randomizedMonsters.size() == 1) {
+					combined.append("and ").append(randomizedMonsters.get(0));
+				} else {
+					combined.append(String.join(", ", randomizedMonsters.subList(0, randomizedMonsters.size() - 1)));
+					combined.append(", and ").append(randomizedMonsters.get(randomizedMonsters.size() - 1));
 				}
 			}
 		}
-	}
+	}	
 }
