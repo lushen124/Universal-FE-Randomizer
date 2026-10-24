@@ -708,6 +708,7 @@ public class GBARandomizer extends Randomizer {
 				diffCompiler.addDiff(new Diff(0x78d78, fixData.length, fixData, null));
 				
 				fe8_walkingSoundFixApplied = true;
+
 			} catch (Exception e) {
 				
 			}
@@ -772,6 +773,7 @@ public class GBARandomizer extends Randomizer {
 						fe8_promotionManager.setFirstPromotionOptionForClass(charClass.getID(), charClass.getID());
 					}
 				}
+				updatePromotionBonusForMonstersFE8(charClass);
 			}
 		}
 		
@@ -789,7 +791,11 @@ public class GBARandomizer extends Randomizer {
 			GBAFECharacterData lucius = charData.characterWithID(FE7Data.Character.LUCIUS.ID);
 			GBAFEItemData luciusItem = itemData.getBasicWeaponForCharacter(lucius, false, false, rng);
 			// This byte lives at 0x7d0c2, which in ASM is a MOV constant into r0. Normally it's 0x3E (which is Lightning).
+			/*
+			COMMENTED OUT DUE TO BUG IF LUCIUS BECOMES A BARD
 			diffCompiler.addDiff(new Diff(0x7D0C2L, 1, new byte[] {(byte)luciusItem.getID()}, new byte[] {0x3E}));
+			*/
+
 			// In case it's useful, he also gets a Vulnerary that's set at 0x7D0D8, which is normally 0x6B for a Vulnerary.
 		}
 
@@ -1051,8 +1057,13 @@ public class GBARandomizer extends Randomizer {
 					}
 				}
 			}
+			//Will need to see if monsters are in the randomizer pool
+
+			if(gameType == GameType.FE8){
+				updatePromotionItemsForMonstersFE8();
+			}
 		}
-		
+
 		// Make sure no non-playable non-thief units have lock picks, as they will softlock the game when the AI gets a hold of them.
 		if (gameType == GameType.FE6) {
 			for (GBAFEChapterData chapter : chapterData.allChapters()) {
@@ -3059,4 +3070,170 @@ public class GBARandomizer extends Randomizer {
 		
 		return rk;
 	}
+	private void updatePromotionBonusForMonstersFE8(GBAFEClassData charClass){
+		//Could use charData.isFemale() for more diverse bonuses
+
+		//You have to use 0x__ Ids not the value IDs for some reason
+		//Each promo bonus is based on a specifc promo bonus noted in the comments
+		switch (charClass.getID()){
+			case 0x53 -> { // Fighter -> Warrior
+				charClass.setPromoHP(3);
+				charClass.setPromoSTR(1);
+				charClass.setPromoSKL(2);
+				charClass.setPromoSPD(0);
+				charClass.setPromoDEF(3);
+				charClass.setPromoRES(3);
+				//Monster already has +2 con
+			}
+			case 0x56 -> {
+				//84 merc to hero
+				charClass.setPromoHP(4);
+				charClass.setPromoSTR(1);
+				charClass.setPromoSKL(2);
+				charClass.setPromoSPD(2);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(2);
+				//Monster already has +2 con
+			}
+			case 0x5c -> {
+				//91 swords master (M)
+				charClass.setPromoHP(5);
+				charClass.setPromoSTR(2);
+				//charClass.setPromoSKL(0);
+				//charClass.setPromoSPD(0);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(1);
+				//Con +1 will need to find a way to update
+			}
+			case 0x5e -> {
+				//Cavalier (M) -> Great Knight (M)
+				charClass.setPromoHP(3);
+				charClass.setPromoSTR(2);
+				charClass.setPromoSKL(1);
+				charClass.setPromoSPD(2);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(1);
+				//Con +4 will need to find a way to update
+			}
+			case 0x7d -> {//There is an Elder Bael 2, the ID seems to be the same
+				//general (M)
+				charClass.setPromoHP(4);
+				charClass.setPromoSTR(2);
+				charClass.setPromoSKL(2);
+				charClass.setPromoSPD(3);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(3);
+				//Monster already has +2 con
+			}
+			case 0x57 -> {
+				//Sniper (M)
+				charClass.setPromoHP(3);
+				charClass.setPromoSTR(1);
+				charClass.setPromoSKL(2);
+				charClass.setPromoSPD(2);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(3);
+				//Con +1 will need to find a way to update
+			}
+			case 0x64 -> { //Deathgoyle
+				//wyvern lord
+				charClass.setPromoHP(4);
+				charClass.setPromoSTR(2);
+				charClass.setPromoSKL(2);
+				//charClass.setPromoSPD(0);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(0);
+				//Con +1 will need to find a way to update
+			}
+			case 0x60 -> {
+				//Druid
+				charClass.setPromoHP(4);
+				charClass.setPromoSTR(0);
+				charClass.setPromoSKL(0);
+				charClass.setPromoSPD(3);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(2);
+				//Con +1 which game does already
+			}
+		}
+	}
+	private void updatePromotionItemsForMonstersFE8(){
+		Set<Integer> randomizedClassIDs = new HashSet<>(playerClasses.allowedClassIDs);
+
+		Map<Integer, List<String>> monsterPromotionItems = Map.of(
+				FE8Data.Item.HERO_CREST.getID(), List.of("82:revenant", "84:bonewalker", "91:doog"),
+				FE8Data.Item.KNIGHT_CREST.getID(), List.of("93:tarvos", "88:bael"),
+				FE8Data.Item.ORION_BOLT.getID(), List.of("85:bow bonewalkers"),
+				FE8Data.Item.ELYSIAN_WHIP.getID(), List.of("99:gargoyles"),
+				FE8Data.Item.GUIDING_RING.getID(), List.of("95:mogalls")
+		);
+
+		Map<Integer, String> baseDescriptions = Map.of(
+				FE8Data.Item.HERO_CREST.getID(), "For mercenary, myrmidon,[0x1]fighter",
+				FE8Data.Item.KNIGHT_CREST.getID(), "For knights, cavaliers",
+				FE8Data.Item.ORION_BOLT.getID(), "For archers",
+				FE8Data.Item.ELYSIAN_WHIP.getID(), "For pegasus knights,[0x1]wyvern riders",
+				FE8Data.Item.GUIDING_RING.getID(), "For magic wielders,[0x1]troubadours"
+		);
+
+		Map<Integer, String> itemNames = Map.of(
+				FE8Data.Item.HERO_CREST.getID(), "Hero Crest",
+				FE8Data.Item.KNIGHT_CREST.getID(), "Knight's Crest",
+				FE8Data.Item.ORION_BOLT.getID(), "Orion's Bolt",
+				FE8Data.Item.ELYSIAN_WHIP.getID(), "Elysian Whip",
+				FE8Data.Item.GUIDING_RING.getID(), "Guiding Ring"
+		);
+
+		for (int itemID : monsterPromotionItems.keySet()) {
+			String baseDescription = baseDescriptions.get(itemID);
+
+			// Preserve the original line breaks and collect randomized monsters.
+			String[] baseLines = baseDescription.split("\\[0x1\\]", -1);
+			List<String> randomizedMonsters = new ArrayList<>();
+
+			for (String monster : monsterPromotionItems.get(itemID)) {
+				String[] parts = monster.split(":", 2);
+				int classID = Integer.parseInt(parts[0]);
+
+				if (randomizedClassIDs.contains(classID)) {
+					randomizedMonsters.add(parts[1]);
+				}
+			}
+
+			StringBuilder combined = new StringBuilder();
+			appendMonsterNames(combined, baseLines, randomizedMonsters,itemID);
+			combined.append("[0x1]Lv. 10 and up.");
+
+			GBAFEItemData item = itemData.itemWithID(itemID);
+			int descriptionIndex = item.getDescriptionIndex();
+
+			String newText = combined.toString();
+
+			DebugPrinter.log(DebugPrinter.Key.MISC, itemNames.get(itemID) + " description updated to: " + newText);
+			textData.setStringAtIndex(descriptionIndex, newText + "[X]");
+		}
+	}
+	private void appendMonsterNames(StringBuilder combined,String[] baseLines, List<String> randomizedMonsters, int itemID){
+		for (int i = 0; i < baseLines.length; i++) {
+			if (i > 0) {combined.append("[0x1]");}
+			combined.append(baseLines[i]);
+
+			if (i == baseLines.length - 1 && !randomizedMonsters.isEmpty()) {
+				if (itemID == FE8Data.Item.KNIGHT_CREST.getID()) {
+					combined.append(", ");
+				} else if (itemID == FE8Data.Item.ORION_BOLT.getID()) {
+					combined.append(" ");
+				} else if (baseLines.length > 1) {
+					combined.append(", ");
+				}
+
+				if (randomizedMonsters.size() == 1) {
+					combined.append("and ").append(randomizedMonsters.get(0));
+				} else {
+					combined.append(String.join(", ", randomizedMonsters.subList(0, randomizedMonsters.size() - 1)));
+					combined.append(", and ").append(randomizedMonsters.get(randomizedMonsters.size() - 1));
+				}
+			}
+		}
+	}	
 }
