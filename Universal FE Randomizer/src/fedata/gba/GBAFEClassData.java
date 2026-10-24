@@ -350,6 +350,36 @@ public abstract class GBAFEClassData extends AbstractGBAData implements FEPrinta
 		// This is still the delta between new and old, even in the newer games.
 		return 0;
 	}
+	public void setPromoHP(int n) {
+		data[34] = (byte) (n & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoSTR(int n) {
+		data[35] = (byte) (n & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoSKL(int n) {
+		data[36] = (byte) (n & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoSPD(int n) {
+		data[37] = (byte) (n & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoDEF(int n) {
+		data[38] = (byte) (n & 0xFF);
+		wasModified = true;
+	}
+
+	public void setPromoRES(int n) {
+		data[39] = (byte) (n & 0xFF);
+		wasModified = true;
+	}
+
 
 	public int getSwordRank() {
 		return data[44] & 0xFF;
