@@ -773,6 +773,7 @@ public class GBARandomizer extends Randomizer {
 						fe8_promotionManager.setFirstPromotionOptionForClass(charClass.getID(), charClass.getID());
 					}
 				}
+				updatePromotionBonusForMonstersFE8(charClass);
 			}
 		}
 		
@@ -3068,6 +3069,93 @@ public class GBARandomizer extends Randomizer {
 		}
 		
 		return rk;
+	}
+	private void updatePromotionBonusForMonstersFE8(GBAFEClassData charClass){
+		//Could use charData.isFemale() for more diverse bonuses
+
+		//You have to use 0x__ Ids not the value IDs for some reason
+		//Each promo bonus is based on a specifc promo bonus noted in the comments
+		switch (charClass.getID()){
+			case 0x53 -> { // Fighter -> Warrior
+				charClass.setPromoHP(3);
+				charClass.setPromoSTR(1);
+				charClass.setPromoSKL(2);
+				charClass.setPromoSPD(0);
+				charClass.setPromoDEF(3);
+				charClass.setPromoRES(3);
+				//Monster already has +2 con
+			}
+			case 0x56 -> {
+				//84 merc to hero
+				charClass.setPromoHP(4);
+				charClass.setPromoSTR(1);
+				charClass.setPromoSKL(2);
+				charClass.setPromoSPD(2);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(2);
+				//Monster already has +2 con
+			}
+			case 0x5c -> {
+				//91 swords master (M)
+				charClass.setPromoHP(5);
+				charClass.setPromoSTR(2);
+				//charClass.setPromoSKL(0);
+				//charClass.setPromoSPD(0);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(1);
+				//Con +1 will need to find a way to update
+			}
+			case 0x5e -> {
+				//Cavalier (M) -> Great Knight (M)
+				charClass.setPromoHP(3);
+				charClass.setPromoSTR(2);
+				charClass.setPromoSKL(1);
+				charClass.setPromoSPD(2);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(1);
+				//Con +4 will need to find a way to update
+			}
+			case 0x7d -> {//There is an Elder Bael 2, the ID seems to be the same
+				//general (M)
+				charClass.setPromoHP(4);
+				charClass.setPromoSTR(2);
+				charClass.setPromoSKL(2);
+				charClass.setPromoSPD(3);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(3);
+				//Monster already has +2 con
+			}
+			case 0x57 -> {
+				//Sniper (M)
+				charClass.setPromoHP(3);
+				charClass.setPromoSTR(1);
+				charClass.setPromoSKL(2);
+				charClass.setPromoSPD(2);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(3);
+				//Con +1 will need to find a way to update
+			}
+			case 0x64 -> { //Deathgoyle
+				//wyvern lord
+				charClass.setPromoHP(4);
+				charClass.setPromoSTR(2);
+				charClass.setPromoSKL(2);
+				//charClass.setPromoSPD(0);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(0);
+				//Con +1 will need to find a way to update
+			}
+			case 0x60 -> {
+				//Druid
+				charClass.setPromoHP(4);
+				charClass.setPromoSTR(0);
+				charClass.setPromoSKL(0);
+				charClass.setPromoSPD(3);
+				charClass.setPromoDEF(2);
+				charClass.setPromoRES(2);
+				//Con +1 which game does already
+			}
+		}
 	}
 	private void updatePromotionItemsForMonstersFE8(){
 		Set<Integer> randomizedClassIDs = new HashSet<>(playerClasses.allowedClassIDs);
